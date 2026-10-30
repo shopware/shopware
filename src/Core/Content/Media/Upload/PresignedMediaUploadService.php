@@ -62,6 +62,8 @@ readonly class PresignedMediaUploadService
         Context $context,
     ): PresignedUploadPrepareResult {
         $this->fileNameValidator->validateFileName($payload->fileName);
+        // The presigned PUT stores exactly this content type on the object, so it is checked before anything is created.
+        $this->extensionValidator->validateContentType($payload->extension, $payload->mimeType);
 
         ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $isPrivate] = $this->resolveMediaForPrepare($payload, $context);
 
@@ -212,6 +214,7 @@ readonly class PresignedMediaUploadService
     private function validateFinalizeRequest(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media, Context $context): void
     {
         $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $mediaId);
+        $this->extensionValidator->validateContentType($payload->extension, $payload->mimeType);
         $this->validateExpectedPath($mediaId, $payload, $media);
     }
 

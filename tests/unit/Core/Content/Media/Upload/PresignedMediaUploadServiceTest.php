@@ -498,6 +498,68 @@ class PresignedMediaUploadServiceTest extends TestCase
         $service->finalize($mediaId, $payload, Context::createDefaultContext());
     }
 
+    public function testPrepareRejectsMismatchingContentTypeBeforeCreatingMedia(): void
+    {
+        [$repo, $service] = $this->createService();
+
+        $exception = MediaException::invalidFile('The content type "text/html" does not match the file extension "jpg"');
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+
+        $this->extensionValidator->expects($this->once())
+            ->method('validateContentType')
+            ->with('jpg', 'text/html')
+            ->willThrowException($exception);
+
+        $this->presignedUrlGenerator->expects($this->never())->method('generate');
+
+        $payload = new PresignedUploadPreparePayload(
+            fileName: 'disguised',
+            extension: 'jpg',
+            mimeType: 'text/html',
+        );
+
+        $this->expectExceptionObject($exception);
+
+        try {
+            $service->prepare($payload, Context::createDefaultContext());
+        } finally {
+            static::assertSame([], $repo->creates);
+        }
+    }
+
+    public function testFinalizeRejectsMismatchingContentTypeWithoutDeletingSubmittedPath(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-000000000005';
+
+        [, $service] = $this->createService([new MediaCollection([$this->buildMedia($mediaId)])]);
+
+        $exception = MediaException::invalidFile('The content type "text/html" does not match the file extension "jpg"');
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+
+        $this->extensionValidator->expects($this->once())
+            ->method('validateContentType')
+            ->with('jpg', 'text/html')
+            ->willThrowException($exception);
+
+        $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
+
+        $this->expectExceptionObject($exception);
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'disguised',
+            extension: 'jpg',
+            mimeType: 'text/html',
+            path: 'media/ab/cd/victims-legit-file.jpg',
+        );
+
+        $service->finalize($mediaId, $payload, Context::createDefaultContext());
+    }
+
     public function testFinalizeWithoutDimensionsStoresOnlyHash(): void
     {
         $mediaId = '0189b0a1-0000-0000-0000-000000000005';

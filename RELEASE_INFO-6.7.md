@@ -8,6 +8,31 @@ Twig templates can no longer call methods that change the request context or the
 Reading them stays possible, for example `context.languageId`.
 Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
 
+### Content Security Policy for Storefront documents
+
+Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
+
+The Storefront document policy can be overridden through the container parameter `shopware.security.private_media_csp` in `config/services.yaml`.
+
+### HTML files are no longer accepted as public media
+
+`html` was removed from the default `shopware.filesystem.allowed_extensions`. Public media is served from the shop's own domain, so an uploaded HTML file ran its scripts in the same origin as the Administration and could read the session of an administrator who opened it.
+
+HTML files are still accepted as private media, for example for accessible HTML documents. Uploads of HTML files to public media now fail with `CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED`. HTML files that were uploaded to public media before this change are still served. Review them and delete the ones you do not need.
+
+S3 and other object storages serve a file with the content type stored at upload time, not with the type of its extension. Uploads whose content is HTML, XHTML, SVG or another XML type are therefore rejected with `CONTENT__MEDIA_INVALID_FILE` unless the file extension belongs to that type. This applies to the regular and the presigned upload flow. For example, an HTML document uploaded as `.jpg` or an SVG uploaded as `.png` is no longer accepted.
+
+If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
+
+### Media visibility is immutable
+
+The `private` field of media can now only be set when creating the media entity.
+Updates that change its value are rejected because toggling the flag does not move the actual file or its thumbnails between the public and private filesystems.
+Set the intended visibility during creation.
+Updates that resend the existing value remain supported.
+
+The DAL `Immutable` flag now correctly rejects changes to falsy values such as `false`, `0`, and an empty string.
+
 ### Media paths and file names are validated on API writes
 
 Admin API and Sync API writes can no longer set `media.path` or `media_thumbnail.path` to a relative path or reset it to `null`.

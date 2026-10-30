@@ -126,6 +126,10 @@ Only add the explicit three-form `zero | singular | plural` variant when the zer
 
 **MANDATORY**: All code must be linted according to the following table.
 
+Run PHPStan with `composer phpstan` without file or directory arguments.
+The full project analysis uses its cache;
+restricting analysis to individual files can produce misleading results.
+
 | File Type              | Check Command                 | Fix Command                                  |
 |------------------------|-------------------------------|----------------------------------------------|
 | **PHP** (.php)         | `composer cs`                 | `composer cs-fix`                            |

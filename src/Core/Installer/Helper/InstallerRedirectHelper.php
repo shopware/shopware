@@ -53,7 +53,8 @@ class InstallerRedirectHelper
             return;
         }
 
-        \parse_str($queryString, $params);
+        // Preserve parse_str's truncation at raw null bytes before PHP 8.6.
+        \parse_str(explode("\0", $queryString, 2)[0], $params);
 
         foreach ($params as $key => $value) {
             if (!\array_key_exists($key, $this->allowedParameterRegexp)) {

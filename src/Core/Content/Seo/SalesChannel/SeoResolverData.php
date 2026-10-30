@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class SeoResolverData
 {
     /**
-     * @var array<string, array<string, array<string, Entity>>>
+     * @var array<string, array<string, array<int, Entity>>>
      */
     private array $entityMap = [];
 
@@ -26,15 +26,15 @@ class SeoResolverData
 
         /**
          * The same entity can be added multiple times, e.g. if the same product is assigned in multiple cross-selling groups
-         * Using `spl_object_hash` to ensure that every entity can be added multiple times and hence allowing to enrich seoUrls for all these duplicated entities even if they're in different extensions
+         * Using `spl_object_id` to ensure that every entity can be added multiple times and hence allowing to enrich seoUrls for all these duplicated entities even if they're in different extensions
          */
-        $hash = spl_object_hash($entity);
+        $objectId = spl_object_id($entity);
 
-        if (isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash])) {
+        if (isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()][$objectId])) {
             return;
         }
 
-        $this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash] = $entity;
+        $this->entityMap[$entityName][$entity->getUniqueIdentifier()][$objectId] = $entity;
     }
 
     /**

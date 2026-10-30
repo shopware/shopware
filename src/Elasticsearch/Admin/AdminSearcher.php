@@ -283,10 +283,10 @@ class AdminSearcher
         // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
         $term = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $term) ?? $term;
 
-        $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
-        $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
+        $term = preg_replace('/\s(or)\s/iu', '|', $term) ?? $term;
+        $term = preg_replace('/\s(and)\s/iu', ' + ', $term) ?? $term;
 
-        return (string) mb_eregi_replace('\s(not)\s', ' -', $term);
+        return preg_replace('/\s(not)\s/iu', ' -', $term) ?? $term;
     }
 
     /**

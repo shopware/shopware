@@ -476,7 +476,6 @@ Symfony's own `http_cache` service is no longer available, even if `framework.ht
 HTTP caching is handled by Shopware's own cache layer.
 Remove references to the `http_cache` service from your project.
 
-  ## Rule container `__wakeup()` hooks are no longer called
 ## Customer group price fields are required
 
 `customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working, and an explicit `null` is rejected. A create that omits `priceBasis` gets `gross` regardless of `displayGross`, it is no longer derived from the display mode: send `'net'` explicitly for net-display groups whose net prices should stay fixed. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`.

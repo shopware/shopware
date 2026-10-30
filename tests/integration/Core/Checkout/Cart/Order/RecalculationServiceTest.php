@@ -1474,6 +1474,15 @@ class RecalculationServiceTest extends TestCase
         $orderAddressId = $order->getAddresses()->first()?->getId();
         static::assertIsString($orderAddressId);
 
+        static::getContainer()->get('order_address.repository')->update([
+            [
+                'id' => $orderAddressId,
+                'company' => 'ACME Corp',
+                'department' => 'Purchasing',
+                'additionalAddressLine1' => 'Building 2',
+            ],
+        ], $this->context->createWithVersionId($versionId));
+
         $firstName = 'Replace first name';
         $lastName = 'Replace last name';
         $street = 'Replace street';
@@ -1521,6 +1530,9 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($street, $orderAddress->getStreet());
         static::assertSame($city, $orderAddress->getCity());
         static::assertSame($zipcode, $orderAddress->getZipcode());
+        static::assertNull($orderAddress->getCompany());
+        static::assertNull($orderAddress->getDepartment());
+        static::assertNull($orderAddress->getAdditionalAddressLine1());
     }
 
     public function testRecalculationControllerWithEmptyLineItems(): void

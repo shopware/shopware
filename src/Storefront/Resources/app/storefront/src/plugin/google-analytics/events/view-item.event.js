@@ -53,6 +53,7 @@ export default class ViewItemEvent extends AnalyticsEvent
                 'item_id': productId,
                 'item_name': productName,
                 'item_brand': productData.brand,
+                'item_variant': productData.variant,
                 'price': productData.value,
                 ...ProductPageHelper.getCategories(),
             }],

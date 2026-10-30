@@ -22,8 +22,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinitionTest
  */
 #[Package('inventory')]
 class ProductDocumentDefinition extends EntityDefinition

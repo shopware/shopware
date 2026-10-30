@@ -70,8 +70,7 @@ class ImportExportServiceTest extends TestCase
 
         $logRepo = new StaticEntityRepository([], new ImportExportLogDefinition());
 
-        /** @var StaticEntityRepository<UserCollection> */
-        $userRepo = new StaticEntityRepository([], new UserDefinition());
+        $userRepo = StaticEntityRepository::of(UserCollection::class, [], new UserDefinition());
 
         $profileRepo = new StaticEntityRepository([new EntityCollection([$profile])], new ImportExportProfileDefinition());
 

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -36,7 +37,7 @@ class MailLogDataTest extends TestCase
         ];
         $templateData = ['eventName' => $eventName, 'resetUrl' => 'BODY-SECRET'];
         $context = Context::createDefaultContext();
-        $mail = (new Email())->subject('Subject')->text('BODY-SECRET')->html('BODY-SECRET');
+        $mail = (new Mail())->subject('Subject')->text('BODY-SECRET')->html('BODY-SECRET');
         $events = [
             new MailBeforeValidateEvent($data, $context, $templateData),
             new MailBeforeSentEvent($data, $mail, $context, $eventName),
@@ -64,13 +65,15 @@ class MailLogDataTest extends TestCase
     public function testSensitiveMarkerSurvivesQueueSerializationAndSigning(): void
     {
         $mail = (new Mail())->subject('Recovery')->text('BODY-SECRET');
-        $mail->getHeaders()->addTextHeader(MailLogData::SENSITIVE_HEADER, '1');
+        $mail->setSensitive(true);
         $restored = Serialization::assertRoundTrip($mail);
 
         static::assertInstanceOf(Email::class, $restored);
         static::assertTrue(MailLogData::isSensitiveMessage($restored));
         static::assertTrue(MailLogData::isSensitiveMessage(new Message($restored->getHeaders(), $restored->getBody())));
-        static::assertFalse(MailLogData::isSensitiveMessage(new Email()));
+        static::assertFalse(MailLogData::isSensitiveMessage(new Mail()));
+        static::assertTrue(MailLogData::isSensitiveMessage(new Email()));
+        static::assertTrue(MailLogData::isSensitiveMessage(new Message()));
         static::assertTrue(MailLogData::isSensitiveMessage(new RawMessage('BODY-SECRET')));
     }
 
@@ -96,6 +99,16 @@ class MailLogDataTest extends TestCase
             'attachments' => ['BODY-SECRET'],
             'unknownExtensionData' => 'BODY-SECRET',
         ], new \RuntimeException('BODY-SECRET', 42)));
+    }
+
+    public function testShopwareExceptionUsesDomainErrorCodeWithoutLoggingItsMessage(): void
+    {
+        $exception = MailException::mailTransportFailedException(new \RuntimeException('BODY-SECRET'));
+
+        static::assertSame([
+            'exceptionClass' => MailException::class,
+            'exceptionCode' => MailException::MAIL_TRANSPORT_FAILED,
+        ], MailLogData::create([], $exception));
     }
 
     public function testExtractsHeadersWithoutReadingBodiesOrAttachments(): void

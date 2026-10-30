@@ -218,7 +218,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        if (!$this->updateMailTemplate) {
+        if (!$this->updateMailTemplate || MailLogData::isSensitive([], $templateData)) {
             return;
         }
 

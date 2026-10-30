@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -93,6 +94,10 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Removed with mail template sample updates.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('mailTemplateTypeProvider')]
     public function testUpdateMailTemplateType(MailTemplateTypeUpdateProvider $provider): void
     {
@@ -104,8 +109,10 @@ class SendMailActionTest extends TestCase
 
         $mailTemplateRepository = $this->createMock(EntityRepository::class);
         $mailTemplateTypeRepository = $this->createMock(EntityRepository::class);
+        $mailService = $this->createMock(AbstractMailService::class);
 
         $action = $this->createAction(
+            mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
             mailTemplateTypeRepository: $mailTemplateTypeRepository,
             connection: $connection,
@@ -160,6 +167,17 @@ class SendMailActionTest extends TestCase
         $flow->setData(CustomerAware::CUSTOMER, $customer);
         $flow->setConfig($config);
 
+        if ($provider->sensitive) {
+            $flow->setData('sensitive', true);
+            $flow->setData(FlowMailVariables::RESET_URL, 'BODY-SECRET');
+        }
+
+        $mailService->expects($this->once())->method('send')->with(
+            static::anything(),
+            $context,
+            ['eventName' => '', ...$flow->data()],
+        );
+
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects($this->once())
             ->method('getEntities')
@@ -169,7 +187,7 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam) {
+        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam && !$provider->sensitive) {
             $mailTemplateTypeRepository->expects($this->once())->method('update')->with([
                 [
                     'id' => $provider->mailTemplateTypeId,
@@ -311,6 +329,12 @@ class SendMailActionTest extends TestCase
         yield 'mail template type id exists' => [new MailTemplateTypeUpdateProvider(
             updateMailTemplateTypeParam: true,
             mailTemplateTypeId: Uuid::randomHex(),
+        )];
+
+        yield 'sensitive mail is sent without persisting its sample data' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: Uuid::randomHex(),
+            sensitive: true,
         )];
     }
 
@@ -534,6 +558,7 @@ class MailTemplateTypeUpdateProvider
     public function __construct(
         public readonly bool $updateMailTemplateTypeParam,
         public readonly ?string $mailTemplateTypeId,
+        public readonly bool $sensitive = false,
     ) {
     }
 }

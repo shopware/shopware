@@ -328,8 +328,8 @@ class MailService extends AbstractMailService
             $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId())
         );
 
-        if (MailLogData::isSensitive($data, $templateData)) {
-            $mail->getHeaders()->addTextHeader(MailLogData::SENSITIVE_HEADER, '1');
+        if ($mail instanceof Mail && MailLogData::isSensitive($data, $templateData)) {
+            $mail->setSensitive(true);
         }
 
         if ($testMode) {

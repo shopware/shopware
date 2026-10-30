@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
-use Shopware\Core\Content\Mail\Service\MailLogData;
+use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -131,7 +131,7 @@ class MailSenderTest extends TestCase
     }
 
     #[DataProvider('disabledMailSensitivity')]
-    public function testSendMailWithDisabledDelivery(bool $sensitive): void
+    public function testSendMailWithDisabledDelivery(bool $sensitive, bool $shopwareMail = true): void
     {
         $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
@@ -141,9 +141,9 @@ class MailSenderTest extends TestCase
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
         $logger = $this->createMock(LoggerInterface::class);
         $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, false);
-        $mail = (new Email())->subject('Recovery')->to('customer@example.com')->text('BODY-SECRET')->html('BODY-SECRET');
-        if ($sensitive) {
-            $mail->getHeaders()->addTextHeader(MailLogData::SENSITIVE_HEADER, '1');
+        $mail = ($shopwareMail ? new Mail() : new Email())->subject('Recovery')->to('customer@example.com')->text('BODY-SECRET')->html('BODY-SECRET');
+        if ($mail instanceof Mail) {
+            $mail->setSensitive($sensitive);
         }
         $expected = ['subject' => 'Recovery', 'receiver' => 'customer@example.com'];
         if (!$sensitive) {
@@ -165,11 +165,12 @@ class MailSenderTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{bool}>
+     * @return \Generator<string, array{0: bool, 1?: bool}>
      */
     public static function disabledMailSensitivity(): \Generator
     {
         yield 'sensitive mail omits content' => [true];
+        yield 'non-Shopware mail omits content' => [true, false];
         yield 'ordinary mail keeps content' => [false];
     }
 

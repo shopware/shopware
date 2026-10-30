@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\Mime\Header\MailboxListHeader;
 use Symfony\Component\Mime\Message;
 use Symfony\Component\Mime\RawMessage;
@@ -13,8 +14,6 @@ use Symfony\Component\Mime\RawMessage;
 #[Package('after-sales')]
 final class MailLogData
 {
-    public const SENSITIVE_HEADER = 'X-Shopware-Sensitive';
-
     /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
@@ -27,8 +26,7 @@ final class MailLogData
 
     public static function isSensitiveMessage(RawMessage $message): bool
     {
-        // Raw messages have no structured headers to classify safely.
-        return !$message instanceof Message || $message->getHeaders()->getHeaderBody(self::SENSITIVE_HEADER) === '1';
+        return !$message instanceof Mail || $message->isSensitive();
     }
 
     /**
@@ -46,7 +44,7 @@ final class MailLogData
 
         if ($exception !== null) {
             $metadata['exceptionClass'] = $exception::class;
-            $metadata['exceptionCode'] = $exception->getCode();
+            $metadata['exceptionCode'] = $exception instanceof ShopwareException ? $exception->getErrorCode() : $exception->getCode();
         }
 
         return $metadata;

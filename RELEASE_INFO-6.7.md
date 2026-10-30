@@ -4,15 +4,19 @@
 
 ### Sensitive mail logs contain metadata only
 
-Password recovery mail logs contain delivery metadata instead of bodies, template data or complete messages.
+Password recovery and customer double-opt-in mail logs contain delivery metadata instead of bodies, template data or complete messages.
 Sensitive-mail error logs contain exception classes and codes instead of messages and traces.
+Shopware exceptions retain their domain error codes.
+Sensitive events no longer update stored mail-template sample data.
 Other mail types retain content logging and Administration body previews.
 Mail events implementing `MailAware` can use `#[Shopware\Core\Framework\Event\SensitiveMail]` to opt into this policy.
 Subclasses inherit the policy, and the sensitivity flag is preserved in stored and buffered flows.
-Direct callers can use `sensitive: true` in mail data or template data, or the `X-Shopware-Sensitive: 1` header on structured messages.
-Unstructured raw messages without readable headers are logged as metadata only.
-Existing log entries are not modified.
-Previously queued flows and emails retain their original classification.
+Direct callers can use `sensitive: true` in mail data or template data, or call `Mail::setSensitive(true)`.
+The classification is stored privately on the Shopware mail object and survives queue serialization.
+Messages that are not Shopware `Mail` objects, including signed messages, use metadata-only logging.
+Existing log entries and stored sample data are not modified.
+Previously queued flows retain their original classification.
+Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
 ### Missing plugin conditions in stored carts
 

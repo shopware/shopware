@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
+use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -46,7 +47,7 @@ class MailBeforeSentEventTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $customerId = Uuid::randomHex();
-        $email = (new Email())->subject('test subject')
+        $email = (new Mail())->subject('test subject')
             ->html('content html')
             ->text('content plain')
             ->to('test@shopware.com')

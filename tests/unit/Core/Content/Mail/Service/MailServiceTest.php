@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
-use Shopware\Core\Content\Mail\Service\MailLogData;
+use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -122,7 +122,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('me@shopware.com')
@@ -176,7 +176,7 @@ class MailServiceTest extends TestCase
             'templateId' => 'template-id',
         ];
 
-        $email = (new Email())->subject('Your order 10001')
+        $email = (new Mail())->subject('Your order 10001')
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('me@shopware.com')
@@ -244,7 +244,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to($data['senderEmail'])
@@ -349,7 +349,7 @@ class MailServiceTest extends TestCase
             static::isInstanceOf(MailSentEvent::class)
         );
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('test@shopware.com')
@@ -394,7 +394,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('me@shopware.com')
@@ -449,7 +449,7 @@ class MailServiceTest extends TestCase
     }
 
     #[DataProvider('mailSensitivityProvider')]
-    public function testMailInTestModeHasNoEmptyHeaders(string $eventName, bool $explicitlySensitive, bool $expectedSensitive): void
+    public function testMailInTestModeHasNoEmptyHeaders(string $eventName, bool $explicitlySensitive, bool $expectedSensitive, bool $factorySensitive = false): void
     {
         $salesChannelId = Uuid::randomHex();
 
@@ -484,7 +484,8 @@ class MailServiceTest extends TestCase
             'eventName' => $eventName,
         ];
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
+            ->setSensitive($factorySensitive)
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('me@shopware.com')
@@ -509,12 +510,13 @@ class MailServiceTest extends TestCase
             languageLocaleCodeProvider: $languageLocaleCodeProvider
         )->send($data, Context::createDefaultContext(), $templateData);
 
-        static::assertInstanceOf(Email::class, $email);
+        static::assertInstanceOf(Mail::class, $email);
+        static::assertSame($expectedSensitive, $email->isSensitive());
         $headers = $email->getHeaders();
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers->get('X-Shopware-Language-Id')?->getBody());
         static::assertSame($salesChannelId, $headers->get('X-Shopware-Sales-Channel-Id')?->getBody());
         static::assertSame($eventName, $headers->get('X-Shopware-Event-Name')?->getBody());
-        static::assertSame($expectedSensitive, $headers->has(MailLogData::SENSITIVE_HEADER));
+        static::assertFalse($headers->has('X-Shopware-Sensitive'));
 
         // check that no header is empty (e.g., Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
@@ -524,14 +526,15 @@ class MailServiceTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{string, bool, bool}>
+     * @return \Generator<string, array{0: string, 1: bool, 2: bool, 3?: bool}>
      */
     public static function mailSensitivityProvider(): \Generator
     {
-        yield 'ordinary mail has no sensitive header' => ['checkout.order.placed', false, false];
+        yield 'ordinary mail is not marked sensitive' => ['checkout.order.placed', false, false];
         yield 'admin recovery forwards sensitivity' => ['user.recovery.request', true, true];
         yield 'customer recovery forwards sensitivity' => ['customer.recovery.request', true, true];
         yield 'other mail can opt in' => ['checkout.order.placed', true, true];
+        yield 'factory sensitivity is preserved' => ['checkout.order.placed', false, true, true];
     }
 
     public function testSendInjectsSalesChannelIntoTranslatorOnlyWhileRendering(): void
@@ -698,7 +701,7 @@ class MailServiceTest extends TestCase
 
     private function createEmail(): Email
     {
-        return (new Email())->subject('Test email')
+        return (new Mail())->subject('Test email')
             ->html('Content html')
             ->text('Content plain')
             ->to('me@shopware.com')

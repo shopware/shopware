@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Mail\Service\MailLogData;
+use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\NativeClock;
@@ -92,7 +92,7 @@ class FailedMessageSubscriberTest extends TestCase
                 return true;
             }),
         );
-        $mail = (new Email())->from('shop@example.com')->to('customer@example.com')->subject('Order')->text('Ordinary body');
+        $mail = (new Mail())->from('shop@example.com')->to('customer@example.com')->subject('Order')->text('Ordinary body');
 
         (new FailedMessageSubscriber($connection, new NativeClock()))->logEvent(
             new FailedMessageEvent($mail, new \RuntimeException('SMTP error')),
@@ -107,10 +107,12 @@ class FailedMessageSubscriberTest extends TestCase
         yield 'raw message logs no content' => [new RawMessage('Test Message'), []];
 
         $email = (new Email())->subject('Recovery')->to('customer@example.com')->text('Test Message')->html('Test Message');
-        $email->getHeaders()->addTextHeader(MailLogData::SENSITIVE_HEADER, '1');
         $metadata = ['subject' => 'Recovery', 'recipients' => ['customer@example.com' => '']];
 
-        yield 'email logs metadata only' => [$email, $metadata];
-        yield 'signed MIME message retains header metadata' => [new Message($email->getHeaders(), $email->getBody()), $metadata];
+        yield 'non-Shopware email logs metadata only' => [$email, $metadata];
+        yield 'signed MIME message logs metadata only' => [new Message($email->getHeaders(), $email->getBody()), $metadata];
+
+        $mail = (new Mail())->subject('Recovery')->to('customer@example.com')->text('Test Message')->setSensitive(true);
+        yield 'sensitive Shopware mail logs metadata only' => [$mail, $metadata];
     }
 }

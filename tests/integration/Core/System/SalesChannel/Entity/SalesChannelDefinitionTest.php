@@ -141,7 +141,6 @@ class SalesChannelDefinitionTest extends TestCase
 
         static::assertCount(1, $products);
 
-        /** @var SalesChannelProductEntity $product */
         $product = $products->first();
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
 

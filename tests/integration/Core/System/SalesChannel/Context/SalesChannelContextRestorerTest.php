@@ -358,7 +358,6 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        /** @var CustomerEntity|null $customer */
         $customer = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($customer);

@@ -56,8 +56,8 @@ trait CustomKernelTestBehavior
             throw new \RuntimeException('Unable to run tests against kernel without test.service_container');
         }
 
-        /** @var ContainerInterface $testContainer */
         $testContainer = $container->get('test.service_container');
+        static::assertInstanceOf(ContainerInterface::class, $testContainer);
 
         return $testContainer;
     }

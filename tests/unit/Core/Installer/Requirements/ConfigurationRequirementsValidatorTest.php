@@ -45,8 +45,8 @@ class ConfigurationRequirementsValidatorTest extends TestCase
 
         static::assertCount(\count($expectedChecks), $checks);
         foreach ($expectedChecks as $index => $expected) {
-            /** @var SystemCheck $check */
             $check = $checks->get($index);
+            static::assertInstanceOf(SystemCheck::class, $check);
             static::assertSame($expected->getStatus(), $check->getStatus());
             static::assertSame($expected->getName(), $check->getName());
             static::assertSame($expected->getRequiredValue(), $check->getRequiredValue());

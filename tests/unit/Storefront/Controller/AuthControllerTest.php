@@ -257,8 +257,8 @@ class AuthControllerTest extends TestCase
 
         static::assertSame('frontend.account.recover.page', $controller->recorder()->forwardToRoute);
 
-        /** @var ConstraintViolationException $formViolations */
         $formViolations = $controller->recorder()->forwardToRouteAttributes['formViolations'];
+        static::assertInstanceOf(ConstraintViolationException::class, $formViolations);
 
         static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
         static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());

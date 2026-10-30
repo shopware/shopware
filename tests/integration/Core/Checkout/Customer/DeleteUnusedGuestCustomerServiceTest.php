@@ -101,8 +101,8 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertCount(1, $result);
 
-        /** @var CustomerEntity $entity */
         $entity = $result->first();
+        static::assertInstanceOf(CustomerEntity::class, $entity);
 
         // expect the non-guest customer to still exist
         static::assertSame('10000', $entity->getCustomerNumber());
@@ -140,8 +140,8 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertCount(1, $result);
 
-        /** @var CustomerEntity $entity */
         $entity = $result->first();
+        static::assertInstanceOf(CustomerEntity::class, $entity);
 
         // expect the non expired customer to still exist
         static::assertSame('10000', $entity->getCustomerNumber());
@@ -180,8 +180,8 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertCount(1, $result);
 
-        /** @var CustomerEntity $entity */
         $entity = $result->first();
+        static::assertInstanceOf(CustomerEntity::class, $entity);
 
         // expect the customer with an order to still exist
         static::assertSame('10000', $entity->getCustomerNumber());
@@ -212,8 +212,8 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertCount(1, $result);
 
-        /** @var CustomerEntity $entity */
         $entity = $result->first();
+        static::assertInstanceOf(CustomerEntity::class, $entity);
 
         // expect the customer to still exist
         static::assertSame('10000', $entity->getCustomerNumber());
@@ -244,8 +244,8 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertCount(1, $result);
 
-        /** @var CustomerEntity $entity */
         $entity = $result->first();
+        static::assertInstanceOf(CustomerEntity::class, $entity);
 
         // expect the customer to still exist
         static::assertSame('10000', $entity->getCustomerNumber());

@@ -72,8 +72,8 @@ class PromotionCollectorTest extends TestCase
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
-        /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
         $promotionFirst = $promotions->first();
         $promotionLast = $promotions->last();
 
@@ -216,7 +216,6 @@ class PromotionCollectorTest extends TestCase
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
-        /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
         static::assertInstanceOf(LineItemCollection::class, $promotions);
         static::assertCount(1, $promotions, 'The promotion must only be applied once');
@@ -271,7 +270,6 @@ class PromotionCollectorTest extends TestCase
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
-        /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
 
         static::assertInstanceOf(LineItemCollection::class, $promotions);
@@ -316,8 +314,8 @@ class PromotionCollectorTest extends TestCase
 
         $promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
-        /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
         $promotionFirst = $promotions->first();
         $promotionLast = $promotions->last();
 
@@ -354,8 +352,8 @@ class PromotionCollectorTest extends TestCase
 
         $promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
-        /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
         $promotionFirst = $promotions->first();
         $promotionLast = $promotions->last();
 

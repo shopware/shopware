@@ -9,7 +9,8 @@
  * and the nightly `cleanupNeedsTriage` job stays as the safety net.
  *
  * Removing the last domain label adds it back. That run waits a minute first, so swapping
- * one domain label for another does not add and remove the label in quick succession.
+ * one domain label for another does not add and remove the label in quick succession. For
+ * the same reason a run for an added label only ever removes `needs-triage`.
  *
  * Drafts, closed items and `[Test Plan]` issues never receive the label. Removal is not
  * gated the same way: a domain label makes `needs-triage` wrong wherever it sits.
@@ -25,7 +26,7 @@ export type NeedsTriageVerdict =
 
 export type NeedsTriageInput = {
     /** The label of a `labeled` or `unlabeled` event, absent for every other action. */
-    changedLabel?: string;
+    changedLabel?: { name: string; removed: boolean };
     labels: string[];
     isDraft: boolean;
     isClosed: boolean;
@@ -37,8 +38,8 @@ export function isDomainLabel(name: string): boolean {
 }
 
 export function evaluateNeedsTriage({ changedLabel, labels, isDraft, isClosed, title }: NeedsTriageInput): NeedsTriageVerdict {
-    if (changedLabel !== undefined && !isDomainLabel(changedLabel)) {
-        return { action: 'skip', reason: `label ${changedLabel} is no domain label` };
+    if (changedLabel !== undefined && !isDomainLabel(changedLabel.name)) {
+        return { action: 'skip', reason: `label ${changedLabel.name} is no domain label` };
     }
 
     const hasDomainLabel = labels.some(isDomainLabel);
@@ -46,6 +47,11 @@ export function evaluateNeedsTriage({ changedLabel, labels, isDraft, isClosed, t
 
     if (hasDomainLabel) {
         return { action: hasNeedsTriage ? 'remove' : 'keep' };
+    }
+
+    // The added domain label is gone again; the run for its removal decides after its wait.
+    if (changedLabel?.removed === false) {
+        return { action: 'keep' };
     }
 
     if (isDraft) {
@@ -117,8 +123,9 @@ export async function manageNeedsTriage({ github, core, context }: Toolkit): Pro
 
     // The payload carries labels too, but the API answer reflects what the labeler did meanwhile.
     const { data } = await github.rest.issues.listLabelsOnIssue(options);
+    const { action, label } = context.payload;
     const verdict = evaluateNeedsTriage({
-        changedLabel: context.payload.action === 'labeled' || context.payload.action === 'unlabeled' ? context.payload.label?.name : undefined,
+        changedLabel: (action === 'labeled' || action === 'unlabeled') && label ? { name: label.name, removed: action === 'unlabeled' } : undefined,
         labels: data.map((label) => label.name),
         isDraft: item.draft ?? false,
         isClosed: item.state === 'closed',

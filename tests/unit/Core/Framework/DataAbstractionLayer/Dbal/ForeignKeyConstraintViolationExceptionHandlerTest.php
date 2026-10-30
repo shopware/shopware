@@ -39,7 +39,7 @@ class ForeignKeyConstraintViolationExceptionHandlerTest extends TestCase
 
         static::assertInstanceOf(InvalidForeignKeyReferenceException::class, $exception);
         $error = $exception->getErrors()->current();
-        static::assertSame('FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE', $error['code']);
+        static::assertSame(InvalidForeignKeyReferenceException::ERROR_CODE, $error['code']);
         static::assertSame('/categoryId', $error['source']['pointer']);
         static::assertStringContainsString('product_category', (string) $error['detail']);
         static::assertStringContainsString('category', (string) $error['detail']);

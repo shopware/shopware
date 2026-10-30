@@ -66,7 +66,7 @@ class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerI
         $message = \sprintf('A referenced entity or version does not exist. Original error: %s', $originalMessage);
 
         return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
-            new ConstraintViolation($message, $template, ['{{ originalMessage }}' => $originalMessage], null, '', null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
+            new ConstraintViolation($message, $template, ['{{ originalMessage }}' => $originalMessage], null, '', null, null, InvalidForeignKeyReferenceException::ERROR_CODE),
         ]));
     }
 
@@ -83,7 +83,7 @@ class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerI
         $propertyPath = '/' . $field;
 
         return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
-            new ConstraintViolation($message, $template, $parameters, null, $propertyPath, null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
+            new ConstraintViolation($message, $template, $parameters, null, $propertyPath, null, null, InvalidForeignKeyReferenceException::ERROR_CODE),
         ]));
     }
 }

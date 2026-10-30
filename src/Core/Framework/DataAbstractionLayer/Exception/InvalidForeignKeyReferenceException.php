@@ -11,4 +11,5 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 #[Package('framework')]
 class InvalidForeignKeyReferenceException extends WriteConstraintViolationException
 {
+    public const ERROR_CODE = 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE';
 }

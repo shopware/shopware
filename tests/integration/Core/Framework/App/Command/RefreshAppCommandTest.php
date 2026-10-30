@@ -311,10 +311,18 @@ class RefreshAppCommandTest extends TestCase
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->execute(['-f' => true, '--no-validate' => true]);
 
+        $display = $commandTester->getDisplay();
+
         // header app list
-        static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $commandTester->getDisplay());
-        // content app list
-        static::assertMatchesRegularExpression('/.*validationFailures\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $commandTester->getDisplay());
+        static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
+
+        // `validationFailure` only trips advisory validators, so it installs ...
+        static::assertMatchesRegularExpression('/.*validationFailure\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+
+        // ... while `validationFailures` is missing permissions its webhooks require, which AppManager
+        // refuses regardless of --no-validate.
+        static::assertStringContainsString('Incomplete installations', $display);
+        static::assertStringContainsString('The following permissions are missing:', $display);
     }
 
     public function testRefreshWithLimitation(): void

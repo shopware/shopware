@@ -180,6 +180,23 @@ class StaticEntityRepository extends EntityRepository
         return new IdSearchResult(\count($result), $result, $criteria, $context);
     }
 
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
+    {
+        $this->searchedCriteria[] = clone $criteria;
+        $result = \array_shift($this->searches);
+
+        if (\is_callable($result)) {
+            /** @var SearchCallable $result */
+            $result = $result($criteria, $context, $this);
+        }
+
+        if (!$result instanceof AggregationResultCollection) {
+            throw new \RuntimeException('Invalid mock repository configuration');
+        }
+
+        return $result;
+    }
+
     public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
         $writeResults = $this->getDummyWriteResults($data, EntityWriteResult::OPERATION_INSERT, $context);

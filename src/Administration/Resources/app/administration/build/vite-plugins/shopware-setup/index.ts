@@ -2,10 +2,12 @@
  * @sw-package framework
  */
 
-import type { Plugin } from 'vite';
+import type { EnvironmentModuleNode, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import { parse } from '@vue/compiler-sfc';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
 import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
@@ -27,6 +29,15 @@ function withoutQuery(id: string): string {
     return id.split('?')[0];
 }
 
+/** Script changes must rerun Shopware's registration and setup-override replay on a fresh page. */
+function scriptFingerprint(source: string, filename: string): string {
+    const { descriptor } = parse(source, { filename, sourceMap: false });
+    const scripts = [descriptor.script, descriptor.scriptSetup].map((block) =>
+        block ? [block.content, block.attrs] : null,
+    );
+    return createHash('sha256').update(JSON.stringify(scripts)).digest('hex');
+}
+
 /**
  * Whether a file belongs to an installed dependency.
  *
@@ -45,7 +56,7 @@ function isDependencyFile(fileName: string): boolean {
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
+// eslint-disable-next-line @typescript-eslint/require-await -- Keep a promise-based loader for the cached transform module.
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
     // `require`, not `import()`: extension builds resolve this plugin as CommonJS, which cannot load the
     // file: URL that `import()` needs on Windows. A plain path works in both.
@@ -90,6 +101,28 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
     // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
+    const loadedScripts = new Map<string, string>();
+    function hasLoadedSetupImporter(modules: EnvironmentModuleNode[]): boolean {
+        const pending = [...modules];
+        const visited = new Set<EnvironmentModuleNode>();
+        while (pending.length > 0) {
+            const module = pending.pop();
+            if (!module || visited.has(module)) continue;
+            visited.add(module);
+            const id = module.id && withoutQuery(module.id);
+            if (
+                id &&
+                virtualSourcemap.isVirtualFileName(id) &&
+                loadedScripts.has(virtualSourcemap.getOriginalFileName(id))
+            ) {
+                return true;
+            }
+            pending.push(...module.importers);
+        }
+        return false;
+    }
+
+    let isDevelopment = false;
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
@@ -191,7 +224,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * bodies claiming the same `sourcesContent`; `generateBundle` collapses the virtual name back out.
          * The transform result is stashed in {@link resolvedTransforms} so the paired `load` need not rerun it.
          */
-        async resolveId(source, importer) {
+        async resolveId(source, importer, resolveOptions) {
+            // The dependency scanner reads Vue scripts from disk instead of using this plugin's load hook.
+            if (resolveOptions && 'scan' in resolveOptions && resolveOptions.scan === true) return null;
+
             if (source.includes('?') || !source.endsWith('.vue')) {
                 return null;
             }
@@ -259,6 +295,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             assertUniqueBaseComponent(result, originalFileName);
 
             virtualSourcemap.rememberSetupMap(fileName, result.map);
+            if (isDevelopment) loadedScripts.set(originalFileName, scriptFingerprint(source, originalFileName));
 
             return {
                 code: result.code,
@@ -301,6 +338,21 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
         async hotUpdate({ type, file, modules, read }) {
+            // Dependencies can change setup behavior without changing the SFC's own script fingerprint.
+            if (
+                this.environment.name === 'client' &&
+                /\.(?:[cm]?[jt]sx?|json)$/.test(file) &&
+                hasLoadedSetupImporter(modules)
+            ) {
+                for (const module of modules) {
+                    this.environment.moduleGraph.invalidateModule(module);
+                    // Compile first: Vite reports invalid source while the mounted page remains intact.
+                    await this.environment.transformRequest(module.url);
+                }
+                this.environment.hot.send({ type: 'full-reload', path: '*' });
+                return [];
+            }
+
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
@@ -309,7 +361,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             // Vite runs this hook once per environment (client and ssr); report only once.
             if (type !== 'delete' && this.environment.name === 'client') {
-                const failure = await transformChangedFile(file, await read());
+                const source = await read();
+                const failure = await transformChangedFile(file, source);
 
                 if (failure) {
                     this.environment.logger.error(failure);
@@ -320,6 +373,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                         this.environment.moduleGraph.invalidateModule(virtualModule);
                     }
 
+                    return [];
+                }
+
+                const loadedScript = loadedScripts.get(file);
+                if (virtualModule && loadedScript && loadedScript !== scriptFingerprint(source, file)) {
+                    this.environment.moduleGraph.invalidateModule(virtualModule);
+                    this.environment.hot.send({ type: 'full-reload', path: '*' });
                     return [];
                 }
             }
@@ -336,10 +396,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // Not a `buildStart` reset: that runs per environment and would drop live claims.
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
+                loadedScripts.delete(withoutQuery(id));
+                resolvedTransforms.delete(withoutQuery(id));
             }
         },
 
         configResolved(config) {
+            isDevelopment = config.command === 'serve';
             // Sourcemaps follow the build's own setting, which vite.config.mts and plugins.vite.ts derive
             // from GENERATE_SOURCEMAPS / SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION. Reading it here keeps
             // this plugin on par with the rest of the build instead of re-interpreting those variables.

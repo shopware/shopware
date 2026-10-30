@@ -7158,7 +7158,7 @@
   },
   "src/module/sw-extension/component/sw-extension-deactivation-modal/sw-extension-deactivation-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 3
     }
   },
   "src/module/sw-extension/component/sw-extension-domains-modal/index.js": {
@@ -7218,7 +7218,7 @@
   },
   "src/module/sw-extension/component/sw-extension-removal-modal/sw-extension-removal-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 9
+      "count": 3
     }
   },
   "src/module/sw-extension/component/sw-extension-uninstall-modal/index.js": {

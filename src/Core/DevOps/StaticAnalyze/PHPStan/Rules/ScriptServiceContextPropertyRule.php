@@ -29,11 +29,6 @@ class ScriptServiceContextPropertyRule implements Rule
 
     public const ERROR_TIP = 'Inject Shopware\Core\Framework\Script\AppContextFactory and call create() in every method.';
 
-    /**
-     * @var list<class-string>
-     */
-    private const ALLOWED_CLASSES = [];
-
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -44,7 +39,7 @@ class ScriptServiceContextPropertyRule implements Rule
         $classNode = $node->getOriginalNode();
         $class = $node->getClassReflection();
 
-        if (!$this->isScriptService($classNode) || \in_array($class->getName(), self::ALLOWED_CLASSES, true)) {
+        if (!$this->isScriptService($classNode)) {
             return [];
         }
 

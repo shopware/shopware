@@ -224,6 +224,7 @@ shopware:
 ### Webhooks in the settings
 
 The new page Settings > System > Webhooks lists all webhooks with their owner and the roles they are limited to, and shows the recent deliveries of each webhook.
+By default it shows the webhooks of users and integrations, and a filter in the sidebar adds those of apps and of services.
 Users with the new "Webhooks" permissions can switch webhooks on and off and delete webhooks that do not belong to an app.
 The ownership rules of the Admin API still apply, so only the owner or an administrator can change a webhook.
 

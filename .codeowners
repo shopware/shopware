@@ -61,3 +61,10 @@ src/Administration/Resources/app/administration/extension-tooling/eslint.mjs @sh
 
 # ctrl-alt-elite
 src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
+
+# checkout: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
+# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
+# Changes to `src/` and to pinned tests do not.
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/requirements.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/regressions.spec.ts @shopware/product-cc-checkout

@@ -1,4 +1,5 @@
 import './acl';
+import './component/sw-settings-shipping-price-matrix/register';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
@@ -14,10 +15,6 @@ Shopware.Component.extend('sw-price-rule-modal', 'sw-rule-modal', () => import('
 Shopware.Component.register(
     'sw-settings-shipping-price-matrices',
     () => import('./component/sw-settings-shipping-price-matrices'),
-);
-Shopware.Component.register(
-    'sw-settings-shipping-price-matrix',
-    () => import('./component/sw-settings-shipping-price-matrix'),
 );
 Shopware.Component.register('sw-settings-shipping-tax-cost', () => import('./component/sw-settings-shipping-tax-cost'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */

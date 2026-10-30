@@ -1,0 +1,59 @@
+import {
+    createQuantityPrices,
+    deletePrice,
+    mountPriceMatrix,
+    setUpShippingMethod,
+    showAllPrices,
+    unmountPriceMatrices,
+} from './price-matrix.harness';
+
+/**
+ * @sw-package checkout
+ */
+
+describe('sw-settings-shipping-price-matrix', () => {
+    let remove: jest.Mock;
+
+    beforeEach(() => {
+        remove = setUpShippingMethod();
+    });
+
+    afterEach(unmountPriceMatrices);
+
+    /**
+     * @requirement A merchant can add a price to a price matrix.
+     * Each price covers a quantity range or a rule, so a matrix needs as many prices as the shipping costs have steps.
+     */
+    it('adds a price', async () => {
+        const wrapper = await mountPriceMatrix();
+        const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod as unknown as { prices: unknown[] };
+
+        await wrapper.find('.sw-settings-shipping-price-matrix__top-container-add-new-rule').trigger('click');
+
+        expect(shippingMethod.prices).toHaveLength(1);
+    });
+
+    /**
+     * @requirement A merchant can delete a price from a price matrix.
+     */
+    it('deletes a price', async () => {
+        const wrapper = await mountPriceMatrix();
+
+        await showAllPrices(wrapper);
+        await deletePrice(wrapper, 1);
+
+        expect(remove).toHaveBeenCalledWith('priceId2');
+    });
+
+    /**
+     * @requirement A price matrix always keeps at least one price.
+     * A matrix without prices would make the shipping method free for everything the matrix's rule covers.
+     */
+    it('keeps the last price', async () => {
+        const wrapper = await mountPriceMatrix({ prices: [createQuantityPrices()[0]] });
+
+        await deletePrice(wrapper, 0);
+
+        expect(remove).not.toHaveBeenCalled();
+    });
+});

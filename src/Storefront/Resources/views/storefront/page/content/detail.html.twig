@@ -4,7 +4,7 @@
 {% block page_content_sections_inner %}
     <div class="cms-sections">
         {# DEMO: Twig hot reload playground for AJAX modals. Remove before merge. #}
-        {% if app.request.isXmlHttpRequest %}
+        {% if app.debug and app.request.isXmlHttpRequest %}
             {% sw_include '@Storefront/storefront/component/twig-hmr-demo/ajax-modal-part.html.twig' %}
         {% endif %}
         {% for section in cmsPage.sections %}

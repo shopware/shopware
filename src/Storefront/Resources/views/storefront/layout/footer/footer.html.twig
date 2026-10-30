@@ -1,6 +1,8 @@
 {% block layout_footer_inner_container %}
     {# DEMO: Twig hot reload playground for the draft pull request. Remove before merge. #}
-    {% sw_include '@Storefront/storefront/component/twig-hmr-demo/modal.html.twig' %}
+    {% if app.debug %}
+        {% sw_include '@Storefront/storefront/component/twig-hmr-demo/modal.html.twig' %}
+    {% endif %}
     <div class="container">
         {% block layout_footer_navigation %}
             {# @deprecated tag:v6.8.0 - The footer columns wrapper will be a `<ul>` element. The `<div role="list">` fallback will be removed. #}

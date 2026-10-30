@@ -95,6 +95,6 @@ async function checkDeferredChildren(): Promise<void> {
 describe('product assignment with deferred tab components', () => {
     it.activeFeatureFlags(['v6.8.0.0'])('calculates layouts after each asynchronous child mounts', checkDeferredChildren);
 
-    // @deprecated tag:v6.8.0.0 - The legacy tabs branch is removed with the major flag.
+    // @deprecated tag:v6.8.0 - The legacy tabs branch is removed with the major flag.
     it.deprecated('v6.8.0.0')('keeps delayed children working with legacy tabs', checkDeferredChildren);
 });

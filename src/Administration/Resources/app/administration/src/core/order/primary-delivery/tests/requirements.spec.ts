@@ -19,9 +19,10 @@ describe('primary-delivery', () => {
      */
     it('shows an order with its primary delivery', () => {
         const primary = delivery('primary', 5);
+        const order = createOrder({ primaryOrderDelivery: primary, deliveries: [delivery('other', 10), primary] });
 
-        expect(
-            getPrimaryDelivery(createOrder({ primaryOrderDelivery: primary, deliveries: [delivery('other', 10), primary] })),
-        ).toBe(primary);
+        const shown = getPrimaryDelivery(order);
+
+        expect(shown).toBe(primary);
     });
 });

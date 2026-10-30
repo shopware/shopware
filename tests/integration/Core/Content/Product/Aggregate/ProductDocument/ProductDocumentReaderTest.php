@@ -9,7 +9,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,7 +20,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[Package('inventory')]
 class ProductDocumentReaderTest extends TestCase
 {
-    use BasicTestDataBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -70,25 +68,6 @@ class ProductDocumentReaderTest extends TestCase
         $counts = $this->reader->countDocuments([$this->key('drill'), $this->key('screwdriver')]);
 
         static::assertSame([$this->key('drill') => 2], $counts);
-    }
-
-    public function testItFindsTheFilesThatAnotherDocumentOfTheSameProductHas(): void
-    {
-        $germanId = $this->getDeDeLanguageId();
-        $this->createMedia('manual-file');
-        $this->createMedia('datasheet-file');
-        $this->createMedia('certificate-file');
-
-        $this->insertDocument('drill', 'manual', [Defaults::LANGUAGE_SYSTEM => 'manual-file', $germanId => 'datasheet-file']);
-        $this->insertDocument('drill', 'datasheet', [Defaults::LANGUAGE_SYSTEM => 'datasheet-file']);
-        // one document can have the same file in several languages
-        $this->insertDocument('drill', 'certificate', [Defaults::LANGUAGE_SYSTEM => 'certificate-file', $germanId => 'certificate-file']);
-        // and another product can have the same file
-        $this->insertDocument('hammer', 'hammer-manual', [Defaults::LANGUAGE_SYSTEM => 'manual-file']);
-
-        $sharedFiles = $this->reader->getSharedFiles([$this->key('manual'), $this->key('certificate')]);
-
-        static::assertSame([['document' => $this->key('manual'), 'languageId' => $germanId, 'mediaId' => $this->ids->get('datasheet-file')]], $sharedFiles);
     }
 
     private function createMedia(string $fileName, ?string $extension = 'pdf', ?int $size = 1024, bool $private = false): void

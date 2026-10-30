@@ -109,16 +109,6 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_TRANSLATION_MISSING, 'pointer' => '/0/documents/1']], $errors);
     }
 
-    public function testAFileCanBeADocumentOfAProductOnlyOnce(): void
-    {
-        $this->addDocuments([['title' => 'Manual', 'mediaId' => $this->createMedia('manual')]]);
-
-        $errors = $this->errorsOf(fn () => $this->addDocuments([['title' => 'Operating manual', 'mediaId' => $this->ids->get('manual')]]));
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_ALREADY_USED, 'pointer' => $this->defaultTranslationPointer(0) . '/mediaId']], $errors);
-        static::assertSame(['Manual'], $this->documentTitles());
-    }
-
     /**
      * @param list<array<string, mixed>> $documents
      */

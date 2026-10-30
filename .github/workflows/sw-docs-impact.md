@@ -195,6 +195,7 @@ safe-outputs:
     docs-candidate:
       description: "Report the merged pull request as a documentation candidate"
       runs-on: ubuntu-24.04
+      if: needs.detection.result == 'success' && needs.detection.outputs.detection_success == 'true'
       output: "Docs candidate comment posted"
       permissions:
         contents: read
@@ -216,6 +217,7 @@ safe-outputs:
         - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
           env:
             SW_DOCS_IMPACT_POST: ${{ vars.SW_DOCS_IMPACT_POST }}
+            SW_DOCS_IMPACT_REDACT: ${{ secrets.GH_AW_DEFAULT_OTLP_HEADERS }}
           with:
             retries: 3
             script: |

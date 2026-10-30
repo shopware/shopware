@@ -210,7 +210,25 @@ export function candidateItems(agentOutput: { items?: AgentOutputItem[] }): Agen
     return (agentOutput.items ?? []).filter((item) => item.type === 'docs_candidate');
 }
 
-const DOCS_LINK = /\[([^\]]+)\]\((https:\/\/(?:docs|developer)\.shopware\.com\/[^\s)]*)\)/g;
+const MIN_SECRET_LENGTH = 8;
+
+export function redactSecrets(text: string, raw: string | undefined): string {
+    if (!raw) {
+        return text;
+    }
+
+    const values = [raw, ...raw.split(',').flatMap((pair) => {
+        const value = pair.slice(pair.indexOf('=') + 1).trim();
+        return [value, value.replace(/^Bearer\s+/i, '')];
+    })];
+
+    return [...new Set(values)]
+        .filter((value) => value.length >= MIN_SECRET_LENGTH)
+        .sort((a, b) => b.length - a.length)
+        .reduce((redacted, value) => redacted.split(value).join('[redacted]'), text);
+}
+
+const DOCS_LINK =/\[([^\]]+)\]\((https:\/\/(?:docs|developer)\.shopware\.com\/[^\s)]*)\)/g;
 
 export async function isDeadLink(url: string): Promise<boolean> {
     try {
@@ -255,7 +273,8 @@ export async function postComment(
     }
 
     parseAudiences(item.audiences ?? '');
-    const body = buildComment(await unlinkDeadDocsLinks(item.summary, isDead));
+    const summary = redactSecrets(item.summary, process.env.SW_DOCS_IMPACT_REDACT);
+    const body = buildComment(await unlinkDeadDocsLinks(summary, isDead));
     if (isDryRun(context)) {
         core.info(`Dry run: not commenting on #${number}`);
         await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();

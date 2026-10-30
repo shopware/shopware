@@ -13,6 +13,7 @@ import {
     neutraliseMentions,
     parseAudiences,
     postComment,
+    redactSecrets,
     resolvePullRequestNumber,
     shouldCheck,
     unlinkDeadDocsLinks,
@@ -386,6 +387,36 @@ test('postComment posts dead docs links as plain text', async () => {
     const body = String(calls.find((c) => c.method === 'createComment')?.params.body);
     assert.ok(body.includes('- **Adjust** Products: a'));
     assert.doesNotMatch(body, /\[Products\]\(/);
+});
+
+test('redactSecrets removes the whole header string and each header value', () => {
+    const raw = 'Authorization=Bearer abcdef123456,x-api-key=k3y-0987654321,x=short';
+
+    assert.equal(
+        redactSecrets(`all: ${raw} / token: abcdef123456 / key: k3y-0987654321 / short`, raw),
+        'all: [redacted] / token: [redacted] / key: [redacted] / short',
+    );
+    assert.equal(redactSecrets('nothing to hide', undefined), 'nothing to hide');
+    assert.equal(redactSecrets('nothing to hide', ''), 'nothing to hide');
+});
+
+test('postComment redacts the configured secret before posting', async () => {
+    const { github, calls } = fakeGitHub();
+    const { core } = fakeCore();
+    process.env.SW_DOCS_IMPACT_REDACT = 'Authorization=Bearer abcdef123456';
+
+    try {
+        await postComment(
+            { github, context: pushContext({ pr_number: '9' }), core },
+            { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'leak abcdef123456' }] },
+        );
+    } finally {
+        delete process.env.SW_DOCS_IMPACT_REDACT;
+    }
+
+    const body = String(calls.find((c) => c.method === 'createComment')?.params.body);
+    assert.ok(body.includes('leak [redacted]'));
+    assert.equal(body.includes('abcdef123456'), false);
 });
 
 test('latestEndUserPages keeps the highest article version per page and maps it to its URL', () => {

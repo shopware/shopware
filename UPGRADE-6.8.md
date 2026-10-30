@@ -2626,6 +2626,12 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `sw-cms-layout-modal` grid selection methods
+
+The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
+The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
+Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
+
 # Storefront
 
 <details>

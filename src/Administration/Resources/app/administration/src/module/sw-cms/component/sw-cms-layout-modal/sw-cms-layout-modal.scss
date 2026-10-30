@@ -64,6 +64,15 @@
         }
     }
 
+    .sw-cms-layout-modal__radio-group.mt-radio-group-root {
+        display: block;
+        margin-bottom: 0;
+
+        .mt-radio-group-root__options {
+            display: block;
+        }
+    }
+
     .sw-cms-layout-modal__content-pagination {
         margin-top: 20px;
     }

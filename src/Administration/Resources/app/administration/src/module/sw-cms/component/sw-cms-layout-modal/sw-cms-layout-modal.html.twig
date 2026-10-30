@@ -74,6 +74,7 @@
         {% block sw_cms_layout_modal_content_container %}
         <mt-radio-group-root
             v-else-if="listMode === 'grid'"
+            class="sw-cms-layout-modal__radio-group"
             name="sw-cms-layout-modal-page"
             :model-value="selectedPageObject?.id ?? null"
             @update:model-value="onSelectPage"
@@ -140,6 +141,7 @@
 
         <mt-radio-group-root
             v-else-if="listMode === 'list'"
+            class="sw-cms-layout-modal__radio-group"
             name="sw-cms-layout-modal-page"
             :model-value="selectedPageObject?.id ?? null"
             @update:model-value="onSelectPage"

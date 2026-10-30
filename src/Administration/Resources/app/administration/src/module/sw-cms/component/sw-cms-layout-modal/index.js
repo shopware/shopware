@@ -1,9 +1,3 @@
-import {
-    MtRadioGroupCustomItem,
-    MtRadioGroupIndicator,
-    MtRadioGroupItem,
-    MtRadioGroupRoot,
-} from '@shopware-ag/meteor-component-library';
 import template from './sw-cms-layout-modal.html.twig';
 import './sw-cms-layout-modal.scss';
 
@@ -16,13 +10,6 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
-
-    components: {
-        MtRadioGroupRoot,
-        MtRadioGroupCustomItem,
-        MtRadioGroupIndicator,
-        MtRadioGroupItem,
-    },
 
     inject: [
         'repositoryFactory',
@@ -192,7 +179,7 @@ export default {
         },
 
         onSelectPage(pageId) {
-            this.selectedPageObject = this.pages.find((page) => page.id === pageId) ?? null;
+            this.selectItem(this.pages.find((page) => page.id === pageId) ?? null);
         },
 
         onSearch(value) {

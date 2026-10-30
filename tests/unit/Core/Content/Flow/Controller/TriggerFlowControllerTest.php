@@ -32,11 +32,6 @@ class TriggerFlowControllerTest extends TestCase
 {
     private TriggerFlowController $triggerFlowController;
 
-    /**
-     * @var StaticEntityRepository<AppFlowEventCollection>
-     */
-    private StaticEntityRepository $appFlowEventRepository;
-
     protected function setUp(): void
     {
         $appFlowEvent = new AppFlowEventEntity();
@@ -44,7 +39,7 @@ class TriggerFlowControllerTest extends TestCase
         $appFlowEvent->setAware(['customerId']);
         $appFlowEvent->setName('custom.checkout.event');
 
-        $this->appFlowEventRepository = new StaticEntityRepository([
+        $appFlowEventRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'app_flow_event',
                 1,
@@ -55,7 +50,7 @@ class TriggerFlowControllerTest extends TestCase
             ),
         ]);
 
-        $this->triggerFlowController = new TriggerFlowController(new EventDispatcher(), $this->appFlowEventRepository);
+        $this->triggerFlowController = new TriggerFlowController(new EventDispatcher(), $appFlowEventRepository);
     }
 
     public function testTriggerWithWrongEventName(): void

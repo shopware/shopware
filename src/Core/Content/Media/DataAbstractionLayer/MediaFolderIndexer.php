@@ -109,7 +109,6 @@ class MediaFolderIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE media_folder SET media_folder_configuration_id = :configId WHERE id = :id')
         );
 
-        $children = [];
         foreach ($ids as $id) {
             $folder = $this->connection->fetchAssociative(
                 'SELECT LOWER(HEX(child.id)) as id,
@@ -141,9 +140,9 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
-        if ($children !== [] && $message->allow(self::TREE_UPDATER)) {
+        if ($message->allow(self::TREE_UPDATER)) {
             $this->treeUpdater->batchUpdate(
-                $children,
+                $ids,
                 MediaFolderDefinition::ENTITY_NAME,
                 $message->getContext(),
                 !$message->isFullIndexing

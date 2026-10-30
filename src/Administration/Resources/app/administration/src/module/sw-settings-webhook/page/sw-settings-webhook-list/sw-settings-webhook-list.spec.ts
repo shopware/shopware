@@ -5,6 +5,8 @@ import { mount, RouterLinkStub, type VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import type CriteriaType from 'src/core/data/criteria.data';
 
+const { Criteria } = Shopware.Data;
+
 type Webhook = {
     id: string;
     name: string;
@@ -86,7 +88,12 @@ function emitFromListing(wrapper: VueWrapper, event: string, ...args: unknown[])
 }
 
 function criteriaOf(search: jest.Mock): CriteriaType {
-    return (search.mock.calls[0] as [CriteriaType])[0];
+    return (search.mock.lastCall as [CriteriaType])[0];
+}
+
+async function selectOwners(wrapper: VueWrapper, owners: string[]): Promise<void> {
+    child(wrapper, 'mt-select').vm.$emit('update:model-value', owners);
+    await flushPromises();
 }
 
 async function createWrapper({
@@ -98,6 +105,7 @@ async function createWrapper({
         appWebhook,
     ] as Webhook[],
     term = undefined as string | undefined,
+    page = 1,
     failingSearch = undefined as jest.Mock | undefined,
 } = {}) {
     const webhookSearch =
@@ -137,13 +145,29 @@ async function createWrapper({
                 },
             },
             mocks: {
-                $route: { query: { page: 1, limit: 25, term } },
+                $route: { query: { page, limit: 25, term } },
             },
             stubs: {
                 'sw-page': {
-                    template: '<div class="sw-page"><slot name="search-bar"></slot><slot name="content"></slot></div>',
+                    template:
+                        '<div class="sw-page"><slot name="search-bar"></slot><slot name="content"></slot><slot name="sidebar"></slot></div>',
                 },
                 'sw-search-bar': true,
+                'sw-sidebar': {
+                    template: '<div class="sw-sidebar"><slot></slot></div>',
+                },
+                'sw-sidebar-item': {
+                    template: '<div class="sw-sidebar-item"><slot></slot></div>',
+                },
+                'sw-sidebar-collapse': {
+                    template:
+                        '<div class="sw-sidebar-collapse"><slot name="header"></slot><slot name="content"></slot></div>',
+                },
+                'mt-select': {
+                    name: 'mt-select',
+                    props: ['modelValue'],
+                    template: '<div class="mt-select"></div>',
+                },
                 'sw-entity-listing': {
                     name: 'sw-entity-listing',
                     props: {
@@ -207,6 +231,48 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         expect(criteria.hasAssociation('ownerUser')).toBe(true);
         expect(criteria.hasAssociation('ownerIntegration')).toBe(true);
         expect(criteria.sortings).toEqual([expect.objectContaining({ field: 'name', order: 'ASC' })]);
+    });
+
+    it('shows only the webhooks of users and integrations by default', async () => {
+        const { wrapper, webhookSearch } = await createWrapper();
+
+        expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toEqual(['user']);
+        expect(criteriaOf(webhookSearch).filters).toEqual([
+            Criteria.multi('OR', [
+                Criteria.multi('AND', [
+                    Criteria.equals('appId', null),
+                    Criteria.equals('ownerIntegration.app.id', null),
+                ]),
+            ]),
+        ]);
+    });
+
+    it('shows the webhooks of the selected apps and services, from the first page', async () => {
+        const { wrapper, webhookSearch } = await createWrapper({ page: 2 });
+
+        await selectOwners(wrapper, ['app', 'service']);
+
+        expect(criteriaOf(webhookSearch).page).toBe(1);
+        expect(criteriaOf(webhookSearch).filters).toEqual([
+            Criteria.multi('OR', [
+                Criteria.multi('OR', [
+                    Criteria.equals('app.selfManaged', false),
+                    Criteria.equals('ownerIntegration.app.selfManaged', false),
+                ]),
+                Criteria.multi('OR', [
+                    Criteria.equals('app.selfManaged', true),
+                    Criteria.equals('ownerIntegration.app.selfManaged', true),
+                ]),
+            ]),
+        ]);
+    });
+
+    it('shows all webhooks when no owner is selected', async () => {
+        const { wrapper, webhookSearch } = await createWrapper();
+
+        await selectOwners(wrapper, []);
+
+        expect(criteriaOf(webhookSearch).filters).toEqual([]);
     });
 
     it('searches the webhooks by the term of the route', async () => {
@@ -451,8 +517,22 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         expect(wrapper.find('.sw-entity-listing').exists()).toBe(false);
     });
 
+    it('says that no webhook was found when the selected owners have none', async () => {
+        const { wrapper } = await createWrapper({ webhooks: [] });
+
+        expect(wrapper.find('mt-empty-state-stub').attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+
+        await selectOwners(wrapper, []);
+
+        expect(wrapper.find('mt-empty-state-stub').attributes('headline')).toBe(
+            'sw-settings-webhook.list.emptyStateHeadline',
+        );
+    });
+
     it('says that no webhook was found when a search has no hits', async () => {
         const { wrapper } = await createWrapper({ webhooks: [], term: 'order' });
+
+        await selectOwners(wrapper, []);
 
         expect(wrapper.find('mt-empty-state-stub').attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
     });

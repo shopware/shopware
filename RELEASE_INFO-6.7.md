@@ -224,6 +224,7 @@ shopware:
 ### Webhooks in the settings
 
 The new page Settings > System > Webhooks lists all webhooks with their owner and the roles they are limited to, and shows the recent deliveries of each webhook.
+By default it shows the webhooks of users and integrations, and a filter in the sidebar adds those of apps and of services.
 Users with the new "Webhooks" permissions can switch webhooks on and off and delete webhooks that do not belong to an app.
 Editors can also set the signing secret of a webhook that does not belong to an app, either the receiver's own secret or a randomly generated one.
 The secret is shown only until it is saved.

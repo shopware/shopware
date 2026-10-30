@@ -7,7 +7,7 @@
  * @sw-package framework
  * @private
  */
-import { refresh, LOG_PREFIX } from './twig-hmr';
+import { init, refresh, LOG_PREFIX } from './twig-hmr';
 
 function resolveSocketUrl() {
     // The webpack dev server serves this file and hosts the web socket under /ws.
@@ -39,7 +39,10 @@ function connect() {
     });
 }
 
+// The deferred hot reload script runs before the theme scripts, so the body still holds the server markup.
+init();
+
 // Manual trigger for debugging: `await window.swTwigHmr.refresh([])`.
 window.swTwigHmr = { refresh };
 connect();
-console.info(`${LOG_PREFIX} Twig changes are applied without a page reload.`);
+console.info(`${LOG_PREFIX} Experimental: Twig changes are applied without a page reload.`);

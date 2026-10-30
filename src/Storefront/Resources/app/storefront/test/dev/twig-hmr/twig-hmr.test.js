@@ -1,4 +1,5 @@
-import { refresh } from 'src/dev/twig-hmr/twig-hmr';
+import { init, refresh, reset } from 'src/dev/twig-hmr/twig-hmr';
+import { NOTICE_ID } from 'src/dev/twig-hmr/notice';
 
 /**
  * @sw-package framework
@@ -6,39 +7,62 @@ import { refresh } from 'src/dev/twig-hmr/twig-hmr';
 describe('dev/twig-hmr', () => {
     let pages;
 
-    function page(body, title = 'Shop') {
-        return `<!DOCTYPE html><html><head><title>${title}</title></head><body>${body}</body></html>`;
+    function page(body, title = 'Shop', head = '') {
+        return `<!DOCTYPE html><html><head><title>${title}</title>${head}</head><body>${body}</body></html>`;
     }
 
-    function mockFetch() {
-        global.fetch = jest.fn((url) => {
-            const { status = 200, html } = pages[url];
-
-            return Promise.resolve({
-                ok: status < 400,
-                status,
-                text: () => Promise.resolve(html),
-            });
+    function respond(url, { status = 200, html = '', redirectedTo = null, contentType = 'text/html; charset=UTF-8' } = {}) {
+        return Promise.resolve({
+            ok: status < 400,
+            status,
+            redirected: redirectedTo !== null,
+            url: redirectedTo ?? url,
+            headers: { get: (name) => (name.toLowerCase() === 'content-type' ? contentType : null) },
+            text: () => Promise.resolve(html),
         });
+    }
+
+    function setup(body) {
+        document.body.innerHTML = body;
+        init();
+    }
+
+    function userInput(control, type = 'input') {
+        control.dispatchEvent(new Event(type, { bubbles: true }));
+    }
+
+    function notice() {
+        return document.getElementById(NOTICE_ID);
     }
 
     beforeEach(() => {
         pages = {};
-        mockFetch();
+        global.fetch = jest.fn((url) => respond(url, pages[url] ?? { status: 404 }));
         jest.spyOn(console, 'info').mockImplementation(() => {});
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
         jest.spyOn(console, 'error').mockImplementation(() => {});
         window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
         document.title = 'Shop';
+        document.head.innerHTML = '';
         document.body.innerHTML = '';
+        document.body.className = '';
+    });
+
+    afterEach(() => {
+        reset();
+        jest.restoreAllMocks();
     });
 
     it('updates an open modal and keeps its runtime state', async () => {
-        document.body.innerHTML = `
-            <div class="modal fade show" id="demo" style="display: block;" aria-modal="true" role="dialog">
-                <p class="text">Version 1</p>
-            </div>
-            <div class="modal-backdrop fade show"></div>
-        `;
+        setup('<div class="modal fade" id="demo" aria-hidden="true"><p class="text">Version 1</p></div>');
+        const modal = document.getElementById('demo');
+        // Bootstrap opens the modal.
+        modal.classList.add('show');
+        modal.style.display = 'block';
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('role', 'dialog');
+        modal.removeAttribute('aria-hidden');
+        document.body.insertAdjacentHTML('beforeend', '<div class="modal-backdrop fade show"></div>');
         document.body.classList.add('modal-open');
         pages['http://localhost/'] = {
             html: page('<div class="modal fade" id="demo" aria-hidden="true"><p class="text">Version 2</p></div>', 'New title'),
@@ -46,23 +70,203 @@ describe('dev/twig-hmr', () => {
 
         await refresh(['modal-body.html.twig']);
 
-        const modal = document.getElementById('demo');
         expect(modal.querySelector('.text').textContent).toBe('Version 2');
         expect(modal.classList.contains('show')).toBe(true);
         expect(modal.style.display).toBe('block');
         expect(modal.getAttribute('aria-modal')).toBe('true');
+        expect(modal.getAttribute('role')).toBe('dialog');
         expect(modal.hasAttribute('aria-hidden')).toBe(false);
         expect(document.querySelector('.modal-backdrop')).not.toBeNull();
         expect(document.body.classList.contains('modal-open')).toBe(true);
         expect(document.querySelector('body body')).toBeNull();
         expect(document.title).toBe('New title');
         expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        expect(notice()).toBeNull();
     });
 
-    it('keeps typed form values and the focus', async () => {
-        document.body.innerHTML = '<main><label>Old</label><input type="text" class="search"></main>';
+    it('keeps the inert background of an open offcanvas', async () => {
+        setup('<main><p class="text">Version 1</p></main><footer>Footer</footer>');
+        // The offcanvas plugin appends the offcanvas and disables the background.
+        document.body.insertAdjacentHTML('beforeend', '<div class="offcanvas offcanvas-end js-offcanvas-singleton show">Cart</div>');
+        ['main', 'footer'].forEach((selector) => {
+            const element = document.querySelector(selector);
+            element.setAttribute('inert', '');
+            element.setAttribute('aria-hidden', 'true');
+        });
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main><footer>Footer</footer>') };
+
+        await refresh(['page.html.twig']);
+
+        const main = document.querySelector('main');
+        expect(main.querySelector('.text').textContent).toBe('Version 2');
+        expect(main.hasAttribute('inert')).toBe(true);
+        expect(main.getAttribute('aria-hidden')).toBe('true');
+        expect(document.querySelector('footer').getAttribute('aria-hidden')).toBe('true');
+        expect(document.querySelector('footer').hasAttribute('inert')).toBe(true);
+        expect(document.querySelector('.js-offcanvas-singleton').classList.contains('show')).toBe(true);
+    });
+
+    it('keeps the tab that the user activated', async () => {
+        const tabs = (one, two) => `
+            <ul class="nav nav-tabs" role="tablist">
+                <li><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#one" aria-selected="true">One</button></li>
+                <li><button class="nav-link" data-bs-toggle="tab" data-bs-target="#two" aria-selected="false" tabindex="-1">Two</button></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="one">${one}</div>
+                <div class="tab-pane fade" id="two">${two}</div>
+            </div>
+        `;
+        setup(tabs('One 1', 'Two 1'));
+        const [first, second] = document.querySelectorAll('.nav-link');
+        // Bootstrap shows the second tab.
+        first.classList.remove('active');
+        first.setAttribute('aria-selected', 'false');
+        first.setAttribute('tabindex', '-1');
+        second.classList.add('active');
+        second.setAttribute('aria-selected', 'true');
+        second.removeAttribute('tabindex');
+        document.getElementById('one').classList.remove('show', 'active');
+        document.getElementById('two').classList.add('show', 'active');
+        second.dispatchEvent(new Event('shown.bs.tab', { bubbles: true }));
+        pages['http://localhost/'] = { html: page(tabs('One 2', 'Two 2')) };
+
+        await refresh(['tabs.html.twig']);
+
+        expect(second.classList.contains('active')).toBe(true);
+        expect(second.getAttribute('aria-selected')).toBe('true');
+        expect(second.hasAttribute('tabindex')).toBe(false);
+        expect(first.classList.contains('active')).toBe(false);
+        expect(first.getAttribute('aria-selected')).toBe('false');
+        expect([...document.getElementById('two').classList].sort()).toEqual(['active', 'fade', 'show', 'tab-pane']);
+        expect(document.getElementById('two').textContent).toBe('Two 2');
+        expect([...document.getElementById('one').classList].sort()).toEqual(['fade', 'tab-pane']);
+    });
+
+    it('keeps the collapse elements and checkboxes that the user changed', async () => {
+        setup(`
+            <main>
+                <button class="btn collapsed" data-bs-toggle="collapse" data-bs-target="#filter" aria-expanded="false">Filter</button>
+                <div class="collapse" id="filter"><input type="checkbox" class="option"> Old</div>
+            </main>
+        `);
+        const filter = document.getElementById('filter');
+        const toggle = document.querySelector('[data-bs-toggle]');
+        const checkbox = document.querySelector('.option');
+        // Bootstrap opens the collapse element, then the user checks the option.
+        filter.classList.add('show');
+        toggle.classList.remove('collapsed');
+        toggle.setAttribute('aria-expanded', 'true');
+        filter.dispatchEvent(new Event('shown.bs.collapse', { bubbles: true }));
+        checkbox.checked = true;
+        userInput(checkbox, 'change');
+        pages['http://localhost/'] = {
+            html: page(`
+                <main>
+                    <button class="btn btn-primary collapsed" data-bs-toggle="collapse" data-bs-target="#filter" aria-expanded="false">Filter</button>
+                    <div class="collapse" id="filter"><input type="checkbox" class="option"> New</div>
+                </main>
+            `),
+        };
+
+        await refresh(['filter.html.twig']);
+
+        expect(toggle.classList.contains('btn-primary')).toBe(true);
+        expect(toggle.classList.contains('collapsed')).toBe(false);
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(filter.classList.contains('show')).toBe(true);
+        expect(filter.textContent).toContain('New');
+        expect(document.querySelector('.option')).toBe(checkbox);
+        expect(checkbox.checked).toBe(true);
+    });
+
+    it('applies the template to hidden inputs and controls that the user did not change', async () => {
+        setup(`
+            <form id="buy">
+                <input type="hidden" name="lineItemId" value="old-id">
+                <input type="text" name="comment" value="old default">
+                <input type="checkbox" name="gift">
+                <select name="size"><option value="s" selected>S</option><option value="m">M</option></select>
+                <div class="collapse show" id="details">Details</div>
+            </form>
+        `);
+        pages['http://localhost/'] = {
+            html: page(`
+                <form id="buy">
+                    <input type="hidden" name="lineItemId" value="new-id">
+                    <input type="text" name="comment" value="new default">
+                    <input type="checkbox" name="gift" checked>
+                    <select name="size"><option value="s">S</option><option value="m" selected>M</option></select>
+                    <div class="collapse" id="details">Details</div>
+                </form>
+            `),
+        };
+
+        await refresh(['buy-form.html.twig']);
+
+        const form = document.getElementById('buy');
+        expect(form.elements.lineItemId.value).toBe('new-id');
+        expect(form.elements.comment.value).toBe('new default');
+        expect(form.elements.gift.checked).toBe(true);
+        expect(form.elements.size.value).toBe('m');
+        expect(document.getElementById('details').classList.contains('show')).toBe(false);
+    });
+
+    it('keeps the values that the user typed or selected', async () => {
+        setup(`
+            <form id="buy">
+                <input type="hidden" name="token" value="1">
+                <input type="text" name="comment" value="">
+                <select name="size"><option value="s" selected>S</option><option value="m">M</option></select>
+            </form>
+        `);
+        const form = document.getElementById('buy');
+        form.elements.comment.value = 'typed';
+        userInput(form.elements.comment);
+        form.elements.size.value = 'm';
+        userInput(form.elements.size, 'change');
+        form.elements.token.value = '2';
+        userInput(form.elements.token, 'change');
+        pages['http://localhost/'] = {
+            html: page(`
+                <form id="buy">
+                    <input type="hidden" name="token" value="3">
+                    <input type="text" name="comment" value="">
+                    <select name="size"><option value="s" selected>Small</option><option value="m">Medium</option></select>
+                </form>
+            `),
+        };
+
+        await refresh(['buy-form.html.twig']);
+
+        expect(form.elements.comment.value).toBe('typed');
+        expect(form.elements.size.value).toBe('m');
+        expect(form.elements.size.options[1].textContent).toBe('Medium');
+        expect(form.elements.token.value).toBe('3');
+    });
+
+    it('restores the value of an edited control that the template replaced', async () => {
+        setup('<form id="register"><div class="field"><input type="email" name="email"></div></form>');
+        const input = document.querySelector('[name="email"]');
+        input.value = 'mail@example.com';
+        userInput(input);
+        pages['http://localhost/'] = {
+            html: page('<form id="register"><section class="field"><input type="email" name="email" class="form-control"></section></form>'),
+        };
+
+        await refresh(['register.html.twig']);
+
+        const replaced = document.querySelector('[name="email"]');
+        expect(replaced).not.toBe(input);
+        expect(replaced.classList.contains('form-control')).toBe(true);
+        expect(replaced.value).toBe('mail@example.com');
+    });
+
+    it('keeps the focus and the selection', async () => {
+        setup('<main><label>Old</label><input type="text" class="search"></main>');
         const input = document.querySelector('.search');
         input.value = 'typed';
+        userInput(input);
         input.focus();
         input.setSelectionRange(2, 3);
         pages['http://localhost/'] = {
@@ -89,9 +293,10 @@ describe('dev/twig-hmr', () => {
         }
 
         it('focuses the input again and restores its selection', async () => {
-            document.body.innerHTML = '<main><input type="text" class="search"></main>';
+            setup('<main><input type="text" class="search"></main>');
             const input = document.querySelector('.search');
             input.value = 'typed';
+            userInput(input);
             input.focus();
             input.setSelectionRange(1, 3);
             pages['http://localhost/'] = { html: page('<main><input type="text" class="search"></main>') };
@@ -104,7 +309,7 @@ describe('dev/twig-hmr', () => {
         });
 
         it('focuses an element without a selection again', async () => {
-            document.body.innerHTML = '<main><button class="btn">Buy</button></main>';
+            setup('<main><button class="btn">Buy</button></main>');
             const button = document.querySelector('.btn');
             button.focus();
             pages['http://localhost/'] = { html: page('<main><button class="btn">Buy now</button></main>') };
@@ -117,35 +322,38 @@ describe('dev/twig-hmr', () => {
         });
     });
 
-    it('re-renders the content of an open AJAX modal', async () => {
-        document.body.innerHTML = `
-            <main>Page</main>
+    function openAjaxModal(url, content) {
+        document.body.insertAdjacentHTML('beforeend', `
             <div class="js-pseudo-modal">
-                <div class="modal show" data-sw-source-url="/widgets/cms/abc">
-                    <div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>
-                </div>
+                <div class="modal show" data-sw-source-url="${url}">${content}</div>
             </div>
-        `;
+        `);
+    }
+
+    it('re-renders the content of an open AJAX modal', async () => {
+        setup('<main>Page</main>');
         pages['http://localhost/'] = { html: page('<main>Page</main>') };
+        pages['/widgets/cms/abc'] = { html: '<p class="part">Version 1</p>' };
+        openAjaxModal('/widgets/cms/abc', '<div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>');
         pages['/widgets/cms/abc'] = { html: '<p class="part">Version 2</p>' };
 
         await refresh(['ajax-modal-part.html.twig']);
 
         expect(global.fetch).toHaveBeenCalledWith('/widgets/cms/abc', expect.objectContaining({
-            headers: expect.objectContaining({ 'X-Requested-With': 'XMLHttpRequest' }),
+            headers: expect.objectContaining({ 'X-Requested-With': 'XMLHttpRequest', 'sw-twig-hmr': '1' }),
         }));
         expect(document.querySelector('.js-pseudo-modal .part').textContent).toBe('Version 2');
         expect(document.querySelector('.js-pseudo-modal .modal').classList.contains('show')).toBe(true);
     });
 
     it('re-renders the content of an open AJAX offcanvas', async () => {
-        document.body.innerHTML = `
-            <main>Page</main>
+        setup('<main>Page</main>');
+        pages['http://localhost/'] = { html: page('<main>Page</main>') };
+        document.body.insertAdjacentHTML('beforeend', `
             <div class="offcanvas offcanvas-end js-offcanvas-singleton show" data-sw-source-url="/checkout/offcanvas" style="visibility: visible;">
                 <div class="offcanvas-body"><p class="part">Version 1</p></div>
             </div>
-        `;
-        pages['http://localhost/'] = { html: page('<main>Page</main>') };
+        `);
         pages['/checkout/offcanvas'] = { html: '<div class="offcanvas-body"><p class="part">Version 2</p></div>' };
 
         await refresh(['offcanvas-cart.html.twig']);
@@ -160,14 +368,9 @@ describe('dev/twig-hmr', () => {
     });
 
     it('morphs the root element of an open AJAX modal', async () => {
-        document.body.innerHTML = `
-            <div class="js-pseudo-modal">
-                <div class="modal show" data-sw-source-url="/widgets/quickview">
-                    <div class="js-pseudo-modal-template-root-element"><p class="part">Version 1</p></div>
-                </div>
-            </div>
-        `;
+        setup('');
         pages['http://localhost/'] = { html: page('') };
+        openAjaxModal('/widgets/quickview', '<div class="js-pseudo-modal-template-root-element"><p class="part">Version 1</p></div>');
         pages['/widgets/quickview'] = {
             html: '<div class="js-pseudo-modal-template-root-element"><p class="part">Version 2</p></div>',
         };
@@ -179,15 +382,12 @@ describe('dev/twig-hmr', () => {
     });
 
     it('moves the title of an AJAX modal response into the modal title', async () => {
-        document.body.innerHTML = `
-            <div class="js-pseudo-modal">
-                <div class="modal show" data-sw-source-url="/widgets/cms/abc">
-                    <h5 class="js-pseudo-modal-template-title-element">Title 1</h5>
-                    <div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>
-                </div>
-            </div>
-        `;
+        setup('');
         pages['http://localhost/'] = { html: page('') };
+        openAjaxModal('/widgets/cms/abc', `
+            <h5 class="js-pseudo-modal-template-title-element">Title 1</h5>
+            <div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>
+        `);
         pages['/widgets/cms/abc'] = {
             html: '<span class="js-pseudo-modal-template-title-element">Title 2</span><p class="part">Version 2</p>',
         };
@@ -200,107 +400,125 @@ describe('dev/twig-hmr', () => {
         expect(modal.querySelector('.part').textContent).toBe('Version 2');
     });
 
-    it('updates AJAX modals that miss template elements without failing', async () => {
-        document.body.innerHTML = `
-            <div class="js-pseudo-modal">
-                <div class="modal show" data-sw-source-url="/widgets/without-title">
-                    <div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>
-                </div>
-                <div class="modal show" data-sw-source-url="/widgets/without-content"><p class="static">Static</p></div>
-            </div>
-        `;
+    it('asks for a reload when an AJAX modal misses its template elements', async () => {
+        setup('');
         pages['http://localhost/'] = { html: page('') };
-        pages['/widgets/without-title'] = {
-            html: '<span class="js-pseudo-modal-template-title-element">Title</span><p class="part">Version 2</p>',
-        };
+        openAjaxModal('/widgets/without-content', '<p class="static">Static</p>');
         pages['/widgets/without-content'] = { html: '<p class="static">Changed</p>' };
 
         await refresh(['cms.html.twig']);
 
-        const content = document.querySelector('.js-pseudo-modal-template-content-element');
-        expect(content.innerHTML).toBe('<p class="part">Version 2</p>');
         expect(document.querySelector('.static').textContent).toBe('Static');
+        expect(notice().textContent).toContain('/widgets/without-content');
         expect(console.error).not.toHaveBeenCalled();
     });
 
-    it('keeps elements that scripts added at runtime', async () => {
-        document.body.innerHTML = `
-            <main>
-                <p class="text">Version 1</p>
-                <div class="toast" data-sw-twig-hmr-preserve>Added to cart</div>
-            </main>
-            <div class="script-root">Appended by a plugin</div>
-        `;
+    it('leaves the page unchanged when an open fragment fails to render', async () => {
+        setup('<main><input type="text" class="search"><p class="text">Version 1</p></main>');
+        const input = document.querySelector('.search');
+        input.focus();
+        pages['http://localhost/'] = { html: page('<main><input type="text" class="search"><p class="text">Version 2</p></main>') };
+        openAjaxModal('/widgets/cms/abc', '<div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>');
+        pages['/widgets/cms/abc'] = { status: 500, html: page('', 'Unexpected &quot;}&quot; in cms.html.twig') };
+
+        await refresh(['cms.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(document.querySelector('.part').textContent).toBe('Version 1');
+        expect(document.activeElement).toBe(input);
+        expect(window.PluginManager.initializePlugins).not.toHaveBeenCalled();
+        expect(notice().textContent).toContain('Unexpected "}" in cms.html.twig');
+    });
+
+    it('rejects a redirect without changing the page', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
+        pages['http://localhost/'] = {
+            html: page('<main><p class="text">Login</p></main>'),
+            redirectedTo: 'http://localhost/account/login',
+        };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ redirected to http://localhost/account/login');
+    });
+
+    it('rejects a response that is no HTML', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
+        pages['http://localhost/'] = { html: '{}', contentType: 'application/json' };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ answered with application/json instead of HTML');
+    });
+
+    it.each([
+        ['closed', (modal) => modal.classList.remove('show')],
+        ['loaded other content', (modal) => { modal.dataset.swSourceUrl = '/widgets/other'; }],
+    ])('discards the response of a fragment that %s during the fetch', async (name, change) => {
+        setup('<main><p class="text">Version 1</p></main>');
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main>') };
+        openAjaxModal('/widgets/cms/abc', '<div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>');
+        const modal = document.querySelector('.js-pseudo-modal .modal');
+        let fragmentRequests = 0;
+        global.fetch = jest.fn((url) => {
+            if (url === '/widgets/cms/abc') {
+                fragmentRequests += 1;
+                // The first request is the baseline, the second one belongs to the refresh.
+                if (fragmentRequests === 2) {
+                    change(modal);
+                }
+
+                return respond(url, { html: '<p class="part">Version 2</p>' });
+            }
+
+            return respond(url, pages[url] ?? { status: 404 });
+        });
+
+        await refresh(['cms.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 2');
+        expect(modal.querySelector('.part').textContent).toBe('Version 1');
+    });
+
+    it('keeps elements that scripts added and removes the ones the template removed', async () => {
+        setup(`
+            <div class="server-banner">Banner</div>
+            <main><p class="text">Version 1</p></main>
+            <div class="toast" data-sw-twig-hmr-preserve>Rendered toast</div>
+        `);
+        document.body.insertAdjacentHTML('beforeend', '<div class="script-root">Appended by a plugin</div>');
+        document.querySelector('main').insertAdjacentHTML('beforeend', '<span class="badge">Added by a plugin</span>');
         pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main>') };
 
         await refresh(['page.html.twig']);
 
         expect(document.querySelector('.text').textContent).toBe('Version 2');
+        expect(document.querySelector('.server-banner')).toBeNull();
         expect(document.querySelector('[data-sw-twig-hmr-preserve]')).not.toBeNull();
         expect(document.querySelector('.script-root')).not.toBeNull();
+        expect(document.querySelector('main .badge')).not.toBeNull();
     });
 
-    it('keeps the state of collapse elements, toggles and checkboxes', async () => {
-        document.body.innerHTML = `
-            <main>
-                <button class="btn" data-bs-toggle="collapse" aria-expanded="true">Filter</button>
-                <div class="collapse show" id="filter"><input type="checkbox" class="option"> Old</div>
-            </main>
-        `;
-        const checkbox = document.querySelector('.option');
-        checkbox.checked = true;
-        pages['http://localhost/'] = {
-            html: page(`
-                <main>
-                    <button class="btn btn-primary" data-bs-toggle="collapse" aria-expanded="false">Filter</button>
-                    <div class="collapse" id="filter"><input type="checkbox" class="option"> New</div>
-                </main>
-            `),
-        };
+    it('asks for a reload when the head changed', async () => {
+        document.head.innerHTML = '<meta name="description" content="Old">';
+        setup('<main>Page</main>');
+        pages['http://localhost/'] = { html: page('<main>Page</main>', 'Shop', '<meta name="description" content="New">') };
+        const updated = jest.fn();
+        document.addEventListener('sw-twig-hmr:updated', updated);
 
-        await refresh(['filter.html.twig']);
+        await refresh(['meta.html.twig']);
 
-        const toggle = document.querySelector('[data-bs-toggle]');
-        expect(toggle.classList.contains('btn-primary')).toBe(true);
-        expect(toggle.getAttribute('aria-expanded')).toBe('true');
-        expect(document.getElementById('filter').classList.contains('show')).toBe(true);
-        expect(document.getElementById('filter').textContent).toContain('New');
-        expect(document.querySelector('.option')).toBe(checkbox);
-        expect(checkbox.checked).toBe(true);
+        expect(notice().textContent).toContain('<head> changed');
+        expect(updated.mock.calls[0][0].detail.reloadRequired).toEqual([
+            'The <head> changed. Meta and link elements are only applied by a reload.',
+        ]);
+        document.removeEventListener('sw-twig-hmr:updated', updated);
     });
 
-    it('keeps the current DOM when the request fails', async () => {
-        document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
-        global.fetch = jest.fn(() => Promise.reject(new Error('Failed to fetch')));
-
-        await refresh(['page.html.twig']);
-
-        expect(document.querySelector('.text').textContent).toBe('Version 1');
-        expect(console.error).toHaveBeenCalledWith('Failed to fetch');
-    });
-
-    it('logs a generic message for an error page without a title', async () => {
-        document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
-        pages['http://localhost/'] = { status: 502, html: 'Bad Gateway' };
-
-        await refresh(['page.html.twig']);
-
-        expect(document.querySelector('.text').textContent).toBe('Version 1');
-        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ answered with HTTP 502: server error');
-    });
-
-    it('logs errors that are no Error objects', async () => {
-        document.body.innerHTML = '<main>Version 1</main>';
-        pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
-        window.PluginManager.initializePlugins = jest.fn(() => Promise.reject('Plugin failed'));
-
-        await refresh(['page.html.twig']);
-
-        expect(console.error).toHaveBeenCalledWith('Plugin failed');
-    });
-
-    it('keeps the current DOM when the server answers with an error', async () => {
-        document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
+    it('shows a render error until the next update succeeds', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
         pages['http://localhost/'] = {
             status: 500,
             html: page('<h1>Error</h1>', 'Unexpected &quot;}&quot; in modal-body.html.twig (500 Internal Server Error)'),
@@ -313,12 +531,39 @@ describe('dev/twig-hmr', () => {
         expect(console.error).toHaveBeenCalledWith(
             '[sw-twig-hmr] http://localhost/ answered with HTTP 500: Unexpected "}" in modal-body.html.twig (500 Internal Server Error)',
         );
+        expect(notice().textContent).toContain('could not be rendered');
+
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main>') };
+        await refresh(['modal-body.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 2');
+        expect(notice()).toBeNull();
+    });
+
+    it('logs a generic message for an error page without a title', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
+        pages['http://localhost/'] = { status: 502, html: 'Bad Gateway' };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ answered with HTTP 502: server error');
+    });
+
+    it('logs errors that are no Error objects', async () => {
+        setup('<main>Version 1</main>');
+        pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
+        window.PluginManager.initializePlugins = jest.fn(() => Promise.reject('Plugin failed'));
+
+        await refresh(['page.html.twig']);
+
+        expect(console.error).toHaveBeenCalledWith('Plugin failed');
     });
 
     it('runs changes during a refresh once afterwards', async () => {
         const updated = jest.fn();
         document.addEventListener('sw-twig-hmr:updated', updated);
-        document.body.innerHTML = '<main>Version 1</main>';
+        setup('<main>Version 1</main>');
         pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
 
         await Promise.all([
@@ -335,5 +580,14 @@ describe('dev/twig-hmr', () => {
         ]);
 
         document.removeEventListener('sw-twig-hmr:updated', updated);
+    });
+
+    it('works without an explicit init', async () => {
+        document.body.innerHTML = '<main>Version 1</main>';
+        pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('main').textContent).toBe('Version 2');
     });
 });

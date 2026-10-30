@@ -4,6 +4,7 @@
 describe('dev/twig-hmr/twig-hmr.client', () => {
     let sockets;
     let refresh;
+    let init;
 
     class WebSocketMock {
         constructor(url) {
@@ -23,7 +24,7 @@ describe('dev/twig-hmr/twig-hmr.client', () => {
 
     function loadClient() {
         jest.isolateModules(() => {
-            jest.doMock('src/dev/twig-hmr/twig-hmr', () => ({ refresh, LOG_PREFIX: '[sw-twig-hmr]' }));
+            jest.doMock('src/dev/twig-hmr/twig-hmr', () => ({ init, refresh, LOG_PREFIX: '[sw-twig-hmr]' }));
             require('src/dev/twig-hmr/twig-hmr.client');
         });
     }
@@ -31,6 +32,7 @@ describe('dev/twig-hmr/twig-hmr.client', () => {
     beforeEach(() => {
         sockets = [];
         refresh = jest.fn(() => Promise.resolve());
+        init = jest.fn();
         global.WebSocket = WebSocketMock;
         jest.spyOn(console, 'info').mockImplementation(() => {});
         document.head.innerHTML = '';
@@ -49,6 +51,7 @@ describe('dev/twig-hmr/twig-hmr.client', () => {
         expect(sockets).toHaveLength(1);
         expect(sockets[0].url).toBe('wss://shop.test:9999/ws');
         expect(window.swTwigHmr.refresh).toBe(refresh);
+        expect(init).toHaveBeenCalledTimes(1);
     });
 
     it('connects to the page origin without the hot reloading script', () => {

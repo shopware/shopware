@@ -57,8 +57,8 @@ try {
 }
 
 const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
-// Applies Twig changes in place instead of reloading the page. `SHOPWARE_STOREFRONT_TWIG_HMR=0` restores the full reload.
-const useTwigHmr = isHotMode && process.env.SHOPWARE_STOREFRONT_TWIG_HMR !== '0';
+// Experimental: `SHOPWARE_STOREFRONT_TWIG_HMR=1` applies Twig changes in place instead of reloading the page.
+const useTwigHmr = isHotMode && process.env.SHOPWARE_STOREFRONT_TWIG_HMR === '1';
 
 const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
 

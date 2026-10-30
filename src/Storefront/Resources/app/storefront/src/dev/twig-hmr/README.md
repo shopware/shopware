@@ -1,23 +1,25 @@
 # Twig hot reload for the Storefront watcher
 
-The Storefront watcher applies Twig changes to the open page without a reload.
-Open modals, offcanvas menus, collapse elements, typed form values and the focus stay as they are.
+**Experimental and opt-in.**
+The Storefront watcher can apply Twig changes to the open page without a reload.
+Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are.
+When a change cannot be applied safely, a notice on the page says so and offers a reload.
 The code in this directory is only part of the `hot-reloading` dev entry and is never shipped in production builds.
 
 ## Usage
 
-Start the watcher as usual:
+Start the watcher with the opt-in variable:
 
 ```bash
-composer watch:storefront
+SHOPWARE_STOREFRONT_TWIG_HMR=1 composer watch:storefront
 ```
 
-Twig hot reload is on by default.
-Set `SHOPWARE_STOREFRONT_TWIG_HMR=0` to get the full page reload back.
+Without the variable, the watcher reloads the page on Twig changes as before.
 `SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH=1` still limits the watched files to the Storefront bundle.
 
 For debugging, `await window.swTwigHmr.refresh([])` triggers a refresh in the browser console.
-After every refresh, the client dispatches `sw-twig-hmr:updated` on the document with the changed files in `event.detail.files`.
+After every refresh, the client dispatches `sw-twig-hmr:updated` on the document.
+`event.detail.files` holds the changed files, and `event.detail.reloadRequired` lists the changes that need a reload.
 
 ## How it works
 
@@ -26,12 +28,11 @@ file save
   -> chokidar watcher in the webpack dev server (debounced 50 ms)
   -> web socket message "sw-twig-update" { files }
   -> browser client
-       1. fetch(location.href)
-       2. morph document.body with idiomorph and keep the runtime state
-       3. fetch the source URL of every open AJAX modal and AJAX offcanvas and morph its content
-       4. PluginManager.initializePlugins()
-       5. restore the focus and the text selection
-       6. dispatch "sw-twig-hmr:updated"
+       1. prepare: fetch the page and every open AJAX modal and offcanvas, validate all responses
+       2. apply: morph all responses in one synchronous step, restore the interaction state
+       3. PluginManager.initializePlugins()
+       4. restore the focus and the text selection
+       5. show the notice if a change needs a reload, dispatch "sw-twig-hmr:updated"
 ```
 
 The server renders the page as usual.
@@ -46,27 +47,66 @@ It watches those with a `storefront` or `components` directory.
 `awaitWriteFinish` waits until the file is completely written, because editors and file syncs such as Mutagen write in several steps.
 The Twig files are removed from `watchFiles` of the dev server, otherwise it would send a full reload.
 
+### HTTP cache
+
+Every request of the client sends the `sw-twig-hmr: 1` header.
+`TwigHmrCacheSubscriber` marks these requests as not cacheable in debug mode, so the Symfony HTTP cache neither answers nor stores them.
+A reverse proxy such as Varnish in front of the shop does not know the header and can still answer from its cache.
+
 ### Client
 
 `twig-hmr.client.js` connects to the web socket of the webpack dev server and reconnects after a restart.
-`twig-hmr.js` holds the refresh logic.
+It calls `init()` before the theme scripts run, so the client sees the server markup of the page and every element that scripts add later.
 
-**Refetch.**
-The client fetches `location.href` with `credentials: 'same-origin'`, `cache: 'no-store'` and an `sw-twig-hmr: 1` header.
-If the server answers with an error, the client keeps the current DOM and logs the title of the error page.
-A Twig syntax error therefore does not close an open modal, and the next save retries.
+| File                   | Responsibility                                                        |
+|------------------------|-----------------------------------------------------------------------|
+| `twig-hmr.js`          | The two-phase refresh, the morph callbacks and the queue              |
+| `ownership.js`         | Which elements belong to scripts instead of the Twig output           |
+| `plugin-policy.js`     | Which plugin elements changed between the previous and the new render |
+| `interaction-state.js` | Edited controls and the Bootstrap state that a user created           |
+| `notice.js`            | The "reload required" notice                                          |
 
-**Morph.**
-The client calls `Idiomorph.morph(document.body, newDocument.body.childNodes, { morphStyle: 'innerHTML' })`.
-The callbacks keep the state that only exists in the browser:
+**Prepare.**
+The client fetches the page and the source URL of every open AJAX modal and offcanvas in parallel.
+It sends `credentials: 'same-origin'`, `cache: 'no-store'` and the `sw-twig-hmr: 1` header.
+A response with an error status, a redirect or a content type other than HTML stops the refresh before the DOM changes.
+The page keeps a consistent state, the notice shows the error, and the next save retries.
+A redirect usually means that the session expired and the server sent the login page.
 
-- `beforeNodeMorphed` merges runtime classes such as `show`, `collapsing` and `modal-open` into the new class list of stateful elements like `.modal`, `.offcanvas`, `.collapse` and `.dropdown-menu`.
-- `beforeAttributeUpdated` keeps `style`, `aria-expanded`, `aria-hidden`, `aria-modal`, `role`, `tabindex` and `inert` on these elements.
-- `beforeAttributeUpdated` keeps `value`, `checked` and `selected` on form fields, so typed input survives.
-- `beforeNodeRemoved` keeps direct body children and elements that scripts add at runtime, such as the modal backdrop, the pseudo modal, offcanvas elements and toasts.
-  Elements with `data-sw-twig-hmr-preserve` are kept as well.
+**Apply.**
+A fragment that closed or loaded other content during the fetch keeps its DOM.
+All other responses are morphed in one synchronous step with `Idiomorph.morph(root, next.childNodes, { morphStyle: 'innerHTML' })`.
 
-The document title is updated when it changed.
+**Ownership.**
+A `MutationObserver` records every element that scripts add to the body after `init()`.
+The morph never changes or removes these elements.
+The same applies to elements matching `.modal-backdrop`, `.offcanvas-backdrop`, `.js-pseudo-modal`, `.js-offcanvas-singleton` or `[data-sw-twig-hmr-preserve]`.
+Server elements that a template removed are removed, also direct children of the body.
+The morph itself is not recorded, so elements that the template adds stay server markup.
+
+**Plugin policy.**
+Plugins cache child elements and add their own markup, so the morph never enters an element with a plugin instance.
+The client compares the server markup of the previous and the new render for every plugin selector:
+
+- Unchanged plugin elements keep their DOM and their instance.
+- Changed plugin elements keep their old DOM, so the plugin keeps working, and the notice asks for a reload.
+- New plugin elements are initialized by `PluginManager.initializePlugins()`.
+
+The previous render of the page is a copy of the body taken by `init()`.
+The previous render of a fragment is fetched when the fragment opens.
+Without a previous render, every plugin element counts as changed.
+
+**Interaction state.**
+Only state that a user created is kept:
+
+- Controls that the user edited keep `value`, `checked` and `selected`.
+  Hidden inputs and untouched controls follow the template.
+  If the template replaced an edited control, the new control gets the value when exactly one control matches its form, name and type.
+- Open modals and offcanvas elements keep `show`, `showing`, `style`, `aria-modal`, `role` and `aria-hidden`.
+- While an overlay is open, direct body children keep `inert` and `aria-hidden`.
+- Collapse elements that the user toggled keep their state, and their toggles keep `collapsed` and `aria-expanded`.
+- Tabs that the user activated stay active, with `aria-selected` and `tabindex` on the triggers and `active` and `show` on the panes.
+- Open dropdowns keep `show` and their Popper attributes.
 
 **AJAX modals.**
 The `AjaxModal` plugin stores its request URL on the modal as `data-sw-source-url`.
@@ -74,13 +114,7 @@ The client fetches that URL with `X-Requested-With: XMLHttpRequest` and morphs t
 
 **AJAX offcanvas.**
 `AjaxOffCanvas` stores the URL of a GET request on the offcanvas as `data-sw-source-url`, for example for the cart opened from the header.
-The client fetches that URL and morphs the offcanvas content like `OffCanvas.setContent()` would set it.
 Content loaded with a POST request, such as the cart after adding a product, gets no URL, because sending the request again would change data.
-
-**Plugins.**
-After the morph, the client calls `PluginManager.initializePlugins()`.
-New elements get their plugins.
-Existing elements keep their plugin instances, because idiomorph keeps the nodes.
 
 **Focus.**
 idiomorph only restores the focus of elements with an `id`.
@@ -94,26 +128,31 @@ These are covered by the tests in `test/dev/twig-hmr`:
   `morph(body, newBody)` would nest a second `<body>` inside the body, so the client passes `newBody.childNodes`.
 - `ignoreActiveValue: true` skips all children of the focused element.
   Bootstrap focuses the `.modal` element itself, so an open modal would never update.
-  The client protects form values in `beforeAttributeUpdated` instead.
+- `beforeNodeRemoved` is not called for elements with an id that idiomorph moves, so ownership is checked in `beforeNodeMorphed` as well.
 - `restoreFocus: true` only works for focused elements with an `id`.
+
+## Tests
+
+- `twig-hmr.test.js` covers the refresh, the validation, the ownership and the interaction state.
+- `twig-hmr.plugins.test.js` runs the real `PluginManager` with `QuantitySelectorPlugin` and a plugin that wraps its children like a slider.
 
 ## Limits
 
+- **Random ids.**
+  Templates that render ids with `random()`, such as listing filters, captchas and the address dropdown, change on every render.
+  Their plugin elements always count as changed and ask for a reload.
+- **Plugins with references outside their element** can still point to replaced nodes.
+- **Plugin options** of existing elements are not applied again.
+  A changed plugin element asks for a reload instead.
 - **Inline scripts** in morphed markup do not run again.
   Plugins should use the PluginManager instead.
-- **Direct body children** that a template removes are kept, because the client cannot tell them apart from elements added by scripts.
-  Reload the page in that case.
 - **Offcanvas content without a GET URL** keeps the old markup until it is opened again.
   This covers the navigation offcanvas, which `OffcanvasMenuPlugin` loads itself, and offcanvas content loaded with a POST request.
-- **Plugin options** of existing elements are not applied again.
-  If a template changes the options of an existing plugin element, reload the page.
-- **Head changes** are ignored except for the title.
-  Meta tags and new style sheets need a reload.
+- **Head changes** other than the title ask for a reload.
 - **Duplicate ids** in the page make idiomorph match the wrong nodes.
 - **Pages reached by POST** show the result of a GET request after a refresh.
-- **HTTP cache.**
-  With the HTTP cache enabled, the refetch can return a stale page.
-  Disable the HTTP cache while working on templates.
+- **Fragment baselines** are fetched when a fragment opens.
+  A template saved in the short time before that request finishes counts as the previous render.
 
 ## Vite dev server
 

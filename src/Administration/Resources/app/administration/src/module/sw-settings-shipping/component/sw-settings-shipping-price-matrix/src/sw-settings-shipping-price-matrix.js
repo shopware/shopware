@@ -395,22 +395,24 @@ export default {
                 return;
             }
 
-            // get actual rule index
-            const actualShippingPriceIndex = this.priceGroup.prices.indexOf(shippingPrice);
+            if (!this.isRuleMatrix) {
+                // get actual rule index
+                const actualShippingPriceIndex = this.priceGroup.prices.indexOf(shippingPrice);
 
-            // if it is the last item
-            if (typeof shippingPrice.quantityEnd === 'undefined' || shippingPrice.quantityEnd === null) {
-                // get previous rule
-                const previousRule = this.priceGroup.prices[actualShippingPriceIndex - 1];
+                // if it is the last item
+                if (typeof shippingPrice.quantityEnd === 'undefined' || shippingPrice.quantityEnd === null) {
+                    // get previous rule
+                    const previousRule = this.priceGroup.prices[actualShippingPriceIndex - 1];
 
-                // set the quantityEnd from the previous rule to null
-                previousRule.quantityEnd = null;
-            } else {
-                // get next rule
-                const nextRule = this.priceGroup.prices[actualShippingPriceIndex + 1];
+                    // set the quantityEnd from the previous rule to null
+                    previousRule.quantityEnd = null;
+                } else {
+                    // get next rule
+                    const nextRule = this.priceGroup.prices[actualShippingPriceIndex + 1];
 
-                // set the quantityStart from the next rule to the quantityStart from the actual rule
-                nextRule.quantityStart = shippingPrice.quantityStart;
+                    // set the quantityStart from the next rule to the quantityStart from the actual rule
+                    nextRule.quantityStart = shippingPrice.quantityStart;
+                }
             }
 
             // delete rule

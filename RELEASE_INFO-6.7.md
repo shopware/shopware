@@ -1,5 +1,12 @@
 # 6.7.17.0 (upcoming)
 
+## Critical Fixes
+
+### Many-to-many associations restrict deletes again
+
+Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
+Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while another entity still references them.
+
 ## Core
 
 ### Missing plugin conditions in stored carts

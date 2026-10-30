@@ -116,9 +116,6 @@ async function createWrapper(extension) {
                 },
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-                'sw-loader': await wrapTestComponent('sw-loader', {
-                    sync: true,
-                }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',
@@ -144,7 +141,6 @@ async function createWrapper(extension) {
                 'sw-tabs': true,
                 'sw-base-field': true,
                 'sw-field-error': true,
-                'sw-loader-deprecated': true,
                 'i18n-t': true,
                 'sw-label': true,
                 'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),

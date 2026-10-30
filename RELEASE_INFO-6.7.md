@@ -235,6 +235,14 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Bundle only the Administration during development
+
+With the `ADMIN_VITE_8` feature flag active, set `SHOPWARE_ADMIN_BUNDLED_DEV=core` before starting the Administration watcher to bundle Core while serving extensions as separate modules.
+This reduces the number of Core module requests and keeps extension development on the existing ESM path.
+Bundled development is experimental and may require more memory.
+Use `SHOPWARE_ADMIN_BUNDLED_DEV=1` to bundle Core and plugins, or unset the variable to use unbundled development.
+Restart the watcher after changing the mode.
+
 ### CMS layout overview places the page type navigation in a grid
 
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.

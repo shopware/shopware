@@ -70,7 +70,7 @@ export default (async ({ command }) => {
     }
 
     if (useBundledDev) {
-        console.log(colors.yellow('# Experimental bundled dev mode activated'));
+        console.log(colors.yellow('# Experimental bundled dev mode activated for the Administration'));
     }
 
     // We only load extensions here to display the successful injection

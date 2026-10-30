@@ -14,32 +14,33 @@ describe('public-component/private: findMissingPublicNames', () => {
     };
 
     it('finds nothing when every listed name exists', () => {
-        expect(
-            findMissingPublicNames(
-                {
-                    props: ['value'],
-                    emits: ['update:value'],
-                    computed: ['total'],
-                    methods: ['save'],
-                    blocks: ['sw_example', 'sw_example_label'],
-                },
-                component,
-            ),
-        ).toEqual([]);
+        const api = {
+            props: ['value'],
+            emits: ['update:value'],
+            computed: ['total'],
+            methods: ['save'],
+            blocks: ['sw_example', 'sw_example_label'],
+        };
+
+        const missing = findMissingPublicNames(api, component);
+
+        expect(missing).toEqual([]);
     });
 
     it('names every listed name the component lacks', () => {
-        expect(
-            findMissingPublicNames(
-                { props: ['disabled'], methods: ['save', 'delete'], blocks: ['sw_example_footer'] },
-                component,
-            ),
-        ).toEqual(['props:disabled', 'methods:delete', 'blocks:sw_example_footer']);
+        const api = { props: ['disabled'], methods: ['save', 'delete'], blocks: ['sw_example_footer'] };
+
+        const missing = findMissingPublicNames(api, component);
+
+        expect(missing).toEqual(['props:disabled', 'methods:delete', 'blocks:sw_example_footer']);
     });
 
     it('reads props and emits in array and object form', () => {
-        expect(
-            findMissingPublicNames({ props: ['value'], emits: ['change'] }, { props: ['value'], emits: { change: null } }),
-        ).toEqual([]);
+        const api = { props: ['value'], emits: ['change'] };
+        const arrayAndObjectComponent = { props: ['value'], emits: { change: null } };
+
+        const missing = findMissingPublicNames(api, arrayAndObjectComponent);
+
+        expect(missing).toEqual([]);
     });
 });

@@ -47,7 +47,12 @@ test('drafts, closed items and test plans are not triaged', () => {
 
 type Item = { number: number; state: string; title: string; draft?: boolean };
 
-function toolkitFor(action: string, labels: string[], payload: { issue?: Item; pull_request?: Item; label?: { name: string } }) {
+function toolkitFor(
+    action: string,
+    labels: string[],
+    payload: { issue?: Item; pull_request?: Item; label?: { name: string } },
+    removeError?: unknown,
+) {
     const calls: string[] = [];
     const github = {
         rest: {
@@ -60,6 +65,9 @@ function toolkitFor(action: string, labels: string[], payload: { issue?: Item; p
                 },
                 async removeLabel(options: { issue_number: number; name: string }) {
                     calls.push(`remove ${options.name} from #${options.issue_number}`);
+                    if (removeError !== undefined) {
+                        throw removeError;
+                    }
                 },
             },
         },
@@ -94,4 +102,26 @@ test('a skipped event touches no label', async () => {
 
     assert.equal((await manageNeedsTriage(toolkit)).action, 'skip');
     assert.deepEqual(calls, []);
+});
+
+test('a label already removed by a concurrent run counts as removed', async () => {
+    const { toolkit } = toolkitFor(
+        'labeled',
+        ['domain/framework', 'service/sbp', NEEDS_TRIAGE_LABEL],
+        { issue: { number: 7, state: 'open', title: 'Bug' }, label: { name: 'service/sbp' } },
+        Object.assign(new Error('Label does not exist'), { status: 404 }),
+    );
+
+    assert.deepEqual(await manageNeedsTriage(toolkit), { action: 'remove' });
+});
+
+test('any other failure to remove the label fails the run', async () => {
+    const { toolkit } = toolkitFor(
+        'labeled',
+        ['domain/framework', NEEDS_TRIAGE_LABEL],
+        { issue: { number: 7, state: 'open', title: 'Bug' }, label: { name: 'domain/framework' } },
+        Object.assign(new Error('Server Error'), { status: 500 }),
+    );
+
+    await assert.rejects(manageNeedsTriage(toolkit), /Server Error/);
 });

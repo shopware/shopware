@@ -14,6 +14,13 @@ permissions:
 
 jobs:
   needs-triage:
+    # Decided here so other labels, drafts and test plans start no runner; the script repeats the checks for its tests.
+    if: |
+      (github.event.action == 'labeled' &&
+        (startsWith(github.event.label.name, 'domain/') || startsWith(github.event.label.name, 'service/'))) ||
+      (github.event.action != 'labeled' &&
+        !github.event.pull_request.draft &&
+        !startsWith(github.event.issue.title, '[Test Plan]'))
     runs-on: ubuntu-24.04
     steps:
       # Give the labeler time to apply a domain label; a label it adds with the workflow token
@@ -23,6 +30,7 @@ jobs:
         run: sleep 5m
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           sparse-checkout: .github/bin/js
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:

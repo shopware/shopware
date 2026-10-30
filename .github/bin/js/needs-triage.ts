@@ -95,6 +95,10 @@ type Logger = { info(message: string): void };
 
 type Toolkit = { github: IssuesClient; core: Logger; context: NeedsTriageContext };
 
+function isNotFound(error: unknown): boolean {
+    return typeof error === 'object' && error !== null && 'status' in error && error.status === 404;
+}
+
 function itemOf(context: NeedsTriageContext): Item {
     const item = context.payload.issue ?? context.payload.pull_request;
     if (!item) {
@@ -121,7 +125,14 @@ export async function manageNeedsTriage({ github, core, context }: Toolkit): Pro
     if (verdict.action === 'add') {
         await github.rest.issues.addLabels({ ...options, labels: [NEEDS_TRIAGE_LABEL] });
     } else if (verdict.action === 'remove') {
-        await github.rest.issues.removeLabel({ ...options, name: NEEDS_TRIAGE_LABEL });
+        try {
+            await github.rest.issues.removeLabel({ ...options, name: NEEDS_TRIAGE_LABEL });
+        } catch (error) {
+            // A run for another domain label added at the same time removed it first.
+            if (!isNotFound(error)) {
+                throw error;
+            }
+        }
     }
 
     core.info(verdict.action === 'skip' ? `#${item.number}: skipped, ${verdict.reason}` : `#${item.number}: ${verdict.action} ${NEEDS_TRIAGE_LABEL}`);

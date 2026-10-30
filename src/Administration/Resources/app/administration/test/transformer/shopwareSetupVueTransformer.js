@@ -8,23 +8,11 @@ const {
     ShopwareSetupInternalError,
     ShopwareSetupTransformError,
 } = require('../../build/vue-setup-transform');
+const { isDependencyFile } = require('./isDependencyFile');
 
 /**
  * @typedef {object} JestTransformerConfig
  */
-
-/**
- * Whether a file belongs to an installed dependency.
- *
- * Mirrors the Vite plugin's guard. Needed despite Jest's default `transformIgnorePatterns`, because
- * the Jest config un-ignores `@shopware-ag/meteor-component-library`, which ships Options-API `.vue` files.
- *
- * @param {string} filename
- * @returns {boolean}
- */
-function isDependencyFile(filename) {
-    return filename.replace(/\\/g, '/').includes('/node_modules/');
-}
 
 /**
  * Applies the shared pre-Vue transform before delegating to vue-jest.
@@ -34,6 +22,8 @@ function isDependencyFile(filename) {
  * @returns {string}
  */
 function transformSource(source, filename) {
+    // Mirrors the Vite plugin's guard. Needed because the Jest config transforms `node_modules` as well,
+    // and `@shopware-ag/meteor-component-library` ships Options-API `.vue` files.
     if (isDependencyFile(filename)) {
         return source;
     }

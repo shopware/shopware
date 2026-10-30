@@ -77,7 +77,6 @@ const config: Config = shopwareAdminJest({
     restoreMocks: true,
 
     // Performance optimizations
-    // Skip node_modules transformation where possible (already handled by transformIgnorePatterns)
     // Cache transformed files aggressively
     cache: true,
     // Use native ESM where possible for faster execution
@@ -167,6 +166,7 @@ const config: Config = shopwareAdminJest({
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
         '<rootDir>/test/_setup/**/*.spec.ts',
+        '<rootDir>/test/transformer/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

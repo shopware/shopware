@@ -2,11 +2,12 @@
  * @sw-package framework
  */
 
+import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-string-filter.html.twig';
 
 const { Criteria } = Shopware.Data;
 
-type CriteriaFilter = NonNullable<Parameters<typeof Criteria.multi>[1]>[number];
+type CriteriaFilter = Parameters<CriteriaType['addFilter']>[0];
 
 /**
  * @private

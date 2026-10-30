@@ -82,6 +82,24 @@ They need no comment, and an agent may write them by freezing the current behavi
 Each regression test has a `@regression` doc comment with the issue and what users saw.
 A test that the next major removes (`it.deprecated(...)`) also has `@deprecated tag:vX.Y.Z` in its doc comment, in every kind of spec file.
 
+Every test in these three files marks its steps with comments, so a reader sees at once what is set up, what runs and what is checked:
+
+```ts
+it('shows an order with its primary delivery', () => {
+    // ARRANGE
+    const order = createOrder({ primaryOrderDelivery: primary });
+
+    // ACT
+    const shown = getPrimaryDelivery(order);
+
+    // ASSERT
+    expect(shown).toBe(primary);
+});
+```
+
+`// ARRANGE` may be left out when nothing needs setting up.
+`sw-test-rules/arrange-act-assert` checks the comments and their order.
+
 Requirements, pinned and regressions specs import the module only through `../index`, so they test what other code sees.
 A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
 A changed pin only asks whether the change was intended.

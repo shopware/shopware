@@ -6,7 +6,11 @@
 
 const getAsyncExpressionName = (node) => {
     // Shopware.Component.build
-    if (node.callee?.object?.object?.name === 'Shopware' && node.callee?.object?.property?.name === 'Component' && node.callee?.property?.name === 'build') {
+    if (
+        node.callee?.object?.object?.name === 'Shopware' &&
+        node.callee?.object?.property?.name === 'Component' &&
+        node.callee?.property?.name === 'build'
+    ) {
         return 'Shopware.Component.build';
     }
 

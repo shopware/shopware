@@ -10,10 +10,13 @@ describe('service-names', () => {
      * Extensions inject services by these names, so a new name would break them.
      */
     it('names every service by its registered name', () => {
+        // ARRANGE
         const names = Object.entries(serviceNames);
 
+        // ACT
         const renamed = names.filter(([constant, name]) => constant !== name);
 
+        // ASSERT
         expect(renamed).toEqual([]);
     });
 });

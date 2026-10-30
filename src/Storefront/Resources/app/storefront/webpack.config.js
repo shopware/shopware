@@ -13,6 +13,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 const getTwigWatchPaths = require('./build/webpack/twig-watch-paths');
+const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -56,6 +57,8 @@ try {
 }
 
 const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
+// Applies Twig changes in place instead of reloading the page. `SHOPWARE_STOREFRONT_TWIG_HMR=0` restores the full reload.
+const useTwigHmr = isHotMode && process.env.SHOPWARE_STOREFRONT_TWIG_HMR !== '0';
 
 const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
 
@@ -492,7 +495,9 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry['hot-reloading'] = [scssEntryFilePath];
+    coreConfig.entry['hot-reloading'] = useTwigHmr
+        ? [scssEntryFilePath, path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js')]
+        : [scssEntryFilePath];
 }
 
 const mergedCoreConfig = merge([
@@ -530,13 +535,21 @@ const mergedCoreConfig = merge([
                     headers: {
                         'Access-Control-Allow-Origin': '*',
                     },
-                    watchFiles: {
+                    // With Twig HMR the watcher below handles the Twig files, `watchFiles` would reload the page.
+                    watchFiles: useTwigHmr ? [] : {
                         paths: watchFilePaths,
                         options: {
                             persistent: true,
                             cwd: projectRootPath,
                             ignorePermissionErrors: true,
                         },
+                    },
+                    setupMiddlewares: (middlewares, devServer) => {
+                        if (useTwigHmr) {
+                            setupTwigHmrWatcher(devServer, watchFilePaths, projectRootPath);
+                        }
+
+                        return middlewares;
                     },
                 };
             }

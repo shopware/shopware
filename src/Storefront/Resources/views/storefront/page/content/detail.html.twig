@@ -3,6 +3,10 @@
 {# @var landingPage \Shopware\Core\Content\LandingPage\LandingPageEntity #}
 {% block page_content_sections_inner %}
     <div class="cms-sections">
+        {# DEMO: Twig hot reload playground for AJAX modals. Remove before merge. #}
+        {% if app.request.isXmlHttpRequest %}
+            {% sw_include '@Storefront/storefront/component/twig-hmr-demo/ajax-modal-part.html.twig' %}
+        {% endif %}
         {% for section in cmsPage.sections %}
             {% set sectionBgColor = section.backgroundColor %}
             {# @deprecated tag:v6.8.0 - Variable `sectionBgImg` will be removed, use `section.backgroundMedia` with `sw_thumbnails` instead #}

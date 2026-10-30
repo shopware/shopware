@@ -516,6 +516,14 @@ With the `v6.8.0.0` flag active, the template no longer sets the deprecated `bre
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
 
+### Twig changes apply without a reload in the Storefront watcher
+
+`composer watch:storefront` now applies Twig changes to the open page without a reload.
+Open modals, offcanvas menus, typed form values and the focus stay as they are, and open AJAX modals are rendered again as well.
+Set `SHOPWARE_STOREFRONT_TWIG_HMR=0` to get the full page reload back.
+Inline scripts in changed markup do not run again, so initialize JavaScript through the PluginManager.
+See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests

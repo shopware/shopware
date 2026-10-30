@@ -552,15 +552,7 @@ class StateMachineRegistryTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $stateMachine = $this->createStateMachine([]);
-        $stateMachineRepository = static::createStub(EntityRepository::class);
-
-        $capturedCriteria = null;
-        $stateMachineRepository->method('search')
-            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($stateMachine, &$capturedCriteria): EntitySearchResult {
-                $capturedCriteria = $criteria;
-
-                return $this->createSearchResult('state_machine', new StateMachineCollection([$stateMachine]), $context);
-            });
+        $stateMachineRepository = new StaticEntityRepository([new StateMachineCollection([$stateMachine])]);
 
         $registry = new StateMachineRegistry(
             $stateMachineRepository,
@@ -575,8 +567,8 @@ class StateMachineRegistryTest extends TestCase
 
         $registry->getStateMachine('order_transaction.state', $context);
 
-        static::assertNotNull($capturedCriteria);
-        $sortings = $capturedCriteria->getAssociation('transitions')->getSorting();
+        static::assertCount(1, $stateMachineRepository->searchedCriteria);
+        $sortings = $stateMachineRepository->searchedCriteria[0]->getAssociation('transitions')->getSorting();
         static::assertSame(
             ['state_machine_transition.actionName', 'state_machine_transition.createdAt', 'state_machine_transition.id'],
             array_map(static fn (FieldSorting $sorting): string => $sorting->getField(), $sortings)
@@ -727,7 +719,9 @@ class StateMachineRegistryTest extends TestCase
         ?StateMachineStateEntity $forcedToPlace = null
     ): StateMachineRegistryFixture {
         $context = Context::createDefaultContext();
+        /** @var EntityRepository<StateMachineCollection>&Stub $stateMachineRepository */
         $stateMachineRepository = static::createStub(EntityRepository::class);
+        /** @var EntityRepository<StateMachineStateCollection>&Stub $stateMachineStateRepository */
         $stateMachineStateRepository = static::createStub(EntityRepository::class);
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definition = new StateMachineRegistryTestEntityDefinition();

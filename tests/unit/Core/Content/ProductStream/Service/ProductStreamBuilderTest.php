@@ -12,7 +12,6 @@ use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature\FeatureException;
@@ -35,7 +34,7 @@ class ProductStreamBuilderTest extends TestCase
      */
     public function testBuildFiltersThrowsWhenV68IsActive(): void
     {
-        $repository = static::createStub(EntityRepository::class);
+        $repository = StaticEntityRepository::of(ProductStreamCollection::class);
         $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
 
         $this->expectException(FeatureException::class);

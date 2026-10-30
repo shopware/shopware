@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 
 /**
  * @internal
@@ -296,6 +297,7 @@ class CustomFieldsSerializerTest extends TestCase
 
     private function setupCustomFields(): void
     {
+        /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepo */
         $customFieldSetRepo = static::getContainer()->get('custom_field_set.repository');
         static::assertInstanceOf(EntityRepository::class, $customFieldSetRepo);
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -46,6 +47,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
     public function testEnrichBuyBox(): void
     {
         $configurationLoader = static::createStub(ProductConfiguratorLoader::class);
+        /** @var EntityRepository<ProductReviewCollection>&Stub */
         $repository = static::createStub(EntityRepository::class);
         $repository->method('aggregate')->willReturn(new AggregationResultCollection());
 

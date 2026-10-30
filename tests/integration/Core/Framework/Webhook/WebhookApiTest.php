@@ -313,6 +313,21 @@ class WebhookApiTest extends TestCase
         static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
     }
 
+    public function testARoleListedTwiceIsStoredOnce(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $user = TestUser::createNewTestUser($connection, ['webhook:create', 'product:read']);
+        $user->authorizeBrowser($this->getBrowser());
+
+        $roleId = $user->getAclRoleId();
+
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$roleId, $roleId]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
+    }
+
     public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -403,6 +418,36 @@ class WebhookApiTest extends TestCase
         ]);
 
         $this->assertApiErrors([['code' => WebhookException::WEBHOOK_EVENT_PRIVILEGES_MISSING]]);
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
+    }
+
+    public function testAnEventChangeCannotBeHiddenBehindALaterWriteInOneSyncRequest(): void
+    {
+        $roleId = $this->createAclRole(['product:read']);
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$roleId]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [
+            ['action' => 'upsert', 'entity' => 'webhook', 'payload' => [['id' => $webhookId, 'eventName' => 'order.written']]],
+            ['action' => 'upsert', 'entity' => 'webhook', 'payload' => [['id' => $webhookId, 'name' => 'renamed']]],
+        ]);
+
+        $this->assertApiErrors([['code' => WebhookException::WEBHOOK_EVENT_PRIVILEGES_MISSING]]);
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
+    }
+
+    public function testAnEmptyAclRoleListCannotBeHiddenBehindALaterWriteInOneSyncRequest(): void
+    {
+        $roleId = $this->createAclRole(['product:read']);
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$roleId]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [
+            ['action' => 'upsert', 'entity' => 'webhook', 'payload' => [['id' => $webhookId, 'aclRoleIds' => []]]],
+            ['action' => 'upsert', 'entity' => 'webhook', 'payload' => [['id' => $webhookId, 'name' => 'renamed']]],
+        ]);
+
+        $this->assertApiErrors([['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => 'aclRoleIds']]);
         static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
     }
 

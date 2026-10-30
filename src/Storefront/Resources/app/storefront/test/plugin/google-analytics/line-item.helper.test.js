@@ -1,8 +1,10 @@
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 describe('plugin/google-analytics/line-item.helper', () => {
     afterEach(() => {
         document.body.innerHTML = '';
+        window.localStorage.clear();
     });
 
     describe('getLineItems', () => {
@@ -55,6 +57,24 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 item_category2: 'Category 2',
                 item_category3: 'Category 3',
             });
+        });
+
+        // a product added on the homepage or the search has no categories in its line item payload
+        test('fills missing categories with the ones requested when the product was added', () => {
+            ProductCategoryHelper.remember('product-1', { item_category: 'Requested' });
+            ProductCategoryHelper.remember('product-2', { item_category: 'Requested' });
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1"></span>
+                    <span class="hidden-line-item" data-id="product-2" data-category-1="From payload"></span>
+                </div>
+            `;
+
+            const lineItems = LineItemHelper.getLineItems();
+
+            expect(lineItems[0].item_category).toBe('Requested');
+            expect(lineItems[1].item_category).toBe('From payload');
+            expect(LineItemHelper.getProductIds()).toEqual(['product-1', 'product-2']);
         });
 
         test('returns multiple line items', () => {

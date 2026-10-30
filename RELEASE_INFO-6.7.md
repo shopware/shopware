@@ -341,7 +341,7 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
-### CMS image elements respect vertical alignment
+### CMS sliders and image galleries respect vertical alignment
 
 Image gallery, image slider, and product slider CMS elements now apply their configured vertical alignment in the Storefront.
 Themes overriding their alignment blocks should preserve the alignment wrapper when vertical alignment is configured.

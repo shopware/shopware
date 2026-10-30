@@ -12539,15 +12539,12 @@
       "count": 18
     }
   },
-  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/src/sw-settings-shipping-price-matrix.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/sw-settings-shipping-price-matrix.spec.js": {
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/sw-settings-shipping-price-matrix.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 25
     }

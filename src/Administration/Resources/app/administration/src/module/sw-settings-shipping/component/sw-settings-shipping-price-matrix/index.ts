@@ -1,0 +1,95 @@
+import { definePublicComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package checkout
+ *
+ * One price matrix of a shipping method: its rule, and a price per quantity range or per rule.
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
+ */
+/** @public */
+export default definePublicComponent({
+    name: 'sw-settings-shipping-price-matrix',
+    load: () => import('./src/sw-settings-shipping-price-matrix'),
+    public: {
+        props: [
+            'priceGroup',
+            'disabled',
+        ],
+        emits: [
+            'duplicate-price-matrix',
+            'delete-price-matrix',
+        ],
+        blocks: [
+            'sw_settings_shipping_price_matrix',
+            'sw_settings_shipping_price_matrix_topbar_alert',
+            'sw_settings_shipping_price_matrix_topbar',
+            'sw_settings_shipping_price_matrix_topbar_rule_select',
+            'sw_settings_shipping_price_matrix_topbar_new_price',
+            'sw_settings_shipping_price_matrix_topbar_context_button',
+            'sw_settings_shipping_price_matrix_topbar_context_button_duplicate',
+            'sw_settings_shipping_price_matrix_topbar_context_button_delete',
+            'sw_settings_shipping_price_matrix_price_grid',
+            'sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule',
+            'sw_settings_shipping_price_matrix_price_grid_column_quantity_start',
+            'sw_settings_shipping_price_matrix_price_grid_column_quantity_end',
+            'sw_settings_shipping_price_matrix_price_grid_currencies_list',
+            'sw_settings_shipping_price_matrix_price_grid_actions',
+            'sw_settings_shipping_price_matrix_price_grid_actions_delete',
+            'sw_settings_shipping_price_matrix_empty',
+            'sw_settings_shipping_price_matrix_empty_text',
+            'sw_settings_shipping_price_matrix_empty_property_store',
+            'sw_settings_shipping_price_matrix_empty_rule_select',
+            'sw_settings_shipping_price_matrix_delete_modal',
+            'sw_settings_shipping_price_matrix_delete_modal_confirm_delete_text',
+            'sw_settings_shipping_price_matrix_delete_modal_footer',
+            'sw_settings_shipping_price_matrix_delete_modal_cancel',
+            'sw_settings_shipping_price_matrix_delete_modal_confirm',
+        ],
+        computed: [
+            'shippingMethod',
+            'currencies',
+            'restrictedRuleIds',
+            'unrestrictedPriceMatrixExists',
+            'newPriceMatrixExists',
+            'defaultCurrency',
+            'taxRateId',
+            'ruleRepository',
+            'shippingPriceRepository',
+            'labelQuantityStart',
+            'labelQuantityEnd',
+            'numberFieldType',
+            'confirmDeleteText',
+            'currencyColumns',
+            'showDataGrid',
+            'disableDeleteButton',
+            'ruleFilterCriteria',
+            'shippingRuleFilterCriteria',
+            'isRuleMatrix',
+            'usedCalculationRules',
+            'mainRulePlaceholder',
+            'cardTitle',
+            'prices',
+        ],
+        methods: [
+            'createdComponent',
+            'onAddNewShippingPrice',
+            'onSaveMainRule',
+            'onSaveCustomShippingRule',
+            'onCalculationChange',
+            'onDeletePriceMatrix',
+            'onConfirmDeleteShippingPrice',
+            'onCloseDeleteModal',
+            'onDeleteShippingPrice',
+            'convertDefaultPriceToCurrencyPrice',
+            'initCurrencyPrice',
+            'getPrice',
+            'setPrice',
+            'getPriceOfCurrency',
+            'convertPrice',
+            'onQuantityEndChange',
+            'updateShowAllPrices',
+        ],
+    },
+});

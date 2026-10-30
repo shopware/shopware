@@ -1,25 +1,30 @@
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const {
-    Mixin,
-    Context,
-    Data: { Criteria },
-} = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+import {
+    Criteria,
+    cloneDeep,
+    getApiContext,
+    isFeatureActive,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    useShippingDetailStore,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['duplicate-price-matrix', 'delete-price-matrix'],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         priceGroup: {
@@ -63,27 +68,27 @@ export default {
 
     computed: {
         shippingMethod() {
-            return Shopware.Store.get('swShippingDetail').shippingMethod;
+            return useShippingDetailStore().shippingMethod;
         },
 
         currencies() {
-            return Shopware.Store.get('swShippingDetail').currencies;
+            return useShippingDetailStore().currencies;
         },
 
         restrictedRuleIds() {
-            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+            return useShippingDetailStore().restrictedRuleIds;
         },
 
         unrestrictedPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+            return useShippingDetailStore().unrestrictedPriceMatrixExists;
         },
 
         newPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+            return useShippingDetailStore().newPriceMatrixExists;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swShippingDetail').defaultCurrency;
+            return useShippingDetailStore().defaultCurrency;
         },
 
         // Only a "fixed" tax type has a known rate; "auto" and "highest" depend on the cart.
@@ -181,7 +186,7 @@ export default {
          * Filter for `type` "shipping" will be removed
          */
         shippingRuleFilterCriteria() {
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
+            if (isFeatureActive('v6.8.0.0')) {
                 return this.ruleFilterCriteria;
             }
 
@@ -287,7 +292,7 @@ export default {
             this.updateShowAllPrices();
             const refPrice = this.priceGroup.prices[this.priceGroup.prices.length - 1];
 
-            const newShippingPrice = this.shippingPriceRepository.create(Context.api);
+            const newShippingPrice = this.shippingPriceRepository.create(getApiContext());
             newShippingPrice.shippingMethodId = this.shippingMethod.id;
             newShippingPrice.ruleId = this.priceGroup.ruleId;
             newShippingPrice.currencyPrice = cloneDeep(refPrice.currencyPrice);
@@ -327,7 +332,7 @@ export default {
                 return;
             }
 
-            this.ruleRepository.get(ruleId, Context.api).then((rule) => {
+            this.ruleRepository.get(ruleId, getApiContext()).then((rule) => {
                 this.priceGroup.prices.forEach((shippingPrice) => {
                     shippingPrice.ruleId = ruleId;
                     shippingPrice.rule = rule;
@@ -351,7 +356,7 @@ export default {
             this.$nextTick(() => {
                 this.isLoading = true;
             });
-            this.ruleRepository.get(ruleId, Context.api).then((rule) => {
+            this.ruleRepository.get(ruleId, getApiContext()).then((rule) => {
                 shippingPrice.calculationRuleId = ruleId;
                 shippingPrice.calculationRule = rule;
                 this.isLoading = false;

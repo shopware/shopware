@@ -110,7 +110,9 @@ describe('dev/twig-hmr', () => {
 
         expect(document.querySelector('.text').textContent).toBe('Version 1');
         expect(window.PluginManager.initializePlugins).not.toHaveBeenCalled();
-        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] Unexpected "}" in modal-body.html.twig (500 Internal Server Error)');
+        expect(console.error).toHaveBeenCalledWith(
+            '[sw-twig-hmr] http://localhost/ answered with HTTP 500: Unexpected "}" in modal-body.html.twig (500 Internal Server Error)',
+        );
     });
 
     it('runs changes during a refresh once afterwards', async () => {

@@ -131,9 +131,10 @@ async function fetchHtml(url, headers = {}) {
     const html = await response.text();
 
     if (!response.ok) {
-        const error = new Error(`${LOG_PREFIX} ${url} answered with HTTP ${response.status}`);
-        error.html = html;
-        throw error;
+        // DOMParser decodes HTML entities in the Symfony error title.
+        const title = new DOMParser().parseFromString(html, 'text/html').title.trim();
+
+        throw new Error(`${LOG_PREFIX} ${url} answered with HTTP ${response.status}: ${title || 'server error'}`);
     }
 
     return html;
@@ -237,11 +238,6 @@ export async function refresh(files) {
     } catch (error) {
         // Keep the current DOM, so a Twig syntax error does not close the modal. The next save retries.
         console.error(error.message || error);
-        if (error.html) {
-            // DOMParser decodes HTML entities in the Symfony error title.
-            const title = new DOMParser().parseFromString(error.html, 'text/html').title.trim();
-            console.error(`${LOG_PREFIX} ${title || 'server error'}`);
-        }
     } finally {
         isRefreshing = false;
 

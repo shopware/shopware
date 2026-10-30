@@ -4,7 +4,7 @@
 
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
-import type { PublicComponent } from 'src/core/public-component';
+import type { PublicComponent, PublicOverride } from 'src/core/public-component';
 import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
@@ -613,9 +613,23 @@ function extend(
 }
 
 /**
+ * The configuration an override of the named component accepts:
+ * for a component declared with `definePublicComponent()`, only its public API.
+ */
+type OverrideConfiguration<Name extends string> = Name extends keyof PublicComponents
+    ? PublicOverride<PublicComponents[Name]> | (() => Promise<ComponentConfig>)
+    : ComponentConfig | (() => Promise<ComponentConfig>);
+
+/**
  * Override an existing component including its config and template.
  * @public
  */
+function override<Name extends string>(
+    componentName: Name,
+    componentConfiguration: OverrideConfiguration<Name>,
+    overrideIndex?: number | null,
+): () => Promise<ComponentConfig>;
+
 function override(
     componentName: string,
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>),

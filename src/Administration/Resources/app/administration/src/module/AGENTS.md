@@ -58,6 +58,21 @@ Shopware.Component.register(SwExample);
 
 Anything the `public` lists leave out is private, and a meta test checks that every listed name exists.
 A native-setup component leaves out `public`, because `swDefinePublic()` declares it.
+TypeScript checks the declaration against the component, also against a JavaScript one:
+a name in `public` the component doesn't have is a type error.
+`PublicInstance<typeof SwExample>` is the type of the public members, for a parent's template ref or a test.
+`register.ts` adds the component to the global `PublicComponents` interface, so `Shopware.Component.override()` on that name may replace public members only, and `this.$super()` takes public names only.
+
+```ts
+// register.ts
+Shopware.Component.register(SwExample);
+
+declare global {
+    interface PublicComponents {
+        'sw-example': typeof SwExample;
+    }
+}
+```
 `src/` stays free of side effects apart from importing its template and styles.
 
 Everything `src/` needs from outside the module comes through `dependencies.ts`, the inward counterpart of `index.ts`:

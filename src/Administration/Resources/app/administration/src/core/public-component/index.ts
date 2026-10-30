@@ -7,4 +7,10 @@
 /** @public */
 export { definePublicComponent } from './src/public-component';
 /** @public */
-export type { PublicComponent, PublicComponentApi } from './src/public-component';
+export type {
+    LoadedComponent,
+    PublicComponent,
+    PublicComponentApi,
+    PublicInstance,
+    PublicOverride,
+} from './src/public-component';

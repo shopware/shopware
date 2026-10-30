@@ -203,6 +203,25 @@ class ImportExportLogRepositoryTest extends TestCase
         }
     }
 
+    public function testLogsLoadAsAssociationOfProfileAndUser(): void
+    {
+        $data = $this->prepareImportExportLogTestData();
+        $log = current($data);
+        $this->logRepository->create([$log], $this->context);
+
+        $criteria = (new Criteria([$log['profileId']]))->addAssociation('importExportLogs');
+        $profile = $this->profileRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ImportExportProfileEntity::class, $profile);
+        static::assertInstanceOf(ImportExportLogCollection::class, $profile->getImportExportLogs());
+        static::assertTrue($profile->getImportExportLogs()->has($log['id']));
+
+        $criteria = (new Criteria([$log['userId']]))->addAssociation('importExportLogEntries');
+        $user = $this->userRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($user);
+        static::assertInstanceOf(ImportExportLogCollection::class, $user->getImportExportLogEntries());
+        static::assertTrue($user->getImportExportLogEntries()->has($log['id']));
+    }
+
     public function testImportExportLogReadNoResult(): void
     {
         $num = 3;

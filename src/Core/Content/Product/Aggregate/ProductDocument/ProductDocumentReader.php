@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Reads what ProductDocumentValidator needs from the database. Products and documents are keyed by their id and
- * version id, both hex, joined.
+ * Reads what ProductDocumentValidator needs from the database. Products are keyed by their id and version id, both
+ * hex, joined.
  *
  * @internal
  *
@@ -73,50 +73,6 @@ class ProductDocumentReader
         );
 
         return array_map(intval(...), array_intersect_key($counts, array_flip($products)));
-    }
-
-    /**
-     * The translations of the documents whose file another document of the same product has, in any language.
-     *
-     * @param list<string> $documents
-     *
-     * @return list<array{document: string, languageId: string, mediaId: string}>
-     */
-    public function getSharedFiles(array $documents): array
-    {
-        if ($documents === []) {
-            return [];
-        }
-
-        [$ids, $versionIds] = $this->splitKeys($documents);
-
-        /** @var list<array{document: string, languageId: string, mediaId: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT DISTINCT
-                CONCAT(LOWER(HEX(`translation`.`product_document_id`)), LOWER(HEX(`translation`.`product_document_version_id`))) AS `document`,
-                LOWER(HEX(`translation`.`language_id`)) AS `languageId`,
-                LOWER(HEX(`translation`.`media_id`)) AS `mediaId`
-            FROM `product_document_translation` `translation`
-            INNER JOIN `product_document` `document`
-                ON `document`.`id` = `translation`.`product_document_id`
-                AND `document`.`version_id` = `translation`.`product_document_version_id`
-            INNER JOIN `product_document` `other_document`
-                ON `other_document`.`product_id` = `document`.`product_id`
-                AND `other_document`.`product_version_id` = `document`.`product_version_id`
-                AND `other_document`.`id` != `document`.`id`
-            INNER JOIN `product_document_translation` `other_translation`
-                ON `other_translation`.`product_document_id` = `other_document`.`id`
-                AND `other_translation`.`product_document_version_id` = `other_document`.`version_id`
-                AND `other_translation`.`media_id` = `translation`.`media_id`
-            WHERE `translation`.`product_document_id` IN (:ids)
-                AND `translation`.`product_document_version_id` IN (:versionIds)',
-            ['ids' => $ids, 'versionIds' => $versionIds],
-            ['ids' => ArrayParameterType::BINARY, 'versionIds' => ArrayParameterType::BINARY],
-        );
-
-        $documents = array_flip($documents);
-
-        return array_values(array_filter($rows, static fn (array $row): bool => isset($documents[$row['document']])));
     }
 
     /**

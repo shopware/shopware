@@ -5,11 +5,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
@@ -24,7 +21,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Checks written product documents against the limits in `shopware.product_documents`.
  * Only what a write changes is checked: a file when a translation gets it, the number of documents when one is added
  * to a product, and the default-language translation of a new document. These checks run on the outcome of the write,
- * before it is executed. Duplicate files are checked after the write, against all documents of the product.
+ * before it is executed.
  *
  * @internal
  */
@@ -41,8 +38,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public const VIOLATION_FILE_PRIVATE = 'PRODUCT_DOCUMENT_FILE_PRIVATE';
 
-    public const VIOLATION_FILE_ALREADY_USED = 'PRODUCT_DOCUMENT_FILE_ALREADY_USED';
-
     public const VIOLATION_DEFAULT_TRANSLATION_MISSING = 'PRODUCT_DOCUMENT_DEFAULT_TRANSLATION_MISSING';
 
     public function __construct(
@@ -56,7 +51,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     {
         return [
             PreWriteValidationEvent::class => 'validate',
-            PostWriteValidationEvent::class => 'validateUniqueFiles',
         ];
     }
 
@@ -79,47 +73,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $this->validateFiles($event, $translations, $violations);
         $this->validateDefaultTranslations($documents, $translations, $violations);
         $this->validateNumberOfDocuments($documents, $violations);
-
-        if ($violations->count() > 0) {
-            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
-        }
-    }
-
-    /**
-     * A file can be the document of a product only once. This runs after the write, which has stored the documents
-     * of the product as they are now.
-     */
-    public function validateUniqueFiles(PostWriteValidationEvent $event): void
-    {
-        // where each translation that gets a file with this write is, by document and language
-        $paths = [];
-        foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
-            if ((!$command instanceof InsertCommand && !$command instanceof UpdateCommand) || !\is_string($command->getPayload()['media_id'] ?? null)) {
-                continue;
-            }
-
-            $primaryKey = $command->getPrimaryKey();
-            $paths[$this->key($primaryKey['product_document_id'], $primaryKey['product_document_version_id'])][Uuid::fromBytesToHex($primaryKey['language_id'])] = $command->getPath();
-        }
-
-        if ($paths === []) {
-            return;
-        }
-
-        $violations = new ConstraintViolationList();
-        foreach ($this->reader->getSharedFiles(array_keys($paths)) as $translation) {
-            $path = $paths[$translation['document']][$translation['languageId']] ?? null;
-            if ($path === null) {
-                continue;
-            }
-
-            $violations->add($this->violation(
-                code: self::VIOLATION_FILE_ALREADY_USED,
-                messageTemplate: 'The file "{{ mediaId }}" is already a document of this product.',
-                parameters: ['{{ mediaId }}' => $translation['mediaId']],
-                path: $path . '/mediaId',
-            ));
-        }
 
         if ($violations->count() > 0) {
             $event->getExceptions()->add(new WriteConstraintViolationException($violations));
@@ -323,7 +276,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * An id and a version id, as ProductDocumentReader keys products and documents.
+     * An id and a version id, as ProductDocumentReader keys products.
      */
     private function key(string $id, string $versionId): string
     {

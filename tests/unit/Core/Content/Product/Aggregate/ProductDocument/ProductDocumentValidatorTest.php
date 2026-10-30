@@ -6,26 +6,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
-use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -74,16 +69,11 @@ class ProductDocumentValidatorTest extends TestCase
      */
     private array $storedDocuments = [];
 
-    /**
-     * @var list<array{document: string, languageId: string, mediaId: string}>
-     */
-    private array $sharedFiles = [];
-
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
         $this->registry = new StaticDefinitionInstanceRegistry(
-            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class, LanguageDefinition::class, MediaDefinition::class],
+            [MediaDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
         );
@@ -207,41 +197,6 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame($expected, $this->validate());
     }
 
-    public function testAFileCanBeADocumentOfAProductOnlyOnce(): void
-    {
-        $manual = $this->ids->get('manual') . Defaults::LIVE_VERSION;
-        $this->sharedFiles = [
-            ['document' => $manual, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'mediaId' => $this->ids->get('manual-file')],
-            // shared before this write, which only changes the title
-            ['document' => $manual, 'languageId' => self::GERMAN, 'mediaId' => $this->ids->get('handbuch-file')],
-        ];
-
-        $translationDefinition = $this->registry->get(ProductDocumentTranslationDefinition::class);
-        $event = new PostWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
-            new InsertCommand(
-                $translationDefinition,
-                ['title' => 'Manual', 'media_id' => $this->ids->getBytes('manual-file')],
-                $this->translationKey('manual', Defaults::LANGUAGE_SYSTEM),
-                EntityExistence::createForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME, []),
-                '/0/translations/' . Defaults::LANGUAGE_SYSTEM,
-            ),
-            new UpdateCommand(
-                $translationDefinition,
-                ['title' => 'Handbuch'],
-                $this->translationKey('manual', self::GERMAN),
-                EntityExistence::createForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME, []),
-                '/0/translations/' . self::GERMAN,
-            ),
-        ]);
-
-        $this->validator()->validateUniqueFiles($event);
-
-        static::assertSame(
-            [['code' => ProductDocumentValidator::VIOLATION_FILE_ALREADY_USED, 'pointer' => '/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId']],
-            $this->errorsOf($event),
-        );
-    }
-
     /**
      * @param list<WriteCommand> $commands
      *
@@ -267,7 +222,6 @@ class ProductDocumentValidatorTest extends TestCase
         $reader = static::createStub(ProductDocumentReader::class);
         $reader->method('getFiles')->willReturnCallback(fn (array $mediaIds): array => array_intersect_key($this->storedFiles, array_flip($mediaIds)));
         $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
-        $reader->method('getSharedFiles')->willReturnCallback(fn (): array => $this->sharedFiles);
 
         return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024));
     }

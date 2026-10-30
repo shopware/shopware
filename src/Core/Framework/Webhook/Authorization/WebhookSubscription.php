@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Webhook\Authorization;
 
 use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 
 /**
  * Who a webhook belongs to, which event it subscribes to, and which roles it is limited to.
@@ -23,7 +23,7 @@ final readonly class WebhookSubscription
      */
     public function __construct(
         public string $webhookId,
-        public SubscriberType $ownerType,
+        public IdentityType $ownerType,
         public string $ownerId,
         public string $eventName,
         public ?array $aclRoleIds,
@@ -45,9 +45,9 @@ final readonly class WebhookSubscription
         }
 
         $ownerType = match (true) {
-            $row['app_id'] !== null => SubscriberType::App,
-            $row['owner_integration_id'] !== null => SubscriberType::Integration,
-            default => SubscriberType::User,
+            $row['app_id'] !== null => IdentityType::App,
+            $row['owner_integration_id'] !== null => IdentityType::Integration,
+            default => IdentityType::User,
         };
 
         return new self(
@@ -61,13 +61,13 @@ final readonly class WebhookSubscription
 
     public function belongsToApp(): bool
     {
-        return $this->ownerType === SubscriberType::App;
+        return $this->ownerType === IdentityType::App;
     }
 
     public function isOwnedBy(AdminApiSource $source): bool
     {
         $caller = ApiCaller::of($source);
 
-        return $caller !== null && $this->ownerType === SubscriberType::of($caller) && $this->ownerId === $caller->id;
+        return $caller !== null && $this->ownerType === $caller->type && $this->ownerId === $caller->id;
     }
 }

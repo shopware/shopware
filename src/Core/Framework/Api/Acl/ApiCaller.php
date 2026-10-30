@@ -12,14 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class ApiCaller
 {
-    public const USER = 'user';
-    public const INTEGRATION = 'integration';
-
     /**
-     * @param self::USER|self::INTEGRATION $type
+     * @param IdentityType::User|IdentityType::Integration $type the caller is never resolved as an app
      */
     private function __construct(
-        public string $type,
+        public IdentityType $type,
         public string $id,
     ) {
     }
@@ -35,11 +32,11 @@ final readonly class ApiCaller
 
         $integrationId = $source->getIntegrationId();
         if ($integrationId !== null) {
-            return new self(self::INTEGRATION, $integrationId);
+            return new self(IdentityType::Integration, $integrationId);
         }
 
         $userId = $source->getUserId();
 
-        return $userId !== null ? new self(self::USER, $userId) : null;
+        return $userId !== null ? new self(IdentityType::User, $userId) : null;
     }
 }

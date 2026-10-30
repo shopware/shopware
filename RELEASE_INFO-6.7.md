@@ -4,9 +4,8 @@
 
 ### Guest order and MCP attempt counters
 
-Guest order lookups and MCP access-key authentication now use the stored identifier for their attempt counters when a database row matches.
-Case and whitespace variants that match the same row share a counter.
-MCP access-key authentication performs one additional database lookup per request.
+Guest order lookups and MCP access-key authentication now trim surrounding whitespace and lowercase identifiers when building attempt-counter keys.
+The same normalized key is used to check and reset the counter.
 
 ### Missing plugin conditions in stored carts
 

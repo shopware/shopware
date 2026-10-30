@@ -357,7 +357,6 @@ class OrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setCreatedAt(new \DateTime());
-        $order->setDeepLinkCode('deepLinkCode');
         $order->setOrderCustomer($orderCustomer);
         $order->setBillingAddress($billingAddress);
 

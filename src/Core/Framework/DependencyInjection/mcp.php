@@ -156,7 +156,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(ClientRepository::class),
             service(RateLimiter::class),
-            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

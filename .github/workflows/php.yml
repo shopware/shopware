@@ -16,6 +16,8 @@ on:
 
 env:
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+  # Temporary PHP 8.6 testing: include Composer calls nested inside setup-shopware.
+  COMPOSER_IGNORE_PLATFORM_REQ: php
 
 permissions:
   contents: read
@@ -351,6 +353,7 @@ jobs:
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
+          php-version: "8.6"
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
@@ -433,7 +436,7 @@ jobs:
         uses: ./.github/actions/phpunit-prepare
         with:
           # PHPUnit 13 requires PHP 8.4.1+
-          php-version: "8.5"
+          php-version: "8.6"
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
           phpunit-version: "^13.3"

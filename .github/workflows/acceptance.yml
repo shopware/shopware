@@ -28,6 +28,10 @@ on:
         type: boolean
         default: false
 
+env:
+  # Temporary PHP 8.6 testing: include Composer calls nested inside setup-shopware.
+  COMPOSER_IGNORE_PLATFORM_REQ: php
+
 permissions:
   contents: read
 
@@ -175,6 +179,7 @@ jobs:
         with:
           project: "Platform"
           install: true
+          php-version: "8.6"
           extra-options: >-
             --repeat-each="10" -x ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"

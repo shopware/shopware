@@ -25,6 +25,7 @@ describe('primary-delivery', () => {
         expect(shown).toBe(primary);
     });
 
+    /** @deprecated tag:v6.8.0 - Removed with the 6.7 fallback. */
     it.deprecated('v6.8.0.0')('picks the lowest id among deliveries with equal shipping costs', () => {
         // ARRANGE
         const lowest = delivery('a', 5);
@@ -37,6 +38,7 @@ describe('primary-delivery', () => {
         expect(shown).toBe(lowest);
     });
 
+    /** @deprecated tag:v6.8.0 - Removed with the 6.7 fallback. */
     it.deprecated('v6.8.0.0')('counts a delivery without shipping costs as free', () => {
         // ARRANGE
         const paid = delivery('b', 1);

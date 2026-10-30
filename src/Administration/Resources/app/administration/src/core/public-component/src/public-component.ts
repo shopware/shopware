@@ -5,6 +5,8 @@
 /**
  * The parts of a component that other code and extensions may rely on.
  * Everything the lists leave out is private.
+ *
+ * @public
  */
 export type PublicComponentApi = {
     props?: string[];
@@ -19,6 +21,8 @@ export type PublicComponentApi = {
  * A component as its mini-module declares it.
  * `load` imports the component lazily, so declaring it costs no bundle size.
  * A native-setup component leaves out `public`, because `swDefinePublic()` already declares it.
+ *
+ * @public
  */
 export type PublicComponent = {
     name: string;
@@ -39,6 +43,8 @@ export type PublicComponent = {
  *
  * // register.ts
  * Shopware.Component.register(SwPriceMatrix);
+ *
+ * @public
  */
 export function definePublicComponent<Component extends PublicComponent>(component: Component): Component {
     return component;

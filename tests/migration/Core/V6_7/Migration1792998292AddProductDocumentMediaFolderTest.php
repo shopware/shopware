@@ -3,13 +3,14 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1792998292AddProductDocumentMediaFolder;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
@@ -18,6 +19,8 @@ use Shopware\Core\Migration\V6_7\Migration1792998292AddProductDocumentMediaFolde
 #[CoversClass(Migration1792998292AddProductDocumentMediaFolder::class)]
 class Migration1792998292AddProductDocumentMediaFolderTest extends TestCase
 {
+    use MigrationTestTrait;
+
     private Connection $connection;
 
     private Migration1792998292AddProductDocumentMediaFolder $migration;
@@ -27,13 +30,6 @@ class Migration1792998292AddProductDocumentMediaFolderTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
         $this->migration = new Migration1792998292AddProductDocumentMediaFolder();
         $this->removeFolder();
-    }
-
-    #[After]
-    public function restore(): void
-    {
-        // the remaining test suite expects the migrated folder
-        $this->migration->update($this->connection);
     }
 
     public function testGetCreationTimestamp(): void
@@ -63,16 +59,22 @@ class Migration1792998292AddProductDocumentMediaFolderTest extends TestCase
         ]], $folders);
     }
 
-    public function testQueuesTheMediaFolderIndexers(): void
+    public function testCreatesTheMissingFolderOfAnExistingDefaultFolder(): void
     {
-        $queuer = new IndexerQueuer($this->connection);
-        $queuer->finishIndexer(['media_folder.indexer', 'media_folder_configuration.indexer']);
+        // an earlier run stopped after the default folder
+        $defaultFolderId = Uuid::randomBytes();
+        $this->connection->insert('media_default_folder', [
+            'id' => $defaultFolderId,
+            'entity' => 'product_document',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
 
         $this->migration->update($this->connection);
 
-        $queued = $queuer->getIndexers();
-        static::assertArrayHasKey('media_folder.indexer', $queued);
-        static::assertArrayHasKey('media_folder_configuration.indexer', $queued);
+        static::assertSame(
+            ['Product documents'],
+            $this->connection->fetchFirstColumn('SELECT `name` FROM `media_folder` WHERE `default_folder_id` = :id', ['id' => $defaultFolderId])
+        );
     }
 
     private function removeFolder(): void

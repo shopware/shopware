@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @no-indexer-required: a new top-level folder without children or thumbnail sizes leaves the folder indexers nothing to compute
  */
 #[Package('inventory')]
 class Migration1792998292AddProductDocumentMediaFolder extends MigrationStep
@@ -23,8 +25,6 @@ class Migration1792998292AddProductDocumentMediaFolder extends MigrationStep
     public function update(Connection $connection): void
     {
         $this->addDefaultMediaFolder($connection);
-        $this->registerIndexer($connection, 'media_folder.indexer');
-        $this->registerIndexer($connection, 'media_folder_configuration.indexer');
     }
 
     private function addDefaultMediaFolder(Connection $connection): void
@@ -55,23 +55,25 @@ class Migration1792998292AddProductDocumentMediaFolder extends MigrationStep
             return;
         }
 
-        $configurationId = Uuid::randomBytes();
+        $connection->transactional(static function (Connection $connection) use ($defaultFolderId, $createdAt): void {
+            $configurationId = Uuid::randomBytes();
 
-        $connection->insert('media_folder_configuration', [
-            'id' => $configurationId,
-            'create_thumbnails' => 0,
-            'thumbnail_quality' => 80,
-            'private' => 0,
-            'created_at' => $createdAt,
-        ]);
+            $connection->insert('media_folder_configuration', [
+                'id' => $configurationId,
+                'create_thumbnails' => 0,
+                'thumbnail_quality' => 80,
+                'private' => 0,
+                'created_at' => $createdAt,
+            ]);
 
-        $connection->insert('media_folder', [
-            'id' => Uuid::randomBytes(),
-            'default_folder_id' => $defaultFolderId,
-            'name' => 'Product documents',
-            'media_folder_configuration_id' => $configurationId,
-            'use_parent_configuration' => 0,
-            'created_at' => $createdAt,
-        ]);
+            $connection->insert('media_folder', [
+                'id' => Uuid::randomBytes(),
+                'default_folder_id' => $defaultFolderId,
+                'name' => 'Product documents',
+                'media_folder_configuration_id' => $configurationId,
+                'use_parent_configuration' => 0,
+                'created_at' => $createdAt,
+            ]);
+        });
     }
 }

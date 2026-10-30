@@ -67,7 +67,7 @@ export default {
             const criteria = new Criteria(1, null);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
-            criteria.addFilter(Criteria.equalsAny('id', this.groupIds));
+            criteria.setIds(this.groupIds);
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);

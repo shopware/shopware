@@ -488,6 +488,16 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(propertyGroupSearchMock.mock.calls.at(-1)[0].limit).toBeNull();
     });
 
+    it('should request the property groups of the product by id', async () => {
+        global.activeAclRoles = [];
+        propertyGroupSearchMock.mockClear();
+
+        await createWrapper();
+        await flushPromises();
+
+        expect(propertyGroupSearchMock.mock.calls.at(-1)[0].ids).toEqual(['sizeId', 'colorId']);
+    });
+
     it('should turn on add properties modal', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

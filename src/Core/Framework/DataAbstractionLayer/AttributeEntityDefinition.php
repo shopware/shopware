@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
@@ -68,7 +69,15 @@ class AttributeEntityDefinition extends EntityDefinition
             }
 
             if ($field['translated']) {
-                $fields[] = new TranslatedField($field['name']);
+                $translatedField = new TranslatedField($field['name']);
+
+                // the other flags belong to the field of the translation definition
+                $apiAware = $field['flags'][ApiAware::class] ?? null;
+                if ($apiAware !== null) {
+                    $translatedField->addFlags(new ApiAware(...$apiAware['args'] ?? []));
+                }
+
+                $fields[] = $translatedField;
                 continue;
             }
 

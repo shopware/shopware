@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -147,6 +150,31 @@ class EntityDefinitionQueryHelper
         }
 
         return \array_values(\array_filter($accessorFields));
+    }
+
+    public static function validateFieldIsApiAware(Field $field, string $accessor, Context $context): void
+    {
+        if ($field->is(ApiCriteriaAware::class)) {
+            return;
+        }
+
+        $flag = $field->getFlag(ApiAware::class);
+        if ($flag === null || !$flag->isSourceAllowed($context->getSource()::class)) {
+            throw DataAbstractionLayerException::accessorNotAllowedInApiScope($accessor);
+        }
+    }
+
+    /**
+     * Partial field selections load associations along the accessor path.
+     * Scalar field visibility remains enforced by the response encoder.
+     */
+    public static function validateFieldsAccessorIsApiAware(EntityDefinition $definition, string $accessor, Context $context): void
+    {
+        foreach (self::getFieldsOfAccessor($definition, $accessor) as $field) {
+            if ($field instanceof AssociationField) {
+                self::validateFieldIsApiAware($field, $field->getPropertyName(), $context);
+            }
+        }
     }
 
     /**

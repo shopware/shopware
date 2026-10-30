@@ -5,17 +5,28 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
@@ -24,6 +35,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +64,8 @@ class RequestCriteriaBuilderTest extends TestCase
                 new ProductPriceDefinition(),
                 new ProductCategoryDefinition(),
                 new CategoryDefinition(),
+                new ApiAwareAssociationDefinition(),
+                new ApiAwareReferenceDefinition(),
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -552,6 +567,124 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }
 
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function protectedAssociationPayloadProvider(): iterable
+    {
+        yield 'association without ApiAware' => [
+            ['associations' => ['hidden' => []]],
+            'hidden',
+        ];
+
+        yield 'association restricted to the admin api' => [
+            ['associations' => ['adminOnly' => []]],
+            'adminOnly',
+        ];
+
+        yield 'nested association without ApiAware' => [
+            ['associations' => ['exposed' => ['associations' => ['hidden' => []]]]],
+            'hidden',
+        ];
+
+        yield 'association without ApiAware in fields' => [
+            ['fields' => ['hidden.id']],
+            'hidden',
+        ];
+
+        yield 'nested association without ApiAware in fields' => [
+            ['fields' => ['exposed.hidden.id']],
+            'hidden',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('protectedAssociationPayloadProvider')]
+    public function testProtectedAssociationIsRejectedForStoreApi(array $payload, string $expectedAccessor): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope($expectedAccessor));
+
+        $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    public function testApiAwareAssociationIsAcceptedForStoreApi(): void
+    {
+        $payload = [
+            'associations' => [
+                'exposed' => [
+                    'associations' => ['exposed' => []],
+                ],
+            ],
+        ];
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertTrue($criteria->hasAssociation('exposed'));
+        static::assertTrue($criteria->getAssociation('exposed')->hasAssociation('exposed'));
+    }
+
+    public function testAssociationAddedServerSideIsNotRejected(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('hidden');
+
+        $criteria = $this->requestCriteriaBuilder->fromArray(['limit' => 1], $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertTrue($criteria->hasAssociation('hidden'));
+    }
+
+    public function testAssociationWithoutApiAwareIsAcceptedForAdminApi(): void
+    {
+        $payload = ['associations' => ['hidden' => []]];
+
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $context);
+
+        static::assertTrue($criteria->hasAssociation('hidden'));
+    }
+
+    public function testApiAwareAssociationInFieldsIsAcceptedForStoreApi(): void
+    {
+        $criteria = $this->requestCriteriaBuilder->fromArray(['fields' => ['id', 'exposed.exposed.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame(['id', 'exposed.exposed.id'], $criteria->getFields());
+    }
+
+    public function testAssociationInFieldsWithoutApiAwareIsAcceptedForAdminApi(): void
+    {
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+
+        $criteria = $this->requestCriteriaBuilder->fromArray(['fields' => ['hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $context);
+
+        static::assertSame(['hidden.id'], $criteria->getFields());
+    }
+
+    /**
+     * Partial loading turns `stateMachineState.orders` into a loaded association, which the `associations`
+     * parameter already rejects for the Store API.
+     */
+    public function testOrdersOfAnOrderStateCannotBeLoadedThroughFields(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [new OrderDefinition(), new StateMachineStateDefinition()],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $aggregationParser = new AggregationParser();
+        $builder = new RequestCriteriaBuilder(
+            $aggregationParser,
+            new ApiCriteriaValidator($registry),
+            new CriteriaArrayConverter($aggregationParser),
+        );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('orders'));
+
+        $builder->fromArray(['fields' => ['stateMachineState.orders.orderNumber']], new Criteria(), $registry->get(OrderDefinition::class), $this->createStoreApiContext());
+    }
+
     public function testInvalidAssociationsCriteria(): void
     {
         $payload = [
@@ -804,5 +937,65 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->staticDefinitionRegistry->get(ProductDefinition::class),
             Context::createDefaultContext()
         );
+    }
+
+    private function getApiAwareAssociationDefinition(): EntityDefinition
+    {
+        return $this->staticDefinitionRegistry->get(ApiAwareAssociationDefinition::class);
+    }
+
+    private function createStoreApiContext(): Context
+    {
+        return new Context(new SalesChannelApiSource(Uuid::randomHex()));
+    }
+}
+
+/**
+ * @internal
+ */
+class ApiAwareAssociationDefinition extends EntityDefinition
+{
+    final public const ENTITY_NAME = 'api_aware_association_test';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new ApiAware()),
+            (new FkField('exposed_id', 'exposedId', ApiAwareReferenceDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('hidden_id', 'hiddenId', ApiAwareReferenceDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('admin_only_id', 'adminOnlyId', ApiAwareReferenceDefinition::class))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('exposed', 'exposed_id', ApiAwareReferenceDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            new ManyToOneAssociationField('hidden', 'hidden_id', ApiAwareReferenceDefinition::class, 'id', false),
+            (new ManyToOneAssociationField('adminOnly', 'admin_only_id', ApiAwareReferenceDefinition::class, 'id', false))->addFlags(new ApiAware(AdminApiSource::class)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class ApiAwareReferenceDefinition extends EntityDefinition
+{
+    final public const ENTITY_NAME = 'api_aware_reference_test';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new ApiAware()),
+            (new FkField('exposed_id', 'exposedId', self::class))->addFlags(new ApiAware()),
+            (new FkField('hidden_id', 'hiddenId', self::class))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('exposed', 'exposed_id', self::class, 'id', false))->addFlags(new ApiAware()),
+            new ManyToOneAssociationField('hidden', 'hidden_id', self::class, 'id', false),
+        ]);
     }
 }

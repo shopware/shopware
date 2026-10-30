@@ -47,7 +47,7 @@ export default {
             const { config } = this.sequence;
             const tagIds = Object.keys(config.tagIds);
             if (tagIds.length) {
-                criteria.addFilter(Criteria.equalsAny('id', tagIds));
+                criteria.setIds(tagIds);
             }
 
             return criteria;

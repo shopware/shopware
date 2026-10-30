@@ -294,7 +294,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         });
     });
 
-    it('should not limit the entities a flow references', async () => {
+    const loadFlowWithSequences = async (sequences) => {
         global.activeAclRoles = ['flow.editor'];
 
         const criteriaByEntity = {};
@@ -308,10 +308,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                                 id: ID_FLOW,
                                 name: 'Flow 1',
                                 eventName: 'checkout.customer',
-                                sequences: getSequencesCollection([
-                                    { ...sequenceFixture, id: '1', actionName: 'action.mail.send' },
-                                    { ...sequenceFixture, id: '2', actionName: 'action.set.order.custom.field' },
-                                ]),
+                                sequences: getSequencesCollection(sequences),
                             }),
                     };
                 }
@@ -330,9 +327,49 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         await createWrapper({}, {}, ID_FLOW, true, {}, { repositoryFactory: recordingRepositoryFactoryMock });
         await flushPromises();
 
+        return criteriaByEntity;
+    };
+
+    const configuredSequences = [
+        {
+            ...sequenceFixture,
+            id: '1',
+            actionName: 'action.mail.send',
+            config: { mailTemplateId: 'mail-template-id' },
+        },
+        {
+            ...sequenceFixture,
+            id: '2',
+            actionName: 'action.set.order.custom.field',
+            config: { customFieldSetId: 'custom-field-set-id', customFieldId: 'custom-field-id' },
+        },
+    ];
+
+    it('should not limit the entities a flow references', async () => {
+        const criteriaByEntity = await loadFlowWithSequences(configuredSequences);
+
         expect(criteriaByEntity.mail_template.limit).toBeNull();
         expect(criteriaByEntity.custom_field_set.limit).toBeNull();
         expect(criteriaByEntity.custom_field.limit).toBeNull();
+    });
+
+    it('should request the entities a flow references by id', async () => {
+        const criteriaByEntity = await loadFlowWithSequences(configuredSequences);
+
+        expect([...criteriaByEntity.mail_template.ids]).toEqual(['mail-template-id']);
+        expect([...criteriaByEntity.custom_field_set.ids]).toEqual(['custom-field-set-id']);
+        expect([...criteriaByEntity.custom_field.ids]).toEqual(['custom-field-id']);
+    });
+
+    it('should not look up the entities a flow references when none is configured', async () => {
+        const criteriaByEntity = await loadFlowWithSequences([
+            { ...sequenceFixture, id: '1', actionName: 'action.mail.send' },
+            { ...sequenceFixture, id: '2', actionName: 'action.set.order.custom.field' },
+        ]);
+
+        expect(criteriaByEntity.mail_template).toBeUndefined();
+        expect(criteriaByEntity.custom_field_set).toBeUndefined();
+        expect(criteriaByEntity.custom_field).toBeUndefined();
     });
 
     it('should not be able to save a flow', async () => {

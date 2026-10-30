@@ -129,7 +129,7 @@ class MediaFolderIndexerTest extends TestCase
         $this->moveWithoutIndexing($childB, $rootA);
 
         $indexer = static::getContainer()->get(MediaFolderIndexer::class);
-        $indexer->handle(new MediaIndexingMessage([$rootA, $childA, $grandChildA, $rootB, $childB], null, $this->context));
+        $indexer->handle(new MediaIndexingMessage([$rootA, $childA, $grandChildA, $rootB, $childB], null, $this->context, false, true));
 
         static::assertSame('|' . $rootB . '|', $this->fetchPath($childA));
         static::assertSame('|' . $rootB . '|' . $childA . '|', $this->fetchPath($grandChildA));

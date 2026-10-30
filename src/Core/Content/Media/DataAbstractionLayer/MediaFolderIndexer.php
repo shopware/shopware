@@ -160,12 +160,12 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
-        if ($message->allow(self::TREE_UPDATER)) {
+        if ($message->isFullIndexing && $message->allow(self::TREE_UPDATER)) {
             $this->treeUpdater->batchUpdate(
                 $ids,
                 MediaFolderDefinition::ENTITY_NAME,
                 $message->getContext(),
-                !$message->isFullIndexing
+                false
             );
         }
 

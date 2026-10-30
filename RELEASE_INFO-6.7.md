@@ -576,6 +576,21 @@ With the `v6.8.0.0` flag active, the template no longer sets the deprecated `bre
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
 
+### Legal guarantee notice moved out of the privacy section
+
+The legal guarantee notice of `component/privacy-notice.html.twig` now renders before the privacy `<fieldset>` instead of inside it, so it no longer appears under the "Privacy" heading of the registration form.
+The `component_privacy_legal_guarantee_notice_*` blocks keep their names, but they are no longer nested in `component_privacy_dpi`.
+Themes that style `.privacy-notice .legal-guarantee-notice` should target `.legal-guarantee-notice` directly.
+
+The new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the notice on the registration form while the checkout keeps it.
+The notice still requires `core.cart.showLegalGuaranteeNotice` as well.
+
+### Legal guarantee notice disabled by default
+
+`core.cart.showLegalGuaranteeNotice` now declares `false` as its default.
+This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
+Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests

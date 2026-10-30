@@ -666,6 +666,7 @@ export default [
             ],
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
             'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
+            'sw-deprecation-rules/require-deprecation-guard': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
             'vue/max-template-depth': [

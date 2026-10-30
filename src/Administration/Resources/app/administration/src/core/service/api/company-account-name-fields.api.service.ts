@@ -24,9 +24,12 @@ class CompanyAccountNameFieldsApiService extends ApiService {
             })
             .then((response) => ApiService.handleResponse(response))
             .then((data) => data.contactPersonRequired)
-            .catch(() => true);
+            .catch(() => {
+                // Safe to ignore: fall back to the stricter rule, the server still validates on save
+                return true;
+            });
     }
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- internal service, not a public extension point
 export default CompanyAccountNameFieldsApiService;

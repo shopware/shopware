@@ -131,6 +131,21 @@ async function createWrapper({
     });
 }
 
+function customerRepositoryWith(save) {
+    return {
+        create: () => ({
+            id: '1',
+            addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+        }),
+        save,
+    };
+}
+
+async function clickSave(wrapper) {
+    await wrapper.findByText('button', 'global.default.save').trigger('click');
+    await flushPromises();
+}
+
 describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     let wrapper;
 
@@ -141,58 +156,37 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
     it('saves a company account without a contact person once the settings release the names', async () => {
         const save = jest.fn(() => Promise.resolve());
-
         wrapper = await createWrapper({
-            repositoryMocks: {
-                customerRepositoryMock: {
-                    create: () => ({
-                        id: '1',
-                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                    }),
-                    save,
-                },
-            },
+            repositoryMocks: { customerRepositoryMock: customerRepositoryWith(save) },
             contactPersonRequired: false,
         });
         await flushPromises();
 
-        wrapper.vm.customer.accountType = 'business';
-        wrapper.vm.customer.company = 'Acme GmbH';
+        await wrapper.setData({ customer: { accountType: 'business', company: 'Acme GmbH' } });
+        await clickSave(wrapper);
 
-        await wrapper.vm.saveCustomer();
+        expect(save).toHaveBeenCalledTimes(1);
 
-        expect(save).toHaveBeenCalled();
-        expect(wrapper.vm.customer.firstName).toBe('');
-        expect(wrapper.vm.customer.lastName).toBe('');
-        expect(wrapper.vm.customer.addresses.first().firstName).toBe('');
-        expect(wrapper.vm.customer.addresses.first().lastName).toBe('');
-        expect(wrapper.vm.customer.addresses.first().company).toBe('Acme GmbH');
+        const [savedCustomer] = save.mock.calls[0];
+        expect(savedCustomer.firstName).toBe('');
+        expect(savedCustomer.lastName).toBe('');
+        expect(savedCustomer.addresses.first().firstName).toBe('');
+        expect(savedCustomer.addresses.first().lastName).toBe('');
+        expect(savedCustomer.addresses.first().company).toBe('Acme GmbH');
     });
 
     it('refuses a business customer without a contact person while the settings require one', async () => {
         const save = jest.fn(() => Promise.resolve());
-
         wrapper = await createWrapper({
-            repositoryMocks: {
-                customerRepositoryMock: {
-                    create: () => ({
-                        id: '1',
-                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                    }),
-                    save,
-                },
-            },
+            repositoryMocks: { customerRepositoryMock: customerRepositoryWith(save) },
         });
         await flushPromises();
 
-        wrapper.vm.customer.accountType = 'business';
-        wrapper.vm.customer.company = 'Acme GmbH';
-        wrapper.vm.customer.firstName = '';
-        wrapper.vm.customer.lastName = ' ';
+        await wrapper.setData({
+            customer: { accountType: 'business', company: 'Acme GmbH', firstName: '', lastName: ' ' },
+        });
+        await clickSave(wrapper);
 
-        const result = await wrapper.vm.onSave();
-
-        expect(result).toBe(false);
         expect(save).not.toHaveBeenCalled();
         expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['firstName'])).toBeInstanceOf(
             ShopwareError,
@@ -202,27 +196,22 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
     it('leaves the names alone while the settings keep the contact person', async () => {
         const save = jest.fn(() => Promise.resolve());
-
         wrapper = await createWrapper({
-            repositoryMocks: {
-                customerRepositoryMock: {
-                    create: () => ({
-                        id: '1',
-                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                    }),
-                    save,
-                },
-            },
+            repositoryMocks: { customerRepositoryMock: customerRepositoryWith(save) },
         });
         await flushPromises();
 
-        wrapper.vm.customer.accountType = 'business';
-        wrapper.vm.customer.company = 'Acme GmbH';
+        await wrapper.setData({
+            customer: { accountType: 'business', company: 'Acme GmbH', firstName: 'Ada', lastName: 'Lovelace' },
+        });
+        await clickSave(wrapper);
 
-        await wrapper.vm.saveCustomer();
+        expect(save).toHaveBeenCalledTimes(1);
 
-        expect(wrapper.vm.customer.firstName).toBeUndefined();
-        expect(wrapper.vm.customer.lastName).toBeUndefined();
+        const [savedCustomer] = save.mock.calls[0];
+        expect(savedCustomer.firstName).toBe('Ada');
+        expect(savedCustomer.addresses.first().firstName).toBeUndefined();
+        expect(savedCustomer.addresses.first().company).toBeUndefined();
     });
 
     it('should not leave any warnings behind when the modal is closed', async () => {

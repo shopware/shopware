@@ -39,6 +39,27 @@ Every export of `private.ts` is marked `@private`, and `private.ts` never reache
 Exports in `src/` carry no marker, because the location already says they are private.
 A marker anywhere else in a mini-module means the export is in the wrong file, and `@public` outside a mini-module's `index.ts` is not allowed at all.
 
+A component in a mini-module declares itself in `index.ts` and registers in `register.ts`, the only file with side effects:
+
+```ts
+// index.ts: name, lazy loader and the complete public API
+/** @public */
+export default definePublicComponent({
+    name: 'sw-example',
+    load: () => import('./src/sw-example'),
+    public: { props: ['value'], emits: ['update:value'], blocks: ['sw_example'], methods: ['save'] },
+});
+
+// register.ts
+import SwExample from './index';
+
+Shopware.Component.register(SwExample);
+```
+
+Anything the `public` lists leave out is private, and a meta test checks that every listed name exists.
+A native-setup component leaves out `public`, because `swDefinePublic()` declares it.
+`src/` stays free of side effects apart from importing its template and styles.
+
 Requirement tests stay rough.
 They describe what a merchant expects, in a few tests whose titles read like sentences, and each one has a `@requirement` doc comment that says why.
 Details and edge cases go into pinned tests.

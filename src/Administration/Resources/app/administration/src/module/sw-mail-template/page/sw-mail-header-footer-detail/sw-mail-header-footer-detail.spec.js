@@ -227,7 +227,7 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         expect(wrapper.findAll('.sw-mail-header-footer-detail__sales-channel-list-entry')).toHaveLength(1);
 
         await wrapper.find('.sw-modal__close').trigger('click');
-        wrapper.vm.mailHeaderFooter.salesChannels = [];
+        await wrapper.findComponent('.sw-mail-header-footer-detail__sales-channel').vm.$emit('update:entityCollection', []);
 
         await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
         await flushPromises();

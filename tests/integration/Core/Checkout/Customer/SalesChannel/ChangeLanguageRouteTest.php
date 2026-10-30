@@ -88,7 +88,6 @@ class ChangeLanguageRouteTest extends TestCase
 
         static::assertArrayHasKey('success', $response);
 
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
@@ -115,7 +114,6 @@ class ChangeLanguageRouteTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame('The "language" entity with id "' . $languageId . '" does not exist.', $response['errors'][0]['detail']);
 
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 

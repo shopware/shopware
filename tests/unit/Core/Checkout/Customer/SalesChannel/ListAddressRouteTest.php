@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
@@ -70,7 +69,6 @@ class ListAddressRouteTest extends TestCase
             new CustomerAddressCollection([$context->getShippingLocation()->getAddress() ?? new CustomerAddressEntity()])
         );
 
-        /** @var MockObject&SalesChannelRepository<CustomerAddressCollection> $addressRepository */
         $addressRepository = $this->createMock(SalesChannelRepository::class);
         $addressRepository->expects($this->once())
             ->method('search')

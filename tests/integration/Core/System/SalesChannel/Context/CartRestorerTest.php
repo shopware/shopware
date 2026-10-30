@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -82,7 +81,6 @@ class CartRestorerTest extends TestCase
         };
 
         $this->contextPersister = static::getContainer()->get(SalesChannelContextPersister::class);
-        /** @var AbstractSalesChannelContextFactory $contextFactory */
         $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $cartCalculator = static::getContainer()->get(CartCalculator::class);
         $requestStack = static::getContainer()->get(RequestStack::class);

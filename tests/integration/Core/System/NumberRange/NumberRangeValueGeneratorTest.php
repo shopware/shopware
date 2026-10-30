@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator;
-use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\TestDefaults;
 
@@ -42,7 +41,6 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     public function testGetConfiguration(): void
     {
-        /** @var NumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
         $value = $realGenerator->getValue('product', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         static::assertSame('SW10000', $value);
@@ -68,7 +66,6 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     public function testIncreaseStartNumberInConfiguration(): void
     {
-        /** @var NumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
 
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
@@ -103,7 +100,6 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     public function testGetValueStartingFromZero(): void
     {
-        /** @var NumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
 
         /** @var EntityRepository<NumberRangeCollection> $numberRange */
@@ -126,7 +122,6 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     public function testPreviewPatternByNumberRangeIdUsesConcreteNumberRangeState(): void
     {
-        /** @var AbstractNumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(AbstractNumberRangeValueGenerator::class);
 
         $customerTypeId = $this->getNumberRangeTypeId('customer');
@@ -145,7 +140,6 @@ class NumberRangeValueGeneratorTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        /** @var AbstractNumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(AbstractNumberRangeValueGenerator::class);
 
         $customerTypeId = $this->getNumberRangeTypeId('customer');

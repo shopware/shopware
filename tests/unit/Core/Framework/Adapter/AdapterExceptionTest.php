@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
@@ -44,7 +43,6 @@ class AdapterExceptionTest extends TestCase
 
     public function testUnexpectedTwigExpression(): void
     {
-        /** @var AbstractExpression&MockObject $expression */
         $expression = static::createStub(AbstractExpression::class);
         $type = $expression::class;
 

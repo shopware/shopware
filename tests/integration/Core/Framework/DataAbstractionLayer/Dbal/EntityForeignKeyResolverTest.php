@@ -196,7 +196,6 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $productRepository->create([$builder->build()], $context);
 
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         // self referencing is not allowed over the application anymore, but we still want to support the deletion
         $connection->executeStatement('UPDATE product SET parent_id = :id WHERE id = :id', [

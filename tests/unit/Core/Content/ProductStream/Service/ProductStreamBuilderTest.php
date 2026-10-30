@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductStream\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
@@ -36,7 +35,6 @@ class ProductStreamBuilderTest extends TestCase
      */
     public function testBuildFiltersThrowsWhenV68IsActive(): void
     {
-        /** @var EntityRepository<ProductStreamCollection>&MockObject $repository */
         $repository = static::createStub(EntityRepository::class);
         $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
 

@@ -103,7 +103,6 @@ class CartLineItemControllerTest extends TestCase
         $cartService = static::getContainer()->get(CartService::class);
         $this->createProduct($productId, 'productContainer', $containerProductHasChildren);
 
-        /** @var CartLineItemController $controller */
         $controller = static::getContainer()->get(CartLineItemController::class);
         $controller->setContainer(static::getContainer());
 

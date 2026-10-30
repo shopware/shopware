@@ -2,9 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -86,6 +89,53 @@ class MediaFolderIndexerTest extends TestCase
         static::assertSame($expectedPathChildZero, $pathChildZeroAfterUpdate);
     }
 
+    public function testIndexingRestoresThePathOfEveryFolderInTheMessage(): void
+    {
+        $configurationId = Uuid::randomHex();
+
+        $rootA = Uuid::randomHex();
+        $childA = Uuid::randomHex();
+        $grandChildA = Uuid::randomHex();
+        $rootB = Uuid::randomHex();
+        $childB = Uuid::randomHex();
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => $rootA,
+                'name' => 'root-a',
+                'configurationId' => $configurationId,
+                'children' => [
+                    [
+                        'id' => $childA,
+                        'name' => 'child-a',
+                        'configurationId' => $configurationId,
+                        'children' => [
+                            ['id' => $grandChildA, 'name' => 'grand-child-a', 'configurationId' => $configurationId],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'id' => $rootB,
+                'name' => 'root-b',
+                'configurationId' => $configurationId,
+                'children' => [
+                    ['id' => $childB, 'name' => 'child-b', 'configurationId' => $configurationId],
+                ],
+            ],
+        ], $this->context);
+
+        $this->moveWithoutIndexing($childA, $rootB);
+        $this->moveWithoutIndexing($childB, $rootA);
+
+        $indexer = static::getContainer()->get(MediaFolderIndexer::class);
+        $indexer->handle(new MediaIndexingMessage([$rootA, $childA, $grandChildA, $rootB, $childB], null, $this->context, false, true));
+
+        static::assertSame('|' . $rootB . '|', $this->fetchPath($childA));
+        static::assertSame('|' . $rootB . '|' . $childA . '|', $this->fetchPath($grandChildA));
+        static::assertSame('|' . $rootA . '|', $this->fetchPath($childB));
+    }
+
     public function testChildCountIsUpdatedCorrectly(): void
     {
         $parentId = Uuid::randomHex();
@@ -111,6 +161,59 @@ class MediaFolderIndexerTest extends TestCase
         $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->getEntities()->first();
 
         static::assertSame(1, $folder->getChildCount());
+    }
+
+    public function testChildCountOfTheOldParentIsUpdatedWhenAFolderMoves(): void
+    {
+        $oldParentId = Uuid::randomHex();
+        $newParentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => $oldParentId,
+                'name' => 'old-parent',
+                'configurationId' => Uuid::randomHex(),
+                'children' => [
+                    ['id' => $childId, 'name' => 'child', 'configurationId' => Uuid::randomHex()],
+                ],
+            ],
+            [
+                'id' => $newParentId,
+                'name' => 'new-parent',
+                'configurationId' => Uuid::randomHex(),
+            ],
+        ], $this->context);
+
+        $this->mediaFolderRepository->update([
+            ['id' => $childId, 'parentId' => $newParentId],
+        ], $this->context);
+
+        static::assertSame(0, $this->getMediaFolderEntityFromId($oldParentId)->getChildCount());
+        static::assertSame(1, $this->getMediaFolderEntityFromId($newParentId)->getChildCount());
+    }
+
+    public function testChildCountOfTheParentIsUpdatedWhenAFolderIsDeleted(): void
+    {
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'parent',
+                'configurationId' => Uuid::randomHex(),
+                'children' => [
+                    ['id' => $childId, 'name' => 'child', 'configurationId' => Uuid::randomHex()],
+                ],
+            ],
+        ], $this->context);
+
+        static::assertSame(1, $this->getMediaFolderEntityFromId($parentId)->getChildCount());
+
+        $this->mediaFolderRepository->delete([['id' => $childId]], $this->context);
+
+        static::assertSame(0, $this->getMediaFolderEntityFromId($parentId)->getChildCount());
     }
 
     /**
@@ -163,6 +266,26 @@ class MediaFolderIndexerTest extends TestCase
         }
 
         return [$data, $ids];
+    }
+
+    private function moveWithoutIndexing(string $id, string $parentId): void
+    {
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE media_folder SET parent_id = :parentId WHERE id = :id',
+            ['parentId' => Uuid::fromHexToBytes($parentId), 'id' => Uuid::fromHexToBytes($id)]
+        );
+    }
+
+    private function fetchPath(string $id): string
+    {
+        $path = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT path FROM media_folder WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($id)]
+        );
+
+        static::assertIsString($path);
+
+        return $path;
     }
 
     private function getMediaFolderEntityFromId(string $id): MediaFolderEntity

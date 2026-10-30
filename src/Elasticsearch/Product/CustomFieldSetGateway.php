@@ -30,6 +30,10 @@ class CustomFieldSetGateway
      */
     public function fetchCustomFieldsForSets(array $setIds): array
     {
+        if ($setIds === []) {
+            return [];
+        }
+
         /** @var list<array{id: string, name: string, type: string}> $result */
         $result = $this->connection->fetchAllAssociative(
             <<<'SQL'
@@ -73,9 +77,13 @@ class CustomFieldSetGateway
      */
     public function fetchFieldSetIds(array $customFieldIds): array
     {
+        if ($customFieldIds === []) {
+            return [];
+        }
+
         /** @var array<string, string> $result */
         $result = $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(id)), LOWER(HEX(set_id)) FROM custom_field WHERE id IN (:ids)',
+            'SELECT LOWER(HEX(id)), LOWER(HEX(set_id)) FROM custom_field WHERE id IN (:ids) AND set_id IS NOT NULL',
             ['ids' => Uuid::fromHexToBytesList($customFieldIds)],
             ['ids' => ArrayParameterType::STRING]
         );
@@ -90,6 +98,10 @@ class CustomFieldSetGateway
      */
     public function fetchFieldSetEntityMappings(array $fieldSetIds): array
     {
+        if ($fieldSetIds === []) {
+            return [];
+        }
+
         /** @var list<array{set_id: string, entity_name: string}> $fieldSets */
         $fieldSets = $this->connection->fetchAllAssociative(
             <<<'SQL'

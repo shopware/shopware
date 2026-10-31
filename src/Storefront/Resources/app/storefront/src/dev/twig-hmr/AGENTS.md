@@ -88,10 +88,9 @@ Pass `-H 'Accept: text/html'` for pages, and no Accept header for fragments.
 - The watcher reads the view directories from `var/plugins.json`, which `bundle:dump` fills with every bundle and every active app.
   In the dev environment Twig loads app templates from the same directories instead of the `app_template` table,
   so an app override hot reloads like a plugin override once `bundle:dump` and `cache:clear` ran after the install.
-- Prepending an element to a block whose next sibling holds a plugin is rejected with "The template removes ...".
-  idiomorph soft matches the whitespace text node after the new element with the whitespace after the old sibling and removes the sibling in between.
-  Example: an override of `layout_footer_inner_container` that adds a `<span>` before `{{ parent() }}` on a page whose footer starts with a plugin element.
-  The page keeps its content and the notice asks for a reload. Known limitation, not fixed yet.
+- idiomorph matches siblings without an id by tag name, so an element that a template inserts before a plugin element could take over the match and remove the plugin element.
+  The client gives each live plugin element and its new counterpart a temporary id for the morph, so idiomorph keeps the pair.
+  A plugin element whose template counterpart cannot be assigned by position, for example after the number of elements changed, still reports "The template removes ...".
 - The watcher only watches plugin view directories that exist when it starts, restart it after creating a plugin.
 - A `cache:clear` is needed when a plugin view directory is created after the container was compiled.
 - After switching branches in a shared checkout, clear the dev and the prod cache, or the compiled container references classes of the previous branch.

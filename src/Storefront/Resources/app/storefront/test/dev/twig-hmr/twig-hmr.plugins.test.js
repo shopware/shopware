@@ -56,6 +56,8 @@ describe('dev/twig-hmr with real plugins', () => {
     }
 
     beforeAll(() => {
+        // jsdom has no CSS.escape, which idiomorph uses to move elements with an id.
+        global.CSS ??= { escape: (value) => value };
         PluginManager.register('QuantitySelector', QuantitySelectorPlugin, '[data-quantity-selector]');
         PluginManager.register('Track', TrackPlugin, '[data-track]');
     });
@@ -95,6 +97,30 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.querySelector('.js-btn-plus')).toBe(plus);
         expect(document.querySelector('.js-quantity-selector').value).toBe('2');
         expect(document.getElementById(NOTICE_ID).textContent).toContain('QuantitySelector');
+    });
+
+    it('keeps a plugin element without an id when the template inserts an element before its holder', async () => {
+        // Whitespace matters: idiomorph soft matches the text node after the new span with the one after the holder.
+        const footer = (prefix) => `<footer>
+            ${prefix}
+            <div class="container">
+                <button type="button" class="btn">Other</button>
+                ${slider()}
+            </div>
+            <div class="container">Second</div>
+        </footer>`;
+        await load(footer(''));
+        const sliderElement = document.querySelector('.slider');
+        const instance = PluginManager.getPluginInstanceFromElement(sliderElement, 'Track');
+        pages['http://localhost/'] = page(footer('<span data-hmr-marker>Version 2</span>'));
+
+        await refresh(['footer.html.twig']);
+
+        expect(document.querySelector('[data-hmr-marker]').textContent).toBe('Version 2');
+        expect(document.querySelector('.slider')).toBe(sliderElement);
+        expect(sliderElement.hasAttribute('id')).toBe(false);
+        expect(PluginManager.getPluginInstanceFromElement(sliderElement, 'Track')).toBe(instance);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 
     it.each([

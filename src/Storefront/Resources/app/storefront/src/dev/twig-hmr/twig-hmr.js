@@ -351,7 +351,7 @@ function createMorphCallbacks(target, plan, reasons, dryRun = null) {
             const plugins = entry.pluginNames.join(', ');
             if (entry.changed) {
                 reasons.push(`The markup of ${describeElement(oldNode)} changed. Plugins: ${plugins}.`);
-            } else if (entry.expectedMarkup !== null && newNode.outerHTML !== entry.expectedMarkup) {
+            } else if (!matchesExpectedMarkup(entry, newNode)) {
                 reasons.push(`${describeElement(oldNode)} was matched with other markup. Plugins: ${plugins}.`);
             }
 
@@ -368,6 +368,53 @@ function createMorphCallbacks(target, plan, reasons, dryRun = null) {
         beforeAttributeUpdated(attributeName, element) {
             return !interaction.isProtectedAttribute(attributeName, toLive(element));
         },
+    };
+}
+
+/**
+ * @param {object} entry - the plan entry of a live plugin element
+ * @param {Element} newNode - the new markup that idiomorph matched with the element
+ */
+function matchesExpectedMarkup(entry, newNode) {
+    if (entry.temporaryId !== null) {
+        return newNode.id === entry.temporaryId;
+    }
+
+    return entry.expectedMarkup === null || newNode.outerHTML === entry.expectedMarkup;
+}
+
+let temporaryIdCounter = 0;
+
+/**
+ * idiomorph matches siblings without an id by tag name, so an element that a template adds before a plugin element
+ * can take over the match of a text node behind it, and the plugin element is removed in between.
+ * A temporary id on the live plugin element and on its new counterpart makes idiomorph keep the pair.
+ *
+ * @param {Map<Element, object>} plan
+ * @returns {function(): void} removes the temporary ids again
+ */
+function assignTemporaryIds(plan) {
+    const assigned = [];
+
+    plan.forEach((entry, element) => {
+        if (element.id || !entry.nextElement || entry.nextElement.id) {
+            return;
+        }
+
+        temporaryIdCounter += 1;
+        entry.temporaryId = `sw-twig-hmr-${temporaryIdCounter}`;
+        element.id = entry.temporaryId;
+        entry.nextElement.id = entry.temporaryId;
+        assigned.push({ entry, element });
+    });
+
+    // The new markup becomes the next baseline, so the ids must leave both trees.
+    return () => {
+        assigned.forEach(({ entry, element }) => {
+            element.removeAttribute('id');
+            entry.nextElement.removeAttribute('id');
+            entry.temporaryId = null;
+        });
     };
 }
 
@@ -495,25 +542,33 @@ function morphTarget(target, reasons) {
         },
     });
 
-    const { guarded, reasons: unsafe } = findUnsafeChanges(target, plan);
-    if (unsafe.length > 0) {
-        reasons.push(...unsafe, `The ${target.kind} of ${target.url} keeps its current content.`);
+    const removeTemporaryIds = assignTemporaryIds(plan);
+    let guarded;
 
-        return false;
+    try {
+        const unsafeChanges = findUnsafeChanges(target, plan);
+        guarded = unsafeChanges.guarded;
+        if (unsafeChanges.reasons.length > 0) {
+            reasons.push(...unsafeChanges.reasons, `The ${target.kind} of ${target.url} keeps its current content.`);
+
+            return false;
+        }
+
+        if (target.title && target.nextTitle) {
+            target.title.innerHTML = target.nextTitle.innerHTML;
+        }
+
+        // Idiomorph wraps a single element in a dummy parent, so the children are passed.
+        // `ignoreActiveValue` is not used: idiomorph then skips all children of the focused element,
+        // and Bootstrap focuses the `.modal` element itself.
+        Idiomorph.morph(target.liveRoot, target.nextRoot.childNodes, {
+            morphStyle: 'innerHTML',
+            restoreFocus: true,
+            callbacks: createMorphCallbacks(target, plan, reasons),
+        });
+    } finally {
+        removeTemporaryIds();
     }
-
-    if (target.title && target.nextTitle) {
-        target.title.innerHTML = target.nextTitle.innerHTML;
-    }
-
-    // Idiomorph wraps a single element in a dummy parent, so the children are passed.
-    // `ignoreActiveValue` is not used: idiomorph then skips all children of the focused element,
-    // and Bootstrap focuses the `.modal` element itself.
-    Idiomorph.morph(target.liveRoot, target.nextRoot.childNodes, {
-        morphStyle: 'innerHTML',
-        restoreFocus: true,
-        callbacks: createMorphCallbacks(target, plan, reasons),
-    });
 
     // The dry run should have rejected this. Never let the page look updated if the morph still removed a guarded element.
     guarded.forEach((reason, element) => {

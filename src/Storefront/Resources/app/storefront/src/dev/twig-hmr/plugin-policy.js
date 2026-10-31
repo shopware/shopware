@@ -16,6 +16,8 @@ import { CLIENT_OWNED_SELECTOR } from './ownership';
  * @property {string[]} pluginNames
  * @property {boolean} changed - the template changed the server markup of the element
  * @property {string|null} expectedMarkup - the new server markup, null if it cannot be assigned
+ * @property {Element|null} nextElement - the element of the new server markup, null if it cannot be assigned
+ * @property {string|null} temporaryId - the id that pairs the live element with `nextElement` during a morph
  */
 
 /**
@@ -49,10 +51,12 @@ function queryAll(root, selector) {
 /**
  * Server markup that a template marks as owned by scripts never takes part in a morph.
  */
+function queryServerElements(root, selector) {
+    return queryAll(root, selector).filter((element) => !element.closest(CLIENT_OWNED_SELECTOR));
+}
+
 function queryServerMarkup(root, selector) {
-    return queryAll(root, selector)
-        .filter((element) => !element.closest(CLIENT_OWNED_SELECTOR))
-        .map((element) => element.outerHTML);
+    return queryServerElements(root, selector).map((element) => element.outerHTML);
 }
 
 function sameList(first, second) {
@@ -79,7 +83,8 @@ export function planPluginElements({ liveRoot, previousServerRoot, nextServerRoo
             return;
         }
 
-        const nextMarkup = queryServerMarkup(nextServerRoot, selector);
+        const nextElements = queryServerElements(nextServerRoot, selector);
+        const nextMarkup = nextElements.map((element) => element.outerHTML);
         const previousMarkup = previousServerRoot ? queryServerMarkup(previousServerRoot, selector) : null;
         const unchanged = previousMarkup !== null && sameList(previousMarkup, nextMarkup);
         // Elements can only be assigned by position if the template and the scripts kept their number.
@@ -87,12 +92,19 @@ export function planPluginElements({ liveRoot, previousServerRoot, nextServerRoo
             && (previousMarkup === null || previousMarkup.length === liveElements.length);
 
         liveElements.forEach((element, index) => {
-            const entry = plan.get(element) ?? { pluginNames: [], changed: false, expectedMarkup: null };
+            const entry = plan.get(element) ?? {
+                pluginNames: [],
+                changed: false,
+                expectedMarkup: null,
+                nextElement: null,
+                temporaryId: null,
+            };
             const changed = !unchanged && !(assignable && previousMarkup?.[index] === nextMarkup[index]);
 
             entry.pluginNames.push(name);
             entry.changed = entry.changed || changed;
             entry.expectedMarkup = assignable ? nextMarkup[index] : entry.expectedMarkup;
+            entry.nextElement = assignable ? nextElements[index] : entry.nextElement;
             plan.set(element, entry);
         });
     });

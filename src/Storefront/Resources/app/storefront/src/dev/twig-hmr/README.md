@@ -178,6 +178,8 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - The tests of `OffCanvasCartPlugin` and `OffcanvasMenuPlugin` cover the source attributes they store.
 - `twig-hmr.plugins.test.js` runs the real `PluginManager` with `QuantitySelectorPlugin` and a plugin that wraps its children like a slider.
 
+`AGENTS.md` next to this file holds the browser and proxy matrix for manual verification.
+
 ## Limits
 
 - **Random ids.**

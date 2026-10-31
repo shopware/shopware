@@ -346,7 +346,14 @@ class RegisterRoute extends AbstractRegisterRoute
         // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
         // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).
         if ($billingAddress instanceof DataBag || (!$shippingAddress instanceof DataBag && $billingAddress === null)) {
-            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context, true));
+            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition(
+                $data,
+                $accountType,
+                $billingAddress ?? new RequestDataBag(),
+                $context,
+                isBillingAddress: true,
+                isShippingAddress: !$shippingAddress instanceof DataBag,
+            ));
         }
 
         if ($shippingAddress instanceof DataBag) {
@@ -357,7 +364,8 @@ class RegisterRoute extends AbstractRegisterRoute
                 $isDefaultBillingAddress ? $accountType : $this->addressAccountType($shippingAddress),
                 $shippingAddress,
                 $context,
-                $isDefaultBillingAddress
+                isBillingAddress: $isDefaultBillingAddress,
+                isShippingAddress: true,
             ));
         }
 
@@ -450,7 +458,8 @@ class RegisterRoute extends AbstractRegisterRoute
         ?string $accountType,
         DataBag $address,
         SalesChannelContext $context,
-        bool $isBillingAddress
+        bool $isBillingAddress,
+        bool $isShippingAddress
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
@@ -466,6 +475,20 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
+
+        if ($isBillingAddress) {
+            $this->eventDispatcher->dispatch(
+                new BuildValidationEvent($validation, $address, $context->getContext()),
+                $validationEvent->getName() . '.billing'
+            );
+        }
+
+        if ($isShippingAddress) {
+            $this->eventDispatcher->dispatch(
+                new BuildValidationEvent($validation, $address, $context->getContext()),
+                $validationEvent->getName() . '.shipping'
+            );
+        }
 
         return $validation;
     }

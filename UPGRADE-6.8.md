@@ -480,6 +480,11 @@ Remove the old `__wakeup()` implementation to avoid duplicate initialization whe
 
 `PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
 
+## Import CSV reader exception for invalid resources
+
+`CsvReader::read()` throws `ImportExportException` with the error code `CONTENT__IMPORT_EXPORT__INVALID_RESOURCE` instead of `\InvalidArgumentException` when the given argument is not a resource.
+Update exception catches accordingly.
+
 ## `ReverseProxyCompilerPass` removed
 
 `Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
@@ -2630,6 +2635,12 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `sw-cms-layout-modal` grid selection methods
+
+The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
+The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
+Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
+
 # Storefront
 
 <details>
@@ -2875,11 +2886,10 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `pathIdList` option in NavbarPlugin
+## Removal of `pathIdList` from `navbarOptions` in `navbar.html.twig`
 
-The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
-
-Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
+The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
+Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
 ## Refactor of providing cookies
 

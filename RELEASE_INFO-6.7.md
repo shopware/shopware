@@ -274,6 +274,13 @@ Saving is not blocked.
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
 
+### Removing an installed plugin uninstalls it first
+
+`POST /api/_action/extension/remove/plugin/{technicalName}` now uninstalls an installed plugin before it deletes the plugin's files, as it already did for apps.
+The plugin's uninstall lifecycle runs, so `keepUserData` decides whether the plugin's data is removed, and it defaults to `false`.
+Send `keepUserData: true` to keep the data.
+A plugin that Composer manages outside `custom/plugins` is refused with `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED` before anything changes.
+
 ## Features
 
 ### Disable the Administration password recovery flow

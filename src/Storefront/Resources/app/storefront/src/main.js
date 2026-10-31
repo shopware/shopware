@@ -70,6 +70,7 @@ if (!window.Feature.isActive('v6.8.0.0')) {
     PluginManager.register('FormSubmitLoader', () => import('src/plugin/forms/form-submit-loader.plugin'), '[data-form-submit-loader]');
 }
 PluginManager.register('FormFieldToggle', () => import('src/plugin/forms/form-field-toggle.plugin'), '[data-form-field-toggle]');
+PluginManager.register('CompanyNameFields', () => import('src/plugin/forms/company-name-fields.plugin'), '[data-company-name-fields]');
 PluginManager.register('FormAutoSubmit', () => import('src/plugin/forms/form-auto-submit.plugin'), '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', () => import('src/plugin/forms/form-ajax-submit.plugin'), '[data-form-ajax-submit]');
 PluginManager.register('FormAddHistory', () => import('src/plugin/forms/form-add-history.plugin'), '[data-form-add-history]');

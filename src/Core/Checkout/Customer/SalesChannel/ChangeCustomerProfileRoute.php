@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -60,6 +61,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
         private readonly ExtensionDispatcher $extensions,
     ) {
     }
@@ -99,8 +101,16 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $accountType = $keepsAccountType ? $customer->getAccountType() : $data->get('accountType');
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            if (!$keepsAccountType || $data->has('company')) {
-                $validation->add('company', new NotBlank());
+            if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
+                $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: !$keepsAccountType || $data->has('company'));
+                $this->companyAccountNameFields->normalize($data, submittedOnly: true);
+
+                if (!$data->has('company')) {
+                    $data->set('company', $customer->getCompany() ?? '');
+                }
+            } elseif (!$keepsAccountType || $data->has('company')) {
+                $data->set('company', $data->get('company') ?? '');
+                $validation->add('company', CompanyAccountNameFields::companyNotBlank());
             }
 
             $billingAddress = $customer->getActiveBillingAddress();

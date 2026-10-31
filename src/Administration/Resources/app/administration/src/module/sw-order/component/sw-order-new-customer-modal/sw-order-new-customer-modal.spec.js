@@ -13,6 +13,7 @@ async function createWrapper({
         customerRepositoryMock: undefined,
         languageRepositoryMock: undefined,
     },
+    contactPersonRequired = true,
 } = {}) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
@@ -117,11 +118,10 @@ async function createWrapper({
                     reverse: () => Promise.resolve(),
                 },
                 systemConfigApiService: {
-                    getValues: () => {
-                        return Promise.resolve({
-                            'core.loginRegistration.passwordMinLength': 8,
-                        });
-                    },
+                    getValues: () => Promise.resolve({ 'core.loginRegistration.passwordMinLength': 8 }),
+                },
+                companyAccountNameFieldsService: {
+                    isContactPersonRequired: () => Promise.resolve(contactPersonRequired),
                 },
                 customerValidationService: {
                     checkCustomerEmail: () => Promise.resolve(),
@@ -131,12 +131,87 @@ async function createWrapper({
     });
 }
 
+function customerRepositoryWith(save) {
+    return {
+        create: () => ({
+            id: '1',
+            addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+        }),
+        save,
+    };
+}
+
+async function clickSave(wrapper) {
+    await wrapper.findByText('button', 'global.default.save').trigger('click');
+    await flushPromises();
+}
+
 describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
         Shopware.Store.get('error').resetApiErrors();
         wrapper = await createWrapper();
+    });
+
+    it('saves a company account without a contact person once the settings release the names', async () => {
+        const save = jest.fn(() => Promise.resolve());
+        wrapper = await createWrapper({
+            repositoryMocks: { customerRepositoryMock: customerRepositoryWith(save) },
+            contactPersonRequired: false,
+        });
+        await flushPromises();
+
+        await wrapper.setData({ customer: { accountType: 'business', company: 'Acme GmbH' } });
+        await clickSave(wrapper);
+
+        expect(save).toHaveBeenCalledTimes(1);
+
+        const [savedCustomer] = save.mock.calls[0];
+        expect(savedCustomer.firstName).toBe('');
+        expect(savedCustomer.lastName).toBe('');
+        expect(savedCustomer.addresses.first().firstName).toBe('');
+        expect(savedCustomer.addresses.first().lastName).toBe('');
+        expect(savedCustomer.addresses.first().company).toBe('Acme GmbH');
+    });
+
+    it('refuses a business customer without a contact person while the settings require one', async () => {
+        const save = jest.fn(() => Promise.resolve());
+        wrapper = await createWrapper({
+            repositoryMocks: { customerRepositoryMock: customerRepositoryWith(save) },
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { accountType: 'business', company: 'Acme GmbH', firstName: '', lastName: ' ' },
+        });
+        await clickSave(wrapper);
+
+        expect(save).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['firstName'])).toBeInstanceOf(
+            ShopwareError,
+        );
+        expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['lastName'])).toBeInstanceOf(ShopwareError);
+    });
+
+    it('leaves the names alone while the settings keep the contact person', async () => {
+        const save = jest.fn(() => Promise.resolve());
+        wrapper = await createWrapper({
+            repositoryMocks: { customerRepositoryMock: customerRepositoryWith(save) },
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { accountType: 'business', company: 'Acme GmbH', firstName: 'Ada', lastName: 'Lovelace' },
+        });
+        await clickSave(wrapper);
+
+        expect(save).toHaveBeenCalledTimes(1);
+
+        const [savedCustomer] = save.mock.calls[0];
+        expect(savedCustomer.firstName).toBe('Ada');
+        expect(savedCustomer.addresses.first().firstName).toBeUndefined();
+        expect(savedCustomer.addresses.first().company).toBeUndefined();
     });
 
     it('should not leave any warnings behind when the modal is closed', async () => {
@@ -309,6 +384,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                 password: 'shopware',
                 salesChannelId: 'a7921464677a4ef591683d144beecd24',
                 company: 'Shopware',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
             },
         });
 
@@ -352,6 +429,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                 password: 'shopware',
                 salesChannelId: 'a7921464677a4ef591683d144beecd24',
                 company: 'Shopware',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
             },
         });
 

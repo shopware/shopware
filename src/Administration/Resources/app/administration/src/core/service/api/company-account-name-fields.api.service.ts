@@ -1,0 +1,35 @@
+import type { HttpClient } from 'src/core/factory/http-client.types';
+import type { LoginService } from '../login.service';
+import ApiService from '../api.service';
+
+/**
+ * @sw-package checkout
+ */
+
+type ContactPersonRequirement = {
+    contactPersonRequired: boolean;
+};
+
+class CompanyAccountNameFieldsApiService extends ApiService {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'customer') {
+        super(httpClient, loginService, apiEndpoint);
+        this.name = 'companyAccountNameFieldsService';
+    }
+
+    isContactPersonRequired(salesChannelId?: string | null): Promise<boolean> {
+        return this.httpClient
+            .get<ContactPersonRequirement>(`/_action/${this.getApiBasePath()}/company-account-name-fields`, {
+                params: salesChannelId ? { salesChannelId } : {},
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response))
+            .then((data) => data.contactPersonRequired)
+            .catch(() => {
+                // Safe to ignore: fall back to the stricter rule, the server still validates on save
+                return true;
+            });
+    }
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- internal service, not a public extension point
+export default CompanyAccountNameFieldsApiService;

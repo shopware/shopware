@@ -29,7 +29,7 @@ test.describe('Customer Registration Form', () => {
                 '@Storefront',
             ],
         },
-        async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
+        async ({ ShopCustomer, StorefrontAccountLogin, TestDataService, InstanceMeta }) => {
             const registerForm = StorefrontAccountLogin.page.locator('.register-form');
             const privacyNotice = registerForm.locator('.privacy-notice');
             const dataProtectionCheckbox = privacyNotice.locator('input[name="acceptedDataProtection"]');
@@ -52,7 +52,7 @@ test.describe('Customer Registration Form', () => {
             await ShopCustomer.expects(legalGuaranteeNoticeLink).toHaveCount(0);
             await ShopCustomer.expects(StorefrontAccountLogin.registerButton).toContainText(/Register|Registrieren/i);
 
-            // Checkbox disabled, legal guarantee notice enabled: the notice is shown as its own paragraph, outside the privacy section.
+            // Checkbox disabled, legal guarantee notice enabled: the notice is shown as its own paragraph, outside the privacy section from 6.8 on.
             await TestDataService.setSystemConfig({
                 'core.cart.showLegalGuaranteeNotice': true,
             });
@@ -60,7 +60,9 @@ test.describe('Customer Registration Form', () => {
 
             await ShopCustomer.expects(dataProtectionCheckbox).toHaveCount(0);
             await ShopCustomer.expects(legalGuaranteeNoticeParagraph).toBeVisible();
-            await ShopCustomer.expects(privacyNotice.locator('.legal-guarantee-notice')).toHaveCount(0);
+            await ShopCustomer.expects(privacyNotice.locator('.legal-guarantee-notice')).toHaveCount(
+                InstanceMeta.features['V6_8_0_0'] ? 0 : 1,
+            );
             await ShopCustomer.expects(legalGuaranteeNoticeLink).toBeVisible();
 
             await legalGuaranteeNoticeLink.click();

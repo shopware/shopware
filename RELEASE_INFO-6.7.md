@@ -362,14 +362,14 @@ With the `v6.8.0.0` flag active, the template no longer sets the deprecated `bre
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
 
-### Legal guarantee notice moved out of the privacy section
+### Legal guarantee notice on the registration form
 
-The legal guarantee notice of `component/privacy-notice.html.twig` now renders before the privacy `<fieldset>` instead of inside it, so it no longer appears under the "Privacy" heading of the registration form.
-The `component_privacy_legal_guarantee_notice_*` blocks keep their names, but they are no longer nested in `component_privacy_dpi`.
-Themes that style `.privacy-notice .legal-guarantee-notice` should target `.legal-guarantee-notice` directly.
-
-The new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the notice on the registration form while the checkout keeps it.
+The new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the legal guarantee notice on the registration form while the checkout keeps it.
 The notice still requires `core.cart.showLegalGuaranteeNotice` as well.
+
+With the `v6.8.0.0` flag active, the notice of `component/privacy-notice.html.twig` renders before the privacy `<fieldset>` instead of under the "Privacy" heading.
+The blocks `component_privacy_legal_guarantee_notice_paragraph` and `component_privacy_legal_guarantee_notice_modal` are deprecated in their place inside `component_privacy_dpi` and move out of it with 6.8.
+See `UPGRADE-6.8.md` for what themes have to adjust.
 
 ### Legal guarantee notice disabled by default
 

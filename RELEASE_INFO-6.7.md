@@ -274,6 +274,13 @@ Saving is not blocked.
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
 
+### Refused removal of a Composer-managed app keeps it installed
+
+`POST /api/_action/extension/remove/app/{technicalName}` now refuses an app that Composer manages before it changes anything.
+Before, the app was uninstalled first, which deleted its data unless the request sent `keepUserData: true`, and only then refused.
+The refusal now answers `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED` instead of `FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED`, still with HTTP 400.
+To remove such an app, uninstall it and remove its package with Composer.
+
 ## Features
 
 ### Disable the Administration password recovery flow

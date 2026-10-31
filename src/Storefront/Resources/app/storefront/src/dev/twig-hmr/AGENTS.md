@@ -27,8 +27,9 @@ The browser matrix below is for the parts that unit tests cannot cover: real tem
    `var/theme-files.json` tells the proxy which shop origin to rewrite.
 3. Open the proxy URL, by default port 9998, not the shop URL.
    Only the proxy page has the hot reload client.
-4. For override scenarios, install a minimal plugin with a `Resources/views/storefront` directory.
+4. For override scenarios, install a minimal plugin or app with a `Resources/views/storefront` directory.
    Create the directory before `cache:clear` and before the watcher starts, otherwise neither Twig nor the watcher knows it.
+   An app needs `app:install --activate`, `bundle:dump` and `cache:clear`, a manifest with only a `meta` block is enough.
 
 Drive the browser with the DevTools protocol or Playwright, a headless Chrome is enough.
 Install this harness once per page load and keep it across the scenarios:
@@ -54,6 +55,7 @@ Keep the markers out of commits.
 |----------|-------|----------|
 | Core template text | Edit a block in `layout/header/logo.html.twig` | Marker updates in place, one update event, no reload |
 | Plugin override text | Edit the same template in the plugin override | Same as above, the plugin markup wins |
+| App override text | Edit the same template in the override of an active app under `custom/apps/` | Same as above, the app markup wins |
 | SCSS | Edit a theme SCSS file | Style changes through the webpack dev server, no Twig update event |
 | Override added | Create a plugin override of a core template | Page shows the override without reload, the watcher log reports the batch as structural |
 | Override removed | Delete the override again | Page falls back to the core template without reload |
@@ -65,6 +67,7 @@ Keep the markers out of commits.
 | Form state | Type into the search field, then edit a template | Value and focus survive the morph (unit tests cover this, verify in the browser when `interaction-state.js` changes) |
 
 Verified in the browser on 2026-10-30 for every row except the last two, which are covered by unit tests.
+The app override row was verified on 2026-10-31.
 
 ## Proxy matrix
 
@@ -82,8 +85,13 @@ Pass `-H 'Accept: text/html'` for pages, and no Accept header for fragments.
 
 ## Pitfalls
 
-- The watcher reads the view directories from `var/plugins.json`, so only bundles are watched.
-  App templates live in the database and are out of scope.
+- The watcher reads the view directories from `var/plugins.json`, which `bundle:dump` fills with every bundle and every active app.
+  In the dev environment Twig loads app templates from the same directories instead of the `app_template` table,
+  so an app override hot reloads like a plugin override once `bundle:dump` and `cache:clear` ran after the install.
+- Prepending an element to a block whose next sibling holds a plugin is rejected with "The template removes ...".
+  idiomorph soft matches the whitespace text node after the new element with the whitespace after the old sibling and removes the sibling in between.
+  Example: an override of `layout_footer_inner_container` that adds a `<span>` before `{{ parent() }}` on a page whose footer starts with a plugin element.
+  The page keeps its content and the notice asks for a reload. Known limitation, not fixed yet.
 - The watcher only watches plugin view directories that exist when it starts, restart it after creating a plugin.
 - A `cache:clear` is needed when a plugin view directory is created after the container was compiled.
 - After switching branches in a shared checkout, clear the dev and the prod cache, or the compiled container references classes of the previous branch.

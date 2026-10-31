@@ -41,7 +41,8 @@ No Twig is compiled in the browser.
 
 ### Watcher
 
-`build/webpack/twig-watch-paths.js` reads the view directories of every bundle from `var/plugins.json`.
+`build/webpack/twig-watch-paths.js` reads the view directories of every bundle and every active app from `var/plugins.json`.
+In the dev environment Twig loads app templates from the same directories, so app overrides hot reload like plugin overrides.
 It watches those with a `storefront` or `components` directory.
 `build/webpack/twig-hmr-watcher.js` collects the changes of 50 ms and sends them as one message through `devServer.sendMessage`.
 `awaitWriteFinish` waits until the file is completely written, because editors and file syncs such as Mutagen write in several steps.

@@ -65,7 +65,7 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+                $this->customer->getEmail() => $this->customer->getDisplayName(),
             ]);
         }
 

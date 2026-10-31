@@ -179,6 +179,8 @@ An extension that copies them into its own `Required` field needs the flag there
 {{ order.orderCustomer.displayName }}
 ```
 
+The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
+
 ### Duplicate document number errors name the document type
 
 When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters.

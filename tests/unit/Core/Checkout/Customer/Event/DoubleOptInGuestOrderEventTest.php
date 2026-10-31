@@ -39,4 +39,11 @@ class DoubleOptInGuestOrderEventTest extends TestCase
         static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
         static::assertTrue($flow->getData('sensitive'));
     }
+
+    public function testTheMailRecipientCarriesTheResolvedName(): void
+    {
+        MailRecipientNameFixture::assertRecipientNames(
+            fn (CustomerEntity $customer, SalesChannelContext $context) => new DoubleOptInGuestOrderEvent($customer, $context, 'https://example.com/confirm')
+        );
+    }
 }

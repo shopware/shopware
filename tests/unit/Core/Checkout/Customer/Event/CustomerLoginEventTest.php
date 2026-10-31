@@ -38,4 +38,11 @@ class CustomerLoginEventTest extends TestCase
         static::assertArrayHasKey('contextToken', $flow->data());
         static::assertSame('context-token', $flow->data()['contextToken']);
     }
+
+    public function testTheMailRecipientCarriesTheResolvedName(): void
+    {
+        MailRecipientNameFixture::assertRecipientNames(
+            fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerLoginEvent($context, $customer, 'context-token')
+        );
+    }
 }

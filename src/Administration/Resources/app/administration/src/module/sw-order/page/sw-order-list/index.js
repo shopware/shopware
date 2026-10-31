@@ -425,7 +425,7 @@ export default {
                 },
                 {
                     property: 'orderCustomer.firstName',
-                    dataIndex: 'orderCustomer.lastName,orderCustomer.firstName',
+                    dataIndex: 'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
                     label: 'sw-order.list.columnCustomerName',
                     allowResize: true,
                 },

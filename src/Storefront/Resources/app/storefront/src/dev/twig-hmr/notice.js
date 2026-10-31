@@ -18,10 +18,12 @@ const LOG_PREFIX = '[sw-twig-hmr]';
 const reloadReasons = new Set();
 let renderError = null;
 
+// The Symfony toolbar and its minimized form are fixed to the bottom edge, the notice sits above whichever is shown.
+const TOOLBAR_SELECTOR = '.sf-toolbarreset, .sf-minitoolbar';
+
 const STYLE = [
     'position:fixed',
     'left:1rem',
-    'bottom:1rem',
     'z-index:2147483647',
     'max-width:28rem',
     'padding:.75rem 1rem',
@@ -31,6 +33,12 @@ const STYLE = [
     'font:14px/1.4 system-ui,sans-serif',
     'box-shadow:0 .5rem 1rem rgba(0,0,0,.3)',
 ].join(';');
+
+function toolbarHeight() {
+    const heights = [...document.querySelectorAll(TOOLBAR_SELECTOR)].map((element) => element.getBoundingClientRect().height);
+
+    return Math.max(0, ...heights);
+}
 
 function createButton(label, onClick) {
     const button = document.createElement('button');
@@ -54,6 +62,7 @@ function render() {
     notice.setAttribute(PRESERVE_ATTRIBUTE, '');
     notice.setAttribute('role', 'status');
     notice.style.cssText = STYLE;
+    notice.style.bottom = `calc(${toolbarHeight()}px + 1rem)`;
 
     const title = document.createElement('strong');
     title.textContent = renderError

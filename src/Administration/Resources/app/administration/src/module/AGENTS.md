@@ -16,6 +16,113 @@ sw-[module]/
 └── default-search-configuration.js
 ```
 
+## Mini-Modules
+
+A mini-module is a directory that works like a small library, with a public API and private code behind it:
+
+```
+order-delivery/
+├── index.ts                  # The public API, for other Administration code and for extensions, every export marked @public
+├── private.ts                # Optional: an API for Administration code only, every export marked @private
+├── src/                      # The implementation, imported only by index.ts, private.ts and src/ itself
+└── tests/
+    ├── requirements.spec.ts  # What someone decided, from the user's point of view
+    ├── pinned.spec.ts        # The details and edge cases, as they behave today
+    ├── regressions.spec.ts   # Bugs that must not come back
+    └── *.spec.ts             # Tests of internals, which should be rare
+```
+
+Import a mini-module through its directory, which resolves to `index.ts`.
+An import of `.../private` from outside the module fails the lint unless the line disables the rule and says why, so every use of a private API shows up in review.
+Every export of `index.ts` is marked `@public`, and changes to it follow the deprecation process.
+Every export of `private.ts` is marked `@private`, and `private.ts` never reaches extensions.
+Exports in `src/` and `dependencies.ts` carry a marker too, so the source shows what is exposed: `@public` when `index.ts` exposes the export, `@private` otherwise.
+Outside mini-modules, `@public` is not allowed at all.
+
+A component in a mini-module declares itself in `index.ts` and registers in `register.ts`, the only file with side effects:
+
+```ts
+// index.ts: name, lazy loader and the complete public API
+/** @public */
+export default definePublicComponent({
+    name: 'sw-example',
+    load: () => import('./src/sw-example'),
+    public: { props: ['value'], emits: ['update:value'], blocks: ['sw_example'], methods: ['save'] },
+});
+
+// register.ts
+import SwExample from './index';
+
+Shopware.Component.register(SwExample);
+```
+
+Anything the `public` lists leave out is private, and a meta test checks that every listed name exists.
+A native-setup component leaves out `public`, because `swDefinePublic()` declares it.
+TypeScript checks the declaration against the component, also against a JavaScript one:
+a name in `public` the component doesn't have is a type error.
+`PublicInstance<typeof SwExample>` is the type of the public members, for a parent's template ref or a test.
+`register.ts` adds the component to the global `PublicComponents` interface, so `Shopware.Component.override()` on that name may replace public members only, and `this.$super()` takes public names only.
+
+```ts
+// register.ts
+Shopware.Component.register(SwExample);
+
+declare global {
+    interface PublicComponents {
+        'sw-example': typeof SwExample;
+    }
+}
+```
+`src/` stays free of side effects apart from importing its template and styles.
+
+Everything `src/` needs from outside the module comes through `dependencies.ts`, the inward counterpart of `index.ts`:
+
+```ts
+// dependencies.ts
+export { default as Criteria } from 'src/core/data/criteria.data';
+export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
+export const getApiContext = () => Shopware.Context.api;
+```
+
+`src/` never mentions the `Shopware` global and imports nothing from outside the module except `../dependencies`.
+Anything that has a module to import is imported, not looked up by a written name.
+Where a name stays necessary, like `inject`, the name is imported from the module that owns it.
+`dependencies.ts` has no side effects: anything that must run, or read state that changes, is a function that runs when it is used.
+
+Requirement tests stay rough.
+They describe what a merchant expects, in a few tests whose titles read like sentences, and each one has a `@requirement` doc comment that says why.
+Details and edge cases go into pinned tests.
+They need no comment, and an agent may write them by freezing the current behaviour.
+Each regression test has a `@regression` doc comment with the issue and what users saw.
+A test that the next major removes (`it.deprecated(...)`) also has `@deprecated tag:vX.Y.Z` in its doc comment, in every kind of spec file.
+
+Every test in these three files marks its steps with comments, so a reader sees at once what is set up, what runs and what is checked:
+
+```ts
+it('shows an order with its primary delivery', () => {
+    // ARRANGE
+    const order = createOrder({ primaryOrderDelivery: primary });
+
+    // ACT
+    const shown = getPrimaryDelivery(order);
+
+    // ASSERT
+    expect(shown).toBe(primary);
+});
+```
+
+`// ARRANGE` may be left out when nothing needs setting up.
+`sw-test-rules/arrange-act-assert` checks the comments and their order.
+
+Requirements, pinned and regressions specs import the module only through `../index`, so they test what other code sees.
+A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
+A changed pin only asks whether the change was intended.
+
+Put a requirement into the smallest module that owns it, and let the code that uses the module rely on its requirements.
+Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.
+`sw-core-rules/mini-module-boundaries` and `sw-test-rules/require-test-origin` check these rules.
+
 ## Registration Pattern
 
 ```js

@@ -11,5 +11,7 @@ module.exports = {
         'test-file-max-lines-warning': require(path.resolve(__dirname, 'test-file-max-lines/warning.js')),
         'test-file-max-lines-error': require(path.resolve(__dirname, 'test-file-max-lines/error.js')),
         'no-vm-access': require(path.resolve(__dirname, 'no-vm-access.js')),
+        'require-test-origin': require(path.resolve(__dirname, 'require-test-origin.js')),
+        'arrange-act-assert': require(path.resolve(__dirname, 'arrange-act-assert.js')),
     },
 };

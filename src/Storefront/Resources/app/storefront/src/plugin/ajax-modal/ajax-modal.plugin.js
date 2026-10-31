@@ -110,6 +110,9 @@ export default class AjaxModalPlugin extends Plugin {
 
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);
 
+        // Lets the Twig hot reload of the watcher render the content of an open modal again.
+        pseudoModalUtil.getModal().dataset.swSourceUrl = url;
+
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })

@@ -12,6 +12,8 @@ const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
+const getTwigWatchPaths = require('./build/webpack/twig-watch-paths');
+const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -55,31 +57,28 @@ try {
 }
 
 const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
-let watchFilePaths = isHotMode ? [`${themeFiles.basePath}/**/*.twig`] : [];
+// Experimental: `SHOPWARE_STOREFRONT_TWIG_HMR=1` applies Twig changes in place instead of reloading the page.
+const useTwigHmr = isHotMode && process.env.SHOPWARE_STOREFRONT_TWIG_HMR === '1';
+
+const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
+
+if (!fs.existsSync(pluginFile)) {
+    throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
+}
+
+const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+const watchFilePaths = isHotMode ? getTwigWatchPaths(projectRootPath, pluginDefinition, useExtensionTwigWatch) : [];
 
 const pluginEntries = (() => {
-    const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
-
-    if (!fs.existsSync(pluginFile)) {
-        throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
-    }
-
-    const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
 
     return Object.entries(pluginDefinition)
-        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
+        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !Object.hasOwn(process.env, 'SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
         .map(([name, definition]) => {
             console.log(chalk.bgGreenBright.black(`# Plugin "${name}": Injected successfully`));
 
             const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
             const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path, '..', 'index.html');
             const hasHtmlFile = fs.existsSync(htmlFilePath);
-
-            if (isHotMode && useExtensionTwigWatch && definition.views?.length > 0) {
-                watchFilePaths = watchFilePaths.concat(definition.views.map((view) => {
-                    return `${path.resolve(projectRootPath, definition.basePath, view)}/**/*.twig`;
-                }));
-            }
 
             return {
                 name,
@@ -463,7 +462,7 @@ if (isHotMode) {
         console.log(chalk.bgHex('#b30000').white(
             '\n# No custom theme-variables found. Execute ' +
             chalk.bold('bin/console theme:compile') +
-            ' to create these files'
+            ' to create these files',
         ));
         console.log(chalk.bgHex('#b30000').white('# Styling can be wrong in HotMode. Falling back to default var/theme-variables.scss\n'));
     }
@@ -496,7 +495,9 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry['hot-reloading'] = [scssEntryFilePath];
+    coreConfig.entry['hot-reloading'] = useTwigHmr
+        ? [scssEntryFilePath, path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js')]
+        : [scssEntryFilePath];
 }
 
 const mergedCoreConfig = merge([
@@ -534,13 +535,21 @@ const mergedCoreConfig = merge([
                     headers: {
                         'Access-Control-Allow-Origin': '*',
                     },
-                    watchFiles: {
+                    // With Twig HMR the watcher below handles the Twig files, `watchFiles` would reload the page.
+                    watchFiles: useTwigHmr ? [] : {
                         paths: watchFilePaths,
                         options: {
                             persistent: true,
                             cwd: projectRootPath,
                             ignorePermissionErrors: true,
                         },
+                    },
+                    setupMiddlewares: (middlewares, devServer) => {
+                        if (useTwigHmr) {
+                            setupTwigHmrWatcher(devServer, watchFilePaths, projectRootPath);
+                        }
+
+                        return middlewares;
                     },
                 };
             }

@@ -31,8 +31,12 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._client = new HttpClient();
         }
         this._content = LoadingIndicator.getTemplate();
+        this._currentUrl = null;
+        this._offcanvas = null;
+        this._boundLinks = new WeakSet();
 
         this._registerEvents();
+        document.addEventListener('sw-twig-hmr:updated', this._onTwigHmrUpdated.bind(this));
     }
 
     /**
@@ -52,19 +56,67 @@ export default class OffcanvasMenuPlugin extends Plugin {
             const offCanvasElements = OffCanvas.getOffCanvas();
 
             offCanvasElements.forEach(offcanvas => {
-                const links = offcanvas.querySelectorAll(this.options.linkSelector);
-                links.forEach(link => {
-                    OffcanvasMenuPlugin._resetLoader(link);
-                    link.addEventListener('click', (event) => {
-                        this._getLinkEventHandler(event, link);
-                    });
-                });
+                this._registerLinkEvents(offcanvas);
 
                 window.PluginManager.initializePluginsInParentElement(offcanvas);
             });
         }
         // re-open the menu if the url parameter is set
         this._openMenuViaUrlParameter();
+    }
+
+    /**
+     * @param {Element} offcanvas
+     * @private
+     */
+    _registerLinkEvents(offcanvas) {
+        const links = offcanvas.querySelectorAll(this.options.linkSelector);
+        links.forEach(link => {
+            OffcanvasMenuPlugin._resetLoader(link);
+
+            // the Twig hot reload keeps links that did not change, and these already have a listener
+            if (this._boundLinks.has(link)) {
+                return;
+            }
+
+            this._boundLinks.add(link);
+            link.addEventListener('click', (event) => {
+                this._getLinkEventHandler(event, link);
+            });
+        });
+    }
+
+    /**
+     * The menu is a part of the page with the fetched navigation inside.
+     * These attributes let the Twig hot reload of the watcher render the open menu again.
+     *
+     * @private
+     */
+    _setSource() {
+        const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
+
+        if (!offcanvas || !this._currentUrl) {
+            return;
+        }
+
+        this._offcanvas = offcanvas;
+        offcanvas.dataset.swSourceShell = this.options.initialContentSelector;
+        offcanvas.dataset.swSourceSlot = this.options.menuSelector;
+        offcanvas.dataset.swSourceUrl = this._currentUrl;
+    }
+
+    /**
+     * Cached responses hold the templates from before the update, and the update may add new links.
+     *
+     * @private
+     */
+    _onTwigHmrUpdated() {
+        this._cache = {};
+
+        // only the plugin that opened the menu handles its links
+        if (this._offcanvas?.isConnected) {
+            this._registerLinkEvents(this._offcanvas);
+        }
     }
 
     /**
@@ -75,7 +127,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _openMenu(event) {
         OffcanvasMenuPlugin._stopEvent(event);
-        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
+        OffCanvas.open(this._content, () => {
+            this._setSource();
+            this._registerEvents();
+        }, this.options.position);
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
         this.$emitter.publish('openMenu');
@@ -109,6 +164,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
         if (!link) {
             const initialContentElement = document.querySelector(this.options.initialContentSelector);
             const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
+            this._currentUrl = url;
 
             return this._fetchMenu(url, (htmlResponse) => {
                 const navigationContainer = initialContentElement.querySelector(this.options.menuSelector);
@@ -135,6 +191,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         this.$emitter.publish('getLinkEventHandler');
 
+        this._currentUrl = url;
         this._fetchMenu(url, this._updateContent.bind(this));
     }
 
@@ -186,6 +243,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
             const currentCategory = container.querySelector(this.options.currentCategorySelector);
             window.focusHandler.setFocus(currentCategory, { focusVisible: true });
 
+            this._setSource();
             this._registerEvents();
         }
 

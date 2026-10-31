@@ -130,6 +130,44 @@ describe('OffCanvasMenuPlugin tests', () => {
         expect(subCategoryLinks[1].textContent).toContain('Smartphones');
     });
 
+    test('Marks the open menu as a part of the page for the Twig hot reload', async () => {
+        window.activeNavigationId = 'root';
+        plugin.options.navigationUrl = '/widgets/menu/offcanvas';
+
+        plugin.el.dispatchEvent(new Event('click'));
+        await new Promise(process.nextTick);
+
+        const offcanvas = document.querySelector('.navigation-offcanvas');
+        expect(offcanvas.dataset.swSourceShell).toBe('.js-navigation-offcanvas-initial-content');
+        expect(offcanvas.dataset.swSourceSlot).toBe('.navigation-offcanvas-container');
+        expect(offcanvas.dataset.swSourceUrl).toBe('/widgets/menu/offcanvas?navigationId=root');
+
+        plugin._getLinkEventHandler(new MouseEvent('click'), offcanvas.querySelector('.js-navigation-offcanvas-link'));
+        await new Promise(process.nextTick);
+
+        expect(offcanvas.dataset.swSourceUrl).toBe('/widgets/menu/offcanvas?navigationId=0188fd3e4ffb7079959622b2785167eb');
+    });
+
+    test('Drops cached responses and binds new links after a Twig hot reload', async () => {
+        plugin.el.dispatchEvent(new Event('click'));
+        await new Promise(process.nextTick);
+
+        const offcanvas = document.querySelector('.navigation-offcanvas');
+        const keptLink = offcanvas.querySelector('.js-navigation-offcanvas-link');
+        const newLink = keptLink.cloneNode(true);
+        keptLink.after(newLink);
+        const handler = jest.spyOn(plugin, '_getLinkEventHandler').mockImplementation(() => {});
+
+        document.dispatchEvent(new CustomEvent('sw-twig-hmr:updated', { detail: { files: [], reloadRequired: [] } }));
+
+        expect(plugin._cache).toEqual({});
+
+        keptLink.dispatchEvent(new MouseEvent('click'));
+        newLink.dispatchEvent(new MouseEvent('click'));
+
+        expect(handler.mock.calls.map(([, link]) => link)).toEqual([keptLink, newLink]);
+    });
+
     test('Open the OffCanvas menu via URL parameter', async () => {
         // Simulate URL parameter
         window.history.pushState({}, '', '?offcanvas=menu');

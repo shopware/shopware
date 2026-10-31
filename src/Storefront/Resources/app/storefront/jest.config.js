@@ -73,6 +73,8 @@ module.exports = {
     // This option allows the use of a custom resolver.
     moduleNameMapper: {
         '^src/(.*)$': '<rootDir>/src/$1',
+        // idiomorph only exports an `import` condition, which the CommonJS resolver of Jest ignores.
+        '^idiomorph$': '<rootDir>/node_modules/idiomorph/dist/idiomorph.esm.js',
     },
 
     reporters: [
@@ -88,6 +90,10 @@ module.exports = {
     testMatch: [
         '**/test/**/*.test.js',
         '**/test/*.test.js',
+    ],
+
+    transformIgnorePatterns: [
+        '/node_modules/(?!idiomorph/)',
     ],
 
     transform: {

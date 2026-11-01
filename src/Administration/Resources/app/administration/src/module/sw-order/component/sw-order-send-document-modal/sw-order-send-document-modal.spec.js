@@ -483,7 +483,6 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                         `${mockOrder.orderCustomer.firstName} ${mockOrder.orderCustomer.lastName}`,
                 },
                 salesChannelId: mockOrder.salesChannelId,
-                mediaIds: [mockMailTemplates[0].media.first().media.id],
                 subject: mockMailTemplates[0].subject,
                 senderMail: mockMailTemplates[0].senderMail,
                 senderName: mockMailTemplates[0].senderName ?? mockMailTemplates[0].translated?.senderName,

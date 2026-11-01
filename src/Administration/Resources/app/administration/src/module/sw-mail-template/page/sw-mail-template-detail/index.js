@@ -368,6 +368,24 @@ export default {
             });
         },
 
+        getUnsavedMailTemplateMedia() {
+            const savedMediaIds = this.mailTemplate.media
+                .filter((mediaAssoc) => {
+                    return !mediaAssoc.isNew() && mediaAssoc.languageId === Shopware.Context.api.languageId;
+                })
+                .map((mediaAssoc) => mediaAssoc.mediaId);
+
+            const unsavedMedia = this.createMediaCollection();
+
+            this.mailTemplateMedia.forEach((media) => {
+                if (!savedMediaIds.includes(media.id)) {
+                    unsavedMedia.push(media);
+                }
+            });
+
+            return unsavedMedia;
+        },
+
         abortOnLanguageChange() {
             return this.mailTemplateRepository.hasChanges(this.mailTemplate);
         },
@@ -470,6 +488,8 @@ export default {
                 return;
             }
 
+            const unsavedMailTemplateMedia = this.getUnsavedMailTemplateMedia();
+
             return this.mailService
                 .sendMailTemplate(
                     this.testerMail,
@@ -480,7 +500,7 @@ export default {
                         contentHtml: simulatedMailPreview.contentHtml.content,
                         contentPlain: simulatedMailPreview.contentPlain.content,
                     },
-                    this.mailTemplateMedia,
+                    unsavedMailTemplateMedia,
                     this.testMailSalesChannelId,
                     true,
                     [],

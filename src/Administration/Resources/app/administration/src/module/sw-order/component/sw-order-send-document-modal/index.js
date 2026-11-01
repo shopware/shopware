@@ -3,7 +3,7 @@ import './sw-order-send-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 const { Filter } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Criteria } = Shopware.Data;
 
 const DOCUMENT_MAIL_TEMPLATES = {
     INVOICE: 'invoice_mail',
@@ -94,7 +94,6 @@ export default {
         mailTemplateSendCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
-            criteria.addAssociation('media.media');
 
             return criteria;
         },
@@ -211,14 +210,6 @@ export default {
                 this.mailTemplateSendCriteria,
             );
 
-            const mediaCollection = new EntityCollection('/media', 'media', Shopware.Context.api);
-
-            mailTemplate.media.forEach((mediaAssoc) => {
-                if (mediaAssoc.languageId === Shopware.Context.api.languageId) {
-                    mediaCollection.push(mediaAssoc.media);
-                }
-            });
-
             try {
                 await this.mailService.getDataAndSendMailTemplate(
                     {
@@ -226,7 +217,6 @@ export default {
                             [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
                         },
                         salesChannelId: this.order.salesChannelId,
-                        mediaIds: Array.from(mediaCollection.getIds()),
                         subject: this.subject,
                         senderMail: mailTemplate.senderMail,
                         senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,

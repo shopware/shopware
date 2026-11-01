@@ -69,6 +69,8 @@ const mailTemplateMediaMock = {
     fileSize: 792866,
 };
 
+const sendMailTemplateMock = jest.fn(() => Promise.resolve({ size: 1 }));
+
 const flowSearchMock = jest.fn(() => Promise.resolve([{ eventName: 'checkout.order.placed' }]));
 
 const businessEventsMock = jest.fn(() =>
@@ -182,7 +184,7 @@ async function createWrapper(privileges = []) {
                 },
                 mailService: {
                     simulateMailTemplate,
-                    sendMailTemplate: jest.fn(() => Promise.resolve({ size: 1 })),
+                    sendMailTemplate: sendMailTemplateMock,
                     loadAvailableVariables: jest.fn(() => Promise.resolve({})),
                 },
                 entityMappingService: {
@@ -683,12 +685,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         await wrapper.setData({
             mailTemplate: {
                 ...mailTemplateTypeMock,
+                media: [],
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
             },
+            mailTemplateMedia: [],
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
@@ -740,12 +744,61 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailPreview).toBeNull();
     });
 
+    it('should only send the media of unsaved attachments with the test mail', async () => {
+        const wrapper = await createWrapper(['api_send_email']);
+        const languageId = Shopware.Context.api.languageId;
+
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: 'Subject',
+                contentPlain: 'Plain',
+                contentHtml: 'Html',
+                senderName: 'Sender',
+                media: [
+                    { mediaId: 'saved-media', languageId, isNew: () => false },
+                    { mediaId: 'unsaved-media', languageId, isNew: () => true },
+                ],
+            },
+            mailTemplateMedia: new EntityCollection(
+                '/media',
+                'media',
+                null,
+                {},
+                [
+                    { id: 'saved-media' },
+                    { id: 'unsaved-media' },
+                ],
+                2,
+            ),
+            testerMail: 'foo@bar.com',
+            isLoading: false,
+            testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
+        });
+
+        await wrapper.findComponent('.sw-mail-template-detail__send-test-mail').trigger('click');
+        await flushPromises();
+
+        const [
+            ,
+            ,
+            ,
+            sentMedia,
+        ] = sendMailTemplateMock.mock.calls.at(-1);
+
+        expect(Array.from(sentMedia.getIds())).toEqual(['unsaved-media']);
+    });
+
     it('should be able to send test mails when only inherited values are filled', async () => {
         const wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
                 ...mailTemplateTypeMock,
+                media: [],
                 subject: undefined,
                 contentPlain: undefined,
                 contentHtml: undefined,
@@ -758,6 +811,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                     senderName: '{{ salesChannel.name }}',
                 },
             },
+            mailTemplateMedia: [],
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
@@ -850,12 +904,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         await wrapper.setData({
             mailTemplate: {
                 ...mailTemplateTypeMock,
+                media: [],
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
                 contentHtml:
                     '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
             },
+            mailTemplateMedia: [],
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',

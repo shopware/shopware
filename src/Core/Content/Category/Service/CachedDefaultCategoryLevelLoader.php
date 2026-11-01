@@ -112,6 +112,7 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
                 'depth' => $depth,
                 'salesChannelId' => $context->getSalesChannelId(),
                 'languageId' => $context->getContext()->getLanguageId(),
+                'criteria' => Hasher::hash($criteria),
             ],
             $rootId,
             $depth,

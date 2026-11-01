@@ -14,6 +14,8 @@ class BulkEditOrderStatusError extends Error {
 
         this.name = 'BulkEditOrderStatusError';
         this.failures = failures;
+        // Callers that read the api error from the rejection keep getting the first failed request's response.
+        this.response = failures.find((failure) => failure.error?.response)?.error?.response;
     }
 }
 

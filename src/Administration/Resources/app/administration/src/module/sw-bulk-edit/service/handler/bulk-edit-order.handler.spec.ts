@@ -283,6 +283,18 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         expect(calls).toEqual(['orderTransactions', 'orderDeliveries', 'orders']);
     });
 
+    it('keeps the response of the first failed request on the rejection', async () => {
+        const handler = createHandler([createOrder('1'), createOrder('2')]);
+        const error = createApiError('CHECKOUT__ORDER_TRANSITION_NOT_POSSIBLE');
+
+        handler.orderStateMachineService.transitionOrderState.mockRejectedValue(error);
+
+        await expect(handler.bulkEditStatus(['1', '2'], [{ field: 'orders', value: 'cancel' }])).rejects.toMatchObject({
+            name: 'BulkEditOrderStatusError',
+            response: error.response,
+        });
+    });
+
     it('reports a lock failure without repeating the status transition', async () => {
         const handler = createHandler();
         const transition = handler.orderStateMachineService.transitionOrderState;

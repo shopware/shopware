@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\Webhook\StaticWebhookTargetValidatorFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogEntity;
@@ -245,6 +246,30 @@ class WebhookEventMessageHandlerTest extends TestCase
         }
 
         static::assertSame(0, $this->getRequestCount());
+    }
+
+    public function testDoesNotPinTargetWhenUrlValidationIsDisabled(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+        $webhookEventMessageHandler = new WebhookEventMessageHandler(
+            static::getContainer()->get('shopware.webhook.guzzle'),
+            static::getContainer()->get('webhook_event_log.repository'),
+            static::getContainer()->get(RelatedWebhooks::class),
+            static::getContainer()->get(WebhookSigningSecretResolver::class),
+            StaticWebhookTargetValidatorFactory::create(false, [], enableUrlValidation: false),
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        $webhookEventMessageHandler($webhookEventMessage);
+
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
+        $history = $historyCollector->getHistory();
+        static::assertCount(1, $history);
+        static::assertIsArray($history[0]['options']);
+        static::assertIsArray($history[0]['options']['curl']);
+        static::assertArrayNotHasKey(\CURLOPT_RESOLVE, $history[0]['options']['curl']);
     }
 
     public function testFailsAfterFiveRedirects(): void

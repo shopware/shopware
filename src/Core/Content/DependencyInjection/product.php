@@ -24,8 +24,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
@@ -243,7 +243,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDocumentTranslationDefinition::class)
         ->tag('shopware.entity.definition');
 
-    $services->set(ProductDocumentLimits::class)
+    $services->set(ProductDocumentConfig::class)
         ->args([
             param('shopware.product_documents.allowed_extensions'),
             param('shopware.product_documents.max_per_language'),
@@ -257,7 +257,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(WriteOutcome::class),
             service(ProductDocumentReader::class),
-            service(ProductDocumentLimits::class),
+            service(ProductDocumentConfig::class),
         ])
         ->tag('kernel.event_subscriber');
 

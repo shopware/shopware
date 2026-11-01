@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -66,7 +66,7 @@ class InfoControllerTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // the config reads PHP's upload limit; registering first keeps the ini mocks of later tests working
-        IniMock::register(ProductDocumentLimits::class);
+        IniMock::register(ProductDocumentConfig::class);
     }
 
     protected function setUp(): void
@@ -421,7 +421,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
-            new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
+            new ProductDocumentConfig(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
         );
     }
 }

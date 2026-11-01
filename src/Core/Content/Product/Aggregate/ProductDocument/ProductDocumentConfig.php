@@ -7,12 +7,12 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
- * The limits for product documents, configured in `shopware.product_documents`.
+ * The configuration of product documents in `shopware.product_documents`: the limits that saving a document checks.
  *
  * @internal
  */
 #[Package('inventory')]
-readonly class ProductDocumentLimits
+readonly class ProductDocumentConfig
 {
     /**
      * @var list<string> lower case, without a leading dot

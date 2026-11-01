@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
@@ -13,12 +13,12 @@ use Shopware\Tests\Unit\Common\Stubs\IniMock;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(ProductDocumentLimits::class)]
-class ProductDocumentLimitsTest extends TestCase
+#[CoversClass(ProductDocumentConfig::class)]
+class ProductDocumentConfigTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
-        IniMock::register(ProductDocumentLimits::class);
+        IniMock::register(ProductDocumentConfig::class);
     }
 
     protected function tearDown(): void
@@ -28,16 +28,16 @@ class ProductDocumentLimitsTest extends TestCase
 
     public function testFileTypesAreCleanedUp(): void
     {
-        $limits = new ProductDocumentLimits(['PDF', ' .docx', 'pdf', ''], maxPerLanguage: 10, maxFileSize: 1024);
+        $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerLanguage: 10, maxFileSize: 1024);
 
-        static::assertSame(['pdf', 'docx'], $limits->allowedExtensions);
+        static::assertSame(['pdf', 'docx'], $config->allowedExtensions);
     }
 
     public function testEachFileTypeHasItsMimeTypes(): void
     {
-        $limits = new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024);
+        $config = new ProductDocumentConfig(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024);
 
-        $mimeTypes = $limits->getMimeTypesByExtension();
+        $mimeTypes = $config->getMimeTypesByExtension();
 
         static::assertSame(['pdf', 'docx'], array_keys($mimeTypes));
         static::assertContains('application/pdf', $mimeTypes['pdf']);
@@ -61,9 +61,9 @@ class ProductDocumentLimitsTest extends TestCase
         // the Administration uploads the raw file, so upload_max_filesize doesn't apply
         IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => $postMaxSize]);
 
-        $limits = new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: $maxFileSize);
+        $config = new ProductDocumentConfig(['pdf'], maxPerLanguage: 10, maxFileSize: $maxFileSize);
 
-        static::assertSame($expected, $limits->getMaxUploadFileSize($presignedUploadSupported));
-        static::assertSame($maxFileSize, $limits->maxFileSize);
+        static::assertSame($expected, $config->getMaxUploadFileSize($presignedUploadSupported));
+        static::assertSame($maxFileSize, $config->maxFileSize);
     }
 }

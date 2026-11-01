@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -64,7 +64,7 @@ class InfoController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
-        private readonly ProductDocumentLimits $productDocumentLimits,
+        private readonly ProductDocumentConfig $productDocumentConfig,
     ) {
     }
 
@@ -225,11 +225,11 @@ class InfoController extends AbstractController
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
                 'productDocuments' => [
-                    'allowedExtensions' => $this->productDocumentLimits->allowedExtensions,
-                    'allowedMimeTypesByExtension' => $this->productDocumentLimits->getMimeTypesByExtension(),
-                    'maxPerLanguage' => $this->productDocumentLimits->maxPerLanguage,
+                    'allowedExtensions' => $this->productDocumentConfig->allowedExtensions,
+                    'allowedMimeTypesByExtension' => $this->productDocumentConfig->getMimeTypesByExtension(),
+                    'maxPerLanguage' => $this->productDocumentConfig->maxPerLanguage,
                     // what an upload can carry, which is the limit that matters for the Administration
-                    'maxFileSize' => $this->productDocumentLimits->getMaxUploadFileSize($presignedUploadSupported),
+                    'maxFileSize' => $this->productDocumentConfig->getMaxUploadFileSize($presignedUploadSupported),
                 ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),

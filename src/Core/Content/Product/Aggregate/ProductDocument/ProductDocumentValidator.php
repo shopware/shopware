@@ -46,7 +46,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     public function __construct(
         private readonly WriteOutcome $writeOutcome,
         private readonly ProductDocumentReader $reader,
-        private readonly ProductDocumentLimits $limits,
+        private readonly ProductDocumentConfig $config,
     ) {
     }
 
@@ -101,7 +101,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         }
 
         $files = $this->getFiles($event, array_values(array_unique(array_column($changedFiles, 1))));
-        $allowedExtensions = $this->limits->allowedExtensions;
+        $allowedExtensions = $this->config->allowedExtensions;
 
         foreach ($changedFiles as [$translation, $mediaId]) {
             $file = $files[$mediaId] ?? null;
@@ -154,11 +154,11 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 ));
             }
 
-            if ($file['size'] > $this->limits->maxFileSize) {
+            if ($file['size'] > $this->config->maxFileSize) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_TOO_LARGE,
                     messageTemplate: 'The file is {{ size }}, but the files of product documents can have at most {{ maxSize }}.',
-                    parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($file['size']), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->limits->maxFileSize)],
+                    parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($file['size']), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
                     path: $path,
                 ));
             }
@@ -266,7 +266,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $stored = $this->reader->countDocuments(array_keys($added));
 
         foreach ($added as $product => $addedDocuments) {
-            $tooMany = ($stored[$product] ?? 0) - ($removed[$product] ?? 0) + \count($addedDocuments) - $this->limits->maxPerLanguage;
+            $tooMany = ($stored[$product] ?? 0) - ($removed[$product] ?? 0) + \count($addedDocuments) - $this->config->maxPerLanguage;
             if ($tooMany <= 0) {
                 continue;
             }
@@ -276,7 +276,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 $violations->add($this->violation(
                     code: self::VIOLATION_TOO_MANY_DOCUMENTS,
                     messageTemplate: 'A product can have at most {{ max }} documents per language.',
-                    parameters: ['{{ max }}' => (string) $this->limits->maxPerLanguage],
+                    parameters: ['{{ max }}' => (string) $this->config->maxPerLanguage],
                     path: $document->path,
                 ));
             }

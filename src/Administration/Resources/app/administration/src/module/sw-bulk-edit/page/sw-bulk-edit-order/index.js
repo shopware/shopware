@@ -527,7 +527,7 @@ export default {
 
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
             const statusRequest = statusData.length
-                ? collectStatusTransitionFailures(bulkEditOrderHandler, payloadChunks, statusData)
+                ? collectStatusTransitionFailures(bulkEditOrderHandler, this.selectedIds, statusData)
                 : Promise.resolve([]);
 
             return statusRequest

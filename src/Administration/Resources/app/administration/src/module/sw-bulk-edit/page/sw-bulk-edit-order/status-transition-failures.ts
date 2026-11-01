@@ -53,45 +53,36 @@ function errorCode(error: unknown): string {
 }
 
 /**
- * Runs the status changes chunk by chunk and collects every failure, so a failed chunk doesn't stop the others.
- * An error without per-order failures marks every order and field of its chunk as failed for an unknown reason.
+ * Runs the status changes and returns every failure. The handler batches the orders and reports a failure per order
+ * and field, so an error without them marks every order and field as failed for an unknown reason.
  *
  * @private
  */
 export async function collectStatusTransitionFailures(
     handler: BulkEditStatusHandler,
-    payloadChunks: string[][],
+    orderIds: string[],
     statusData: StatusChange[],
 ): Promise<StatusTransitionFailure[]> {
-    const failures: StatusTransitionFailure[] = [];
+    try {
+        await handler.bulkEditStatus(orderIds, statusData);
 
-    for (const payload of payloadChunks) {
-        try {
-            // Chunks run one after the other to keep the number of concurrent transitions bounded
-            await handler.bulkEditStatus(payload, statusData);
-        } catch (error) {
-            if (hasFailures(error)) {
-                failures.push(...error.failures);
-
-                continue;
-            }
-
-            payload.forEach((orderId) => {
-                statusData.forEach((change) => {
-                    failures.push({
-                        orderId,
-                        orderNumber: orderId,
-                        field: change.field,
-                        reason: 'unknown',
-                        code: errorCode(error),
-                        error,
-                    });
-                });
-            });
+        return [];
+    } catch (error) {
+        if (hasFailures(error)) {
+            return error.failures;
         }
-    }
 
-    return failures;
+        return orderIds.flatMap((orderId) =>
+            statusData.map((change) => ({
+                orderId,
+                orderNumber: orderId,
+                field: change.field,
+                reason: 'unknown',
+                code: errorCode(error),
+                error,
+            })),
+        );
+    }
 }
 
 /**

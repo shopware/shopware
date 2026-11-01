@@ -9,25 +9,30 @@ const statusData = [
 ];
 
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order/status-transition-failures', () => {
-    it('collects the per-order failures of every chunk and continues after a failed chunk', async () => {
+    it('sends the status changes for all orders in one call', async () => {
+        const bulkEditStatus = jest.fn().mockResolvedValueOnce([]);
+
+        const failures = await collectStatusTransitionFailures({ bulkEditStatus }, ['1', '2'], statusData);
+
+        expect(bulkEditStatus).toHaveBeenCalledTimes(1);
+        expect(bulkEditStatus).toHaveBeenCalledWith(['1', '2'], statusData);
+        expect(failures).toEqual([]);
+    });
+
+    it('returns the per-order failures the handler reports', async () => {
         const failure = { orderId: '1', orderNumber: '10001', field: 'orders', reason: 'transition', code: 'X' };
-        const bulkEditStatus = jest
-            .fn()
-            .mockRejectedValueOnce(Object.assign(new Error('failed'), { failures: [failure] }))
-            .mockResolvedValueOnce([]);
+        const bulkEditStatus = jest.fn().mockRejectedValueOnce(Object.assign(new Error('failed'), { failures: [failure] }));
 
-        const failures = await collectStatusTransitionFailures({ bulkEditStatus }, [['1'], ['2']], statusData);
+        const failures = await collectStatusTransitionFailures({ bulkEditStatus }, ['1', '2'], statusData);
 
-        expect(bulkEditStatus).toHaveBeenCalledTimes(2);
-        expect(bulkEditStatus).toHaveBeenNthCalledWith(2, ['2'], statusData);
         expect(failures).toEqual([failure]);
     });
 
-    it('marks every order and field of a chunk as failed when the error has no per-order failures', async () => {
+    it('marks every order and field as failed when the error has no per-order failures', async () => {
         const error = { response: { data: { errors: [{ code: 'SYSTEM__STATE_MACHINE_TRANSITION_LOCKED' }] } } };
         const bulkEditStatus = jest.fn().mockRejectedValueOnce(error);
 
-        const failures = await collectStatusTransitionFailures({ bulkEditStatus }, [['1', '2']], statusData);
+        const failures = await collectStatusTransitionFailures({ bulkEditStatus }, ['1', '2'], statusData);
 
         expect(failures).toEqual([
             {
@@ -63,27 +68,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order/status-transition-fail
                 error,
             },
         ]);
-    });
-
-    it('starts a chunk only after the previous one settled', async () => {
-        let finishFirst: () => void = () => {};
-        const bulkEditStatus = jest
-            .fn()
-            .mockReturnValueOnce(
-                new Promise<void>((resolve) => {
-                    finishFirst = resolve;
-                }),
-            )
-            .mockResolvedValueOnce([]);
-
-        const result = collectStatusTransitionFailures({ bulkEditStatus }, [['1'], ['2']], statusData);
-        await flushPromises();
-
-        expect(bulkEditStatus).toHaveBeenCalledTimes(1);
-
-        finishFirst();
-        await expect(result).resolves.toEqual([]);
-        expect(bulkEditStatus).toHaveBeenCalledTimes(2);
     });
 
     it('labels known status fields and keeps the field name for others', () => {

@@ -7,21 +7,29 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('discovery')]
 class CustomerGroupEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    final public const PRICE_BASIS_NET = 'net';
+
+    final public const PRICE_BASIS_GROSS = 'gross';
+
     protected ?string $name = null;
 
     protected bool $displayGross;
+
+    #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+    protected ?string $priceBasis = null;
 
     protected ?CustomerGroupTranslationCollection $translations = null;
 
@@ -59,6 +67,25 @@ class CustomerGroupEntity extends Entity
     public function setDisplayGross(bool $displayGross): void
     {
         $this->displayGross = $displayGross;
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+    public function getPriceBasis(): ?string
+    {
+        return $this->priceBasis;
+    }
+
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'priceBasis', newType: 'string')]
+    public function setPriceBasis(?string $priceBasis): void
+    {
+        if ($priceBasis === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing null to CustomerGroupEntity::setPriceBasis() will not be possible from v6.8.0.0 on, pass "net" or "gross" instead.'
+            );
+        }
+
+        $this->priceBasis = $priceBasis;
     }
 
     public function getTranslations(): ?CustomerGroupTranslationCollection

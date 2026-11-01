@@ -165,7 +165,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::WRITE_OUTCOME_WITHOUT_COLUMNS,
-            'WriteOutcome::rows() needs the columns to read.',
+            'WriteOutcome needs the columns to read.',
         );
     }
 
@@ -174,7 +174,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::OUTCOME_ROW_COLUMN_NOT_REQUESTED,
-            'Column "{{ column }}" was not requested. Pass it to WriteOutcome::rows().',
+            'Column "{{ column }}" was not requested. Pass it to WriteOutcome with the other columns.',
             ['column' => $column],
         );
     }

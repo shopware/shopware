@@ -14,8 +14,8 @@
  * between backend configuration and frontend cookie handling.
  *
  * Hash-based configuration tracking:
- * Resets to required cookies when a configuration change introduces new cookie names.
- * Removals preserve the existing consent when the previous cookie names are known.
+ * Resets to required cookies when a configuration change adds a cookie or changes the content of a retained one.
+ * Removals preserve the existing consent when the previous cookie content is known.
  *
  * Rendering:
  * Renders the configuration template inside an offCanvas via CookieController.php
@@ -296,7 +296,7 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Check for new cookie names in the current language and reset cookies if needed.
+     * Check for new or changed cookies in the current language and reset cookies if needed.
      * Hashes are stored per language to allow users to accept cookies once per language.
      * @private
      */
@@ -321,21 +321,22 @@ export default class CookieConfiguration extends Plugin {
         const hashChanged = storedHashForLanguage && storedHashForLanguage !== currentHash;
         const noConsentForThisLanguage = hasPreference && !storedHashForLanguage;
 
-        const cookieNames = this._extractAllCookiesFromGroups(data.elements || []).map(cookie => cookie.cookie);
+        const cookieContents = this._getCookieContents(data.elements || []);
+        const cookieNames = Object.keys(cookieContents);
 
         if (hashChanged) {
-            const storedCookieNames = this._getStoredCookieNames(languageId, storedHashForLanguage);
+            const storedCookieContents = this._getStoredCookieContents(languageId, storedHashForLanguage);
 
-            if (storedCookieNames) {
-                const removedCookieNames = storedCookieNames.filter(name => !cookieNames.includes(name));
+            if (storedCookieContents) {
+                const removedCookieNames = Object.keys(storedCookieContents).filter(name => !cookieNames.includes(name));
                 removedCookieNames.forEach(name => CookieStorage.removeItem(name));
                 if (removedCookieNames.length > 0) {
                     this._handleUpdateListener([], removedCookieNames);
                 }
             }
 
-            // A hash alone cannot distinguish additions from removals for existing visitors.
-            if (!storedCookieNames || cookieNames.some(name => !storedCookieNames.includes(name))) {
+            // Consent only covers what the visitor was shown, so only pure removals can keep it.
+            if (!storedCookieContents || cookieNames.some(name => storedCookieContents[name] !== cookieContents[name])) {
                 await this._resetCookieConfiguration(data);
                 return;
             }
@@ -351,20 +352,70 @@ export default class CookieConfiguration extends Plugin {
         // Refresh the configuration without changing the visitor's consent choices.
         if (storedHashForLanguage) {
             this._storeHashForLanguage(languageId, currentHash, storedHashData);
-            this._storeCookieNames(languageId, currentHash, cookieNames);
+            this._storeCookieContents(languageId, currentHash, cookieContents);
         }
     }
 
     /**
-     * Read the cookie names belonging to the stored configuration hash.
+     * Map each cookie name to the content that consent was given for.
+     * Mirrors the fields hashed in CookieRoute.php, as far as they are part of the response.
+     * The value of the hash cookie is left out, because it differs for every configuration.
+     * @param {Array} cookieGroups - Array of cookie groups from API
+     * @returns {Object<string, string>}
+     * @private
+     */
+    _getCookieContents(cookieGroups) {
+        const contents = {};
+        // A cookie can be listed in several groups, its consent has to cover all of them.
+        const addContent = (name, content) => {
+            contents[name] = (contents[name] ?? '') + JSON.stringify(content);
+        };
+
+        cookieGroups.forEach(group => {
+            const groupContent = {
+                isRequired: group.isRequired ?? false,
+                name: group.name ?? null,
+                description: group.description ?? null,
+                value: group.value ?? null,
+                expiration: group.expiration ?? null,
+            };
+
+            if (group.cookie) {
+                addContent(group.cookie, { group: groupContent });
+            }
+
+            (group.entries || []).filter(entry => entry.cookie).forEach(entry => {
+                addContent(entry.cookie, {
+                    group: groupContent,
+                    value: entry.cookie === this.options.cookieConfigHash ? null : entry.value ?? null,
+                    expiration: entry.expiration ?? null,
+                    name: entry.name ?? null,
+                    description: entry.description ?? null,
+                    hidden: entry.hidden ?? false,
+                });
+            });
+        });
+
+        return contents;
+    }
+
+    /**
+     * Read the cookie content belonging to the stored configuration hash.
      * Missing or unavailable storage falls back to the existing hash-based consent check.
      * @private
      */
-    _getStoredCookieNames(languageId, hash) {
+    _getStoredCookieContents(languageId, hash) {
         try {
             const stored = JSON.parse(Storage.getItem(`${this.options.cookieConfigHash}-${languageId}-cookies`));
-            if (stored?.hash === hash && Array.isArray(stored.cookies) && stored.cookies.every(name => typeof name === 'string')) {
-                return stored.cookies;
+            const cookies = stored?.cookies;
+            if (
+                stored?.hash === hash
+                && cookies !== null
+                && typeof cookies === 'object'
+                && !Array.isArray(cookies)
+                && Object.values(cookies).every(content => typeof content === 'string')
+            ) {
+                return cookies;
             }
         } catch (_error) {
             // Storage may be unavailable or contain invalid data.
@@ -374,11 +425,11 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Keep cookie names in browser storage to avoid increasing the configuration cookie size.
-     * The hash ties the names to the configuration, while language consent stays independent.
+     * Keep cookie content in browser storage to avoid increasing the configuration cookie size.
+     * The hash ties the content to the configuration, while language consent stays independent.
      * @private
      */
-    _storeCookieNames(languageId, hash, cookies) {
+    _storeCookieContents(languageId, hash, cookies) {
         try {
             Storage.setItem(`${this.options.cookieConfigHash}-${languageId}-cookies`, JSON.stringify({ hash, cookies }));
         } catch (_error) {
@@ -537,7 +588,7 @@ export default class CookieConfiguration extends Plugin {
                 // Handle cookie-config-hash specially: store per language
                 if (isCookieConfigHash && languageId) {
                     this._storeHashForLanguage(languageId, cookieData.value);
-                    this._storeCookieNames(languageId, cookieData.value, allCookiesFromApi.map(cookie => cookie.cookie));
+                    this._storeCookieContents(languageId, cookieData.value, this._getCookieContents(cookieGroups));
                 } else if (!isCookieConfigHash) {
                     CookieStorage.setItem(
                         cookieData.cookie,

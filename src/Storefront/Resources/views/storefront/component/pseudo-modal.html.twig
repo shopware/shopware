@@ -47,6 +47,16 @@
                     </button>
                 {% endblock %}
             </template>
+
+            <template class="js-pseudo-modal-error-template">
+                {# Shown by `AjaxModalPlugin` if the modal content could not be loaded. #}
+                {% block component_pseudo_modal_error %}
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: 'danger',
+                        content: 'error.message-default'|trans|sw_sanitize,
+                    } %}
+                {% endblock %}
+            </template>
         </div>
     </div>
 {% endblock %}

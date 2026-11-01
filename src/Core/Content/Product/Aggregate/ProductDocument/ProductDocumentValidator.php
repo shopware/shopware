@@ -6,6 +6,8 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -57,10 +59,10 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public function validate(PreWriteValidationEvent $event): void
     {
-        $documents = $this->writeOutcome->touchedRows(
-            $event->getCommandsForEntity(ProductDocumentDefinition::ENTITY_NAME),
-            ['product_id', 'product_version_id'],
-        );
+        $documentCommands = $event->getCommandsForEntity(ProductDocumentDefinition::ENTITY_NAME);
+        $documents = $this->addsDocuments($documentCommands)
+            ? $this->writeOutcome->touchedRows($documentCommands, ['product_id', 'product_version_id'])
+            : [];
         $translations = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME),
             ['media_id'],
@@ -279,6 +281,24 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 ));
             }
         }
+    }
+
+    /**
+     * Whether the write can add a document to a product: by creating one, or by setting the product of one. Only then
+     * do the stored documents matter. The DAL sets the product version of every document it updates, so that column
+     * tells nothing.
+     *
+     * @param list<WriteCommand> $commands
+     */
+    private function addsDocuments(array $commands): bool
+    {
+        foreach ($commands as $command) {
+            if ($command instanceof InsertCommand || ($command instanceof UpdateCommand && $command->hasAnyField('product_id'))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function productKey(mixed $productId, mixed $versionId): ?string

@@ -6,12 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -73,7 +77,7 @@ class ProductDocumentValidatorTest extends TestCase
     {
         $this->ids = new IdsCollection();
         $this->registry = new StaticDefinitionInstanceRegistry(
-            [MediaDefinition::class],
+            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class, MediaDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
         );
@@ -198,6 +202,26 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame($expected, $this->validate());
     }
 
+    public function testAWriteThatAddsNoDocumentReadsNoStoredDocuments(): void
+    {
+        $writeOutcome = $this->createMock(WriteOutcome::class);
+        $writeOutcome->expects($this->never())->method('touchedRows');
+        $writeOutcome->method('resultingRows')->willReturn([]);
+
+        $definition = $this->registry->get(ProductDocumentDefinition::class);
+        $existence = EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
+        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
+            new DeleteCommand($definition, $this->documentKey('manual'), $existence),
+            // the DAL sets the product version of every document it updates
+            new UpdateCommand($definition, ['position' => 2, 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->documentKey('datasheet'), $existence, '/1'),
+        ]);
+
+        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: 1024)))
+            ->validate($event);
+
+        static::assertSame([], $this->errorsOf($event));
+    }
+
     /**
      * @return array{extension: string|null, size: int|null, private: bool, path: string|null}
      */
@@ -213,11 +237,28 @@ class ProductDocumentValidatorTest extends TestCase
      */
     private function validate(array $commands = []): array
     {
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
+        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [...$this->documentCommands(), ...$commands]);
 
         $this->validator()->validate($event);
 
         return $this->errorsOf($event);
+    }
+
+    /**
+     * A command for each document row, as a write through the product sends them: each one sets the product.
+     *
+     * @return list<WriteCommand>
+     */
+    private function documentCommands(): array
+    {
+        $definition = $this->registry->get(ProductDocumentDefinition::class);
+        $existence = EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
+
+        return array_map(static fn (OutcomeRow $document): WriteCommand => match (true) {
+            $document->isNew => new InsertCommand($definition, ['product_id' => $document->getPayloadValue('product_id')], $document->primaryKey, $existence, $document->path),
+            $document->isDeleted => new DeleteCommand($definition, $document->primaryKey, $existence),
+            default => new UpdateCommand($definition, ['product_id' => $document->getPayloadValue('product_id')], $document->primaryKey, $existence, $document->path),
+        }, $this->documents);
     }
 
     private function validator(): ProductDocumentValidator

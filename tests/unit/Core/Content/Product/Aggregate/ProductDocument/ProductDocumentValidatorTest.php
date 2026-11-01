@@ -60,7 +60,7 @@ class ProductDocumentValidatorTest extends TestCase
     private array $media = [];
 
     /**
-     * @var array<string, array{extension: string|null, size: int|null, private: bool}>
+     * @var array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}>
      */
     private array $storedFiles = [];
 
@@ -80,20 +80,21 @@ class ProductDocumentValidatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array{extension: string|null, size: int|null, private: bool}, list<string>}>
+     * @return iterable<string, array{array{extension: string|null, size: int|null, private: bool, path: string|null}, list<string>}>
      */
     public static function fileProvider(): iterable
     {
-        yield 'an allowed file' => [['extension' => 'pdf', 'size' => 1024, 'private' => false], []];
-        yield 'an allowed file type in upper case' => [['extension' => 'PDF', 'size' => 1024, 'private' => false], []];
-        yield 'another file type' => [['extension' => 'xlsx', 'size' => 1024, 'private' => false], [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
-        yield 'a file over the maximum size' => [['extension' => 'pdf', 'size' => 1025, 'private' => false], [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
-        yield 'a file without content' => [['extension' => null, 'size' => null, 'private' => false], [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
-        yield 'a private file' => [['extension' => 'pdf', 'size' => 1024, 'private' => true], [ProductDocumentValidator::VIOLATION_FILE_PRIVATE]];
+        yield 'an allowed file' => [self::file(), []];
+        yield 'an allowed file type in upper case' => [self::file(extension: 'PDF'), []];
+        yield 'another file type' => [self::file(extension: 'xlsx'), [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
+        yield 'a file over the maximum size' => [self::file(size: 1025), [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
+        yield 'a file without content' => [self::file(extension: null, size: null, path: null), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
+        yield 'a link to a file on another server' => [self::file(path: 'https://cdn.example.com/manual.pdf'), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
+        yield 'a private file' => [self::file(private: true), [ProductDocumentValidator::VIOLATION_FILE_PRIVATE]];
     }
 
     /**
-     * @param array{extension: string|null, size: int|null, private: bool} $file
+     * @param array{extension: string|null, size: int|null, private: bool, path: string|null} $file
      * @param list<string> $codes
      */
     #[DataProvider('fileProvider')]
@@ -114,7 +115,7 @@ class ProductDocumentValidatorTest extends TestCase
             isNew: true,
             isDeleted: false,
             payload: ['file_name' => 'manual'],
-            state: ['file_extension' => null, 'file_size' => null, 'private' => null],
+            state: ['file_extension' => null, 'file_size' => null, 'private' => null, 'path' => null],
         )];
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/1/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'manual-file')];
 
@@ -126,7 +127,7 @@ class ProductDocumentValidatorTest extends TestCase
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
     {
         // the file broke a limit after it was added, which doesn't stop writes that keep it
-        $this->storedFiles = [$this->ids->get('manual-file') => ['extension' => 'pdf', 'size' => 1024, 'private' => true]];
+        $this->storedFiles = [$this->ids->get('manual-file') => self::file(private: true)];
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
 
         static::assertSame([], $this->validate());
@@ -135,8 +136,8 @@ class ProductDocumentValidatorTest extends TestCase
     public function testANewDocumentNeedsAFileInTheDefaultLanguage(): void
     {
         $this->storedFiles = [
-            $this->ids->get('manual-file') => ['extension' => 'pdf', 'size' => 1024, 'private' => false],
-            $this->ids->get('zertifikat-file') => ['extension' => 'pdf', 'size' => 1024, 'private' => false],
+            $this->ids->get('manual-file') => self::file(),
+            $this->ids->get('zertifikat-file') => self::file(),
         ];
         $this->documents = [
             $this->addedDocument('manual', '/0/documents/0'),
@@ -176,7 +177,7 @@ class ProductDocumentValidatorTest extends TestCase
     public function testAProductCanHaveTenDocumentsPerLanguage(int $storedDocuments, array $changes, array $pointers): void
     {
         $this->storedDocuments = [$this->ids->get('drill') . Defaults::LIVE_VERSION => $storedDocuments];
-        $this->storedFiles = [$this->ids->get('file') => ['extension' => 'pdf', 'size' => 1024, 'private' => false]];
+        $this->storedFiles = [$this->ids->get('file') => self::file()];
         foreach ($changes as $number => [$change, $path]) {
             $document = 'document-' . $number;
             if ($change === 'added') {
@@ -195,6 +196,14 @@ class ProductDocumentValidatorTest extends TestCase
 
         $expected = array_map(static fn (string $pointer): array => ['code' => ProductDocumentValidator::VIOLATION_TOO_MANY_DOCUMENTS, 'pointer' => $pointer], $pointers);
         static::assertSame($expected, $this->validate());
+    }
+
+    /**
+     * @return array{extension: string|null, size: int|null, private: bool, path: string|null}
+     */
+    private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): array
+    {
+        return ['extension' => $extension, 'size' => $size, 'private' => $private, 'path' => $path];
     }
 
     /**

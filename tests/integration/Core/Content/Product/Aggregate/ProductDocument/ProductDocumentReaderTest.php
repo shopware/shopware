@@ -43,14 +43,14 @@ class ProductDocumentReaderTest extends TestCase
 
     public function testItReadsTheFiles(): void
     {
-        $this->createMedia('manual');
+        $this->createMedia('manual', path: 'https://cdn.example.com/manual.pdf');
         $this->createMedia('upload', extension: null, size: null, private: true);
 
         $files = $this->reader->getFiles([$this->ids->get('manual'), $this->ids->get('upload'), Uuid::randomHex()]);
 
         $expected = [
-            $this->ids->get('manual') => ['extension' => 'pdf', 'size' => 1024, 'private' => false],
-            $this->ids->get('upload') => ['extension' => null, 'size' => null, 'private' => true],
+            $this->ids->get('manual') => ['extension' => 'pdf', 'size' => 1024, 'private' => false, 'path' => 'https://cdn.example.com/manual.pdf'],
+            $this->ids->get('upload') => ['extension' => null, 'size' => null, 'private' => true, 'path' => null],
         ];
         ksort($expected);
         ksort($files);
@@ -70,7 +70,7 @@ class ProductDocumentReaderTest extends TestCase
         static::assertSame([$this->key('drill') => 2], $counts);
     }
 
-    private function createMedia(string $fileName, ?string $extension = 'pdf', ?int $size = 1024, bool $private = false): void
+    private function createMedia(string $fileName, ?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = null): void
     {
         static::getContainer()->get('media.repository')->create([[
             'id' => $this->ids->create($fileName),
@@ -78,6 +78,7 @@ class ProductDocumentReaderTest extends TestCase
             'fileExtension' => $extension,
             'fileSize' => $size,
             'private' => $private,
+            'path' => $path,
         ]], Context::createDefaultContext());
     }
 

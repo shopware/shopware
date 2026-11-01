@@ -27,7 +27,7 @@ class ProductDocumentReader
     /**
      * @param list<string> $mediaIds hex
      *
-     * @return array<string, array{extension: string|null, size: int|null, private: bool}> keyed by media id
+     * @return array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}> keyed by media id
      */
     public function getFiles(array $mediaIds): array
     {
@@ -35,9 +35,9 @@ class ProductDocumentReader
             return [];
         }
 
-        /** @var array<string, array{file_extension: string|null, file_size: string|null, private: string}> $rows */
+        /** @var array<string, array{file_extension: string|null, file_size: string|null, private: string, path: string|null}> $rows */
         $rows = $this->connection->fetchAllAssociativeIndexed(
-            'SELECT LOWER(HEX(`id`)), `file_extension`, `file_size`, `private` FROM `media` WHERE `id` IN (:ids)',
+            'SELECT LOWER(HEX(`id`)), `file_extension`, `file_size`, `private`, `path` FROM `media` WHERE `id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($mediaIds)],
             ['ids' => ArrayParameterType::BINARY],
         );
@@ -46,6 +46,7 @@ class ProductDocumentReader
             'extension' => $row['file_extension'],
             'size' => $row['file_size'] === null ? null : (int) $row['file_size'],
             'private' => (bool) $row['private'],
+            'path' => $row['path'],
         ], $rows);
     }
 

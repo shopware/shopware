@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -118,6 +119,18 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 ));
             }
 
+            // a link to a file on another server, whose size is only what that server reported when it was linked
+            if ($file['path'] !== null && MediaUploadService::isExternalUrl($file['path'])) {
+                $violations->add($this->violation(
+                    code: self::VIOLATION_FILE_SIZE_UNKNOWN,
+                    messageTemplate: 'The file "{{ mediaId }}" is a link to another server. Upload it to the shop first.',
+                    parameters: ['{{ mediaId }}' => $mediaId],
+                    path: $path,
+                ));
+
+                continue;
+            }
+
             // a file that has no content yet
             if ($file['size'] === null) {
                 $violations->add($this->violation(
@@ -156,7 +169,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      *
      * @param list<string> $mediaIds hex
      *
-     * @return array<string, array{extension: string|null, size: int|null, private: bool}> keyed by media id
+     * @return array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}> keyed by media id
      */
     private function getFiles(PreWriteValidationEvent $event, array $mediaIds): array
     {
@@ -168,14 +181,16 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
         $files = [];
         if ($mediaCommands !== []) {
-            foreach ($this->writeOutcome->resultingRows($mediaCommands, ['file_extension', 'file_size', 'private']) as $media) {
+            foreach ($this->writeOutcome->resultingRows($mediaCommands, ['file_extension', 'file_size', 'private', 'path']) as $media) {
                 $extension = $media->getResultingValue('file_extension');
                 $size = $media->getResultingValue('file_size');
+                $path = $media->getResultingValue('path');
 
                 $files[Uuid::fromBytesToHex($media->primaryKey['id'])] = [
                     'extension' => \is_string($extension) ? $extension : null,
                     'size' => is_numeric($size) ? (int) $size : null,
                     'private' => (bool) $media->getResultingValue('private'),
+                    'path' => \is_string($path) ? $path : null,
                 ];
             }
         }

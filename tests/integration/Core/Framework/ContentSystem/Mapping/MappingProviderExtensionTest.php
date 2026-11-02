@@ -261,7 +261,62 @@ class MappingProviderExtensionTest extends TestCase
         $childResolution = $body['resolutions']['required-child'][0];
         static::assertSame('parent', $childResolution['resolved']['origin']);
         static::assertSame('mapped-parent', $childResolution['resolved']['providerElementId']);
+        $parentResolution = $body['resolutions']['mapped-parent'][0];
+        static::assertSame('root', $parentResolution['resolved']['origin']);
+        static::assertSame($source->displayName(), $parentResolution['resolved']['contextKey']);
+        static::assertNull($parentResolution['resolved']['providerElementId']);
         $this->save($elements);
+    }
+
+    #[DataProvider('mappedReferencePickerCases')]
+    public function testRequiredMappedReferenceReportsMappingRatherThanAnEmptyPicker(MappingSourceReference $source, bool $withPicker): void
+    {
+        $previousKernelClass = KernelFactory::$kernelClass;
+        KernelFactory::$kernelClass = MappingProviderBackingTestKernel::class;
+        try {
+            KernelLifecycleManager::bootKernel(cacheId: 'mapping-provider-backing');
+        } finally {
+            KernelFactory::$kernelClass = $previousKernelClass;
+        }
+        $pluginSource = new MappingSourceReference('AcmePlugin', 'image', path: 'media');
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([
+            new MappingCandidate($pluginSource->displayName(), 'Image', '', 'media', MediaEntity::class, source: $pluginSource),
+        ]);
+        $provider->expects($this->never())->method('resolveSource');
+        $this->installRegistry([$provider]);
+        $element = [
+            'id' => 'mapped', 'component' => 'Sw:Test:RequiredMedia',
+            'acceptsContext' => ['image' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => $source->jsonSerialize()]],
+        ];
+        if ($withPicker) {
+            $element['dataRequirements'] = ['image' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]];
+        }
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/layout/diagnose', ['layout' => [$element], 'rootSource' => 'product']);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($body['diagnostics']['resolvable'], json_encode($body['diagnostics']['violations'], \JSON_THROW_ON_ERROR));
+        $resolution = $body['resolutions']['mapped'][0];
+        static::assertSame('root', $resolution['resolved']['origin']);
+        static::assertSame($source->displayName(), $resolution['resolved']['contextKey']);
+        static::assertNull($resolution['resolved']['providerElementId']);
+        $this->save([$element]);
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, bool}>
+     */
+    public static function mappedReferencePickerCases(): iterable
+    {
+        $root = MappingSourceReference::root('product', 'cover');
+        $plugin = new MappingSourceReference('AcmePlugin', 'image', path: 'media');
+        yield 'core mapping without picker' => [$root, false];
+        yield 'core mapping with empty picker' => [$root, true];
+        yield 'plugin mapping without picker' => [$plugin, false];
+        yield 'plugin mapping with empty picker' => [$plugin, true];
     }
 
     /**
@@ -580,7 +635,7 @@ class MappingProviderBackingTypeLoader extends AbstractContentSystemElementTypeL
                 'test',
             ),
             ContentSystemElementTypeSpecificationBuilder::create('Sw:Test:RequiredMedia')
-                ->reference('image', MediaEntity::class, required: true)
+                ->reference('image', MediaEntity::class, required: true, mappable: true)
                 ->build(),
         ];
     }

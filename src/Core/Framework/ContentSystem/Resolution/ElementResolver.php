@@ -71,30 +71,18 @@ class ElementResolver
                 continue;
             }
 
-            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context, $storedRequirements[$key] ?? null);
+            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context, $storedRequirements[$key] ?? null, $mappedPaths[$key] ?? null);
         }
 
         return $resolutions;
     }
 
     /**
-     * How a mapped primitive is filled, or null for one that is not mapped.
+     * The configured mapping's selected source, not another candidate-menu entry.
      *
-     * A primitive property used to report nothing at all — no resolved pick and an empty candidates list —
-     * which was fine while every primitive took its value from the element's own `properties` and became
-     * wrong the moment an author could bind one to entity data. The Administration reads these resolutions to
-     * show where a value comes from, and without this a mapped headline is indistinguishable from an empty one.
-     *
-     * {@see CandidateOrigin::Root} because that is literally where the value comes from: the delivery layer
-     * resolves the path against the layout's root-ambient context
-     * ({@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver::overlayRootContext()}).
-     * `contextKey` carries the mapped path rather than the ambient key alone, matching the dotted `contextKey`
-     * a root candidate already reports for a path-selected reference.
-     *
-     * It is a RESOLVED pick and not a candidate offer, for the reason applied wiring is: a candidate is
-     * something an authoring UI may still choose, and this one is already chosen. The catalogue of what could
-     * be chosen instead is the mapping candidate endpoint's, not this list's — a resolution has no way to
-     * enumerate it, since it never sees the root source.
+     * Root denotes root-scoped mapping delivery for both root and non-root providers. `contextKey` carries
+     * the actual typed source display name, while no ancestor supplies a `providerElementId`. This reports
+     * configured intent: admission remains with StoredMappingInspector, and no source values are read here.
      *
      * Static diagnostics still report a required mapped primitive with no authored value as `unresolved_required`;
      * they do not inspect source values. During rendering, a resolved null is delivered as a present null and
@@ -110,7 +98,11 @@ class ElementResolver
         return new ResolutionCandidate(origin: CandidateOrigin::Root, contextKey: $path);
     }
 
-    private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context, ?DataRequirement $storedRequirement): PropertyResolution
+    /**
+     * An applied mapping selects its source ahead of stored picker wiring and environment defaults. Keep
+     * ordinary context/loader offers in the menu; mapping alternatives come from the mapping catalogue.
+     */
+    private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context, ?DataRequirement $storedRequirement, ?string $mappedPath): PropertyResolution
     {
         $contextOffers = $this->contextCandidates($fqcn, $context);
         $loaders = $this->loaderCandidates($fqcn);
@@ -121,7 +113,7 @@ class ElementResolver
             kind: PropertyKind::Reference,
             required: $required,
             fqcn: $fqcn,
-            resolved: $stored ?? $this->pickDefault($contextOffers, $loaders),
+            resolved: $this->mappedCandidate($mappedPath) ?? $stored ?? $this->pickDefault($contextOffers, $loaders),
             candidates: [...$contextOffers, ...$loaders],
         );
     }

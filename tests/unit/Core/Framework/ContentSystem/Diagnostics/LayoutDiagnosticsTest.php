@@ -1196,6 +1196,63 @@ class LayoutDiagnosticsTest extends TestCase
         yield 'empty string counts as filled (null is the sole empty sentinel)' => [''];
     }
 
+    #[DataProvider('requiredReferenceMappingSources')]
+    public function testRequiredMappedReferenceReportsMappingIntentAndRetainsAdmissionErrors(MappingSourceReference $source, bool $offered): void
+    {
+        $element = StoredElementBuilder::create('Sw:MappedReference', 'el-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedReference')
+            ->reference('product', SalesChannelProductEntity::class, required: true, mappable: true)
+            ->build();
+        $candidate = new MappingCandidate($source->displayName(), 'Product', '', 'basic', SalesChannelProductEntity::class, source: $source);
+        $analysis = $this->diagnostics(
+            ['Sw:MappedReference' => $specification],
+            candidates: $offered ? [$source->displayName() => $candidate] : [],
+        )->analyze([$element], [], 'product');
+
+        $resolved = $analysis->resolutions['el-1'][0]->resolved;
+        static::assertNotNull($resolved);
+        static::assertSame(CandidateOrigin::Root, $resolved->origin);
+        static::assertSame($source->displayName(), $resolved->contextKey);
+        static::assertSame($offered ? [] : [ViolationCode::InvalidMapping], array_column($analysis->report->bindingErrors(), 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, bool}>
+     */
+    public static function requiredReferenceMappingSources(): iterable
+    {
+        $root = MappingSourceReference::root('product');
+        $plugin = new MappingSourceReference('AcmePlugin', 'selection', path: 'item');
+        yield 'admitted root mapping' => [$root, true];
+        yield 'admitted plugin mapping' => [$plugin, true];
+        yield 'unavailable root mapping remains invalid' => [$root, false];
+        yield 'unavailable plugin mapping remains invalid' => [$plugin, false];
+    }
+
+    public function testRequiredMappedPrimitiveStillNeedsAuthoredValue(): void
+    {
+        $source = MappingSourceReference::root('product', 'name');
+        $element = StoredElementBuilder::create('Sw:MappedPrimitive', 'el-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedPrimitive')
+            ->primitive('text', 'string', required: true, mappable: true)
+            ->build();
+        $candidate = new MappingCandidate($source->displayName(), 'Name', '', 'basic', 'string', source: $source);
+
+        $analysis = $this->diagnostics(
+            ['Sw:MappedPrimitive' => $specification],
+            candidates: [$source->displayName() => $candidate],
+        )->analyze([$element], [], 'product');
+
+        $resolved = $analysis->resolutions['el-1'][0]->resolved;
+        static::assertNotNull($resolved);
+        static::assertSame(CandidateOrigin::Root, $resolved->origin);
+        static::assertSame([ViolationCode::UnresolvedRequired], array_column($analysis->report->bindingErrors(), 'code'));
+    }
+
     /**
      * The gap Workstream D closes: the write gate could already prove this mapping inadmissible, but the
      * editor's routes said nothing, so an author saw no error and a blank element and only found out on save.

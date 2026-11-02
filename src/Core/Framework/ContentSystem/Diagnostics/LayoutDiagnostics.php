@@ -529,12 +529,9 @@ class LayoutDiagnostics
             return [];
         }
 
-        // A mapped property is filled from delivered root context, which RenderedElementFactory writes over the
-        // loader's value (Output/Index/ValueOrigin ranks DeliveredContext above LoaderResolved). The loader's
-        // input being empty therefore serves nothing empty, so it is not a defect. This gate would otherwise
-        // make every mapped resolvedBy reference unresolvable: a type default like Sw:Media:Image's
-        // `resolvedBy: mediaId` keeps a Stored resolution even when the author mapped the property instead of
-        // picking media, and an author who maps has no reason to also fill the storage key.
+        // Mapped references normally have a Root pick and leave through the origin guard above. Defensively
+        // keep manual loader-input requirements off any supplied Stored pick for an explicitly mapped property:
+        // mapped delivery takes precedence over the picker value.
         if (isset($this->mappingConsumers->mappedPaths($element)[$resolution->key])) {
             return [];
         }

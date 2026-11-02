@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
@@ -166,22 +167,37 @@ class ProductSerializer extends EntitySerializer
      */
     private function findVisibilityIds(array $visibilities, Context $context): array
     {
-        foreach ($visibilities as $i => $visibility) {
+        $productIds = [];
+        $salesChannelIds = [];
+
+        foreach ($visibilities as $visibility) {
             if (!isset($visibility['productId'])) {
                 continue;
             }
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $visibility['productId']));
-            $criteria->addFilter(new EqualsFilter('salesChannelId', $visibility['salesChannelId']));
+            $productIds[] = $visibility['productId'];
+            $salesChannelIds[] = $visibility['salesChannelId'];
+        }
 
-            $id = $this->visibilityRepository->searchIds($criteria, $context)->firstId();
+        if ($productIds === []) {
+            return $visibilities;
+        }
 
-            if ($id) {
-                $visibility['id'] = $id;
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productId', array_unique($productIds)));
+        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_unique($salesChannelIds)));
+
+        $existingIds = [];
+        foreach ($this->visibilityRepository->search($criteria, $context)->getEntities() as $existing) {
+            $existingIds[$existing->getProductId()][$existing->getSalesChannelId()] = $existing->getId();
+        }
+
+        foreach ($visibilities as $i => $visibility) {
+            if (!isset($visibility['productId'], $existingIds[$visibility['productId']][$visibility['salesChannelId']])) {
+                continue;
             }
 
-            $visibilities[$i] = $visibility;
+            $visibilities[$i]['id'] = $existingIds[$visibility['productId']][$visibility['salesChannelId']];
         }
 
         return $visibilities;

@@ -125,6 +125,9 @@ Put a requirement into the smallest module that owns it, and let the code that u
 Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.
 `sw-core-rules/mini-module-boundaries` and `sw-test-rules/require-test-origin` check these rules.
 
+`npm run unit:mini-module -- <module directory>` runs one module's tests with coverage of its `src/` only.
+Add `--contracts` to run only the requirements, pinned and regressions specs: the uncovered lines are then code that no contract protects.
+
 ## Registration Pattern
 
 ```js

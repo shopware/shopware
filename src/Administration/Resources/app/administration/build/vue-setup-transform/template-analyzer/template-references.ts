@@ -469,6 +469,31 @@ function getStaticSwBlockName(node: ElementNode): string | null {
 }
 
 /**
+ * Returns the static name of a `<slot>` outlet: its `name` attribute, `default` without one, and null for a
+ * dynamic `:name`.
+ */
+function getStaticSlotName(node: ElementNode): string | null {
+    const hasDynamicName = node.props.some(
+        (prop) =>
+            prop.type === NodeTypes.DIRECTIVE &&
+            prop.name === 'bind' &&
+            prop.arg?.type === NodeTypes.SIMPLE_EXPRESSION &&
+            prop.arg.content === 'name',
+    );
+
+    if (hasDynamicName) {
+        return null;
+    }
+
+    const nameAttribute = node.props.find(
+        (prop): prop is Extract<ElementNode['props'][number], { type: NodeTypes.ATTRIBUTE }> =>
+            prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name',
+    );
+
+    return nameAttribute?.value?.content ?? 'default';
+}
+
+/**
  * Returns the static `extends` of an override `<sw-block extends="...">`, or null.
  */
 function getStaticSwBlockExtends(node: ElementNode): string | null {
@@ -487,6 +512,7 @@ export {
     collectTemplateReferences,
     getDefaultSlotDirective,
     getStaticSwBlockExtends,
+    getStaticSlotName,
     getStaticSwBlockName,
     isSwBlockExtends,
     isSwBlockName,

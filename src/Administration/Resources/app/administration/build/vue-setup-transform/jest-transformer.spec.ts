@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import shopwareSetupVueTransformer from '../../test/transformer/shopwareSetupVueTransformer';
 import type * as transformModuleType from './index';
 import { stripIndent } from './index.spec/helpers';
@@ -131,5 +133,16 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
         expect(code).toContain('emits: ["save"]');
         expect(code).toContain('exports.default');
         expect(code).not.toContain('swDefinePublic');
+    });
+
+    it('fails a mini-module component whose index.ts lists a different public API', () => {
+        const filename = path.join(__dirname, 'index.spec/fixtures/sw-example-mini-module/src/sw-example.vue');
+        const source = fs
+            .readFileSync(filename, 'utf8')
+            .replace('swDefinePublic({ count, save, value });', 'swDefinePublic({ count, value });');
+
+        expect(() => shopwareSetupVueTransformer.process(source, filename, { config: {} }, { instrument: false })).toThrow(
+            '- setup "save": listed in index.ts public.setup, missing in swDefinePublic()',
+        );
     });
 });

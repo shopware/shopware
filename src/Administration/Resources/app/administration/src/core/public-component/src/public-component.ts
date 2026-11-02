@@ -20,11 +20,23 @@ type OptionOf<Component, Key extends PropertyKey> = Component extends { [K in Ke
 type OrEmpty<Type> = [Type] extends [never] ? object : Type;
 
 /**
+ * Whether the component comes from a `.vue` file: the `*.vue` shim gives its instance any key and names none.
+ */
+type IsUntypedSfc<Component> = Component extends abstract new (...args: never[]) => infer Instance
+    ? string extends keyof Instance
+        ? true
+        : false
+    : false;
+
+/**
  * The names a component declares for one kind of member, or any string while its type is unknown.
+ * A `.vue` file's names are checked by the build against `index.ts` instead.
  */
 type NamesOf<Component, Key extends PropertyKey> = unknown extends Component
     ? string
-    : OptionNames<OptionOf<Component, Key>>;
+    : IsUntypedSfc<Component> extends true
+      ? string
+      : OptionNames<OptionOf<Component, Key>>;
 
 /**
  * The names a public API lists for one kind of member.
@@ -76,12 +88,16 @@ export type PublicComponentApi<Component = unknown> = {
     blocks?: readonly string[];
     computed?: readonly NamesOf<Component, 'computed'>[];
     methods?: readonly NamesOf<Component, 'methods'>[];
+    // The swDefinePublic() bindings of a native-setup component. The build checks them, since a `.vue`
+    // file has no type that names its bindings.
+    setup?: readonly string[];
 };
 
 /**
  * A component as its mini-module declares it.
  * `load` imports the component lazily, so declaring it costs no bundle size.
- * A native-setup component leaves out `public`, because `swDefinePublic()` already declares it.
+ * A native-setup component lists its props, emits, slots, blocks and `swDefinePublic()` bindings (`setup`) too,
+ * and the build fails when they differ from the component.
  *
  * @public
  */
@@ -107,7 +123,7 @@ export type PublicInstance<Declaration> = Declaration extends { load: infer Load
     ? Pick<
           ComponentInstance<LoadedComponent<Load>>,
           Extract<
-              Listed<Api, 'props'> | Listed<Api, 'computed'> | Listed<Api, 'methods'>,
+              Listed<Api, 'props'> | Listed<Api, 'computed'> | Listed<Api, 'methods'> | Listed<Api, 'setup'>,
               keyof ComponentInstance<LoadedComponent<Load>>
           >
       >

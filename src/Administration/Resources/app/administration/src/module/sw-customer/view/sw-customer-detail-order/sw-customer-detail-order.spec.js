@@ -81,7 +81,7 @@ describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
 
     it('should show order list', async () => {
         wrapper = await createWrapper(orderFixture);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardFilter = wrapper.find('.sw-card-filter');
         const orderList = wrapper.find('sw-entity-listing-stub');

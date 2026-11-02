@@ -716,7 +716,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         const initialLoadedCategoryCount = Object.values(wrapper.vm.loadedCategories).length;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.$refs.categoryTree.openTreeById = jest.fn();
 

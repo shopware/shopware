@@ -885,10 +885,7 @@ class EntityWriterTest extends TestCase
         static::assertCount(0, $fetchTwoDeleted->getEntities());
 
         // Clean up
-        $this->connection->executeStatement(
-            'DROP TABLE IF EXISTS `test_entity_two`;
-            DROP TABLE IF EXISTS `test_entity_one`;',
-        );
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `test_entity_two`, `test_entity_one`');
         $this->connection->beginTransaction();
     }
 

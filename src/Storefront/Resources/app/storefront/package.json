@@ -103,7 +103,8 @@
     "typescript-eslint": "8.65.0",
     "vitest": "4.1.12",
     "webpack-dev-server": "5.2.6",
-    "xml2js": "0.6.2"
+    "xml2js": "0.6.2",
+    "yaml": "2.8.3"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0",
@@ -117,7 +118,7 @@
     "postcss": "8.5.23",
     "postcss-selector-parser": "7.1.6",
     "tmp": "0.2.7",
-    "qs": "6.16.0",
+    "qs": "6.16.1",
     "express": "4.22.2",
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",

@@ -65,7 +65,10 @@ class AttributeEntityIntegrationTest extends TestCase
         $sql = file_get_contents(__DIR__ . '/fixture/schema.sql');
         static::assertIsString($sql);
         try {
-            $connection->executeStatement($sql);
+            // shortcut: this schema fixture contains no semicolons in literals; use an SQL parser if that changes.
+            foreach (array_filter(array_map('trim', explode(';', $sql))) as $statement) {
+                $connection->executeStatement($statement);
+            }
         } catch (\Exception $e) {
             // restart transaction, otherwise follow-up tests will fail
             $connection->beginTransaction();

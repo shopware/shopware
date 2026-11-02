@@ -992,10 +992,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.onInheritanceRemove({ name: 'isPriceInherited' });
         wrapper.vm.bulkEditProduct.isPriceInherited.isChanged = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onInheritanceRestore({ name: 'isPriceInherited' });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onProcessData();
 

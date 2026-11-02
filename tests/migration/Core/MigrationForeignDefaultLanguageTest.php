@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -319,6 +320,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
         $orgConnection->executeStatement('DROP DATABASE IF EXISTS `' . $databaseName . '`');
         $orgConnection->executeStatement('CREATE DATABASE `' . $databaseName . '` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci');
+
+        $orgConnection = MySQLFactory::createMigrationConnection($orgConnection);
 
         $this->replayConnection = new Connection(
             array_merge($orgConnection->getParams(), ['dbname' => $databaseName]),

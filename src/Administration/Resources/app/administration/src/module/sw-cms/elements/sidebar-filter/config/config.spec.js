@@ -23,8 +23,9 @@ describe('src/module/sw-cms/elements/sidebar-filter/config', () => {
         await import('src/module/sw-cms/elements/sidebar-filter');
     });
 
-    it('mounts the component', async () => {
+    it('should point to the listing element for the filter settings', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeDefined();
+
+        expect(wrapper.text()).toBe('sw-cms.elements.general.config.infoText.listingElement');
     });
 });

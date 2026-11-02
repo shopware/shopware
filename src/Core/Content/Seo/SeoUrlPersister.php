@@ -97,7 +97,7 @@ class SeoUrlPersister
     private function persistSalesChannelSeoUrls(Context $context, string $routeName, array $foreignKeys, array $seoUrls, ?string $salesChannelId, bool $overwrite): void
     {
         $languageId = $context->getLanguageId();
-        $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
+        $canonicals = $seoUrls === [] ? [] : $this->findCanonicalPaths($routeName, $languageId, $foreignKeys, [$salesChannelId]);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $table = $this->seoUrlRepository->getDefinition()->getEntityName();
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
@@ -223,12 +223,19 @@ class SeoUrlPersister
     }
 
     /**
+     * Only the canonical URLs of the given sales channels are loaded, so the cost does not grow with the number of sales channels.
+     *
      * @param array<string> $foreignKeys
+     * @param list<string|null> $salesChannelIds `null` stands for SEO URLs without a sales channel
      *
      * @return array<string, mixed>
      */
-    private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys): array
+    private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys, array $salesChannelIds): array
     {
+        if ($salesChannelIds === []) {
+            return [];
+        }
+
         $fks = Uuid::fromHexToBytesList($foreignKeys);
         $languageId = Uuid::fromHexToBytes($languageId);
 
@@ -251,6 +258,19 @@ class SeoUrlPersister
         $query->setParameter('routeName', $routeName);
         $query->setParameter('language_id', $languageId);
         $query->setParameter('foreign_keys', $fks, ArrayParameterType::BINARY);
+
+        $salesChannelIdBytes = Uuid::fromHexToBytesList(array_values(array_filter($salesChannelIds, static fn (?string $id): bool => $id !== null)));
+        if ($salesChannelIdBytes === []) {
+            $query->andWhere('seo_url.sales_channel_id IS NULL');
+        } else {
+            $salesChannelCondition = 'seo_url.sales_channel_id IN (:sales_channel_ids)';
+            if (\in_array(null, $salesChannelIds, true)) {
+                $salesChannelCondition = '(' . $salesChannelCondition . ' OR seo_url.sales_channel_id IS NULL)';
+            }
+
+            $query->andWhere($salesChannelCondition);
+            $query->setParameter('sales_channel_ids', $salesChannelIdBytes, ArrayParameterType::BINARY);
+        }
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 

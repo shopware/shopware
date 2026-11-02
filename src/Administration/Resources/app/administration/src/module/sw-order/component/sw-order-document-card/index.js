@@ -352,8 +352,17 @@ export default {
             if (action === DocumentEvents.DOCUMENT_FAILED) {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
-                    const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$t(translationKey, payload.meta.parameters || {});
+                    const parameters = payload.meta?.parameters ?? {};
+
+                    if (parameters.number && parameters.documentType) {
+                        errorMessage = this.$t('sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS', {
+                            number: parameters.number,
+                            documentType: this.documentV2Service.getDocumentTypeLabel(
+                                parameters.documentType,
+                                this.supportedDocumentTypes[parameters.documentType]?.label,
+                            ),
+                        });
+                    }
                 }
 
                 this.createNotificationError({

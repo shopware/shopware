@@ -233,7 +233,7 @@ export default Component.wrapComponentConfig({
                     this.updateService.extensionCompatibility(),
                 ]);
 
-                this.licenseValid = licenseCheck.isValid === true;
+                this.licenseValid = licenseCheck.isValid;
                 this.extensions = extensions;
 
                 if (this.displayUnknownExtensionsWarning && this.displayIncompatibleExtensionsWarning) {

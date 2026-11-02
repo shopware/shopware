@@ -52,10 +52,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         await flushPromises();
     });
 
-    it('is a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the correct name', async () => {
         const textField = wrapper.find('.sw-settings-listing-option-general-info__field-name input');
 

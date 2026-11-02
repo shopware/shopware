@@ -275,11 +275,13 @@ class NewsletterRecipientServiceTest extends TestCase
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         static::assertIsString($salutationSql);
-        static::getContainer()->get(Connection::class)->executeStatement($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
         static::assertIsString($recipientSql);
         $recipientSql = str_replace(':now', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
-        static::getContainer()->get(Connection::class)->executeStatement($recipientSql);
+        // shortcut: these fixtures contain no semicolons in literals; use an SQL parser if that changes.
+        foreach (array_filter(array_map('trim', explode(';', $salutationSql . $recipientSql))) as $statement) {
+            static::getContainer()->get(Connection::class)->executeStatement($statement);
+        }
     }
 }

@@ -615,6 +615,34 @@ class SeoUrlPersisterTest extends TestCase
         }
     }
 
+    public function testUpdateSeoUrlsOfOneSalesChannelLeavesTheUrlsOfOtherSalesChannelsAlone(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $salesChannelAId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelAId, 'test a');
+        $salesChannelBId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelBId, 'test b');
+
+        $fk = Uuid::randomHex();
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', [$fk], [
+            ['foreignKey' => $fk, 'salesChannelId' => $salesChannelAId, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'old-a'],
+            ['foreignKey' => $fk, 'salesChannelId' => $salesChannelBId, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'old-b'],
+        ], $this->salesChannel);
+
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', [$fk], [
+            ['foreignKey' => $fk, 'salesChannelId' => $salesChannelAId, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'new-a'],
+        ], $this->salesChannel);
+
+        static::assertEquals(
+            [
+                $salesChannelAId => ['old-a' => false, 'new-a' => true],
+                $salesChannelBId => ['old-b' => true],
+            ],
+            $this->getSeoPathInfosBySalesChannel($fk)
+        );
+    }
+
     public function testUpdateSeoUrlsOfSeveralSalesChannelsInOneCallKeepsThePreviousUrlOfEachSalesChannel(): void
     {
         $context = Context::createDefaultContext();
@@ -1025,6 +1053,25 @@ class SeoUrlPersisterTest extends TestCase
         $expectedChannelIds = [$salesChannelAId, $salesChannelBId];
         sort($expectedChannelIds);
         static::assertSame($expectedChannelIds, $canonicalChannelIds);
+    }
+
+    public function testUpdateSeoUrlsWithoutSalesChannelReplacesTheCanonicalUrlWithoutSalesChannel(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $fk = Uuid::randomHex();
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', [$fk], [
+            ['foreignKey' => $fk, 'salesChannelId' => null, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'old'],
+        ], $this->salesChannel);
+
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', [$fk], [
+            ['foreignKey' => $fk, 'salesChannelId' => null, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'new'],
+        ], $this->salesChannel);
+
+        static::assertEquals(
+            ['' => ['old' => false, 'new' => true]],
+            $this->getSeoPathInfosBySalesChannel($fk)
+        );
     }
 
     private function createLanguages(Context $context): void

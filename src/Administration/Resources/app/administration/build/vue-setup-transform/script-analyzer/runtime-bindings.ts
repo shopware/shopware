@@ -53,7 +53,7 @@ function collectImportBindings(importNode: ImportDeclaration, into: ImportedBind
         into.push({
             name: specifier.local.name,
             node: specifier.local,
-            importSource: String(importNode.source.value),
+            importSource: importNode.source.value,
         });
     });
 }

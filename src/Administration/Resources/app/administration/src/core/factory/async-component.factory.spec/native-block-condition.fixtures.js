@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
@@ -135,8 +136,8 @@ export function expectOnlyBranch(wrapper, branches, visibleBranch) {
  * await settleLegacyChain(wrapper);
  */
 export async function settleLegacyChain(wrapper) {
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await nextTick();
+    await nextTick();
 }
 
 /**

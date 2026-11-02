@@ -12,6 +12,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
 const getBrowserUrl = require('./hmr-browser-url');
+const isContainer = require('./is-container');
 const copyProxyResponseHead = require('./copy-proxy-response-head');
 const createOriginRewriter = require('./rewrite-origin-urls');
 
@@ -184,7 +185,7 @@ server.then(() => {
         console.log('\n');
     }
 
-    if (!fs.existsSync('/.dockerenv')) {
+    if (!isContainer()) {
         openBrowserWithUrl(getBrowserUrl(proxyUrlEnv, domainUrl));
     }
 

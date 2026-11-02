@@ -41,7 +41,7 @@ class ResponseFactoryRegistry
             if ($contentTypes === [] || \in_array('*/*', $contentTypes, true)) {
                 $contentTypes[] = self::DEFAULT_RESPONSE_TYPE;
             }
-        } elseif (\in_array('*/*', $contentTypes, true)) {
+        } elseif ($contentTypes === [] || \in_array('*/*', $contentTypes, true)) {
             $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
                 ? self::DEFAULT_RESPONSE_TYPE
                 : self::LEGACY_DEFAULT_RESPONSE_TYPE;

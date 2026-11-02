@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 /**
  * @internal
@@ -77,12 +76,12 @@ class ResponseTypeRegistryTest extends TestCase
         static::assertSame($self, $content['data']['links']['self']);
     }
 
-    public function testAdminJsonApiDefault(): void
+    #[DataProvider('defaultAcceptHeaders')]
+    public function testAdminJsonApiDefault(?string $accept): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $id = Uuid::randomHex();
-        $accept = '*/*';
         $self = 'http://localhost/api/category/' . $id;
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
@@ -128,15 +127,6 @@ class ResponseTypeRegistryTest extends TestCase
     {
         yield 'wildcard' => ['*/*'];
         yield 'missing Accept header' => [null];
-    }
-
-    public function testAdminApiWithoutAcceptHeaderBefore68(): void
-    {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
-        $this->expectException(UnsupportedMediaTypeHttpException::class);
-        $id = Uuid::randomHex();
-        $this->getDetailResponse($this->getAdminContext(), $id, '/api/category/' . $id, null, false);
     }
 
     #[DataProvider('explicitAcceptHeaders')]

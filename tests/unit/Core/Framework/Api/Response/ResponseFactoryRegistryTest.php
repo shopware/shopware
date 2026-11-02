@@ -58,26 +58,20 @@ class ResponseFactoryRegistryTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    #[DataProvider('legacySources')]
-    public function testLegacyDefault(bool $salesChannel): void
+    #[DataProvider('legacyDefaults')]
+    public function testLegacyDefault(?string $accept, bool $salesChannel): void
     {
         $expectedFactory = $salesChannel ? $this->jsonFactory : $this->jsonApiFactory;
 
-        static::assertSame($expectedFactory, $this->registry->getType($this->createRequest('*/*', $salesChannel)));
+        static::assertSame($expectedFactory, $this->registry->getType($this->createRequest($accept, $salesChannel)));
     }
 
-    public static function legacySources(): \Generator
+    public static function legacyDefaults(): \Generator
     {
-        yield 'Admin API defaults to JSON API' => [false];
-        yield 'sales channel defaults to JSON' => [true];
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testLegacyMissingAcceptIsUnsupported(): void
-    {
-        $this->expectExceptionObject(ApiException::unsupportedResponseMediaTypes([]));
-
-        $this->registry->getType($this->createRequest(null));
+        yield 'Admin API wildcard defaults to JSON API' => ['*/*', false];
+        yield 'sales channel wildcard defaults to JSON' => ['*/*', true];
+        yield 'Admin API missing Accept defaults to JSON API' => [null, false];
+        yield 'sales channel missing Accept defaults to JSON' => [null, true];
     }
 
     public function testUnsupportedMediaType(): void

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Result;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -82,6 +83,23 @@ class RefreshAppCommandTest extends TestCase
             '--activate' => true,
         ]));
         static::assertStringContainsString('all refreshable apps are valid', $this->commandTester->getDisplay());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the `--no-validate` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('The deprecated --no-validate option refreshes without the validation report')]
+    public function testNoValidateRefreshesWithoutTheValidationReport(): void
+    {
+        $this->appService->method('getRefreshableAppInfo')->willReturn($this->createDryRunWithInstallableApp());
+        $this->manifestValidator->expects($this->never())->method('validate');
+        $this->appService->expects($this->once())->method('doRefreshApps')->willReturn([]);
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
+            '--force' => true,
+            '--no-validate' => true,
+        ]));
     }
 
     #[TestDox('Validation errors prevent the refresh and fail the command')]

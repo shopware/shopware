@@ -35,10 +35,12 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
             v-if="!isLoading"
-            v-silence-deprecations="'V6_9_0_0'"
             class="sw-customer-detail-page__tabs"
             position-identifier="sw-landing-page-view"
         >
@@ -70,7 +72,7 @@
             {% endblock %}
 
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 
     {% block sw_landing_page_view_content %}

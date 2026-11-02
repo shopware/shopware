@@ -109,10 +109,12 @@
                 </div>
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="detailTabs"
-                    v-silence-deprecations="'V6_9_0_0'"
                     class="sw-generic-custom-entity-detail__tabs"
                     position-identifier="sw-generic-custom-entity-detail-tabs"
                     :default-item="mainTabName"
@@ -213,7 +215,7 @@
                         </template>
                     </template>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
         </sw-card-view>
     </template>
 </sw-page>

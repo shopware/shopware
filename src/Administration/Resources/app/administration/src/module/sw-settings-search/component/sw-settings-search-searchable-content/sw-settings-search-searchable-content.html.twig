@@ -120,9 +120,11 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
-            v-silence-deprecations="'V6_9_0_0'"
             class="sw-settings-search__searchable-content-tabs"
             :default-item="defaultTab"
             position-identifier="sw-settings-search-searchable-content"
@@ -180,7 +182,7 @@
                 />
             </template>
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 </mt-card>
 {% endblock %}

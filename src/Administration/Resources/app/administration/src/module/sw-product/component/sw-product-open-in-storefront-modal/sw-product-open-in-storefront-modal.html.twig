@@ -96,6 +96,7 @@
                         <div
                             v-else
                             class="sw-product-open-in-storefront-modal__domain is--disabled"
+                            aria-disabled="true"
                         >
                             <span class="sw-product-open-in-storefront-modal__domain-text">
                                 <span class="sw-product-open-in-storefront-modal__domain-header">
@@ -103,6 +104,9 @@
                                 </span>
                                 <span class="sw-product-open-in-storefront-modal__domain-url">
                                     {{ domain.url }}
+                                </span>
+                                <span class="sw-product-open-in-storefront-modal__domain-hint">
+                                    {{ $t('sw-product.openInStorefrontModal.infoDomainWithoutValidUrl') }}
                                 </span>
                             </span>
                         </div>

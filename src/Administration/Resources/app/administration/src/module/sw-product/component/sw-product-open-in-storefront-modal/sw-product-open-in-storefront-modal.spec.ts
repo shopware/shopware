@@ -125,17 +125,25 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         );
     });
 
-    it('shows a domain whose URL cannot be linked without a link', async () => {
+    it('marks a domain without an http or https URL as disabled next to the linked domains', async () => {
         const { wrapper } = await createWrapper({
             loadedSalesChannel: storefrontSalesChannel({
-                domains: [{ id: 'domain-id', url: 'javascript:alert(1)', productUrl: null }],
+                domains: [
+                    { id: 'domain-id', url: 'https://shop.test', productUrl: 'https://shop.test/Shirt/SW10000' },
+                    { id: 'invalid-domain-id', url: 'ftp://shop.test', productUrl: null },
+                ],
             }),
         });
         await flushPromises();
 
-        expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').exists()).toBe(false);
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain.is--disabled').text()).toContain(
-            'javascript:alert(1)',
+        const links = wrapper.findAll('a.sw-product-open-in-storefront-modal__domain');
+        const disabledDomain = wrapper.find('.sw-product-open-in-storefront-modal__domain.is--disabled');
+        expect(links).toHaveLength(1);
+        expect(links[0].attributes('href')).toBe('https://shop.test/Shirt/SW10000');
+        expect(disabledDomain.attributes('aria-disabled')).toBe('true');
+        expect(disabledDomain.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('ftp://shop.test');
+        expect(disabledDomain.find('.sw-product-open-in-storefront-modal__domain-hint').text()).toBe(
+            'sw-product.openInStorefrontModal.infoDomainWithoutValidUrl',
         );
     });
 

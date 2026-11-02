@@ -38,8 +38,14 @@
             background: var(--color-interaction-secondary-hover);
         }
 
-        &.is--disabled:hover {
-            background: var(--color-interaction-secondary-default);
+        &.is--disabled {
+            background: var(--color-interaction-secondary-disabled);
+            color: var(--color-text-primary-disabled);
+            cursor: not-allowed;
+
+            &:hover {
+                background: var(--color-interaction-secondary-disabled);
+            }
         }
     }
 
@@ -56,6 +62,11 @@
     &__domain-url {
         color: var(--color-text-secondary-default);
         overflow-wrap: anywhere;
+    }
+
+    &__domain.is--disabled &__domain-url,
+    &__domain-hint {
+        color: var(--color-text-secondary-disabled);
     }
 
     &__checks {

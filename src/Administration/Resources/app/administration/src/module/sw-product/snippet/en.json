@@ -335,7 +335,7 @@
         "productActive": "Product is inactive",
         "inStock": "Product is sold out, and this sales channel hides sold-out clearance sale products",
         "inStockPossibly": "Product is sold out, and this sales channel may hide sold-out clearance sale products",
-        "storefrontShowsProduct": "This sales channel does not show this product, for example because it is inactive, not assigned to this sales channel or sold out"
+        "storefrontShowsProduct": "This sales channel does not show the product. A Storefront rule hides the saved product, for example its visibility, its availability or an extension."
       },
       "maintenanceHint": "Sales channel is in maintenance mode. Only IP addresses on its allowlist can open it."
     },

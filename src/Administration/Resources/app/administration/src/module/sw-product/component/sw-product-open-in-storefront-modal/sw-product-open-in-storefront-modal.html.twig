@@ -25,6 +25,15 @@
             </mt-banner>
             {% endblock %}
 
+            {% block sw_product_open_in_storefront_modal_description %}
+            <p
+                v-if="salesChannels.length > 0"
+                class="sw-product-open-in-storefront-modal__description"
+            >
+                {{ modalDescription }}
+            </p>
+            {% endblock %}
+
             {% block sw_product_open_in_storefront_modal_sales_channel_select %}
             <mt-select
                 v-if="salesChannels.length > 0"
@@ -37,17 +46,68 @@
             {% endblock %}
 
             {% block sw_product_open_in_storefront_modal_result %}
-            <section
+            <div
                 v-if="result"
-                class="sw-product-open-in-storefront-modal__sales-channel"
+                class="sw-product-open-in-storefront-modal__result"
             >
-                {% block sw_product_open_in_storefront_modal_result_badge %}
-                <mt-badge
-                    :variant="result.reachable ? 'positive' : 'critical'"
-                    size="s"
+                {% block sw_product_open_in_storefront_modal_maintenance %}
+                <p
+                    v-if="result.maintenance"
+                    class="sw-product-open-in-storefront-modal__maintenance"
                 >
-                    {{ reachabilityLabel }}
-                </mt-badge>
+                    <mt-icon
+                        name="regular-info-circle"
+                        size="12px"
+                        aria-hidden="true"
+                    />
+                    <span>{{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}</span>
+                </p>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_domains %}
+                <template v-if="result.reachable">
+                    <template
+                        v-for="domain in result.domains"
+                        :key="domain.id"
+                    >
+                        <a
+                            v-if="domain.productUrl"
+                            class="sw-product-open-in-storefront-modal__domain"
+                            :href="domain.productUrl"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <span class="sw-product-open-in-storefront-modal__domain-text">
+                                <span class="sw-product-open-in-storefront-modal__domain-header">
+                                    {{ selectedSalesChannelName }}
+                                </span>
+                                <span class="sw-product-open-in-storefront-modal__domain-url">
+                                    {{ domain.productUrl }}
+                                </span>
+                            </span>
+
+                            <mt-icon
+                                name="regular-external-link-s"
+                                size="14px"
+                                aria-hidden="true"
+                            />
+                        </a>
+
+                        <div
+                            v-else
+                            class="sw-product-open-in-storefront-modal__domain is--disabled"
+                        >
+                            <span class="sw-product-open-in-storefront-modal__domain-text">
+                                <span class="sw-product-open-in-storefront-modal__domain-header">
+                                    {{ selectedSalesChannelName }}
+                                </span>
+                                <span class="sw-product-open-in-storefront-modal__domain-url">
+                                    {{ domain.url }}
+                                </span>
+                            </span>
+                        </div>
+                    </template>
+                </template>
                 {% endblock %}
 
                 {% block sw_product_open_in_storefront_modal_checks %}
@@ -70,60 +130,7 @@
                     </li>
                 </ul>
                 {% endblock %}
-
-                {% block sw_product_open_in_storefront_modal_maintenance %}
-                <p
-                    v-if="result.maintenance"
-                    class="sw-product-open-in-storefront-modal__maintenance"
-                >
-                    <mt-icon
-                        name="regular-info-circle"
-                        size="12px"
-                        aria-hidden="true"
-                    />
-                    <span>{{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}</span>
-                </p>
-                {% endblock %}
-
-                {% block sw_product_open_in_storefront_modal_domains %}
-                <div
-                    v-if="result.domains.length > 0"
-                    class="sw-product-open-in-storefront-modal__domains"
-                >
-                    {% block sw_product_open_in_storefront_modal_domains_caption %}
-                    <p
-                        v-if="!hasProductUrl"
-                        class="sw-product-open-in-storefront-modal__domains-caption"
-                    >
-                        {{ $t('sw-product.openInStorefrontModal.labelDomains') }}
-                    </p>
-                    {% endblock %}
-
-                    <ul class="sw-product-open-in-storefront-modal__domain-list">
-                        <li
-                            v-for="domain in result.domains"
-                            :key="domain.id"
-                            class="sw-product-open-in-storefront-modal__domain"
-                        >
-                            <sw-external-link
-                                v-if="domain.productUrl"
-                                :href="domain.productUrl"
-                                small
-                            >
-                                {{ domain.productUrl }}
-                            </sw-external-link>
-
-                            <span
-                                v-else
-                                class="sw-product-open-in-storefront-modal__domain-url"
-                            >
-                                {{ domain.url }}
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-                {% endblock %}
-            </section>
+            </div>
             {% endblock %}
         </div>
 

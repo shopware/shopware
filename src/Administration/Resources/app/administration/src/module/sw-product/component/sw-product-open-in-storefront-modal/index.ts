@@ -106,14 +106,15 @@ export default Shopware.Component.wrapComponentConfig({
             return this.product.active ?? this.parentProduct?.active ?? false;
         },
 
-        hasProductUrl(): boolean {
-            return this.result?.domains.some(({ productUrl }) => productUrl !== null) ?? false;
+        modalDescription(): string {
+            return this.$t('sw-product.openInStorefrontModal.description', {
+                name: this.productName,
+                productNumber: this.product.productNumber,
+            });
         },
 
-        reachabilityLabel(): string {
-            return this.result?.reachable
-                ? this.$t('sw-product.openInStorefrontModal.labelReachable')
-                : this.$t('sw-product.openInStorefrontModal.labelNotReachable');
+        selectedSalesChannelName(): string {
+            return this.selectedSalesChannel?.translated?.name ?? this.selectedSalesChannel?.name ?? '';
         },
 
         result(): SalesChannelResult | null {

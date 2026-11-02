@@ -6,29 +6,62 @@
         justify-content: flex-end;
     }
 
-    &__sales-channel {
+    &__description {
+        margin: 0 0 var(--scale-size-24);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+    }
+
+    &__result {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        gap: var(--scale-size-8);
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: var(--border-radius-xs);
-        padding: var(--scale-size-12);
+        gap: var(--scale-size-12);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
     }
 
-    &__checks,
-    &__domain-list {
+    &__domain {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--scale-size-10);
+        padding: var(--scale-size-10) var(--scale-size-12);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        background: var(--color-interaction-secondary-default);
+        color: var(--color-text-primary-default);
+        text-decoration: none;
+        transition: background-color 0.15s ease-out;
+
+        &:hover {
+            background: var(--color-interaction-secondary-hover);
+        }
+
+        &.is--disabled:hover {
+            background: var(--color-interaction-secondary-default);
+        }
+    }
+
+    &__domain-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__domain-header {
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__domain-url {
+        color: var(--color-text-secondary-default);
+        overflow-wrap: anywhere;
+    }
+
+    &__checks {
         list-style: none;
         margin: 0;
         padding: 0;
-    }
-
-    &__domains-caption {
-        margin: 0 0 var(--scale-size-4);
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
     }
 
     &__check,
@@ -50,18 +83,16 @@
     &__maintenance {
         color: var(--color-text-secondary-default);
     }
+}
 
-    &__domains {
-        align-self: stretch;
-        padding-top: var(--scale-size-8);
-        border-top: 1px solid var(--color-border-primary-default);
-    }
+.sw-product-open-in-storefront-modal a.sw-product-open-in-storefront-modal__domain[target] {
+    display: flex;
+    color: var(--color-text-primary-default);
+    font-size: inherit;
+    text-decoration: none;
+    word-break: normal;
 
-    &__domain {
-        overflow-wrap: anywhere;
-    }
-
-    &__domain-url {
-        color: var(--color-text-secondary-default);
+    &::after {
+        content: none;
     }
 }

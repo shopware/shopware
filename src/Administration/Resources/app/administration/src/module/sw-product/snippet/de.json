@@ -323,13 +323,11 @@
     },
     "openInStorefrontModal": {
       "title": "„{name}“ ({productNumber}) in der Storefront öffnen",
+      "description": "Wähle den Verkaufskanal, in dem Du das Produkt „{name} ({productNumber})“ öffnen möchtest.",
       "infoUnsavedChanges": "Das Produkt hat ungespeicherte Änderungen. Die Storefront zeigt den zuletzt gespeicherten Stand.",
       "infoNoSalesChannels": "Das Produkt ist keinem Storefront-Verkaufskanal zugewiesen.",
       "labelSalesChannel": "Verkaufskanal",
       "placeholderSalesChannel": "Verkaufskanal auswählen ...",
-      "labelReachable": "Kann geöffnet werden",
-      "labelNotReachable": "Kann nicht geöffnet werden",
-      "labelDomains": "Domains dieses Verkaufskanals",
       "checks": {
         "salesChannelActive": "Verkaufskanal ist inaktiv",
         "hasDomain": "Verkaufskanal hat keine Domain",

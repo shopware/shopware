@@ -112,8 +112,30 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledTimes(1);
         expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledWith('product-id', 'sales-channel-id');
         expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toBe('sales-channel-id');
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain a').attributes('href')).toBe(
+        expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').attributes('href')).toBe(
             'https://shop.test/Shirt/SW10000',
+        );
+    });
+
+    it('describes the choice with the product name and number', async () => {
+        const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000' } });
+
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__description').text()).toBe(
+            'sw-product.openInStorefrontModal.description Shirt SW10000',
+        );
+    });
+
+    it('shows a domain whose URL cannot be linked without a link', async () => {
+        const { wrapper } = await createWrapper({
+            loadedSalesChannel: storefrontSalesChannel({
+                domains: [{ id: 'domain-id', url: 'javascript:alert(1)', productUrl: null }],
+            }),
+        });
+        await flushPromises();
+
+        expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain.is--disabled').text()).toContain(
+            'javascript:alert(1)',
         );
     });
 
@@ -131,7 +153,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
             { value: 'a', label: 'Alpha' },
             { value: 'b', label: 'Beta' },
         ]);
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__sales-channel').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__result').exists()).toBe(false);
     });
 
     it('links the product URL of the selected sales channel in a new tab', async () => {
@@ -139,13 +161,14 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
 
         await select(wrapper, 'sales-channel-id');
 
-        const link = wrapper.find('.sw-product-open-in-storefront-modal__domain a');
+        const link = wrapper.find('a.sw-product-open-in-storefront-modal__domain');
         expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledWith('product-id', 'sales-channel-id');
         expect(failingReasons(wrapper)).toEqual([]);
         expect(link.attributes('href')).toBe('https://shop.test/Shirt/SW10000');
         expect(link.attributes('target')).toBe('_blank');
         expect(link.attributes('rel')).toBe('noopener');
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-caption').exists()).toBe(false);
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-header').text()).toBe('Storefront');
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
     });
 
     it('names an inactive sales channel without asking the Storefront', async () => {
@@ -176,11 +199,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         await select(wrapper, 'sales-channel-id');
 
         expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.storefrontShowsProduct']);
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain a').exists()).toBe(false);
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test');
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-caption').text()).toBe(
-            'sw-product.openInStorefrontModal.labelDomains',
-        );
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain').exists()).toBe(false);
     });
 
     it('names an inactive product, also when a variant inherits it', async () => {
@@ -266,7 +285,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(wrapper.find('.sw-product-open-in-storefront-modal__maintenance').text()).toBe(
             'sw-product.openInStorefrontModal.maintenanceHint',
         );
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain a').exists()).toBe(true);
+        expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').exists()).toBe(true);
     });
 
     it('warns that the Storefront shows the saved state when there are unsaved changes', async () => {

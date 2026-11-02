@@ -323,13 +323,11 @@
     },
     "openInStorefrontModal": {
       "title": "Open \"{name}\" ({productNumber}) in the Storefront",
+      "description": "Choose the Sales Channel in which you would like to open the product \"{name} ({productNumber})\".",
       "infoUnsavedChanges": "The product has unsaved changes. The Storefront shows the last saved state.",
       "infoNoSalesChannels": "The product is not assigned to any Storefront sales channel.",
       "labelSalesChannel": "Sales channel",
       "placeholderSalesChannel": "Select a sales channel...",
-      "labelReachable": "Can be opened",
-      "labelNotReachable": "Cannot be opened",
-      "labelDomains": "Domains of this sales channel",
       "checks": {
         "salesChannelActive": "Sales channel is inactive",
         "hasDomain": "Sales channel has no domain",

@@ -66,6 +66,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
     {
         yield 'injected billing address' => [SalesChannelContextService::BILLING_ADDRESS];
         yield 'injected shipping address' => [SalesChannelContextService::SHIPPING_ADDRESS];
+        yield 'address of a visitor without a customer' => [SalesChannelContextService::PROSPECTIVE_CUSTOMER];
     }
 
     public function testFreshlyBuiltContextIsReturnedDirectly(): void

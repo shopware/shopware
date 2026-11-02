@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\EventListener;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -38,6 +39,12 @@ class ResponseExceptionListener implements EventSubscriberInterface
 
         $exception = $event->getThrowable();
 
-        $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
+        $response = (new ErrorResponseFactory())->getResponseFromException($exception, $this->debug);
+
+        if ($exception instanceof RateLimitExceededException) {
+            $response->headers->set('Retry-After', (string) max(0, $exception->getWaitTime()));
+        }
+
+        $event->setResponse($response);
     }
 }

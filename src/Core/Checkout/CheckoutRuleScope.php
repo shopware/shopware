@@ -23,7 +23,8 @@ class CheckoutRuleScope extends RuleScope
 
     public function getCustomer(): ?CustomerEntity
     {
-        return $this->context->getCustomer();
+        // a visitor who entered an address is matched as if they registered as a new guest right now
+        return $this->context->getCustomer() ?? $this->context->getProspectiveCustomer()?->getRuleCustomer();
     }
 
     public function getContext(): Context

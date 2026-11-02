@@ -23,6 +23,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Extension\ContextSwitchRouteExtension;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -216,6 +217,117 @@ class ContextSwitchRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->switchContext($data, $context));
+    }
+
+    public function testShippingAddressIsStoredAsProspectiveCustomerAndBecomesTheContextCountry(): void
+    {
+        $countryId = Uuid::randomHex();
+        $stateId = Uuid::randomHex();
+
+        $saved = $this->switchAnonymousContext(new RequestDataBag([
+            'shippingAddress' => ['countryId' => $countryId, 'countryStateId' => $stateId, 'zipcode' => '48624', 'firstName' => 'not stored'],
+        ]));
+
+        static::assertSame([
+            SalesChannelContextService::PROSPECTIVE_CUSTOMER => [
+                'shippingAddress' => ['countryId' => $countryId, 'countryStateId' => $stateId, 'zipcode' => '48624', 'city' => null, 'street' => null],
+            ],
+            SalesChannelContextService::COUNTRY_ID => $countryId,
+            SalesChannelContextService::COUNTRY_STATE_ID => $stateId,
+        ], $saved);
+    }
+
+    public function testShippingAddressWithoutStateClearsTheContextState(): void
+    {
+        $countryId = Uuid::randomHex();
+
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['shippingAddress' => ['countryId' => $countryId]]));
+
+        static::assertArrayHasKey(SalesChannelContextService::COUNTRY_STATE_ID, $saved);
+        static::assertNull($saved[SalesChannelContextService::COUNTRY_STATE_ID]);
+    }
+
+    public function testBillingAddressIsStoredWithoutChangingTheContextCountry(): void
+    {
+        $countryId = Uuid::randomHex();
+
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['billingAddress' => ['countryId' => $countryId, 'city' => 'Wien']]));
+
+        static::assertSame([
+            SalesChannelContextService::PROSPECTIVE_CUSTOMER => [
+                'billingAddress' => ['countryId' => $countryId, 'countryStateId' => null, 'zipcode' => null, 'city' => 'Wien', 'street' => null],
+            ],
+        ], $saved);
+    }
+
+    public function testRemovingTheShippingAddressRemovesTheProspectiveCustomer(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag([
+            'shippingAddress' => null,
+            'billingAddress' => ['countryId' => Uuid::randomHex()],
+        ]));
+
+        static::assertSame([SalesChannelContextService::PROSPECTIVE_CUSTOMER => null], $saved);
+    }
+
+    #[DataProvider('prospectiveAddressProvider')]
+    public function testProspectiveAddressIsRejectedForALoggedInCustomer(string $field): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->expects($this->never())->method('save');
+
+        $route = new ContextSwitchRoute(
+            static::createStub(DataValidator::class),
+            $persister,
+            $this->createEventDispatcher(),
+            static::createStub(SalesChannelContextServiceInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $this->expectExceptionObject(SalesChannelException::prospectiveAddressWithCustomer($field));
+
+        $route->switchContext(
+            new RequestDataBag([$field => ['countryId' => Uuid::randomHex()]]),
+            $this->createSalesChannelContext('token', Uuid::randomHex(), Context::createDefaultContext(), $customer)
+        );
+    }
+
+    public static function prospectiveAddressProvider(): \Generator
+    {
+        yield 'shipping address' => ['shippingAddress'];
+        yield 'billing address' => ['billingAddress'];
+    }
+
+    /**
+     * @return array<string, mixed> the parameters the context is saved with
+     */
+    private function switchAnonymousContext(RequestDataBag $data): array
+    {
+        $saved = null;
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('save')->willReturnCallback(static function (string $token, array $parameters) use (&$saved): void {
+            $saved = $parameters;
+        });
+
+        $context = $this->createSalesChannelContext('token', Uuid::randomHex(), Context::createDefaultContext());
+        $contextService = static::createStub(SalesChannelContextServiceInterface::class);
+        $contextService->method('get')->willReturn($context);
+
+        $route = new ContextSwitchRoute(
+            static::createStub(DataValidator::class),
+            $persister,
+            $this->createEventDispatcher(),
+            $contextService,
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $route->switchContext($data, $context);
+        static::assertIsArray($saved);
+
+        return $saved;
     }
 
     private function createSalesChannelContext(

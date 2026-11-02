@@ -418,6 +418,13 @@ shopware:
                 policy: 'sliding_window'
                 limit: 60
                 interval: '60 minutes'
+            checkout_draft:
+                # Keyed by context token, as server-side rendered storefronts send every visitor's request from one IP.
+                # A backstop only, clients are expected to debounce address input.
+                enabled: true
+                policy: 'sliding_window'
+                limit: 60
+                interval: '60 seconds'
 
     admin_worker:
         enable_admin_worker: true

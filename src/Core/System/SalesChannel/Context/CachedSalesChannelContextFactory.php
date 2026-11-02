@@ -76,6 +76,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
             && !isset($options[SalesChannelContextService::BILLING_ADDRESS_ID])
             && !isset($options[SalesChannelContextService::SHIPPING_ADDRESS_ID])
             && !isset($options[SalesChannelContextService::BILLING_ADDRESS])
-            && !isset($options[SalesChannelContextService::SHIPPING_ADDRESS]);
+            && !isset($options[SalesChannelContextService::SHIPPING_ADDRESS])
+            && !isset($options[SalesChannelContextService::PROSPECTIVE_CUSTOMER]);
     }
 }

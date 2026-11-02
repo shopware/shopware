@@ -135,6 +135,7 @@ class CartRestorer
                 'customerId' => $customerId,
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                SalesChannelContextService::PROSPECTIVE_CUSTOMER => null,
                 'permissions' => [],
             ],
             $currentContext->getSalesChannelId(),

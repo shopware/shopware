@@ -107,28 +107,27 @@ class EntityScoreQueryBuilder
 
     private function getQueryFields(EntityDefinition $definition, Context $context): FieldCollection
     {
-        $fields = $definition->getFields()->filterByFlag(SearchRanking::class);
-
         // exclude read protected fields which are not allowed for the current scope
-        $fields = $fields->filter(function (Field $field) use ($context) {
+        $isAllowed = static function (Field $field) use ($context) {
             $flag = $field->getFlag(ApiAware::class);
             if ($flag === null) {
                 return false;
             }
 
             return $flag->isSourceAllowed($context->getSource()::class);
-        });
+        };
 
+        $fields = $definition->getFields()->filterByFlag(SearchRanking::class)->filter($isAllowed);
         if ($fields->count() > 0) {
             return $fields;
         }
 
-        $fields = $definition->getFields()->filterInstance(TranslatedField::class);
+        $fields = $definition->getFields()->filterInstance(TranslatedField::class)->filter($isAllowed);
         if ($fields->count() > 0) {
             return $fields;
         }
 
-        return $definition->getFields()->filterInstance(StringField::class);
+        return $definition->getFields()->filterInstance(StringField::class)->filter($isAllowed);
     }
 
     private function validateDateFormat(string $format, string $date): bool

@@ -9,6 +9,7 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
     ProceedFromCartToCheckout,
     ConfirmTermsAndConditions,
     SubmitOrder,
+    StorefrontCheckoutFinish,
     StorefrontProductDetail,
     StorefrontCategory,
     StorefrontAccountLogin,
@@ -18,7 +19,7 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
     StorefrontAccountProfile,
     StorefrontAccountAddresses,
     StorefrontAccountPayment,
-    StorefrontPageNotFound
+    StorefrontPageNotFound,
 }) => {
     test.slow();
 
@@ -61,6 +62,7 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
 
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
         await ShopCustomer.attemptsTo(SubmitOrder());
+        TestDataService.addCreatedRecord('order', StorefrontCheckoutFinish.getOrderId());
 
         await ShopCustomer.attemptsTo(ValidateAccessibility('Checkout Finish', true));
     });

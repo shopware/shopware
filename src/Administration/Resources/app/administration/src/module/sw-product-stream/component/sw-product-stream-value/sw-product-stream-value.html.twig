@@ -79,7 +79,8 @@
                 v-model:value="actualCondition.value"
                 size="medium"
                 :entity="getCustomFieldEntityName(fieldName)"
-                :criteria="isProductEntity ? productCriteria : customFieldCriteria"
+                :criteria="customFieldCriteria"
+                :label-property="customFieldLabelProperty"
                 :context="context"
                 :disabled="disabled"
                 :display-variants="isProductEntity"
@@ -92,7 +93,7 @@
                         name="selection-label-property"
                         v-bind="{ item }"
                     >
-                        {{ item.translated?.name || item.name }}
+                        {{ getCustomFieldLabel(item) }}
                     </slot>
                 </template>
             </sw-entity-single-select>
@@ -105,6 +106,7 @@
                 size="medium"
                 :repository="entityCustomFieldRepository"
                 :criteria="customFieldCriteria"
+                :label-property="customFieldLabelProperty"
                 :context="context"
                 :disabled="disabled"
                 @select-collapsed="onSelectCollapsed"
@@ -121,10 +123,10 @@
                             :variations="item.variation"
                             :search-term="searchTerm"
                         >
-                            {{ item.translated?.name || item.name }}
+                            {{ getCustomFieldLabel(item) }}
                         </sw-product-variant-info>
                         <template v-else>
-                            {{ item.translated?.name || item.name }}
+                            {{ getCustomFieldLabel(item) }}
                         </template>
                     </slot>
                 </template>

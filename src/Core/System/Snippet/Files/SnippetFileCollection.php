@@ -23,7 +23,6 @@ class SnippetFileCollection extends Collection
      */
     public function add($snippetFile): void
     {
-        $this->mapping = null;
         $this->set(null, $snippetFile);
     }
 
@@ -38,8 +37,17 @@ class SnippetFileCollection extends Collection
 
     public function set($key, $element): void
     {
-        $this->mapping = null;
         parent::set($key, $element);
+
+        if ($key !== null) {
+            $this->mapping = null;
+
+            return;
+        }
+
+        if ($this->mapping !== null) {
+            $this->indexPath($element);
+        }
     }
 
     public function clear(): void
@@ -138,7 +146,7 @@ class SnippetFileCollection extends Collection
         if ($this->mapping === null) {
             $this->mapping = [];
             foreach ($this->elements as $element) {
-                $this->mapping[(string) realpath($element->getPath())] = true;
+                $this->indexPath($element);
             }
         }
 
@@ -148,6 +156,14 @@ class SnippetFileCollection extends Collection
     protected function getExpectedClass(): ?string
     {
         return AbstractSnippetFile::class;
+    }
+
+    private function indexPath(AbstractSnippetFile $snippetFile): void
+    {
+        $realPath = realpath($snippetFile->getPath());
+        if ($realPath !== false) {
+            $this->mapping[$realPath] = true;
+        }
     }
 
     /**

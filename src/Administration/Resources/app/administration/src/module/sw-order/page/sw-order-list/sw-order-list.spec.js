@@ -390,6 +390,17 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 
+    it('should sort deliveries like the order detail page', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getAssociation('deliveries').sortings).toEqual([
+            expect.objectContaining({ field: 'shippingCosts.unitPrice', order: 'DESC' }),
+            expect.objectContaining({ field: 'id', order: 'ASC' }),
+        ]);
+    });
+
     it('should contain a computed property, called: listFilterOptions', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

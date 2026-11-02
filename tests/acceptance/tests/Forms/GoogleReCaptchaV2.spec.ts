@@ -194,6 +194,8 @@ test('As a customer, I can perform a registration that is validated by the invis
             await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
             await StorefrontAccount.page.waitForURL('**/account', { waitUntil: 'commit' });
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
+            const registeredCustomer = await TestDataService.getCustomerByEmail(customer.email);
+            TestDataService.addCreatedRecord('customer', registeredCustomer.id);
         });
     }
 );

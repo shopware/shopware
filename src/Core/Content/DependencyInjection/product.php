@@ -76,6 +76,7 @@ use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoad
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\ProductVariantSelectionSubscriber;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
@@ -903,6 +904,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ProductConfiguratorLoader::class),
         ]);
+
+    $services->set(ProductVariantSelectionSubscriber::class)
+        ->args([
+            service(PartialProductConfiguratorLoader::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(ProductConfiguratorLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');

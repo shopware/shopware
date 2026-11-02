@@ -28,4 +28,4 @@ properties:
     type: Shopware\Core\Content\Property\PropertyGroupCollection
     required: false
     title: "Configurator groups"
-    description: "Variant property groups and their available options. Optional because they cannot be resolved without a product; when unavailable or empty, the component renders its fallback message."
+    description: "Variant property groups and their available options, loaded for this element's resolved product after mapping or manual selection. Optional because they cannot be resolved without a product; when unavailable or empty, the component renders its fallback message."

@@ -8,7 +8,7 @@ Event-driven extension points for the content rendering lifecycle. A listener re
 
 ## Execution Order
 
-Core ships no listener on either event. `ContentPipeline::load()` (module root) calls its preparation and finishing steps directly, in this order:
+`ContentPipeline::load()` (module root) calls its preparation and finishing steps directly, in this order. Product-specific enrichment uses the finalization event: `Product/ContentSystem/ProductVariantSelectionSubscriber` fills variant options from the component's effective product after mapping and fallback delivery. It changes property values only, contributes product cache tags, and leaves skeletons unchanged.
 
 After `ContentTreePreparationEvent` is dispatched:
 1. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only (`Layout/Scaffolding/StoredTreePreparer`, whose remaining steps follow)

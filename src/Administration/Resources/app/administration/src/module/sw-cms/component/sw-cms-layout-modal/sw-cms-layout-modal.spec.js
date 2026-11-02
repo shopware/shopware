@@ -93,7 +93,7 @@ async function createWrapper() {
                     }),
 
                     'sw-simple-search-field': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-container': true,
                     'sw-sorting-select': true,
                     'sw-pagination': true,

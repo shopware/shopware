@@ -55,7 +55,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-field-error': true,
                         'sw-highlight-text': true,
                         'sw-label': true,
-                        'sw-loader': true,
+                        'mt-loader': true,
                         'sw-modal': true,
                         'sw-popover': {
                             props: ['popoverClass'],

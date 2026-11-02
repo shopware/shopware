@@ -12,9 +12,10 @@
 
         {% block sw_category_tree_field_input %}
         <template #sw-field-input="{ identification, error, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
-            <sw-loader
+            <mt-loader
                 v-if="isCategoriesLoading"
                 class="sw-cms-layout-assignment-modal__loader"
+                :backdrop="false"
             />
 
             {% block sw_category_tree_field_input_labels %}

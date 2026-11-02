@@ -1,7 +1,10 @@
 {% block sw_settings_listing_default_sales_channel %}
 <div class="sw-settings-listing-default-sales-channel">
     {% block sw_settings_listing_default_sales_channel_loader %}
-    <sw-loader v-if="isLoading || isDefaultSalesChannelLoading" />
+    <mt-loader
+        v-if="isLoading || isDefaultSalesChannelLoading"
+        :backdrop="false"
+    />
     {% endblock %}
 
     <template v-else>

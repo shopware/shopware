@@ -35,7 +35,7 @@ const createWrapper = async (repositoryFactoryMock) => {
         global: {
             stubs: {
                 'router-link': true,
-                'sw-loader': true,
+                'mt-loader': true,
             },
             provide: {
                 repositoryFactory: repositoryFactoryMock ?? {

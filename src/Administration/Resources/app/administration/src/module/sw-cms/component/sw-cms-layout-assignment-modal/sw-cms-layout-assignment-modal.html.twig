@@ -6,9 +6,10 @@
 >
 
     {% block sw_cms_layout_assignment_modal_loader %}
-    <sw-loader
+    <mt-loader
         v-if="isModalLoading"
         class="sw-cms-layout-assignment-modal__loader"
+        :backdrop="false"
     />
     {% endblock %}
 

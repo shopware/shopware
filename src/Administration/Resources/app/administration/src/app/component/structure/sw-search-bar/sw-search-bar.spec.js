@@ -74,7 +74,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         return mount(swSearchBarComponent, {
             global: {
                 stubs: {
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-search-more-results': true,
                     'sw-search-bar-item': await wrapTestComponent('sw-search-bar-item', { sync: true }),
                     'sw-search-preferences-modal': true,

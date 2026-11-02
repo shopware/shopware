@@ -52,7 +52,10 @@
     {% endblock %}
 
     {% block sw_settings_country_currency_hamburger_menu_loader %}
-    <sw-loader v-if="isLoading" />
+    <mt-loader
+        v-if="isLoading"
+        :backdrop="false"
+    />
     {% endblock %}
 
 </sw-context-button>

@@ -118,7 +118,7 @@ async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemp
                 'sw-inherit-wrapper': true,
                 'mt-text-field': true,
                 'sw-single-select': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'mt-icon': true,
                 'router-link': true,
             },

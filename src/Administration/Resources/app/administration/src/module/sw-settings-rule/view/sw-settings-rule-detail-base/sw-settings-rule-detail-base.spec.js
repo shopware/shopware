@@ -62,7 +62,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'mt-number-field': true,
                 'mt-textarea': true,
                 'sw-entity-tag-select': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,

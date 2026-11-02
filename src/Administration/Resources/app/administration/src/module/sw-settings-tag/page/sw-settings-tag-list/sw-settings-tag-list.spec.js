@@ -138,7 +138,7 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-modal': true,
                     'sw-empty-state': true,
                     'sw-card-filter': true,

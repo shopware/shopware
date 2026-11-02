@@ -15,7 +15,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
                         'sw-settings-mailer-smtp': {
                             template: '<div />',
                         },
-                        'sw-loader': {
+                        'mt-loader': {
                             template: '<div />',
                         },
                     },

@@ -144,7 +144,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     'sw-cms-block-config': await wrapTestComponent('sw-cms-block-config'),
                     'sw-cms-section-config': await wrapTestComponent('sw-cms-section-config'),
                     'sw-cms-section-actions': await wrapTestComponent('sw-cms-section-actions'),
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-cms-section': await wrapTestComponent('sw-cms-section'),
                     'sw-cms-layout-assignment-modal': true,
                     'sw-app-actions': true,

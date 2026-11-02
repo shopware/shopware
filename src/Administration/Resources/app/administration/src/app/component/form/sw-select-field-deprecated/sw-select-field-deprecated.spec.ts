@@ -19,7 +19,7 @@ const createWrapper = async (attrs: Record<string, string> = {}) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-loader': true,
+                'mt-loader': true,
             },
             provide: {
                 validationService: {},

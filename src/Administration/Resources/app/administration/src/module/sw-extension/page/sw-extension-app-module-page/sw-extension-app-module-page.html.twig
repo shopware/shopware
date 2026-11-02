@@ -27,14 +27,17 @@
                 </template>
 
                 <template v-else>
-                    <sw-loader />
+                    <mt-loader :backdrop="false" />
                 </template>
             </template>
         </template>
 
         <sw-extension-app-module-error-page v-else-if="appsLoaded && suspend" />
 
-        <sw-loader v-else />
+        <mt-loader
+            v-else
+            :backdrop="false"
+        />
     </template>
 </sw-page>
 {% endblock %}

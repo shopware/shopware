@@ -60,9 +60,10 @@
 
                             <template #suffix>
                                 {% block sw_seo_url_template_card_entries_input_suffix %}
-                                <sw-loader
+                                <mt-loader
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
                                     size="22px"
+                                    :backdrop="false"
                                 />
                                 <mt-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"

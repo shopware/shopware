@@ -60,7 +60,7 @@ async function createWrapper() {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'router-link': true,
             },
         },

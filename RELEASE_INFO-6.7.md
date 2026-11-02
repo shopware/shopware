@@ -381,11 +381,12 @@ A snippet whose value is `0` counts as translated and is no longer listed.
 `mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
 The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
 
-### Select fields, extension cards and CMS slots render the Meteor loaders
+### Core components render the Meteor loaders
 
-`sw-select-base`, `sw-extension-card-base` and `sw-cms-slot` render `mt-loader` and `mt-skeleton-bar` instead of the deprecated `sw-loader` and `sw-skeleton-bar`.
-Their loaders carry the classes `.mt-loader` and `.mt-loader__container` instead of `.sw-loader` and `.sw-loader__container`, and the skeleton bar carries `.mt-skeleton-bar` instead of `.sw-skeleton-bar`.
-Extensions that style or select the old classes inside these components have to use the new ones.
+The components of the Administration render `mt-loader` and `mt-skeleton-bar` instead of the deprecated `sw-loader` and `sw-skeleton-bar`.
+Their loaders carry the classes `.mt-loader`, `.mt-loader__container` and `.mt-loader__element` instead of `.sw-loader`, `.sw-loader__container` and `.sw-loader-element`, and the skeleton bar carries `.mt-skeleton-bar` instead of `.sw-skeleton-bar`.
+Extensions that style or select the old classes inside core components have to use the new ones.
+Jest specs that mount core components and stub or look for `sw-loader` have to use `mt-loader` instead.
 
 ## API
 

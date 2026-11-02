@@ -50,7 +50,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     'sw-context-menu-divider': await wrapTestComponent('sw-context-menu-divider'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

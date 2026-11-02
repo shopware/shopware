@@ -165,7 +165,10 @@
                     {% endblock %}
 
                     {% block sw_product_properties_filled_state_body_loading_state %}
-                    <sw-loader v-if="isPropertiesLoading" />
+                    <mt-loader
+                        v-if="isPropertiesLoading"
+                        :backdrop="false"
+                    />
                     {% endblock %}
                 </sw-container>
                 {% endblock %}

@@ -94,7 +94,7 @@ async function createWrapper(props = {}) {
                 'sw-help-text': true,
                 'sw-tree': await wrapTestComponent('sw-tree'),
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-color-badge': true,
                 'sw-skeleton': true,
                 'sw-vnode-renderer': true,

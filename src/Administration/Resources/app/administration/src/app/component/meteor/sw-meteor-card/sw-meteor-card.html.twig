@@ -110,7 +110,10 @@
         </slot>
 
         {% block sw_meteor_card_loader %}
-        <sw-loader v-if="isLoading" />
+        <mt-loader
+            v-if="isLoading"
+            :backdrop="false"
+        />
         {% endblock %}
     </div>
     {% endblock %}

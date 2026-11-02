@@ -85,7 +85,10 @@
                 {% endblock %}
             </div>
         </template>
-        <sw-loader v-else />
+        <mt-loader
+            v-else
+            :backdrop="false"
+        />
     </mt-card>
     {% endblock %}
 

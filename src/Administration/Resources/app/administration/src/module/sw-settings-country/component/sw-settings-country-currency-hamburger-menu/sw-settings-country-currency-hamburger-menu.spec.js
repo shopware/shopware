@@ -41,7 +41,7 @@ async function createWrapper(privileges = []) {
                         template: '<div class="checkbox"></div>',
                     },
                     'router-link': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         },

@@ -45,6 +45,9 @@
         </mt-banner>
     </div>
 
-    <sw-loader v-if="isLoading" />
+    <mt-loader
+        v-if="isLoading"
+        :backdrop="false"
+    />
 </div>
 {% endblock %}

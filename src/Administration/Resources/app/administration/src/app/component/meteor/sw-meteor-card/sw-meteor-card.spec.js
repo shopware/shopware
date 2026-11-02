@@ -41,7 +41,7 @@ async function createWrapper(customConfig = {}, { featureActive = false } = {}) 
         props: {},
         global: {
             stubs: {
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
@@ -83,7 +83,7 @@ async function createMeteorCardWithTabs() {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'mt-tabs': createMtTabsStub(),
                     'sw-extension-component-section': true,
                     'router-link': true,
@@ -144,12 +144,12 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
             },
         });
 
-        let loader = wrapper.find('sw-loader-stub');
+        let loader = wrapper.find('mt-loader-stub');
         expect(loader.exists()).toBe(false);
 
         await wrapper.setProps({ isLoading: true });
 
-        loader = wrapper.find('sw-loader-stub');
+        loader = wrapper.find('mt-loader-stub');
         expect(loader.exists()).toBe(true);
         expect(loader.isVisible()).toBe(true);
     });
@@ -235,7 +235,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                         'sw-tabs': await wrapTestComponent('sw-tabs'),
                         'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                         'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                        'sw-loader': true,
+                        'mt-loader': true,
                         'mt-tabs': createMtTabsStub(),
                         'sw-extension-component-section': true,
                         'router-link': true,
@@ -328,7 +328,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                             'sw-tabs': await wrapTestComponent('sw-tabs'),
                             'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                             'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                            'sw-loader': true,
+                            'mt-loader': true,
                             'mt-tabs': createMtTabsStub(),
                             'sw-extension-component-section': true,
                             'router-link': true,

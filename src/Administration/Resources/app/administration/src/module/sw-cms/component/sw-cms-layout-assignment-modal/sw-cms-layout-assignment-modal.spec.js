@@ -177,9 +177,9 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     },
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
-                    'sw-loader': {
-                        name: 'sw-loader',
-                        template: '<div class="sw-loader"></div>',
+                    'mt-loader': {
+                        name: 'mt-loader',
+                        template: '<div class="mt-loader"></div>',
                     },
                     'sw-cms-product-assignment': {
                         template: `
@@ -307,7 +307,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await flushPromises();
 
         expect(wrapper.vm.isModalLoading).toBe(true);
-        expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-loader' }).exists()).toBe(true);
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.

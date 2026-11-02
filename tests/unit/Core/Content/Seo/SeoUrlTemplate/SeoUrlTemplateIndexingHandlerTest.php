@@ -110,6 +110,48 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.navigation.page', 'category'));
     }
 
+    public function testRegeneratesOnlyTheSalesChannelsOfTheChangedTemplateAndKeepsThatScopeForTheNextBatch(): void
+    {
+        $ids = $this->randomHexIds(self::BATCH_SIZE);
+
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $definitionRegistry->method('has')->willReturn(true);
+        $definitionRegistry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+
+        $seoUrlRouteRegistry = static::createStub(SeoUrlRouteRegistry::class);
+        $seoUrlRouteRegistry->method('findByRouteName')
+            ->willReturn(static::createStub(SeoUrlRouteInterface::class));
+
+        $iterator = static::createStub(IterableQuery::class);
+        $iterator->method('fetch')->willReturn(array_combine($ids, $ids));
+        $iterator->method('getOffset')->willReturn(['offset' => 4711]);
+
+        $iteratorFactory = static::createStub(IteratorFactory::class);
+        $iteratorFactory->method('createIterator')->willReturn($iterator);
+
+        $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
+        $seoUrlUpdater->expects($this->never())->method('update');
+        $seoUrlUpdater->expects($this->once())
+            ->method('updateForTemplate')
+            ->with('frontend.navigation.page', $ids, 'sales-channel-id');
+
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn (SeoUrlTemplateIndexingMessage $message): bool => $message->offset === ['offset' => 4711]
+                && $message->onlyChangedTemplate
+                && $message->templateSalesChannelId === 'sales-channel-id'))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry, $messageBus);
+        $handler->__invoke(new SeoUrlTemplateIndexingMessage(
+            'frontend.navigation.page',
+            'category',
+            onlyChangedTemplate: true,
+            templateSalesChannelId: 'sales-channel-id',
+        ));
+    }
+
     public function testPassesMessageOffsetToIteratorAndStopsOnEmptyBatch(): void
     {
         $definition = static::createStub(EntityDefinition::class);

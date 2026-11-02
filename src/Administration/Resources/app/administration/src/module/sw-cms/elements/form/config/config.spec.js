@@ -174,7 +174,7 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'options');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('options');
         expect(wrapper.find('.mt-select').exists()).toBe(false);
@@ -183,27 +183,27 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
 
     it('should add the core.basicInformation.email if it does not exist', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['doNotReply@localhost']);
     });
 
     it('should keep email addresses at the end that do pass the check', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', ['valid@mail.com', 'alsovalid@mail.com']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['valid@mail.com', 'alsovalid@mail.com']);
     });
 
     it('should remove email addresses from the end that do not pass the check', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', ['valid@mail.com', 'invalid']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['valid@mail.com']);
     });

@@ -201,7 +201,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
             producerName: 'shopware AG',
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const iconComponent = wrapper.get('.sw-extension-icon img');
         expect(iconComponent.attributes().src).toBe('icon.png');
         expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
@@ -221,7 +221,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
             producerWebsite: 'https://www.shopware.com/',
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const meta = wrapper.get('.sw-meteor-page__smart-bar-meta');
         expect(meta.text()).toContain('sw-extension-store.component.sw-extension-config.labelBy');
 
@@ -238,7 +238,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
         };
 
         SwExtensionConfig.beforeRouteEnter.call(wrapper.vm, undefined, fromRoute, (c) => c(wrapper.vm));
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const page = wrapper.findComponent(SwMeteorPage);
 

@@ -127,7 +127,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(Object.keys(wrapper.vm.stepper)).toHaveLength(8);
 

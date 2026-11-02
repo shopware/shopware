@@ -115,7 +115,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
             onClickCallback: () => spy(),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const smartBarButton = wrapper.find('button');
 
@@ -162,7 +162,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         const initialInstance = wrapper.findComponent(iframeRendererStub);
 
         store.modules[0].locationId = 'jest-next';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const rerenderedInstance = wrapper.findComponent(iframeRendererStub);
 

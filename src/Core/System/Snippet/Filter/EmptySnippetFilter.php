@@ -23,7 +23,7 @@ class EmptySnippetFilter extends AbstractFilter implements SnippetFilterInterfac
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (!empty($snippet['value'])) {
+                if ($snippet['value'] !== '') {
                     continue;
                 }
 

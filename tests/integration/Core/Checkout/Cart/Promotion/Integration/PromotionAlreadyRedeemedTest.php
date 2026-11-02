@@ -2,16 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -58,8 +60,13 @@ class PromotionAlreadyRedeemedTest extends TestCase
      * reason instead of the misleading "promotion could not be found" error.
      */
     #[Group('promotions')]
-    public function testReapplyingAOnceRedeemedCodeReportsAlreadyRedeemed(): void
+    #[DataProvider('storedCustomerCountProvider')]
+    public function testReapplyingAOnceRedeemedCodeReportsAlreadyRedeemed(bool $clearStoredCustomerCount): void
     {
+        if ($clearStoredCustomerCount) {
+            Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
+        }
+
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $promotionCode = 'TESTCODE';
@@ -104,9 +111,12 @@ class PromotionAlreadyRedeemedTest extends TestCase
 
         $this->cartService->order($cart, $firstContext, new RequestDataBag());
 
-        // ensure the per-customer redemption count reflects the placed order
-        static::getContainer()->get(PromotionRedemptionUpdater::class)
-            ->update([$promotionId], Context::createDefaultContext());
+        if ($clearStoredCustomerCount) {
+            static::getContainer()->get(Connection::class)->executeStatement(
+                'UPDATE promotion SET orders_per_customer_count = NULL WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($promotionId)]
+            );
+        }
 
         // 2) new checkout with the same customer: applying the same code again is rejected clearly
         $secondContext = $this->createCustomerContext($customerId);
@@ -136,6 +146,15 @@ class PromotionAlreadyRedeemedTest extends TestCase
             $secondCart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE),
             'The exhausted promotion must not be applied again'
         );
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function storedCustomerCountProvider(): iterable
+    {
+        yield 'stored per-customer count holds the redemption' => [false];
+        yield 'redemption is counted from the orders when the stored per-customer count is empty' => [true];
     }
 
     private function createCustomerContext(string $customerId): SalesChannelContext

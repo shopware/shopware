@@ -293,7 +293,7 @@ final readonly class DocumentPersister
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;
 
         if ($exists) {
-            throw DocumentV2Exception::documentNumberAlreadyExists($documentNumber);
+            throw DocumentV2Exception::documentNumberAlreadyExists($documentNumber, $generationRequest->documentType);
         }
     }
 

@@ -454,6 +454,8 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+<details>
+
 ## Multiple SQL statements restricted to migrations and installation
 
 Application database connections no longer accepted multiple SQL statements in a single call.
@@ -464,11 +466,34 @@ Separating read and write statements also improved compatibility with SQL proxie
 Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
 Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
 
-<details>
+## Services are reset between requests
+
+Services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+This was opt-in with the `LONGRUNNING_ENVIRONMENT` feature flag in 6.7; the flag is removed.
+Extensions that relied on state surviving across requests in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole) must move that state to an explicit cache or store.
+
+Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching is handled by Shopware's own cache layer.
+Remove references to the `http_cache` service from your project.
+
+## Customer group price fields are required
+
+`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working, and an explicit `null` is rejected. A create that omits `priceBasis` gets `gross` regardless of `displayGross`, it is no longer derived from the display mode: send `'net'` explicitly for net-display groups whose net prices should stay fixed. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`.
+
+## Rule container `__wakeup()` hooks are no longer called
+
+`Shopware\Core\Framework\Rule\Container\Container::__unserialize()` no longer calls subclass `__wakeup()` hooks.
+Move custom rule container initialization from `__wakeup()` into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
+Remove the old `__wakeup()` implementation to avoid duplicate initialization when supporting earlier Shopware versions that provide the compatibility call.
 
 ## Invalid price definition exceptions
 
 `PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
+
+## Import CSV reader exception for invalid resources
+
+`CsvReader::read()` throws `ImportExportException` with the error code `CONTENT__IMPORT_EXPORT__INVALID_RESOURCE` instead of `\InvalidArgumentException` when the given argument is not a resource.
+Update exception catches accordingly.
 
 ## `ReverseProxyCompilerPass` removed
 
@@ -1483,6 +1508,18 @@ If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueG
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
 
+## Removed `DocumentException::documentNumberAlreadyExistsException()`
+
+`Shopware\Core\Checkout\Document\DocumentException::documentNumberAlreadyExistsException()` was removed. Use `documentNumberAlreadyExistsExceptionForType()`, which also names the document type:
+
+```php
+// Before
+throw DocumentException::documentNumberAlreadyExistsException($number);
+
+// After
+throw DocumentException::documentNumberAlreadyExistsExceptionForType($number, $documentType);
+```
+
 ## Removal of `SalesChannelContextRestorer::restoreByOrder()`
 
 `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
@@ -1504,11 +1541,40 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
 ```
 
+## Removal of the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions was removed:
+
+* DAL: the promotion field `ordersPerCustomerCount` and the database column `promotion.orders_per_customer_count` were removed.
+* Admin API: promotions no longer contain `ordersPerCustomerCount`.
+* `\Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()` were removed.
+
+Count the customer's orders that contain a line item of the promotion instead:
+
+```php
+// Before
+$redemptions = $promotion->getOrdersPerCustomerCount()[$customerId] ?? 0;
+
+// After
+$criteria = (new Criteria())
+    ->addFilter(new EqualsFilter('orderCustomer.customerId', $customerId))
+    ->addFilter(new EqualsFilter('lineItems.promotionId', $promotion->getId()));
+
+$redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal();
+```
+
 ## `NotFilter` constructor accepts a single filter
 
 The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
 # Administration
+
+## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
+
+The `saveProductVisibilities()` method of the `sw-sales-channel-detail-products` component was removed.
+The component assigns products through the `salesChannelProductAssignmentApiService.assign()` service method, which resolves product groups and categories on the server.
+Extensions that called or overrode `saveProductVisibilities()` must use `salesChannelProductAssignmentApiService.assign(salesChannelId, { productIds })` instead.
+The method repeats the request until the server reports the assignment as complete and resolves with `{ assigned, complete }`.
 
 ## Import/export profile language tooltip removed
 
@@ -2579,9 +2645,37 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `sw-cms-layout-modal` grid selection methods
+
+The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
+The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
+Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
+
 # Storefront
 
 <details>
+
+## Removal of CMS section background template variables
+
+The Twig variables `sectionBgImg` and `sectionBgImgMode` in `storefront/page/content/detail.html.twig` were deprecated and are removed in 6.8.0.0.
+The section background image is rendered through the `page_content_section_background_image` block.
+Use `section.backgroundMedia` with `sw_thumbnails` and `section.backgroundMediaMode` instead.
+
+## Removal of deprecated `ListingPlugin` properties
+
+The following deprecated properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been removed and were replaced respectively by new properties carrying `NodeList`s:
+
+- `_filterPanel` → `_filterPanels`
+- `activeFilterContainer` → `activeFilterContainers`
+- `ariaLiveContainer` → `ariaLiveContainers`
+
+The fallback to `this.activeFilterContainer` in `ListingPlugin.createResetAllButton()` was removed.
+Pass the target active-filter container explicitly with `createResetAllButton(activeFilterContainer)`.
+Update custom overrides to accept the argument and forward it when calling `super.createResetAllButton(activeFilterContainer)`.
+
+## Removal of deprecated `$offcanvas-zindex` SCSS variable
+
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` has been removed. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead.
 
 ## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
 
@@ -2802,11 +2896,10 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `pathIdList` option in NavbarPlugin
+## Removal of `pathIdList` from `navbarOptions` in `navbar.html.twig`
 
-The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
-
-Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
+The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
+Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
 ## Refactor of providing cookies
 
@@ -2872,6 +2965,38 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
     {{ category.name }}
 {% endfor %}
 ```
+
+## Changed variables in `@Storefront/storefront/layout/breadcrumb.html.twig`
+
+The breadcrumb template only accepts the breadcrumb entries as the `breadcrumb` input.
+The `category` and `categoryId` inputs and the `breadcrumbCollection` input were removed.
+
+Templates that extend the `layout_breadcrumb_list_item` block can rely on these variables:
+
+| Variable | Content |
+|----------|---------|
+| `breadcrumb` | The current `Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb` entry |
+| `categoryId` | The category ID of the current entry |
+| `activeId` | The category ID of the last entry, which is the current page |
+| `breadcrumbCollection` | All entries |
+| `name`, `type`, `categoryUrl`, `shouldOpenInNewTab`, `isActive` | Unchanged |
+
+The following variables were removed:
+
+| Removed variable | Replacement |
+|------------------|-------------|
+| `breadcrumbCategory` | `breadcrumb`, which is a `Breadcrumb` struct instead of a `CategoryEntity`. Use `breadcrumb.name` instead of `breadcrumbCategory.translated.name`, and `breadcrumb.categoryId` instead of `breadcrumbCategory.id`. |
+| `key` | `categoryId` |
+| `breadcrumbCategories` | `breadcrumbCollection` |
+| `breadcrumbKeys` | `loop.last` |
+
+`categoryId` changed its meaning.
+It used to hold the ID of the active category, and now holds the ID of the current entry.
+Use `activeId` to compare against the active category.
+`activeId` is already available in 6.7, so overrides can switch to it before the update.
+
+The `layout_breadcrumb_placeholder` block was removed, because the separator is rendered with CSS.
+Extend `layout_breadcrumb_list_item` to change the separator.
 
 ## Removal of DeleteThemeFilesMessage and its handler
 

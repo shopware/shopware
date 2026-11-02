@@ -52,6 +52,93 @@ class MappingSourceReferenceTest extends TestCase
         static::assertSame(['type' => 'root', 'id' => 'product', 'path' => 'name'], $member->jsonSerialize());
     }
 
+    /**
+     * @param array<string, mixed> $first
+     * @param array<string, mixed> $second
+     */
+    #[DataProvider('sourceIdentityExamples')]
+    public function testComparesSourceIdentityWithoutDependingOnMapKeyOrder(array $first, array $second, bool $expected): void
+    {
+        $source = MappingSourceReference::fromArray($first, 'source');
+        $other = MappingSourceReference::fromArray($second, 'source');
+
+        static::assertSame($expected, $source->isSameAs($other));
+        static::assertSame($expected, $other->isSameAs($source));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>, bool}>
+     */
+    public static function sourceIdentityExamples(): iterable
+    {
+        $source = ['type' => 'AcmePlugin', 'id' => 'recommendations', 'path' => 'title'];
+
+        yield 'reordered configuration keys' => [
+            [...$source, 'config' => ['country' => 'DE', 'currency' => 'EUR']],
+            [...$source, 'config' => ['currency' => 'EUR', 'country' => 'DE']],
+            true,
+        ];
+        yield 'reordered nested keys inside a list' => [
+            [...$source, 'config' => ['filters' => [['country' => 'DE', 'limit' => 5]]]],
+            [...$source, 'config' => ['filters' => [['limit' => 5, 'country' => 'DE']]]],
+            true,
+        ];
+        yield 'omitted and empty configuration' => [$source, [...$source, 'config' => []], true];
+        yield 'identical ordered list' => [
+            [...$source, 'config' => ['priority' => ['featured', 'new']]],
+            [...$source, 'config' => ['priority' => ['featured', 'new']]],
+            true,
+        ];
+        yield 'reordered list remains different' => [
+            [...$source, 'config' => ['priority' => ['featured', 'new']]],
+            [...$source, 'config' => ['priority' => ['new', 'featured']]],
+            false,
+        ];
+        yield 'list and numeric map remain different' => [
+            [...$source, 'config' => ['priority' => ['featured', 'new']]],
+            [...$source, 'config' => ['priority' => [1 => 'new', 0 => 'featured']]],
+            false,
+        ];
+        yield 'changed nested value' => [
+            [...$source, 'config' => ['options' => ['limit' => 5]]],
+            [...$source, 'config' => ['options' => ['limit' => 6]]],
+            false,
+        ];
+        yield 'integer and string remain different' => [
+            [...$source, 'config' => ['limit' => 5]],
+            [...$source, 'config' => ['limit' => '5']],
+            false,
+        ];
+        yield 'integer and float remain different' => [
+            [...$source, 'config' => ['limit' => 5]],
+            [...$source, 'config' => ['limit' => 5.0]],
+            false,
+        ];
+        yield 'boolean and integer remain different' => [
+            [...$source, 'config' => ['enabled' => false]],
+            [...$source, 'config' => ['enabled' => 0]],
+            false,
+        ];
+        yield 'missing and null settings remain different' => [
+            $source,
+            [...$source, 'config' => ['limit' => null]],
+            false,
+        ];
+        yield 'additional settings remain different' => [
+            [...$source, 'config' => ['country' => 'DE']],
+            [...$source, 'config' => ['country' => 'DE', 'limit' => 5]],
+            false,
+        ];
+        yield 'different source type' => [$source, [...$source, 'type' => 'OtherPlugin'], false];
+        yield 'different source identifier' => [$source, [...$source, 'id' => 'other'], false];
+        yield 'different member path' => [$source, [...$source, 'path' => 'description'], false];
+        yield 'whole source and member remain different' => [
+            ['type' => 'AcmePlugin', 'id' => 'recommendations'],
+            $source,
+            false,
+        ];
+    }
+
     public function testSerializesProviderReferencesWithOptionalConfiguration(): void
     {
         $source = new MappingSourceReference('plugin', 'example', ['region' => 'eu'], 'message');

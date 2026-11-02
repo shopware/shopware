@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -70,9 +71,15 @@ final readonly class MappingSourceReference implements \JsonSerializable
         return $this->path === null ? $sourceName : $sourceName . '.' . $this->path;
     }
 
+    /**
+     * Configuration maps compare without key order; scalar types and list order remain significant.
+     */
     public function isSameAs(self $other): bool
     {
-        return $this->jsonSerialize() === $other->jsonSerialize();
+        return $this->type === $other->type
+            && $this->id === $other->id
+            && $this->path === $other->path
+            && StoredValue::fromDecoded($this->config)->equals(StoredValue::fromDecoded($other->config));
     }
 
     /**

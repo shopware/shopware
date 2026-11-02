@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -73,6 +75,35 @@ class MappingProviderExtensionTest extends TestCase
             $this->save($elements);
             static::assertSame($bundleName, $this->render($elements)[0]['text']);
         }
+    }
+
+    public function testReorderedPluginConfigurationSurvivesWritingReloadingAndRendering(): void
+    {
+        $catalogued = new MappingSourceReference('AcmePlugin', 'recommendations', [
+            'country' => 'DE', 'options' => ['currency' => 'EUR', 'limit' => 5], 'priority' => ['featured', 'new'],
+        ], 'title');
+        $stored = new MappingSourceReference('AcmePlugin', 'recommendations', [
+            'priority' => ['featured', 'new'], 'options' => ['limit' => 5, 'currency' => 'EUR'], 'country' => 'DE',
+        ], 'title');
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([
+            new MappingCandidate($catalogued->displayName(), 'Recommendations', '', 'plugin', 'string', source: $catalogued),
+        ]);
+        $provider->method('resolveSource')->willReturn(MappingSourceResolution::resolved('Plugin title'));
+        $this->installRegistry([$provider]);
+        $elements = [$this->element('mapped', $stored)];
+
+        static::assertSame('Plugin title', $this->render($elements)[0]['text']);
+        $id = $this->save($elements);
+        $repository = static::getContainer()->get('content_layout.repository');
+        $layout = $repository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $layout);
+        $codec = static::getContainer()->get(StoredElementCodec::class);
+        $reloaded = array_map($codec->encode(...), $layout->getLayout());
+
+        static::assertSame('Plugin title', $this->render($reloaded)[0]['text']);
+        $repository->update([['id' => $id, 'layout' => $reloaded]], Context::createDefaultContext());
     }
 
     public function testRegistryCanBeDecoratedThroughItsPublicAliasWithoutASecondProvider(): void
@@ -221,13 +252,15 @@ class MappingProviderExtensionTest extends TestCase
     /**
      * @param list<array<string, mixed>> $elements
      */
-    private function save(array $elements): void
+    private function save(array $elements): string
     {
         $id = Uuid::randomHex();
         static::getContainer()->get('content_layout.repository')->create([[
             'id' => $id, 'name' => 'Mapping extension ' . $id, 'version' => '1.0.0',
             'rootSource' => 'product', 'layout' => $elements,
         ]], Context::createDefaultContext());
+
+        return $id;
     }
 
     /**

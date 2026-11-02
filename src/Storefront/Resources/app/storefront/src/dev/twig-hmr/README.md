@@ -55,7 +55,7 @@ In webpack, `build/webpack/twig-hmr-watcher.js` sends the update through `devSer
 `awaitWriteFinish` waits until the file is completely written, because editors and file syncs such as Mutagen write in several steps.
 The Twig files are removed from `watchFiles` of the dev server, otherwise it would send a full reload.
 
-In Vite, `build/vite/twig-hmr-plugin.ts` adds the view directories to `server.watcher` and sends the update with `server.ws.send`.
+In Vite, `build/vite/twig-hmr-plugin.ts` adds the view directories to `server.watcher`, because Vite disables globs in chokidar, and sends the update with `server.ws.send`.
 Its `hotUpdate` hook returns no modules for Twig files, so Vite never reloads the page on its own.
 
 ### HTTP cache

@@ -52,10 +52,10 @@ describe('build/vite/twig-hmr-plugin', () => {
         fs.rmSync(projectRoot, { recursive: true, force: true });
     });
 
-    it('watches the Storefront views', () => {
+    it('watches the Storefront view directory, because Vite disables globs in its watcher', () => {
         const server = startPlugin();
 
-        expect(server.watcher.add).toHaveBeenCalledWith([`${viewRoot}/**/*.twig`]);
+        expect(server.watcher.add).toHaveBeenCalledWith([viewRoot]);
     });
 
     it('sends the Twig changes of the debounce window as one event, relative to the project root', () => {

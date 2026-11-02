@@ -45,7 +45,8 @@ export function twigHmrPlugin(projectRoot: string): Plugin {
             const bundles = JSON.parse(fs.readFileSync(pluginsJsonPath, 'utf-8')) as Record<string, BundleDefinition>;
             const includeExtensions = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
             const watchPaths = getTwigWatchPaths(projectRoot, bundles, includeExtensions);
-            const viewDirectories = watchPaths.map((watchPath) => `${watchPath.slice(0, -TWIG_GLOB.length)}${path.sep}`);
+            // Vite runs chokidar with `disableGlobbing`, so it watches the directories instead of the globs.
+            const viewDirectories = watchPaths.map((watchPath) => watchPath.slice(0, -TWIG_GLOB.length));
             const logger = server.config.logger;
 
             const record = createTwigUpdateBatcher((update) => {
@@ -53,16 +54,16 @@ export function twigHmrPlugin(projectRoot: string): Plugin {
                 server.ws.send(TWIG_UPDATE_EVENT, update);
             });
 
-            server.watcher.add(watchPaths);
+            server.watcher.add(viewDirectories);
             server.watcher.on('all', (event, file) => {
-                if (!file.endsWith('.twig') || !viewDirectories.some((directory) => file.startsWith(directory))) {
+                if (!file.endsWith('.twig') || !viewDirectories.some((directory) => file.startsWith(`${directory}${path.sep}`))) {
                     return;
                 }
 
                 record(event, path.relative(projectRoot, file));
             });
 
-            logger.info(`[sw-twig-hmr] watching ${watchPaths.length} view directories`, { timestamp: true });
+            logger.info(`[sw-twig-hmr] watching ${viewDirectories.length} view directories`, { timestamp: true });
         },
 
         // The client applies Twig changes, so Vite must not turn them into a reload of its own.

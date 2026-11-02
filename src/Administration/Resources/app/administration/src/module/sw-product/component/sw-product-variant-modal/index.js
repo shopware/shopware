@@ -220,7 +220,8 @@ export default {
         },
 
         canBeDeletedCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             const variantIds = this.toBeDeletedVariants.map((variant) => variant.id);
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
@@ -585,7 +586,7 @@ export default {
         async canVariantsBeDeleted() {
             const products = await this.productRepository.searchIds(this.canBeDeletedCriteria);
 
-            return products.total === 0;
+            return products.data.length === 0;
         },
 
         onInlineEditSave(editedVariant) {

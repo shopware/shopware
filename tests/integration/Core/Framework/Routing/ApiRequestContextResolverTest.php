@@ -7,15 +7,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
@@ -653,15 +656,11 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
 
-        static::assertTrue($source->isAllowed('product:read'));
-        static::assertTrue($source->isAllowed('category:read'));
-        static::assertFalse($source->isAllowed('product:write'));
-        static::assertFalse($source->isAllowed('media:read'));
-        static::assertFalse($source->isAllowed('order:read'));
+        static::assertSame(['product:read', 'category:read'], array_values($source->getPermissions()));
     }
 
     public function testIntegrationUserIdHeaderWithAdminUserKeepsIntegrationPermissions(): void
@@ -700,13 +699,66 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
 
-        static::assertTrue($source->isAllowed('product:read'));
-        static::assertTrue($source->isAllowed('media:read'));
-        static::assertFalse($source->isAllowed('category:read'));
+        static::assertSame(['product:read', 'media:read'], array_values($source->getPermissions()));
+    }
+
+    public function testStandardIntegrationDoesNotActAsNamedUser(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([
+            'user-role' => ['product:read', 'product:write', 'category:read'],
+        ], false);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->addRoleToIntegration($integrationId, ['product:read', 'media:read', 'category:read']);
+
+        $request = $this->integrationRequest($integrationAccessKey, $user->getUserId());
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertNull($source->getUserId());
+        static::assertSame($integrationId, $source->getIntegrationId());
+        static::assertFalse($source->isAdmin());
+
+        static::assertSame(['product:read', 'category:read'], array_values($source->getPermissions()));
+    }
+
+    public function testStandardIntegrationNamingAdminKeepsIntegrationIdentity(): void
+    {
+        $ids = new IdsCollection();
+
+        $admin = $this->createUser([], true);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->addRoleToIntegration($integrationId, ['product:read']);
+
+        $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertNull($source->getUserId());
+        static::assertSame($integrationId, $source->getIntegrationId());
+        static::assertFalse($source->isAdmin());
+        static::assertSame(['product:read'], array_values($source->getPermissions()));
     }
 
     public function testIntegrationUserIdHeaderWithInvalidUserIdIsIgnored(): void
@@ -785,7 +837,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
 
@@ -829,7 +881,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertTrue($source->isAdmin());
 
@@ -892,6 +944,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
+        static::assertSame($user->getUserId(), $source->getUserId());
         static::assertFalse($source->isAdmin());
 
         static::assertTrue($source->isAllowed('product:read'));
@@ -954,6 +1007,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
+        static::assertSame($user->getUserId(), $source->getUserId());
         static::assertFalse($source->isAdmin());
 
         // Admin user should get all app permissions, not just intersection with user permissions
@@ -1026,6 +1080,148 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertFalse($source->isAllowed('category:read'));
         static::assertFalse($source->isAllowed('media:read'));
         static::assertFalse($source->isAllowed('order:read'));
+    }
+
+    public function testStandardIntegrationRefusesAnInactiveNamedUser(): void
+    {
+        $ids = new IdsCollection();
+
+        $admin = $this->createUser([], true);
+        $this->connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($admin->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->addRoleToIntegration($integrationId, ['product:read']);
+
+        $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
+
+        $this->expectExceptionObject(RoutingException::appUserNotFound($admin->getUserId()));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testStandardIntegrationRefusesAnUnknownNamedUser(): void
+    {
+        $ids = new IdsCollection();
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->addRoleToIntegration($integrationId, ['product:read']);
+
+        $unknownUserId = Uuid::randomHex();
+
+        $request = $this->integrationRequest($integrationAccessKey, $unknownUserId);
+
+        $this->expectExceptionObject(RoutingException::appUserNotFound($unknownUserId));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testAdminIntegrationRefusesAnInactiveNamedAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $admin = $this->createUser([], true);
+        $this->connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($admin->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId, admin: true);
+
+        $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
+
+        $this->expectExceptionObject(RoutingException::appUserNotFound($admin->getUserId()));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testAppCannotDelegateForInactiveAdminUser(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([], true);
+        $this->connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($user->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->createApp($ids, $integrationId, ['product:read']);
+
+        $request = $this->integrationRequest($integrationAccessKey, $user->getUserId());
+
+        $this->expectExceptionObject(Feature::isActive('v6.8.0.0')
+            ? RoutingException::missingPrivileges(['app.TestApp'])
+            : new MissingPrivilegeException(['app.TestApp']));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testAppCannotDelegateForInactiveNonAdminUserWithAppPrivilege(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([
+            'user-role' => ['app.TestApp', 'product:read'],
+        ], false);
+        $this->connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($user->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->createApp($ids, $integrationId, ['product:read']);
+
+        $request = $this->integrationRequest($integrationAccessKey, $user->getUserId());
+
+        $this->expectExceptionObject(Feature::isActive('v6.8.0.0')
+            ? RoutingException::missingPrivileges(['app.TestApp'])
+            : new MissingPrivilegeException(['app.TestApp']));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testInactiveAppIsRejected(): void
+    {
+        $ids = new IdsCollection();
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId, admin: true);
+        $this->addRoleToIntegration($integrationId, ['order:read']);
+        $this->createApp($ids, $integrationId, ['product:read', 'media:read'], active: false);
+
+        $request = $this->integrationRequest($integrationAccessKey);
+
+        $this->expectExceptionObject(RoutingException::appIntegrationNotFound($integrationId));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testInactiveAppWithNamedUserIsRejected(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([
+            'user-role' => ['product:read', 'media:read'],
+        ], false);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId, admin: true);
+        $this->addRoleToIntegration($integrationId, ['order:read']);
+        $this->createApp($ids, $integrationId, ['product:read', 'media:read'], active: false);
+
+        $request = $this->integrationRequest($integrationAccessKey, $user->getUserId());
+
+        $this->expectExceptionObject(RoutingException::appIntegrationNotFound($integrationId));
+
+        $this->resolver->resolve($request);
     }
 
     public function testAppWithoutUserIdHeader(): void
@@ -1156,6 +1352,59 @@ class ApiRequestContextResolverTest extends TestCase
         );
 
         return $accessKey;
+    }
+
+    private function createIntegration(string $integrationId, bool $admin = false): string
+    {
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $this->connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => $admin ? 1 : 0,
+        ]);
+
+        return $integrationAccessKey;
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    private function createApp(IdsCollection $ids, string $integrationId, array $privileges, bool $active = true): void
+    {
+        $this->connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
+            'name' => 'app role',
+            'privileges' => \json_encode($privileges, \JSON_THROW_ON_ERROR),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $this->connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'TestApp',
+            'path' => 'test',
+            'active' => $active ? 1 : 0,
+            'configurable' => 0,
+            'version' => '1.0.0',
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('app_acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function integrationRequest(string $integrationAccessKey, ?string $userId = null): Request
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+        if ($userId !== null) {
+            $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $userId);
+        }
+
+        return $request;
     }
 
     private function resolveContextWithIndexingBehavior(?string $behavior = null): Context

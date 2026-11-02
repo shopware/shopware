@@ -160,7 +160,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = 'text/plain';
-        $this->expectExceptionObject(ApiException::unsupportedResponseMediaTypes([$accept]));
+        $this->expectExceptionObject(ApiException::unsupportedMediaType($accept, 'All provided media types are unsupported. (text/plain)'));
         $self = 'http://localhost/api/category/' . $id;
         $context = $this->getAdminContext();
         $this->getDetailResponse($context, $id, $self, $accept, false);

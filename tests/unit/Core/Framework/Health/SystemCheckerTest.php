@@ -53,7 +53,7 @@ class SystemCheckerTest extends TestCase
         $checker = new SystemChecker($checks);
         $context = SystemCheckExecutionContext::WEB;
         $resultForRunningTest = new Result('test', Status::OK, 'test', true, []);
-        $skippedResult = new Result('test', Status::SKIPPED, 'Check not allowed to run in this execution context: WEB', null, []);
+        $skippedResult = new Result('test', Status::SKIPPED, 'Check not allowed to run in this execution context: WEB', true, []);
         $firstCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(false);
         $firstCheck->expects($this->once())->method('name')->willReturn('test');
         $firstCheck->expects($this->never())->method('run');
@@ -67,6 +67,7 @@ class SystemCheckerTest extends TestCase
         static::assertCount(2, $results);
         static::assertEquals($resultForRunningTest, $results[0]);
         static::assertEquals($skippedResult, $results[1]);
+        static::assertTrue($results[1]->healthy);
     }
 
     public function testSkipTestsIfAnyCorePriorityCheckFails(): void
@@ -92,5 +93,6 @@ class SystemCheckerTest extends TestCase
         static::assertCount(2, $results);
         static::assertSame($result, $results[0]);
         static::assertEquals($skippedResult, $results[1]);
+        static::assertNull($results[1]->healthy);
     }
 }

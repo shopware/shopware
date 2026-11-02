@@ -58,6 +58,23 @@ class ShopIdProvider implements ResetInterface
         return $this->shopId;
     }
 
+    /**
+     * Read-only counterpart of the fingerprint check in getShopId(): never regenerates, migrates or persists.
+     * A shop without a v2 shop id has no fingerprints to compare against.
+     */
+    public function isFingerprintMismatch(): bool
+    {
+        /** @var ShopIdV2Config|null $shopIdV2 */
+        $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        if (!\is_array($shopIdV2)) {
+            return false;
+        }
+
+        $shopId = ShopId::fromSystemConfig($shopIdV2);
+
+        return !$this->fingerprintGenerator->matchFingerprints($shopId->fingerprints)->isMatching();
+    }
+
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
     {
         $shopId = ShopId::v2(

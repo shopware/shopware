@@ -2,10 +2,16 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import type { CategorizedPermissions, ServiceDescription, ServiceState } from '../../service/shopware-services.service';
+import type {
+    AppHealth,
+    CategorizedPermissions,
+    ServiceDescription,
+    ServiceState,
+} from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
+import getHealthLevel, { type HealthLevel } from '../../composables/app-health';
 
 const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = {
     active: {
@@ -22,6 +28,32 @@ const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = 
     },
 };
 
+const STATUS_BY_HEALTH: Record<HealthLevel, { color: string; label: string }> = {
+    ERROR: {
+        color: 'red',
+        label: 'sw-settings-services.service-card.status-connection-problem',
+    },
+    WARNING: {
+        color: 'orange',
+        label: 'sw-settings-services.service-card.status-needs-attention',
+    },
+};
+
+const STATUS_NO_RECENT_ACTIVITY = {
+    color: 'orange',
+    label: 'sw-settings-services.service-card.status-no-recent-activity',
+};
+
+// the health endpoint may add reasons later; those keep the level from the status but get a generic message
+const KNOWN_HEALTH_REASONS = [
+    'shop_id_mismatch',
+    'registration_incomplete',
+    'credentials_rejected',
+    'delivery_failing',
+    'webhooks_suspended',
+    'no_app_activity',
+];
+
 /**
  * @private
  */
@@ -35,17 +67,25 @@ export default Shopware.Component.wrapComponentConfig({
             required: true,
             type: Object as PropType<ServiceDescription>,
         },
+
+        health: {
+            required: false,
+            type: Object as PropType<AppHealth | null>,
+            default: null,
+        },
     },
 
     data(): {
         showDeactivateModal: boolean;
         showPermissionsModal: boolean;
+        showHealthModal: boolean;
         categorizedPermissions: CategorizedPermissions | null;
         isLoading: boolean;
     } {
         return {
             showDeactivateModal: false,
             showPermissionsModal: false,
+            showHealthModal: false,
             categorizedPermissions: null,
             isLoading: false,
         };
@@ -63,7 +103,47 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         status() {
-            return STATUS_BY_STATE[this.service.state] ?? STATUS_BY_STATE.inactive;
+            if (!this.healthLevel) {
+                return STATUS_BY_STATE[this.service.state] ?? STATUS_BY_STATE.inactive;
+            }
+
+            return this.health?.reason === 'no_app_activity' ? STATUS_NO_RECENT_ACTIVITY : STATUS_BY_HEALTH[this.healthLevel];
+        },
+
+        healthLevel(): HealthLevel | null {
+            return getHealthLevel(this.service, this.health);
+        },
+
+        healthMessage(): string | null {
+            if (!this.healthLevel || !this.health) {
+                return null;
+            }
+
+            const reason = KNOWN_HEALTH_REASONS.includes(this.health.reason ?? '') ? this.health.reason : 'unknown';
+
+            return this.$t(`sw-settings-services.service-card.health-reason.${reason}`, {
+                date: this.health.lastAppActivityAt ? this.dateFilter(this.health.lastAppActivityAt) : '',
+            });
+        },
+
+        healthDetails(): string | null {
+            if (!this.healthLevel || !this.health) {
+                return null;
+            }
+
+            const { lastAttemptAt, lastStatusCode } = this.health;
+            const details = [
+                lastAttemptAt
+                    ? this.$t('sw-settings-services.service-card.health-last-attempt', { date: this.dateFilter(lastAttemptAt) })
+                    : null,
+                lastStatusCode !== null
+                    ? this.$t('sw-settings-services.service-card.health-response-code', { code: lastStatusCode })
+                    : null,
+            ].filter((detail) => detail !== null);
+
+            return details.length > 0
+                ? this.$t('sw-settings-services.service-card.health-support-details', { details: details.join(' • ') })
+                : null;
         },
 
         updatedAt() {

@@ -59,6 +59,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                 {
                     id: 'service-id',
                     active: true,
+                    state: 'active',
                     name: 'first-service-name',
                     label: 'First Service',
                     requirements: ['service_consent'],
@@ -96,6 +97,16 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             enableAllServices: jest.fn(async () => ({
                 disabled: false,
                 permissionsConsent: null,
+            })),
+            getAppSystemHealth: jest.fn(async () => ({
+                'service-id': {
+                    name: 'first-service-name',
+                    status: 'WARNING',
+                    reason: 'delivery_failing',
+                    lastStatusCode: 500,
+                    lastAttemptAt: null,
+                    lastAppActivityAt: null,
+                },
             })),
         }));
     });
@@ -287,5 +298,53 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         const errorBanner = page.getComponent(MtBanner);
         expect(errorBanner.props('variant')).toBe('critical');
         expect(errorBanner.text()).toContain('failed loading services');
+    });
+
+    it('passes each service its own health', async () => {
+        const page = await mountPage();
+        await flushPromises();
+
+        const cards = page.findAllComponents({ name: 'sw-settings-services-service-card' });
+
+        expect(cards).toHaveLength(2);
+        expect(cards[0].props('health')).toEqual(expect.objectContaining({ status: 'WARNING', reason: 'delivery_failing' }));
+        expect(cards[1].props('health')).toBeNull();
+    });
+
+    it('shows the services as before when the health cannot be loaded', async () => {
+        Shopware.Service('shopwareServicesService').getAppSystemHealth.mockRejectedValueOnce(new Error('health failed'));
+        const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+
+        const page = await mountPage();
+        await flushPromises();
+
+        const cards = page.findAllComponents({ name: 'sw-settings-services-service-card' });
+
+        expect(cards).toHaveLength(2);
+        expect(cards.map((card) => card.props('health'))).toEqual([null, null]);
+        expect(createNotification).not.toHaveBeenCalled();
+
+        createNotification.mockRestore();
+    });
+
+    it('summarises connection problems of active services above the page', async () => {
+        Shopware.Service('shopwareServicesService').getAppSystemHealth.mockResolvedValueOnce({
+            'service-id': { name: 'first-service-name', status: 'ERROR', reason: 'credentials_rejected' },
+            'service-id-2': { name: 'second-service-name', status: 'ERROR', reason: 'credentials_rejected' },
+        });
+
+        const page = await mountPage();
+        await flushPromises();
+
+        const banner = page.get('.sw-settings-services-index__connection-problem-banner');
+        expect(banner.text()).toContain('sw-settings-services.index.connection-problem-banner.title');
+        expect(page.vm.servicesWithConnectionProblem.map((service) => service.id)).toEqual(['service-id']);
+    });
+
+    it('shows no connection problem summary for warnings', async () => {
+        const page = await mountPage();
+        await flushPromises();
+
+        expect(page.find('.sw-settings-services-index__connection-problem-banner').exists()).toBe(false);
     });
 });

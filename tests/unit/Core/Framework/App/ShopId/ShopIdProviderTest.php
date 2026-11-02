@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -209,6 +210,78 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($shopId->id, $provider->getShopId()->id);
         // Fingerprints changed but the id is reused, so this is not a shop identity change.
         static::assertCount(0, $eventDispatcher->getEvents());
+    }
+
+    #[DataProvider('fingerprintComparisons')]
+    public function testReportsFingerprintMismatchWithoutPersistingAnything(FingerprintComparisonResult $comparison, bool $expected): void
+    {
+        $shopId = ShopId::v2('1234567890', [AppUrl::IDENTIFIER => 'https://old.url']);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('get')
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ->willReturn($shopId->toArray());
+        $systemConfigService->expects($this->never())->method('set');
+
+        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator->expects($this->once())
+            ->method('matchFingerprints')
+            ->with($shopId->fingerprints)
+            ->willReturn($comparison);
+        $fingerprintGenerator->expects($this->never())->method('takeFingerprints');
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            $eventDispatcher = new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            $fingerprintGenerator,
+        );
+
+        static::assertSame($expected, $provider->isFingerprintMismatch());
+        static::assertCount(0, $eventDispatcher->getEvents());
+    }
+
+    /**
+     * @return iterable<string, array{FingerprintComparisonResult, bool}>
+     */
+    public static function fingerprintComparisons(): iterable
+    {
+        yield 'mismatch score reaching the threshold is a mismatch' => [
+            new FingerprintComparisonResult(
+                [],
+                [AppUrl::IDENTIFIER => new FingerprintMismatch(AppUrl::IDENTIFIER, 'https://old.url', 'https://new.url', 100)],
+                75,
+            ),
+            true,
+        ];
+
+        yield 'mismatch score below the threshold is no mismatch' => [
+            new FingerprintComparisonResult([], [], 75),
+            false,
+        ];
+    }
+
+    public function testShopWithoutV2ShopIdHasNoFingerprintMismatchAndIsNotMigrated(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('get')
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ->willReturn(null);
+        $systemConfigService->expects($this->never())->method('set');
+
+        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator->expects($this->never())->method('matchFingerprints');
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            $fingerprintGenerator,
+        );
+
+        static::assertFalse($provider->isFingerprintMismatch());
     }
 
     public function testDeletesShopId(): void

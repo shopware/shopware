@@ -21,6 +21,15 @@
         margin-block: var(--scale-size-24);
     }
 
+    .sw-settings-services-index__connection-problem-banner {
+        max-width: 960px;
+        margin: var(--scale-size-24) auto 0;
+
+        p:not(:last-child) {
+            margin-bottom: var(--scale-size-8);
+        }
+    }
+
     .sw-settings-services-index__services-deactivated-banner {
         max-width: 960px;
 

@@ -423,4 +423,126 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             ],
         });
     });
+
+    const createHealth = (overrides = {}) => ({
+        name: 'service-name',
+        status: 'OK',
+        reason: null,
+        lastStatusCode: null,
+        lastAttemptAt: null,
+        lastAppActivityAt: null,
+        ...overrides,
+    });
+
+    const mountWithHealth = (service, health) => {
+        return mount(SwSettingsServicesServiceCard, {
+            props: { service, health },
+            global: {
+                stubs: {
+                    SwColorBadge,
+                    SwExtensionIcon: true,
+                    SwStatus,
+                    MtButton,
+                    MtModalAction,
+                    MtModal,
+                    MtModalRoot,
+                    MtModalTrigger,
+                    SwExtensionPermissionsModal: true,
+                },
+            },
+        });
+    };
+
+    // the modal content is teleported to the body, so its text is read from the document
+    const openHealthModal = async (card) => {
+        await card.get('.sw-settings-services-service-card__health-details-trigger').trigger('click');
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
+
+        return document.body.querySelector('.sw-settings-services-service-card__health-modal-content');
+    };
+
+    it.each([
+        ['ERROR', 'credentials_rejected', 'red', 'connection-problem', 'credentials_rejected'],
+        ['ERROR', 'shop_id_mismatch', 'red', 'connection-problem', 'shop_id_mismatch'],
+        ['ERROR', 'registration_incomplete', 'red', 'connection-problem', 'registration_incomplete'],
+        ['WARNING', 'delivery_failing', 'orange', 'needs-attention', 'delivery_failing'],
+        ['WARNING', 'webhooks_suspended', 'orange', 'needs-attention', 'webhooks_suspended'],
+        ['WARNING', 'no_app_activity', 'orange', 'no-recent-activity', 'no_app_activity'],
+        ['ERROR', 'a_reason_added_later', 'red', 'connection-problem', 'unknown'],
+        ['WARNING', 'a_reason_added_later', 'orange', 'needs-attention', 'unknown'],
+    ])(
+        'shows the health of an active service in its pill and explains it in a dialog: %s / %s',
+        async (status, reason, statusColor, statusText, messageKey) => {
+            const card = mountWithHealth(createService(), createHealth({ status, reason }));
+
+            expect(card.findComponent(SwStatus).props().color).toBe(statusColor);
+            expect(card.find('.sw-settings-services-service-card__header').text()).toContain(
+                `sw-settings-services.service-card.status-${statusText}`,
+            );
+
+            const modalContent = await openHealthModal(card);
+
+            expect(card.findAllComponents(MtModal).map((modal) => modal.props('title'))).toContain(
+                `sw-settings-services.service-card.status-${statusText}`,
+            );
+            expect(modalContent.textContent).toContain(`sw-settings-services.service-card.health-reason.${messageKey}`);
+
+            card.unmount();
+        },
+    );
+
+    it('lists the last attempt and response code for support when they are known', async () => {
+        const card = mountWithHealth(
+            createService(),
+            createHealth({
+                status: 'ERROR',
+                reason: 'credentials_rejected',
+                lastStatusCode: 401,
+                lastAttemptAt: '2026-10-19 12:00:00.000',
+            }),
+        );
+
+        const modalContent = await openHealthModal(card);
+
+        expect(modalContent.querySelector('.sw-settings-services-service-card__health-details').textContent).toContain(
+            'sw-settings-services.service-card.health-support-details',
+        );
+
+        card.unmount();
+    });
+
+    it('shows no support details when nothing is known about the last attempt', async () => {
+        const card = mountWithHealth(createService(), createHealth({ status: 'WARNING', reason: 'webhooks_suspended' }));
+
+        const modalContent = await openHealthModal(card);
+
+        expect(modalContent).not.toBeNull();
+        expect(modalContent.querySelector('.sw-settings-services-service-card__health-details')).toBeNull();
+
+        card.unmount();
+    });
+
+    it.each([
+        ['active', 'OK', null],
+        ['active', 'SKIPPED', 'inactive'],
+        ['active', 'UNKNOWN', 'no_signal'],
+        ['active', 'FAILURE', null],
+        ['inactive', 'ERROR', 'credentials_rejected'],
+        ['pending_permissions', 'WARNING', 'delivery_failing'],
+    ])('keeps the service state when the health has nothing to add: %s / %s', (state, status, reason) => {
+        const card = mountWithHealth(createService({ state }), createHealth({ status, reason }));
+        const expectedColor = { active: 'green', inactive: 'red', pending_permissions: 'orange' }[state];
+
+        expect(card.findComponent(SwStatus).props().color).toBe(expectedColor);
+        expect(card.find('.sw-settings-services-service-card__health-details-trigger').exists()).toBe(false);
+    });
+
+    it('keeps the service state when no health is known', () => {
+        const card = mountWithHealth(createService(), null);
+
+        expect(card.findComponent(SwStatus).props().color).toBe('green');
+        expect(card.find('.sw-settings-services-service-card__health-details-trigger').exists()).toBe(false);
+    });
 });

@@ -77,7 +77,8 @@ final class ProductDocumentMediaSubscriber implements EventSubscriberInterface
      */
     private function getFileLanguages(array $documents, Context $context): array
     {
-        $languageIds = $context->getLanguageIdChain();
+        // a language that inherits from the default language has it twice in its chain
+        $languageIds = array_values(array_unique($context->getLanguageIdChain()));
         $defaultLanguageId = $languageIds[\count($languageIds) - 1];
 
         $fileLanguages = [];

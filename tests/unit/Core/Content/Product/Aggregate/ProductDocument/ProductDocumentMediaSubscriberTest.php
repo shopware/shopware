@@ -58,6 +58,7 @@ class ProductDocumentMediaSubscriberTest extends TestCase
         yield 'the own file of a language with a parent' => [[self::SWISS_GERMAN, self::GERMAN, Defaults::LANGUAGE_SYSTEM], true, null, self::SWISS_GERMAN];
         yield 'the file of the parent language' => [[self::SWISS_GERMAN, self::GERMAN, Defaults::LANGUAGE_SYSTEM], false, true, self::GERMAN];
         yield 'the file of the default language when the parent has none' => [[self::SWISS_GERMAN, self::GERMAN, Defaults::LANGUAGE_SYSTEM], false, false, Defaults::LANGUAGE_SYSTEM];
+        yield 'the file of the default language when it is also the parent' => [[self::SWISS_GERMAN, Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM], false, null, Defaults::LANGUAGE_SYSTEM];
     }
 
     public function testOneSearchLoadsTheFilesOfAllDocuments(): void

@@ -98,14 +98,16 @@ export type PublicComponentApi<Component = unknown> = {
  * `load` imports the component lazily, so declaring it costs no bundle size.
  * A native-setup component lists its props, emits, slots, blocks and `swDefinePublic()` bindings (`setup`) too,
  * and the build fails when they differ from the component.
+ * `name` keeps its literal type, so `Shopware.Component.override(SwExample.name, …)` checks the public API.
  *
  * @public
  */
 export type PublicComponent<
     Load extends () => Promise<unknown> = () => Promise<unknown>,
     Api extends PublicComponentApi<LoadedComponent<Load>> = PublicComponentApi<LoadedComponent<Load>>,
+    Name extends string = string,
 > = {
-    name: string;
+    name: Name;
     load: Load;
     public?: Api;
 };
@@ -202,6 +204,7 @@ declare global {
 export function definePublicComponent<
     Load extends () => Promise<unknown>,
     const Api extends PublicComponentApi<LoadedComponent<Load>> = object,
->(component: { name: string; load: Load; public?: Api }): PublicComponent<Load, Api> {
+    const Name extends string = string,
+>(component: { name: Name; load: Load; public?: Api }): PublicComponent<Load, Api, Name> {
     return component;
 }

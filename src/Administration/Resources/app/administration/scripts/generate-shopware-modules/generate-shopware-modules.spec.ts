@@ -6,8 +6,9 @@
  */
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { extractModuleRegistry } from './extract-modules';
+import { extractMiniModules, extractModuleRegistry } from './extract-modules';
 import { renderDeclarations, REGENERATE_COMMAND } from './render-declarations';
 import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from './index';
 
@@ -59,8 +60,46 @@ describe('scripts/generate-shopware-modules', () => {
         });
     });
 
+    describe('the mini-modules it finds', () => {
+        it('publishes each mini-module under its directory name, with the value exports of its index.ts', () => {
+            expect(registry['shopware:mini-modules'].subpaths['public-component']).toEqual(['definePublicComponent']);
+            expect(registry['shopware:mini-modules'].sources?.['public-component']).toBe('src/core/public-component');
+        });
+
+        it('refuses a component module whose directory is not named after the component', () => {
+            const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-mini-modules-'));
+            const moduleDir = path.join(root, 'src/module/sw-example/component/sw-renamed');
+
+            fs.mkdirSync(path.join(moduleDir, 'src'), { recursive: true });
+            fs.mkdirSync(path.join(moduleDir, 'tests'));
+            fs.writeFileSync(
+                path.join(moduleDir, 'index.ts'),
+                "export default definePublicComponent({ name: 'sw-example-detail', load: () => import('./src/x') });\n",
+            );
+
+            try {
+                expect(() => extractMiniModules(root)).toThrow(
+                    '"src/module/sw-example/component/sw-renamed" declares the component "sw-example-detail".',
+                );
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
+        });
+    });
+
     describe('the declarations it renders', () => {
         const declarations = renderDeclarations(registry);
+
+        it('re-exports the values and types of a mini-module from its index.ts', () => {
+            expect(declarations).toContain(
+                [
+                    "declare module 'shopware:mini-modules/public-component' {",
+                    "    export { definePublicComponent } from 'src/core/public-component';",
+                    "    export type * from 'src/core/public-component';",
+                    '}',
+                ].join('\n'),
+            );
+        });
 
         it('lists only the named exports recorded for a namespace subpath', () => {
             expect(declarations).toContain("declare module 'shopware:utils/debug'");

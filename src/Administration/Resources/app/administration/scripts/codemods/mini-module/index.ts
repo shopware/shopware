@@ -58,13 +58,14 @@ ${lists}
 `;
 };
 
-const renderRegister = (packageName: string) => `import Component from './index';
+const renderRegister = (name: string, packageName: string) => `import Component, * as Module from './index';
 
 /**
  * @sw-package ${packageName}
  */
 
 Shopware.Component.register(Component);
+Shopware._private.publishMiniModule('${name}', Module);
 `;
 
 const renderGlobalTypes = (name: string, packageName: string) => `import type Component from './index';
@@ -170,7 +171,7 @@ function run(directory: string) {
     fs.writeFileSync(sourceFile, markPublic(fs.readFileSync(sourceFile, 'utf8')));
     fs.mkdirSync(path.join(componentDirectory, 'tests'), { recursive: true });
     fs.writeFileSync(path.join(componentDirectory, 'index.ts'), renderIndex(name, packageName, api));
-    fs.writeFileSync(path.join(componentDirectory, 'register.ts'), renderRegister(packageName));
+    fs.writeFileSync(path.join(componentDirectory, 'register.ts'), renderRegister(name, packageName));
     fs.writeFileSync(path.join(componentDirectory, 'global.d.ts'), renderGlobalTypes(name, packageName));
 
     const registrationFile = path.join(adminRoot, registration.file);
@@ -225,7 +226,8 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
    Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm.
 4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts.
    The team is the one that owns other code of @sw-package ${packageName} there.
-5. Run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
+5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:mini-modules/${name}.
+   Then run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
    Lines the contract tests leave uncovered are code no contract protects: pin them, or name them in the PR.
 `);
 }

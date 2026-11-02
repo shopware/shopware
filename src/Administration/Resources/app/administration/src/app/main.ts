@@ -2,6 +2,10 @@
  * @sw-package framework
  */
 
+/** Mini-modules that no Administration module registers */
+import 'src/core/public-component/register';
+import 'src/app/service-names/register';
+
 /** Initializer */
 import initializers from 'src/app/init/';
 import preInitializer from 'src/app/init-pre/';

@@ -36,8 +36,7 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
             $this->language(null, 'id-4'),
         ]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = new StaticEntityRepository([
+        $languageRepository = StaticEntityRepository::of(LanguageCollection::class, [
             static function (Criteria $criteria) use ($languages): LanguageCollection {
                 $filter = $criteria->getFilters()[0] ?? null;
                 static::assertInstanceOf(EqualsFilter::class, $filter);
@@ -59,8 +58,7 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
 
     public function testRunSkipsWhenNoLanguageIsFlagged(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = new StaticEntityRepository([
+        $languageRepository = StaticEntityRepository::of(LanguageCollection::class, [
             static fn (): LanguageCollection => new LanguageCollection(),
         ]);
 

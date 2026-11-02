@@ -419,6 +419,42 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer->iterate(null, $entities);
     }
 
+    public function testIterateWithEntitiesOnlyRebuildsTheirIndices(): void
+    {
+        $this->registry = new ElasticsearchRegistry([
+            $this->createDefinition('product'),
+            $this->createDefinition('category'),
+        ]);
+
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator->method('aliasExists')->willReturn(true);
+        $indexCreator
+            ->expects($this->once())
+            ->method('createIndex')
+            ->with(static::callback(static fn (AbstractElasticsearchDefinition $definition) => $definition->getEntityDefinition()->getEntityName() === 'product'));
+
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
+
+        $indexer->iterate(null, ['product']);
+    }
+
+    public function testIterateWithoutEntitiesRebuildsAllIndices(): void
+    {
+        $this->registry = new ElasticsearchRegistry([
+            $this->createDefinition('product'),
+            $this->createDefinition('category'),
+        ]);
+
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator
+            ->expects($this->exactly(2))
+            ->method('createIndex');
+
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
+
+        $indexer->iterate();
+    }
+
     public function testIterateLogErrorForInvalidEntity(): void
     {
         $logger = static::createStub(LoggerInterface::class);
@@ -442,6 +478,17 @@ class ElasticsearchIndexerTest extends TestCase
         $entities = ['product', 'category'];
 
         $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateWithOnlyInvalidEntitiesReturnsNull(): void
+    {
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->method('allowIndexing')->willReturn(true);
+        $helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('swag_removed'));
+
+        $indexer = $this->getIndexer(helper: $helper);
+
+        static::assertNull($indexer->iterate(null, ['swag_removed']));
     }
 
     private function getIndexer(?LoggerInterface $logger = null, ?EventDispatcherInterface $eventDispatcher = null, ?Connection $connection = null, ?ElasticsearchHelper $helper = null, ?IndexCreator $indexCreator = null, ?Client $client = null): ElasticsearchIndexer

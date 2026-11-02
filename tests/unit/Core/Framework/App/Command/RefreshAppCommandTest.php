@@ -84,6 +84,7 @@ class RefreshAppCommandTest extends TestCase
     {
         $this->appService->method('getRefreshableAppInfo')->willReturn($this->createDryRunWithInstallableApp());
         $this->appService->expects($this->once())->method('doRefreshApps')->willReturn([]);
+        $this->appPrinter->expects($this->once())->method('printInstalledApps');
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             '--force' => true,

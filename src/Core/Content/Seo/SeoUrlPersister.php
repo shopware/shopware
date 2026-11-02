@@ -62,8 +62,36 @@ class SeoUrlPersister
      */
     private function doUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel, bool $overwrite): void
     {
+        $updates = [];
+        $updatesBySalesChannel = [];
+        foreach ($seoUrls as $seoUrl) {
+            if ($seoUrl instanceof SeoUrlEntity) {
+                $seoUrl = $seoUrl->jsonSerialize();
+            }
+            $updates[] = $seoUrl;
+            $updatesBySalesChannel[(string) ($seoUrl['salesChannelId'] ?? '')][] = $seoUrl;
+        }
+
+        if ($updatesBySalesChannel === []) {
+            $this->persistSalesChannelSeoUrls($context, $routeName, $foreignKeys, [], $salesChannel->getId(), $overwrite);
+        }
+
+        // canonical, retarget and deleted handling is scoped to one sales channel, so callers may mix sales channels
+        foreach ($updatesBySalesChannel as $salesChannelId => $salesChannelUpdates) {
+            $this->persistSalesChannelSeoUrls($context, $routeName, $foreignKeys, $salesChannelUpdates, $salesChannelId === '' ? null : $salesChannelId, $overwrite);
+        }
+
+        $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
+    }
+
+    /**
+     * @param array<string> $foreignKeys
+     * @param list<array<string, mixed>> $seoUrls
+     */
+    private function persistSalesChannelSeoUrls(Context $context, string $routeName, array $foreignKeys, array $seoUrls, ?string $salesChannelId, bool $overwrite): void
+    {
         $languageId = $context->getLanguageId();
-        $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
+        $canonicals = $seoUrls === [] ? [] : $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
@@ -74,26 +102,15 @@ class SeoUrlPersister
 
         $seoPathInfos = [];
 
-        $salesChannelId = $salesChannel->getId();
-        $updates = [];
         foreach ($seoUrls as $seoUrl) {
-            if ($seoUrl instanceof SeoUrlEntity) {
-                $seoUrl = $seoUrl->jsonSerialize();
-            }
-            $updates[] = $seoUrl;
-
             $fk = $seoUrl['foreignKey'];
-            $salesChannelId = $seoUrl['salesChannelId'] ??= null;
+            $seoUrl['salesChannelId'] ??= null;
 
             // skip duplicates
-            if (isset($processed[$fk][$salesChannelId])) {
+            if (isset($processed[$fk])) {
                 continue;
             }
-
-            if (!isset($processed[$fk])) {
-                $processed[$fk] = [];
-            }
-            $processed[$fk][$salesChannelId] = true;
+            $processed[$fk] = true;
 
             $updatedFks[] = $fk;
 
@@ -153,8 +170,6 @@ class SeoUrlPersister
         // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
         // thereby preserving the canonical SEO URL for Entity A.
         $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
-
-        $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
 
     /**

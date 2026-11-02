@@ -5,7 +5,6 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import {
     COMMENT_MARKER,
-    DOCS_CANDIDATE_LABEL,
     buildComment,
     buildEndUserDocs,
     collectAgentInput,
@@ -274,7 +273,19 @@ test('postComment creates a comment on the resolved pull request', async () => {
 
     const label = calls.find((c) => c.method === 'addLabels');
     assert.equal(label?.params.issue_number, 9);
-    assert.deepEqual(label?.params.labels, [DOCS_CANDIDATE_LABEL]);
+    assert.deepEqual(label?.params.labels, ['docs-candidate/end-user']);
+});
+
+test('postComment labels every audience of a mixed candidate', async () => {
+    const { github, calls } = fakeGitHub();
+    const { core } = fakeCore();
+
+    await postComment(
+        { github, context: pushContext({ pr_number: '9' }), core },
+        { items: [{ type: 'docs_candidate', audiences: 'developer,end-user', summary: 'Both' }] },
+    );
+
+    assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, ['docs-candidate/developer', 'docs-candidate/end-user']);
 });
 
 test('postComment updates its earlier comment instead of adding another', async () => {
@@ -288,7 +299,7 @@ test('postComment updates its earlier comment instead of adding another', async 
 
     assert.equal(calls.find((c) => c.method === 'updateComment')?.params.comment_id, 6);
     assert.equal(calls.some((c) => c.method === 'createComment'), false);
-    assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, [DOCS_CANDIDATE_LABEL]);
+    assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, ['docs-candidate/developer']);
 });
 
 test('postComment rejects malformed agent output', async () => {

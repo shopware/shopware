@@ -7,7 +7,10 @@ export type Audience = (typeof AUDIENCES)[number];
 
 export const COMMENT_MARKER = '<!-- sw-docs-impact -->';
 
-export const DOCS_CANDIDATE_LABEL = 'docs-candidate';
+export const DOCS_CANDIDATE_LABELS: Record<Audience, string> = {
+    'end-user': 'docs-candidate/end-user',
+    developer: 'docs-candidate/developer',
+};
 
 const MAX_SUMMARY_LENGTH = 20000;
 
@@ -275,7 +278,7 @@ export async function postComment(
         throw new Error(`The agent reported a docs candidate, but no merged pull request is associated with ${context.sha}`);
     }
 
-    parseAudiences(item.audiences ?? '');
+    const audiences = parseAudiences(item.audiences ?? '');
     const summary = redactSecrets(item.summary, process.env.SW_DOCS_IMPACT_REDACT);
     const body = buildComment(await unlinkDeadDocsLinks(summary, isDead));
     if (isDryRun(context)) {
@@ -299,7 +302,7 @@ export async function postComment(
         core.info(`Posted documentation-impact comment on #${number}`);
     }
 
-    await github.rest.issues.addLabels({ ...context.repo, issue_number: number, labels: [DOCS_CANDIDATE_LABEL] });
+    await github.rest.issues.addLabels({ ...context.repo, issue_number: number, labels: audiences.map((audience) => DOCS_CANDIDATE_LABELS[audience]) });
 }
 
 export const END_USER_DOCS_SECTIONS: Record<string, string> = {

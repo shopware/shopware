@@ -85,36 +85,36 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      */
     private function validateFiles(PreWriteValidationEvent $event, array $translations, ConstraintViolationList $violations): void
     {
-        $changedFiles = [];
+        $translationsWithNewFile = [];
         foreach ($translations as $translation) {
-            $mediaId = $translation->getResultingValue('media_id');
-            if (\is_string($mediaId) && $mediaId !== $translation->getStoredValue('media_id')) {
-                $changedFiles[] = [$translation, Uuid::fromBytesToHex($mediaId)];
+            $resultingMediaId = $translation->getResultingValue('media_id');
+            if (\is_string($resultingMediaId) && $resultingMediaId !== $translation->getStoredValue('media_id')) {
+                $translationsWithNewFile[] = [$translation, Uuid::fromBytesToHex($resultingMediaId)];
             }
         }
 
-        if ($changedFiles === []) {
+        if ($translationsWithNewFile === []) {
             return;
         }
 
-        $files = $this->getResultingFiles($event, array_values(array_unique(array_column($changedFiles, 1))));
+        $resultingFiles = $this->getResultingFiles($event, array_values(array_unique(array_column($translationsWithNewFile, 1))));
         $allowedExtensions = $this->config->allowedExtensions;
 
-        foreach ($changedFiles as [$translation, $mediaId]) {
-            $file = $files[$mediaId] ?? null;
+        foreach ($translationsWithNewFile as [$translation, $mediaId]) {
+            $file = $resultingFiles[$mediaId] ?? null;
             if ($file === null) {
                 // the database rejects a missing file
                 continue;
             }
 
-            $path = $translation->path . '/mediaId';
+            $errorPath = $translation->path . '/mediaId';
 
             if ($file['private']) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_PRIVATE,
                     messageTemplate: 'The file "{{ mediaId }}" is private, but shoppers have to be able to download the files of product documents.',
                     parameters: ['{{ mediaId }}' => $mediaId],
-                    path: $path,
+                    path: $errorPath,
                 ));
             }
 
@@ -124,7 +124,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
                     messageTemplate: 'The file "{{ mediaId }}" is a link to another server. Upload it to the shop first.',
                     parameters: ['{{ mediaId }}' => $mediaId],
-                    path: $path,
+                    path: $errorPath,
                 ));
 
                 continue;
@@ -135,7 +135,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
                     messageTemplate: 'The size of the file "{{ mediaId }}" is unknown. Upload the file first.',
                     parameters: ['{{ mediaId }}' => $mediaId],
-                    path: $path,
+                    path: $errorPath,
                 ));
 
                 continue;
@@ -146,7 +146,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                     code: self::VIOLATION_FILE_EXTENSION_NOT_ALLOWED,
                     messageTemplate: 'The file type "{{ extension }}" is not allowed for product documents. Allowed are: {{ allowed }}.',
                     parameters: ['{{ extension }}' => (string) $file['extension'], '{{ allowed }}' => implode(', ', $allowedExtensions)],
-                    path: $path,
+                    path: $errorPath,
                 ));
             }
 
@@ -155,7 +155,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                     code: self::VIOLATION_FILE_TOO_LARGE,
                     messageTemplate: 'The file is {{ size }}, but the files of product documents can have at most {{ maxSize }}.',
                     parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($file['size']), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
-                    path: $path,
+                    path: $errorPath,
                 ));
             }
         }
@@ -170,10 +170,10 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      */
     private function getResultingFiles(PreWriteValidationEvent $event, array $mediaIds): array
     {
-        $ids = array_flip(Uuid::fromHexToBytesList($mediaIds));
+        $mediaIdBytes = array_flip(Uuid::fromHexToBytesList($mediaIds));
         $mediaCommands = array_values(array_filter(
             $event->getCommandsForEntity(MediaDefinition::ENTITY_NAME),
-            static fn (WriteCommand $command): bool => isset($ids[$command->getPrimaryKey()['id'] ?? '']),
+            static fn (WriteCommand $command): bool => isset($mediaIdBytes[$command->getPrimaryKey()['id'] ?? '']),
         ));
 
         $files = [];
@@ -234,39 +234,38 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      */
     private function validateNumberOfDocuments(array $documents, ConstraintViolationList $violations): void
     {
-        // per product: the added documents in write order, and the number removed
-        $added = [];
-        $removed = [];
+        $addedPerProduct = [];
+        $removedPerProduct = [];
         foreach ($documents as $document) {
-            $before = $this->productKey($document->getStoredValue('product_id'), $document->getStoredValue('product_version_id'));
-            $after = $this->productKey($document->getResultingValue('product_id'), $document->getResultingValue('product_version_id'));
-            if ($before === $after) {
+            $storedProduct = $this->productKey($document->getStoredValue('product_id'), $document->getStoredValue('product_version_id'));
+            $resultingProduct = $this->productKey($document->getResultingValue('product_id'), $document->getResultingValue('product_version_id'));
+            if ($storedProduct === $resultingProduct) {
                 continue;
             }
 
-            if ($before !== null) {
-                $removed[$before] = ($removed[$before] ?? 0) + 1;
+            if ($storedProduct !== null) {
+                $removedPerProduct[$storedProduct] = ($removedPerProduct[$storedProduct] ?? 0) + 1;
             }
 
-            if ($after !== null) {
-                $added[$after][] = $document;
+            if ($resultingProduct !== null) {
+                $addedPerProduct[$resultingProduct][] = $document;
             }
         }
 
-        if ($added === []) {
+        if ($addedPerProduct === []) {
             return;
         }
 
-        $stored = $this->reader->countDocuments(array_keys($added));
+        $storedCounts = $this->reader->countDocuments(array_keys($addedPerProduct));
 
-        foreach ($added as $product => $addedDocuments) {
-            $tooMany = ($stored[$product] ?? 0) - ($removed[$product] ?? 0) + \count($addedDocuments) - $this->config->maxPerLanguage;
-            if ($tooMany <= 0) {
+        foreach ($addedPerProduct as $product => $addedDocuments) {
+            $overLimit = ($storedCounts[$product] ?? 0) - ($removedPerProduct[$product] ?? 0) + \count($addedDocuments) - $this->config->maxPerLanguage;
+            if ($overLimit <= 0) {
                 continue;
             }
 
             // the last added documents are the ones over the limit
-            foreach (\array_slice($addedDocuments, -$tooMany) as $document) {
+            foreach (\array_slice($addedDocuments, -$overLimit) as $document) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_TOO_MANY_DOCUMENTS,
                     messageTemplate: 'A product can have at most {{ max }} documents per language.',

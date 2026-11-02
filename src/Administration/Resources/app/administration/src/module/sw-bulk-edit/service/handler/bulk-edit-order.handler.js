@@ -53,7 +53,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                         );
                     case 'orderDeliveries':
                         return this.orderStateMachineService.transitionOrderDeliveryState(
-                            order.primaryOrderDeliveryId ?? order.deliveries.first()?.id,
+                            order.deliveries.first()?.id,
                             change.value,
                             options,
                             {},
@@ -102,10 +102,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     getCriteria() {
         const criteria = new Criteria(1, 25);
         criteria.setIds(this.entityIds);
-        criteria
-            .getAssociation('deliveries')
-            .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
-            .addSorting(Criteria.sort('id', 'ASC'));
+        criteria.getAssociation('deliveries');
         criteria
             .getAssociation('transactions')
             .addAssociation('stateMachineState')

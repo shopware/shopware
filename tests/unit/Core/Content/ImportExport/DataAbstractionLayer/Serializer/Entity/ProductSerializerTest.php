@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
@@ -73,7 +74,11 @@ class ProductSerializerTest extends TestCase
         );
     }
 
-    public function testTheVisibilitiesOfARecordWithoutAProductAreNotLookedUp(): void
+    /**
+     * @param array<string, mixed> $idCell
+     */
+    #[DataProvider('recordsWithoutAProductIdProvider')]
+    public function testTheVisibilitiesOfARecordWithoutAProductAreNotLookedUp(array $idCell): void
     {
         $salesChannelIds = [Uuid::randomHex(), Uuid::randomHex()];
 
@@ -91,12 +96,42 @@ class ProductSerializerTest extends TestCase
         $definition = new ProductDefinition();
         $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $record = ['visibilities' => ['all' => implode('|', $salesChannelIds)]];
+        $record = $idCell + ['visibilities' => ['all' => implode('|', $salesChannelIds)]];
 
         $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
 
         static::assertSame([], $visibilityRepository->searchedCriteria);
         static::assertSame($salesChannelIds, array_column($result['visibilities'], 'salesChannelId'));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function recordsWithoutAProductIdProvider(): iterable
+    {
+        yield 'the column is missing' => [[]];
+        // CsvReader hands an empty cell over as an empty string, not as null
+        yield 'the cell is empty' => [['id' => '']];
+    }
+
+    public function testTheMediaOfARecordIsNotReadFromAnEmptyArray(): void
+    {
+        $serializer = new ProductSerializer(
+            StaticEntityRepository::of(ProductVisibilityCollection::class),
+            StaticEntityRepository::of(SalesChannelCollection::class),
+            StaticEntityRepository::of(ProductMediaCollection::class),
+            StaticEntityRepository::of(ProductConfiguratorSettingCollection::class)
+        );
+        $serializer->setRegistry(new SerializerRegistry([], [new FieldSerializer()]));
+
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $record = ['id' => Uuid::randomHex(), 'media' => []];
+
+        $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
+
+        static::assertSame([], $result['media']);
     }
 
     public function testTheConfiguratorSettingsOfAProductAreLookedUpInOneSearch(): void

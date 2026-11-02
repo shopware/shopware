@@ -106,7 +106,7 @@ class ProductSerializer extends EntitySerializer
             yield 'type' => ProductDefinition::TYPE_PHYSICAL;
         }
 
-        $productId = $entity['id'] ?? null;
+        $productId = $deserialized['id'] ?? null;
 
         $mapping = array_flip(self::VISIBILITY_MAPPING);
 
@@ -308,7 +308,7 @@ class ProductSerializer extends EntitySerializer
         array $deserialized,
         Context $context
     ): array {
-        if (($entity['media'] ?? '') === '') {
+        if (($entity['media'] ?? '') === '' || $entity['media'] === []) {
             return [];
         }
 

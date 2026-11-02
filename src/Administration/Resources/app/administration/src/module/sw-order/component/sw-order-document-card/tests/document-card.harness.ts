@@ -292,6 +292,29 @@ export function getDocumentSearches(): DocumentSearch[] {
 }
 
 /**
+ * Holds back the answer to the next document search, as a slow server does, until the returned function sends it.
+ *
+ * @private
+ */
+export function holdNextDocumentSearch(): () => Promise<void> {
+    const search = services.documentRepository.search;
+    let send = () => {};
+    search.mockImplementationOnce((criteria) => {
+        // The once-implementation is used up by now, so this call answers like the fake server.
+        const response = search(criteria);
+
+        return new Promise((resolve) => {
+            send = () => resolve(response);
+        });
+    });
+
+    return async () => {
+        send();
+        await flushPromises();
+    };
+}
+
+/**
  * Gives the logged-in user these privileges, for example `document.viewer`.
  *
  * @private

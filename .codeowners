@@ -79,3 +79,4 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.ts @shopware/product-cc-after-sales
 src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/global.d.ts @shopware/product-cc-after-sales
 src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/tests/requirements.spec.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/tests/regressions.spec.ts @shopware/product-cc-after-sales

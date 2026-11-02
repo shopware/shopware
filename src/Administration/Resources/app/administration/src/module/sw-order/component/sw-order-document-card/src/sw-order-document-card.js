@@ -312,6 +312,10 @@ export default {
                 this.$emit('update-loading', value);
             },
         },
+
+        'order.id'() {
+            this.getList();
+        },
     },
 
     created() {
@@ -400,8 +404,13 @@ export default {
 
         getList() {
             this.documentsLoading = true;
+            const orderId = this.order.id;
 
             return this.documentRepository.search(this.documentCriteria).then((response) => {
+                if (orderId !== this.order.id) {
+                    return Promise.resolve();
+                }
+
                 this.total = response.total;
                 this.documents = response;
                 this.documentsLoaded = true;

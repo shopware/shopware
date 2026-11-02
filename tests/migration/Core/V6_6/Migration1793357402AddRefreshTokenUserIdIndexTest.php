@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_7;
+namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_3\Migration1583844433AddRefreshTokenTable;
-use Shopware\Core\Migration\V6_7\Migration1793357402AddRefreshTokenUserIdIndex;
+use Shopware\Core\Migration\V6_6\Migration1793357402AddRefreshTokenUserIdIndex;
 
 /**
  * @internal

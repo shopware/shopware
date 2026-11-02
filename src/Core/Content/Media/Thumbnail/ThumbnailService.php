@@ -20,6 +20,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -67,6 +68,10 @@ class ThumbnailService
         foreach ($collection as $media) {
             if ($media->getThumbnails() === null) {
                 throw MediaException::thumbnailAssociationNotLoaded();
+            }
+
+            if (ExternalMediaUrl::isExternal($media->getPath())) {
+                continue;
             }
 
             if (!$this->mediaCanHaveThumbnails($media, $context)) {
@@ -128,6 +133,10 @@ class ThumbnailService
     {
         if ($this->remoteThumbnailsEnable) {
             throw MediaException::thumbnailGenerationDisabled();
+        }
+
+        if (ExternalMediaUrl::isExternal($media->getPath())) {
+            return 0;
         }
 
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
@@ -473,6 +482,10 @@ class ThumbnailService
     private function mediaCanHaveThumbnails(MediaEntity $media, Context $context): bool
     {
         if (!$media->hasFile()) {
+            return false;
+        }
+
+        if (ExternalMediaUrl::isExternal($media->getPath())) {
             return false;
         }
 

@@ -8,6 +8,7 @@ use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -49,6 +50,10 @@ class FileLoader
 
     private function getFilePath(MediaEntity $media): string
     {
+        if (ExternalMediaUrl::isExternal($media->getPath())) {
+            throw MediaException::missingFile($media->getId());
+        }
+
         $this->fileNameValidator->validateFileName($media->getFileName() ?: '');
 
         return $media->getPath();

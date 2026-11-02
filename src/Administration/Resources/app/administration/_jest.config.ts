@@ -79,8 +79,6 @@ const config: Config = {
         projectRoot: process.env.PROJECT_ROOT,
     },
 
-    globalTeardown: '<rootDir>test/globalTeardown.js',
-
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
@@ -243,37 +241,35 @@ const config: Config = {
               deprecationBaselineReporter,
           ],
 
-    testMatch:
-        runExtensionToolingE2e
-            ? [e2eSpecPattern]
-            : [
-                  '<rootDir>/src/**/*.spec.js',
-                  '<rootDir>/src/**/*.spec.ts',
-                  '<rootDir>/src/**/*.spec/*.spec.js',
-                  '<rootDir>/src/**/*.spec/*.spec.ts',
-                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
-                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
-                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
-                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
-                  '<rootDir>/eslint-rules/**/*.spec.js',
-                  '<rootDir>/build/vite-plugins/**/*.spec.ts',
-                  '<rootDir>/build/vite-plugins/**/*.spec.js',
-                  '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
-                  '<rootDir>/test/_helper_/**/*.spec.ts',
-                  '<rootDir>/test/_setup/**/*.spec.ts',
-                  '!<rootDir>/src/**/*.spec.vue2.js',
-                  '<rootDir>/scripts/**/*.spec.ts',
-              ],
+    testMatch: runExtensionToolingE2e
+        ? [e2eSpecPattern]
+        : [
+              '<rootDir>/src/**/*.spec.js',
+              '<rootDir>/src/**/*.spec.ts',
+              '<rootDir>/src/**/*.spec/*.spec.js',
+              '<rootDir>/src/**/*.spec/*.spec.ts',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
+              '<rootDir>/eslint-rules/**/*.spec.js',
+              '<rootDir>/build/vite-plugins/**/*.spec.ts',
+              '<rootDir>/build/vite-plugins/**/*.spec.js',
+              '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
+              '<rootDir>/test/_helper_/**/*.spec.ts',
+              '<rootDir>/test/_setup/**/*.spec.ts',
+              '!<rootDir>/src/**/*.spec.vue2.js',
+              '<rootDir>/scripts/**/*.spec.ts',
+          ],
 
     // Jest does not expand <rootDir> in negated testMatch globs, so the e2e exclusion
     // lives here as a regex against absolute paths instead.
-    testPathIgnorePatterns:
-        runExtensionToolingE2e
-            ? ['/node_modules/']
-            : [
-                  '/node_modules/',
-                  '/e2e\\.spec/',
-              ],
+    testPathIgnorePatterns: runExtensionToolingE2e
+        ? ['/node_modules/']
+        : [
+              '/node_modules/',
+              '/e2e\\.spec/',
+          ],
 
     testEnvironmentOptions: {
         customExportConditions: [

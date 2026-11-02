@@ -431,18 +431,32 @@ class RenderedElementFactoryTest extends TestCase
         static::assertNull($result->provenance['headline']->loaderIdentity);
     }
 
+    /**
+     * @param array<string, mixed> $loaded
+     */
+    #[DataProvider('missingMappingLoaderValues')]
     #[TestDox('uses authored content when the mapped source has no value')]
-    public function testMissingMappingUsesAuthoredValue(): void
+    public function testMissingMappingUsesAuthoredValue(array $loaded): void
     {
         $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
             ->withProperty('headline', 'Authored fallback')
+            ->withDataRequirement('headline', 'product', new StubLoaderConfig())
             ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
 
-        $result = $this->mintResult($stored, [], [], ['headline'], [], mappingFallbackKeys: ['headline']);
+        $result = $this->mintResult($stored, $loaded, [], ['headline'], [], mappingFallbackKeys: ['headline']);
 
         static::assertSame('Authored fallback', $result->element->properties['headline']);
         static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['headline']->origin);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function missingMappingLoaderValues(): iterable
+    {
+        yield 'no loader value' => [[]];
+        yield 'null loader value' => [['headline' => null]];
     }
 
     #[TestDox('retains a resolved null for a mapped property instead of restoring its authored value')]

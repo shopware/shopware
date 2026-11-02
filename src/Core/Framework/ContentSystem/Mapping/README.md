@@ -75,6 +75,8 @@ Internal rendering calls require their mapping inputs explicitly: lowering recei
 
 The concrete mapping registry requires an explicit logger for catalogue warnings. `RenderedElementFactory::create()` requires the delivery's calculated mapping-fallback keys explicitly, including an empty list when no field permits fallback; `RenderedTreeFactory` forwards those keys from each element's delivery.
 
+For a mapping in fallback mode, a null loader result does not replace an authored value, either on the rendered element or in the working values supplied to child providers. A non-null loader result keeps its precedence. This exception does not apply to ordinary unmapped properties or a null value resolved by the mapping itself.
+
 ## Runtime error handling
 
 Provider faults and inline-output exhaustion abort the content pipeline rather than becoming missing values or successful partial content results. The outer request handling differs:

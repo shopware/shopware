@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -28,8 +29,12 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandid
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\ResolvedLoaderValue;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -155,6 +160,63 @@ class MappingProviderExtensionTest extends TestCase
     {
         yield 'unavailable candidate' => [false];
         yield 'incompatible provider value' => [true];
+    }
+
+    #[DataProvider('mappingFallbackOutcomes')]
+    public function testParentAndChildUseAuthoredFallbackWhenTheMappingHasNoValueAndTheLoaderReturnsNull(MappingSourceResolution $resolution): void
+    {
+        $source = new MappingSourceReference('AcmePlugin', 'message', path: 'text');
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([
+            new MappingCandidate($source->displayName(), 'Message', '', 'plugin', 'string', source: $source),
+        ]);
+        $provider->expects($this->once())->method('resolveSource')->willReturn($resolution);
+        $this->installRegistry([$provider]);
+        $child = StoredElementBuilder::create(TestElementTypeLoader::MAPPABLE_PRIMITIVE, 'child')
+            ->withConsumer('text', ContextType::Single)
+            ->build();
+        $parent = StoredElementBuilder::create(TestElementTypeLoader::MAPPABLE_PRIMITIVE, 'parent')
+            ->withProperty('text', 'Authored fallback')
+            ->withDataRequirement('text', 'entity', new EntityLoaderConfig(entity: 'product', property: 'productId', associations: []))
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->withProvider('text', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$child])
+            ->build();
+        $loaded = new ResolvedLoaderValue(null, new LoaderValueIdentity(
+            'entity',
+            'config-hash',
+            'inputs-hash',
+            (new ValueFingerprinter())->fingerprint(null),
+        ));
+
+        $deliveries = static::getContainer()->get(ContextDeliveryResolver::class)->resolve(
+            [$parent],
+            ['parent' => ['text' => null]],
+            [],
+            new RenderingCacheContext(),
+            'product',
+        );
+        $result = static::getContainer()->get(RenderedTreeFactory::class)->create(
+            [$parent],
+            $deliveries,
+            ['parent' => ['text' => $loaded]],
+            RenderingMode::FULL,
+        );
+
+        static::assertSame(['text' => 'Authored fallback'], $result->tree[0]->properties);
+        static::assertSame($result->tree[0]->properties, $result->tree[0]->slots['content'][0]->properties);
+        static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['parent']['text']->origin);
+        static::assertSame(ValueOrigin::DeliveredContext, $result->provenance['child']['text']->origin);
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceResolution}>
+     */
+    public static function mappingFallbackOutcomes(): iterable
+    {
+        yield 'missing source' => [MappingSourceResolution::noValue()];
+        yield 'empty source' => [MappingSourceResolution::resolved('')];
     }
 
     public function testRegistryCanBeDecoratedThroughItsPublicAliasWithoutASecondProvider(): void

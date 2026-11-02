@@ -305,8 +305,8 @@ final readonly class ContextDeliveryResolver
 
     /**
      * Later writes win, which is what puts delivered context over loader-resolved over declared. Each tier
-     * is written key by key rather than merged wholesale, so a loader's explicit null and a delivered null
-     * both land as present values instead of being skipped.
+     * is written key by key rather than merged wholesale. A null loader value preserves authored content
+     * only for a mapping in fallback mode; ordinary loader nulls and delivered nulls remain present values.
      *
      * @param array<string, array<string, mixed>> $loaderValues
      *
@@ -320,6 +320,10 @@ final readonly class ContextDeliveryResolver
         );
 
         foreach ($loaderValues[$element->id] ?? [] as $key => $value) {
+            if ($value === null && \in_array($key, $delivery->mappingFallbackKeys, true)) {
+                continue;
+            }
+
             $values[$key] = $value;
         }
 

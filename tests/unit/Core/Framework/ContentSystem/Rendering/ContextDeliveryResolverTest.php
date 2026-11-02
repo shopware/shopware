@@ -836,7 +836,7 @@ class ContextDeliveryResolverTest extends TestCase
      * @param list<string> $fallbackKeys
      */
     #[DataProvider('providedMappingOutcomes')]
-    public function testAllowedMappingOutcomesKeepTheirDistributionBehavior(Struct $ambient, array $parentContext, array $childContext, array $fallbackKeys): void
+    public function testAllowedMappingOutcomesKeepTheirDistributionBehavior(Struct $ambient, array $parentContext, array $childContext, array $fallbackKeys, ?string $loaded): void
     {
         $parent = StoredElementBuilder::create('Sw:Box', 'parent')
             ->withProperty('cover', 'Authored fallback')
@@ -847,7 +847,7 @@ class ContextDeliveryResolverTest extends TestCase
 
         $index = $this->resolverWith()->resolve(
             [$parent],
-            ['parent' => ['cover' => 'Loaded fallback']],
+            ['parent' => ['cover' => $loaded]],
             ['product' => $ambient],
             cacheContext: new RenderingCacheContext(),
             rootSource: 'product',
@@ -859,14 +859,38 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{Struct, array<string, mixed>, array<string, mixed>, list<string>}>
+     * @return iterable<string, array{Struct, array<string, mixed>, array<string, mixed>, list<string>, string|null}>
      */
     public static function providedMappingOutcomes(): iterable
     {
-        yield 'resolved mapping wins' => [new StubContextStruct('Mapped value'), ['cover' => 'Mapped value'], ['cover' => 'Mapped value'], []];
-        yield 'missing source permits fallback' => [new ArrayStruct([]), [], ['cover' => 'Loaded fallback'], ['cover']];
-        yield 'empty source permits fallback' => [new StubContextStruct(''), [], ['cover' => 'Loaded fallback'], ['cover']];
-        yield 'explicit null suppresses fallback and is not distributed' => [new StubContextStruct(null), ['cover' => null], [], []];
+        yield 'resolved mapping wins' => [new StubContextStruct('Mapped value'), ['cover' => 'Mapped value'], ['cover' => 'Mapped value'], [], 'Loaded fallback'];
+        yield 'missing source permits fallback' => [new ArrayStruct([]), [], ['cover' => 'Loaded fallback'], ['cover'], 'Loaded fallback'];
+        yield 'empty source permits fallback' => [new StubContextStruct(''), [], ['cover' => 'Loaded fallback'], ['cover'], 'Loaded fallback'];
+        yield 'explicit null suppresses fallback and is not distributed' => [new StubContextStruct(null), ['cover' => null], [], [], 'Loaded fallback'];
+        yield 'missing source and null loader preserve authored fallback' => [new ArrayStruct([]), [], ['cover' => 'Authored fallback'], ['cover'], null];
+        yield 'empty source and null loader preserve authored fallback' => [new StubContextStruct(''), [], ['cover' => 'Authored fallback'], ['cover'], null];
+        yield 'resolved mapping wins over a null loader' => [new StubContextStruct('Mapped value'), ['cover' => 'Mapped value'], ['cover' => 'Mapped value'], [], null];
+        yield 'explicit mapped null and null loader suppress authored fallback' => [new StubContextStruct(null), ['cover' => null], [], [], null];
+    }
+
+    public function testNullLoaderStillSuppressesAuthoredValuesWithoutAMapping(): void
+    {
+        $parent = StoredElementBuilder::create('Sw:Box', 'parent')
+            ->withProperty('cover', 'Authored value')
+            ->withProvider('cover', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$this->consumer('child', 'cover')])
+            ->build();
+
+        $index = $this->resolver()->resolve(
+            [$parent],
+            ['parent' => ['cover' => null]],
+            [],
+            cacheContext: new RenderingCacheContext(),
+            rootSource: null,
+        );
+
+        static::assertSame([], $index->all()['parent']->mappingFallbackKeys);
+        static::assertSame([], $index->all()['child']->context);
     }
 
     private function resolver(): ContextDeliveryResolver

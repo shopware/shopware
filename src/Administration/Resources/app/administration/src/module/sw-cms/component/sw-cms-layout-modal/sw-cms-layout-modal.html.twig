@@ -72,7 +72,13 @@
         {% endblock %}
 
         {% block sw_cms_layout_modal_content_container %}
-        <div v-else-if="listMode === 'grid'">
+        <mt-radio-group-root
+            v-else-if="listMode === 'grid'"
+            class="sw-cms-layout-modal__radio-group"
+            name="sw-cms-layout-modal-page"
+            :model-value="selectedPageObject?.id ?? null"
+            @update:model-value="onSelectPage"
+        >
             <sw-container
                 columns="repeat(auto-fill, minmax(250px, 1fr))"
                 gap="24px"
@@ -87,11 +93,23 @@
                     {% block sw_cms_layout_modal_content_listing_item %}
 
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
-                    <mt-checkbox
-                        :checked="cmsPage.id === selectedPageObject?.id"
-                        class="sw-cms-layout-modal__content-checkbox"
-                        @update:checked="selectItem(cmsPage)"
-                    />
+                    <mt-radio-group-custom-item
+                        class="sw-cms-layout-modal__content-radio"
+                        :value="cmsPage.id"
+                    >
+                        <mt-radio-group-indicator
+                            :id="`sw-cms-layout-modal-page-${cmsPage.id}`"
+                            name="sw-cms-layout-modal-page"
+                            :value="cmsPage.id"
+                            :checked="cmsPage.id === selectedPageObject?.id"
+                        />
+                        <label
+                            class="visually-hidden"
+                            :for="`sw-cms-layout-modal-page-${cmsPage.id}`"
+                        >
+                            {{ cmsPage.translated?.name }}
+                        </label>
+                    </mt-radio-group-custom-item>
                     {% endblock %}
 
                     {% block sw_cms_layout_modal_content_listing_item_inner %}
@@ -118,81 +136,82 @@
             />
             {% endblock %}
 
-        </div>
+        </mt-radio-group-root>
         {% endblock %}
 
-        <sw-data-grid
+        <mt-radio-group-root
             v-else-if="listMode === 'list'"
-            class="sw-cms-list__list-data-grid"
-            identifier="sw-cms-list"
-            :is-loading="isLoading"
-            :limit="limit"
-            :data-source="pages"
-            :columns="columnConfig"
-            :skeleton-item-amount="limit"
-            :sort-by="sortBy"
-            :sort-direction="sortDirection"
-            :allow-inline-edit="false"
-            :allow-column-edit="false"
-            :show-settings="false"
-            :show-actions="false"
-            :show-selection="true"
-            :maximum-select-items="1"
-            :pre-selection="gridPreSelection"
-            @selection-change="selectInGrid"
-            @column-sort="onSortColumn"
+            class="sw-cms-layout-modal__radio-group"
+            name="sw-cms-layout-modal-page"
+            :model-value="selectedPageObject?.id ?? null"
+            @update:model-value="onSelectPage"
         >
+            <sw-data-grid
+                class="sw-cms-list__list-data-grid"
+                identifier="sw-cms-list"
+                :is-loading="isLoading"
+                :limit="limit"
+                :data-source="pages"
+                :columns="columnConfig"
+                :skeleton-item-amount="limit"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :allow-inline-edit="false"
+                :allow-column-edit="false"
+                :show-settings="false"
+                :show-actions="false"
+                :show-selection="false"
+                @column-sort="onSortColumn"
+            >
 
-            {% block sw_cms_list_listing_list_data_grid_column_name %}
-            <template #column-name="{ item }">
-                <div
-                    role="button"
-                    tabindex="0"
-                    @click="selectItem(item)"
-                    @keydown.enter="selectItem(item)"
-                >
-                    {{ item.translated.name }}
-                </div>
-            </template>
-            {% endblock %}
+                {% block sw_cms_list_listing_list_data_grid_column_name %}
+                <template #column-name="{ item }">
+                    <mt-radio-group-item
+                        :id="`sw-cms-layout-modal-page-${item.id}`"
+                        :value="item.id"
+                        :label="item.translated.name"
+                    />
+                </template>
+                {% endblock %}
 
-            {% block sw_cms_list_listing_list_data_grid_column_type %}
-            <template #column-type="{ item }">
-                {{ getPageType(item) }}
-            </template>
-            {% endblock %}
+                {% block sw_cms_list_listing_list_data_grid_column_type %}
+                <template #column-type="{ item }">
+                    {{ getPageType(item) }}
+                </template>
+                {% endblock %}
 
-            {% block sw_cms_list_listing_list_data_grid_column_created %}
-            <template #column-createdAt="{ item }">
-                <sw-time-ago
-                    :date="item.createdAt"
-                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
-                />
-            </template>
-            {% endblock %}
+                {% block sw_cms_list_listing_list_data_grid_column_created %}
+                <template #column-createdAt="{ item }">
+                    <sw-time-ago
+                        :date="item.createdAt"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                    />
+                </template>
+                {% endblock %}
 
-            {% block sw_cms_list_listing_list_data_grid_column_updated %}
-            <template #column-updatedAt="{ item }">
-                <sw-time-ago
-                    v-if="item.updatedAt"
-                    :date="item.updatedAt"
-                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
-                />
-            </template>
-            {% endblock %}
+                {% block sw_cms_list_listing_list_data_grid_column_updated %}
+                <template #column-updatedAt="{ item }">
+                    <sw-time-ago
+                        v-if="item.updatedAt"
+                        :date="item.updatedAt"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                    />
+                </template>
+                {% endblock %}
 
-            {% block sw_cms_list_listing_list_data_grid_pagination %}
-            <template #pagination>
-                <sw-pagination
-                    :page="page"
-                    :limit="limit"
-                    :total="total"
-                    :auto-hide="false"
-                    @page-change="onPageChange"
-                />
-            </template>
-            {% endblock %}
-        </sw-data-grid>
+                {% block sw_cms_list_listing_list_data_grid_pagination %}
+                <template #pagination>
+                    <sw-pagination
+                        :page="page"
+                        :limit="limit"
+                        :total="total"
+                        :auto-hide="false"
+                        @page-change="onPageChange"
+                    />
+                </template>
+                {% endblock %}
+            </sw-data-grid>
+        </mt-radio-group-root>
         {% endblock %}
     </div>
     {% endblock %}

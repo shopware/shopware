@@ -1,9 +1,11 @@
 import Feature from 'src/helper/feature.helper';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 
 describe('plugin/google-analytics/events/view-item.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        window.localStorage.clear();
         Feature.init({ JSON_LD_DATA: false });
     });
 
@@ -121,5 +123,54 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
         expect(consoleSpy).toHaveBeenCalled();
         consoleSpy.mockRestore();
+    });
+
+    test('reports the list the product was selected from on the item, where view_item defines it', () => {
+        // the listing displayed the parent, the detail page resolved to one of its variants
+        ListAttributionHelper.remember('SW10000', { item_list_id: 'category:1', item_list_name: 'Shirts' }, 'parent-id');
+
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <span itemprop="sku">SW10000.1</span>
+                <span itemprop="name">Test Product</span>
+            </div>
+            <div class="product-detail-buy" data-product-id="variant-id" data-product-parent-id="parent-id"></div>
+        `;
+
+        new ViewItemEvent().execute();
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+
+        expect(parameters).not.toHaveProperty('item_list_id');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({
+            'item_id': 'SW10000.1',
+            'item_list_id': 'category:1',
+            'item_list_name': 'Shirts',
+        }));
+
+        // a later direct visit of the product is not attributed to the list again
+        window.gtag.mockClear();
+        new ViewItemEvent().execute();
+
+        expect(window.gtag.mock.calls[0][2].items[0]).not.toHaveProperty('item_list_id');
+    });
+
+    test('reports the search term of a product selected from the search result on the event', () => {
+        ListAttributionHelper.remember('SW10000', { item_list_id: 'search', item_list_name: 'Search results', search_term: 'shirt' });
+
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <span itemprop="sku">SW10000</span>
+                <span itemprop="name">Test Product</span>
+            </div>
+        `;
+
+        new ViewItemEvent().execute();
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+
+        expect(parameters.search_term).toBe('shirt');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({ 'item_list_id': 'search' }));
+        expect(parameters.items[0]).not.toHaveProperty('search_term');
     });
 });

@@ -134,7 +134,7 @@ class ImportEntityCommandTest extends TestCase
 
         $message = $commandTester->getDisplay();
         static::assertStringContainsString(\sprintf('[ERROR] Errors on import. Rolling back transactions for %d records.', $num), $message);
-        static::assertStringContainsString('Integrity constraint violation', $message);
+        static::assertStringContainsString('Caught 1 constraint violation errors.', $message);
 
         $repository = static::getContainer()->get('product.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());

@@ -38,6 +38,24 @@ class EntityScoreQueryBuilder
         static $counter = 0;
         ++$counter;
 
+        return $this->buildScoreQueriesForPath($term, $definition, $root, $context, $multiplier, []);
+    }
+
+    /**
+     * @param array<string, true> $path
+     *
+     * @return ScoreQuery[]
+     */
+    private function buildScoreQueriesForPath(
+        SearchPattern $term,
+        EntityDefinition $definition,
+        string $root,
+        Context $context,
+        float $multiplier,
+        array $path
+    ): array {
+        $path[$definition->getEntityName()] = true;
+
         $fields = $this->getQueryFields($definition, $context);
 
         $queries = [];
@@ -57,19 +75,18 @@ class EntityScoreQueryBuilder
 
             $select = $root . '.' . $field->getPropertyName();
 
-            if ($field instanceof ManyToManyAssociationField) {
-                $queries = array_merge(
-                    $queries,
-                    $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $context, $ranking)
-                );
-
-                continue;
-            }
-
             if ($field instanceof AssociationField) {
+                $referenceDefinition = $field instanceof ManyToManyAssociationField
+                    ? $field->getToManyReferenceDefinition()
+                    : $field->getReferenceDefinition();
+
+                if (isset($path[$referenceDefinition->getEntityName()])) {
+                    continue;
+                }
+
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $context, $ranking)
+                    $this->buildScoreQueriesForPath($term, $referenceDefinition, $select, $context, $ranking, $path)
                 );
 
                 continue;

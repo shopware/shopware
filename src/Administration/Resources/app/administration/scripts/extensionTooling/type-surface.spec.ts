@@ -42,6 +42,21 @@ describe('extension-tooling type surface', () => {
         expect(notImported).toEqual([]);
     });
 
+    it('imports the global.d.ts of every mini-module so extensions get typed overrides', () => {
+        const miniModuleTypes = fs.readFileSync(path.join(adminRoot, 'extension-tooling', 'mini-modules.d.ts'), 'utf8');
+
+        const notImported = (fs.readdirSync(srcDir, { recursive: true }) as string[])
+            .filter(
+                (file) =>
+                    path.basename(file) === 'global.d.ts' &&
+                    fs.existsSync(path.join(srcDir, path.dirname(file), 'index.ts')),
+            )
+            .map((file) => `../src/${toPosix(file).replace(/\.d\.ts$/, '')}`)
+            .filter((specifier) => !miniModuleTypes.includes(`'${specifier}'`));
+
+        expect(notImported).toEqual([]);
+    });
+
     it('carries the native-setup macro declarations so extensions type-check swDefinePublic and friends', () => {
         const adminTypes = fs.readFileSync(adminTypesPath, 'utf8');
 

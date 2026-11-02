@@ -196,13 +196,16 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - **Plugins with references outside their element** can still point to replaced nodes.
 - **Plugin options** of existing elements are not applied again.
   A changed plugin element asks for a reload instead.
-- **Inline scripts** in morphed markup do not run again.
+- **Inline scripts** in morphed markup do not run again, and no notice asks for a reload.
   Plugins should use the PluginManager instead.
 - **Offcanvas content without a GET URL** keeps the old markup until it is opened again.
   This covers offcanvas content loaded with a POST request, except for the cart.
-- **Head changes** other than the title ask for a reload.
+- **Head changes** to `meta` and `link` elements ask for a reload, the title updates in place.
+  Other head changes, for example an inline script in `utilities/form-validation-config.html.twig`, are not detected.
 - **Duplicate ids** in the page make idiomorph match the wrong nodes.
 - **Pages reached by POST** show the result of a GET request after a refresh.
+- **URLs changed with `history.pushState`** are fetched as they are.
+  `FormAddHistory` on the confirm page pushes `/account/order` even if the validation stops the submit, so the next refresh fetches the order page and asks for a reload.
 - **Fragment baselines** are fetched when a fragment opens.
   A template saved in the short time before that request finishes counts as the previous render.
 - **Server setup.**
@@ -212,6 +215,7 @@ These are covered by the tests in `test/dev/twig-hmr`:
   The Storefront only adds an extension script to `theme_scripts()` if `Resources/app/storefront/dist/storefront/js/<name>/<name>.js` exists.
   Webpack still compiles the entry, but the page never requests it.
   `src/dev/hot-mode/missing-extension-scripts.js` warns about these extensions in the browser console in every hot mode session, also without the Twig hot reload.
+  After you add or remove a `dist` folder, run `theme:refresh` and `cache:clear`, because the script list is stored in `theme_runtime_config`.
 
 ## Vite dev server
 

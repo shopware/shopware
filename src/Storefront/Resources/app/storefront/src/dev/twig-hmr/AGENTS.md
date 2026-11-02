@@ -56,10 +56,11 @@ Keep the markers out of commits.
 | Core template text | Edit a block in `layout/header/logo.html.twig` | Marker updates in place, one update event, no reload |
 | Plugin override text | Edit the same template in the plugin override | Same as above, the plugin markup wins |
 | App override text | Edit the same template in the override of an active app under `custom/apps/` | Same as above, the app markup wins |
-| SCSS | Edit a theme SCSS file | Style changes through the webpack dev server, no Twig update event |
-| Override added | Create a plugin override of a core template | Page shows the override without reload, the watcher log reports the batch as structural |
+| SCSS | Edit a theme SCSS file | Style changes after a full page reload of the webpack dev server (`hot: false`), no Twig update event |
+| Override added | Create a plugin override of a core template | Page shows the override without reload, the watcher log marks the file as `(added or removed)` |
 | Override removed | Delete the override again | Page falls back to the core template without reload |
-| Unsafe change | Remove an element with an `id` that an open overlay depends on, or change a `<script>` | The event lists the file in `reloadRequired`, the page reloads |
+| Unsafe change | Remove the `id` of an open modal, for example in `component/twig-hmr-demo/modal.html.twig` | The notice names the open element and offers a "Reload page" button, the page keeps its content until you reload |
+| Script change | Add `<script>console.log(1)</script>` to a body template | The markup is applied, the script does not run, no notice, as documented in the README limits |
 | Symfony toolbar | Edit any template with the toolbar open | Toolbar stays, its `_wdt` request loads from the proxy origin |
 | Mini cart after POST | Add a product to the cart on a detail page, then edit `component/checkout/offcanvas-cart.html.twig` | Offcanvas stays open, line items stay, marker updates |
 | Mobile navigation | Viewport below 768px, open the menu, go to a second level, then edit `layout/navigation/offcanvas/categories.html.twig` | Menu stays open at the same level, marker updates, Back still works |
@@ -79,6 +80,7 @@ Keep the markers out of commits.
 Verified in the browser on 2026-10-30 for the rows up to the form state, except the ajax modal and the form state, which are covered by unit tests.
 The app override row was verified on 2026-10-31.
 The rows from the registration form on were verified on 2026-11-02.
+All rows were verified again on 2026-11-02, except the ajax modal and the form state.
 
 ## Proxy matrix
 
@@ -115,7 +117,9 @@ Pass `-H 'Accept: text/html'` for pages, and no Accept header for fragments.
 - In a container, `theme:dump` and the watcher need `APP_ENV=dev` when the environment default is `prod`.
 - An extension script only loads in hot mode once its production build exists in `Resources/app/storefront/dist/storefront/js/<name>/<name>.js`.
   The console warning `[sw-hot-mode] The JavaScript of these extensions is compiled, but the page does not load it` names them.
-  Build once with `composer build:js:storefront`, then run `cache:clear`.
+  Build once with `composer build:js:storefront`, which ends with `theme:compile`.
+  To test the warning, move the `dist` folder away, run `theme:refresh` and `cache:clear`, and reload; `cache:clear` alone keeps the old script list in `theme_runtime_config`.
+  Restore the folder and run `theme:refresh` again.
 - A `[sw-twig-hmr]` console warning about the debug mode or the HTTP cache means the server answers with stale markup, fix the setup before testing.
 
 ## Resources

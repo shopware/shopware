@@ -1027,13 +1027,13 @@ describe('dev/twig-hmr server setup warnings', () => {
     }
 
     it('does not warn for an uncached response in debug mode', () => {
-        check({ 'x-debug-token': 'abc123', 'x-symfony-cache': 'GET /: miss, store', age: '0' });
+        check({ 'x-debug-token': 'abc123', 'x-symfony-cache': 'GET /: miss, store', age: '1' });
 
         expect(console.warn).not.toHaveBeenCalled();
     });
 
     it.each([
-        ['an Age header', { 'x-debug-token': 'abc123', age: '12' }],
+        ['an Age header from a reverse proxy', { 'x-debug-token': 'abc123', age: '12' }],
         ['a fresh Symfony cache entry', { 'x-symfony-cache': 'GET /: miss; GET /_esi/global/header: fresh' }],
     ])('warns once about the HTTP cache for %s', (name, headers) => {
         check(headers);

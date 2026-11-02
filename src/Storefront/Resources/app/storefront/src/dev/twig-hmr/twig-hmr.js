@@ -68,7 +68,12 @@ function warnOnce(key, message) {
 export function warnAboutServerSetup(response) {
     const symfonyCache = response.headers.get('x-symfony-cache');
 
-    if (Number(response.headers.get('age')) > 0 || /\b(fresh|stale|valid)\b/.test(symfonyCache || '')) {
+    // The Symfony HTTP cache can send `Age: 1` on a fresh miss, so its own header wins if present.
+    const isCached = symfonyCache === null
+        ? Number(response.headers.get('age')) > 0
+        : /\b(fresh|stale|valid)\b/.test(symfonyCache);
+
+    if (isCached) {
         warnOnce('http-cache', [
             'The page came from an HTTP cache, so template changes may not show up.',
             'Disable the HTTP cache while developing, for example with SHOPWARE_HTTP_CACHE_ENABLED=0, and bypass reverse proxies such as Varnish.',

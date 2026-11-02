@@ -9,6 +9,8 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\Fie
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -95,5 +97,50 @@ class ProductSerializerTest extends TestCase
 
         static::assertSame([], $visibilityRepository->searchedCriteria);
         static::assertSame($salesChannelIds, array_column($result['visibilities'], 'salesChannelId'));
+    }
+
+    public function testTheConfiguratorSettingsOfAProductAreLookedUpInOneSearch(): void
+    {
+        $parentId = Uuid::randomHex();
+        $optionIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+        $existingSettingId = Uuid::randomHex();
+
+        $existing = new ProductConfiguratorSettingCollection([
+            (new ProductConfiguratorSettingEntity())->assign([
+                'id' => $existingSettingId,
+                'productId' => $parentId,
+                'optionId' => $optionIds[1],
+            ]),
+        ]);
+
+        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorSettingRepository */
+        // one result per option, so a per-option lookup is counted rather than running the queue dry
+        $configuratorSettingRepository = new StaticEntityRepository([$existing, $existing, $existing], new ProductConfiguratorSettingDefinition());
+
+        $serializer = new ProductSerializer(
+            StaticEntityRepository::of(ProductVisibilityCollection::class),
+            StaticEntityRepository::of(SalesChannelCollection::class),
+            StaticEntityRepository::of(ProductMediaCollection::class),
+            $configuratorSettingRepository
+        );
+        $serializer->setRegistry(new SerializerRegistry([], [new FieldSerializer()]));
+
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $record = [
+            'id' => Uuid::randomHex(),
+            'parentId' => $parentId,
+            'options' => implode('|', $optionIds),
+        ];
+
+        $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
+
+        static::assertCount(1, $configuratorSettingRepository->searchedCriteria);
+        static::assertSame([
+            ['optionId' => $optionIds[0], 'product' => ['id' => $parentId]],
+            ['optionId' => $optionIds[1], 'product' => ['id' => $parentId], 'id' => $existingSettingId],
+            ['optionId' => $optionIds[2], 'product' => ['id' => $parentId]],
+        ], $result['configuratorSettings']);
     }
 }

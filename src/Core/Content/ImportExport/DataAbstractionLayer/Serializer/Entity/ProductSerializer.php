@@ -137,7 +137,7 @@ class ProductSerializer extends EntitySerializer
         }
 
         if ($visibilities !== []) {
-            yield 'visibilities' => $this->findVisibilityIds($visibilities, $context);
+            yield 'visibilities' => $this->findVisibilityIds($productId, $visibilities, $context);
         }
 
         try {
@@ -165,10 +165,8 @@ class ProductSerializer extends EntitySerializer
      *
      * @return array<array<string, mixed>>
      */
-    private function findVisibilityIds(array $visibilities, Context $context): array
+    private function findVisibilityIds(?string $productId, array $visibilities, Context $context): array
     {
-        $productId = $visibilities[0]['productId'] ?? null;
-
         if ($productId === null) {
             return $visibilities;
         }
@@ -256,28 +254,39 @@ class ProductSerializer extends EntitySerializer
      */
     private function findConfiguratorSettings(string $parentId, array $options, Context $context): array
     {
-        $configuratorSettings = [];
+        $optionIds = [];
 
         foreach ($options as $option) {
-            if (($option['id'] ?? '') === '') {
-                continue;
+            if (($option['id'] ?? '') !== '') {
+                $optionIds[] = $option['id'];
             }
+        }
 
+        if ($optionIds === []) {
+            return [];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $parentId));
+        $criteria->addFilter(new EqualsAnyFilter('optionId', $optionIds));
+
+        $existingIds = [];
+        foreach ($this->productConfiguratorSettingRepository->search($criteria, $context)->getEntities() as $existing) {
+            $existingIds[$existing->getOptionId()] = $existing->getId();
+        }
+
+        $configuratorSettings = [];
+
+        foreach ($optionIds as $optionId) {
             $configuratorSetting = [
-                'optionId' => $option['id'],
+                'optionId' => $optionId,
                 'product' => [
                     'id' => $parentId,
                 ],
             ];
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $parentId));
-            $criteria->addFilter(new EqualsFilter('optionId', $option['id']));
-
-            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, $context)->firstId();
-
-            if ($id) {
-                $configuratorSetting['id'] = $id;
+            if (isset($existingIds[$optionId])) {
+                $configuratorSetting['id'] = $existingIds[$optionId];
             }
 
             $configuratorSettings[] = $configuratorSetting;

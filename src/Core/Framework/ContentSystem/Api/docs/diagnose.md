@@ -32,7 +32,7 @@ The optional `rootSource` binds the draft to that root source's context so bindi
 | `layout`     | no       | Raw element-tree array; decoded through the same path as a stored layout (`Layout/Codec/StoredElementCodec::decode()`). Defaults to an empty tree when omitted.                                                          |
 | `rootSource` | no       | The root source whose context the draft is checked against: an entity type (`content-system-entity-types.json` value), a section id (`header`, `footer`), or `none`. Resolved through `Adapter/RootSourceRegistry`. An unknown non-empty value is rejected with 400 (`unknownRootSource`). |
 
-With `rootSource` empty or omitted, the response reports intrinsic well-formedness and `invalid_mapping` binding violations for explicit inline tokens in opted-in properties that require a bound source. Whole-field mappings and other binding checks remain unjudged.
+With `rootSource` omitted, `null`, or the empty string (`""`), the response reports intrinsic well-formedness and `invalid_mapping` binding violations for explicit inline tokens in opted-in properties that require a bound source. Whole-field mappings and other binding checks remain unjudged. Non-empty source names are checked against the registered sources without trimming.
 
 ## Errors
 

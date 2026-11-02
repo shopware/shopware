@@ -483,6 +483,46 @@ class LayoutMutationControllerTest extends TestCase
         static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('missingMappingRootSourceProvider')]
+    public function testMovingElementsPreservesUnboundMappingsAndReportsInlineTokensRequiringASource(array $rootSourcePayload): void
+    {
+        $source = ['type' => 'root', 'id' => 'category', 'path' => 'media'];
+        $body = $this->mutate('move-element', [
+            ...$rootSourcePayload,
+            'layout' => [
+                [
+                    'id' => 'mapped', 'component' => 'Sw:Media:Gallery', 'properties' => [],
+                    'acceptsContext' => ['mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => $source]],
+                ],
+                [
+                    'id' => 'inline', 'component' => 'Sw:Content:Text',
+                    'properties' => ['text' => 'Hello {{map:product.name}}'],
+                ],
+            ],
+            'elementId' => 'inline', 'index' => 0,
+        ]);
+
+        static::assertSame(['inline', 'mapped'], array_column($body['layout'], 'id'));
+        static::assertSame($source, $body['layout'][1]['acceptsContext']['mediaItems']['source']);
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_mapping',
+        ));
+        static::assertCount(1, $violations);
+        static::assertSame('inline', $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame(
+            ContentSystemException::inlineMappingRequiresRootSource('product.name', 'text')->getMessage(),
+            $violations[0]['message'],
+        );
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
     #[TestDox('rejects non-string wrap target ids at the request boundary with a 400')]
     public function testWrapRejectsNonStringElementIds(): void
     {

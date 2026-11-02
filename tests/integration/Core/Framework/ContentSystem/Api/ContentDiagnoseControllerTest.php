@@ -320,11 +320,15 @@ class ContentDiagnoseControllerTest extends TestCase
     /**
      * The reason the source is a separate input rather than something the analysis derives: without it there is
      * no catalogue to judge against, and guessing one would report a legal mapping as broken.
+     *
+     * @param array<string, mixed> $rootSourcePayload
      */
+    #[DataProvider('unboundRootSourceProvider')]
     #[TestDox('leaves the same mapping unjudged when the request names no root source')]
-    public function testDiagnoseLeavesAMappingUnjudgedWithoutARootSource(): void
+    public function testDiagnoseLeavesAMappingUnjudgedWithoutARootSource(array $rootSourcePayload): void
     {
         $body = $this->diagnose([
+            ...$rootSourcePayload,
             'layout' => [[
                 'id' => $this->ids->get('element'),
                 'component' => 'Sw:Media:Gallery',
@@ -336,6 +340,40 @@ class ContentDiagnoseControllerTest extends TestCase
         ]);
 
         static::assertSame([], $this->violationsWithCode($body, 'invalid_mapping'));
+    }
+
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('unboundRootSourceProvider')]
+    public function testDiagnoseReportsThatInlineTokensRequireARootSource(array $rootSourcePayload): void
+    {
+        $element = $this->element('Sw:Content:Text');
+        $element['properties'] = ['text' => 'Hello {{map:product.name}}'];
+
+        $body = $this->diagnose(['layout' => [$element], ...$rootSourcePayload]);
+
+        $violations = $this->violationsWithCode($body, 'invalid_mapping');
+        static::assertCount(1, $violations);
+        static::assertSame($element['id'], $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame(
+            ContentSystemException::inlineMappingRequiresRootSource('product.name', 'text')->getMessage(),
+            $violations[0]['message'],
+        );
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unboundRootSourceProvider(): iterable
+    {
+        yield 'omitted source' => [[]];
+        yield 'null source' => [['rootSource' => null]];
+        yield 'empty source' => [['rootSource' => '']];
     }
 
     #[TestDox('admits a mapping the bound root source catalogues')]

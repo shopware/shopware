@@ -393,12 +393,12 @@ class PriceSerializerTest extends TestCase
 
     public function testTheCurrencyOfAPriceIsLookedUpOnce(): void
     {
-        // one queued result, so a second lookup of the same currency would fail the test
-        $currencyRepository = $this->getCurrencyRepository([
-            new CurrencyCollection([
-                (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
-            ]),
+        $currency = new CurrencyCollection([
+            (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
         ]);
+
+        // one result per serialize call, so an uncached lookup is counted rather than running the queue dry
+        $currencyRepository = $this->getCurrencyRepository([$currency, $currency, $currency]);
 
         $priceSerializer = new PriceSerializer($currencyRepository);
         $config = new Config([], [], []);
@@ -410,7 +410,7 @@ class PriceSerializerTest extends TestCase
             \iterator_to_array($priceSerializer->serialize($config, $field, $price));
         }
 
-        static::assertSame([], $currencyRepository->searches);
+        static::assertCount(1, $currencyRepository->searchedCriteria);
     }
 
     public function testTheCurrencyIsLookedUpAgainAfterAReset(): void
@@ -419,8 +419,7 @@ class PriceSerializerTest extends TestCase
             (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
         ]);
 
-        // two queued results: one for the first run and one for the run after the reset
-        $currencyRepository = $this->getCurrencyRepository([$currency, $currency]);
+        $currencyRepository = $this->getCurrencyRepository([$currency, $currency, $currency]);
 
         $priceSerializer = new PriceSerializer($currencyRepository);
         $config = new Config([], [], []);
@@ -432,7 +431,7 @@ class PriceSerializerTest extends TestCase
         $priceSerializer->reset();
         \iterator_to_array($priceSerializer->serialize($config, $field, $price));
 
-        static::assertSame([], $currencyRepository->searches);
+        static::assertCount(2, $currencyRepository->searchedCriteria);
     }
 
     /**

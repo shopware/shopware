@@ -67,6 +67,7 @@ final class XmlParser
 
     // TODO: Remove this pre-parse once Symfony's `XmlUtils` no longer resolves the DTD before it rejects the document type.
     // The issue was reported to Symfony; until it is fixed upstream, every extension XML file is parsed twice.
+    // Tracked in https://github.com/shopware/shopware-private/issues/578
     private static function assertNoDocumentType(string $content): void
     {
         if ($content === '') {

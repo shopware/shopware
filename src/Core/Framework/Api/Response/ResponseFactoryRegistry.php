@@ -13,8 +13,10 @@ use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 #[Package('framework')]
 class ResponseFactoryRegistry
 {
-    private const DEFAULT_RESPONSE_TYPE = 'application/vnd.api+json';
-    private const SALES_CHANNEL_DEFAULT_RESPONSE_TYPE = 'application/json';
+    private const DEFAULT_RESPONSE_TYPE = 'application/json';
+
+    // @deprecated tag:v6.8.0 - Remove the legacy JSON:API default.
+    private const LEGACY_DEFAULT_RESPONSE_TYPE = 'application/vnd.api+json';
 
     /**
      * @var ResponseFactoryInterface[]
@@ -35,14 +37,14 @@ class ResponseFactoryRegistry
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
 
         $contentTypes = $request->getAcceptableContentTypes();
-        if ($contentTypes === [] && Feature::isActive('v6.8.0.0')) {
-            $contentTypes[] = 'application/json';
-        }
-
-        if (\in_array('*/*', $contentTypes, true)) {
-            $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource || Feature::isActive('v6.8.0.0'))
-                ? self::SALES_CHANNEL_DEFAULT_RESPONSE_TYPE
-                : self::DEFAULT_RESPONSE_TYPE;
+        if (Feature::isActive('v6.8.0.0')) {
+            if ($contentTypes === [] || \in_array('*/*', $contentTypes, true)) {
+                $contentTypes[] = self::DEFAULT_RESPONSE_TYPE;
+            }
+        } elseif (\in_array('*/*', $contentTypes, true)) {
+            $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
+                ? self::DEFAULT_RESPONSE_TYPE
+                : self::LEGACY_DEFAULT_RESPONSE_TYPE;
         }
 
         foreach ($contentTypes as $contentType) {

@@ -1,17 +1,31 @@
 /**
  * @sw-package after-sales
  */
-// @deprecated tag:v6.9.0 - DocumentEvents is deprecated and will be removed.
-import { DocumentEvents } from 'src/core/service/api/document.api.service';
-import { searchRankingPoint } from 'src/app/service/search-ranking.service';
-import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-import EntityCollection from '../../../../core/data/entity-collection.data';
-import { DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
-
-const { Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    Criteria,
+    DOCUMENT_TYPES,
+    DocumentEvents,
+    EntityCollection,
+    FILE_FORMATS,
+    aclService,
+    documentService,
+    documentV2ApiService,
+    documentV2Service,
+    fileReaderUtils,
+    getApiContext,
+    getAssetFilter,
+    getDateFilter,
+    isFeatureActive,
+    listingMixin,
+    notificationMixin,
+    numberRangeService,
+    placeholderMixin,
+    repositoryFactoryService,
+    searchRankingPoint,
+    useOrderDetailStore,
+} from '../dependencies';
 
 /**
  * @private
@@ -27,22 +41,25 @@ export const ZUGFERD_COMPONENT_MAPPING = {
     [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
 };
 
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
         // @deprecated tag:v6.9.0 - documentService will be removed.
-        'documentService',
-        'documentV2ApiService',
-        'documentV2Service',
-        'numberRangeService',
-        'repositoryFactory',
-        'acl',
+        documentService,
+        documentV2ApiService,
+        documentV2Service,
+        numberRangeService,
+        repositoryFactoryService,
+        aclService,
     ],
 
     emits: ['update-loading', 'document-save'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [listingMixin, placeholderMixin, notificationMixin],
 
     props: {
         order: {
@@ -87,7 +104,7 @@ export default {
     },
 
     computed: {
-        isEditing: () => Store.get('swOrderDetail').isEditing,
+        isEditing: () => useOrderDetailStore().isEditing,
 
         creditItems() {
             const items = [];
@@ -270,14 +287,14 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
 
         isXmlDocument() {
@@ -310,7 +327,7 @@ export default {
                 this.cardLoading = false;
             });
 
-            if (Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+            if (isFeatureActive('DOCUMENT_GENERATION_REWORK')) {
                 this.documentV2Service
                     .getAvailableDocumentTypes()
                     .then((supportedDocumentTypes) => {
@@ -491,7 +508,7 @@ export default {
          */
         openDocument(documentId, documentDeepLink, fileType) {
             this.documentService
-                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .getDocument(documentId, documentDeepLink, getApiContext(), true, fileType)
                 .then((response) => {
                     if (response.data) {
                         const link = document.createElement('a');
@@ -525,7 +542,7 @@ export default {
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
             this.documentService
-                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .getDocument(documentId, documentDeepLink, getApiContext(), true, fileType)
                 .then((response) => {
                     if (response.data) {
                         const filename = fileReaderUtils.getFilenameFromResponse(response);
@@ -557,11 +574,7 @@ export default {
 
         async sendDocumentAction(documentId) {
             try {
-                const documentData = await this.documentRepository.get(
-                    documentId,
-                    Shopware.Context.api,
-                    this.documentCriteria,
-                );
+                const documentData = await this.documentRepository.get(documentId, getApiContext(), this.documentCriteria);
                 if (!documentData) {
                     return;
                 }
@@ -681,7 +694,7 @@ export default {
                     : response?.data?.documentDeepLink;
 
                 if (params.documentMediaFileId) {
-                    const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
+                    const documentData = await this.documentRepository.get(documentId, getApiContext());
                     documentData.documentMediaFileId = params.documentMediaFileId;
                     await this.documentRepository.save(documentData);
                 }
@@ -693,7 +706,7 @@ export default {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');
 
-                    this.documentRepository.get(documentId, Shopware.Context.api, criteria).then((documentData) => {
+                    this.documentRepository.get(documentId, getApiContext(), criteria).then((documentData) => {
                         if (!documentData) {
                             return;
                         }
@@ -739,7 +752,7 @@ export default {
 
             if (params.documentMediaFileId) {
                 try {
-                    const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
+                    const documentData = await this.documentRepository.get(documentId, getApiContext());
                     documentData.documentMediaFileId = params.documentMediaFileId;
                     await this.documentRepository.save(documentData);
                 } catch {
@@ -870,7 +883,7 @@ export default {
             this.documentDeleteId = null;
 
             return this.documentRepository
-                .delete(id, this.documents.context ?? Shopware.Context.api)
+                .delete(id, this.documents.context ?? getApiContext())
                 .then(() => {
                     return this.getList();
                 })

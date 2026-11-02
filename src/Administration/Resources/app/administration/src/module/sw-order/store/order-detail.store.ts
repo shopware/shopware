@@ -20,8 +20,14 @@ interface OrderAddressId {
     edited: boolean;
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swOrderDetailStoreId = 'swOrderDetail';
+
 const swOrderDetailStore = Shopware.Store.register({
-    id: 'swOrderDetail',
+    id: swOrderDetailStoreId,
 
     state() {
         return {

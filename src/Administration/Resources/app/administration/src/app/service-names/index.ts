@@ -6,4 +6,12 @@
  * This file is the public API, also for extensions. The files in `./src` are private.
  */
 /** @public */
-export { repositoryFactory, ruleConditionDataProviderService } from './src/service-names';
+export {
+    acl,
+    documentService,
+    documentV2ApiService,
+    documentV2Service,
+    numberRangeService,
+    repositoryFactory,
+    ruleConditionDataProviderService,
+} from './src/service-names';

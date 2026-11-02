@@ -3,6 +3,8 @@ import { definePublicComponent } from 'src/core/public-component';
 /**
  * @sw-package after-sales
  *
+ * The documents card of an order: it lists the order's documents and lets a merchant create, upload, open,
+ * download, send and delete them.
  * This file is the public API, also for extensions. The files in `./src` are private.
  * The lists hold everything the component offered before it became a mini-module,
  * because Component.override could reach all of it. Shrink them only through the deprecation process.
@@ -26,7 +28,6 @@ export default definePublicComponent({
             'sw_order_document_card_header',
             'sw_order_document_card_header_filter',
             'sw_order_document_card_header_create_document_context_button',
-            'sw_order_document_card_header_create_document_button_label',
             'sw_order_document_card_header_create_document_button_label',
             'sw_order_document_card_grid',
             'sw_order_document_card_grid_column_date',

@@ -2,7 +2,13 @@
  * @sw-package framework
  */
 
-Shopware.Filter.register('asset', (value: string) => {
+/**
+ * @private
+ * The name the filter is registered under, for code that looks it up with `Shopware.Filter.getByName()`.
+ */
+export const assetFilterName = 'asset';
+
+Shopware.Filter.register(assetFilterName, (value: string) => {
     if (!value) {
         return '';
     }
@@ -16,8 +22,3 @@ Shopware.Filter.register('asset', (value: string) => {
 
     return `${assetsPath}${value}`;
 });
-
-/**
- * @private
- */
-export {};

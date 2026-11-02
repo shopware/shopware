@@ -8861,9 +8861,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-document-card/src/sw-order-document-card.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "complexity": {
       "count": 2
     },
@@ -8885,7 +8882,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 39
+      "count": 34
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/index.js": {

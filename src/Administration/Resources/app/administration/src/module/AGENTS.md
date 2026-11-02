@@ -75,6 +75,9 @@ declare global {
 }
 ```
 
+`npm run codemod:mini-module -- <component directory>` does the mechanical part of moving a registered Options API component into a mini-module.
+It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, code owners.
+
 `src/` stays free of side effects apart from importing its template and styles.
 
 Everything `src/` needs from outside the module comes through `dependencies.ts`, the inward counterpart of `index.ts`:

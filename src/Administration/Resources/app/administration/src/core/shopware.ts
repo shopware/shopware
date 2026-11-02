@@ -61,7 +61,7 @@ import ExtensionApi from './extension-api';
 import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
-import composables from '../app/composables';
+import * as composables from '../app/composables';
 import { miniModules, publishMiniModule } from './mini-module-registry';
 
 /** Initialize feature flags at the beginning */

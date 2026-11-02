@@ -12,9 +12,18 @@
 
 import type { ModuleRegistry } from '../dependencies';
 
-const UTILS_MODULE = 'src/core/service/util.service';
-const DATA_MODULE = 'src/core/data/index';
-const COMPOSABLES_MODULE = 'src/app/composables/index';
+/**
+ * The module that holds the type of a branch. A branch written as an object literal is that module's default
+ * export; a branch generated from a public contract is all of its exports.
+ *
+ * @example
+ * { module: 'src/core/service/util.service', contract: false } // → import type branch from '…';
+ * { module: 'src/app/composables/index', contract: true }       // → import type * as branch from '…';
+ */
+type BranchModule = { module: string; contract: boolean };
+
+const UTILS_MODULE: BranchModule = { module: 'src/core/service/util.service', contract: false };
+const DATA_MODULE: BranchModule = { module: 'src/core/data/index', contract: false };
 
 /** @private The command shown in generated files and drift diagnostics. */
 export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
@@ -58,10 +67,20 @@ function namedExports(value: string, names: string[]): string[] {
     return names.map((name) => `export const ${name}: (typeof ${value})['${name}'];`);
 }
 
+function importBranch({ module, contract }: BranchModule): string {
+    return contract ? `import type * as branch from '${module}';` : `import type branch from '${module}';`;
+}
+
 /** A subpath of a branch that is itself an object, e.g. `shopware:utils/debug`. */
-function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[], stability?: string): string {
+function branchSubpath(
+    specifier: string,
+    branchModule: BranchModule,
+    key: string,
+    exports: string[],
+    stability?: string,
+): string {
     const body = [
-        `import type branch from '${branchModule}';`,
+        importBranch(branchModule),
         '',
         `const member: (typeof branch)['${key}'];`,
         '',
@@ -73,9 +92,9 @@ function branchSubpath(specifier: string, branchModule: string, key: string, exp
 }
 
 /** The root import of a branch, e.g. `shopware:utils`, which publishes the whole branch and its members. */
-function branchRoot(specifier: string, branchModule: string, exports: string[], stability?: string): string {
+function branchRoot(specifier: string, branchModule: BranchModule, exports: string[], stability?: string): string {
     const body = [
-        `import type branch from '${branchModule}';`,
+        importBranch(branchModule),
         '',
         'const members: typeof branch;',
         '',
@@ -150,10 +169,14 @@ export function renderDeclarations(registry: ModuleRegistry): string {
         ]) => blocks.push(branchSubpath(`shopware:data/${key}`, DATA_MODULE, key, exports)),
     );
 
+    const composablesModule = {
+        module: (registry['shopware:composables'].contract ?? '').replace(/\.ts$/, ''),
+        contract: true,
+    };
     blocks.push(
         branchRoot(
             'shopware:composables',
-            COMPOSABLES_MODULE,
+            composablesModule,
             registry['shopware:composables'].exports,
             COMPOSABLES_EXPERIMENTAL,
         ),
@@ -164,7 +187,7 @@ export function renderDeclarations(registry: ModuleRegistry): string {
             exports,
         ]) =>
             blocks.push(
-                branchSubpath(`shopware:composables/${key}`, COMPOSABLES_MODULE, key, exports, COMPOSABLES_EXPERIMENTAL),
+                branchSubpath(`shopware:composables/${key}`, composablesModule, key, exports, COMPOSABLES_EXPERIMENTAL),
             ),
     );
 

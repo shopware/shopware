@@ -26,10 +26,11 @@
  *     → shopware:data           named exports { ChangesetGenerator, Criteria, Entity, … }
  *       shopware:data/Criteria  default only, like every class subpath
  *
- * `Shopware.Composables` — src/app/composables/index.ts
- * The same literal shape and output as the data branch:
+ * `Shopware.Composables` — src/app/composables/index.ts, its public contract
+ * Every export is marked `@public`, like the index.ts of a mini-module, and the family publishes exactly them:
  *
- *     export default { useCmsElement, useListing, … };
+ *     /** @public *\/
+ *     export { default as useListing } from './use-listing';
  *
  *     → shopware:composables             named exports { useCmsElement, useListing, … }
  *       shopware:composables/useListing  default only, like every composable file
@@ -461,6 +462,22 @@ export function extractMiniModules(administrationRoot: string): ModuleRegistry[s
     return { exports: [], subpaths, sources };
 }
 
+/**
+ * A family generated from a public contract: a file whose exports are the branch, each one a default-only subpath.
+ * The entry names the contract, so the lint rules hold its exports to the `@public` marker.
+ *
+ *     // src/app/composables/index.ts
+ *     /** @public *\/
+ *     export { default as useListing } from './use-listing';
+ *
+ *     → { exports: ['useListing'], subpaths: { useListing: [] }, contract: 'src/app/composables/index.ts' }
+ */
+function extractContractFamily(administrationRoot: string, contract: string): ModuleRegistry[string] {
+    const exports = indexExports(parse(administrationRoot, contract), contract);
+
+    return { exports, subpaths: defaultOnlySubpaths(exports), contract };
+}
+
 function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
     return Object.fromEntries(
         keys.map((key) => [
@@ -495,9 +512,6 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
     const dataSource = parse(administrationRoot, DATA_SOURCE);
     const dataKeys = objectLiteralKeys(defaultExportLiteral(dataSource, DATA_SOURCE));
 
-    const composablesSource = parse(administrationRoot, COMPOSABLES_SOURCE);
-    const composableKeys = objectLiteralKeys(defaultExportLiteral(composablesSource, COMPOSABLES_SOURCE));
-
     const globalTypes = parse(administrationRoot, GLOBAL_TYPES_SOURCE);
 
     return {
@@ -514,10 +528,7 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
             exports: dataKeys,
             subpaths: defaultOnlySubpaths(dataKeys),
         },
-        'shopware:composables': {
-            exports: composableKeys,
-            subpaths: defaultOnlySubpaths(composableKeys),
-        },
+        'shopware:composables': extractContractFamily(administrationRoot, COMPOSABLES_SOURCE),
         'shopware:mixins': {
             exports: [],
             subpaths: defaultOnlySubpaths(centralMixinKeys(globalTypes)),

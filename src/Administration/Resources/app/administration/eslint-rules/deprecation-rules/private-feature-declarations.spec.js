@@ -317,7 +317,9 @@ describe('private-feature-declarations checks src/ markers from index.ts', () =>
                     /** @public */
                     export const unrelated = 1;
                 `,
-                errors: [{ message: 'src/helper.ts:2 `helper`: index.ts does not expose this export, so mark it @private.' }],
+                errors: [
+                    { message: 'src/helper.ts:2 `helper`: index.ts does not expose this export, so mark it @private.' },
+                ],
             },
             {
                 name: 'index.ts starts exposing a src export that is still marked @private',
@@ -327,6 +329,60 @@ describe('private-feature-declarations checks src/ markers from index.ts', () =>
                     export { helper, format } from './src/helper';
                 `,
                 errors: [{ message: 'src/helper.ts:4 `format`: index.ts exposes this export, so mark it @public.' }],
+            },
+        ],
+    });
+});
+
+// A made-up public contract, which a made-up `shopware-modules.json` lists for a `shopware:*` family.
+const contractFile = 'src/core/example-contract.ts';
+const exampleRegistry = JSON.stringify({ 'shopware:example': { exports: [], subpaths: {}, contract: contractFile } });
+
+describe('private-feature-declarations in a public contract', () => {
+    beforeEach(() => {
+        jest.spyOn(fs, 'existsSync').mockImplementation(
+            (file) => /(^|\/)shopware-modules\.json$/.test(file) || realExistsSync(file),
+        );
+        jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...options) =>
+            /(^|\/)shopware-modules\.json$/.test(file) ? exampleRegistry : realReadFileSync(file, ...options),
+        );
+    });
+
+    ruleTester.run('private-feature-declarations', rule, {
+        valid: [
+            {
+                name: 'A public contract exports @public API',
+                filename: contractFile,
+                code: `
+                    /** @public */
+                    export { default as useExample } from './use-example';
+                `,
+            },
+        ],
+        invalid: [
+            {
+                name: 'A public contract without @public',
+                filename: contractFile,
+                code: "export { default as useExample } from './use-example';",
+                errors: [{ message: 'A shopware:* family publishes every export of this file. Mark this export @public.' }],
+            },
+            {
+                name: 'A public contract with @private',
+                filename: contractFile,
+                code: `
+                    /** @private */
+                    export { default as useExample } from './use-example';
+                `,
+                errors: 1,
+            },
+            {
+                name: '@public in a file that no shopware:* family publishes',
+                filename: 'src/core/other.ts',
+                code: `
+                    /** @public */
+                    export { default as useExample } from './use-example';
+                `,
+                errors: 1,
             },
         ],
     });

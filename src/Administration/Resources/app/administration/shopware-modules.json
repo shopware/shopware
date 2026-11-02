@@ -185,7 +185,8 @@
             "useUserSettings": [],
             "useValidation": [],
             "useVideoCover": []
-        }
+        },
+        "contract": "src/app/composables/index.ts"
     },
     "shopware:mixins": {
         "exports": [],

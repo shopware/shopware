@@ -3,7 +3,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import composables from './index';
+import * as composables from './index';
 
 jest.unmock('./index');
 

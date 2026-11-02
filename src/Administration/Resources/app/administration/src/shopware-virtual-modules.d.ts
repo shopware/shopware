@@ -405,7 +405,7 @@ declare module 'shopware:data/FilterFactory' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const members: typeof branch;
 
@@ -431,7 +431,7 @@ declare module 'shopware:composables' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useCmsElement' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useCmsElement'];
 
@@ -440,7 +440,7 @@ declare module 'shopware:composables/useCmsElement' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useCmsState' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useCmsState'];
 
@@ -449,7 +449,7 @@ declare module 'shopware:composables/useCmsState' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useInlineSnippet' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useInlineSnippet'];
 
@@ -458,7 +458,7 @@ declare module 'shopware:composables/useInlineSnippet' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useListing' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useListing'];
 
@@ -467,7 +467,7 @@ declare module 'shopware:composables/useListing' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useMediaGridListener' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useMediaGridListener'];
 
@@ -476,7 +476,7 @@ declare module 'shopware:composables/useMediaGridListener' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useMediaSidebarModal' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useMediaSidebarModal'];
 
@@ -485,7 +485,7 @@ declare module 'shopware:composables/useMediaSidebarModal' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useNotification' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useNotification'];
 
@@ -494,7 +494,7 @@ declare module 'shopware:composables/useNotification' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useNotificationTranslation' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useNotificationTranslation'];
 
@@ -503,7 +503,7 @@ declare module 'shopware:composables/useNotificationTranslation' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/usePlaceholder' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['usePlaceholder'];
 
@@ -512,7 +512,7 @@ declare module 'shopware:composables/usePlaceholder' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/usePosition' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['usePosition'];
 
@@ -521,7 +521,7 @@ declare module 'shopware:composables/usePosition' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useRuleBetweenOperator' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useRuleBetweenOperator'];
 
@@ -530,7 +530,7 @@ declare module 'shopware:composables/useRuleBetweenOperator' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useRuleContainer' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useRuleContainer'];
 
@@ -539,7 +539,7 @@ declare module 'shopware:composables/useRuleContainer' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useSalutation' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useSalutation'];
 
@@ -548,7 +548,7 @@ declare module 'shopware:composables/useSalutation' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useTranslateWithFallback' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useTranslateWithFallback'];
 
@@ -557,7 +557,7 @@ declare module 'shopware:composables/useTranslateWithFallback' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useUserSettings' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useUserSettings'];
 
@@ -566,7 +566,7 @@ declare module 'shopware:composables/useUserSettings' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useValidation' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useValidation'];
 
@@ -575,7 +575,7 @@ declare module 'shopware:composables/useValidation' {
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
 declare module 'shopware:composables/useVideoCover' {
-    import type branch from 'src/app/composables/index';
+    import type * as branch from 'src/app/composables/index';
 
     const member: (typeof branch)['useVideoCover'];
 

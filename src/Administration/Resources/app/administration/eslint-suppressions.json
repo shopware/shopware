@@ -2559,11 +2559,6 @@
       "count": 12
     }
   },
-  "src/app/composables/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/composables/use-cms-state.ts": {
     "max-lines-per-function": {
       "count": 1

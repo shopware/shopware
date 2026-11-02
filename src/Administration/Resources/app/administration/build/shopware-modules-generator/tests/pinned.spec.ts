@@ -49,6 +49,16 @@ describe('build/shopware-modules-generator: the registry', () => {
         expect(Object.keys(registry['shopware:composables'].subpaths)).toEqual(registry['shopware:composables'].exports);
     });
 
+    it('generates the composables from the exports of their public contract', () => {
+        // ACT
+        const registry = renderedRegistry();
+
+        // ASSERT
+        expect(registry['shopware:composables'].contract).toBe('src/app/composables/index.ts');
+        expect(registry['shopware:composables'].exports).toContain('useListing');
+        expect(registry['shopware:utils'].contract).toBeUndefined();
+    });
+
     it('reads the utility namespaces that can be destructured', () => {
         // ACT
         const utils = renderedRegistry()['shopware:utils'];

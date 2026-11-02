@@ -40,6 +40,28 @@ const getMiniModulePart = (filename) => {
 const withoutExtension = (file) => file.replace(/\.[jt]s$/, '');
 
 /**
+ * Returns the public contracts that `shopware-modules.json` lists, as absolute paths:
+ * files whose exports a `shopware:*` family publishes, so every export there is marked `@public` like in the index.ts of a mini-module.
+ *
+ * @example
+ * // shopware-modules.json: { "shopware:composables": { "contract": "src/app/composables/index.ts", … } }
+ * readContracts(cwd) // → Set { `${cwd}/src/app/composables/index.ts` }
+ *
+ * @param {string} cwd - the Administration root
+ * @returns {Set<string>}
+ */
+const readContracts = (cwd) => {
+    const registryFile = path.join(cwd, 'shopware-modules.json');
+    if (!fs.existsSync(registryFile)) {
+        return new Set();
+    }
+
+    const registry = JSON.parse(fs.readFileSync(registryFile, 'utf-8'));
+
+    return new Set(Object.values(registry).flatMap((entry) => (entry.contract ? [path.resolve(cwd, entry.contract)] : [])));
+};
+
+/**
  * Returns the names each file of a mini-module's `src/` exposes through its `index.ts`, keyed by the file without
  * its extension: re-exported names, `*` for `export *`, and `default` for a component that `load: () => import()` loads.
  *
@@ -255,7 +277,8 @@ module.exports = {
     },
     create(context) {
         const filename = path.resolve(context.filename ?? context.getFilename());
-        const { part, root } = getMiniModulePart(filename) ?? {};
+        const isContract = readContracts(context.cwd ?? process.cwd()).has(filename);
+        const { part, root } = isContract ? { part: 'contract' } : getMiniModulePart(filename) ?? {};
 
         if (part === 'register') {
             return {};
@@ -282,6 +305,14 @@ module.exports = {
             if (part === 'index') {
                 if (!isPublic || isPrivate) {
                     context.report({ node, message: 'The index.ts of a mini-module is public API. Mark this export @public, or move it to private.ts.' });
+                }
+
+                return;
+            }
+
+            if (part === 'contract') {
+                if (!isPublic || isPrivate) {
+                    context.report({ node, message: 'A shopware:* family publishes every export of this file. Mark this export @public.' });
                 }
 
                 return;
@@ -322,7 +353,7 @@ module.exports = {
             ExportDefaultDeclaration: checkExport,
             ExportNamedDeclaration: checkExport,
             ExportAllDeclaration(node) {
-                if (part === 'index' || part === 'private') {
+                if (part === 'index' || part === 'private' || part === 'contract') {
                     checkExport(node);
                 }
             },

@@ -31,6 +31,8 @@ export type ModuleRegistryEntry = {
     subpaths: Record<string, string[]>;
     /** Where each subpath is declared, relative to the Administration root, for a family generated per file. */
     sources?: Record<string, string>;
+    /** The file whose `@public` exports the family publishes, for a family generated from a public contract. */
+    contract?: string;
 };
 
 /** @public The checked-in registry of every `shopware:*` specifier, keyed by family. */

@@ -23,22 +23,20 @@ jest.doMock(resolve(join(srcPath, 'src/app/composables/index')), () => {
     const names = require(join(srcPath, 'shopware-modules.json'))['shopware:composables'].exports;
     const file = (name) => name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
-    return {
-        __esModule: true,
-        default: Object.defineProperties(
-            {},
-            Object.fromEntries(
-                names.map((name) => [
-                    name,
-                    {
-                        enumerable: true,
-                        configurable: true,
-                        get: () => require(join(srcPath, 'src/app/composables', file(name))).default,
-                    },
-                ]),
-            ),
-        ),
-    };
+    return Object.defineProperties(
+        {},
+        Object.fromEntries([
+            ['__esModule', { value: true }],
+            ...names.map((name) => [
+                name,
+                {
+                    enumerable: true,
+                    configurable: true,
+                    get: () => require(join(srcPath, 'src/app/composables', file(name))).default,
+                },
+            ]),
+        ]),
+    );
 });
 
 const Shopware = require(resolve(join(srcPath, 'src/core/shopware.ts'))).ShopwareInstance;

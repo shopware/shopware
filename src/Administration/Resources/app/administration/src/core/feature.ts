@@ -127,7 +127,8 @@ export default class Feature {
      * deprecated APIs on purpose. Calls of the same APIs outside of it still report.
      *
      * Silencing ends when `callback` returns, so it must be synchronous: a returned promise throws. Once
-     * `majorFlag` is active nothing is silenced, so a call outside of its branch still throws.
+     * `majorFlag` is active nothing is silenced, so a call outside of its branch still throws. An unknown flag, like
+     * the typo `V6_8_0`, silences nothing and logs an error.
      *
      * @experimental stableVersion:v6.8.0 feature:ADMIN_DEPRECATION_SILENCE
      * @example
@@ -141,6 +142,15 @@ export default class Feature {
         const flag = silenceKey(majorFlag);
 
         if (this.isActive(flag)) {
+            return callback();
+        }
+
+        if (!this.isKnownMajor(flag)) {
+            error(
+                'Feature',
+                `Feature.silence('${majorFlag}') silences nothing: "${majorFlag}" is an unknown feature flag. Please fix it.`,
+            );
+
             return callback();
         }
 
@@ -169,13 +179,13 @@ export default class Feature {
 
     /**
      * Sets a check that silences deprecations beyond `Feature.silence()`, replacing the one of the same name, so a
-     * module that runs again does not add a second one. The app layer sets the one of the `v-silence-deprecations` directive
-     * here, as `src/core` does not know Vue. A check gets the flag as `silenceKey()` spells it, and only while the
-     * major is inactive.
+     * module that runs again does not add a second one. The app layer sets the one of the `sw-silence-deprecations`
+     * component here, as `src/core` does not know Vue. A check gets the flag as `silenceKey()` spells it, and only
+     * while the major is inactive.
      *
      * @private
      * @example
-     * Feature.setSilenceCheck('v-silence-deprecations', (majorFlag) => isSilencedByTemplate(majorFlag));
+     * Feature.setSilenceCheck('sw-silence-deprecations', (majorFlag) => isSilencedByScope(majorFlag));
      */
     static setSilenceCheck(name: string, check: (majorFlag: string) => boolean): void {
         this.silenceChecks.set(name, check);
@@ -183,7 +193,7 @@ export default class Feature {
 
     /**
      * Whether the deprecations of `majorFlag` are silenced right now: inside a `Feature.silence()` callback, or
-     * by a check like the one of the `v-silence-deprecations` directive. Never once `majorFlag` is active.
+     * by a check like the one of the `sw-silence-deprecations` component. Never once `majorFlag` is active.
      *
      * @private
      * @example
@@ -204,7 +214,7 @@ export default class Feature {
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
      * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
      * An unregistered flag can never become active, so it logs an error instead of the warning, unless it is
-     * an upcoming major the backend does not register yet. While `Feature.silence()` or `v-silence-deprecations`
+     * an upcoming major the backend does not register yet. While `Feature.silence()` or `sw-silence-deprecations`
      * silence `majorFlag` it does nothing.
      *
      * @example

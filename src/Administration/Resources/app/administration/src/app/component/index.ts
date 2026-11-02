@@ -33,6 +33,10 @@ export default () => {
         () => import('src/app/component/utils/sw-shortcut-overview-item/index'),
     );
     Shopware.Component.register('sw-shortcut-overview', () => import('src/app/component/utils/sw-shortcut-overview/index'));
+    Shopware.Component.register(
+        'sw-silence-deprecations',
+        () => import('src/app/component/utils/sw-silence-deprecations/index'),
+    );
     Shopware.Component.register('sw-provide', () => import('src/app/component/utils/sw-provide/index'));
     Shopware.Component.register('sw-progress-bar', () => import('src/app/component/utils/sw-progress-bar/index'));
     Shopware.Component.register(

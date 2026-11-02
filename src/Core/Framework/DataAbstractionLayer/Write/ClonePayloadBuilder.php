@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -426,12 +427,18 @@ final class ClonePayloadBuilder
      * delivery, for example, references the source order's address; the cloned delivery has to reference the
      * cloned address.
      *
+     * A constrained reference to a row nested below the referring row keeps the source's row: both rows would wait
+     * for each other on insert, like a state machine and its initial state.
+     *
      * @param array<string, mixed> $payload
+     * @param array<string, array<string, true>>|null $nestedIds ids of the rows nested below this row, by entity name
      *
      * @return array<string, mixed>
      */
-    private function remapForeignKeys(EntityDefinition $definition, array $payload, CloneIdMap $clonedIds): array
+    private function remapForeignKeys(EntityDefinition $definition, array $payload, CloneIdMap $clonedIds, ?array $nestedIds = null): array
     {
+        $nestedIds ??= $this->collectNestedIds($definition, $payload);
+
         foreach ($definition->getFields() as $field) {
             $property = $field->getPropertyName();
             if (!\array_key_exists($property, $payload)) {
@@ -441,8 +448,10 @@ final class ClonePayloadBuilder
             $value = $payload[$property];
 
             if ($field instanceof FkField && !$field instanceof ReferenceVersionField) {
-                if (\is_string($value)) {
-                    $payload[$property] = $clonedIds->get($field->getReferenceDefinition()->getEntityName(), $value) ?? $value;
+                $entityName = $field->getReferenceDefinition()->getEntityName();
+                $clonedId = \is_string($value) ? $clonedIds->get($entityName, $value) : null;
+                if ($clonedId !== null && ($field->is(NoConstraint::class) || !isset($nestedIds[$entityName][$clonedId]))) {
+                    $payload[$property] = $clonedId;
                 }
 
                 continue;
@@ -470,10 +479,48 @@ final class ClonePayloadBuilder
 
         // Extension associations sit one level down, under the same property names.
         if (isset($payload['extensions']) && \is_array($payload['extensions'])) {
-            $payload['extensions'] = $this->remapForeignKeys($definition, $payload['extensions'], $clonedIds);
+            $payload['extensions'] = $this->remapForeignKeys($definition, $payload['extensions'], $clonedIds, $nestedIds);
         }
 
         return $payload;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, array<string, true>>
+     */
+    private function collectNestedIds(EntityDefinition $definition, array $payload): array
+    {
+        $nestedIds = [];
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof OneToManyAssociationField && !$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
+            $value = $field->is(Extension::class)
+                ? ($payload['extensions'][$field->getPropertyName()] ?? null)
+                : ($payload[$field->getPropertyName()] ?? null);
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $reference = $field->getReferenceDefinition();
+            foreach ($field instanceof OneToOneAssociationField ? [$value] : $value as $item) {
+                if (!\is_array($item)) {
+                    continue;
+                }
+
+                if (\is_string($item['id'] ?? null)) {
+                    $nestedIds[$reference->getEntityName()][$item['id']] = true;
+                }
+
+                $nestedIds = array_replace_recursive($nestedIds, $this->collectNestedIds($reference, $item));
+            }
+        }
+
+        return $nestedIds;
     }
 
     private function getCloneReferenceDefinition(AssociationField $field): EntityDefinition

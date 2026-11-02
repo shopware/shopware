@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
@@ -88,6 +89,8 @@ class ClonePayloadBuilderTest extends TestCase
                 ClonePayloadArrayTestDefinition::class,
                 ClonePayloadNestedFieldTestDefinition::class,
                 ClonePayloadNestedListFieldTestDefinition::class,
+                ClonePayloadMachineTestDefinition::class,
+                ClonePayloadStateTestDefinition::class,
             ],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
@@ -112,6 +115,27 @@ class ClonePayloadBuilderTest extends TestCase
 
         // The reference back to the root is left to the writer.
         static::assertArrayNotHasKey('orderId', $payload['deliveries'][0]);
+    }
+
+    public function testAConstrainedReferenceToANestedRowKeepsTheSourceRow(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $firstStateId = Uuid::randomHex();
+        $secondStateId = Uuid::randomHex();
+
+        $payload = $this->build('clone_machine', [
+            'id' => $sourceId,
+            'initialStateId' => $firstStateId,
+            'states' => [
+                ['id' => $firstStateId, 'machineId' => $sourceId, 'nextStateId' => $secondStateId],
+                ['id' => $secondStateId, 'machineId' => $sourceId],
+            ],
+        ], $sourceId, Uuid::randomHex());
+
+        // the cloned states could not be inserted after a machine that already references one of them
+        static::assertSame($firstStateId, $payload['initialStateId']);
+        // a reference between sibling rows has no such cycle and points at the clone
+        static::assertSame($payload['states'][1]['id'], $payload['states'][0]['nextStateId']);
     }
 
     public function testAVersionKeepsIdsAndReferences(): void
@@ -751,8 +775,8 @@ class ClonePayloadOrderTestDefinition extends EntityDefinition
             new WasModifiedByUserField(),
             new DateTimeField('created_at', 'createdAt'),
             new DateTimeField('updated_at', 'updatedAt'),
-            new FkField('billing_address_id', 'billingAddressId', ClonePayloadAddressTestDefinition::class),
-            (new FkField('ext_ref_id', 'extRefId', ClonePayloadAddressTestDefinition::class))->addFlags(new Extension()),
+            (new FkField('billing_address_id', 'billingAddressId', ClonePayloadAddressTestDefinition::class))->addFlags(new NoConstraint()),
+            (new FkField('ext_ref_id', 'extRefId', ClonePayloadAddressTestDefinition::class))->addFlags(new Extension(), new NoConstraint()),
             (new ManyToOneAssociationField('billingAddress', 'billing_address_id', ClonePayloadAddressTestDefinition::class))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('addresses', ClonePayloadAddressTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('deliveries', ClonePayloadDeliveryTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
@@ -1162,6 +1186,46 @@ class ClonePayloadNestedListFieldTestDefinition extends EntityDefinition
                 new ListField('items', 'items'),
                 new StringField('metadata', 'metadata'),
             ]),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class ClonePayloadMachineTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_machine';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('initial_state_id', 'initialStateId', ClonePayloadStateTestDefinition::class),
+            (new OneToManyAssociationField('states', ClonePayloadStateTestDefinition::class, 'machine_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class ClonePayloadStateTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_state';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('machine_id', 'machineId', ClonePayloadMachineTestDefinition::class),
+            new FkField('next_state_id', 'nextStateId', self::class),
         ]);
     }
 }

@@ -14,10 +14,7 @@ export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
 /** @private */
 export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
 /** @private */
-export {
-    repositoryFactory as repositoryFactoryService,
-    ruleConditionDataProviderService,
-} from 'src/app/service-names';
+export { repositoryFactory as repositoryFactoryService, ruleConditionDataProviderService } from 'src/app/service-names';
 
 /** The shipping method being edited and its price groups, shared with the shipping detail page. @private */
 export const useShippingDetailStore = () => Shopware.Store.get(swShippingDetailStoreId);

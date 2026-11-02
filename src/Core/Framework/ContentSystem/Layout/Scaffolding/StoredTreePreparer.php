@@ -248,18 +248,20 @@ final class StoredTreePreparer
     }
 
     /**
-     * A single unresolved placeholder collapses to null; an unresolved placeholder embedded in other text stays
-     * verbatim. Substitution does not inspect or recognize mapping syntax.
+     * Substitute exact placeholder spellings first, without trimming their keys. A resulting lone ordinary
+     * placeholder collapses to null; embedded unresolved placeholders stay literal. The parser's reserved-name
+     * check preserves mapping-looking text without parsing it or treating inserted text as authored tokens.
      */
     private function substitute(string $input, PlaceholderValues $values): ?string
     {
-        if (preg_match('/^\{\{\s*(?<key>[^{}:]+?)\s*\}\}$/', $input, $matches) === 1
-            && !\array_key_exists($matches['key'], $values->all())
+        $substituted = $this->substituteLiteral($input, $values);
+        if (preg_match('/^\{\{(?<key>[^{}]+)\}\}$/', $substituted, $matches) === 1
+            && !InlineMappingTokenParser::isReservedPlaceholderKey($matches['key'])
         ) {
             return null;
         }
 
-        return $this->substituteLiteral($input, $values);
+        return $substituted;
     }
 
     /**
@@ -303,7 +305,7 @@ final class StoredTreePreparer
         foreach ($values->all() as $key => $value) {
             // Mapping names stay literal outside opted-in properties too. Request parameters must not
             // overwrite mapping syntax when a property deliberately bypasses the mapping parser.
-            if (str_starts_with(ltrim($key, " \t\n\r\v\f"), InlineMappingTokenParser::TOKEN_PREFIX)) {
+            if (InlineMappingTokenParser::isReservedPlaceholderKey($key)) {
                 continue;
             }
 

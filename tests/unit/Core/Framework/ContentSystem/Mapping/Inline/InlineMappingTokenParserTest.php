@@ -68,6 +68,44 @@ class InlineMappingTokenParserTest extends TestCase
         static::assertSame($expected, $paths);
     }
 
+    #[DataProvider('reservedPlaceholderKeys')]
+    public function testReservedPlaceholderKeysAgreeWithTokenRecognition(string $key, bool $reserved): void
+    {
+        static::assertSame($reserved, InlineMappingTokenParser::isReservedPlaceholderKey($key));
+        static::assertCount($reserved ? 1 : 0, $this->parser()->parse('{{' . $key . '}}'));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function reservedPlaceholderKeys(): iterable
+    {
+        yield 'canonical mapping' => ['map:product.name', true];
+        yield 'space' => [' map:product.name ', true];
+        yield 'tab' => ["\tmap:product.name", true];
+        yield 'newline' => ["\nmap:product.name", true];
+        yield 'carriage return' => ["\rmap:product.name", true];
+        yield 'vertical tab' => ["\vmap:product.name", true];
+        yield 'form feed' => ["\fmap:product.name", true];
+        yield 'mixed whitespace' => [" \t\n\r\v\fmap:product.name", true];
+        yield 'empty mapping path' => ['map:', true];
+        yield 'mapping without a member' => ['map:product', true];
+        yield 'ordinary key' => ['productId', false];
+        yield 'ordinary colon key' => ['external:id', false];
+        yield 'uppercase prefix' => ['MAP:product.name', false];
+        yield 'similar prefix' => ['mapping:id', false];
+        yield 'space within prefix' => ['map :product.name', false];
+        yield 'prefix within key' => ['xmap:product.name', false];
+        yield 'leading null byte' => ["\0map:product.name", false];
+    }
+
+    public function testReservedPlaceholderCheckDoesNotApplyTheAuthoredInputLimit(): void
+    {
+        $key = str_repeat(' ', InlineMappingTokenParser::MAX_INPUT_BYTES + 1) . 'map:product.name';
+
+        static::assertTrue(InlineMappingTokenParser::isReservedPlaceholderKey($key));
+    }
+
     #[TestDox('containsToken is a cheap pre-filter, so it may say yes where parse finds nothing but never the reverse')]
     public function testContainsTokenNeverMissesAStringParseWouldMatch(): void
     {

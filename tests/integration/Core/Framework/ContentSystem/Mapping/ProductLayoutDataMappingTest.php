@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mapping;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -64,6 +65,39 @@ class ProductLayoutDataMappingTest extends TestCase
         $this->persistLayout($this->textElement(mappedTo: 'product.name'));
 
         static::assertSame(self::PRODUCT_NAME, $this->servedProperties()['text'] ?? null);
+    }
+
+    /**
+     * @param array<string, string> $query
+     */
+    #[DataProvider('ordinaryPlaceholderRenderingCases')]
+    public function testOrdinaryPlaceholdersAndMappingTokensKeepTheirSeparateRenderingRules(string $text, array $query, ?string $expected): void
+    {
+        $this->createProduct();
+        $element = $this->textElement(mappedTo: null);
+        $element['properties']['text'] = $text;
+        $this->persistLayout($element);
+
+        $properties = $this->servedProperties($query);
+
+        if ($expected === null) {
+            static::assertArrayNotHasKey('text', $properties);
+        } else {
+            static::assertSame($expected, $properties['text'] ?? null);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, string>, string|null}>
+     */
+    public static function ordinaryPlaceholderRenderingCases(): iterable
+    {
+        yield 'missing colon placeholder is omitted' => ['{{external:id}}', [], null];
+        yield 'padded known root ID is omitted' => ['{{ productId }}', [], null];
+        yield 'valued colon placeholder resolves' => ['{{external:id}}', ['external:id' => 'Resolved'], 'Resolved'];
+        yield 'embedded missing placeholder remains literal' => ['Hello {{external:id}}', [], 'Hello {{external:id}}'];
+        yield 'inserted mapping-looking text is not expanded' => ['{{query}}', ['query' => '{{map:product.name}}'], '{{map:product.name}}'];
+        yield 'authored mapping cannot be overwritten by query values' => ['{{map:product.name}}', ['map:product.name' => 'Query value'], self::PRODUCT_NAME];
     }
 
     public function testInlineExpansionLimitReturnsAnErrorInsteadOfBlankContent(): void
@@ -221,11 +255,13 @@ class ProductLayoutDataMappingTest extends TestCase
     /**
      * The served `properties` map of the fixture's single content element.
      *
+     * @param array<string, string> $query
+     *
      * @return array<string, mixed>
      */
-    private function servedProperties(): array
+    private function servedProperties(array $query = []): array
     {
-        $this->browser->request('GET', '/store-api/content/product/' . $this->ids->get('product'));
+        $this->browser->request('GET', '/store-api/content/product/' . $this->ids->get('product'), $query);
 
         $response = $this->browser->getResponse();
         $content = (string) $response->getContent();

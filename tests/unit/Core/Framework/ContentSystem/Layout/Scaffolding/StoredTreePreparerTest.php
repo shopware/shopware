@@ -366,6 +366,66 @@ class StoredTreePreparerTest extends TestCase
         static::assertTrue($prepared[0]->property('title')?->isNull());
     }
 
+    /**
+     * @param non-empty-string $input
+     * @param array<string, string> $values
+     */
+    #[DataProvider('ordinaryPlaceholderCases')]
+    public function testOrdinaryPlaceholderRulesApplyToPropertiesAndLiteralConfig(string $input, array $values, ?string $expected): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withProperty('title', $input)
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig($input))
+            ->build();
+
+        $prepared = $this->prepare([$element], $values)[0];
+
+        $property = $prepared->property('title');
+        static::assertNotNull($property);
+        static::assertSame($expected, $property->jsonSerialize());
+        $config = $prepared->dataRequirements['navigationTree']->config->jsonSerialize();
+        if ($expected === null) {
+            static::assertArrayNotHasKey('rootId', $config);
+        } else {
+            static::assertSame($expected, $config['rootId']);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string, array<string, string>, string|null}>
+     */
+    public static function ordinaryPlaceholderCases(): iterable
+    {
+        yield 'missing ordinary key' => ['{{missing}}', [], null];
+        yield 'missing colon key' => ['{{external:id}}', [], null];
+        yield 'known ordinary key' => ['{{productId}}', ['productId' => 'prod-1'], 'prod-1'];
+        yield 'known colon key' => ['{{external:id}}', ['external:id' => 'cat-1'], 'cat-1'];
+        yield 'padded known key is not implicitly trimmed' => ['{{ productId }}', ['productId' => 'prod-1'], null];
+        yield 'padded known colon key is not implicitly trimmed' => ['{{ external:id }}', ['external:id' => 'cat-1'], null];
+        yield 'exact explicitly padded key still matches' => ['{{ productId }}', [' productId ' => 'exact-value'], 'exact-value'];
+        yield 'embedded missing colon key stays literal' => ['Category {{external:id}}', [], 'Category {{external:id}}'];
+        yield 'embedded padded key stays literal' => ['Product {{ productId }}', ['productId' => 'prod-1'], 'Product {{ productId }}'];
+        yield 'reserved mapping stays literal' => ['{{map:product.name}}', ['map:product.name' => 'query value'], '{{map:product.name}}'];
+        yield 'padded reserved mapping stays literal' => ['{{ map:product.name }}', [' map:product.name ' => 'query value'], '{{ map:product.name }}'];
+        yield 'malformed reserved marker stays literal' => ['{{map:}}', ['map:' => 'query value'], '{{map:}}'];
+        yield 'similar ordinary prefix is not reserved' => ['{{mapping:id}}', [], null];
+        yield 'uppercase prefix is not reserved' => ['{{MAP:product.name}}', [], null];
+        yield 'lone ordinary placeholder left after substitution collapses' => ['{{query}}', ['query' => '{{missing}}'], null];
+        yield 'inserted mapping-looking text stays literal' => ['{{query}}', ['query' => '{{map:product.name}}'], '{{map:product.name}}'];
+    }
+
+    public function testInsertedLoneMappingTextDoesNotProduceAuthoredTokens(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{query}}')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['query' => '{{ map:product.name }}']), RenderingMode::FULL);
+
+        static::assertSame('{{ map:product.name }}', $result->tree[0]->property('text')?->asString());
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
     public function testPrepareRecordsAVirtualRootThePruneRemoved(): void
     {

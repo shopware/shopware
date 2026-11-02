@@ -56,6 +56,16 @@ final class InlineMappingTokenParser
     }
 
     /**
+     * Placeholder names beginning with mapping syntax are reserved, even when the path is malformed.
+     * This prefix-only check uses the leading whitespace accepted by TOKEN_PATTERN without parsing text
+     * or applying the authored-token input limit to literal properties and loader configuration.
+     */
+    public static function isReservedPlaceholderKey(string $key): bool
+    {
+        return str_starts_with(ltrim($key, " \t\n\r\v\f"), self::TOKEN_PREFIX);
+    }
+
+    /**
      * Whether a catalogue path can be represented by a valid inline mapping token.
      */
     public static function isValidPath(string $path): bool

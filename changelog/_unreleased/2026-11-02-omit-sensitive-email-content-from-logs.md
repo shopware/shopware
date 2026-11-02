@@ -17,6 +17,8 @@ issue: 22122
   Previously queued flows retain their original classification.
   Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
+___
+
 # Administration
 
 * Changed sensitive mail log details to show metadata without body previews.

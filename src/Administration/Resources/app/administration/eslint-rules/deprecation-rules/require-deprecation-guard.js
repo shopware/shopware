@@ -479,8 +479,6 @@ function leadingGuardFlag(fn) {
  * - The other way round, every `triggerDeprecationOrThrow('<flag>', …)` call has a `@deprecated tag:` marker: on a
  *   declaration or statement that encloses it, like a `// @deprecated tag:` comment right above it, or in the file
  *   header. Calls that forward a flag they get passed, like the deprecation plugin, are no guard of their own.
- * - In templates, `v-silence-deprecations` sits on a component, never on a `<template>`: Vue renders a `<template>` as a
- *   fragment and drops the directive without a warning.
  *
  * What the marker sits on decides it: a value, a type, an import or a statement inside a body has no use to guard.
  * Neither do `@private` and `_`-prefixed declarations and "Will be private" deprecations, which are no public
@@ -522,9 +520,6 @@ module.exports = {
             missingDeprecationMarker:
                 'This triggerDeprecationOrThrow() call needs a "@deprecated tag:" marker on the declaration it guards, ' +
                 'or on a comment right above it.',
-            silenceDeprecationsOnTemplate:
-                'v-silence-deprecations has no effect on a <template>, which Vue renders as a fragment. ' +
-                'Put it on each component inside instead.',
             missingPropOption:
                 'The deprecated prop "{{name}}" needs a "deprecated: { version: \'{{version}}\', comment: \'…\' }" option, ' +
                 'so the deprecation plugin triggers it when a parent passes it.',
@@ -775,26 +770,11 @@ module.exports = {
             coveredDeclarations(annotation).forEach((node) => checkDeclaration(node, tag));
         }
 
-        const scriptVisitor = {
+        return {
             Program() {
                 comments.forEach(check);
             },
             CallExpression: checkGuardCall,
         };
-
-        if (!sourceCode.parserServices?.defineTemplateBodyVisitor) {
-            return scriptVisitor;
-        }
-
-        return sourceCode.parserServices.defineTemplateBodyVisitor(
-            {
-                'VElement[rawName="template"] > VStartTag > VAttribute[directive=true][key.name.name="silence-deprecations"]'(
-                    attribute,
-                ) {
-                    context.report({ node: attribute, messageId: 'silenceDeprecationsOnTemplate' });
-                },
-            },
-            scriptVisitor,
-        );
     },
 };

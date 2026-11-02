@@ -27,7 +27,6 @@ export const ZUGFERD_COMPONENT_MAPPING = {
     [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

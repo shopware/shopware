@@ -4,6 +4,7 @@ import './mixin/cart-notification.mixin';
 
 import defaultSearchConfiguration from './default-search-configuration';
 import DocumentV2Service from './service/documentV2.service';
+import './component/sw-order-document-card/register';
 
 /**
  * @sw-package checkout
@@ -62,7 +63,6 @@ Shopware.Component.register('sw-order-inline-field', () => import('./component/s
  * @deprecated tag:v6.8.0 - File will be removed. No longer used.
  */
 Shopware.Component.register('sw-order-user-card', () => import('./component/sw-order-user-card'));
-Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
  */

@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 #[Package('framework')]
 class ResponseFactoryRegistry
@@ -55,6 +55,6 @@ class ResponseFactoryRegistry
             }
         }
 
-        throw new UnsupportedMediaTypeHttpException(\sprintf('All provided media types are unsupported. (%s)', implode(', ', $contentTypes)));
+        throw ApiException::unsupportedResponseMediaTypes($contentTypes);
     }
 }

@@ -45,7 +45,8 @@ A new struct on `SalesChannelContext` (`getProspectiveCustomer(): ?ProspectiveCu
 
 * `shippingAddress` — the address fields rules and tax rules read: country, country state, zip code, city, street.
 * `billingAddress` — optional. Defaults to the shipping address when omitted.
-* `customerGroupId` — optional, defaults to the sales channel's default customer group.
+
+The customer group is deliberately not part of it. A registration always starts in the sales channel's default customer group; a requested group only applies after it has been approved. Letting a visitor choose the group would let anyone see the rule results of any group, such as reseller prices, before ordering.
 
 It is stored in the existing `sales_channel_api_context` payload. No customer row, no address row, `customer_id` stays `NULL`.
 
@@ -76,7 +77,7 @@ When the context has no customer but a `ProspectiveCustomer`, the checkout rule 
 |---|---|
 | `guest` | `true` |
 | `active` | `true` — otherwise "inactive customer" rules would match prospects |
-| `groupId` | the requested or default customer group |
+| `groupId` | the sales channel's default customer group, the group a new registration gets |
 | billing / shipping address | from the `ProspectiveCustomer`, billing defaulting to shipping |
 | order count, order total, number of reviews | `0` |
 | first login, last login, last order date | `null` |
@@ -97,7 +98,7 @@ There are 35 customer rules in `Shopware\Core\Checkout\Customer\Rule`. Cart rule
 |---|---|---|
 | Shipping address | `ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingCityRule`, `ShippingStreetRule` | Evaluated against the address stored in the context |
 | Billing address | `BillingCountryRule`, `BillingStateRule`, `BillingZipCodeRule`, `BillingCityRule`, `BillingStreetRule`, `DifferentAddressesRule` | Evaluated against the given billing address, otherwise assumed equal to the shipping address |
-| Anonymous defaults | `CustomerGroupRule`, `CustomerLoggedInRule`, `IsGuestCustomerRule`, `IsActiveRule` | Evaluated as "requested or default customer group", "not logged in", "guest" and "active" |
+| Anonymous defaults | `CustomerGroupRule`, `CustomerLoggedInRule`, `IsGuestCustomerRule`, `IsActiveRule` | Evaluated as "default customer group", "not logged in", "guest" and "active" |
 | Customer history | `OrderCountRule`, `OrderTotalAmountRule`, `DaysSinceLastOrderRule`, `DaysSinceFirstLoginRule`, `DaysSinceLastLoginRule`, `NumberOfReviewsRule` | Evaluated against zero history |
 | Customer data | `EmailRule`, `LastNameRule`, `CustomerSalutationRule`, `CustomerAgeRule`, `CustomerBirthdayRule`, `CustomerNumberRule`, `CustomerCustomFieldRule`, `CustomerTagRule`, `IsCompanyRule`, `IsNewsletterRecipientRule`, `CustomerCreatedByAdminRule`, `CustomerRequestedGroupRule`, `AffiliateCodeRule`, `CampaignCodeRule` | Not covered |
 
@@ -107,7 +108,7 @@ The order is always calculated again with the registered customer, so this gap c
 
 ### New fields on `PATCH /store-api/context`
 
-`ContextSwitchRoute` gains the fields `shippingAddress`, `billingAddress` and `customerGroupId`, which write the `ProspectiveCustomer`. It stays the single place where the context is changed, so `SwitchContextEvent` and `SalesChannelContextSwitchEvent` fire for these fields like for every other context change. Its behaviour for existing fields, including silently ignoring unknown keys, is unchanged.
+`ContextSwitchRoute` gains the fields `shippingAddress` and `billingAddress`, which write the `ProspectiveCustomer`. It stays the single place where the context is changed, so `SwitchContextEvent` and `SalesChannelContextSwitchEvent` fire for these fields like for every other context change. Its behaviour for existing fields, including silently ignoring unknown keys, is unchanged.
 
 ### The `CheckoutDraft` route
 
@@ -118,7 +119,7 @@ GET   /store-api/checkout/draft
 PATCH /store-api/checkout/draft
 ```
 
-`PATCH` accepts every field `PATCH /store-api/context` accepts — `shippingMethodId`, `paymentMethodId`, `billingAddressId`, `shippingAddressId`, `countryId`, `countryStateId`, `currencyId`, `languageId`, and the new `shippingAddress`, `billingAddress`, `customerGroupId` — and delegates the change to `ContextSwitchRoute`. Unlike `PATCH /store-api/context`, unknown keys are rejected with `400`, so a client never gets a successful response for a change that did not happen.
+`PATCH` accepts every field `PATCH /store-api/context` accepts — `shippingMethodId`, `paymentMethodId`, `billingAddressId`, `shippingAddressId`, `countryId`, `countryStateId`, `currencyId`, `languageId`, and the new `shippingAddress` and `billingAddress` — and delegates the change to `ContextSwitchRoute`. Unlike `PATCH /store-api/context`, unknown keys are rejected with `400`, so a client never gets a successful response for a change that did not happen.
 
 `GET` has no side effects. It never changes the context or the token.
 
@@ -127,7 +128,7 @@ Both verbs return the same response:
 ```json
 {
   "cart": { "...": "..." },
-  "prospectiveCustomer": { "shippingAddress": { "...": "..." }, "billingAddress": { "...": "..." }, "customerGroupId": "..." },
+  "prospectiveCustomer": { "shippingAddress": { "...": "..." }, "billingAddress": { "...": "..." } },
   "shippingMethod": { "...": "..." },
   "paymentMethod": { "...": "..." },
   "currency": { "...": "..." },
@@ -198,7 +199,7 @@ Rejected: it writes a customer before the visitor decides to buy, fires registra
 ### Persist the raw address directly in the context payload, no dedicated struct
 
 Simpler than introducing `ProspectiveCustomer`, with the same data lifecycle.
-Rejected because the billing address and the customer group do not fit naturally as loose context parameters, and a typed struct gives the context factory and the rule scope one clear thing to read instead of a growing set of parameter keys.
+Rejected because the billing address does not fit naturally into a set of loose context parameters, and a typed struct gives the context factory and the rule scope one clear thing to read instead of a growing set of parameter keys.
 
 ### Transient customer set on the context
 

@@ -25,22 +25,19 @@ function authorOf(instance: ComponentInternalInstance): ComponentInternalInstanc
 }
 
 /**
- * Whether the running component sits in a `sw-silence-deprecations` for `majorFlag`, or is rendered by one that
- * does. A wrapper silences what its own template wrote inside of it, but not the slot content another template
- * passes through, as that content keeps its own template as `vnode.ctx`.
+ * Whether the running component sits directly in a `sw-silence-deprecations` for `majorFlag` that the same template
+ * wrote, or is rendered by a component that does. Slot content keeps reporting, as its parent is the component it is
+ * passed into, not the wrapper.
  *
  * @example
  * isSilencedByScope('V6_8_0_0'); // true while `sw-popover-deprecated` renders inside of the wrapper in `sw-popover`
  */
 function isSilencedByScope(majorFlag: string): boolean {
     for (let current = getCurrentInstance(); current; current = authorOf(current)) {
-        const author = authorOf(current);
+        const parent = current.parent;
 
-        // a wrapper the same template wrote sits between the component and that template
-        for (let ancestor = current.parent; ancestor && ancestor !== author; ancestor = ancestor.parent) {
-            if (silencesMajor(ancestor, majorFlag) && authorOf(ancestor) === author) {
-                return true;
-            }
+        if (parent && silencesMajor(parent, majorFlag) && authorOf(parent) === authorOf(current)) {
+            return true;
         }
     }
 
@@ -50,11 +47,14 @@ function isSilencedByScope(majorFlag: string): boolean {
 Shopware.Feature.setSilenceCheck('sw-silence-deprecations', isSilencedByScope);
 
 /**
- * Silences the deprecations of a major for what its template writes inside of it, the template counterpart of
- * `Feature.silence()`: the components there, the deprecated props passed to them, what they report while they are
- * created or rendered, and what their own templates render. Slot content that another template passes through, like
- * the `<slot />` of a wrapper component, still reports. Event handlers and watchers run outside of creating and
- * rendering, so they wrap their deprecated calls in `Feature.silence()`.
+ * Silences the deprecations of a major for the components directly inside of it, the template counterpart of
+ * `Feature.silence()`: those components, the deprecated props passed to them, and what their own templates render.
+ * Plain elements in between do not count, another component does. Slot content passed into those components still
+ * reports, from the same template too, like the tab content of a `sw-tabs` or the `<slot />` of a wrapper component.
+ *
+ * It covers what runs while Vue knows the running component: `setup`, `data`, lifecycle hooks and rendering. Event
+ * handlers, watchers that are not `immediate`, and code after an `await` wrap their deprecated calls in
+ * `Feature.silence()`.
  *
  * Use it on the pre-major side of a `v-if` that keeps a deprecated component or prop until the major. Once the major
  * is active nothing is silenced, so a use outside of its branch still throws. An unknown flag silences nothing and

@@ -83,24 +83,23 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
             }
         }
 
-        $affected = $this->findAffected($categoryIds);
-        if ($affected === []) {
+        $categories = $this->groupByCategory($this->findAffected($categoryIds));
+        if ($categories === []) {
             $io->success('No category is affected.');
 
             return Command::SUCCESS;
         }
 
         $io->table(
-            ['Category', 'Name', 'Language', 'Locked URL', 'Created', 'URL held by link category', 'Created'],
-            array_map(static fn (array $row): array => [
-                $row['category_id'],
-                $row['name'],
-                $row['language'],
-                $row['locked_url'],
-                $row['locked_url_created_at'],
-                $row['link_url'],
-                $row['link_url_created_at'],
-            ], $affected),
+            ['Category', 'Name', 'Locked URL', 'Created', 'URL held by link category', 'Created'],
+            array_map(static fn (array $category): array => [
+                $category['id'],
+                $category['names'],
+                $category['lockedUrls'],
+                $category['lockedUrlCreatedAt'],
+                $category['linkUrls'],
+                $category['linkUrlCreatedAt'],
+            ], $categories),
         );
 
         if (!$apply) {
@@ -116,63 +115,68 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
         }
 
         if ($categoryIds === []) {
-            $affected = $this->askWhichToRepair($io, $affected);
+            $categories = array_values(array_filter($categories, static fn (array $category): bool => $io->confirm(\sprintf(
+                'Give "%s" back to "%s" (%s) instead of "%s"?',
+                $category['linkUrls'],
+                $category['names'],
+                $category['id'],
+                $category['lockedUrls'],
+            ), false)));
         }
 
-        if ($affected === []) {
+        if ($categories === []) {
             $io->note('Nothing changed.');
 
             return Command::SUCCESS;
         }
 
-        $affectedCategoryIds = array_values(array_unique(array_column($affected, 'category_id')));
-
-        RetryableQuery::retryable($this->connection, function () use ($affected): void {
+        RetryableQuery::retryable($this->connection, function () use ($categories): void {
             $this->connection->executeStatement(
                 'UPDATE seo_url SET is_modified = 0 WHERE id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList(array_column($affected, 'locked_url_id'))],
+                ['ids' => Uuid::fromHexToBytesList(array_merge(...array_column($categories, 'lockedUrlIds')))],
                 ['ids' => ArrayParameterType::BINARY]
             );
         });
 
-        $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $affectedCategoryIds);
+        $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, array_column($categories, 'id'));
 
-        $io->success(\sprintf('Repaired %d categories.', \count($affectedCategoryIds)));
+        $io->success(\sprintf('Repaired %d categories.', \count($categories)));
 
         return Command::SUCCESS;
     }
 
     /**
-     * @param list<array{category_id: string, name: string, language: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected
+     * @param list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected
      *
-     * @return list<array{category_id: string, name: string, language: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}>
+     * @return list<array{id: string, names: string, lockedUrls: string, lockedUrlCreatedAt: string, linkUrls: string, linkUrlCreatedAt: string, lockedUrlIds: list<string>}>
      */
-    private function askWhichToRepair(SymfonyStyle $io, array $affected): array
+    private function groupByCategory(array $affected): array
     {
-        $selected = [];
-        foreach (array_unique(array_column($affected, 'category_id')) as $categoryId) {
-            $rows = array_values(array_filter($affected, static fn (array $row): bool => $row['category_id'] === $categoryId));
-
-            $question = \sprintf(
-                'Give "%s" back to "%s" (%s) instead of "%s"?',
-                implode('", "', array_unique(array_column($rows, 'link_url'))),
-                $rows[0]['name'],
-                $categoryId,
-                implode('", "', array_unique(array_column($rows, 'locked_url'))),
-            );
-
-            if ($io->confirm($question, false)) {
-                array_push($selected, ...$rows);
-            }
+        $rowsByCategory = [];
+        foreach ($affected as $row) {
+            $rowsByCategory[$row['category_id']][] = $row;
         }
 
-        return $selected;
+        $categories = [];
+        foreach ($rowsByCategory as $categoryId => $rows) {
+            $categories[] = [
+                'id' => (string) $categoryId,
+                'names' => implode(', ', array_unique(array_column($rows, 'name'))),
+                'lockedUrls' => implode(', ', array_unique(array_column($rows, 'locked_url'))),
+                'lockedUrlCreatedAt' => min(array_column($rows, 'locked_url_created_at')),
+                'linkUrls' => implode(', ', array_unique(array_column($rows, 'link_url'))),
+                'linkUrlCreatedAt' => min(array_column($rows, 'link_url_created_at')),
+                'lockedUrlIds' => array_column($rows, 'locked_url_id'),
+            ];
+        }
+
+        return $categories;
     }
 
     /**
      * @param list<string> $categoryIds
      *
-     * @return list<array{category_id: string, name: string, language: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}>
+     * @return list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}>
      */
     private function findAffected(array $categoryIds): array
     {
@@ -181,7 +185,6 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
             ->select(
                 'LOWER(HEX(target.id)) AS category_id',
                 'COALESCE(target_translation.name, target_default.name) AS name',
-                'language.name AS language',
                 'LOWER(HEX(target_url.id)) AS locked_url_id',
                 'target_url.seo_path_info AS locked_url',
                 'target_url.created_at AS locked_url_created_at',
@@ -189,7 +192,6 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 'link_url.created_at AS link_url_created_at',
             )
             ->from('seo_url', 'link_url')
-            ->innerJoin('link_url', 'language', 'language', 'language.id = link_url.language_id')
             ->innerJoin('link_url', 'category', 'link', 'link.id = link_url.foreign_key AND link.version_id = :versionId AND link.type = :linkType')
             ->leftJoin('link', 'category_translation', 'link_translation', 'link_translation.category_id = link.id AND link_translation.category_version_id = link.version_id AND link_translation.language_id = link_url.language_id')
             ->innerJoin('link', 'category_translation', 'link_default', 'link_default.category_id = link.id AND link_default.category_version_id = link.version_id AND link_default.language_id = :systemLanguageId')
@@ -201,7 +203,6 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
             ->andWhere('COALESCE(link_translation.link_type, link_default.link_type) = :linkTypeCategory')
             ->andWhere('COALESCE(link_translation.name, link_default.name) = COALESCE(target_translation.name, target_default.name)')
             ->orderBy('name')
-            ->addOrderBy('language')
             ->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME)
             ->setParameter('linkType', CategoryDefinition::TYPE_LINK)
             ->setParameter('linkTypeCategory', CategoryDefinition::LINK_TYPE_CATEGORY)
@@ -213,7 +214,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 ->setParameter('categoryIds', Uuid::fromHexToBytesList($categoryIds), ArrayParameterType::BINARY);
         }
 
-        /** @var list<array{category_id: string, name: string, language: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected */
+        /** @var list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected */
         $affected = $query->executeQuery()->fetchAllAssociative();
 
         return $affected;

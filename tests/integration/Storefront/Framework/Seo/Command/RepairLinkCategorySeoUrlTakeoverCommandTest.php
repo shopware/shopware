@@ -65,13 +65,13 @@ class RepairLinkCategorySeoUrlTakeoverCommandTest extends TestCase
         $this->runWorker();
     }
 
-    public function testListsAffectedCategoriesWithoutChangingThem(): void
+    public function testListsAffectedCategoriesOncePerCategoryWithoutChangingThem(): void
     {
         $targetId = $this->createTakenOverTarget('Guide');
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
 
-        static::assertStringContainsString($targetId, $this->commandTester->getDisplay());
+        static::assertSame(1, substr_count($this->commandTester->getDisplay(), $targetId));
         static::assertStringContainsString('Old-Guide/', $this->commandTester->getDisplay());
         static::assertSame(['Old-Guide/' => '1'], $this->getCanonicalSeoPaths($targetId));
     }

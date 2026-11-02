@@ -5,7 +5,6 @@ namespace Shopware\Core\Migration\V6_6;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +19,7 @@ class Migration1793357402AddRefreshTokenUserIdIndex extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!TableHelper::indexExists($connection, 'refresh_token', 'idx.refresh_token.user_id')) {
+        if (!$this->indexExists($connection, 'refresh_token', 'idx.refresh_token.user_id')) {
             $connection->executeStatement('CREATE INDEX `idx.refresh_token.user_id` ON `refresh_token` (`user_id`)');
         }
     }

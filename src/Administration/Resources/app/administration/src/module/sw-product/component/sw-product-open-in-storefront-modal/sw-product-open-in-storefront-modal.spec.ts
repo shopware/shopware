@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import type { ProductStorefrontSalesChannel } from '../../service/product-storefront-url.api.service';
+import type { ProductStorefrontUrls } from '../../service/product-storefront-url.api.service';
 
-const productStorefrontUrlApiService = { fetchSalesChannel: jest.fn() };
+const productStorefrontUrlApiService = { fetchProductUrls: jest.fn() };
 
 function salesChannel(overrides: Record<string, unknown> = {}): Entity<'sales_channel'> {
     return {
@@ -17,7 +17,7 @@ function salesChannel(overrides: Record<string, unknown> = {}): Entity<'sales_ch
     } as unknown as Entity<'sales_channel'>;
 }
 
-function storefrontSalesChannel(overrides: Partial<ProductStorefrontSalesChannel> = {}): ProductStorefrontSalesChannel {
+function storefrontSalesChannel(overrides: Partial<ProductStorefrontUrls> = {}): ProductStorefrontUrls {
     return {
         id: 'sales-channel-id',
         reachable: true,
@@ -34,7 +34,7 @@ function storefrontSalesChannel(overrides: Partial<ProductStorefrontSalesChannel
 
 async function createWrapper({
     salesChannels = [salesChannel()],
-    loadedSalesChannel = storefrontSalesChannel() as ProductStorefrontSalesChannel | null,
+    loadedSalesChannel = storefrontSalesChannel() as ProductStorefrontUrls | null,
     product = {} as Record<string, unknown>,
     parentProduct = null as Record<string, unknown> | null,
     canReadConfig = true,
@@ -42,7 +42,7 @@ async function createWrapper({
     availableVariants = 0,
     hasUnsavedChanges = false,
 } = {}) {
-    productStorefrontUrlApiService.fetchSalesChannel = jest.fn().mockResolvedValue(loadedSalesChannel);
+    productStorefrontUrlApiService.fetchProductUrls = jest.fn().mockResolvedValue(loadedSalesChannel);
     const repository = { searchIds: jest.fn().mockResolvedValue({ total: availableVariants, data: [] }) };
     const systemConfigApiService = {
         getValues: jest.fn().mockResolvedValue({ 'core.listing.hideCloseoutProductsWhenOutOfStock': hideCloseoutProducts }),
@@ -109,8 +109,8 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         const { wrapper } = await createWrapper();
         await flushPromises();
 
-        expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledTimes(1);
-        expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledWith('product-id', 'sales-channel-id');
+        expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledTimes(1);
+        expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledWith('product-id', 'sales-channel-id');
         expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toBe('sales-channel-id');
         expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').attributes('href')).toBe(
             'https://shop.test/Shirt/SW10000',
@@ -148,7 +148,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         });
         await flushPromises();
 
-        expect(productStorefrontUrlApiService.fetchSalesChannel).not.toHaveBeenCalled();
+        expect(productStorefrontUrlApiService.fetchProductUrls).not.toHaveBeenCalled();
         expect(wrapper.findComponent({ name: 'mt-select' }).props('options')).toEqual([
             { value: 'a', label: 'Alpha' },
             { value: 'b', label: 'Beta' },
@@ -162,7 +162,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         await select(wrapper, 'sales-channel-id');
 
         const link = wrapper.find('a.sw-product-open-in-storefront-modal__domain');
-        expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledWith('product-id', 'sales-channel-id');
+        expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledWith('product-id', 'sales-channel-id');
         expect(failingReasons(wrapper)).toEqual([]);
         expect(link.attributes('href')).toBe('https://shop.test/Shirt/SW10000');
         expect(link.attributes('target')).toBe('_blank');
@@ -176,7 +176,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
 
         await select(wrapper, 'sales-channel-id');
 
-        expect(productStorefrontUrlApiService.fetchSalesChannel).not.toHaveBeenCalled();
+        expect(productStorefrontUrlApiService.fetchProductUrls).not.toHaveBeenCalled();
         expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.salesChannelActive']);
     });
 
@@ -308,7 +308,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         const { wrapper } = await createWrapper({
             salesChannels: [salesChannel({ id: 'active' }), salesChannel({ id: 'inactive', active: false })],
         });
-        productStorefrontUrlApiService.fetchSalesChannel = jest.fn(() => new Promise(() => {}));
+        productStorefrontUrlApiService.fetchProductUrls = jest.fn(() => new Promise(() => {}));
 
         await select(wrapper, 'active');
         expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
@@ -324,7 +324,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         const { wrapper } = await createWrapper({
             salesChannels: [salesChannel(), salesChannel({ id: 'other-sales-channel-id' })],
         });
-        productStorefrontUrlApiService.fetchSalesChannel = jest.fn().mockRejectedValue(new Error('Server error'));
+        productStorefrontUrlApiService.fetchProductUrls = jest.fn().mockRejectedValue(new Error('Server error'));
 
         await select(wrapper, 'sales-channel-id');
 

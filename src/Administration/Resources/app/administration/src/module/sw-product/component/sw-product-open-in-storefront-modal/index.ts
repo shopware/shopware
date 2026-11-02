@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { ProductStorefrontSalesChannel } from '../../service/product-storefront-url.api.service';
+import type { ProductStorefrontUrls } from '../../service/product-storefront-url.api.service';
 import template from './sw-product-open-in-storefront-modal.html.twig';
 import './sw-product-open-in-storefront-modal.scss';
 
@@ -11,7 +11,7 @@ type FailingReason = 'salesChannelActive' | 'hasDomain' | 'productActive' | Stoc
 
 type LoadedSalesChannel = {
     salesChannelId: string;
-    storefrontSalesChannel: ProductStorefrontSalesChannel | null;
+    storefrontSalesChannel: ProductStorefrontUrls | null;
     stockReason: StockReason | null;
 };
 
@@ -19,7 +19,7 @@ type SalesChannelResult = {
     reachable: boolean;
     maintenance: boolean;
     failingReasons: FailingReason[];
-    domains: ProductStorefrontSalesChannel['domains'];
+    domains: ProductStorefrontUrls['domains'];
 };
 
 /**
@@ -174,7 +174,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const storefrontSalesChannel = await this.productStorefrontUrlApiService.fetchSalesChannel(
+                const storefrontSalesChannel = await this.productStorefrontUrlApiService.fetchProductUrls(
                     this.product.id,
                     salesChannel.id,
                 );
@@ -246,7 +246,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getFailingReasons(
-            storefrontSalesChannel: ProductStorefrontSalesChannel | null,
+            storefrontSalesChannel: ProductStorefrontUrls | null,
             stockReason: StockReason | null,
         ): FailingReason[] {
             if (!storefrontSalesChannel) {

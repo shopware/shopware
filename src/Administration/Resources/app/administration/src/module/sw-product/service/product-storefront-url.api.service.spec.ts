@@ -54,7 +54,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
             ],
         });
 
-        const result = await service.fetchSalesChannel('product-id', 'sales-channel-id');
+        const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
         expect(httpClient.get).toHaveBeenCalledTimes(2);
         expect(httpClient.get).toHaveBeenCalledWith('_proxy/store-api/sales-channel-id/product/product-id', {
@@ -93,7 +93,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
             product: () => ({ data: { product: { seoUrls: [] } } }),
         });
 
-        const result = await service.fetchSalesChannel('product-id', 'sales-channel-id');
+        const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
         expect(result?.domains[0].productUrl).toBe('https://shop.test/detail/product-id');
     });
@@ -107,7 +107,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
             domains: [{ id: 'domain-en', url, languageId: ENGLISH_LANGUAGE_ID }],
         });
 
-        const result = await service.fetchSalesChannel('product-id', 'sales-channel-id');
+        const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
         expect(result?.reachable).toBe(true);
         expect(result?.domains[0]).toEqual({ id: 'domain-en', url, productUrl: null });
@@ -122,7 +122,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
             product: () => notFound(),
         });
 
-        const result = await service.fetchSalesChannel('product-id', 'sales-channel-id');
+        const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
         expect(httpClient.get).toHaveBeenCalledTimes(1);
         expect(result).toEqual({
@@ -138,7 +138,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
     it('returns nothing for a sales channel without domain', async () => {
         const { service, httpClient } = createService();
 
-        expect(await service.fetchSalesChannel('product-id', 'sales-channel-id')).toBeNull();
+        expect(await service.fetchProductUrls('product-id', 'sales-channel-id')).toBeNull();
         expect(httpClient.get).not.toHaveBeenCalled();
     });
 
@@ -148,6 +148,6 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
             product: () => new Error('Server error'),
         });
 
-        await expect(service.fetchSalesChannel('product-id', 'sales-channel-id')).rejects.toThrow('Server error');
+        await expect(service.fetchProductUrls('product-id', 'sales-channel-id')).rejects.toThrow('Server error');
     });
 });

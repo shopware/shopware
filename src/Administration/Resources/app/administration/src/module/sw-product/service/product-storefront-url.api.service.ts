@@ -11,7 +11,7 @@ import type StoreContextService from 'src/core/service/api/store-context.api.ser
 /**
  * @private
  */
-export type ProductStorefrontSalesChannel = {
+export type ProductStorefrontUrls = {
     id: string;
     reachable: boolean;
     domains: {
@@ -54,7 +54,11 @@ export default class ProductStorefrontUrlApiService extends ApiService {
         this.contextStoreService = contextStoreService;
     }
 
-    async fetchSalesChannel(productId: string, salesChannelId: string): Promise<ProductStorefrontSalesChannel | null> {
+    /**
+     * Returns whether the Storefront shows the product in the sales channel, and the product URL per domain.
+     * Returns null when the sales channel has no domain.
+     */
+    async fetchProductUrls(productId: string, salesChannelId: string): Promise<ProductStorefrontUrls | null> {
         const domains = await this.fetchDomains(salesChannelId);
 
         if (domains.length === 0) {

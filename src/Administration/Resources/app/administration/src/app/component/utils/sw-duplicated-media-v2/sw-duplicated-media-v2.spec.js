@@ -34,6 +34,7 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                         create: () => {
                             return {
                                 search: () => Promise.resolve([{ id: 'foo' }]),
+                                searchIds: () => Promise.resolve({ total: 1, data: ['foo'] }),
                                 get: () =>
                                     Promise.resolve({
                                         id: 'foo',

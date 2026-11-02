@@ -20,13 +20,10 @@ type OptionOf<Component, Key extends PropertyKey> = Component extends { [K in Ke
 type OrEmpty<Type> = [Type] extends [never] ? object : Type;
 
 /**
- * Whether the component comes from a `.vue` file: the `*.vue` shim gives its instance any key and names none.
+ * Whether the component comes from a `.vue` file, typed by the `*.vue` shim or by vue-tsc: either way a
+ * constructor whose options TypeScript cannot read.
  */
-type IsUntypedSfc<Component> = Component extends abstract new (...args: never[]) => infer Instance
-    ? string extends keyof Instance
-        ? true
-        : false
-    : false;
+type IsSfc<Component> = Component extends abstract new (...args: never[]) => unknown ? true : false;
 
 /**
  * The names a component declares for one kind of member, or any string while its type is unknown.
@@ -34,7 +31,7 @@ type IsUntypedSfc<Component> = Component extends abstract new (...args: never[])
  */
 type NamesOf<Component, Key extends PropertyKey> = unknown extends Component
     ? string
-    : IsUntypedSfc<Component> extends true
+    : IsSfc<Component> extends true
       ? string
       : OptionNames<OptionOf<Component, Key>>;
 

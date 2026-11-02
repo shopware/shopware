@@ -26,8 +26,9 @@ const NO_ADMIN_INTERNALS_RULE = [
     {
         patterns: [
             {
+                // Anchored, so a relative `./src/...` or an alias into an extension's own `src/` stays allowed.
                 group: [
-                    'src',
+                    '/src',
                     'src/*',
                     '@administration/*',
                     '**/src/Administration/Resources/app/administration/src/*',

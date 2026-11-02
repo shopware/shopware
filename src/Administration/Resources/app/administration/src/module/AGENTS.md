@@ -177,6 +177,7 @@ Add `--contracts` to run only the contract specs (requirements, pinned, regressi
 
 `npm run unit:affected` runs the specs that the changes since `origin/trunk` (or `--base <ref>`, or the files given) can break, and `--dry-run` prints them with the reason for each.
 A change inside a mini-module selects its own specs, plus the specs that mount its component by name, plus the importers of `index.ts` or `private.ts` when they change.
+A module without a component has no name to mount by, so a change in its `src/` or `dependencies.ts` selects the importers of `index.ts` and `private.ts` instead.
 Outside mini-modules it takes Jest's import graph plus every spec that mentions a name the file registers, and warns when that cannot be enough, for example for code the Jest setup loads.
 In the container of a git worktree, git does not work, so take the changed files from the host: `npm run unit:affected -- $(npm run -s unit:affected -- --changed-files)`, with the inner command run on the host.
 

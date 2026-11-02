@@ -184,6 +184,11 @@ function run(directory: string) {
     );
 
     moveSuppressions(moves);
+    execFileSync(
+        path.join(adminRoot, 'node_modules', '.bin', 'prettier'),
+        ['--write', ...['index.ts', 'register.ts', 'global.d.ts'].map((file) => `${root}/${file}`), registration.file],
+        { cwd: adminRoot },
+    );
     printSweepChecklist(root, name, packageName, api);
 }
 
@@ -199,7 +204,7 @@ const findLines = (directory: string, pattern: RegExp) =>
         );
 
 function printSweepChecklist(root: string, name: string, packageName: string, api: ComponentApi) {
-    const outside = findLines(path.join(adminRoot, root, 'src'), /Shopware\.|inject:|getByName\(|from 'src\//);
+    const outside = findLines(path.join(adminRoot, root, 'src'), /Shopware\.|= Shopware;|inject:|getByName\(|from 'src\//);
 
     console.log(`# Sweep ${root}
 

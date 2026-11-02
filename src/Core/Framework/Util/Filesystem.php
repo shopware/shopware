@@ -22,14 +22,14 @@ class Filesystem
 
     public function has(string ...$path): bool
     {
-        return $this->io->exists(Path::join($this->location, ...$path));
+        $path = Path::join($this->location, ...$path);
+
+        return Path::isBasePath($this->location, $path) && $this->io->exists($path);
     }
 
     public function hasFile(string ...$path): bool
     {
-        $path = Path::join($this->location, ...$path);
-
-        return $this->io->exists($path) && !is_dir($path);
+        return $this->has(...$path) && !is_dir($this->path(...$path));
     }
 
     public function path(string ...$path): string

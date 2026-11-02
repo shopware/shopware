@@ -79,6 +79,13 @@ To read a user, use `GET /api/user/{id}` with `user:read`.
 To change a user, use `PATCH /api/user/{id}` with `user:update`.
 That route requires an admin integration or a directly authenticated user, because a non-admin caller may only change its own user.
 
+### App files must be inside the App directory
+
+Shopware now only reads App files that are located inside the App directory.
+This applies to the App icon, the icons of payment methods, shipping methods and flow actions, and every other file an App references.
+A path that leaves the App directory, such as `../../.env`, is treated like a missing file, so the icon is skipped.
+Apps that keep their files inside their own directory are not affected.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes

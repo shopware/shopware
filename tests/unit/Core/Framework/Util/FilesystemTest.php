@@ -65,6 +65,23 @@ class FilesystemTest extends TestCase
         static::assertTrue($fs->hasFile('folder/file2.php'));
     }
 
+    public function testPathsOutsideTheLocationAreNotAccessible(): void
+    {
+        $this->io->dumpFile($this->root . '/outside.txt', 'secret');
+        $this->io->mkdir($this->root . '/app');
+
+        $fs = new Filesystem($this->root . '/app');
+
+        static::assertFalse($fs->has('../outside.txt'));
+        static::assertFalse($fs->has('folder/../../outside.txt'));
+        static::assertFalse($fs->has('..', 'outside.txt'));
+        static::assertFalse($fs->hasFile('../outside.txt'));
+
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('../outside.txt', $this->root . '/app'));
+
+        $fs->read('../outside.txt');
+    }
+
     public function testRealPathThrowsExceptionWhenFileDoesNotExist(): void
     {
         $fs = new Filesystem($this->root);

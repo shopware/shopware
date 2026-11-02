@@ -125,10 +125,11 @@ class OAuthAuthorizeController extends AbstractController
             throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $source->getUserId();
-        if ($userId === null || $userId === '') {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
 
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest(
             $this->createAuthorizationRequest($request->request->all())

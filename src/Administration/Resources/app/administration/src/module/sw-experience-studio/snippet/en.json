@@ -269,10 +269,10 @@
         "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source.",
         "propertyAliasCollision": "This property already receives data from another binding. Choose another property or adjust the existing binding.",
         "invalidMappingSource": "The selected mapping source is invalid. Choose a source from the available list.",
-        "missingRootSource": "Select a data source in the layout settings before adding a mapping."
+        "missingRootSource": "This layout has no data source, so dynamic data cannot be added."
       },
       "mutationErrors": {
-        "unknownRootSource": "The layout's data source is not available. Select an available data source in the layout settings.",
+        "unknownRootSource": "The layout's data source is not available.",
         "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
         "unknownElementType": "This element type is no longer available. Choose an available element type.",
         "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",

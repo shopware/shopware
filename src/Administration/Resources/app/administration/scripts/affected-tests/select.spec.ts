@@ -13,7 +13,7 @@ const FILES: Record<string, string> = {
     [`${MODULE}/dependencies.ts`]: 'export const getApiContext = () => Shopware.Context.api;',
     [`${MODULE}/src/sw-price.js`]: 'export default {};',
     [`${MODULE}/tests/requirements.spec.ts`]: 'mount(SwPrice);',
-    [`${MODULE}/tests/pinned.spec.ts`]: 'mount(SwPrice);',
+    [`${MODULE}/tests/pinned.spec.ts`]: "mount(SwPrice); wrapper.findComponent({ name: 'sw-price' });",
     'src/module/sw-shop/page/sw-shop-detail/sw-shop-detail.spec.js':
         "stubs: { 'sw-price': await wrapTestComponent('sw-price') }",
     'src/module/sw-shop/index.js': 'Shopware.Module.register(shop);',
@@ -90,7 +90,7 @@ async function select(...changedFiles: string[]) {
 
 describe('selectAffectedSpecs', () => {
     describe('inside a mini-module', () => {
-        it('runs only the module specs when its src/ changes', async () => {
+        it('runs the module specs and the specs that mount the component by name when its src/ changes', async () => {
             // ACT
             const selection = await select(`${MODULE}/src/sw-price.js`);
 
@@ -99,26 +99,34 @@ describe('selectAffectedSpecs', () => {
                 specs: {
                     [`${MODULE}/tests/requirements.spec.ts`]: [`mini-module ${MODULE} changed in src/`],
                     [`${MODULE}/tests/pinned.spec.ts`]: [`mini-module ${MODULE} changed in src/`],
+                    'src/module/sw-shop/page/sw-shop-detail/sw-shop-detail.spec.js': [
+                        'mounts component sw-price by name',
+                    ],
                 },
                 uncertain: [],
                 skipped: [],
             });
         });
 
-        it('runs only the module specs when dependencies.ts or a test changes', async () => {
+        it('runs the specs that mount the component by name when dependencies.ts changes', async () => {
             // ACT
-            const selection = await select(`${MODULE}/dependencies.ts`, `${MODULE}/tests/pinned.spec.ts`);
+            const selection = await select(`${MODULE}/dependencies.ts`);
 
             // ASSERT
-            expect(Object.keys(selection.specs).sort()).toEqual([
-                `${MODULE}/tests/pinned.spec.ts`,
-                `${MODULE}/tests/requirements.spec.ts`,
+            expect(selection.specs['src/module/sw-shop/page/sw-shop-detail/sw-shop-detail.spec.js']).toEqual([
+                'mounts component sw-price by name',
             ]);
-            expect(selection.specs[`${MODULE}/tests/pinned.spec.ts`]).toEqual([
-                `mini-module ${MODULE} changed in dependencies.ts`,
-                `mini-module ${MODULE} changed in tests/`,
-                'the spec itself changed',
-            ]);
+        });
+
+        it('runs only the module specs when a test changes', async () => {
+            // ACT
+            const selection = await select(`${MODULE}/tests/pinned.spec.ts`);
+
+            // ASSERT
+            expect(selection.specs).toEqual({
+                [`${MODULE}/tests/requirements.spec.ts`]: [`mini-module ${MODULE} changed in tests/`],
+                [`${MODULE}/tests/pinned.spec.ts`]: [`mini-module ${MODULE} changed in tests/`, 'the spec itself changed'],
+            });
         });
 
         it('adds the importers of index.ts when the public API changes', async () => {

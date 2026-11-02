@@ -70,10 +70,11 @@ const UNUSED_BY_SPECS = [
 /**
  * Picks the specs that a set of changed files can break.
  *
- * Inside a mini-module, the edges are explicit: a change in `src/`, `dependencies.ts` or `tests/` needs only the
- * module's own specs, because other code reaches the module through `index.ts` and relies on its contract tests.
- * Changes to `index.ts`, `private.ts` or `global.d.ts` add their importers, and `register.ts` adds the specs that
- * mount the component by name.
+ * Inside a mini-module, the edges are explicit: a change in `tests/` needs only the module's own specs, because other
+ * code imports the module only through `index.ts` and relies on its contract tests.
+ * A change in `src/` or `dependencies.ts` adds the specs that mount the component by name, because they render its
+ * implementation. Changes to `index.ts`, `private.ts` or `global.d.ts` add their importers, and `register.ts` adds
+ * the specs that mention the component name.
  * Outside mini-modules, it takes the import graph plus every spec that mentions a name the file registers or
  * belongs to, and reports the files for which that is not enough.
  *
@@ -148,17 +149,36 @@ async function selectForMiniModule(
         }
     }
 
-    if (part !== 'register.ts') {
+    const mountsByName = area === 'src/' || area === 'dependencies.ts';
+    if (part !== 'register.ts' && !mountsByName) {
         return;
     }
 
     const name = findPublicComponentName(repository.read(`${miniModule}/index.ts`) ?? '');
     if (!name) {
-        uncertain.push({ file, reason: 'registers a component whose name index.ts does not declare' });
+        if (part === 'register.ts') {
+            uncertain.push({ file, reason: 'registers a component whose name index.ts does not declare' });
+        }
         return;
     }
 
-    selectMentions([{ kind: 'component', name }], repository, select);
+    if (part === 'register.ts') {
+        selectMentions([{ kind: 'component', name }], repository, select);
+        return;
+    }
+
+    // Specs elsewhere that mount the real component by name see its implementation, not only its contract.
+    const ownSpecs = new Set(repository.specsIn(`${miniModule}/tests`));
+    selectMentions(
+        [{ kind: 'component', name }],
+        repository,
+        (spec, reason) => {
+            if (!ownSpecs.has(spec)) {
+                select(spec, reason);
+            }
+        },
+        (mentioned, via) => `mounts component ${mentioned} by name${via}`,
+    );
 }
 
 async function selectByGraphAndNames(
@@ -237,8 +257,17 @@ async function selectImporters(
     }
 }
 
-/** Selects the specs that mention the names, and for components also the names of the components extending them. */
-function selectMentions(names: RegisteredName[], repository: Repository, select: Select): void {
+/**
+ * Selects the specs that mention the names, and for components also the names of the components extending them.
+ * `describe` words the reason, for example "mounts component sw-foo by name".
+ */
+function selectMentions(
+    names: RegisteredName[],
+    repository: Repository,
+    select: Select,
+    describe: (name: string, via: string, kind: string) => string = (name, via, kind) =>
+        `mentions ${kind} name ${name}${via}`,
+): void {
     const seen = new Set<string>();
     const queue = [...names.map((name) => ({ ...name, via: '' }))];
 
@@ -249,7 +278,7 @@ function selectMentions(names: RegisteredName[], repository: Repository, select:
         }
         seen.add(`${kind}:${name}`);
 
-        repository.specsMentioning(name).forEach((spec) => select(spec, `mentions ${kind} name ${name}${via}`));
+        repository.specsMentioning(name).forEach((spec) => select(spec, describe(name, via, kind)));
 
         if (kind === 'component') {
             repository.componentsExtending(name).forEach((child) => {

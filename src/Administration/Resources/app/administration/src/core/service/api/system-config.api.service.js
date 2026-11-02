@@ -58,6 +58,7 @@ class SystemConfigApiService extends ApiService {
     /**
      * @param {string} domain
      * @param {string|null} [salesChannelId]
+     * @returns {Promise<Record<string, unknown>>}
      */
     getValues(domain, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient

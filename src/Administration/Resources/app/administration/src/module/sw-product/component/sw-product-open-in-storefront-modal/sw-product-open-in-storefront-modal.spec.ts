@@ -19,7 +19,6 @@ function salesChannel(overrides: Record<string, unknown> = {}): Entity<'sales_ch
 
 function storefrontSalesChannel(overrides: Partial<ProductStorefrontUrls> = {}): ProductStorefrontUrls {
     return {
-        id: 'sales-channel-id',
         reachable: true,
         domains: [
             {
@@ -74,7 +73,7 @@ async function createWrapper({
                     template: '<button class="mt-modal-close"><slot /></button>',
                 },
                 'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
-                'sw-loader': true,
+                'mt-loader': true,
             },
             mocks: {
                 $t: (key: string, params?: Record<string, string>) => [key, ...Object.values(params ?? {})].join(' '),
@@ -319,12 +318,12 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         productStorefrontUrlApiService.fetchProductUrls = jest.fn(() => new Promise(() => {}));
 
         await select(wrapper, 'active');
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(true);
 
         await wrapper.setData({ selectedSalesChannelId: nextSalesChannelId });
         await flushPromises();
 
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 
     it('shows an error and stops loading when the product URLs cannot be loaded', async () => {
@@ -342,7 +341,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
                 message: 'sw-product.openInStorefrontModal.notificationOpenInStorefrontError',
             }),
         );
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__result').exists()).toBe(false);
     });
 

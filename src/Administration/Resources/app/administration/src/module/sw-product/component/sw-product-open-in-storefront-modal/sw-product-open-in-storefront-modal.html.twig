@@ -5,7 +5,7 @@
 >
     <mt-modal :title="modalTitle">
         <div class="sw-product-open-in-storefront-modal">
-            <sw-loader v-if="isLoading" />
+            <mt-loader v-if="isLoading" />
 
             {% block sw_product_open_in_storefront_modal_banners %}
             <mt-banner

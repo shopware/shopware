@@ -12,7 +12,6 @@ import type StoreContextService from 'src/core/service/api/store-context.api.ser
  * @private
  */
 export type ProductStorefrontUrls = {
-    id: string;
     reachable: boolean;
     domains: {
         id: string;
@@ -71,7 +70,6 @@ export default class ProductStorefrontUrlApiService extends ApiService {
 
             if (path === null) {
                 return {
-                    id: salesChannelId,
                     reachable: false,
                     domains: domains.map(({ id, url }) => ({ id, url, productUrl: null })),
                 };
@@ -81,7 +79,6 @@ export default class ProductStorefrontUrlApiService extends ApiService {
         }
 
         return {
-            id: salesChannelId,
             reachable: true,
             domains: domains.map(({ id, url, languageId }) => ({
                 id,

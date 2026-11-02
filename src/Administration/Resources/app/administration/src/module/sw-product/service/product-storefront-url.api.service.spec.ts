@@ -65,7 +65,6 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
             params: { skipCmsPage: 1, skipConfigurator: 1 },
         });
         expect(result).toEqual({
-            id: 'sales-channel-id',
             reachable: true,
             domains: [
                 {
@@ -126,7 +125,6 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
 
         expect(httpClient.get).toHaveBeenCalledTimes(1);
         expect(result).toEqual({
-            id: 'sales-channel-id',
             reachable: false,
             domains: [
                 { id: 'domain-de', url: 'https://shop.test/de', productUrl: null },

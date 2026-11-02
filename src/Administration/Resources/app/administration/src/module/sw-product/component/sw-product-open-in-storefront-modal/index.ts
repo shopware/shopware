@@ -1,4 +1,5 @@
 import type { PropType } from 'vue';
+import useNotification from 'src/app/composables/use-notification';
 import type { ProductStorefrontUrls } from '../../service/product-storefront-url.api.service';
 import template from './sw-product-open-in-storefront-modal.html.twig';
 import './sw-product-open-in-storefront-modal.scss';
@@ -10,13 +11,11 @@ type StockReason = 'inStock' | 'inStockPossibly';
 type FailingReason = 'salesChannelActive' | 'hasDomain' | 'productActive' | StockReason | 'storefrontShowsProduct';
 
 type LoadedSalesChannel = {
-    salesChannelId: string;
-    storefrontSalesChannel: ProductStorefrontUrls | null;
+    productUrls: ProductStorefrontUrls | null;
     stockReason: StockReason | null;
 };
 
 type SalesChannelResult = {
-    reachable: boolean;
     maintenance: boolean;
     failingReasons: FailingReason[];
     domains: ProductStorefrontUrls['domains'];
@@ -37,8 +36,6 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     emits: ['modal-close'],
-
-    mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
         product: {
@@ -114,7 +111,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         selectedSalesChannelName(): string {
-            return this.selectedSalesChannel?.translated?.name ?? this.selectedSalesChannel?.name ?? '';
+            return this.salesChannelOptions.find(({ value }) => value === this.selectedSalesChannelId)?.label ?? '';
         },
 
         result(): SalesChannelResult | null {
@@ -125,31 +122,38 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (!salesChannel.active) {
                 return {
-                    reachable: false,
                     maintenance: !!salesChannel.maintenance,
                     failingReasons: ['salesChannelActive'],
                     domains: [],
                 };
             }
 
-            if (this.loadedSalesChannel?.salesChannelId !== salesChannel.id) {
+            if (!this.loadedSalesChannel) {
                 return null;
             }
 
-            const { storefrontSalesChannel, stockReason } = this.loadedSalesChannel;
+            const { productUrls, stockReason } = this.loadedSalesChannel;
 
             return {
-                reachable: storefrontSalesChannel?.reachable ?? false,
                 maintenance: !!salesChannel.maintenance,
-                failingReasons: this.getFailingReasons(storefrontSalesChannel, stockReason),
-                domains: storefrontSalesChannel?.domains ?? [],
+                failingReasons: this.getFailingReasons(productUrls, stockReason),
+                domains: productUrls?.reachable ? productUrls.domains : [],
             };
         },
     },
 
     watch: {
-        selectedSalesChannelId(): void {
-            void this.loadSelectedSalesChannel();
+        selectedSalesChannelId(
+            _value: string | null,
+            _oldValue: string | null,
+            onCleanup: (cleanup: () => void) => void,
+        ): void {
+            let isCancelled = false;
+            onCleanup(() => {
+                isCancelled = true;
+            });
+
+            void this.loadSelectedSalesChannel(() => isCancelled);
         },
     },
 
@@ -164,7 +168,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        async loadSelectedSalesChannel(): Promise<void> {
+        async loadSelectedSalesChannel(isCancelled: () => boolean): Promise<void> {
+            this.loadedSalesChannel = null;
+
             const salesChannel = this.selectedSalesChannel;
             if (!salesChannel?.active) {
                 this.isLoading = false;
@@ -174,28 +180,22 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const storefrontSalesChannel = await this.productStorefrontUrlApiService.fetchProductUrls(
+                const productUrls = await this.productStorefrontUrlApiService.fetchProductUrls(
                     this.product.id,
                     salesChannel.id,
                 );
                 const stockReason =
-                    storefrontSalesChannel && !storefrontSalesChannel.reachable
-                        ? await this.loadStockReason(salesChannel.id)
-                        : null;
+                    productUrls && !productUrls.reachable ? await this.loadStockReason(salesChannel.id) : null;
 
-                if (this.selectedSalesChannelId === salesChannel.id) {
-                    this.loadedSalesChannel = {
-                        salesChannelId: salesChannel.id,
-                        storefrontSalesChannel,
-                        stockReason,
-                    };
+                if (!isCancelled()) {
+                    this.loadedSalesChannel = { productUrls, stockReason };
                 }
             } catch {
-                this.createNotificationError({
+                useNotification().createNotificationError({
                     message: this.$t('sw-product.openInStorefrontModal.notificationOpenInStorefrontError'),
                 });
             } finally {
-                if (this.selectedSalesChannelId === salesChannel.id) {
+                if (!isCancelled()) {
                     this.isLoading = false;
                 }
             }
@@ -211,9 +211,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             try {
-                const values = (await this.systemConfigApiService.getValues('core.listing', salesChannelId, {
+                const values = await this.systemConfigApiService.getValues('core.listing', salesChannelId, {
                     inherit: true,
-                })) as Record<string, unknown>;
+                });
 
                 return values['core.listing.hideCloseoutProductsWhenOutOfStock'] ? 'inStock' : null;
             } catch {
@@ -245,15 +245,12 @@ export default Shopware.Component.wrapComponentConfig({
             return !!isCloseout && this.product.available === false;
         },
 
-        getFailingReasons(
-            storefrontSalesChannel: ProductStorefrontUrls | null,
-            stockReason: StockReason | null,
-        ): FailingReason[] {
-            if (!storefrontSalesChannel) {
+        getFailingReasons(productUrls: ProductStorefrontUrls | null, stockReason: StockReason | null): FailingReason[] {
+            if (!productUrls) {
                 return ['hasDomain'];
             }
 
-            if (storefrontSalesChannel.reachable) {
+            if (productUrls.reachable) {
                 return [];
             }
 

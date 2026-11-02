@@ -31,8 +31,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     public function testGetType(): void
     {
         $route = static::createStub(AbstractProductListingRoute::class);
-        /** @var StaticEntityRepository<ProductSortingCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(ProductSortingCollection::class, []);
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);
         static::assertSame('product-listing', $resolver->getType());
@@ -41,8 +40,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     public function testGetCollectReturnsNull(): void
     {
         $route = static::createStub(AbstractProductListingRoute::class);
-        /** @var StaticEntityRepository<ProductSortingCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(ProductSortingCollection::class, []);
 
         $slot = new CmsSlotEntity();
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
@@ -87,7 +85,6 @@ class ProductListingCmsElementResolverTest extends TestCase
             ]),
         ]);
 
-        /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([$sorting]);
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);
@@ -137,7 +134,6 @@ class ProductListingCmsElementResolverTest extends TestCase
             ]),
         ]);
 
-        /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([$sorting]);
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);

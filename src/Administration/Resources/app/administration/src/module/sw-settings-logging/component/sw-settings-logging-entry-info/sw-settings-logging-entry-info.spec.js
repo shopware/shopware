@@ -16,10 +16,7 @@ const mailLogEntry = {
             recipients: {
                 'shopware@example.com': {},
             },
-            contents: {
-                'text/html': '<strong>HTML mail body</strong>',
-                'text/plain': 'Plain mail body',
-            },
+            subject: 'Order confirmation',
         },
     },
 };
@@ -137,46 +134,55 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
         await tabs.vm.$emit('new-item-active', 'inactive');
         await flushPromises();
 
-        expect(wrapper.vm.activeTab).toBe('inactive');
         expect(wrapper.findComponent({ name: 'mt-textarea' }).exists()).toBe(false);
     });
 
-    it('should render mail sent meteor tabs and content when the major feature flag is active', async () => {
+    it.each([false, true])(
+        'should show sensitive mail metadata without body preview tabs (major: %s)',
+        async (featureActive) => {
+            const wrapper = await createWrapper({
+                componentName: 'sw-settings-logging-mail-sent-info',
+                featureActive,
+                logEntry: mailLogEntry,
+            });
+
+            expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabHTML');
+            expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabPlain');
+            expect(wrapper.find('.sw-settings-logging-mail-sent-info__mail-content').exists()).toBe(false);
+
+            expect(wrapper.getComponent({ name: 'mt-textarea' }).props('modelValue')).toBe(
+                JSON.stringify(mailLogEntry.context, null, 2),
+            );
+        },
+    );
+
+    it.each([false, true])('should keep ordinary mail body previews (major: %s)', async (featureActive) => {
         const wrapper = await createWrapper({
             componentName: 'sw-settings-logging-mail-sent-info',
-            featureActive: true,
-            logEntry: mailLogEntry,
+            featureActive,
+            logEntry: {
+                context: {
+                    additionalData: {
+                        ...mailLogEntry.context.additionalData,
+                        contents: {
+                            'text/html': '<strong>Order confirmation</strong>',
+                            'text/plain': 'Order confirmation plain',
+                        },
+                    },
+                },
+            },
         });
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        expect(wrapper.html()).toContain('<strong>Order confirmation</strong>');
+        expect(wrapper.text()).toContain('shopware@example.com');
 
-        expect(tabs.props('items')).toEqual([
-            {
-                label: 'sw-settings-logging.mailInfo.tabHTML',
-                name: 'html',
-            },
-            {
-                label: 'sw-settings-logging.mailInfo.tabPlain',
-                name: 'plain',
-            },
-            {
-                label: 'sw-settings-logging.entryInfo.tabRaw',
-                name: 'raw',
-            },
-        ]);
-        expect(wrapper.text()).toContain('sw-settings-logging.mailInfo.recipientsTitle: shopware@example.com');
-        expect(wrapper.html()).toContain('<strong>HTML mail body</strong>');
-
-        await tabs.vm.$emit('new-item-active', 'plain');
+        if (featureActive) {
+            await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'plain');
+        } else {
+            await wrapper.findAllComponents({ name: 'sw-tabs-item' })[1].trigger('click');
+        }
         await flushPromises();
 
-        expect(wrapper.text()).toContain('Plain mail body');
-
-        await tabs.vm.$emit('new-item-active', 'raw');
-        await flushPromises();
-
-        expect(wrapper.getComponent({ name: 'mt-textarea' }).props('modelValue')).toBe(
-            JSON.stringify(mailLogEntry.context, null, 2),
-        );
+        expect(wrapper.text()).toContain('Order confirmation plain');
     });
 });

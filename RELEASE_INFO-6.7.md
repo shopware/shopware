@@ -2,6 +2,34 @@
 
 ## Core
 
+### Services can be reset between requests in long running runtimes
+
+With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole).
+Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing.
+Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
+
+The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching keeps being handled by Shopware's own cache layer.
+Projects that reference the `http_cache` service must remove those references before enabling the flag.
+The flag becomes the default with Shopware 6.8.
+
+### Sensitive mail logs contain metadata only
+
+Password recovery and customer double-opt-in mail logs contain delivery metadata instead of bodies, template data or complete messages.
+Sensitive-mail error logs contain exception classes and codes instead of messages and traces.
+Shopware exceptions retain their domain error codes.
+Sensitive events no longer update stored mail-template sample data.
+Other mail types retain content logging and Administration body previews.
+Mail events implementing `MailAware` can use `#[Shopware\Core\Framework\Event\SensitiveMail]` to opt into this policy.
+Subclasses inherit the policy, and the sensitivity flag is preserved in stored and buffered flows.
+Direct callers can use `sensitive: true` in mail data or template data, or call `Mail::setSensitive(true)`.
+The classification is stored privately on the Shopware mail object and survives queue serialization.
+Messages that are not Shopware `Mail` objects, including signed messages, use metadata-only logging.
+Existing log entries and stored sample data are not modified.
+Previously queued flows retain their original classification.
+Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
@@ -59,7 +87,11 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Deleted roles:** A deleted role is removed from the `aclRoleIds` of every webhook.
+  A webhook whose last listed role is deleted keeps an empty list instead of falling back to all of its owner's roles.
 * **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
+* **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
+  These entries are removed after the same lifetime as successful and failed ones.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -160,7 +192,42 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### Address validation per billing and shipping address
+
+During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
+Their `getData()` holds the validated address, while `framework.validation.address.create` keeps the whole registration data during registration and an empty bag on the confirm page.
+An address that is both the billing and the shipping address gets both events on the same definition.
+`getName()` of these events still returns `framework.validation.address.create`, so code that observes every dispatched event and filters by `getName()` sees them as that event.
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return ['framework.validation.address.create.shipping' => 'addShippingRules'];
+}
+```
+
+On `PATCH /store-api/account/address/{addressId}`, `getData()` of `framework.validation.address.update` now contains the address `id` from the URL.
+
+At checkout, only the Storefront confirm page checks these rules and shows their violations.
+Neither `POST /store-api/checkout/order` nor the Storefront order request checks them, so a rule that must block an order needs a cart validator (`CartValidatorInterface`).
+
+### Import keeps CSV values of `0`
+
+The import no longer treats a CSV cell containing `0` as empty.
+Rows whose cells only contain `0` are imported instead of skipped.
+A `0` is no longer replaced by the mapping's default value and satisfies a required field.
+Empty cells behave as before.
+Check import files that relied on `0` being ignored.
+
 ## API
+
+### Usernames with surrounding whitespace
+
+User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.
+The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE` on the `username` field.
+Remove surrounding whitespace before submitting a username.
+Existing usernames are not changed automatically; updates that omit `username` remain possible.
+Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
 ### HTTP method overrides restricted to form actions
 
@@ -202,6 +269,10 @@ The route requires the `number_range:read` privilege.
 
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
+
+### Sync API reports missing references as write errors
+
+Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
 
 ## Features
 
@@ -320,10 +391,48 @@ Core usages that are not migrated yet are listed in `src/Administration/Resource
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
+### Search types can supply their own criteria and result link
+
+Extensions that add an entity to the Administration search bar can now configure how its results are loaded and linked through `searchTypeService.upsertType`, without overriding `sw-search-bar` or `sw-search-bar-item`. Before, only `product` could get custom criteria, and results of other entities could only link to the detail route of their module.
+
+- `criteria`: a function that receives the result limit and returns the `Criteria` for the entity, for example to add associations. It applies to the global search and to recently searched items.
+- `itemRoute`: a function that receives the result item and returns the route location its search result links to.
+
+```js
+Shopware.Service('searchTypeService').upsertType('my_entity', {
+    entityName: 'my_entity',
+    criteria: (limit) => new Shopware.Data.Criteria(1, limit).addAssociation('parent'),
+    itemRoute: (item) => ({ name: 'my.entity.detail', params: { id: item.parentId } }),
+});
+```
+
+Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
+
 ### Empty snippet filter ignores snippets with the value `0`
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
+
+### vue-i18n 11 in the Administration
+
+The Administration uses vue-i18n 11 instead of 10, which fixes the advisories GHSA-83rm-6c8r-g728 and GHSA-8rc2-428q-7ww3.
+In snippets, a backslash now escapes `{`, `}`, `@`, `|` and the backslash itself, so `\{name\}` renders as `{name}`.
+If a snippet of your extension needs to display such a backslash, escape it with a second backslash.
+
+### Promotion code filter in the order list only matches promotion line items
+
+The "Promotion code" filter in the order list now only checks line items of type `promotion`.
+Together with a new index on `order_line_item.type`, the database no longer reads every line item, so the filter stays fast on shops with many orders.
+Line items of other types that carry a `code` in their payload, for example from extensions, no longer match this filter.
+
+### Meteor radio group components are available globally
+
+`mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
+The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
+
+### Bulk order status handler results
+
+`bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
 ## API
 
@@ -464,6 +573,19 @@ The profile page now shows company and VAT ID for business customers even when "
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
+### `pathIdList` option in NavbarPlugin stays
+
+The `pathIdList` option of `NavbarPlugin` is no longer deprecated and stays in 6.8.
+`window.activeNavigationPathIdList` still takes precedence.
+If neither is set, the plugin marks the top level item that contains the current page as active.
+
+`layout_head_javascript_navigation` in `layout/meta.html.twig` supplies missing navigation window variables after `layout_head_javascript_router`.
+Themes that replace the router block without `parent()` receive the navigation values, while custom values supplied by router overrides take precedence.
+The plugin logs a warning when it uses the option or DOM fallback, with guidance to render `window.activeNavigationPathIdList` in the page head.
+
+The `pathIdList` key of `navbarOptions` in `layout/navbar/navbar.html.twig` stays deprecated and is removed with 6.8, because the ESI-cached navbar holds the path of another page.
+Use `shopware.navigation.pathIdList` or `window.activeNavigationPathIdList` instead.
+
 ### `.btn-link-inline` follows the link decoration variables
 
 `.btn-link-inline` now uses `$link-decoration` and `$link-hover-decoration` for its underline, like regular links, instead of always being underlined.
@@ -507,6 +629,25 @@ A sales channel whose domain cannot be resolved is now reported as its own failu
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
+
+### Elasticsearch errors no longer fail `system:update:finish`
+
+`system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.
+The error is logged on the `elasticsearch` channel, and the update continues.
+`SHOPWARE_ES_THROW_EXCEPTION` no longer affects the system update.
+`bin/console es:mapping:update` still fails on a mapping error when `SHOPWARE_ES_THROW_EXCEPTION` is enabled.
+
+When the mapping update hits a field type conflict, the entity is scheduled for a reindex, and the system update dispatches it.
+If the reindex cannot be scheduled, it is retried on the next system update.
+Entities that are no longer registered, for example because their plugin was uninstalled, are dropped from the scheduled reindex.
+
+### Elasticsearch reindex is limited to the affected entities
+
+The reindex that `system:update:finish` dispatches after a field type conflict now rebuilds only the indices of the affected entities.
+The other indices stay as they are.
+
+`bin/console es:index --only=<entities>` now creates new indices only for the given entities.
+It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
 
 ### Configurable last-modified version strategy for theme assets
 

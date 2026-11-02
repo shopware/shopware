@@ -42,6 +42,7 @@
 {% block sw_settings_logging_entry_info_tab_items %}
 
 <sw-tabs-item
+    v-if="hasMailContent"
     class="sw-settings-logging-mail-sent-info__tab-item"
     :active="activeTab === 'html'"
     @click="activeTab = 'html'"
@@ -50,6 +51,7 @@
 </sw-tabs-item>
 
 <sw-tabs-item
+    v-if="hasMailContent"
     class="sw-settings-logging-mail-sent-info__tab-item"
     :active="activeTab === 'plain'"
     @click="activeTab = 'plain'"

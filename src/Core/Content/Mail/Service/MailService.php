@@ -96,6 +96,10 @@ class MailService extends AbstractMailService
 
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
+        if (MailLogData::isSensitive($data, $templateData)) {
+            $data['sensitive'] = true;
+        }
+
         $beforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($beforeValidateEvent);
         if ($beforeValidateEvent->isPropagationStopped()) {
@@ -324,6 +328,10 @@ class MailService extends AbstractMailService
             $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId())
         );
 
+        if ($mail instanceof Mail && MailLogData::isSensitive($data, $templateData)) {
+            $mail->setSensitive(true);
+        }
+
         if ($testMode) {
             $headers = $mail->getHeaders();
             $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
@@ -366,6 +374,15 @@ class MailService extends AbstractMailService
         $this->eventDispatcher->dispatch(
             new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData, $data, $mail)
         );
+
+        if (MailLogData::isSensitive($data ?? [], $templateData) || ($mail !== null && MailLogData::isSensitiveMessage($mail))) {
+            $this->logger->log($level, 'Could not prepare or send mail.', MailLogData::create([
+                ...($data ?? []),
+                'eventName' => $templateData['eventName'] ?? null,
+            ], $exception));
+
+            return;
+        }
 
         $this->logger->log($level, $errorMessage, array_merge([
             'template' => $template,

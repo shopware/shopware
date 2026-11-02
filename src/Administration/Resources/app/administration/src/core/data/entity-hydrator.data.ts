@@ -73,7 +73,9 @@ type entityNames = keyof EntitySchema.Entities;
  * @private
  */
 export default class EntityHydrator {
-    cache: { [key: string]: Entity<entityNames> | null } = {};
+    cache: { [key: string]: Entity<entityNames> } = {};
+
+    hydrating = new Set<string>();
 
     /**
      * Hydrates the repository response to a SearchResult class with all entities and aggregations
@@ -86,6 +88,7 @@ export default class EntityHydrator {
         criteria: Criteria,
     ): EntityCollection<EntityName> {
         this.cache = {};
+        this.hydrating.clear();
         const entities = [] as Entity<EntityName>[];
 
         response.data.data.forEach((item) => {
@@ -118,6 +121,7 @@ export default class EntityHydrator {
         criteria: Criteria,
     ): EntityCollection<EntityName> {
         this.cache = {};
+        this.hydrating.clear();
 
         const collection = new EntityCollection<EntityName>(route, entityName, context, criteria);
 
@@ -149,9 +153,13 @@ export default class EntityHydrator {
         const id = row.id;
         const cacheKey = `${entityName}-${id}`;
 
-        if (cacheKey in this.cache) {
-            // null while the entity is still being hydrated, so an association pointing back to it is left out
-            return this.cache[cacheKey] as unknown as Entity<EntityName> | null;
+        if (this.cache[cacheKey]) {
+            return this.cache[cacheKey] as unknown as Entity<EntityName>;
+        }
+
+        // An association pointing back to an entity that is still being hydrated would recurse endlessly
+        if (this.hydrating.has(cacheKey)) {
+            return null;
         }
 
         const schema = Shopware.EntityDefinition.get(entityName);
@@ -160,42 +168,12 @@ export default class EntityHydrator {
             return null;
         }
 
-        this.cache[cacheKey] = null;
+        this.hydrating.add(cacheKey);
 
         const data = row.attributes;
         data.id = id;
 
-        // hydrate empty json fields
-        Object.entries(data).forEach(([attributeKey, attributeValue]) => {
-            const field = schema.getField(attributeKey);
-
-            if (!field) {
-                return;
-            }
-
-            if (!schema.isJsonField(field)) {
-                return;
-            }
-
-            if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
-                data[attributeKey] = {};
-                return;
-            }
-
-            const isEmptyObject =
-                !Array.isArray(attributeValue) &&
-                typeof attributeValue === 'object' &&
-                attributeValue !== null &&
-                Object.keys(attributeValue).length <= 0;
-
-            // Inherited fields use null as the inheritance marker.
-            if (
-                schema.isJsonListField(field) &&
-                (isEmptyObject || (attributeValue === null && field.flags?.inherited !== true))
-            ) {
-                data[attributeKey] = [];
-            }
-        });
+        this.hydrateEmptyJsonFields(schema, data);
 
         Object.keys(row.relationships).forEach((property) => {
             const value = row.relationships[property] as data;
@@ -238,9 +216,46 @@ export default class EntityHydrator {
 
         const e = new Entity<EntityName>(id, entityName, data as unknown as Entity<EntityName>);
 
+        this.hydrating.delete(cacheKey);
         this.cache[cacheKey] = e as unknown as Entity<EntityName>;
 
         return e;
+    }
+
+    /**
+     * @private
+     */
+    hydrateEmptyJsonFields(schema: ReturnType<typeof Shopware.EntityDefinition.get>, data: row['attributes']): void {
+        Object.entries(data).forEach(([attributeKey, attributeValue]) => {
+            const field = schema.getField(attributeKey);
+
+            if (!field) {
+                return;
+            }
+
+            if (!schema.isJsonField(field)) {
+                return;
+            }
+
+            if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
+                data[attributeKey] = {};
+                return;
+            }
+
+            const isEmptyObject =
+                !Array.isArray(attributeValue) &&
+                typeof attributeValue === 'object' &&
+                attributeValue !== null &&
+                Object.keys(attributeValue).length <= 0;
+
+            // Inherited fields use null as the inheritance marker.
+            if (
+                schema.isJsonListField(field) &&
+                (isEmptyObject || (attributeValue === null && field.flags?.inherited !== true))
+            ) {
+                data[attributeKey] = [];
+            }
+        });
     }
 
     /**

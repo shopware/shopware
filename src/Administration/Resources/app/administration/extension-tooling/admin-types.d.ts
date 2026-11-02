@@ -26,6 +26,9 @@ import '../src/shopware-virtual-modules';
 // references them in `<script setup>`, so they must be in the type surface.
 import '../build/vue-setup-transform/shopware-setup-macros';
 
+// The `PublicComponents` types of every mini-module, so extensions get typed overrides.
+import './mini-modules';
+
 // Global `ServiceContainer` augmentations that live outside the module graph
 // reachable from `global.types.ts`. The Administration's own program compiles
 // all of `src/**/*`, so these are implicitly present there; extension programs

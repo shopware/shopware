@@ -61,11 +61,12 @@ A native-setup component leaves out `public`, because `swDefinePublic()` declare
 TypeScript checks the declaration against the component, also against a JavaScript one:
 a name in `public` the component doesn't have is a type error.
 `PublicInstance<typeof SwExample>` is the type of the public members, for a parent's template ref or a test.
-`register.ts` adds the component to the global `PublicComponents` interface, so `Shopware.Component.override()` on that name may replace public members only, and `this.$super()` takes public names only.
+`global.d.ts` next to `index.ts` adds the component to the global `PublicComponents` interface, so `Shopware.Component.override()` on that name may replace public members only, and `this.$super()` takes public names only.
+Extensions see these types through `extension-tooling/mini-modules.d.ts`, which imports every `global.d.ts`; a spec fails when one is missing there.
 
 ```ts
-// register.ts
-Shopware.Component.register(SwExample);
+// global.d.ts
+import type SwExample from './index';
 
 declare global {
     interface PublicComponents {
@@ -73,6 +74,7 @@ declare global {
     }
 }
 ```
+
 `src/` stays free of side effects apart from importing its template and styles.
 
 Everything `src/` needs from outside the module comes through `dependencies.ts`, the inward counterpart of `index.ts`:
@@ -122,6 +124,9 @@ A changed pin only asks whether the change was intended.
 Put a requirement into the smallest module that owns it, and let the code that uses the module rely on its requirements.
 Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.
 `sw-core-rules/mini-module-boundaries` and `sw-test-rules/require-test-origin` check these rules.
+
+`npm run unit:mini-module -- <module directory>` runs one module's tests with coverage of its `src/` only.
+Add `--contracts` to run only the requirements, pinned and regressions specs: the uncovered lines are then code that no contract protects.
 
 ## Registration Pattern
 

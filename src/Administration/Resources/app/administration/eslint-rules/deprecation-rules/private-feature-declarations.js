@@ -4,6 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { parse } = require('@typescript-eslint/parser');
 
 const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entry) => fs.existsSync(path.join(directory, entry)));
 
@@ -47,11 +48,11 @@ const withoutExtension = (file) => file.replace(/\.[jt]s$/, '');
  * getExposedNames(root).get(`${root}/src/primary-delivery`); // → Set { 'getPrimaryDelivery' }
  *
  * @param {string} root
+ * @param {string} [index] - the source of `index.ts`, read from disk when not given
  * @returns {Map<string, Set<string>>}
  */
-const getExposedNames = (root) => {
+const getExposedNames = (root, index = fs.readFileSync(path.join(root, 'index.ts'), 'utf-8')) => {
     const exposed = new Map();
-    const index = fs.readFileSync(path.join(root, 'index.ts'), 'utf-8');
     const expose = (specifier, names) => {
         const file = withoutExtension(path.resolve(root, specifier));
         exposed.set(file, new Set([...(exposed.get(file) ?? []), ...names]));
@@ -73,6 +74,32 @@ const getExposedNames = (root) => {
     return exposed;
 };
 
+/**
+ * Tells whether the marker of a `src/` export contradicts what `index.ts` exposes, and returns the fitting message.
+ * A missing marker counts as a contradiction too, because every export in `src/` needs one.
+ *
+ * @example
+ * getMarkerProblem('', true) // → 'index.ts exposes this export, so mark it @public.'
+ *
+ * @param {string} comment - the leading block comment of the export
+ * @param {boolean} isExposed
+ * @returns {string|null}
+ */
+const getMarkerProblem = (comment, isExposed) => {
+    const isPublic = comment.includes('@public');
+    const isPrivate = comment.includes('@private');
+
+    if (isExposed && (!isPublic || isPrivate)) {
+        return 'index.ts exposes this export, so mark it @public.';
+    }
+
+    if (!isExposed && (!isPrivate || isPublic)) {
+        return 'index.ts does not expose this export, so mark it @private.';
+    }
+
+    return null;
+};
+
 const getExportedNames = (node) => {
     if (node.type === 'ExportDefaultDeclaration') {
         return ['default'];
@@ -89,8 +116,7 @@ const getExportedNames = (node) => {
     return node.specifiers.map((specifier) => specifier.exported.name);
 };
 
-const getLeadingBlockComment = (node) => {
-    const comments = findComments(node);
+const getLeadingBlockComment = (node, comments = findComments(node)) => {
     const leadingComment = comments?.find(c => c.loc.end.line === (node.loc.start.line - 1));
 
     return leadingComment?.type === 'Block' ? leadingComment.value : null;
@@ -109,6 +135,58 @@ function findComments(node) {
 
     return node.comments;
 }
+
+const listSourceFiles = (directory) => fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+        return listSourceFiles(file);
+    }
+
+    return /(?<!\.d)\.[jt]s$/.test(entry.name) && !/\.spec\.[jt]s$/.test(entry.name) ? [file] : [];
+});
+
+/**
+ * Checks the markers of every export in a mini-module's `src/` and `dependencies.ts` against an `index.ts`.
+ * The rule runs this when it lints `index.ts`, because ESLint caches results per file:
+ * a change to `index.ts` alone would otherwise leave the old results of the `src/` files standing.
+ *
+ * @example
+ * // index.ts no longer exports `helper`, src/helper.ts still marks it @public
+ * findStaleMarkers(root, indexSource) // → [{ file: 'src/helper.ts', line: 2, name: 'helper', message: 'index.ts does not expose …' }]
+ *
+ * @param {string} root
+ * @param {string} index - the source of `index.ts`
+ * @returns {{ file: string, line: number, name: string, message: string }[]}
+ */
+const findStaleMarkers = (root, index) => {
+    const exposedByFile = getExposedNames(root, index);
+    const dependencies = path.join(root, 'dependencies.ts');
+    const files = [
+        ...(fs.existsSync(path.join(root, 'src')) ? listSourceFiles(path.join(root, 'src')) : []),
+        ...(fs.existsSync(dependencies) ? [dependencies] : []),
+    ];
+
+    return files.flatMap((file) => {
+        const program = parse(fs.readFileSync(file, 'utf-8'), { comment: true, loc: true, jsx: false });
+        const exposedNames = exposedByFile.get(withoutExtension(file)) ?? new Set();
+
+        return program.body
+            .filter((node) => ['ExportNamedDeclaration', 'ExportDefaultDeclaration'].includes(node.type))
+            .flatMap((node) => {
+                const comment = getLeadingBlockComment(node, program.comments) ?? '';
+                if (!comment.includes('@public') && !comment.includes('@private')) {
+                    return [];
+                }
+
+                return getExportedNames(node).flatMap((name) => {
+                    const message = getMarkerProblem(comment, exposedNames.has('*') || exposedNames.has(name));
+
+                    return message ? [{ file: path.relative(root, file), line: node.loc.start.line, name, message }] : [];
+                });
+            });
+    });
+};
 
 /**
  * This rule validates that new features are either private or deprecated to be private in the future.
@@ -192,11 +270,10 @@ module.exports = {
 
             if (part === 'src') {
                 const isExposed = exposedNames.has('*') || getExportedNames(node).some((name) => exposedNames.has(name));
+                const message = getMarkerProblem(comment, isExposed);
 
-                if (isExposed && (!isPublic || isPrivate)) {
-                    context.report({ node, message: 'index.ts exposes this export, so mark it @public.' });
-                } else if (!isExposed && (!isPrivate || isPublic)) {
-                    context.report({ node, message: 'index.ts does not expose this export, so mark it @private.' });
+                if (message) {
+                    context.report({ node, message });
                 }
 
                 return;
@@ -233,6 +310,15 @@ module.exports = {
         };
 
         return {
+            Program(node) {
+                if (part !== 'index') {
+                    return;
+                }
+
+                for (const stale of findStaleMarkers(root, context.sourceCode.text)) {
+                    context.report({ node, loc: { line: 1, column: 0 }, message: `${stale.file}:${stale.line} \`${stale.name}\`: ${stale.message}` });
+                }
+            },
             ExportDefaultDeclaration: checkExport,
             ExportNamedDeclaration: checkExport,
             ExportAllDeclaration(node) {

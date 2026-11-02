@@ -222,6 +222,7 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
    Add one sentence to the doc comment of index.ts that says what the component is for.
 3. Add tests/<name>.harness.ts and the contract tests: rough requirements.spec.ts from the user's view, details in pinned.spec.ts.
    The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
+   Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm.
 4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts.
    The team is the one that owns other code of @sw-package ${packageName} there.
 5. Run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts

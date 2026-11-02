@@ -3,10 +3,7 @@
  */
 
 const path = require('path');
-const { findMiniModule } = require('./mini-module');
-
-/** Spec files that test the public API, so they import the module the way other code does. */
-const CONTRACT_TESTS = /^(requirements|pinned|regressions)\.spec\.[jt]s$/;
+const { CONTRACT_SPEC, findMiniModule } = require('./mini-module');
 
 module.exports = {
     meta: {
@@ -18,7 +15,8 @@ module.exports = {
             srcImport: "'{{source}}' reaches into the src/ of the mini-module '{{root}}'. Import '{{root}}' instead.",
             privateImport:
                 "'{{source}}' uses the private API of '{{root}}'. Import '{{root}}' instead, or disable this line and say why.",
-            contractTestImport: "Requirements, pinned and regressions specs import their module only through '../index'.",
+            contractTestImport:
+                "Requirements, pinned, regressions and public-api specs import their module only through '../index'.",
         },
         schema: [],
     },
@@ -58,7 +56,7 @@ module.exports = {
                 return;
             }
 
-            if (importerModule.part === 'tests' && CONTRACT_TESTS.test(importerModule.rest)) {
+            if (importerModule.part === 'tests' && CONTRACT_SPEC.test(importerModule.rest)) {
                 context.report({ node: node.source, messageId: 'contractTestImport' });
             }
         }

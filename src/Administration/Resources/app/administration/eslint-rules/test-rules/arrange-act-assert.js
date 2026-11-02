@@ -3,9 +3,7 @@
  */
 
 const { isTestDeclaration } = require('./test-declaration');
-
-/** The spec files of a mini-module that test its public API. */
-const CONTRACT_TESTS = /(^|\/)(requirements|pinned|regressions)\.spec\.[jt]s$/;
+const { CONTRACT_SPEC } = require('../core-rules/mini-module');
 
 const STEPS = ['ARRANGE', 'ACT', 'ASSERT'];
 
@@ -25,7 +23,7 @@ module.exports = {
     create(context) {
         const filename = (context.filename ?? context.getFilename()).split('\\').join('/');
 
-        if (!CONTRACT_TESTS.test(filename)) {
+        if (!CONTRACT_SPEC.test(filename)) {
             return {};
         }
 

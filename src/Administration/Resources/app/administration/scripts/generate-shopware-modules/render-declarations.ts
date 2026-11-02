@@ -94,13 +94,36 @@ function defaultOnlyModule(specifier: string, value: string, type: string): stri
     ]);
 }
 
+/** The print width of the Administration's Prettier config, which the formatting check applies to this file. */
+const PRINT_WIDTH = 125;
+
+/**
+ * An `export { … } from` line, split into one name per line where Prettier would split it,
+ * so the generated file passes the formatting check.
+ *
+ * @example
+ * namedReExport(['acl', 'feature'], 'src/app/service-names'); // → ["export { acl, feature } from 'src/app/service-names';"]
+ */
+function namedReExport(names: string[], source: string): string[] {
+    const line = `export { ${names.join(', ')} } from '${source}';`;
+    if (`${' '.repeat(4)}${line}`.length <= PRINT_WIDTH) {
+        return [line];
+    }
+
+    return [
+        'export {',
+        ...names.map((name) => `    ${name},`),
+        `} from '${source}';`,
+    ];
+}
+
 /**
  * A mini-module, e.g. `shopware:mini-modules/public-component`, which re-exports its `index.ts`: the
  * values the registry lists, and every type.
  */
 function miniModule(specifier: string, source: string, exports: string[]): string {
     const body = [
-        ...(exports.length > 0 ? [`export { ${exports.join(', ')} } from '${source}';`] : []),
+        ...(exports.length > 0 ? namedReExport(exports, source) : []),
         `export type * from '${source}';`,
     ];
 

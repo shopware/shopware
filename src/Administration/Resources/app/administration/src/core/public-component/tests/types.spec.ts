@@ -50,6 +50,23 @@ describe('public-component types', () => {
         expect(declaration.name).toBe('sw-example');
     });
 
+    it('leaves the names of a typed .vue component to the build check', () => {
+        // ARRANGE
+        type TypedSfc = new () => { label: string; $props: { label: string } };
+
+        // ACT
+        const declaration = definePublicComponent({
+            name: 'sw-example',
+            load: () => Promise.resolve({ default: {} as TypedSfc }),
+            public: { props: ['label'], emits: ['save'], setup: ['count'] },
+        });
+        const label: PublicInstance<typeof declaration>['label'] = 'Label';
+
+        // ASSERT
+        expect(declaration.public?.props).toEqual(['label']);
+        expect(label).toBe('Label');
+    });
+
     it('types the public instance with the listed members only', () => {
         // ARRANGE
         const instance = {

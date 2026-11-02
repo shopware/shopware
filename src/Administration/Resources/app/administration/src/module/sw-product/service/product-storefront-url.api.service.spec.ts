@@ -3,6 +3,7 @@
  */
 import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
+import type StoreContextService from 'src/core/service/api/store-context.api.service';
 import ProductStorefrontUrlApiService from './product-storefront-url.api.service';
 
 const GERMAN_LANGUAGE_ID = 'german-language-id';
@@ -26,14 +27,10 @@ function createService({
     const contextStoreService = {
         getSalesChannelContext: jest.fn().mockResolvedValue({ data: { salesChannel: { domains } } }),
     };
-    const originalService = Shopware.Service;
-    jest.spyOn(Shopware, 'Service').mockImplementation(((name?: string) => {
-        return name === 'contextStoreService' ? contextStoreService : originalService(name as never);
-    }) as typeof Shopware.Service);
-
     const service = new ProductStorefrontUrlApiService(
         httpClient as unknown as HttpClient,
         { getToken: () => 'token' } as unknown as LoginService,
+        contextStoreService as unknown as StoreContextService,
     );
 
     return { service, httpClient, contextStoreService };

@@ -6,6 +6,7 @@ import type { HttpClient } from 'src/core/factory/http-client.types';
 
 import ApiService from 'src/core/service/api.service';
 import type { LoginService } from 'src/core/service/login.service';
+import type StoreContextService from 'src/core/service/api/store-context.api.service';
 
 /**
  * @private
@@ -39,10 +40,18 @@ type StoreApiProduct = {
  * @private
  */
 export default class ProductStorefrontUrlApiService extends ApiService {
-    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = '_proxy/store-api') {
+    private readonly contextStoreService: StoreContextService;
+
+    constructor(
+        httpClient: HttpClient,
+        loginService: LoginService,
+        contextStoreService: StoreContextService,
+        apiEndpoint = '_proxy/store-api',
+    ) {
         super(httpClient, loginService, apiEndpoint);
 
         this.name = 'productStorefrontUrlApiService';
+        this.contextStoreService = contextStoreService;
     }
 
     async fetchSalesChannel(productId: string, salesChannelId: string): Promise<ProductStorefrontSalesChannel | null> {
@@ -79,7 +88,7 @@ export default class ProductStorefrontUrlApiService extends ApiService {
     }
 
     private async fetchDomains(salesChannelId: string): Promise<SalesChannelDomain[]> {
-        const response = await Shopware.Service('contextStoreService').getSalesChannelContext(
+        const response = await this.contextStoreService.getSalesChannelContext(
             salesChannelId as EntityKey<'sales_channel'>,
             null,
         );

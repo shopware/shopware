@@ -196,8 +196,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * A new document needs a file in the default language, which other languages fall back to.
-     * Existing documents can't lose it, so they are not checked.
+     * A new document needs a default-language translation, which other languages fall back to.
+     * The DAL already requires a file there, and existing documents can't lose it.
      *
      * @param list<OutcomeRow> $documents
      * @param list<OutcomeRow> $translations
@@ -206,25 +206,23 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     {
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $withDefaultFile = [];
+        $documentsWithDefaultTranslation = [];
         foreach ($translations as $translation) {
-            if ($translation->primaryKey['language_id'] === $systemLanguageId && \is_string($translation->getResultingValue('media_id'))) {
-                $withDefaultFile[$this->key($translation->primaryKey['product_document_id'], $translation->primaryKey['product_document_version_id'])] = true;
+            if ($translation->primaryKey['language_id'] === $systemLanguageId) {
+                $documentsWithDefaultTranslation[$translation->primaryKey['product_document_id'] . $translation->primaryKey['product_document_version_id']] = true;
             }
         }
 
         foreach ($documents as $document) {
-            $documentKey = $this->key($document->primaryKey['id'], $document->primaryKey['version_id']);
-            if (!$document->isNew || isset($withDefaultFile[$documentKey])) {
-                continue;
+            $hasDefaultTranslation = isset($documentsWithDefaultTranslation[$document->primaryKey['id'] . $document->primaryKey['version_id']]);
+            if ($document->isNew && !$hasDefaultTranslation) {
+                $violations->add($this->violation(
+                    code: self::VIOLATION_DEFAULT_TRANSLATION_MISSING,
+                    messageTemplate: 'The product document "{{ documentId }}" has no file in the default language, which other languages fall back to.',
+                    parameters: ['{{ documentId }}' => Uuid::fromBytesToHex($document->primaryKey['id'])],
+                    path: $document->path,
+                ));
             }
-
-            $violations->add($this->violation(
-                code: self::VIOLATION_DEFAULT_TRANSLATION_MISSING,
-                messageTemplate: 'The product document "{{ documentId }}" has no file in the default language, which other languages fall back to.',
-                parameters: ['{{ documentId }}' => Uuid::fromBytesToHex($document->primaryKey['id'])],
-                path: $document->path,
-            ));
         }
     }
 

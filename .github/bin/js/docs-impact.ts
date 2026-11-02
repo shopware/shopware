@@ -7,6 +7,8 @@ export type Audience = (typeof AUDIENCES)[number];
 
 export const COMMENT_MARKER = '<!-- sw-docs-impact -->';
 
+export const DOCS_CANDIDATE_LABEL = 'docs-candidate';
+
 const MAX_SUMMARY_LENGTH = 20000;
 
 const SKIPPED_COMMIT_TYPES = /^(test|ci|chore|docs|refactor)(\([^)]*\))?:/;
@@ -38,6 +40,7 @@ type GitHub = {
             }>;
             createComment(params: Repo & { issue_number: number; body: string }): Promise<unknown>;
             updateComment(params: Repo & { comment_id: number; body: string }): Promise<unknown>;
+            addLabels(params: Repo & { issue_number: number; labels: string[] }): Promise<unknown>;
         };
     };
     paginate<T>(method: unknown, params: object): Promise<T[]>;
@@ -291,11 +294,12 @@ export async function postComment(
     if (existing) {
         await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
         core.info(`Updated documentation-impact comment ${existing.id} on #${number}`);
-        return;
+    } else {
+        await github.rest.issues.createComment({ ...context.repo, issue_number: number, body });
+        core.info(`Posted documentation-impact comment on #${number}`);
     }
 
-    await github.rest.issues.createComment({ ...context.repo, issue_number: number, body });
-    core.info(`Posted documentation-impact comment on #${number}`);
+    await github.rest.issues.addLabels({ ...context.repo, issue_number: number, labels: [DOCS_CANDIDATE_LABEL] });
 }
 
 export const END_USER_DOCS_SECTIONS: Record<string, string> = {

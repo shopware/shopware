@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import {
     COMMENT_MARKER,
+    DOCS_CANDIDATE_LABEL,
     buildComment,
     buildEndUserDocs,
     collectAgentInput,
@@ -65,6 +66,7 @@ function fakeGitHub(options: {
                 listComments: Symbol('listComments'),
                 createComment: record('createComment'),
                 updateComment: record('updateComment'),
+                addLabels: record('addLabels'),
             },
         },
         paginate: async (method: unknown) => {
@@ -269,6 +271,10 @@ test('postComment creates a comment on the resolved pull request', async () => {
     assert.equal(create?.params.issue_number, 9);
     assert.ok(String(create?.params.body).includes('New setting'));
     assert.equal(String(create?.params.body).includes('@shopware'), false);
+
+    const label = calls.find((c) => c.method === 'addLabels');
+    assert.equal(label?.params.issue_number, 9);
+    assert.deepEqual(label?.params.labels, [DOCS_CANDIDATE_LABEL]);
 });
 
 test('postComment updates its earlier comment instead of adding another', async () => {
@@ -282,6 +288,7 @@ test('postComment updates its earlier comment instead of adding another', async 
 
     assert.equal(calls.find((c) => c.method === 'updateComment')?.params.comment_id, 6);
     assert.equal(calls.some((c) => c.method === 'createComment'), false);
+    assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, [DOCS_CANDIDATE_LABEL]);
 });
 
 test('postComment rejects malformed agent output', async () => {
@@ -342,7 +349,7 @@ test('postComment in a dry run writes the comment to the step summary only', asy
         { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'New event' }] },
     );
 
-    assert.equal(calls.some((c) => ['createComment', 'updateComment'].includes(c.method)), false);
+    assert.equal(calls.some((c) => ['createComment', 'updateComment', 'addLabels'].includes(c.method)), false);
     assert.equal(written.length, 1);
     assert.ok(written[0].includes('Dry run: comment for #9'));
     assert.ok(written[0].includes('New event'));

@@ -989,6 +989,18 @@ declare module 'shopware:mini-modules/public-component' {
 
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:mini-modules/service-names' {
-    export { repositoryFactory } from 'src/app/service-names';
+    export { repositoryFactory, ruleConditionDataProviderService } from 'src/app/service-names';
     export type * from 'src/app/service-names';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mini-modules/sw-settings-shipping-price-matrices' {
+    export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
+    export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mini-modules/sw-settings-shipping-price-matrix' {
+    export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
+    export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
 }

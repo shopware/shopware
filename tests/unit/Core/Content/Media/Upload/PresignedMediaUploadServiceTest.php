@@ -22,8 +22,10 @@ use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
 use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -430,6 +432,43 @@ class PresignedMediaUploadServiceTest extends TestCase
         );
 
         $service->finalize($mediaId, $payload, Context::createDefaultContext());
+    }
+
+    public function testFinalizeKeepsMediaAndStoredFileWhenCallerLacksDeletePrivilege(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000dd';
+        $path = 'media/ab/cd/test-file.jpg';
+
+        [$repo, $service] = $this->createService([
+            new MediaCollection([$this->buildMedia($mediaId)]),
+            new MediaCollection(),
+        ]);
+
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(null);
+        $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
+
+        $source = new AdminApiSource(userId: null, integrationId: Uuid::randomHex());
+        $source->setPermissions(['media:read', 'media:update']);
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'test-file',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            path: $path,
+        );
+
+        try {
+            $service->finalize($mediaId, $payload, Context::createDefaultContext($source));
+            static::fail('finalize must rethrow the storage verification failure');
+        } catch (MediaException $e) {
+            static::assertEquals(MediaException::presignedUploadFinalizeFailed($mediaId), $e);
+        }
+
+        static::assertSame([], $repo->deletes);
     }
 
     public function testFinalizeThrowsOnPathMismatchWithoutDeletingSubmittedPath(): void

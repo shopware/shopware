@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Util\PathHelper;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('discovery')]
@@ -619,5 +621,13 @@ class MediaException extends HttpException
             'Could not verify uploaded file for media with id "{{ mediaId }}".',
             ['mediaId' => $mediaId]
         );
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    public static function missingPrivileges(array $permissions): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($permissions);
     }
 }

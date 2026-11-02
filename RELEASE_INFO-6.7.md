@@ -57,6 +57,15 @@ A non-admin may no longer update or delete an admin integration; these writes ar
 Administrators are unaffected.
 The user of an access key can no longer be changed after the key was created, also not by administrators.
 
+### Presigned media upload endpoints now require ACL privileges
+
+`POST /api/_action/media/presign-upload` and `POST /api/_action/media/{mediaId}/finalize-upload` now require the `media:update` privilege.
+Preparing an upload without a `mediaId`, which creates a new media entity, additionally requires `media:create`.
+Requests with tokens lacking a privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+Administration users are not affected: the "Media creator" permission already includes `media:update`.
+Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+When `finalize-upload` fails for a new media, the media and the uploaded file are only removed if the caller also holds `media:delete`.
+Otherwise the media stays without a file.
 ### Integrations no longer act as the user named in `sw-app-user-id`
 
 A standard integration that sends the `sw-app-user-id` header keeps its own identity.

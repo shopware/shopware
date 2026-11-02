@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -89,6 +91,59 @@ class CacheValueCompressorTest extends TestCase
         CacheValueCompressor::$compressMethod = 'gzip';
 
         static::assertSame($content, CacheValueCompressor::uncompress($stored));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function serializedValueProvider(): iterable
+    {
+        yield 'null' => [null];
+        yield 'false' => [false];
+        yield 'integer' => [42];
+        yield 'float' => [4.2];
+        yield 'string' => ['Demostore'];
+        yield 'array' => [['config' => ['core.basicInformation.shopName' => 'Demostore']]];
+        yield 'object' => [new \ArrayObject(['shopName' => 'Demostore'])];
+        yield 'enum' => [OnDelete::CASCADE];
+    }
+
+    #[DataProvider('serializedValueProvider')]
+    public function testUncompressReadsUncompressedValuesOfAnyType(mixed $content): void
+    {
+        CacheValueCompressor::$compress = false;
+        $stored = CacheValueCompressor::compress($content);
+
+        CacheValueCompressor::$compress = true;
+
+        static::assertEquals($content, CacheValueCompressor::uncompress($stored));
+    }
+
+    public function testUncompressReadsObjectsSerializedThroughTheSerializableInterface(): void
+    {
+        $content = new \ArrayObject(['shopName' => 'Demostore']);
+        $data = $content->serialize();
+        $stored = 'C:11:"ArrayObject":' . \strlen($data) . ':{' . $data . '}';
+
+        static::assertEquals($content, CacheValueCompressor::uncompress($stored));
+    }
+
+    public function testUncompressThrowsForValuesInAnUnknownFormat(): void
+    {
+        $this->expectExceptionObject(AdapterException::cacheCompressionError('Unknown cache value format'));
+
+        CacheValueCompressor::uncompress('not a cache value');
+    }
+
+    public function testUncompressThrowsForZstdValuesWithoutTheZstdExtension(): void
+    {
+        if (\function_exists('zstd_uncompress')) {
+            static::markTestSkipped('The zstd PHP extension is loaded.');
+        }
+
+        $this->expectExceptionObject(AdapterException::cacheCompressionError('Value is zstd compressed, but the zstd PHP extension is not loaded'));
+
+        CacheValueCompressor::uncompress("\x28\xB5\x2F\xFD" . 'zstd frame');
     }
 
     public function testUncompressReturnsNonStringValuesUnchanged(): void

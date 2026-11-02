@@ -89,6 +89,10 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         wrapper = await createWrapper();
     });
 
+    afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
     it('should display the birthday', async () => {
         expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22/12/1992');
     });
@@ -307,7 +311,5 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         expect(customerNumberField.querySelector('.mt-field__error').textContent.trim()).toBe(
             'This value should not be blank.',
         );
-
-        Shopware.Store.get('error').resetApiErrors();
     });
 });

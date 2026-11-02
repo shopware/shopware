@@ -4,7 +4,7 @@
       "count": 2
     }
   },
-  "build/shopware-modules/src/generator.ts": {
+  "build/shopware-modules-generator/src/generator.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }

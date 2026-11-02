@@ -79,7 +79,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
-import type { ModuleRegistry } from './definitions';
+import type { ModuleRegistry } from '../../shopware-modules/src/definitions';
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
 const DATA_SOURCE = 'src/core/data/index.js';

@@ -50,6 +50,7 @@
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/shopware-modules/**/*",
+    "./build/shopware-modules-generator/**/*",
     "./build/vue-setup-transform/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",

@@ -59,9 +59,11 @@
                         {% endblock %}
                     </template>
 
-                    <template v-else>
+                    <sw-silence-deprecations
+                        v-else
+                        flag="V6_9_0_0"
+                    >
                         <sw-tabs
-                            v-silence-deprecations="'V6_9_0_0'"
                             is-vertical
                             small
                             position-identifier="sw-cms-list-sidebar"
@@ -77,7 +79,7 @@
                                 {{ pageType.name }}
                             </sw-tabs-item>
                         </sw-tabs>
-                    </template>
+                    </sw-silence-deprecations>
                     {% endblock %}
                 </div>
                 {% endblock %}

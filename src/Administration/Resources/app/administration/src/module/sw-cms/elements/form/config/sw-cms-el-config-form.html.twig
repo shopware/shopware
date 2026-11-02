@@ -91,9 +91,11 @@
     {% endblock %}
 </template>
 
-<template v-else>
+<sw-silence-deprecations
+    v-else
+    flag="V6_9_0_0"
+>
     <sw-tabs
-        v-silence-deprecations="'V6_9_0_0'"
         position-identifier="sw-cms-element-config-form"
         class="sw-cms-el-config-form__tabs"
         default-item="content"
@@ -205,5 +207,5 @@
             {% endblock %}
         </template>
     </sw-tabs>
-</template>
+</sw-silence-deprecations>
 {% endblock %}

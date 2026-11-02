@@ -225,6 +225,25 @@ describe('src/core/feature', () => {
             );
             expect(Feature.isSilenced('V7_0_0_0')).toBe(false);
         });
+
+        it('silences nothing and logs an error for an unknown flag', () => {
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            expect(
+                Feature.silence('V7_0_0', () => {
+                    Feature.triggerDeprecationOrThrow('V7_0_0_0', 'typoSilencedMethod() is deprecated.');
+
+                    return 'legacy';
+                }),
+            ).toBe('legacy');
+
+            expect(error).toHaveBeenCalledWith(
+                '[Feature]',
+                'Feature.silence(\'V7_0_0\') silences nothing: "V7_0_0" is an unknown feature flag. Please fix it.',
+            );
+            expect(warn).toHaveBeenCalledWith('[Deprecation]', 'typoSilencedMethod() is deprecated.');
+        });
     });
 
     describe('setSilenceCheck', () => {

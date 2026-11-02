@@ -64,11 +64,13 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="variant === 'tabs'"
                     ref="tabComponent"
-                    v-silence-deprecations="'V6_9_0_0'"
                     class="sw-custom-field-set-renderer__card-tabs"
                     variant="minimal"
                     :default-item="visibleCustomFieldSets[0].id"
@@ -144,7 +146,7 @@
                     </template>
                     {% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
         </template>
         {% endblock %}
 

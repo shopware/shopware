@@ -2,13 +2,6 @@
 
 ## Core
 
-### Unsupported Admin API response format exception
-
-Use `ApiException::unsupportedResponseMediaTypes()` for unsupported Admin API response formats.
-The factory returns Symfony's `UnsupportedMediaTypeHttpException` before 6.8 and `ApiException` with error code `FRAMEWORK__API_UNSUPPORTED_RESPONSE_MEDIA_TYPES` when `v6.8.0.0` is active.
-Update catches for `UnsupportedMediaTypeHttpException` to handle `ApiException` with that error code.
-HTTP status 415 and the message are preserved.
-
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
@@ -233,7 +226,6 @@ Check import files that relied on `0` being ignored.
 With the `v6.8.0.0` feature flag enabled, Admin API entity responses use plain JSON when the `Accept` header is missing or contains only `*/*`.
 Clients that expect JSON:API should explicitly send `Accept: application/vnd.api+json`; this header also works on earlier Shopware 6 versions.
 Clients can already opt into plain JSON with `Accept: application/json`.
-With the flag enabled, unsupported response formats return HTTP 415 with error code `FRAMEWORK__API_UNSUPPORTED_RESPONSE_MEDIA_TYPES` instead of `0`.
 
 ### Usernames with surrounding whitespace
 

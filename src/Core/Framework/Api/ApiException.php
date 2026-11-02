@@ -69,7 +69,6 @@ class ApiException extends HttpException
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
     public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
     public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
-    public const API_UNSUPPORTED_RESPONSE_MEDIA_TYPES = 'FRAMEWORK__API_UNSUPPORTED_RESPONSE_MEDIA_TYPES';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -184,20 +183,9 @@ class ApiException extends HttpException
     /**
      * @param array<string> $contentTypes
      */
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
-    public static function unsupportedResponseMediaTypes(array $contentTypes): self|UnsupportedMediaTypeHttpException
+    public static function unsupportedResponseMediaTypes(array $contentTypes): UnsupportedMediaTypeHttpException
     {
-        // @deprecated tag:v6.8.0 - Remove the legacy Symfony exception.
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new UnsupportedMediaTypeHttpException(\sprintf('All provided media types are unsupported. (%s)', implode(', ', $contentTypes)));
-        }
-
-        return new self(
-            Response::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            self::API_UNSUPPORTED_RESPONSE_MEDIA_TYPES,
-            'All provided media types are unsupported. ({{ mediaTypes }})',
-            ['mediaTypes' => implode(', ', $contentTypes)]
-        );
+        return new UnsupportedMediaTypeHttpException(\sprintf('All provided media types are unsupported. (%s)', implode(', ', $contentTypes)));
     }
 
     public static function badRequest(string $message): SymfonyHttpException

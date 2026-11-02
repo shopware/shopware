@@ -276,6 +276,20 @@ class ContentSystemExceptionTest extends TestCase
             '262144 bytes',
         ];
 
+        yield 'inline token scan failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not scan tokens in inline mapping text: Backtrack limit exhausted.',
+        ];
+
+        yield 'inline path validation failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('validate a path in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not validate a path in inline mapping text: Backtrack limit exhausted.',
+        ];
+
         yield 'box-spacing input limit' => [
             ContentSystemException::boxSpacingInvalidValue('trim', 'x'),
             Response::HTTP_BAD_REQUEST,

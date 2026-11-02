@@ -70,7 +70,12 @@ final class InlineMappingTokenParser
      */
     public static function isValidPath(string $path): bool
     {
-        return preg_match(self::VALID_PATH_PATTERN, $path) === 1;
+        $result = preg_match(self::VALID_PATH_PATTERN, $path);
+        if ($result === false) {
+            throw ContentSystemException::inlineMappingParsingFailed('validate a path in', preg_last_error_msg());
+        }
+
+        return $result === 1;
     }
 
     /**
@@ -91,7 +96,16 @@ final class InlineMappingTokenParser
         $insideTag = false;
         $quote = null;
 
-        while (preg_match(self::TOKEN_PATTERN, $text, $matches, \PREG_OFFSET_CAPTURE, $cursor) === 1) {
+        while (true) {
+            $result = preg_match(self::TOKEN_PATTERN, $text, $matches, \PREG_OFFSET_CAPTURE, $cursor);
+            if ($result === false) {
+                throw ContentSystemException::inlineMappingParsingFailed('scan tokens in', preg_last_error_msg());
+            }
+
+            if ($result === 0) {
+                break;
+            }
+
             $offset = $matches[0][1];
             [$insideTag, $quote] = $this->scanMarkupState($text, $cursor, $offset, $insideTag, $quote);
             $path = $matches['path'][0];

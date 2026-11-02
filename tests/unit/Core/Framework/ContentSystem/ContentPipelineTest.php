@@ -268,6 +268,29 @@ class ContentPipelineTest extends TestCase
         }
     }
 
+    public function testInlineParserFailureAbortsRendering(): void
+    {
+        $root = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', '{{map:product.name}} {{map:' . str_repeat('x', 500) . '}}')
+            ->build();
+        $pipeline = $this->createPipeline();
+        $layout = $this->createSingleRootLayout($root);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+        $context = Generator::generateSalesChannelContext();
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+        $previousLimit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($previousLimit);
+        static::assertNotFalse(ini_set('pcre.backtrack_limit', '100'));
+
+        try {
+            $this->expectExceptionObject(ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'));
+
+            $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, $context);
+        } finally {
+            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
+    }
+
     /**
      * @return iterable<string, array{?string}>
      */

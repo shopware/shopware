@@ -59,7 +59,10 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": { "$ref": "#/components/responses/400" },
+                    "500": {
+                        "description": "The token-scanning or path-validation engine failed (CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED). No successful empty or partial token result is returned."
+                    }
                 }
             }
         }

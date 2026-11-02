@@ -105,6 +105,7 @@ class ContentSystemException extends HttpException
     public const INLINE_MAPPING_REQUIRES_ROOT_SOURCE = 'CONTENT_SYSTEM__INLINE_MAPPING_REQUIRES_ROOT_SOURCE';
     public const INLINE_MAPPING_INPUT_TOO_LARGE = 'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE';
     public const INLINE_MAPPING_EXPANSION_TOO_LARGE = 'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE';
+    public const INLINE_MAPPING_PARSING_FAILED = 'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
@@ -1114,6 +1115,16 @@ class ContentSystemException extends HttpException
             self::INLINE_MAPPING_INPUT_TOO_LARGE,
             'Inline mapping text exceeds the maximum supported size of {{ maximumBytes }} bytes.',
             ['maximumBytes' => $maximumBytes]
+        );
+    }
+
+    public static function inlineMappingParsingFailed(string $operation, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INLINE_MAPPING_PARSING_FAILED,
+            'Could not {{ operation }} inline mapping text: {{ reason }}.',
+            ['operation' => $operation, 'reason' => $reason]
         );
     }
 

@@ -45,6 +45,7 @@ class InlineMappingTokenParserTest extends TestCase
 
         // A marker with an invalid path is still recognized so diagnostics can report it and rendering can remove it.
         yield 'no prefix, so it is an ordinary placeholder' => ['{{product.name}}', []];
+        yield 'an unclosed marker is an ordinary no-match result' => ['{{map:product.name', []];
         yield 'no member path is malformed mapping intent' => ['{{map:product}}', ['product']];
         yield 'empty path is malformed mapping intent' => ['{{map:}}', ['']];
         yield 'a single brace' => ['{map:product.name}', []];
@@ -159,6 +160,47 @@ class InlineMappingTokenParserTest extends TestCase
         $text = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES + 1);
 
         static::assertSame([], $this->parser()->parse($text));
+    }
+
+    #[DataProvider('scanFailurePrefixes')]
+    public function testParseThrowsInsteadOfReturningAnIncompleteScan(string $prefix): void
+    {
+        $previousLimit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($previousLimit);
+        static::assertNotFalse(ini_set('pcre.backtrack_limit', '100'));
+
+        try {
+            $this->expectExceptionObject(ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'));
+
+            $this->parser()->parse($prefix . '{{map:' . str_repeat('x', 500) . '}}');
+        } finally {
+            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function scanFailurePrefixes(): iterable
+    {
+        yield 'failure before the first token cannot look like an empty scan' => [''];
+        yield 'failure after a token cannot return a partial scan' => ['{{map:product.name}} '];
+    }
+
+    public function testPathValidationThrowsInsteadOfReportingAMalformedPathOnEngineFailure(): void
+    {
+        $path = 'product.' . str_repeat('name.', 500) . 'name';
+        $previousLimit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($previousLimit);
+        static::assertNotFalse(ini_set('pcre.backtrack_limit', '100'));
+
+        try {
+            $this->expectExceptionObject(ContentSystemException::inlineMappingParsingFailed('validate a path in', 'Backtrack limit exhausted'));
+
+            InlineMappingTokenParser::isValidPath($path);
+        } finally {
+            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
     }
 
     public function testParseScansMoreThanTheOldTokenLimitWithoutTruncating(): void

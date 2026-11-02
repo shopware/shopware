@@ -1,4 +1,11 @@
 .sw-product-open-in-storefront-modal {
+    position: relative;
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+
     &__sales-channel {
         display: flex;
         flex-direction: column;

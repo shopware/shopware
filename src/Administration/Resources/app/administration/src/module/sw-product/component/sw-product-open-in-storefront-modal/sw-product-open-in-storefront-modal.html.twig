@@ -1,139 +1,145 @@
 {% block sw_product_open_in_storefront_modal %}
-<sw-modal
-    :title="modalTitle"
-    :is-loading="isLoading"
-    class="sw-product-open-in-storefront-modal"
-    @modal-close="onClose"
+<mt-modal-root
+    :is-open="true"
+    @change="onModalRootChange"
 >
-    {% block sw_product_open_in_storefront_modal_banners %}
-    <mt-banner
-        v-if="hasUnsavedChanges"
-        class="sw-product-open-in-storefront-modal__unsaved-changes"
-        variant="attention"
-    >
-        {{ $t('sw-product.openInStorefrontModal.infoUnsavedChanges') }}
-    </mt-banner>
+    <mt-modal :title="modalTitle">
+        <div class="sw-product-open-in-storefront-modal">
+            <sw-loader v-if="isLoading" />
 
-    <mt-banner
-        v-if="salesChannels.length === 0"
-        class="sw-product-open-in-storefront-modal__no-sales-channels"
-        variant="info"
-    >
-        {{ $t('sw-product.openInStorefrontModal.infoNoSalesChannels') }}
-    </mt-banner>
-    {% endblock %}
-
-    {% block sw_product_open_in_storefront_modal_sales_channel_select %}
-    <mt-select
-        v-if="salesChannels.length > 0"
-        v-model="selectedSalesChannelId"
-        class="sw-product-open-in-storefront-modal__sales-channel-select"
-        :options="salesChannelOptions"
-        :label="$t('sw-product.openInStorefrontModal.labelSalesChannel')"
-        :placeholder="$t('sw-product.openInStorefrontModal.placeholderSalesChannel')"
-    />
-    {% endblock %}
-
-    {% block sw_product_open_in_storefront_modal_result %}
-    <section
-        v-if="result"
-        class="sw-product-open-in-storefront-modal__sales-channel"
-    >
-        {% block sw_product_open_in_storefront_modal_result_badge %}
-        <mt-badge
-            :variant="result.reachable ? 'positive' : 'critical'"
-            size="s"
-        >
-            {{ reachabilityLabel }}
-        </mt-badge>
-        {% endblock %}
-
-        {% block sw_product_open_in_storefront_modal_checks %}
-        <ul
-            v-if="result.failingReasons.length > 0"
-            class="sw-product-open-in-storefront-modal__checks"
-        >
-            <li
-                v-for="reason in result.failingReasons"
-                :key="reason"
-                class="sw-product-open-in-storefront-modal__check"
+            {% block sw_product_open_in_storefront_modal_banners %}
+            <mt-banner
+                v-if="hasUnsavedChanges"
+                class="sw-product-open-in-storefront-modal__unsaved-changes"
+                variant="attention"
             >
-                <mt-icon
-                    class="sw-product-open-in-storefront-modal__check-icon"
-                    name="regular-times-s"
-                    size="12px"
-                    aria-hidden="true"
-                />
-                <span>{{ $t(`sw-product.openInStorefrontModal.checks.${reason}`) }}</span>
-            </li>
-        </ul>
-        {% endblock %}
+                {{ $t('sw-product.openInStorefrontModal.infoUnsavedChanges') }}
+            </mt-banner>
 
-        {% block sw_product_open_in_storefront_modal_maintenance %}
-        <p
-            v-if="result.maintenance"
-            class="sw-product-open-in-storefront-modal__maintenance"
-        >
-            <mt-icon
-                name="regular-info-circle"
-                size="12px"
-                aria-hidden="true"
-            />
-            <span>{{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}</span>
-        </p>
-        {% endblock %}
-
-        {% block sw_product_open_in_storefront_modal_domains %}
-        <div
-            v-if="result.domains.length > 0"
-            class="sw-product-open-in-storefront-modal__domains"
-        >
-            {% block sw_product_open_in_storefront_modal_domains_caption %}
-            <p
-                v-if="!hasProductUrl"
-                class="sw-product-open-in-storefront-modal__domains-caption"
+            <mt-banner
+                v-if="salesChannels.length === 0"
+                class="sw-product-open-in-storefront-modal__no-sales-channels"
+                variant="info"
             >
-                {{ $t('sw-product.openInStorefrontModal.labelDomains') }}
-            </p>
+                {{ $t('sw-product.openInStorefrontModal.infoNoSalesChannels') }}
+            </mt-banner>
             {% endblock %}
 
-            <ul class="sw-product-open-in-storefront-modal__domain-list">
-                <li
-                    v-for="domain in result.domains"
-                    :key="domain.id"
-                    class="sw-product-open-in-storefront-modal__domain"
+            {% block sw_product_open_in_storefront_modal_sales_channel_select %}
+            <mt-select
+                v-if="salesChannels.length > 0"
+                v-model="selectedSalesChannelId"
+                class="sw-product-open-in-storefront-modal__sales-channel-select"
+                :options="salesChannelOptions"
+                :label="$t('sw-product.openInStorefrontModal.labelSalesChannel')"
+                :placeholder="$t('sw-product.openInStorefrontModal.placeholderSalesChannel')"
+            />
+            {% endblock %}
+
+            {% block sw_product_open_in_storefront_modal_result %}
+            <section
+                v-if="result"
+                class="sw-product-open-in-storefront-modal__sales-channel"
+            >
+                {% block sw_product_open_in_storefront_modal_result_badge %}
+                <mt-badge
+                    :variant="result.reachable ? 'positive' : 'critical'"
+                    size="s"
                 >
-                    <sw-external-link
-                        v-if="domain.productUrl"
-                        :href="domain.productUrl"
-                        small
-                    >
-                        {{ domain.productUrl }}
-                    </sw-external-link>
+                    {{ reachabilityLabel }}
+                </mt-badge>
+                {% endblock %}
 
-                    <span
-                        v-else
-                        class="sw-product-open-in-storefront-modal__domain-url"
+                {% block sw_product_open_in_storefront_modal_checks %}
+                <ul
+                    v-if="result.failingReasons.length > 0"
+                    class="sw-product-open-in-storefront-modal__checks"
+                >
+                    <li
+                        v-for="reason in result.failingReasons"
+                        :key="reason"
+                        class="sw-product-open-in-storefront-modal__check"
                     >
-                        {{ domain.url }}
-                    </span>
-                </li>
-            </ul>
+                        <mt-icon
+                            class="sw-product-open-in-storefront-modal__check-icon"
+                            name="regular-times-s"
+                            size="12px"
+                            aria-hidden="true"
+                        />
+                        <span>{{ $t(`sw-product.openInStorefrontModal.checks.${reason}`) }}</span>
+                    </li>
+                </ul>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_maintenance %}
+                <p
+                    v-if="result.maintenance"
+                    class="sw-product-open-in-storefront-modal__maintenance"
+                >
+                    <mt-icon
+                        name="regular-info-circle"
+                        size="12px"
+                        aria-hidden="true"
+                    />
+                    <span>{{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}</span>
+                </p>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_domains %}
+                <div
+                    v-if="result.domains.length > 0"
+                    class="sw-product-open-in-storefront-modal__domains"
+                >
+                    {% block sw_product_open_in_storefront_modal_domains_caption %}
+                    <p
+                        v-if="!hasProductUrl"
+                        class="sw-product-open-in-storefront-modal__domains-caption"
+                    >
+                        {{ $t('sw-product.openInStorefrontModal.labelDomains') }}
+                    </p>
+                    {% endblock %}
+
+                    <ul class="sw-product-open-in-storefront-modal__domain-list">
+                        <li
+                            v-for="domain in result.domains"
+                            :key="domain.id"
+                            class="sw-product-open-in-storefront-modal__domain"
+                        >
+                            <sw-external-link
+                                v-if="domain.productUrl"
+                                :href="domain.productUrl"
+                                small
+                            >
+                                {{ domain.productUrl }}
+                            </sw-external-link>
+
+                            <span
+                                v-else
+                                class="sw-product-open-in-storefront-modal__domain-url"
+                            >
+                                {{ domain.url }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                {% endblock %}
+            </section>
+            {% endblock %}
         </div>
-        {% endblock %}
-    </section>
-    {% endblock %}
 
-    {% block sw_product_open_in_storefront_modal_footer %}
-    <template #modal-footer>
-        <mt-button
-            size="small"
-            variant="secondary"
-            @click="onClose"
-        >
-            {{ $t('global.default.close') }}
-        </mt-button>
-    </template>
-    {% endblock %}
-</sw-modal>
+        {% block sw_product_open_in_storefront_modal_footer %}
+        <template #footer>
+            <div class="sw-product-open-in-storefront-modal__footer">
+                <mt-modal-close
+                    as="mt-button"
+                    size="small"
+                    variant="secondary"
+                >
+                    {{ $t('global.default.close') }}
+                </mt-modal-close>
+            </div>
+        </template>
+        {% endblock %}
+    </mt-modal>
+</mt-modal-root>
 {% endblock %}

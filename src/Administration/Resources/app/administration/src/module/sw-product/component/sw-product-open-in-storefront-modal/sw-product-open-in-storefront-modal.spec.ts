@@ -58,7 +58,21 @@ async function createWrapper({
         },
         global: {
             stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
+                'mt-modal-root': {
+                    name: 'mt-modal-root',
+                    props: ['isOpen'],
+                    emits: ['change'],
+                    template:
+                        '<div v-if="isOpen"><slot /><button class="mt-modal-root__dismiss" @click="$emit(\'change\', false)" /></div>',
+                },
+                'mt-modal': {
+                    name: 'mt-modal',
+                    props: ['title'],
+                    template: '<div><slot /><slot name="footer" /></div>',
+                },
+                'mt-modal-close': {
+                    template: '<button class="mt-modal-close"><slot /></button>',
+                },
                 'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
                 'sw-loader': true,
             },
@@ -289,13 +303,17 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
     it('shows the product number in the title', async () => {
         const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000.2' } });
 
-        expect(wrapper.find('.sw-modal__title').text()).toContain('SW10000.2');
+        expect(wrapper.findComponent({ name: 'mt-modal' }).props('title')).toContain('SW10000.2');
     });
 
-    it('emits modal-close when it is closed', async () => {
+    it('emits modal-close when the modal root closes', async () => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.find('.sw-modal__footer button').trigger('click');
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__footer .mt-modal-close').text()).toBe(
+            'global.default.close',
+        );
+
+        await wrapper.find('.mt-modal-root__dismiss').trigger('click');
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
     });

@@ -268,8 +268,10 @@ export default Shopware.Component.wrapComponentConfig({
             return reasons.length > 0 ? reasons : ['storefrontShowsProduct'];
         },
 
-        onClose(): void {
-            this.$emit('modal-close');
+        onModalRootChange(isOpen: boolean): void {
+            if (!isOpen) {
+                this.$emit('modal-close');
+            }
         },
     },
 });

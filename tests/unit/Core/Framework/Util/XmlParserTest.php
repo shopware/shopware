@@ -77,12 +77,17 @@ class XmlParserTest extends TestCase
 
     public function testParseReportsMalformedXml(): void
     {
-        $this->expectExceptionObject(UtilException::xmlParsingFailed(
-            "[ERROR 76] Opening and ending tag mismatch: title line 1 and config (in n/a - line 1, column 46)\n"
-            . '[ERROR 77] Premature end of data in tag config line 1 (in n/a - line 1, column 46)'
-        ));
-
-        XmlParser::parse('<?xml version="1.0"?><config><title></config>');
+        try {
+            XmlParser::parse('<?xml version="1.0"?><config><title></config>');
+            static::fail('Malformed XML must be rejected.');
+        } catch (UtilException $e) {
+            static::assertSame(UtilException::XML_PARSING_FAILED, $e->getErrorCode());
+            // libxml 2.13 stops after the first error, older versions also report "[ERROR 77] Premature end of data".
+            static::assertStringStartsWith(
+                '[ERROR 76] Opening and ending tag mismatch: title line 1 and config (in n/a - line 1, column 46)',
+                $e->getMessage()
+            );
+        }
     }
 
     public function testParseFetchesNothingWhenTheBodyAfterADocumentTypeIsMalformed(): void

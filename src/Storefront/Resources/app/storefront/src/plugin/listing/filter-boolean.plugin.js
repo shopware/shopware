@@ -100,16 +100,12 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
     }
 
     setValuesFromUrl(params) {
-        let stateChanged = false;
-        Object.keys(params).forEach(key => {
-            if (key === this.options.name) {
-                if (params[key]) {
-                    this.checkbox.checked = 1;
-                    stateChanged = true;
-                }
-            }
-        });
+        const checked = !!params[this.options.name];
+        const stateChanged = this.checkbox.checked !== checked;
+
+        this.checkbox.checked = checked;
         this._updateAltText();
+
         return stateChanged;
     }
 

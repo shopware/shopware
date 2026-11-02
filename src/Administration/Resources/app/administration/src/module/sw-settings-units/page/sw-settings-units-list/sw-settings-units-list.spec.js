@@ -118,7 +118,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
     it('should be able to create a new units', async () => {
         const wrapper = await createWrapper(['scale_unit.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-units__create-action');
 
@@ -127,7 +127,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
     it('should not be able to create a new units', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-units__create-action');
 
@@ -136,7 +136,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
     it('should be able to edit a unit', async () => {
         const wrapper = await createWrapper(['scale_unit.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const dataGrid = wrapper.find('.sw-settings-units-grid');
 
@@ -146,7 +146,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
     it('should not be able to edit a unit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const dataGrid = wrapper.find('.sw-settings-units-grid');
 
@@ -156,7 +156,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
     it('should be able to delete a units', async () => {
         const wrapper = await createWrapper(['scale_unit.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-units__delete-action');
 
@@ -165,7 +165,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
     it('should not be able to delete a units', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-units__delete-action');
 

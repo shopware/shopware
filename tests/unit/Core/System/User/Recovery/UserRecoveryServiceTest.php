@@ -416,18 +416,15 @@ class UserRecoveryServiceTest extends TestCase
                 return $event;
             });
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannelEntity]),
         ], new SalesChannelDefinition());

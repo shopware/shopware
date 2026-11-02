@@ -443,7 +443,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(
             wrapper
@@ -471,13 +471,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper
             .find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input')
             .setValue('checked');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(
             wrapper.find('.sw-bulk-edit-change-field-documents .mt-field--checkbox__container input').attributes().disabled,
@@ -543,11 +543,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const { statusData } = wrapper.vm.onProcessData();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const changeDocumentTypes = statusData[0].documentTypes;
 
@@ -579,11 +579,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const { statusData } = wrapper.vm.onProcessData();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const changeDocumentTypes = statusData[0].documentTypes;
 
@@ -610,7 +610,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
         expect(wrapper.vm.$route.path).toBe('/confirm');
@@ -622,7 +622,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
 
@@ -640,7 +640,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
 
@@ -669,7 +669,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
 
@@ -696,10 +696,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         };
 
         await tagsCard.find('.sw-bulk-edit-change-field__change input').setValue('checked');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const { syncData } = wrapper.vm.onProcessData();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const changeTagField = syncData[0];
         expect(changeTagField.field).toBe('tags');
@@ -839,12 +839,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         setInvoiceFileFormats([]);
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
 
         setInvoiceFileFormats(['pdf']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
 
@@ -861,7 +861,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
             setInvoiceFileFormats([]);
             Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
         },

@@ -63,7 +63,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalled();
 
@@ -89,7 +89,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
 
@@ -116,7 +116,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'Gutscheincode "SUMMER" existiert nicht.',
@@ -145,7 +145,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'Something went wrong',
@@ -173,7 +173,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
 
@@ -191,7 +191,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const orderSummary = wrapper.find('.sw-order-create-summary__data');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
@@ -207,7 +207,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             lineItems: [],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const orderSummary = wrapper.find('.sw-order-create-summary__data');
         expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
@@ -234,7 +234,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             ],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => {});
 

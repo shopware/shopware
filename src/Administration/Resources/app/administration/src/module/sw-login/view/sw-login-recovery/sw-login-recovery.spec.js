@@ -157,7 +157,7 @@ describe('module/sw-login/recovery.spec.js', () => {
         );
 
         jest.advanceTimersByTime(1001);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('[role="banner"]').exists()).toBe(false);
 

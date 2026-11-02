@@ -144,7 +144,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             aclRoles: [],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -157,7 +157,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: 'Master of something',
             aclRoles: [],
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -170,7 +170,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: null,
             aclRoles: [],
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -184,7 +184,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             aclRoles: [{ name: 'Copyreader' }],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -195,12 +195,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         jest.useFakeTimers();
 
         wrapper.vm.onViewportResize();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('aside.sw-admin-menu').classes()).toContain('is--viewport-resizing');
 
         jest.advanceTimersByTime(200);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('aside.sw-admin-menu').classes()).not.toContain('is--viewport-resizing');
 
@@ -216,12 +216,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(isInert()).toBe(false);
 
         wrapper.vm.viewportWidth = 1280;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(isInert()).toBe(true);
 
         wrapper.vm.onToggleCanvas(true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(isInert()).toBe(false);
     });
@@ -375,12 +375,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should close the open off-canvas menu when the viewport grows past the breakpoint', async () => {
         wrapper.vm.viewportWidth = 1280;
         wrapper.vm.onToggleCanvas(true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isOffCanvasShown).toBe(true);
 
         wrapper.vm.viewportWidth = 1920;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });

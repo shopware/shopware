@@ -112,7 +112,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             selection: [{ id: 'selected-media' }],
         });
         await tabs.vm.$emit('new-item-active', 'upload');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('upload');
         expect(wrapper.vm.selection).toEqual([]);

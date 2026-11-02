@@ -12,6 +12,8 @@ const { get, format, array } = Utils;
 export default Component.wrapComponentConfig({
     template,
 
+    emits: ['error'],
+
     mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {

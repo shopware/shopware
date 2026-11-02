@@ -15,7 +15,6 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
  */
 #[Package('framework')]
 #[CoversClass(CompatibilityValidator::class)]
-#[CoversClass(IncompatibleAppError::class)]
 class CompatibilityValidatorTest extends TestCase
 {
     public function testCompatibleAppProducesNoError(): void

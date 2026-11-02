@@ -86,6 +86,12 @@ it.deprecated('v6.8.0.0')('falls back to the most expensive delivery', () => {})
             errors: [{ messageId: 'missingOrigin' }],
         },
         {
+            name: 'a requirement without a comment in a split requirements spec',
+            filename: 'src/x/tests/requirements.spec/rounding.spec.ts',
+            code: "it('rounds half up', () => {});",
+            errors: [{ messageId: 'missingOrigin' }],
+        },
+        {
             name: 'a line comment does not count',
             filename: 'src/x/tests/requirements.spec.ts',
             code: `

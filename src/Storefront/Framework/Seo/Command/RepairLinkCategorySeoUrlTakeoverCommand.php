@@ -103,6 +103,12 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 $category['likelyCause'],
             ], $categories),
         );
+        $io->text([
+            'Likely cause:',
+            '  <info>indexing</info>  the indexing locked the URL, repair it',
+            '  <info>manual</info>    the URL was probably set on purpose, keep it',
+            '  <info>mixed</info>     the cause differs between languages or sales channels, fix it in the Administration',
+        ]);
 
         if (!$apply) {
             $io->note('Nothing changed. Run the command again with --apply to repair the listed categories.');

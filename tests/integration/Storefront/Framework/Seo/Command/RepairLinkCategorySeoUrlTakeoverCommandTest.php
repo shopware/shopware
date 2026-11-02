@@ -83,6 +83,7 @@ class RepairLinkCategorySeoUrlTakeoverCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
 
         static::assertMatchesRegularExpression('/Guide\/ +\S+ \S+ +indexing/', $this->commandTester->getDisplay());
+        static::assertStringContainsString('indexing  the indexing locked the URL, repair it', $this->commandTester->getDisplay());
     }
 
     public function testGuessesThatANewerLockedUrlWasSetManually(): void

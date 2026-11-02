@@ -18,9 +18,9 @@ export default class CmsVideoPlugin extends Plugin {
             return;
         }
 
+        this._applyStoredVolume();
         this._wasMuted = Boolean(this._video.muted);
 
-        this._applyStoredVolume();
         this._registerVolumeEvents();
         this._registerPlaybackEvents();
         this._updatePlayingState();
@@ -48,11 +48,16 @@ export default class CmsVideoPlugin extends Plugin {
 
         let volume = parseFloat(storedVolume);
 
-        if (Number.isNaN(volume) || volume <= 0 || volume > 1) {
+        if (Number.isNaN(volume) || volume < 0 || volume > 1) {
             volume = this._getDefaultVolume();
         }
 
         this._video.volume = volume;
+
+        if (volume === 0) {
+            this._video.muted = true;
+            this._wasMuted = true;
+        }
     }
 
     /**
@@ -137,7 +142,7 @@ export default class CmsVideoPlugin extends Plugin {
 
     /**
      * Handle volume or muted changes. Restores volume on unmute if silent,
-     * and persists valid non-zero volume to localStorage.
+     * mutes video when volume is set to zero, and persists volume to localStorage.
      *
      * @private
      * @returns {void}
@@ -149,9 +154,12 @@ export default class CmsVideoPlugin extends Plugin {
 
         if (unmuted && this._video.volume === 0) {
             this._video.volume = this._getDefaultVolume();
+        } else if (this._video.volume === 0 && !isMuted) {
+            this._video.muted = true;
+            this._wasMuted = true;
         }
 
-        if (this._video.volume > 0) {
+        if (this._video.volume >= 0 && this._video.volume <= 1) {
             try {
                 window.localStorage.setItem(this.options.storageKey, String(this._video.volume));
             } catch (error) {

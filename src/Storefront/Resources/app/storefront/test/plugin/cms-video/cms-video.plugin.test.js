@@ -99,23 +99,38 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         defineMediaProperties(video, { volume: 0 });
         defineReadyState(video, 2);
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         expect(video.volume).toBe(1);
     });
 
-    test('falls back to default volume when stored value is legacy zero', () => {
+    test('handles localStorage read errors gracefully when applying volume', () => {
         const video = document.querySelector('video');
         defineMediaProperties(video, { volume: 0 });
         defineReadyState(video, 2);
 
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        jest.spyOn(window.localStorage.__proto__, 'getItem').mockImplementation(() => {
+            throw new Error('SecurityError');
+        });
+
+        initPlugin();
+
+        expect(warnSpy).toHaveBeenCalledWith('Failed to read from localStorage:', expect.any(Error));
+        expect(video.volume).toBe(1);
+    });
+
+    test('applies stored volume of 0 and mutes video when stored preference is zero', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 1, muted: false });
+        defineReadyState(video, 2);
+
         window.localStorage.setItem('sw-cms-video-volume', '0');
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
-        expect(video.volume).toBe(1);
+        expect(video.volume).toBe(0);
+        expect(video.muted).toBe(true);
     });
 
     test('applies stored volume when valid value exists', () => {
@@ -126,8 +141,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
         window.localStorage.setItem('sw-cms-video-volume', '0.5');
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         expect(video.volume).toBe(0.5);
     });
@@ -140,8 +154,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
         window.localStorage.setItem('sw-cms-video-volume', invalidValue);
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         expect(video.volume).toBe(1);
     });
@@ -151,8 +164,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         defineMediaProperties(video, { volume: 0 });
         defineReadyState(video, 2);
 
-        const plugin = initPlugin({ defaultVolume: 0.8 });
-        plugin.init();
+        initPlugin({ defaultVolume: 0.8 });
 
         expect(video.volume).toBe(0.8);
     });
@@ -162,8 +174,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         defineMediaProperties(video, { volume: 0 });
         defineReadyState(video, 2);
 
-        const plugin = initPlugin({ defaultVolume: invalidDefault });
-        plugin.init();
+        initPlugin({ defaultVolume: invalidDefault });
 
         expect(video.volume).toBe(1);
     });
@@ -176,8 +187,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
         const setItemSpy = jest.spyOn(window.localStorage.__proto__, 'setItem');
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         video.volume = 0.7;
         video.dispatchEvent(new Event('volumechange'));
@@ -208,8 +218,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         defineMediaProperties(video, { volume: 0, muted: true });
         defineReadyState(video, 2);
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         expect(video.volume).toBe(1);
 
@@ -231,8 +240,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
         window.localStorage.setItem('sw-cms-video-volume', '0.5');
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         expect(video.volume).toBe(0.5);
 
@@ -242,15 +250,33 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         expect(video.volume).toBe(0.5);
     });
 
-    test('does not overwrite stored non-zero volume when volume changes to zero', () => {
+    test('restores custom defaultVolume on muted-to-unmuted transition when volume is zero', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 0, muted: true });
+        defineReadyState(video, 2);
+
+        window.localStorage.setItem('sw-cms-video-volume', '0');
+
+        initPlugin({ defaultVolume: 0.6 });
+
+        expect(video.volume).toBe(0);
+        expect(video.muted).toBe(true);
+
+        video.muted = false;
+        video.dispatchEvent(new Event('volumechange'));
+
+        expect(video.volume).toBe(0.6);
+        expect(window.localStorage.getItem('sw-cms-video-volume')).toBe('0.6');
+    });
+
+    test('persists volume zero to localStorage and mutes video when volume is set to zero', () => {
         const video = document.querySelector('video');
         defineMediaProperties(video, { volume: 0.7, muted: false });
         defineReadyState(video, 2);
 
         const setItemSpy = jest.spyOn(window.localStorage.__proto__, 'setItem');
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         setItemSpy.mockClear();
 
@@ -258,22 +284,47 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.volume = 0;
         video.dispatchEvent(new Event('volumechange'));
 
-        expect(setItemSpy).not.toHaveBeenCalled();
+        expect(video.muted).toBe(true);
+        expect(setItemSpy).toHaveBeenCalledWith('sw-cms-video-volume', '0');
     });
 
-    test('does not reset volume to default when volume is set to zero while already unmuted', () => {
+    test('mutes video and preserves zero volume when volume is set to zero while already unmuted', () => {
         const video = document.querySelector('video');
         defineMediaProperties(video, { volume: 0.8, muted: false });
         defineReadyState(video, 2);
 
-        const plugin = initPlugin();
-        plugin.init();
+        initPlugin();
 
         // User changes volume to 0 while already playing unmuted
         video.volume = 0;
         video.dispatchEvent(new Event('volumechange'));
 
         expect(video.volume).toBe(0);
+        expect(video.muted).toBe(true);
+    });
+
+    test('restores default volume when unmuted after user previously set volume to zero', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 0.8, muted: false });
+        defineReadyState(video, 2);
+
+        initPlugin();
+
+        // User changes volume to 0 while unmuted
+        video.volume = 0;
+        video.dispatchEvent(new Event('volumechange'));
+
+        expect(video.volume).toBe(0);
+        expect(video.muted).toBe(true);
+        expect(window.localStorage.getItem('sw-cms-video-volume')).toBe('0');
+
+        // User subsequently un-mutes video
+        video.muted = false;
+        video.dispatchEvent(new Event('volumechange'));
+
+        expect(video.volume).toBe(1);
+        expect(video.muted).toBe(false);
+        expect(window.localStorage.getItem('sw-cms-video-volume')).toBe('1');
     });
 
     test('handles repeated volumechange events gracefully', () => {
@@ -281,8 +332,12 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         defineMediaProperties(video, { volume: 0, muted: true });
         defineReadyState(video, 2);
 
-        const plugin = initPlugin();
-        plugin.init();
+        window.localStorage.setItem('sw-cms-video-volume', '0');
+
+        initPlugin();
+
+        expect(video.volume).toBe(0);
+        expect(video.muted).toBe(true);
 
         // First transition: unmuting from muted=true with volume=0 restores volume to 1
         video.muted = false;
@@ -309,7 +364,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.setAttribute('poster', 'https://example.com/poster.jpg');
 
         const plugin = initPlugin();
-        plugin.init();
 
         definePausedState(video, { paused: false, ended: false });
         plugin._updatePlayingState({ delay: 180 });
@@ -332,7 +386,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.currentTime = 2;
 
         const plugin = initPlugin();
-        plugin.init();
 
         const tapSpy = jest.spyOn(plugin, '_triggerTapAnimation');
 
@@ -361,7 +414,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         });
 
         const plugin = initPlugin();
-        plugin.init();
 
         plugin._onToggleClick();
         expect(video.play).toHaveBeenCalled();
@@ -390,7 +442,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         });
 
         const plugin = initPlugin();
-        plugin.init();
 
         const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
         plugin.el.dispatchEvent(event);
@@ -404,7 +455,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.setAttribute('poster', 'https://example.com/poster.jpg');
 
         const plugin = initPlugin();
-        plugin.init();
 
         const icon = plugin.el.querySelector('.cms-video-play-icon');
         const addSpy = jest.spyOn(icon, 'addEventListener');

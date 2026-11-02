@@ -76,10 +76,12 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="!isCreateMode"
-                    v-silence-deprecations="'V6_9_0_0'"
                     class="sw-promotion-v2-detail-page__tabs"
                     position-identifier="sw-promotion-detail"
                 >
@@ -116,7 +118,7 @@
                     {% endblock %}
 
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_promotion_v2_detail_content_view %}

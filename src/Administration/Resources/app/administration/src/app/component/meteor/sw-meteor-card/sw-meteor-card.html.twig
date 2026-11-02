@@ -66,10 +66,12 @@
             {% endblock %}
         </template>
 
-        <template v-else>
+        <sw-silence-deprecations
+            v-else
+            flag="V6_9_0_0"
+        >
             <sw-tabs
                 v-if="hasTabs"
-                v-silence-deprecations="'V6_9_0_0'"
                 position-identifier="sw-meteor-card"
                 :small="false"
                 :default-item="defaultTab"
@@ -80,7 +82,7 @@
                     v-bind="{ activeTab }"
                 ></slot>
             </sw-tabs>
-        </template>
+        </sw-silence-deprecations>
         {% endblock %}
     </div>
     {% endblock %}

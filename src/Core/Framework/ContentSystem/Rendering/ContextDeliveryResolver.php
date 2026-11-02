@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * {@see RenderedElementFactory} precedence order — delivered context over loader-resolved over declared. It
  * is the FULL stored map, unfiltered: an undeclared stored key is a legitimate provider source, and
  * filtering to the rendered union first would make it quietly stop delivering with nothing raising.
+ * Destinations omitted by mapping resolution are excluded before their providers distribute values.
  *
  * A {@see ConsumerScope::Root} consumer is filled from the ambient map argument to {@see resolve()}, not by
  * the walk, so it receives at any depth with no intermediate wiring.
@@ -125,7 +126,7 @@ final readonly class ContextDeliveryResolver
 
         $childDeliveries = $this->distributor->distribute(
             $element,
-            $this->workingValues($element, $loaderValues, $delivery->context),
+            $this->workingValues($element, $loaderValues, $delivery),
             $children
         );
 
@@ -308,11 +309,10 @@ final readonly class ContextDeliveryResolver
      * both land as present values instead of being skipped.
      *
      * @param array<string, array<string, mixed>> $loaderValues
-     * @param array<string, mixed> $received
      *
      * @return array<string, mixed>
      */
-    private function workingValues(StoredElement $element, array $loaderValues, array $received): array
+    private function workingValues(StoredElement $element, array $loaderValues, ContextDelivery $delivery): array
     {
         $values = array_map(
             static fn (StoredValue $value): mixed => $value->jsonSerialize(),
@@ -323,8 +323,19 @@ final readonly class ContextDeliveryResolver
             $values[$key] = $value;
         }
 
-        foreach ($received as $key => $value) {
+        foreach ($delivery->context as $key => $value) {
             $values[$key] = $value;
+        }
+
+        foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+            if ($consumer->source === null) {
+                continue;
+            }
+
+            $key = $consumer->propertyAlias ?? (string) $consumerKey;
+            if (!\array_key_exists($key, $delivery->context) && !\in_array($key, $delivery->mappingFallbackKeys, true)) {
+                unset($values[$key]);
+            }
         }
 
         return $values;

@@ -439,7 +439,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
 
-        $result = $this->mintResult($stored, [], [], [], [], mappingFallbackKeys: ['headline']);
+        $result = $this->mintResult($stored, [], [], ['headline'], [], mappingFallbackKeys: ['headline']);
 
         static::assertSame('Authored fallback', $result->element->properties['headline']);
         static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['headline']->origin);
@@ -453,7 +453,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
 
-        $result = $this->mintResult($stored, [], ['headline' => null], [], []);
+        $result = $this->mintResult($stored, [], ['headline' => null], ['headline'], []);
 
         static::assertArrayHasKey('headline', $result->element->properties);
         static::assertNull($result->element->properties['headline']);
@@ -470,10 +470,36 @@ class RenderedElementFactoryTest extends TestCase
             ->build();
 
         $loaded = new StubStruct();
-        $result = $this->mintResult($stored, ['headline' => $loaded], [], [], [], mappingFallbackKeys: ['headline']);
+        $result = $this->mintResult($stored, ['headline' => $loaded], [], ['headline'], [], mappingFallbackKeys: ['headline']);
 
         static::assertSame($loaded, $result->element->properties['headline']);
         static::assertSame(ValueOrigin::LoaderResolved, $result->provenance['headline']->origin);
+    }
+
+    #[DataProvider('mappedDistributionKeys')]
+    public function testRejectedMappingsAreAbsentFromDistributionReferencedOutputAndProvenance(string $component, string $key): void
+    {
+        $stored = StoredElementBuilder::create($component, 'element-1')
+            ->withProperty($key, 'Authored fallback')
+            ->withProperty('keep', 'Unrelated')
+            ->withDataRequirement($key, 'product', new StubLoaderConfig())
+            ->withConsumer($key, ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))
+            ->build();
+
+        $result = $this->mintResult($stored, [$key => 'Loaded fallback'], [], [$key, 'keep'], []);
+
+        static::assertSame(['keep' => 'Unrelated'], $result->element->properties);
+        static::assertSame(['keep'], array_keys($result->provenance));
+        static::assertSame(ValueOrigin::DistributionReferenced, $result->provenance['keep']->origin);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function mappedDistributionKeys(): iterable
+    {
+        yield 'declared mapped property' => ['Sw:Text', 'headline'];
+        yield 'undeclared mapped property' => ['Sw:Tile', 'data_key'];
     }
 
     #[TestDox('records nothing for a key no member wrote')]

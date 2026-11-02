@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mapping;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
@@ -9,7 +10,11 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
@@ -35,6 +40,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestKernel;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -104,6 +110,51 @@ class MappingProviderExtensionTest extends TestCase
 
         static::assertSame('Plugin title', $this->render($reloaded)[0]['text']);
         $repository->update([['id' => $id, 'layout' => $reloaded]], Context::createDefaultContext());
+    }
+
+    #[DataProvider('rejectedMappingOutcomes')]
+    public function testRejectedMappingCannotEscapeThroughKeyedOutputOrChildDistribution(bool $offered): void
+    {
+        $source = new MappingSourceReference('AcmePlugin', 'message', path: 'text');
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn($offered ? [
+            new MappingCandidate($source->displayName(), 'Message', '', 'plugin', 'string', source: $source),
+        ] : []);
+        $provider->expects($offered ? $this->once() : $this->never())->method('resolveSource')->willReturn(MappingSourceResolution::resolved(false));
+        $this->installRegistry([$provider]);
+        $grandchild = StoredElementBuilder::create(TestElementTypeLoader::MAPPABLE_PRIMITIVE, 'grandchild')
+            ->withConsumer('text', ContextType::Single)
+            ->build();
+        $child = StoredElementBuilder::create(TestElementTypeLoader::MAPPABLE_PRIMITIVE, 'child')
+            ->withProperty('text', 'Authored fallback')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->withConsumer('items', ContextType::Single)
+            ->withProvider('text', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$grandchild])
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:Grid:Container', 'parent')
+            ->withProperty('items', ['Authored fallback' => 'Selected item'])
+            ->withProvider('items', KeyedDistributionConfig::fromArray(['keyProperty' => 'text']))
+            ->withSlot('content', [$child])
+            ->build();
+        $cache = new RenderingCacheContext();
+
+        $deliveries = static::getContainer()->get(ContextDeliveryResolver::class)->resolve([$parent], [], [], $cache, 'product');
+        $result = static::getContainer()->get(RenderedTreeFactory::class)->create([$parent], $deliveries, [], RenderingMode::FULL);
+
+        $renderedChild = $result->tree[0]->slots['content'][0];
+        static::assertSame(['items' => 'Selected item'], $renderedChild->properties);
+        static::assertSame([], $renderedChild->slots['content'][0]->properties);
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function rejectedMappingOutcomes(): iterable
+    {
+        yield 'unavailable candidate' => [false];
+        yield 'incompatible provider value' => [true];
     }
 
     public function testRegistryCanBeDecoratedThroughItsPublicAliasWithoutASecondProvider(): void

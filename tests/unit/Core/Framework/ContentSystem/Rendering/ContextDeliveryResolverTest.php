@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -783,6 +784,89 @@ class ContextDeliveryResolverTest extends TestCase
         $index = $this->resolver()->resolve([$root], [], ['product' => $ambientValue], cacheContext: new RenderingCacheContext(), rootSource: null);
 
         static::assertSame($ambientValue, $index->all()['child-1']->context['product']);
+    }
+
+    /**
+     * @param list<string> $candidatePaths
+     * @param array<string, mixed> $loaded
+     */
+    #[DataProvider('rejectedProviderMappings')]
+    public function testRejectedMappingsCannotProvideAuthoredOrLoadedValuesToChildren(array $candidatePaths, string $valueType, array $loaded): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child')
+            ->withConsumer('cover', ContextType::Single)
+            ->withConsumer('title', ContextType::Single)
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:Box', 'parent')
+            ->withProperty('cover', 'Authored fallback')
+            ->withProperty('title', 'Unrelated')
+            ->withConsumer('cover', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'cover'))
+            ->withProvider('cover', BroadcastDistributionConfig::simple())
+            ->withProvider('title', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$child])
+            ->build();
+
+        $index = $this->resolverWith($candidatePaths, $valueType)->resolve(
+            [$parent],
+            ['parent' => $loaded],
+            ['product' => new StubContextStruct('Mapped value')],
+            cacheContext: new RenderingCacheContext(),
+            rootSource: 'product',
+        );
+
+        static::assertSame([], $index->all()['parent']->context);
+        static::assertSame([], $index->all()['parent']->mappingFallbackKeys);
+        static::assertSame(['title' => 'Unrelated'], $index->all()['child']->context);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string, array<string, mixed>}>
+     */
+    public static function rejectedProviderMappings(): iterable
+    {
+        yield 'unavailable mapping with authored value' => [[], 'string', []];
+        yield 'unavailable mapping with loaded value' => [[], 'string', ['cover' => 'Loaded fallback']];
+        yield 'incompatible runtime value with authored value' => [['product.cover'], 'boolean', []];
+        yield 'incompatible runtime value with loaded value' => [['product.cover'], 'boolean', ['cover' => 'Loaded fallback']];
+    }
+
+    /**
+     * @param array<string, mixed> $parentContext
+     * @param array<string, mixed> $childContext
+     * @param list<string> $fallbackKeys
+     */
+    #[DataProvider('providedMappingOutcomes')]
+    public function testAllowedMappingOutcomesKeepTheirDistributionBehavior(Struct $ambient, array $parentContext, array $childContext, array $fallbackKeys): void
+    {
+        $parent = StoredElementBuilder::create('Sw:Box', 'parent')
+            ->withProperty('cover', 'Authored fallback')
+            ->withConsumer('cover', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'cover'))
+            ->withProvider('cover', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$this->consumer('child', 'cover')])
+            ->build();
+
+        $index = $this->resolverWith()->resolve(
+            [$parent],
+            ['parent' => ['cover' => 'Loaded fallback']],
+            ['product' => $ambient],
+            cacheContext: new RenderingCacheContext(),
+            rootSource: 'product',
+        );
+
+        static::assertSame($parentContext, $index->all()['parent']->context);
+        static::assertSame($fallbackKeys, $index->all()['parent']->mappingFallbackKeys);
+        static::assertSame($childContext, $index->all()['child']->context);
+    }
+
+    /**
+     * @return iterable<string, array{Struct, array<string, mixed>, array<string, mixed>, list<string>}>
+     */
+    public static function providedMappingOutcomes(): iterable
+    {
+        yield 'resolved mapping wins' => [new StubContextStruct('Mapped value'), ['cover' => 'Mapped value'], ['cover' => 'Mapped value'], []];
+        yield 'missing source permits fallback' => [new ArrayStruct([]), [], ['cover' => 'Loaded fallback'], ['cover']];
+        yield 'empty source permits fallback' => [new StubContextStruct(''), [], ['cover' => 'Loaded fallback'], ['cover']];
+        yield 'explicit null suppresses fallback and is not distributed' => [new StubContextStruct(null), ['cover' => null], [], []];
     }
 
     private function resolver(): ContextDeliveryResolver

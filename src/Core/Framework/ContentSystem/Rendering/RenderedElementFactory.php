@@ -103,8 +103,22 @@ final readonly class RenderedElementFactory
         $properties = [];
         $provenance = [];
 
+        $mappedPropertyKeys = [];
+        $omittedMappingKeys = [];
+        foreach ($stored->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+            if ($consumer->source === null) {
+                continue;
+            }
+
+            $key = $consumer->propertyAlias ?? (string) $consumerKey;
+            $mappedPropertyKeys[] = $key;
+            if (!\array_key_exists($key, $deliveredContext) && !\in_array($key, $mappingFallbackKeys, true)) {
+                $omittedMappingKeys[$key] = true;
+            }
+        }
+
         foreach ($distributionReferencedKeys as $key) {
-            if ($this->isDeclaredReference($declaredProperties, $key)) {
+            if (isset($omittedMappingKeys[$key]) || $this->isDeclaredReference($declaredProperties, $key)) {
                 continue;
             }
 
@@ -114,18 +128,8 @@ final readonly class RenderedElementFactory
             }
         }
 
-        $mappedPropertyKeys = [];
-        foreach ($stored->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if ($consumer->source !== null) {
-                $mappedPropertyKeys[] = $consumer->propertyAlias ?? (string) $consumerKey;
-            }
-        }
-
         foreach ($this->declaredAuthoredKeys($declaredProperties) as $key) {
-            if (\in_array($key, $mappedPropertyKeys, true)
-                && !\array_key_exists($key, $deliveredContext)
-                && !\in_array($key, $mappingFallbackKeys, true)
-            ) {
+            if (isset($omittedMappingKeys[$key])) {
                 continue;
             }
 

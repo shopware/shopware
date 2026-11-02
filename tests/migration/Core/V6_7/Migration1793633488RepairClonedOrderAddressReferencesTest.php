@@ -4,10 +4,12 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -61,22 +63,26 @@ class Migration1793633488RepairClonedOrderAddressReferencesTest extends TestCase
         static::assertSame($sourceAddress, $this->fetchBillingAddress($source));
     }
 
-    public function testCopyBeyondTheFirstBatchIsRepaired(): void
+    /**
+     * a full last batch is followed by a fetch that finds no more deliveries
+     */
+    #[TestWith([1000])]
+    #[TestWith([1001])]
+    public function testCopiesAreRepairedInBatches(int $count): void
     {
         $source = $this->insertOrder();
         $sourceAddress = $this->insertAddress($source, 'Main Street 1');
-        for ($i = 0; $i < Migration1793633488RepairClonedOrderAddressReferences::BATCH_SIZE; ++$i) {
-            $this->insertDelivery($source, $sourceAddress);
-        }
 
         $copy = $this->insertOrder();
         $copyAddress = $this->insertAddress($copy, 'Main Street 1');
-        // the highest id puts the delivery into the second batch
-        $copyDelivery = $this->insertDelivery($copy, $sourceAddress, Uuid::fromHexToBytes(str_repeat('f', 32)));
+        $this->insertDeliveries($copy, $sourceAddress, $count);
 
         $this->migrate();
 
-        static::assertSame($copyAddress, $this->fetchShippingAddress($copyDelivery));
+        static::assertSame($count, (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM order_delivery WHERE order_id = :order AND shipping_order_address_id = :address',
+            ['order' => $copy, 'address' => $copyAddress]
+        ));
     }
 
     public function testCopyWithAnEditedAddressIsLeftAsItIs(): void
@@ -179,30 +185,47 @@ class Migration1793633488RepairClonedOrderAddressReferencesTest extends TestCase
         $this->connection->update('`order`', ['billing_address_id' => $addressId], ['id' => $orderId]);
     }
 
-    private function insertDelivery(string $orderId, string $addressId, ?string $id = null): string
+    private function insertDelivery(string $orderId, string $addressId): string
     {
-        $id ??= Uuid::randomBytes();
+        return $this->insertDeliveries($orderId, $addressId, 1)[0];
+    }
 
+    /**
+     * @return list<string>
+     */
+    private function insertDeliveries(string $orderId, string $addressId, int $count): array
+    {
         $shippingMethodId = $this->connection->fetchOne('SELECT id FROM shipping_method LIMIT 1');
         static::assertIsString($shippingMethodId);
+        $stateId = $this->fetchOpenStateId(OrderDeliveryStates::STATE_MACHINE);
 
-        $this->connection->insert('order_delivery', [
-            'id' => $id,
-            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'order_id' => $orderId,
-            'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'shipping_order_address_id' => $addressId,
-            'shipping_order_address_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'state_id' => $this->fetchOpenStateId(OrderDeliveryStates::STATE_MACHINE),
-            'shipping_method_id' => $shippingMethodId,
-            'tracking_codes' => '[]',
-            'shipping_date_earliest' => '2020-01-01',
-            'shipping_date_latest' => '2020-01-02',
-            'shipping_costs' => '{}',
-            'created_at' => '2020-01-01',
-        ]);
+        $ids = [];
+        $queue = new MultiInsertQueryQueue($this->connection, $count);
 
-        return $id;
+        for ($i = 0; $i < $count; ++$i) {
+            $id = Uuid::randomBytes();
+            $ids[] = $id;
+
+            $queue->addInsert('order_delivery', [
+                'id' => $id,
+                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'order_id' => $orderId,
+                'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'shipping_order_address_id' => $addressId,
+                'shipping_order_address_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'state_id' => $stateId,
+                'shipping_method_id' => $shippingMethodId,
+                'tracking_codes' => '[]',
+                'shipping_date_earliest' => '2020-01-01',
+                'shipping_date_latest' => '2020-01-02',
+                'shipping_costs' => '{}',
+                'created_at' => '2020-01-01',
+            ]);
+        }
+
+        $queue->execute();
+
+        return $ids;
     }
 
     private function fetchShippingAddress(string $deliveryId): string

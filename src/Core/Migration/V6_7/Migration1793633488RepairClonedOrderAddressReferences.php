@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -20,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class Migration1793633488RepairClonedOrderAddressReferences extends MigrationStep
 {
-    public const BATCH_SIZE = 1000;
+    private const BATCH_SIZE = 1000;
 
     /**
      * Every column that makes up what an order address shows; ids, the order reference and timestamps are left out
@@ -75,15 +76,14 @@ class Migration1793633488RepairClonedOrderAddressReferences extends MigrationSte
         do {
             /** @var list<string> $ids */
             $ids = $connection->fetchFirstColumn(
-                \sprintf('SELECT `id` FROM `%s` WHERE `version_id` = :live AND `id` > :lastId ORDER BY `id` LIMIT %d', $table, self::BATCH_SIZE),
-                ['live' => $liveVersion, 'lastId' => $lastId]
+                \sprintf('SELECT `id` FROM `%s` WHERE `version_id` = :live AND `id` > :lastId ORDER BY `id` LIMIT :limit', $table),
+                ['live' => $liveVersion, 'lastId' => $lastId, 'limit' => self::BATCH_SIZE],
+                ['live' => ParameterType::BINARY, 'lastId' => ParameterType::BINARY, 'limit' => ParameterType::INTEGER]
             );
 
             if ($ids === []) {
                 return;
             }
-
-            $lastId = $ids[\count($ids) - 1];
 
             $references = $connection->fetchAllAssociative(
                 \sprintf(
@@ -124,6 +124,8 @@ class Migration1793633488RepairClonedOrderAddressReferences extends MigrationSte
                     ['own' => $reference['own_id'], 'id' => $reference['id'], 'live' => $liveVersion, 'referenced' => $reference['referenced_id']]
                 );
             }
+
+            $lastId = end($ids);
         } while (\count($ids) === self::BATCH_SIZE);
     }
 

@@ -32,9 +32,10 @@ export default definePublicComponent({
         blocks: ['sw_example'],
         computed: ['usedRules'],
         methods: ['onSave'],
+        setup: ['count'],
     },
 });`;
-const allowed = 'disabled, usedRules, onSave';
+const allowed = 'disabled, usedRules, onSave, count';
 
 const realExistsSync = fs.existsSync;
 const realReadFileSync = fs.readFileSync;
@@ -83,6 +84,11 @@ describe('no-vm-access', () => {
                 name: 'allows a public-api spec to read a public prop',
                 filename: publicApiSpec,
                 code: 'expect(wrapper.vm.disabled).toBe(false);',
+            },
+            {
+                name: 'allows a public-api spec to read a native-setup binding',
+                filename: publicApiSpec,
+                code: 'expect(wrapper.vm.count).toBe(0);',
             },
         ],
         invalid: [

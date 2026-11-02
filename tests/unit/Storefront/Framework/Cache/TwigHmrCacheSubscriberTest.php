@@ -81,7 +81,7 @@ class TwigHmrCacheSubscriberTest extends TestCase
 
         $request = new Request();
         $request->headers->add($headers);
-        $event = new RequestEvent($this->createStub(HttpKernelInterface::class), $request, $requestType);
+        $event = new RequestEvent(static::createStub(HttpKernelInterface::class), $request, $requestType);
 
         (new TwigHmrCacheSubscriber($debug, $this->twigCacheDir))->resetTwigCache($event);
 
@@ -93,7 +93,7 @@ class TwigHmrCacheSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->headers->set('sw-twig-hmr-reset', '1');
-        $event = new RequestEvent($this->createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST);
+        $event = new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST);
 
         (new TwigHmrCacheSubscriber(true, $this->twigCacheDir))->resetTwigCache($event);
 

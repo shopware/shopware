@@ -26,8 +26,8 @@ final class MappingCandidateProviderCompilerPass implements CompilerPassInterfac
         $wildcardProvidersByKey = [];
 
         foreach ($container->findTaggedServiceIds(self::TAG) as $serviceId => $_tags) {
-            $class = $container->getDefinition($serviceId)->getClass();
-            if ($class === null || !is_subclass_of($class, AbstractMappingCandidateProvider::class)) {
+            $class = $container->getParameterBag()->resolveValue($container->getDefinition($serviceId)->getClass());
+            if (!\is_string($class) || !is_subclass_of($class, AbstractMappingCandidateProvider::class)) {
                 throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, self::TAG, AbstractMappingCandidateProvider::class);
             }
 

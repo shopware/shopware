@@ -367,6 +367,31 @@ class MappingProviderExtensionTest extends TestCase
         static::assertSame('Custom product name', $candidateAfterReset->label);
     }
 
+    public function testProviderClassesCanUseContainerParameters(): void
+    {
+        $previousKernelClass = KernelFactory::$kernelClass;
+        KernelFactory::$kernelClass = ParameterizedMappingProviderTestKernel::class;
+        try {
+            KernelLifecycleManager::bootKernel(cacheId: 'parameterized-mapping-provider');
+        } finally {
+            KernelFactory::$kernelClass = $previousKernelClass;
+        }
+
+        $source = new MappingSourceReference('ParameterizedPlugin', 'recommendations', path: 'title');
+        static::assertSame($source->jsonSerialize(), $this->catalogue()[$source->displayName()]['source']);
+        $elements = [
+            $this->element('mapped', $source),
+            ['id' => 'inline', 'component' => 'Sw:Content:Text', 'properties' => [
+                'text' => '{{map:ParameterizedPlugin:recommendations.title}}',
+            ]],
+        ];
+        $this->save($elements);
+        $rendered = $this->render($elements);
+
+        static::assertSame('ParameterizedPlugin', $rendered[0]['text']);
+        static::assertSame('ParameterizedPlugin', $rendered[1]['text']);
+    }
+
     public function testExplicitOverridePreservesTheCoreSourceIdentityAndUnrelatedMappings(): void
     {
         $registry = $this->installRegistry([], override: true);
@@ -596,6 +621,21 @@ class MappingRegistryDecorationTestKernel extends TestKernel
         $container->register(ProductNameOverrideRegistry::class)
             ->setDecoratedService(AbstractContentSystemMappingCandidateRegistry::class)
             ->setArguments([new Reference(ProductNameOverrideRegistry::class . '.inner')]);
+    }
+}
+
+/**
+ * @internal
+ */
+class ParameterizedMappingProviderTestKernel extends TestKernel
+{
+    public function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        parent::configureContainer($container, $loader);
+        $container->setParameter('test.mapping_provider.class', BundleMappingProvider::class);
+        $container->register('test.parameterized_mapping_provider', '%test.mapping_provider.class%')
+            ->setArguments(['ParameterizedPlugin'])
+            ->addTag('content_system.mapping_candidate_provider');
     }
 }
 

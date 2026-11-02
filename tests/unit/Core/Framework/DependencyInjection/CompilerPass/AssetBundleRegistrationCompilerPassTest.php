@@ -13,6 +13,7 @@ use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
@@ -34,12 +35,16 @@ class AssetBundleRegistrationCompilerPassTest extends TestCase
         $container->setDefinition('assets.packages', $service);
 
         $container->setDefinition('shopware.asset.asset_without_versioning', new Definition(Package::class));
-        $container->setDefinition('shopware.asset.public.version_strategy', new Definition(EmptyVersionStrategy::class));
+        $container->setDefinition('shopware.asset.asset.version_strategy', new Definition(EmptyVersionStrategy::class));
 
         $compilerPass = new AssetBundleRegistrationCompilerPass();
 
         $container->addCompilerPass($compilerPass);
         $compilerPass->process($container);
+
+        $versionStrategy = $container->getDefinition('assets.packages')->getArgument(2);
+        static::assertInstanceOf(Reference::class, $versionStrategy);
+        static::assertSame('shopware.asset.asset.version_strategy', (string) $versionStrategy);
 
         $container->set('shopware.asset.asset_without_versioning', static::createStub(Package::class));
 

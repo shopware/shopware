@@ -1,6 +1,36 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.31
+*  [#21364 - fix(core): pass null as DNS resolver of app system trusted URL resolver](https://github.com/shopware/shopware/issues/21364) ([@M-arcus](https://github.com/M-arcus))
+*  [#21433 - fix(storefront): let the review rating filter labels wrap (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21433)
+*  [#21434 - fix(storefront): let badges grow with their text (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21434)
+*  [#21436 - fix(storefront): wrap long words in the product description (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21436)
+*  [#21598 - fix(administration): skip license checks for ddev.site domains (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21598)
+*  [#21684 - fix(tests): wait for product listing in ProductSearch acceptance test (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21684)
+*  [#21690 - fix(administration): use configured labels in product streams (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21690)
+*  [#21880 - fix(core): avoid rebuilding snippet path index after each file (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21880)
+*  [#21930 - fix(storefront): keep quantity inputs readable on narrow screens (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21930)
+*  [#21931 - fix(storefront): keep account context menus within narrow screens (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21931)
+*  [#21989 - fix: garan label cart line item payload backport 6.6.x](https://github.com/shopware/shopware/issues/21989)
+*  [#22002 - fix(administration): sort order list deliveries like the detail page (backport: 6.6.x)](https://github.com/shopware/shopware/issues/22002)
+*  [#22102 - fix(administration): change the current transaction in order bulk edit (backport: 6.6.x)](https://github.com/shopware/shopware/issues/22102)
+*  [#22111 - fix: Use exec command to register paste command (backport: 6.6.x)](https://github.com/shopware/shopware/issues/22111)
+*  [#22114 - fix(core): limit term search to fields the API exposes (backport: 6.6.x)](https://github.com/shopware/shopware/issues/22114)
+*  [#22250 - fix(administration): copy override configs per component build (backport: 6.6.x)](https://github.com/shopware/shopware/issues/22250) ([@timtheisinger](https://github.com/timtheisinger))
+*  [20271 - Open the full GARAN label from the nested label](./changelog/release-6-6-10-31/2026-10-13-open-the-full-garan-label-from-the-nested-label.md)
+*  [20295 - Keep the GARAN label an order was placed with](./changelog/release-6-6-10-31/2026-10-14-keep-the-garan-label-an-order-was-placed-with.md)
+*  [20352 - Attach the producer's guarantee terms to GARAN products](./changelog/release-6-6-10-31/2026-10-09-attach-the-producers-guarantee-terms-to-garan-products.md)
+*  [20382 - Keep the address manager modal within narrow screens](./changelog/release-6-6-10-31/2026-10-23-keep-the-address-manager-modal-within-narrow-screens.md)
+*  [21318 - Change GDPR information snippet](./changelog/release-6-6-10-31/2026-10-13-change-gdpr-information-snippet.md)
+*  [21401 - Render the legal guarantee modal on the order payment page](./changelog/release-6-6-10-31/2026-10-15-render-the-legal-guarantee-modal-on-the-order-payment-page.md)
+*  [21600 - Store the GARAN label in the cart line item payload](./changelog/release-6-6-10-31/2026-10-23-store-the-garan-label-in-the-cart-line-item-payload.md)
+*  [21673 - Add configurable promotion code rate limiting](./changelog/release-6-6-10-31/2026-10-23-add-promotion-code-rate-limiting.md)
+*  [21768 - Keep override methods and props across component builds](./changelog/release-6-6-10-31/2026-10-29-keep-override-methods-and-props-across-component-builds.md) ([Tim Theisinger](https://github.com/timtheisinger))
+*  [22120 - Restrict HTTP method overrides to form actions](./changelog/release-6-6-10-31/2026-10-28-restrict-http-method-overrides.md)
+*  [22122 - Omit sensitive email content from logs](./changelog/release-6-6-10-31/2026-11-02-omit-sensitive-email-content-from-logs.md)
+*  [6774 - Update dynamic product groups after category assignment](./changelog/release-6-6-10-31/2026-09-30-update-product-streams-after-category-assignment.md)
+
 ## 6.6.10.30
 *  [#21364 - fix(core): pass null as DNS resolver of app system trusted URL resolver](https://github.com/shopware/shopware/issues/21364) ([@M-arcus](https://github.com/M-arcus))
 *  [21321 - Fix app system trusted URL resolver service definition](./changelog/release-6-6-10-30/2026-10-07-fix-app-system-trusted-url-resolver-service-definition.md)

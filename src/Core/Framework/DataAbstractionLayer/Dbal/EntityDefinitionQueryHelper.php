@@ -279,16 +279,17 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
-
-        $original = $fieldName;
         $prefix = $root . '.';
 
         if (str_starts_with($fieldName, $prefix)) {
             $fieldName = mb_substr($fieldName, mb_strlen($prefix));
-        } else {
-            $original = $prefix . $original;
         }
+
+        while (str_starts_with($fieldName, 'extensions.')) {
+            $fieldName = mb_substr($fieldName, 11);
+        }
+
+        $original = $prefix . $fieldName;
 
         $fields = $definition->getFields();
         if ($fields->has($fieldName)) {
@@ -299,10 +300,6 @@ class EntityDefinitionQueryHelper
 
         $parts = explode('.', $fieldName);
         $associationKey = array_shift($parts);
-
-        if ($associationKey === 'extensions') {
-            $associationKey = array_shift($parts);
-        }
 
         if (!\is_string($associationKey) || !$fields->has($associationKey)) {
             throw DataAbstractionLayerException::unmappedField($original, $definition);
@@ -408,8 +405,6 @@ class EntityDefinitionQueryHelper
         Context $context,
         ?CriteriaPartInterface $criteriaPart = null
     ): void {
-        $accessor = str_replace('extensions.', '', $accessor);
-
         $parts = explode('.', $accessor);
 
         if ($parts[0] === $root) {
@@ -423,6 +418,10 @@ class EntityDefinitionQueryHelper
         $rootDefinition = $definition;
 
         foreach ($parts as $part) {
+            if ($part === 'extensions') {
+                continue;
+            }
+
             $field = $definition->getFields()->get($part);
 
             if ($field === null) {

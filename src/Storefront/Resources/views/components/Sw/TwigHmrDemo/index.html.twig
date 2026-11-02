@@ -1,0 +1,6 @@
+{# DEMO: Twig hot reload playground for components of the component system. Remove before merge. #}
+{% props label = 'Count' %}
+<div {{ attributes.defaults({ class: 'twig-hmr-demo-counter container my-2' }) }} data-component="Sw:TwigHmrDemo">
+    <button type="button" class="btn btn-secondary">{{ label }}</button>
+    <span class="twig-hmr-demo-count">0</span>
+</div>

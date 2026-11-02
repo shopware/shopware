@@ -2,6 +2,7 @@
     {# DEMO: Twig hot reload playground for the draft pull request. Remove before merge. #}
     {% if app.debug %}
         {% sw_include '@Storefront/storefront/component/twig-hmr-demo/modal.html.twig' %}
+        <twig:Sw:TwigHmrDemo label="Count"/>
     {% endif %}
     <div class="container">
         {% block layout_footer_navigation %}

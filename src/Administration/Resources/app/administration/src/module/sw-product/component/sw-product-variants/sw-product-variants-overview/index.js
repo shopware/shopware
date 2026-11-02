@@ -728,9 +728,9 @@ export default {
         },
 
         async canVariantBeDeleted() {
-            const products = await this.productRepository.search(this.canBeDeletedCriteria);
+            const products = await this.productRepository.searchIds(this.canBeDeletedCriteria);
 
-            return products.length === 0;
+            return products.total === 0;
         },
 
         onOptionEdit(variant) {

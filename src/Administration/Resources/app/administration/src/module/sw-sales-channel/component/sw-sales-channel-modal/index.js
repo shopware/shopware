@@ -65,7 +65,7 @@ export default {
             this.productStreamsLoading = true;
             const criteria = new Criteria(1, 1);
             criteria.addFilter(Criteria.equals('internal', false));
-            this.productStreamRepository.search(criteria).then((result) => {
+            this.productStreamRepository.searchIds(criteria).then((result) => {
                 if (result.total > 0) {
                     this.productStreamsExist = true;
                 }

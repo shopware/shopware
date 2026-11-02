@@ -58,8 +58,8 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
-            this.customFieldSetRepository.search(criteria).then((res) => {
-                if (res.length === 0) {
+            this.customFieldSetRepository.searchIds(criteria).then((res) => {
+                if (res.total === 0) {
                     this.$super('onSave');
 
                     return;

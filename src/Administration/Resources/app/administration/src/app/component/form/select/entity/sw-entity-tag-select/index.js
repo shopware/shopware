@@ -84,7 +84,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', term));
 
-            return this.repository.search(criteria, this.context).then((response) => {
+            return this.repository.searchIds(criteria, this.context).then((response) => {
                 this.tagExists = response.total > 0;
             });
         },

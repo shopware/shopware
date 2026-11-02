@@ -231,7 +231,7 @@ export default {
         },
 
         checkIfPropertiesExists() {
-            this.propertyRepository.search(new Criteria(1, 1)).then((res) => {
+            this.propertyRepository.searchIds(new Criteria(1, 1)).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
         },

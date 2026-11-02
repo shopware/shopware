@@ -164,8 +164,8 @@ export default {
                 ]),
             );
 
-            this.ruleConditionRepository.search(criteria, Context.api).then((searchResult) => {
-                this.disableCartExpose = searchResult.length > 0;
+            this.ruleConditionRepository.searchIds(criteria, Context.api).then((searchResult) => {
+                this.disableCartExpose = searchResult.total > 0;
             });
         },
 

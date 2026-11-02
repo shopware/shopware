@@ -442,7 +442,7 @@ export default {
             });
             criteria.addFilter(Criteria.equals('name', term));
 
-            return this.repository.search(criteria, this.context).then((response) => {
+            return this.repository.searchIds(criteria, this.context).then((response) => {
                 this.entityExists = response.total > 0;
 
                 return response.total > 0;

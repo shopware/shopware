@@ -107,7 +107,7 @@ export default {
         },
 
         async getProductNumberRanges() {
-            this.numberRangeRepository.search(this.productNumberRangeCriteria).then((items) => {
+            this.numberRangeRepository.searchIds(this.productNumberRangeCriteria).then((items) => {
                 this.hasProductNumberRange = !!items.total;
             });
         },

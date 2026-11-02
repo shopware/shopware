@@ -947,6 +947,7 @@ describe('components/sw-entity-single-select', () => {
 
                                 return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0));
                             },
+                            searchIds: () => Promise.resolve({ total: 0, data: [] }),
                             get: () =>
                                 Promise.resolve({
                                     id: 'manufacturerId',

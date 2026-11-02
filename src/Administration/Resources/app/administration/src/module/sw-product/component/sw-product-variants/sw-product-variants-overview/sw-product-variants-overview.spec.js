@@ -23,11 +23,13 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         save: jest.fn(() => Promise.resolve()),
         syncDeleted: jest.fn(() => Promise.resolve()),
         search: jest.fn(() => Promise.resolve([])),
+        searchIds: jest.fn(() => Promise.resolve({ total: 0, data: [] })),
         get: jest.fn(() => Promise.resolve({})),
     };
 
     repositoryFactoryCreateMock = {
         search: () => Promise.resolve([]),
+        searchIds: () => Promise.resolve({ total: 0, data: [] }),
         save: jest.fn(() => Promise.resolve([])).mockName('repositoryFactory save'),
         get: () => Promise.resolve({}),
         syncDeleted: () => Promise.resolve({}),
@@ -754,6 +756,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             {
                 create: jest.fn(() => ({
                     search: () => Promise.resolve([]),
+                    searchIds: () => Promise.resolve({ total: 0, data: [] }),
                     save: jest.fn(() => Promise.resolve()),
                     get: () => Promise.resolve({}),
                     syncDeleted: syncDeletedMock,

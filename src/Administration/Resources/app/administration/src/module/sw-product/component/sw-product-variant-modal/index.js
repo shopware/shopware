@@ -583,9 +583,9 @@ export default {
         },
 
         async canVariantsBeDeleted() {
-            const products = await this.productRepository.search(this.canBeDeletedCriteria);
+            const products = await this.productRepository.searchIds(this.canBeDeletedCriteria);
 
-            return products.length === 0;
+            return products.total === 0;
         },
 
         onInlineEditSave(editedVariant) {

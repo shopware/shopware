@@ -231,7 +231,7 @@ export default {
 
             this.isLoading = true;
             return item.repository
-                .search(criteria, api)
+                .searchIds(criteria, api)
                 .then((notAssignedDataResult) => {
                     return Promise.resolve(notAssignedDataResult.total);
                 })

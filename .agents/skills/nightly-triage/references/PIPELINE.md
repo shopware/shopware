@@ -82,7 +82,7 @@ Issue layout (title:
 
 - **Context** — run link, per-shard job links, count, grouping rule
   ("root-cause owner; confirmed collateral included here"), and why the run
-  is red when that needs saying (e.g. suite reinstated after a gap, so
+  failed when that needs saying (e.g. suite reinstated after a gap, so
   breakage accumulated)
 - **Reproduce** — the standard block below, so each team can rerun its
   failures without rediscovering the env:

@@ -13,7 +13,7 @@ allowed-tools: Bash(gh run view:*) Bash(gh run list:*) Bash(gh issue view:*) Bas
 
 # Nightly CI-Failure Triage
 
-Turn a red multi-job PHPUnit CI run into a small set of root-cause-grouped,
+Turn a failed multi-job PHPUnit CI run into a small set of root-cause-grouped,
 correctly-routed GitHub issues. Built from the 2026-07-03 `integration-major`
 sweep (412 failing tests → 6 domain issues, ~9 root causes). Issues are flat:
 one per domain, deliberately no parent tracking issue — the parent/sub-issue

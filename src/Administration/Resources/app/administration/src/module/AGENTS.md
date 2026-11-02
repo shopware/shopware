@@ -121,6 +121,7 @@ it('shows an order with its primary delivery', () => {
 `sw-test-rules/arrange-act-assert` checks the comments and their order.
 
 Requirements, pinned and regressions specs import the module only through `../index`, so they test what other code sees.
+They may arrange state through a harness in `tests/`, and the harness may import from `../dependencies`.
 A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
 A changed pin only asks whether the change was intended.
 

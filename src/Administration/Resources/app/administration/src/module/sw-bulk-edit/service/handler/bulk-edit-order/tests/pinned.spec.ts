@@ -20,9 +20,9 @@ function createOrder(deliveryIds: string[]) {
         deliveries: new EntityCollection(
             '/order-delivery',
             'order_delivery',
+            Shopware.Context.api,
             null,
-            null,
-            deliveryIds.map((id) => ({ id })),
+            deliveryIds.map((id) => ({ id })) as Entity<'order_delivery'>[],
         ),
     };
 }

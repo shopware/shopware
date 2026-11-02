@@ -82,14 +82,16 @@ export type PublicComponentApi<Component = unknown> = {
  * A component as its mini-module declares it.
  * `load` imports the component lazily, so declaring it costs no bundle size.
  * A native-setup component leaves out `public`, because `swDefinePublic()` already declares it.
+ * `name` keeps its literal type, so `Shopware.Component.override(SwExample.name, …)` checks the public API.
  *
  * @public
  */
 export type PublicComponent<
     Load extends () => Promise<unknown> = () => Promise<unknown>,
     Api extends PublicComponentApi<LoadedComponent<Load>> = PublicComponentApi<LoadedComponent<Load>>,
+    Name extends string = string,
 > = {
-    name: string;
+    name: Name;
     load: Load;
     public?: Api;
 };
@@ -186,6 +188,7 @@ declare global {
 export function definePublicComponent<
     Load extends () => Promise<unknown>,
     const Api extends PublicComponentApi<LoadedComponent<Load>> = object,
->(component: { name: string; load: Load; public?: Api }): PublicComponent<Load, Api> {
+    const Name extends string = string,
+>(component: { name: Name; load: Load; public?: Api }): PublicComponent<Load, Api, Name> {
     return component;
 }

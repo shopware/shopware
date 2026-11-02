@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
@@ -59,6 +60,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -2147,6 +2149,28 @@ class VersioningTest extends TestCase
         static::assertCount(2, $cloneMediaIds);
         static::assertNotContains($coverId, $cloneMediaIds);
         static::assertContains($clone->getCoverId(), $cloneMediaIds);
+    }
+
+    public function testACloneOfAStateMachineStartsInItsOwnInitialState(): void
+    {
+        $context = Context::createDefaultContext();
+        /** @var EntityRepository<StateMachineCollection> $repository */
+        $repository = static::getContainer()->get('state_machine.repository');
+        $sourceId = $repository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', OrderStates::STATE_MACHINE)),
+            $context,
+        )->firstId();
+        static::assertNotNull($sourceId);
+        $cloneId = Uuid::randomHex();
+
+        // The initial state is one of the machine's own states, and both rows reference each other with a database constraint.
+        $repository->clone($sourceId, $context, $cloneId, new CloneBehavior(['technicalName' => Uuid::randomHex()]));
+
+        $clone = $repository->search((new Criteria([$cloneId]))->addAssociation('states'), $context)->getEntities()->first();
+        static::assertNotNull($clone);
+        $cloneStateIds = $clone->getStates()?->getIds() ?? [];
+        static::assertNotSame([], $cloneStateIds);
+        static::assertContains($clone->getInitialStateId(), $cloneStateIds);
     }
 
     private function loadOrderWithAddresses(string $orderId, Context $context): OrderEntity

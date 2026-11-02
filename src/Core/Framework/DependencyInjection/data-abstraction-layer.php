@@ -543,6 +543,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service(ClockInterface::class),
             service(ClonePayloadBuilder::class),
+            service(Connection::class),
         ]);
 
     $services->set(ClonePayloadBuilder::class)

@@ -1,43 +1,44 @@
 /**
  * @sw-package framework
  *
- * Writes the checked-in `shopware:*` registry and declarations.
- *
- *     composer admin:generate-shopware-modules
- *
- * Both outputs are checked in. `tests/generator.spec.ts` fails when they drift from source.
+ * Renders the checked-in `shopware:*` registry and declarations from the Administration sources, and writes them.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
+import { fs, path, REGISTRY_FILE } from '../dependencies';
 import { extractModuleRegistry } from './extract-modules';
 import { renderDeclarations } from './render-declarations';
-import type { ModuleRegistry } from '../../shopware-modules';
 
-const administrationRoot = path.resolve(__dirname, '../../..');
+/** @private The declarations file, relative to the Administration root. */
+export const DECLARATIONS_FILE = 'src/shopware-virtual-modules.d.ts';
 
-/** @private */
-export const REGISTRY_FILE = path.join(administrationRoot, 'shopware-modules.json');
-/** @private */
-export const DECLARATIONS_FILE = path.join(administrationRoot, 'src/shopware-virtual-modules.d.ts');
+/** @public The content of each generated file, keyed by its path relative to the Administration root. */
+export type GeneratedFiles = Record<string, string>;
 
-/** @private Serialises the checked-in registry. */
-export function renderRegistry(registry: ModuleRegistry): string {
-    return `${JSON.stringify(registry, null, 4)}\n`;
-}
-
-function main(): void {
+/**
+ * @public
+ *
+ * Renders `shopware-modules.json` and `src/shopware-virtual-modules.d.ts` from the sources below `administrationRoot`.
+ * It only reads, so a spec can compare the result with the checked-in files.
+ *
+ * @example
+ * renderShopwareModules(administrationRoot)['shopware-modules.json'] // → '{\n    "shopware:utils": …'
+ */
+export function renderShopwareModules(administrationRoot: string): GeneratedFiles {
     const registry = extractModuleRegistry(administrationRoot);
 
-    fs.writeFileSync(REGISTRY_FILE, renderRegistry(registry));
-    fs.writeFileSync(DECLARATIONS_FILE, renderDeclarations(registry));
-
-    // eslint-disable-next-line no-console
-    console.log(
-        `Wrote ${path.relative(administrationRoot, REGISTRY_FILE)} and ${path.relative(administrationRoot, DECLARATIONS_FILE)}.`,
-    );
+    return {
+        [REGISTRY_FILE]: `${JSON.stringify(registry, null, 4)}\n`,
+        [DECLARATIONS_FILE]: renderDeclarations(registry),
+    };
 }
 
-if (require.main === module) {
-    main();
+/** @private Rewrites the generated files of the Administration this module belongs to, for `generate.ts`. */
+export function writeShopwareModules(): void {
+    const administrationRoot = path.resolve(__dirname, '../../..');
+    const files = renderShopwareModules(administrationRoot);
+
+    Object.entries(files).forEach(([file, content]) => fs.writeFileSync(path.join(administrationRoot, file), content));
+
+    // eslint-disable-next-line no-console -- the command line reports what it wrote
+    console.log(`Wrote ${Object.keys(files).join(' and ')}.`);
 }

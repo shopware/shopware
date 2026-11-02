@@ -10,7 +10,7 @@
  * Types come from the same global branches and registry interfaces as the runtime values.
  */
 
-import type { ModuleRegistry } from '../../shopware-modules';
+import type { ModuleRegistry } from '../dependencies';
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';

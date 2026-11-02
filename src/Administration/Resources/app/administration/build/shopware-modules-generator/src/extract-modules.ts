@@ -76,10 +76,7 @@
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import ts from 'typescript';
-import type { ModuleRegistry } from '../../shopware-modules';
+import { fs, path, ts, type ModuleRegistry } from '../dependencies';
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
 const DATA_SOURCE = 'src/core/data/index.js';

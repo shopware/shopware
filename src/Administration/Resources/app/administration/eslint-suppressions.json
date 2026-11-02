@@ -4,11 +4,6 @@
       "count": 2
     }
   },
-  "build/shopware-modules-generator/src/generator.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "build/vue-setup-transform/utils/ast-traversal.ts": {
     "no-restricted-syntax": {
       "count": 1

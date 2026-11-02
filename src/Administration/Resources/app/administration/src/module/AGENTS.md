@@ -90,7 +90,7 @@ Shopware._private.publishMiniModule('sw-example', SwExample);
 
 Run `composer admin:generate-shopware-modules` after adding a mini-module or changing the exports of its `index.ts`.
 A spec fails when a `register.ts` publishes anything else, or when the generated files are stale.
-Build tooling can be a mini-module below `build/` too, like `build/shopware-modules`, which serves these imports in Vite and Jest.
+Build tooling can be a mini-module below `build/` too, like `build/shopware-modules`, which serves these imports in Vite and Jest, and `build/shopware-modules-generator`, which writes the registry they read.
 It follows the same lint rules, has no `register.ts` and is never published, because it does not run in the browser.
 
 ```ts

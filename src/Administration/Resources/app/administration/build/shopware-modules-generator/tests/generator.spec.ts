@@ -10,24 +10,26 @@ import os from 'node:os';
 import path from 'node:path';
 import { extractMiniModules, extractModuleRegistry } from '../src/extract-modules';
 import { renderDeclarations, REGENERATE_COMMAND } from '../src/render-declarations';
-import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from '../src/generator';
+import { renderShopwareModules } from '../index';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = extractModuleRegistry(administrationRoot);
+const files = renderShopwareModules(administrationRoot);
+const readCheckedIn = (file: string) => fs.readFileSync(path.join(administrationRoot, file), 'utf8');
 
-describe('build/shopware-modules/src/generator', () => {
+describe('build/shopware-modules-generator/src/generator', () => {
     it('has a checked-in registry that matches the Administration sources', () => {
         expect(
-            fs.readFileSync(REGISTRY_FILE, 'utf8'),
+            readCheckedIn('shopware-modules.json'),
             `shopware-modules.json is stale. Run \`${REGENERATE_COMMAND}\`.`,
-        ).toBe(renderRegistry(registry));
+        ).toBe(files['shopware-modules.json']);
     });
 
     it('has checked-in declarations that match the registry', () => {
         expect(
-            fs.readFileSync(DECLARATIONS_FILE, 'utf8'),
+            readCheckedIn('src/shopware-virtual-modules.d.ts'),
             `src/shopware-virtual-modules.d.ts is stale. Run \`${REGENERATE_COMMAND}\`.`,
-        ).toBe(renderDeclarations(registry));
+        ).toBe(files['src/shopware-virtual-modules.d.ts']);
     });
 
     describe('the registry it builds', () => {

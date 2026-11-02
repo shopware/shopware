@@ -1,3 +1,28 @@
+# 6.6.10.31
+## GARAN guarantee terms per product
+Products have new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.
+
+Each `garanLabels` entry has a new `termsUrl` key: the URL, or the PDF's URL if no URL is set. Mails that reference `garanLabels` attach the PDFs of the products. A migration adds the terms link to the order confirmation mail for shops that never edited it.
+If you customized the template, add the link below the GARAN label:
+
+```twig
+{% if garanLabel.termsUrl %}<a href="{{ garanLabel.termsUrl }}">Guarantee terms</a>{% endif %}
+```
+## Nested GARAN label opens the full label
+The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
+
+If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+## Order line items keep the GARAN label they were ordered with
+
+When an order is placed, its product line items now store the GARAN label values in `payload.garanLabel`. The storefront shows the label the order was placed with. Editing an order keeps the stored values; products added while editing get their current label. Cart line items and order line items from before this change have no `garanLabel` key and show the product's current label.
+
+Headless frontends can read the stored values from the order line item's payload instead of `/store-api/product/{productId}/garan-label`.
+## Product line items store their GARAN label
+
+Cart and order product line items now store their GARAN label in `payload.garanLabel`, and editing an order keeps it.
+Order line items without it show no label, so set `guaranteeMonths`, `brand` and `modelIdentifier` there when you create orders through the Admin API or the Sync API.
+Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
+
 # 6.6.10.29
 ## GARAN labels in mails come from the `garanLabels` template variable
 The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter keeps working. A migration updates the template for shops that never edited it.

@@ -5,4 +5,4 @@
  * `admin-types.d.ts` imports this file, and `type-surface.spec.ts` fails when a `global.d.ts` is missing here.
  */
 
-export {};
+import '../src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/global';

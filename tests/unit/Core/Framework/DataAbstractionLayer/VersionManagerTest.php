@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -14,9 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -111,6 +117,75 @@ class VersionManagerTest extends TestCase
         static::assertNotCount(0, $entityWriteResult);
         static::assertSame('insert', $entityWriteResult['product'][0]->getOperation());
         static::assertSame('product', $entityWriteResult['product'][0]->getEntityName());
+    }
+
+    public function testCloneWritesAReferenceToANestedRowAfterTheInsertInOneTransaction(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $newId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [VersionManagerTreeTestDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
+        $entityReader = $this->createMock(EntityReaderInterface::class);
+        $entityReader->expects($this->once())->method('read')->willReturn(new EntityCollection([
+            (new Entity())->assign(['_uniqueIdentifier' => $sourceId]),
+        ]));
+
+        $serializer = $this->createMock(SerializerInterface::class);
+        $serializer->expects($this->once())->method('serialize')->willReturn(json_encode([
+            'id' => $sourceId,
+            'canonicalTreeId' => $childId,
+            'children' => [['id' => $childId, 'parentId' => $sourceId]],
+        ], \JSON_THROW_ON_ERROR));
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('transactional')
+            ->willReturnCallback(static fn (\Closure $callback) => $callback($connection));
+
+        $clonedChildId = null;
+        $entityWriter = $this->createMock(EntityWriterInterface::class);
+        $entityWriter->expects($this->once())->method('insert')
+            ->willReturnCallback(static function (EntityDefinition $definition, array $rows) use (&$clonedChildId, $newId): array {
+                static::assertSame($newId, $rows[0]['id']);
+                static::assertArrayNotHasKey('canonicalTreeId', $rows[0]);
+                $clonedChildId = $rows[0]['children'][0]['id'];
+
+                return ['version_tree' => [new EntityWriteResult($newId, [], 'version_tree', EntityWriteResult::OPERATION_INSERT)]];
+            });
+        $entityWriter->expects($this->once())->method('update')
+            ->willReturnCallback(static function (EntityDefinition $definition, array $rows) use (&$clonedChildId, $newId): array {
+                static::assertSame('version_tree', $definition->getEntityName());
+                static::assertSame([['id' => $newId, 'canonicalTreeId' => $clonedChildId]], $rows);
+
+                return ['version_tree' => [new EntityWriteResult($newId, [], 'version_tree', EntityWriteResult::OPERATION_UPDATE)]];
+            });
+
+        $this->versionManager = $this->createVersionManager([
+            'entityWriter' => $entityWriter,
+            'entityReader' => $entityReader,
+            'serializer' => $serializer,
+            'registry' => $registry,
+            'connection' => $connection,
+        ]);
+
+        $result = $this->versionManager->clone(
+            $registry->getByEntityName('version_tree'),
+            $sourceId,
+            $newId,
+            Defaults::LIVE_VERSION,
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            new CloneBehavior(),
+        );
+
+        static::assertSame(
+            [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE],
+            array_map(static fn (EntityWriteResult $result) => $result->getOperation(), $result['version_tree']),
+        );
     }
 
     public function testCloneEntityNotExist(): void
@@ -241,6 +316,7 @@ class VersionManagerTest extends TestCase
             'lockFactory' => static::createStub(LockFactory::class),
             'clock' => new NativeClock(),
             'clonePayloadBuilder' => new ClonePayloadBuilder(new NativeClock()),
+            'connection' => static::createStub(Connection::class),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -259,6 +335,7 @@ class VersionManagerTest extends TestCase
             $params['lockFactory'],
             $params['clock'],
             $params['clonePayloadBuilder'],
+            $params['connection'],
         );
     }
 }
@@ -277,6 +354,28 @@ class VersionManagerTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerTreeTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'version_tree';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new ParentFkField(self::class),
+            new FkField('canonical_tree_id', 'canonicalTreeId', self::class),
+            new ParentAssociationField(self::class),
+            new ChildrenAssociationField(self::class),
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayload;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -62,6 +64,7 @@ class VersionManager
         private readonly LockFactory $lockFactory,
         private readonly ClockInterface $clock,
         private readonly ClonePayloadBuilder $clonePayloadBuilder,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -249,10 +252,31 @@ class VersionManager
 
         $data = $this->clonePayloadBuilder->build($definition, $data, $id, $newId, $behavior->getOverwrites(), $context->getContext());
 
+        // A version keeps the ids of its rows, so only a copy can reference rows it is inserting itself.
+        $payload = $newId === $id
+            ? new ClonePayload($data)
+            : $this->clonePayloadBuilder->splitReferencesToNestedRows($definition, $data);
+
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
-        $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
-            $result = $this->entityWriter->insert($definition, [$data], $context);
+        $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $payload, &$result): void {
+            if ($payload->deferredUpdates === []) {
+                $result = $this->entityWriter->insert($definition, [$payload->payload], $context);
+
+                return;
+            }
+
+            // Insert and update succeed or fail together, so a failed update leaves no clone without its references.
+            $result = $this->connection->transactional(function () use ($definition, $payload, $context): array {
+                $result = $this->entityWriter->insert($definition, [$payload->payload], $context);
+
+                foreach ($payload->deferredUpdates as $entityName => $rows) {
+                    $updated = $this->entityWriter->update($this->registry->getByEntityName($entityName), $rows, $context);
+                    $result = array_merge_recursive($result, $updated);
+                }
+
+                return $result;
+            });
         });
         \assert(\is_array($result));
 

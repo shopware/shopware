@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -117,6 +118,27 @@ final class ClonePayloadBuilder
         return Feature::isActive('v6.8.0.0')
             ? $this->mergeOverwrites($definition, $data, $overwrites)
             : array_replace_recursive($data, $overwrites);
+    }
+
+    /**
+     * Takes the references a cloned row holds to rows nested below it out of the insert, to be written by an update
+     * after it. The nested row references its parent too, so with a database constraint on both references neither
+     * row can be inserted first. The initial state of a state machine is an example.
+     *
+     * @param array<string, mixed> $payload the result of {@see build()} for a copy
+     */
+    public function splitReferencesToNestedRows(EntityDefinition $definition, array $payload): ClonePayload
+    {
+        [$payload, $deferred] = $this->deferReferencesToNestedRows($definition, $payload);
+
+        $deferredUpdates = [];
+        foreach ($deferred as $entityName => $rows) {
+            foreach ($rows as $id => $references) {
+                $deferredUpdates[$entityName][] = ['id' => (string) $id, ...$references];
+            }
+        }
+
+        return new ClonePayload($payload, $deferredUpdates);
     }
 
     private function addCloneAssociationsRecursively(
@@ -474,6 +496,79 @@ final class ClonePayloadBuilder
         }
 
         return $payload;
+    }
+
+    /**
+     * Walks the payload bottom-up, so every row knows the ids of the rows nested below it.
+     *
+     * @param array<string, mixed> $row
+     *
+     * @return array{
+     *     0: array<string, mixed>,
+     *     1: array<string, array<string, array<string, string>>>,
+     *     2: array<string, array<string, true>>
+     * } the row without its deferred references, the deferred references by entity name and row id,
+     *   and the ids of the row and every row nested below it by entity name
+     */
+    private function deferReferencesToNestedRows(EntityDefinition $definition, array $row): array
+    {
+        $deferred = [];
+        $nestedIds = [];
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof OneToManyAssociationField && !$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
+            $property = $field->getPropertyName();
+            $isExtension = $field->is(Extension::class);
+            $value = $isExtension ? ($row['extensions'][$property] ?? null) : ($row[$property] ?? null);
+
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $items = $field instanceof OneToOneAssociationField ? [$value] : $value;
+            foreach ($items as $key => $item) {
+                if (!\is_array($item)) {
+                    continue;
+                }
+
+                [$items[$key], $itemDeferred, $itemIds] = $this->deferReferencesToNestedRows($field->getReferenceDefinition(), $item);
+                $deferred = array_replace_recursive($deferred, $itemDeferred);
+                $nestedIds = array_replace_recursive($nestedIds, $itemIds);
+            }
+
+            $value = $field instanceof OneToOneAssociationField ? $items[0] : $items;
+            if ($isExtension) {
+                $row['extensions'][$property] = $value;
+            } else {
+                $row[$property] = $value;
+            }
+        }
+
+        $id = $row['id'] ?? null;
+        if (!\is_string($id)) {
+            return [$row, $deferred, $nestedIds];
+        }
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof FkField || $field instanceof ReferenceVersionField || $field->is(NoConstraint::class)) {
+                continue;
+            }
+
+            $property = $field->getPropertyName();
+            $value = $row[$property] ?? null;
+
+            if (\is_string($value) && isset($nestedIds[$field->getReferenceDefinition()->getEntityName()][$value])) {
+                $deferred[$definition->getEntityName()][$id][$property] = $value;
+                unset($row[$property]);
+            }
+        }
+
+        $nestedIds[$definition->getEntityName()][$id] = true;
+
+        return [$row, $deferred, $nestedIds];
     }
 
     private function getCloneReferenceDefinition(AssociationField $field): EntityDefinition

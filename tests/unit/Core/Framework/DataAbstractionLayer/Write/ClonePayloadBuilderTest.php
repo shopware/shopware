@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayload;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -112,6 +114,95 @@ class ClonePayloadBuilderTest extends TestCase
 
         // The reference back to the root is left to the writer.
         static::assertArrayNotHasKey('orderId', $payload['deliveries'][0]);
+    }
+
+    public function testAReferenceToANestedRowIsWrittenAfterTheInsert(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $newId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $clone = $this->split('clone_tree', [
+            'id' => $sourceId,
+            'canonicalTreeId' => $variantId,
+            'children' => [['id' => $variantId, 'parentId' => $sourceId]],
+        ], $sourceId, $newId);
+
+        static::assertArrayNotHasKey('canonicalTreeId', $clone->payload);
+        static::assertSame(
+            ['clone_tree' => [['id' => $newId, 'canonicalTreeId' => $clone->payload['children'][0]['id']]]],
+            $clone->deferredUpdates,
+        );
+    }
+
+    public function testAReferenceOfANestedRowToItsOwnNestedRowIsDeferredWithTheNestedRowsId(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+        $grandchildId = Uuid::randomHex();
+
+        $clone = $this->split('clone_tree', [
+            'id' => $sourceId,
+            'children' => [[
+                'id' => $childId,
+                'parentId' => $sourceId,
+                'canonicalTreeId' => $grandchildId,
+                'children' => [['id' => $grandchildId, 'parentId' => $childId]],
+            ]],
+        ], $sourceId, Uuid::randomHex());
+
+        $clonedChild = $clone->payload['children'][0];
+        static::assertArrayNotHasKey('canonicalTreeId', $clonedChild);
+        static::assertSame(
+            ['clone_tree' => [['id' => $clonedChild['id'], 'canonicalTreeId' => $clonedChild['children'][0]['id']]]],
+            $clone->deferredUpdates,
+        );
+    }
+
+    public function testAReferenceToASiblingRowStaysInTheInsert(): void
+    {
+        $sourceId = Uuid::randomHex();
+
+        $clone = $this->split('clone_order', $this->orderLikeSource($sourceId, Uuid::randomHex(), Uuid::randomHex()), $sourceId, Uuid::randomHex());
+
+        // The delivery and the address are both rows of the order; the writer inserts the address first.
+        static::assertSame($clone->payload['addresses'][0]['id'], $clone->payload['deliveries'][0]['shippingAddressId']);
+
+        // The order references its own address, which references the order back.
+        static::assertSame(
+            [['id' => $clone->payload['id'], 'billingAddressId' => $clone->payload['addresses'][0]['id']]],
+            $clone->deferredUpdates['clone_order'],
+        );
+    }
+
+    public function testAReferenceWithoutAConstraintStaysInTheInsert(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $treeId = Uuid::randomHex();
+
+        $clone = $this->split('clone_forest', [
+            'id' => $sourceId,
+            'mainTreeId' => $treeId,
+            'trees' => [['id' => $treeId, 'forestId' => $sourceId]],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertSame($clone->payload['trees'][0]['id'], $clone->payload['mainTreeId']);
+        static::assertSame([], $clone->deferredUpdates);
+    }
+
+    public function testAReferenceToARowOutsideTheCloneStaysInTheInsert(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $foreignId = Uuid::randomHex();
+
+        $clone = $this->split('clone_tree', [
+            'id' => $sourceId,
+            'canonicalTreeId' => $foreignId,
+            'children' => [['id' => Uuid::randomHex(), 'parentId' => $sourceId]],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertSame($foreignId, $clone->payload['canonicalTreeId']);
+        static::assertSame([], $clone->deferredUpdates);
     }
 
     public function testAVersionKeepsIdsAndReferences(): void
@@ -695,6 +786,17 @@ class ClonePayloadBuilderTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $source
+     */
+    private function split(string $entityName, array $source, string $sourceId, string $newId): ClonePayload
+    {
+        return $this->builder->splitReferencesToNestedRows(
+            $this->registry->getByEntityName($entityName),
+            $this->build($entityName, $source, $sourceId, $newId),
+        );
+    }
+
+    /**
      * @param array<string, mixed> $originalData
      * @param array<string, mixed> $overwriteData
      * @param array<string, mixed> $expectedData
@@ -958,6 +1060,7 @@ class ClonePayloadForestTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new FkField('main_tree_id', 'mainTreeId', ClonePayloadTreeTestDefinition::class))->addFlags(new NoConstraint()),
             (new OneToManyAssociationField('trees', ClonePayloadTreeTestDefinition::class, 'forest_id'))->addFlags(new CascadeDelete()),
         ]);
     }
@@ -979,6 +1082,7 @@ class ClonePayloadTreeTestDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             new FkField('forest_id', 'forestId', ClonePayloadForestTestDefinition::class),
             new ParentFkField(self::class),
+            new FkField('canonical_tree_id', 'canonicalTreeId', self::class),
             new ParentAssociationField(self::class),
             new ChildrenAssociationField(self::class),
         ]);

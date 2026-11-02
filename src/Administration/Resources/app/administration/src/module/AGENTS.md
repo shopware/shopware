@@ -29,6 +29,7 @@ order-delivery/
     ├── requirements.spec.ts  # What someone decided, from the user's point of view
     ├── pinned.spec.ts        # The details and edge cases, as they behave today
     ├── regressions.spec.ts   # Bugs that must not come back
+    ├── public-api.spec.ts    # Optional: public members that no user path reaches, as they behave today
     └── *.spec.ts             # Tests of internals, which should be rare
 ```
 
@@ -100,9 +101,29 @@ They describe what a merchant expects, in a few tests whose titles read like sen
 Details and edge cases go into pinned tests.
 They need no comment, and an agent may write them by freezing the current behaviour.
 Each regression test has a `@regression` doc comment with the issue and what users saw.
+
+A public member that no user path reaches, such as a computed that only an override could read, is still API.
+Pin it in `public-api.spec.ts`, the only spec that may read the component through `wrapper.vm`.
+It may read or call only the props, computed values and methods that the `public` lists of `index.ts` name, so it cannot pin a private detail:
+
+```ts
+it('lists the rules the price matrices use', async () => {
+    // ARRANGE
+    const wrapper = await mountPriceMatrices();
+
+    // ACT
+    const usedRules = wrapper.vm.usedRules;
+
+    // ASSERT
+    expect(usedRules).toEqual(['rule-1']);
+});
+```
+
+Its tests need no comment, like pinned tests.
+
 A test that the next major removes (`it.deprecated(...)`) also has `@deprecated tag:vX.Y.Z` in its doc comment, in every kind of spec file.
 
-Every test in these three files marks its steps with comments, so a reader sees at once what is set up, what runs and what is checked:
+Every test in these contract files marks its steps with comments, so a reader sees at once what is set up, what runs and what is checked:
 
 ```ts
 it('shows an order with its primary delivery', () => {
@@ -120,17 +141,18 @@ it('shows an order with its primary delivery', () => {
 `// ARRANGE` may be left out when nothing needs setting up.
 `sw-test-rules/arrange-act-assert` checks the comments and their order.
 
-Requirements, pinned and regressions specs import the module only through `../index`, so they test what other code sees.
+Requirements, pinned, regressions and public-api specs import the module only through `../index`, so they test what other code sees.
 They may arrange state through a harness in `tests/`, and the harness may import from `../dependencies`.
 A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
 A changed pin only asks whether the change was intended.
+A changed public-api test is a changed pin too: which members are public is already owned through `index.ts`, and the test only freezes what they do today.
 
 Put a requirement into the smallest module that owns it, and let the code that uses the module rely on its requirements.
 Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.
-`sw-core-rules/mini-module-boundaries` and `sw-test-rules/require-test-origin` check these rules.
+`sw-core-rules/mini-module-boundaries`, `sw-test-rules/require-test-origin` and `sw-test-rules/no-vm-access` check these rules.
 
 `npm run unit:mini-module -- <module directory>` runs one module's tests with coverage of its `src/` only.
-Add `--contracts` to run only the requirements, pinned and regressions specs: the uncovered lines are then code that no contract protects.
+Add `--contracts` to run only the contract specs (requirements, pinned, regressions, public-api): the uncovered lines are then code that no contract protects.
 
 ## Registration Pattern
 

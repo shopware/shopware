@@ -7,7 +7,8 @@
  * imports. `build/vite-plugins/virtual-shopware-modules` generates their runtime counterpart from
  * the same `shopware-modules.json`.
  *
- * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, composable, mixin, or store.
+ * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, composable, mixin, store,
+ * or mini-module, or after changing the exports of a mini-module's index.ts.
  */
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations -- Intentional public facade. */
@@ -978,4 +979,28 @@ declare module 'shopware:stores/mediaModal' {
     const useStore: () => PiniaRootState['mediaModal'];
 
     export default useStore;
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mini-modules/public-component' {
+    export { definePublicComponent } from 'src/core/public-component';
+    export type * from 'src/core/public-component';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mini-modules/service-names' {
+    export { repositoryFactory, ruleConditionDataProviderService } from 'src/app/service-names';
+    export type * from 'src/app/service-names';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mini-modules/sw-settings-shipping-price-matrices' {
+    export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
+    export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mini-modules/sw-settings-shipping-price-matrix' {
+    export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
+    export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
 }

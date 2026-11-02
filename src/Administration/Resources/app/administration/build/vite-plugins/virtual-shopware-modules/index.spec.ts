@@ -244,6 +244,16 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(source).not.toContain('requires Shopware');
         });
 
+        it('re-exports the index.ts of a mini-module, without a default export when it has none', () => {
+            const source = generateModuleSource('shopware:mini-modules/public-component', registry, 'extension') as string;
+
+            expect(source).toContain(
+                'export const definePublicComponent = shopware.MiniModules["public-component"]["definePublicComponent"];',
+            );
+            expect(source).not.toContain('export default');
+            expect(source).toMatch(/if \(!shopware\.MiniModules\) \{[\s\S]*requires Shopware 6\.7\.17\.0/);
+        });
+
         it('returns nothing for a specifier the registry does not list', () => {
             expect(generateModuleSource('shopware:nope', registry)).toBeUndefined();
             expect(generateModuleSource('shopware:mixins/notAMixin', registry)).toBeUndefined();

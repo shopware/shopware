@@ -17,6 +17,9 @@ import useSystemStore from 'shopware:stores/system';
 import composables, { useListing } from 'shopware:composables';
 import useListingDefault from 'shopware:composables/useListing';
 import directUseListing from 'src/app/composables/use-listing';
+import 'src/core/public-component/register';
+import { definePublicComponent } from 'shopware:mini-modules/public-component';
+import { definePublicComponent as directDefinePublicComponent } from 'src/core/public-component';
 
 describe('shopware:* virtual modules', () => {
     describe('root imports', () => {
@@ -65,6 +68,10 @@ describe('shopware:* virtual modules', () => {
             expect(typeof useNotificationStore).toBe('function');
             expect(useNotificationStore()).toBe(Shopware.Store.get('notification'));
             expect(useSystemStore()).toBe(Shopware.Store.get('system'));
+        });
+
+        it('export the index.ts exports of a published mini-module', () => {
+            expect(definePublicComponent).toBe(directDefinePublicComponent);
         });
     });
 });

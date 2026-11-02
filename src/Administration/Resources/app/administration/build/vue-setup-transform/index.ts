@@ -8,10 +8,11 @@
  * This module owns the per-file transform boundary: parse the SFC, analyze script and template
  * semantics, lower the Shopware setup block into source edits, and apply them - while leaving
  * cross-file component-name checks to the build integration. Every edit comes from lowering; nothing
- * generated is decided here.
+ * generated is decided here. The one other file it reads is a mini-module's index.ts, only to compare it.
  */
 
 import { lowerShopwareSetupBlock } from './lower';
+import { type ReadFile, assertPublicApiMatchesIndex } from './public-api';
 import { analyzeShopwareSetupScript } from './script-analyzer';
 import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';
 import { analyzeBaseTemplate, analyzeOverrideTemplate } from './template-analyzer';
@@ -32,6 +33,14 @@ type ShopwareSetupTransformResult = {
     // Static names of the blocks this override `<sw-block extends="...">` extends (empty for base).
     // The registry's other half, for a later branch to cross-check against the emitted ownership.
     extendedBlockNames: string[];
+    // The mini-module `index.ts` this base component's public API was checked against, or null. A watcher
+    // re-runs the transform when it changes, because the check reads it.
+    publicApiFile: string | null;
+};
+
+type ShopwareSetupTransformOptions = {
+    // Reads the mini-module's index.ts for the public API check; null skips the check. Defaults to the disk.
+    readFile?: ReadFile | null;
 };
 
 /**
@@ -53,8 +62,14 @@ function withAuthorLocation(error: unknown, source: string, filename: string, bl
 
 /**
  * Converts a Shopware setup SFC into plain Vue-compatible code before Vue compiles it.
+ *
+ * A base component that a mini-module's index.ts declares must match the public API listed there.
  */
-function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupTransformResult | null {
+function transformShopwareSetupSfc(
+    source: string,
+    filename = 'anonymous.vue',
+    options: ShopwareSetupTransformOptions = {},
+): ShopwareSetupTransformResult | null {
     let block: ShopwareSetupBlock | null = null;
 
     try {
@@ -72,6 +87,17 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         const templateAnalysis =
             analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
 
+        const publicApiFile =
+            analysis.mode === 'base' && options.readFile !== null
+                ? assertPublicApiMatchesIndex({
+                      block,
+                      analysis,
+                      templateAnalysis,
+                      filename,
+                      readFile: options.readFile,
+                  })
+                : null;
+
         const edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis);
         const transformed = applySourceEdits(source, filename, edits);
 
@@ -86,6 +112,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
             filename,
             ownedBlockNames: templateAnalysis.ownedBlockNames,
             extendedBlockNames: templateAnalysis.extendedBlockNames,
+            publicApiFile,
         };
     } catch (error) {
         throw withAuthorLocation(error, source, filename, block);
@@ -94,15 +121,18 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 
 /**
  * Runs the shared transform for callers that only need diagnostics.
+ *
+ * Skips the index.ts check: ESLint, its caller, caches per file and would not see a change to index.ts.
  */
 function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): void {
-    transformShopwareSetupSfc(source, filename);
+    transformShopwareSetupSfc(source, filename, { readFile: null });
 }
 
 /**
  * @private
  */
 export {
+    type ShopwareSetupTransformOptions,
     type ShopwareSetupTransformResult,
     ShopwareSetupInternalError,
     ShopwareSetupTransformError,

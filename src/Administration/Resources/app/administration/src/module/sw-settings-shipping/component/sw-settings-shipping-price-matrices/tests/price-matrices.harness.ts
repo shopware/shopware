@@ -1,5 +1,7 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { defineComponent } from 'vue';
+import type { PublicInstance } from 'src/core/public-component';
+import type SwSettingsShippingPriceMatrices from '../index';
 import { useShippingDetailStore } from '../dependencies';
 
 /**
@@ -77,10 +79,13 @@ export function getShippingMethodPrices(): Array<Record<string, unknown>> {
 
 /**
  * Mounts the price matrices. Each price matrix is a stub that a test lets emit the events of the real one.
+ * Its `vm` has the public members only, for the public-api spec.
  *
  * @private
  */
-export async function mountPriceMatrices(props: { disabled?: boolean } = {}): Promise<VueWrapper> {
+export async function mountPriceMatrices(
+    props: { disabled?: boolean } = {},
+): Promise<VueWrapper<PublicInstance<typeof SwSettingsShippingPriceMatrices>>> {
     const wrapper = mount(await wrapTestComponent('sw-settings-shipping-price-matrices', { sync: true }), {
         global: {
             stubs: {
@@ -89,7 +94,8 @@ export async function mountPriceMatrices(props: { disabled?: boolean } = {}): Pr
             provide: {
                 ruleConditionDataProviderService: {},
                 repositoryFactory: {
-                    create: () => ({
+                    create: (entityName: string) => ({
+                        entityName,
                         create: () => ({}),
                     }),
                 },
@@ -100,7 +106,7 @@ export async function mountPriceMatrices(props: { disabled?: boolean } = {}): Pr
     wrappers.push(wrapper);
     await flushPromises();
 
-    return wrapper;
+    return wrapper as never;
 }
 
 /**

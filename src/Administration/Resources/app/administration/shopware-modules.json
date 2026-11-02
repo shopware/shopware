@@ -253,5 +253,29 @@
             "swBulkEdit": [],
             "mediaModal": []
         }
+    },
+    "shopware:mini-modules": {
+        "exports": [],
+        "subpaths": {
+            "public-component": [
+                "definePublicComponent"
+            ],
+            "service-names": [
+                "repositoryFactory",
+                "ruleConditionDataProviderService"
+            ],
+            "sw-settings-shipping-price-matrices": [
+                "default"
+            ],
+            "sw-settings-shipping-price-matrix": [
+                "default"
+            ]
+        },
+        "sources": {
+            "public-component": "src/core/public-component",
+            "service-names": "src/app/service-names",
+            "sw-settings-shipping-price-matrices": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices",
+            "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix"
+        }
     }
 }

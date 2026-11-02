@@ -22,6 +22,7 @@ developers working on the transform itself.
 | `template-analyzer/`      | Template pass: expression/template reference detection, and where a data scope or slot scope is needed          |
 | `flow-analysis/`          | Identifier flow: which names an expression reads/writes, and every occurrence the base rename pass must rewrite |
 | `lower/`                  | Code generation: mode dispatch (`index.ts`) plus the base and override lowerers and shared helpers              |
+| `public-api/`             | Compares the `public` lists in a mini-module's `index.ts` with the base SFC it loads; reads files besides the SFC |
 | `source-edits/`           | Chunk IR (`generated`/`original`), range transforms, rendering                                                  |
 | `utils/`                  | Cross-cutting helpers: block normalization, script-block boundaries, Babel patterns, errors                     |
 | `index.spec/`             | Transform test suite (per-macro, base, override, validation specs)                                              |
@@ -45,7 +46,10 @@ developers working on the transform itself.
   from the generated output after their entries are extracted. `swDefinePublic()`'s entries feed the
   base footer twice: as the `public` state map, and as the generated `defineExpose()` that gives a
   parent holding a template ref the same bindings an override may replace, spread over the props
-  `Shopware.Component.getExposedProps()` reads off the instance.
+  `Shopware.Component.getExposedProps()` reads off the instance. In a mini-module, `index.ts` lists the same
+  entries under `public.setup`, next to the props, emits, slots and blocks, and `public-api/` fails the
+  transform when the two sides differ. `index.ts` is only compared, never read for code generation, so
+  `swDefinePublic()` stays the one input lowering uses.
 - **Author alias** — the `__swSetupAuthor_<name>` name every top-level base runtime binding is renamed
   to, so the generated footer can re-declare the original name from `attachOverrides(...)`.
 - **Public entries / override entries** — the shorthand binding names extracted from the markers.

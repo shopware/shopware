@@ -27,6 +27,7 @@
             {% if not feature('v6.8.0.0') %}
                 {% block component_privacy_legal_guarantee_notice_paragraph %}
                     {% if showLegalGuaranteeNotice %}
+                        {# With v6.8.0.0, the sw_block() call in front of the fieldset renders this block #}
                         <p class="{% if feature('v6.8.0.0') %}form-text {% endif %}legal-guarantee-notice">
                             {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
                                 '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,

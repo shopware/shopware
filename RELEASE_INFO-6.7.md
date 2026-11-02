@@ -364,7 +364,7 @@ See `UPGRADE-6.8.md` for the full variable mapping.
 
 ### Legal guarantee notice on the registration form
 
-The new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the legal guarantee notice on the registration form while the checkout keeps it.
+Disabling the new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the legal guarantee notice on the registration form while the checkout keeps it.
 The notice still requires `core.cart.showLegalGuaranteeNotice` as well.
 
 With the `v6.8.0.0` flag active, the notice of `component/privacy-notice.html.twig` renders before the privacy `<fieldset>` instead of under the "Privacy" heading.

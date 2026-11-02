@@ -313,6 +313,21 @@ class WebhookApiTest extends TestCase
         static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
     }
 
+    public function testARoleListedTwiceIsStoredOnce(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $user = TestUser::createNewTestUser($connection, ['webhook:create', 'product:read']);
+        $user->authorizeBrowser($this->getBrowser());
+
+        $roleId = $user->getAclRoleId();
+
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$roleId, $roleId]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
+    }
+
     public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
     {
         $connection = static::getContainer()->get(Connection::class);

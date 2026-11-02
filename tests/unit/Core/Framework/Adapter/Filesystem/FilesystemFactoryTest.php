@@ -47,6 +47,21 @@ class FilesystemFactoryTest extends TestCase
         static::assertSame(Visibility::PUBLIC, $adapter->visibility(''));
     }
 
+    public function testCreateLocalAdapterIgnoresThemeVersionStrategyConfiguration(): void
+    {
+        $factory = new FilesystemFactory([new LocalFactory()]);
+        $adapter = $factory->factory([
+            'type' => 'local',
+            'visibility' => Visibility::PUBLIC,
+            'config' => [
+                'root' => __DIR__,
+            ],
+            'use_last_modified_version_strategy' => false,
+        ]);
+
+        static::assertSame(Visibility::PUBLIC, $adapter->visibility(''));
+    }
+
     public function testCreateLocalAdapterEnforcesFilePermissionsByDefault(): void
     {
         $root = $this->createTemporaryDirectory();

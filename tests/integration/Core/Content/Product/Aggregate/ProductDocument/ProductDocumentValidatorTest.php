@@ -99,7 +99,7 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
-    public function testADocumentNeedsAFileInTheDefaultLanguage(): void
+    public function testADocumentNeedsADefaultLanguageTranslation(): void
     {
         $errors = $this->errorsOf(fn () => $this->addDocuments([
             ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],

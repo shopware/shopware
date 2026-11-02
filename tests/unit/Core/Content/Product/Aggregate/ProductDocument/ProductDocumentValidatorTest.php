@@ -122,6 +122,13 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN, 'pointer' => '/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId']], $errors);
     }
 
+    public function testAFileThatDoesNotExistIsLeftToTheDatabase(): void
+    {
+        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'missing-file')];
+
+        static::assertSame([], $this->validate());
+    }
+
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
     {
         // a file that broke a limit later doesn't block writes that keep it
@@ -131,7 +138,7 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([], $this->validate());
     }
 
-    public function testANewDocumentNeedsAFileInTheDefaultLanguage(): void
+    public function testANewDocumentNeedsADefaultLanguageTranslation(): void
     {
         $this->storedFiles = [
             $this->ids->get('manual-file') => self::file(),

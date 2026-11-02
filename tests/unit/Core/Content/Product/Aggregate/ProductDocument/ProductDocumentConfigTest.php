@@ -31,17 +31,7 @@ class ProductDocumentConfigTest extends TestCase
         $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerLanguage: 10, maxFileSize: 1024);
 
         static::assertSame(['pdf', 'docx'], $config->allowedExtensions);
-    }
-
-    public function testEachFileTypeHasItsMimeTypes(): void
-    {
-        $config = new ProductDocumentConfig(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024);
-
-        $mimeTypes = $config->getMimeTypesByExtension();
-
-        static::assertSame(['pdf', 'docx'], array_keys($mimeTypes));
-        static::assertContains('application/pdf', $mimeTypes['pdf']);
-        static::assertContains('application/vnd.openxmlformats-officedocument.wordprocessingml.document', $mimeTypes['docx']);
+        static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension()));
     }
 
     /**

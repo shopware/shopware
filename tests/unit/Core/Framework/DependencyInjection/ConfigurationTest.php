@@ -154,7 +154,7 @@ class ConfigurationTest extends TestCase
         static::assertTrue($config['cdn']['path_cache_buster']);
     }
 
-    public function testProductDocumentLimitsHaveDefaults(): void
+    public function testProductDocumentSettingsHaveDefaults(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
 
@@ -166,7 +166,7 @@ class ConfigurationTest extends TestCase
         ], $config['product_documents']);
     }
 
-    public function testAShopReplacesTheProductDocumentLimits(): void
+    public function testAShopReplacesTheProductDocumentSettings(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [
             ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_per_language' => 10, 'max_file_size' => '20MB']],

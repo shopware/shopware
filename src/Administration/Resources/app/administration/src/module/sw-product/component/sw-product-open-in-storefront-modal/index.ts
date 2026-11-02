@@ -82,7 +82,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         modalTitle(): string {
-            return this.$t('sw-product.openInStorefrontModal.title', { name: this.productName });
+            return this.$t('sw-product.openInStorefrontModal.title', {
+                name: this.productName,
+                productNumber: this.product.productNumber,
+            });
         },
 
         salesChannelOptions(): { value: string; label: string }[] {

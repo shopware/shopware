@@ -63,6 +63,9 @@ async function createWrapper({
                 'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
                 'sw-loader': true,
             },
+            mocks: {
+                $t: (key: string, params?: Record<string, string>) => [key, ...Object.values(params ?? {})].join(' '),
+            },
             provide: {
                 shortcutService: {
                     stopEventListener: () => {},
@@ -255,6 +258,12 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
 
         expect(wrapper.find('.sw-product-open-in-storefront-modal__no-sales-channels').exists()).toBe(true);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__sales-channel-select').exists()).toBe(false);
+    });
+
+    it('shows the product number in the title', async () => {
+        const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000.2' } });
+
+        expect(wrapper.find('.sw-modal__title').text()).toContain('SW10000.2');
     });
 
     it('emits modal-close when it is closed', async () => {

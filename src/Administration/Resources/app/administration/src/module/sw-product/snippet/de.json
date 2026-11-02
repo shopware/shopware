@@ -322,7 +322,7 @@
       "notificationOpenInStorefrontError": "Die Storefront-URLs des Produkts konnten nicht geladen werden."
     },
     "openInStorefrontModal": {
-      "title": "„{name}“ in der Storefront öffnen",
+      "title": "„{name}“ ({productNumber}) in der Storefront öffnen",
       "infoUnsavedChanges": "Das Produkt hat ungespeicherte Änderungen. Die Storefront zeigt den zuletzt gespeicherten Stand.",
       "infoNoSalesChannels": "Das Produkt ist keinem Storefront-Verkaufskanal zugewiesen.",
       "labelSalesChannel": "Verkaufskanal",

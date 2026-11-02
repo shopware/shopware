@@ -322,7 +322,7 @@
       "notificationOpenInStorefrontError": "The Storefront URLs of the product could not be loaded."
     },
     "openInStorefrontModal": {
-      "title": "Open \"{name}\" in the Storefront",
+      "title": "Open \"{name}\" ({productNumber}) in the Storefront",
       "infoUnsavedChanges": "The product has unsaved changes. The Storefront shows the last saved state.",
       "infoNoSalesChannels": "The product is not assigned to any Storefront sales channel.",
       "labelSalesChannel": "Sales channel",

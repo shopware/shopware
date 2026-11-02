@@ -2,6 +2,34 @@
 
 ## Core
 
+### Services can be reset between requests in long running runtimes
+
+With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole).
+Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing.
+Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
+
+The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching keeps being handled by Shopware's own cache layer.
+Projects that reference the `http_cache` service must remove those references before enabling the flag.
+The flag becomes the default with Shopware 6.8.
+
+### Sensitive mail logs contain metadata only
+
+Password recovery and customer double-opt-in mail logs contain delivery metadata instead of bodies, template data or complete messages.
+Sensitive-mail error logs contain exception classes and codes instead of messages and traces.
+Shopware exceptions retain their domain error codes.
+Sensitive events no longer update stored mail-template sample data.
+Other mail types retain content logging and Administration body previews.
+Mail events implementing `MailAware` can use `#[Shopware\Core\Framework\Event\SensitiveMail]` to opt into this policy.
+Subclasses inherit the policy, and the sensitivity flag is preserved in stored and buffered flows.
+Direct callers can use `sensitive: true` in mail data or template data, or call `Mail::setSensitive(true)`.
+The classification is stored privately on the Shopware mail object and survives queue serialization.
+Messages that are not Shopware `Mail` objects, including signed messages, use metadata-only logging.
+Existing log entries and stored sample data are not modified.
+Previously queued flows retain their original classification.
+Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
@@ -193,6 +221,14 @@ Check import files that relied on `0` being ignored.
 
 ## API
 
+### Usernames with surrounding whitespace
+
+User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.
+The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE` on the `username` field.
+Remove surrounding whitespace before submitting a username.
+Existing usernames are not changed automatically; updates that omit `username` remain possible.
+Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
+
 ### HTTP method overrides restricted to form actions
 
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
@@ -371,15 +407,26 @@ Shopware.Service('searchTypeService').upsertType('my_entity', {
 ```
 
 Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
+
 ### Empty snippet filter ignores snippets with the value `0`
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
 
+### Promotion code filter in the order list only matches promotion line items
+
+The "Promotion code" filter in the order list now only checks line items of type `promotion`.
+Together with a new index on `order_line_item.type`, the database no longer reads every line item, so the filter stays fast on shops with many orders.
+Line items of other types that carry a `code` in their payload, for example from extensions, no longer match this filter.
+
 ### Meteor radio group components are available globally
 
 `mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
 The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
+
+### Bulk order status handler results
+
+`bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
 ## API
 

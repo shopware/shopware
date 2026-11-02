@@ -454,6 +454,8 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+<details>
+
 ## Multiple SQL statements restricted to migrations and installation
 
 Application database connections no longer accepted multiple SQL statements in a single call.
@@ -464,7 +466,15 @@ Separating read and write statements also improved compatibility with SQL proxie
 Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
 Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
 
-<details>
+## Services are reset between requests
+
+Services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+This was opt-in with the `LONGRUNNING_ENVIRONMENT` feature flag in 6.7; the flag is removed.
+Extensions that relied on state surviving across requests in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole) must move that state to an explicit cache or store.
+
+Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching is handled by Shopware's own cache layer.
+Remove references to the `http_cache` service from your project.
 
 ## Customer group price fields are required
 

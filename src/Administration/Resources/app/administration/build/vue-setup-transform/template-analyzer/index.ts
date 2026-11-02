@@ -19,6 +19,7 @@ import {
     type ElementNode,
     type TemplateOccurrence,
     collectTemplateReferences,
+    getStaticSlotName,
     getStaticSwBlockExtends,
     getStaticSwBlockName,
     isSwBlockExtends,
@@ -83,6 +84,9 @@ type TemplateAnalysis = {
     // half: a later branch cross-checks these against the emitted ownership to fail loudly on a typo'd
     // or non-existent block name (per-file analysis can't see other files, so this is done at build time).
     extendedBlockNames: string[];
+    // Static names of the base template's `<slot>` outlets, `default` for an unnamed one. A dynamic
+    // `:name` is left out: no static list can match it.
+    slotNames: string[];
 };
 
 /**
@@ -98,6 +102,7 @@ function emptyTemplateAnalysis(): TemplateAnalysis {
         privateBindings: new Set<string>(),
         ownedBlockNames: [],
         extendedBlockNames: [],
+        slotNames: [],
     };
 }
 
@@ -226,6 +231,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
         privateBindings,
         ownedBlockNames: [],
         extendedBlockNames,
+        slotNames: [],
     };
 }
 
@@ -242,10 +248,19 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     const ast = parseTemplate(template.content);
     const dataScopeInsertions: number[] = [];
     const ownedBlockNames: string[] = [];
+    const slotNames: string[] = [];
 
     forEachTemplateElement(ast.children, (element) => {
         if (element.tag === 'sw-block') {
             assertSwBlockAttributes(element, 'base', template.contentStart);
+        }
+
+        if (element.tag === 'slot') {
+            const slotName = getStaticSlotName(element);
+
+            if (slotName !== null) {
+                slotNames.push(slotName);
+            }
         }
 
         if (isSwBlockName(element)) {
@@ -268,6 +283,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
         privateBindings: new Set<string>(),
         ownedBlockNames,
         extendedBlockNames: [],
+        slotNames,
     };
 }
 

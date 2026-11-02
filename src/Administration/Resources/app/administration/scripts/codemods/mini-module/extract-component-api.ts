@@ -83,7 +83,7 @@ export function extractComponentApi(componentSource: string, templateSource: str
         props: [],
         emits: [],
         slots: [],
-        blocks: [...templateSource.matchAll(/\{%-?\s*block\s+(\w+)/g)].map(([, block]) => block),
+        blocks: [...new Set([...templateSource.matchAll(/\{%-?\s*block\s+(\w+)/g)].map(([, block]) => block))],
         computed: [],
         methods: [],
         unresolved,

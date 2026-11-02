@@ -2,7 +2,10 @@
  * @sw-package framework
  */
 
-import { createPlugin, createVueFile, type HotUpdateOptions, spyOnTransform } from './helpers';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { createPlugin, createVueFile, type HotUpdateOptions, resolveAndLoadVueFile, spyOnTransform } from './helpers';
 
 describe('build/vite-plugins/shopware-setup hot updates', () => {
     const brokenSource = `<script setup>
@@ -167,5 +170,29 @@ swDefinePublic({ count });
         expect(transformSpy.mock.calls.filter(([, fileName]) => fileName === vueFile)).toHaveLength(1);
 
         transformSpy.mockRestore();
+    });
+
+    it('re-checks a mini-module component when only its index.ts changes', async () => {
+        const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-mini-module-'));
+        const indexFile = path.join(root, 'index.ts');
+        const vueFile = path.join(root, 'src/sw-thing.vue');
+        const declare = (setup: string) =>
+            `export default definePublicComponent({ name: 'sw-thing', load: () => import('./src/sw-thing.vue'), public: { setup: ${setup} } });`;
+        await fs.mkdir(path.dirname(vueFile));
+        await fs.writeFile(vueFile, '<script setup>\nconst save = () => {};\n\nswDefinePublic({ save });\n</script>');
+        await fs.writeFile(indexFile, declare("['save']"));
+        const plugin = createPlugin();
+        const { loadContext } = await resolveAndLoadVueFile(plugin, vueFile);
+        const context = createHotUpdateContext([]);
+
+        // The SFC is unchanged, so only watching index.ts catches the drift before the next build.
+        await fs.writeFile(indexFile, declare("['save', 'reset']"));
+        const result = await plugin.hotUpdate.call(context, createHotUpdateOptions(indexFile));
+
+        expect(loadContext.addWatchFile).toHaveBeenCalledWith(indexFile);
+        expect(result).toBeUndefined();
+        expect(context.environment.logger.error).toHaveBeenCalledWith(
+            expect.stringContaining('- setup "reset": listed in index.ts public.setup, missing in swDefinePublic()'),
+        );
     });
 });

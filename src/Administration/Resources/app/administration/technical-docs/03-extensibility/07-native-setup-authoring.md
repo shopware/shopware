@@ -182,6 +182,20 @@ The one consequence to know: **a binding you left out of `swDefinePublic()` is i
 
 Reaching in through Vue internals — `vnode.component.proxy`, or walking `subTree.children` to find an instance — is not covered by any of this and never was. A `<script setup>` component hides its setup state from the instance proxy, and `defineExpose()` does not change what that proxy returns. Use a template ref.
 
+### In a mini-module, index.ts lists the same API
+
+A base component that a mini-module's `index.ts` loads with `definePublicComponent()` keeps its `swDefinePublic()`.
+`index.ts` lists the same bindings under `public.setup`, next to every prop, emit, slot and block of the component.
+The transform compares both sides on every build and Jest run and fails on a name only one side has:
+
+```text
+The public API in index.ts does not match "sw-example":
+- setup "save": declared by swDefinePublic(), missing in index.ts public.setup
+```
+
+`index.ts` must write the lists as literal arrays, so the transform can read them without running the file.
+ESLint skips this check, because its cache does not see a change to `index.ts`.
+
 ## Differences from native setup
 
 - Base public/private state is explicit Shopware extension state, not native setup-return behaviour.

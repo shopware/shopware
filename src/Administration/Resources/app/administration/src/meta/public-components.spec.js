@@ -21,6 +21,11 @@ describe('public components', () => {
                 const loaded = await declaration.load();
                 const component = loaded.default ?? loaded;
 
+                // Vue names every <script setup> component; the setup transform checks those against index.ts.
+                if (component.__name) {
+                    return [];
+                }
+
                 return findMissingPublicNames(declaration.public ?? {}, component).map(
                     (name) => `${declaration.name} ${name}`,
                 );

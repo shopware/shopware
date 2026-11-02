@@ -1,5 +1,7 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
+import type { PublicInstance } from 'src/core/public-component';
 import { DocumentEvents, EntityCollection, useOrderDetailStore } from '../dependencies';
+import type SwOrderDocumentCard from '../index';
 
 /**
  * @sw-package after-sales
@@ -335,6 +337,7 @@ export function startEditingOrder(): void {
 
 /**
  * Mounts the document card on a page of the order detail; `routeName` decides which columns it shows.
+ * Its `vm` has the public members only, for the public-api spec.
  * Every modal is a stub, the files it opens and the notifications it shows are recorded.
  *
  * @private
@@ -342,7 +345,7 @@ export function startEditingOrder(): void {
 export async function mountDocumentCard(
     props: { order?: Record<string, unknown>; attachView?: boolean; isLoading?: boolean } = {},
     { routeName = 'sw.order.detail.documents' }: { routeName?: string } = {},
-): Promise<VueWrapper> {
+): Promise<VueWrapper<PublicInstance<typeof SwOrderDocumentCard>>> {
     recordOpenedFiles();
     recordNotifications();
 
@@ -390,7 +393,7 @@ export async function mountDocumentCard(
     wrappers.push(wrapper);
     await flushPromises();
 
-    return wrapper;
+    return wrapper as never;
 }
 
 /** Records the links the card clicks to open or download a file, instead of letting the browser follow them. */

@@ -3,14 +3,15 @@
  *
  * Jest counterpart of the Vite-generated `shopware:*` modules. Named getters follow tests that replace
  * `window.Shopware`, and stores resolve per call. Default-only values retain their original identity.
- * The CommonJS object has no `__esModule` marker so compiled named imports read its properties.
+ * The CommonJS object has no `__esModule` marker so compiled named imports read its properties, except for a
+ * mini-module, whose default export is its own `default` member.
  */
 
 const path = require('path');
 const definitions = require('../../../build/vite-plugins/virtual-shopware-modules/definitions');
 const { readRegistry } = require('../../../build/vite-plugins/virtual-shopware-modules/index');
 
-const { parseSpecifier, exportNames, resolveVirtualExport } = definitions;
+const { parseSpecifier, exportNames, isEsModuleSubpath, resolveVirtualExport } = definitions;
 
 const registry = readRegistry(path.resolve(__dirname, '../../..'));
 
@@ -32,8 +33,9 @@ module.exports = function resolveShopwareModule(specifier) {
         throw new Error(`"${specifier}" is not a Shopware virtual module.`);
     }
 
-    if (members.length > 0) {
-        const stub = {};
+    // A mini-module has a `default` member of its own, and the marker makes a default import read it.
+    if (members.length > 0 || isEsModuleSubpath(parsed)) {
+        const stub = isEsModuleSubpath(parsed) ? { __esModule: true } : {};
 
         members.forEach((member) =>
             Object.defineProperty(stub, member, {

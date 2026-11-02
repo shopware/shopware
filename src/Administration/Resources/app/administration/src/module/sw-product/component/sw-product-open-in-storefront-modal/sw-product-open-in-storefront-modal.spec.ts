@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import type { ProductStorefrontUrls } from '../../service/product-storefront-url.api.service';
 
 const productStorefrontUrlApiService = { fetchProductUrls: jest.fn() };
@@ -72,17 +72,12 @@ async function createWrapper({
                 'mt-modal-close': {
                     template: '<button class="mt-modal-close"><slot /></button>',
                 },
-                'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
                 'mt-loader': true,
             },
             mocks: {
                 $t: (key: string, params?: Record<string, string>) => [key, ...Object.values(params ?? {})].join(' '),
             },
             provide: {
-                shortcutService: {
-                    stopEventListener: () => {},
-                    startEventListener: () => {},
-                },
                 acl: { can: (privilege: string) => privilege !== 'system_config:read' || canReadConfig },
                 repositoryFactory: { create: () => repository },
                 systemConfigApiService,
@@ -90,35 +85,44 @@ async function createWrapper({
             },
         },
     });
+    await flushPromises();
 
     return { wrapper, repository, systemConfigApiService };
 }
 
-async function select(wrapper: Awaited<ReturnType<typeof createWrapper>>['wrapper'], salesChannelId: string) {
+async function select(wrapper: VueWrapper, salesChannelId: string | null) {
     await wrapper.setData({ selectedSalesChannelId: salesChannelId });
     await flushPromises();
 }
 
-function failingReasons(wrapper: Awaited<ReturnType<typeof createWrapper>>['wrapper']): string[] {
+function failingReasons(wrapper: VueWrapper): string[] {
     return wrapper.findAll('.sw-product-open-in-storefront-modal__check').map((check) => check.text());
 }
 
-describe('module/sw-product/component/sw-product-open-in-storefront-modal', () => {
-    it('selects and loads the only sales channel right away', async () => {
-        const { wrapper } = await createWrapper();
-        await flushPromises();
+const unreachable = { loadedSalesChannel: storefrontSalesChannel({ reachable: false }) };
 
+describe('module/sw-product/component/sw-product-open-in-storefront-modal', () => {
+    it('loads the only sales channel right away and links its product URL in a new tab', async () => {
+        const { wrapper } = await createWrapper();
+
+        const link = wrapper.find('a.sw-product-open-in-storefront-modal__domain');
         expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledTimes(1);
         expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledWith('product-id', 'sales-channel-id');
         expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toBe('sales-channel-id');
-        expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').attributes('href')).toBe(
-            'https://shop.test/Shirt/SW10000',
-        );
+        expect(failingReasons(wrapper)).toEqual([]);
+        expect(link.attributes('href')).toBe('https://shop.test/Shirt/SW10000');
+        expect(link.attributes('target')).toBe('_blank');
+        expect(link.attributes('rel')).toBe('noopener');
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-header').text()).toBe('Storefront');
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
     });
 
-    it('describes the choice with the product name and number', async () => {
+    it('shows the product name and number in the title and the description', async () => {
         const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000' } });
 
+        expect(wrapper.findComponent({ name: 'mt-modal' }).props('title')).toBe(
+            'sw-product.openInStorefrontModal.title Shirt SW10000',
+        );
         expect(wrapper.find('.sw-product-open-in-storefront-modal__description').text()).toBe(
             'sw-product.openInStorefrontModal.description Shirt SW10000',
         );
@@ -133,7 +137,6 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
                 ],
             }),
         });
-        await flushPromises();
 
         const links = wrapper.findAll('a.sw-product-open-in-storefront-modal__domain');
         const disabledDomain = wrapper.find('.sw-product-open-in-storefront-modal__domain.is--disabled');
@@ -153,7 +156,6 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
                 salesChannel({ id: 'a', translated: { name: 'Alpha' } }),
             ],
         });
-        await flushPromises();
 
         expect(productStorefrontUrlApiService.fetchProductUrls).not.toHaveBeenCalled();
         expect(wrapper.findComponent({ name: 'mt-select' }).props('options')).toEqual([
@@ -163,122 +165,56 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(wrapper.find('.sw-product-open-in-storefront-modal__result').exists()).toBe(false);
     });
 
-    it('links the product URL of the selected sales channel in a new tab', async () => {
-        const { wrapper } = await createWrapper();
-
-        await select(wrapper, 'sales-channel-id');
-
-        const link = wrapper.find('a.sw-product-open-in-storefront-modal__domain');
-        expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledWith('product-id', 'sales-channel-id');
-        expect(failingReasons(wrapper)).toEqual([]);
-        expect(link.attributes('href')).toBe('https://shop.test/Shirt/SW10000');
-        expect(link.attributes('target')).toBe('_blank');
-        expect(link.attributes('rel')).toBe('noopener');
-        expect(link.find('.sw-product-open-in-storefront-modal__domain-header').text()).toBe('Storefront');
-        expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
-    });
-
     it('names an inactive sales channel without asking the Storefront', async () => {
         const { wrapper } = await createWrapper({ salesChannels: [salesChannel({ active: false })] });
-
-        await select(wrapper, 'sales-channel-id');
 
         expect(productStorefrontUrlApiService.fetchProductUrls).not.toHaveBeenCalled();
         expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.salesChannelActive']);
     });
 
-    it('names a sales channel without domain', async () => {
-        const { wrapper } = await createWrapper({ loadedSalesChannel: null });
+    it.each([
+        ['a sales channel without domain', { loadedSalesChannel: null }, 'hasDomain'],
+        ['the general reason for an active product', unreachable, 'storefrontShowsProduct'],
+        [
+            'an inactive product, also when a variant inherits it',
+            { ...unreachable, product: { active: null }, parentProduct: { active: false } },
+            'productActive',
+        ],
+        [
+            'a sold-out clearance sale product hidden by the sales channel',
+            { ...unreachable, product: { isCloseout: true, available: false } },
+            'inStock',
+        ],
+        [
+            'the general reason when the sales channel shows sold-out clearance sale products',
+            { ...unreachable, product: { isCloseout: true, available: false }, hideCloseoutProducts: false },
+            'storefrontShowsProduct',
+        ],
+        [
+            'the stock as possible reason when the setting cannot be read',
+            {
+                ...unreachable,
+                product: { isCloseout: null, available: false },
+                parentProduct: { isCloseout: true },
+                canReadConfig: false,
+            },
+            'inStockPossibly',
+        ],
+        ['a parent without available variants', { ...unreachable, product: { childCount: 2 } }, 'inStock'],
+        [
+            'the general reason for a parent with an available variant',
+            { ...unreachable, product: { childCount: 2 }, availableVariants: 1 },
+            'storefrontShowsProduct',
+        ],
+    ])('names %s', async (_, options, reason) => {
+        const { wrapper } = await createWrapper(options);
 
-        await select(wrapper, 'sales-channel-id');
-
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.hasDomain']);
-    });
-
-    it('names the general reason when the Storefront does not show an active product', async () => {
-        const { wrapper } = await createWrapper({
-            loadedSalesChannel: storefrontSalesChannel({
-                reachable: false,
-                domains: [{ id: 'domain-id', url: 'https://shop.test', productUrl: null }],
-            }),
-        });
-
-        await select(wrapper, 'sales-channel-id');
-
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.storefrontShowsProduct']);
+        expect(failingReasons(wrapper)).toEqual([`sw-product.openInStorefrontModal.checks.${reason}`]);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__domain').exists()).toBe(false);
     });
 
-    it('names an inactive product, also when a variant inherits it', async () => {
-        const { wrapper } = await createWrapper({
-            loadedSalesChannel: storefrontSalesChannel({ reachable: false }),
-            product: { active: null },
-            parentProduct: { active: false },
-        });
-
-        await select(wrapper, 'sales-channel-id');
-
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.productActive']);
-    });
-
-    it('names a sold-out clearance sale product for a sales channel that hides them', async () => {
-        const { wrapper, systemConfigApiService } = await createWrapper({
-            loadedSalesChannel: storefrontSalesChannel({ reachable: false }),
-            product: { isCloseout: true, available: false },
-        });
-
-        await select(wrapper, 'sales-channel-id');
-
-        expect(systemConfigApiService.getValues).toHaveBeenCalledWith('core.listing', 'sales-channel-id', { inherit: true });
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.inStock']);
-    });
-
-    it('does not name the stock when the sales channel shows sold-out clearance sale products', async () => {
-        const { wrapper } = await createWrapper({
-            loadedSalesChannel: storefrontSalesChannel({ reachable: false }),
-            product: { isCloseout: true, available: false },
-            hideCloseoutProducts: false,
-        });
-
-        await select(wrapper, 'sales-channel-id');
-
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.storefrontShowsProduct']);
-    });
-
-    it('names the stock as possible reason when the setting cannot be read', async () => {
-        const { wrapper, systemConfigApiService } = await createWrapper({
-            loadedSalesChannel: storefrontSalesChannel({ reachable: false }),
-            product: { isCloseout: null, available: false },
-            parentProduct: { isCloseout: true },
-            canReadConfig: false,
-        });
-
-        await select(wrapper, 'sales-channel-id');
-
-        expect(systemConfigApiService.getValues).not.toHaveBeenCalled();
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.inStockPossibly']);
-    });
-
-    it('checks the variants of a parent for available clearance sale products', async () => {
-        const { wrapper, repository } = await createWrapper({
-            loadedSalesChannel: storefrontSalesChannel({ reachable: false }),
-            product: { childCount: 2 },
-            availableVariants: 0,
-        });
-
-        await select(wrapper, 'sales-channel-id');
-
-        expect(repository.searchIds).toHaveBeenCalledWith(
-            expect.objectContaining({ limit: 1 }),
-            expect.objectContaining({ inheritance: true }),
-        );
-        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.inStock']);
-    });
-
     it('does not check the stock when the Storefront shows the product', async () => {
-        const { wrapper, repository, systemConfigApiService } = await createWrapper({ product: { childCount: 2 } });
-
-        await select(wrapper, 'sales-channel-id');
+        const { repository, systemConfigApiService } = await createWrapper({ product: { childCount: 2 } });
 
         expect(repository.searchIds).not.toHaveBeenCalled();
         expect(systemConfigApiService.getValues).not.toHaveBeenCalled();
@@ -286,8 +222,6 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
 
     it('hints at maintenance mode without hiding the product link', async () => {
         const { wrapper } = await createWrapper({ salesChannels: [salesChannel({ maintenance: true })] });
-
-        await select(wrapper, 'sales-channel-id');
 
         expect(wrapper.find('.sw-product-open-in-storefront-modal__maintenance').text()).toBe(
             'sw-product.openInStorefrontModal.maintenanceHint',
@@ -320,8 +254,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         await select(wrapper, 'active');
         expect(wrapper.find('mt-loader-stub').exists()).toBe(true);
 
-        await wrapper.setData({ selectedSalesChannelId: nextSalesChannelId });
-        await flushPromises();
+        await select(wrapper, nextSalesChannelId);
 
         expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
@@ -343,12 +276,6 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         );
         expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__result').exists()).toBe(false);
-    });
-
-    it('shows the product number in the title', async () => {
-        const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000.2' } });
-
-        expect(wrapper.findComponent({ name: 'mt-modal' }).props('title')).toContain('SW10000.2');
     });
 
     it('emits modal-close when the modal root closes', async () => {

@@ -13,16 +13,22 @@ type Domain = { id: string; url: string; languageId: string };
 
 function createService({
     domains = [] as Domain[],
-    product = (languageId: string): unknown => ({
-        data: { product: { seoUrls: [{ seoPathInfo: `Shirt-${languageId}/SW10000`, isCanonical: true }] } },
-    }),
+    product = (languageId: string): Promise<unknown> =>
+        Promise.resolve({
+            data: {
+                product: {
+                    seoUrls: [
+                        { seoPathInfo: 'Shirt-old/SW10000', isCanonical: false },
+                        { seoPathInfo: `Shirt-${languageId}/SW10000`, isCanonical: true },
+                    ],
+                },
+            },
+        }),
 } = {}) {
     const httpClient = {
-        get: jest.fn((url: string, config: { headers: Record<string, string> }) => {
-            const result = product(config.headers['sw-language-id']);
-
-            return result instanceof Error ? Promise.reject(result) : Promise.resolve(result);
-        }),
+        get: jest.fn((url: string, config: { headers: Record<string, string> }) =>
+            product(config.headers['sw-language-id']),
+        ),
     };
     const contextStoreService = {
         getSalesChannelContext: jest.fn().mockResolvedValue({ data: { salesChannel: { domains } } }),
@@ -33,7 +39,7 @@ function createService({
         contextStoreService as unknown as StoreContextService,
     );
 
-    return { service, httpClient, contextStoreService };
+    return { service, httpClient };
 }
 
 function notFound(): Error {
@@ -41,10 +47,6 @@ function notFound(): Error {
 }
 
 describe('module/sw-product/service/product-storefront-url.api.service', () => {
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
-
     it('asks the Storefront once per domain language and links the canonical SEO URL of each domain', async () => {
         const { service, httpClient } = createService({
             domains: [
@@ -89,7 +91,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
     it('links the technical product URL when the product has no SEO URL', async () => {
         const { service } = createService({
             domains: [{ id: 'domain-en', url: 'https://shop.test', languageId: ENGLISH_LANGUAGE_ID }],
-            product: () => ({ data: { product: { seoUrls: [] } } }),
+            product: () => Promise.resolve({ data: { product: { seoUrls: [] } } }),
         });
 
         const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
@@ -118,7 +120,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
                 { id: 'domain-en', url: 'https://shop.test/en', languageId: ENGLISH_LANGUAGE_ID },
                 { id: 'domain-de', url: 'https://shop.test/de', languageId: GERMAN_LANGUAGE_ID },
             ],
-            product: () => notFound(),
+            product: () => Promise.reject(notFound()),
         });
 
         const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
@@ -143,7 +145,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
     it('passes on errors other than 404', async () => {
         const { service } = createService({
             domains: [{ id: 'domain-en', url: 'https://shop.test', languageId: ENGLISH_LANGUAGE_ID }],
-            product: () => new Error('Server error'),
+            product: () => Promise.reject(new Error('Server error')),
         });
 
         await expect(service.fetchProductUrls('product-id', 'sales-channel-id')).rejects.toThrow('Server error');

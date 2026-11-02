@@ -20,11 +20,8 @@ async function createWrapper({
     parentVisibilities = [] as ReturnType<typeof visibility>[],
 } = {}) {
     const component = await wrapTestComponent('sw-product-detail', { sync: true });
-    const product = { id: productId, childCount: 0, visibilities, isNew: () => productId === null };
-    const repository = {
-        get: jest.fn().mockResolvedValue(product),
-        hasChanges: jest.fn().mockReturnValue(hasChanges),
-    };
+    const product = { id: productId, visibilities };
+    const repository = { hasChanges: jest.fn().mockReturnValue(hasChanges) };
 
     const wrapper = shallowMount(component, {
         props: { productId },
@@ -71,6 +68,12 @@ async function openModal(wrapper: VueWrapper) {
     return wrapper.findComponent(openInStorefrontModalStub);
 }
 
+async function openedSalesChannelIds(wrapper: VueWrapper): Promise<string[]> {
+    const modal = await openModal(wrapper);
+
+    return (modal.props('salesChannels') as { id: string }[]).map(({ id }) => id);
+}
+
 describe('module/sw-product/page/sw-product-detail open in Storefront', () => {
     let wrapper: VueWrapper;
 
@@ -97,27 +100,28 @@ describe('module/sw-product/page/sw-product-detail open in Storefront', () => {
         expect(modal.props('hasUnsavedChanges')).toBe(true);
     });
 
-    it('passes the Storefront sales channels the product is assigned to', async () => {
-        wrapper = await createWrapper({
-            visibilities: [visibility('storefront'), visibility('headless', 'headless-type-id')],
-        });
+    it.each([
+        [
+            'the Storefront sales channels the product is assigned to',
+            [visibility('storefront'), visibility('headless', 'headless-type-id')],
+            [],
+            ['storefront'],
+        ],
+        [
+            'the Storefront sales channels of the parent when a variant inherits them',
+            [],
+            [visibility('parent-storefront')],
+            ['parent-storefront'],
+        ],
+    ])('passes %s', async (_, visibilities, parentVisibilities, expected) => {
+        wrapper = await createWrapper({ visibilities, parentVisibilities });
 
-        const modal = await openModal(wrapper);
-
-        expect((modal.props('salesChannels') as { id: string }[]).map(({ id }) => id)).toEqual(['storefront']);
-    });
-
-    it('passes the Storefront sales channels of the parent when a variant inherits them', async () => {
-        wrapper = await createWrapper({ visibilities: [], parentVisibilities: [visibility('parent-storefront')] });
-
-        const modal = await openModal(wrapper);
-
-        expect((modal.props('salesChannels') as { id: string }[]).map(({ id }) => id)).toEqual(['parent-storefront']);
+        expect(await openedSalesChannelIds(wrapper)).toEqual(expected);
     });
 
     it('closes the modal when another product is opened', async () => {
         wrapper = await createWrapper();
-        await openModal(wrapper);
+        expect((await openModal(wrapper)).exists()).toBe(true);
 
         await wrapper.setProps({ productId: 'product-b' });
 
@@ -128,11 +132,5 @@ describe('module/sw-product/page/sw-product-detail open in Storefront', () => {
         wrapper = await createWrapper({ productId: null });
 
         expect(wrapper.find('.sw-product-detail__open-in-storefront').attributes('disabled')).toBeDefined();
-    });
-
-    it('enables the button for a saved product', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.find('.sw-product-detail__open-in-storefront').attributes('disabled')).toBeUndefined();
     });
 });

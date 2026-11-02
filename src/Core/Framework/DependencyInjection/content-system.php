@@ -35,6 +35,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindi
 use Shopware\Core\Framework\ContentSystem\Cache\CacheFinalizer;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Framework\ContentSystem\Cache\MappedMediaCacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
@@ -289,6 +290,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Cache Services
     $services->set(EntityCacheTagResolver::class);
+
+    $services->set(MappedMediaCacheInvalidator::class)
+        ->args([service(CacheInvalidator::class)])
+        ->tag('kernel.event_subscriber');
 
     $services->set(CacheFinalizer::class)
         ->args([

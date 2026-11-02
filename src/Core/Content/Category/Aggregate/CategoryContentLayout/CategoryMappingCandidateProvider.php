@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryContentLayout;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\MappedMediaCacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
@@ -87,6 +88,10 @@ class CategoryMappingCandidateProvider extends AbstractMappingCandidateProvider
 
         if ($source->path === 'media' && $value === null) {
             return MappingSourceResolution::noValue();
+        }
+
+        if ($value instanceof MediaEntity) {
+            $context->cacheContext->addTags([MappedMediaCacheInvalidator::buildName($value->getUniqueIdentifier())]);
         }
 
         return MappingSourceResolution::resolved($value);

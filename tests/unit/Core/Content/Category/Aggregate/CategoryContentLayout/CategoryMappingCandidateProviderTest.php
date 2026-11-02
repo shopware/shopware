@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappi
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\MappedMediaCacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
@@ -76,6 +77,35 @@ class CategoryMappingCandidateProviderTest extends TestCase
         $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $category], [], new RenderingCacheContext());
 
         static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('category', 'name'), $context)->value);
+    }
+
+    public function testOnlyReadingTheCategoryMediaAddsItsDependency(): void
+    {
+        $media = new MediaEntity();
+        $media->setId('mapped-media');
+        $category = new CategoryEntity();
+        $category->setName('Category');
+        $category->setMedia($media);
+        $cache = new RenderingCacheContext();
+        $cache->addTags(['existing-dependency']);
+        $cache->disable();
+        $context = new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Media:Image'), ['category' => $category], [], $cache);
+
+        $this->provider->resolveRootSource(MappingSourceReference::root('category', 'name'), $context);
+        static::assertSame(['existing-dependency'], $cache->getTags());
+        static::assertSame($media, $this->provider->resolveRootSource(MappingSourceReference::root('category', 'media'), $context)->value);
+        static::assertSame(['existing-dependency', MappedMediaCacheInvalidator::buildName('mapped-media')], $cache->getTags());
+        static::assertTrue($cache->isDisabled());
+    }
+
+    public function testMissingCategoryMediaAddsNoMediaDependency(): void
+    {
+        $category = new CategoryEntity();
+        $cache = new RenderingCacheContext();
+        $context = new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Media:Image'), ['category' => $category], [], $cache);
+
+        static::assertTrue($this->provider->resolveRootSource(MappingSourceReference::root('category', 'media'), $context)->isNoValue());
+        static::assertSame([], $cache->getTags());
     }
 
     /**

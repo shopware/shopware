@@ -6,6 +6,7 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 
 - `CacheFinalizer` - Applies accumulated cache state to HTTP response after hydration
 - `CacheInvalidationSubscriber` - Invalidates cached pages when content entities change
+- `MappedMediaCacheInvalidator` - Invalidates dependencies on mapped media after media/translation writes, deletions, and media indexing
 - `EntityCacheTagResolver` - Resolves entity definitions to cache tag patterns
 - `RenderingCacheContext` - Tracks tags + disabled state through the pipeline
 
@@ -21,6 +22,8 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 
 Unsupported entities return null → page becomes uncacheable.
 
+Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add generic media support to `EntityCacheTagResolver` or make standalone media loaders cacheable.
+
 ## Invalidation
 
 `CacheInvalidationSubscriber` listens to `EntityWrittenContainerEvent`:
@@ -30,6 +33,8 @@ Unsupported entities return null → page becomes uncacheable.
 Every table name comes from its definition's `ENTITY_NAME`. Header and footer are Storefront-owned, so
 the Storefront hands those two to the subscriber through the container parameter
 `shopware.content_system.section_assignment_entities`; Core declares it empty.
+
+`MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. Other-media and text-only cached pages keep their entries.
 
 Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`.
 It is attached only when a render attempts a custom-field mapping, including an unavailable field, and applies

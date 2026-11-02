@@ -39,12 +39,11 @@
         }
 
         &.is--disabled {
-            background: var(--color-interaction-secondary-disabled);
-            color: var(--color-text-primary-disabled);
+            border-style: dashed;
             cursor: not-allowed;
 
             &:hover {
-                background: var(--color-interaction-secondary-disabled);
+                background: var(--color-interaction-secondary-default);
             }
         }
     }
@@ -64,9 +63,8 @@
         overflow-wrap: anywhere;
     }
 
-    &__domain.is--disabled &__domain-url,
     &__domain-hint {
-        color: var(--color-text-secondary-disabled);
+        color: var(--color-text-critical-default);
     }
 
     &__checks {

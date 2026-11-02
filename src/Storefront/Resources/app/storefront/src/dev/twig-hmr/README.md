@@ -61,6 +61,8 @@ Twig compiles the parent of `sw_extends` into the compiled template and only che
 After a template was added or removed, for example a new override in a plugin, the compiled templates would keep the old inheritance chain.
 For a structural batch, the client sends `sw-twig-hmr-reset: 1` with the page request and fetches the open fragments afterwards.
 `TwigHmrCacheSubscriber` then removes the compiled templates in the `twig.cache` directory in debug mode, before anything is rendered.
+It only removes the `*.php` files and keeps the directories and the temporary files of Twig.
+A parallel render, for example of the Symfony toolbar, writes a temporary file and renames it then, so it can still finish its write.
 
 ### Client
 
@@ -200,8 +202,11 @@ These are covered by the tests in `test/dev/twig-hmr`:
   Plugins should use the PluginManager instead.
 - **Offcanvas content without a GET URL** keeps the old markup until it is opened again.
   This covers offcanvas content loaded with a POST request, except for the cart.
-- **Head changes** to `meta` and `link` elements ask for a reload, the title updates in place.
-  Other head changes, for example an inline script in `utilities/form-validation-config.html.twig`, are not detected.
+- **Head changes** to `meta`, `link`, `script`, `style` and `base` elements ask for a reload, the title updates in place.
+  This covers inline scripts such as `utilities/form-validation-config.html.twig`.
+  CSP nonces are ignored, because they change on every request.
+  Until the first refresh, the baseline is the live head, which can hold elements that scripts added.
+  So the first refresh only detects added or changed head elements, not removed ones.
 - **Duplicate ids** in the page make idiomorph match the wrong nodes.
 - **Pages reached by POST** show the result of a GET request after a refresh.
 - **URLs changed with `history.pushState`** are fetched as they are.

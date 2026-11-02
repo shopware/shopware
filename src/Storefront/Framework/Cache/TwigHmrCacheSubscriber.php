@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -60,10 +61,12 @@ class TwigHmrCacheSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // a parallel request keeps reading the old directory or compiles into a new one, but never sees a half removed one
-        $removed = $this->twigCacheDir . '_removed_' . bin2hex(random_bytes(4));
-        $this->filesystem->rename($this->twigCacheDir, $removed);
-        $this->filesystem->remove($removed);
+        // Only the compiled templates are removed. A parallel render writes a temporary file into a directory and renames it then,
+        // so removing the directories or the temporary files makes that render fail with "Failed to write cache file".
+        // A render that misses a just removed template compiles it again.
+        $this->filesystem->remove(
+            (new Finder())->files()->in($this->twigCacheDir)->name('*.php')
+        );
     }
 
     private function isHotReloadRequest(Request $request, string $header): bool

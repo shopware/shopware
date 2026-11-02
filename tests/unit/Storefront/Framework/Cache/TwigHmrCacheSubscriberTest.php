@@ -78,6 +78,8 @@ class TwigHmrCacheSubscriberTest extends TestCase
     {
         $filesystem = new Filesystem();
         $filesystem->dumpFile($this->twigCacheDir . '/ab/template.php', '<?php');
+        // the temporary file of a parallel render that is about to be renamed to its cache key
+        $filesystem->dumpFile($this->twigCacheDir . '/cd/other.phpAbC123', '<?php');
 
         $request = new Request();
         $request->headers->add($headers);
@@ -85,8 +87,10 @@ class TwigHmrCacheSubscriberTest extends TestCase
 
         (new TwigHmrCacheSubscriber($debug, $this->twigCacheDir))->resetTwigCache($event);
 
-        // the renamed directory is removed as well
-        static::assertSame($expectedRemoved ? ['.', '..'] : ['.', '..', 'twig'], scandir(\dirname($this->twigCacheDir)));
+        static::assertSame(!$expectedRemoved, $filesystem->exists($this->twigCacheDir . '/ab/template.php'));
+        // a parallel render can still finish its write
+        static::assertDirectoryExists($this->twigCacheDir . '/ab');
+        static::assertFileExists($this->twigCacheDir . '/cd/other.phpAbC123');
     }
 
     public function testResetTwigCacheWithoutCacheDirectory(): void

@@ -236,6 +236,32 @@ class Shopware extends EventEmitter {
     }
 
     /**
+     * Replace the class of a component, for example after a hot update in the dev server.
+     * Destroys every instance of the component and creates a new one with the new class on the same element.
+     * Elements that are added later get the new class as well.
+     *
+     * @param componentName - The name of the component.
+     * @param component - The new component class.
+     * @returns The new component instances.
+     */
+    public replaceComponent(componentName: string, component: typeof ShopwareComponent): ShopwareComponent[] {
+        this.componentRegistry.set(componentName, component);
+
+        const entries = this.instanceRegistry.filter(entry => entry.componentName === componentName);
+        this.instanceRegistry = this.instanceRegistry.filter(entry => entry.componentName !== componentName);
+
+        entries.forEach(entry => {
+            entry.component.destroy();
+            this.instanceIndexByElement.get(entry.element)?.delete(componentName);
+        });
+
+        return entries
+            .filter(entry => entry.element.isConnected)
+            .map(entry => this.initializeComponentOnElement(componentName, component, entry.element as HTMLElement))
+            .filter((instance): instance is ShopwareComponent => instance !== undefined);
+    }
+
+    /**
      * Emit an event but queue it for execution after the current event loop.
      * Use this for events that, for example, are triggered on direct initialization.
      * It can prevent race conditions.

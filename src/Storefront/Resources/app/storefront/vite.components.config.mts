@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { defineConfig, type Alias, type UserConfig } from 'vite';
 import { buildComponentEntries, buildComponentStyleEntries } from './build/vite/component-entries';
+import { componentHmrPlugin } from './build/vite/component-hmr-plugin';
 import { componentMapPlugin } from './build/vite/component-map-plugin';
 import { devImportMapPlugin } from './build/vite/dev-import-map-plugin';
 import { devServerNoticePlugin } from './build/vite/dev-server-notice-plugin';
@@ -127,6 +128,7 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             plainCssShimPlugin(plainCssShims),
             themeScssWatcherPlugin(projectRoot),
             twigHmrPlugin(projectRoot),
+            componentHmrPlugin(import.meta.dirname),
         ],
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),

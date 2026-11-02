@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -65,9 +67,11 @@ class ProductDocumentDefinition extends EntityDefinition
             (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('The order in which the documents of a product are displayed.'),
             (new TranslatedField('title'))->addFlags(new ApiAware())->setDescription('Display name of the document.'),
             (new TranslatedField('mediaId'))->addFlags(new ApiAware())->setDescription('Unique identity of the file of the document.'),
+            (new IdField('media_language_id', 'mediaLanguageId'))->addFlags(new ApiAware(), new Runtime())->setDescription('The language of the file in `media`.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new ReverseInherited('documents')),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Runtime())->setDescription('The file of the document in the shopper\'s language, or in the language it falls back to. Only set in the Store API.'),
             (new TranslationsAssociationField(ProductDocumentTranslationDefinition::class, 'product_document_id'))->addFlags(new ApiAware(), new Required()),
         ]);
     }

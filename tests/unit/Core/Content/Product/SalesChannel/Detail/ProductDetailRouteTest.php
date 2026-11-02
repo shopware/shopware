@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -134,6 +135,24 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
+    }
+
+    public function testLoadsTheDocumentsByPosition(): void
+    {
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId(Uuid::randomHex());
+        $productEntity->setCmsPageId('4');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult('product', 1, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
+        );
+        $criteria = new Criteria();
+
+        $this->buildRoute($productRepository)->load($productEntity->getId(), new Request(), $this->context, $criteria);
+
+        static::assertTrue($criteria->hasAssociation('documents'));
+        static::assertEquals([new FieldSorting('position')], $criteria->getAssociation('documents')->getSorting());
     }
 
     public function testLoadBestVariant(): void

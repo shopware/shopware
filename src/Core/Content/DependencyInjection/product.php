@@ -25,6 +25,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentMediaSubscriber;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -373,6 +374,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MeasurementUnitConverter::class),
             service('request_stack'),
             service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductDocumentMediaSubscriber::class)
+        ->args([
+            service('media.repository'),
+            service('product_document_translation.repository'),
         ])
         ->tag('kernel.event_subscriber');
 

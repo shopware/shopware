@@ -129,6 +129,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             );
 
             $this->addFilters($context, $criteria);
+            $criteria->getAssociation('documents')->addSorting(new FieldSorting('position'));
 
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');

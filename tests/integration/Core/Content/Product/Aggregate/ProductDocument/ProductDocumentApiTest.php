@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocum
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -18,6 +20,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class ProductDocumentApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -25,12 +28,7 @@ class ProductDocumentApiTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        static::getContainer()->get('media.repository')->create([[
-            'id' => $this->ids->create('manual'),
-            'fileName' => 'manual',
-            'fileExtension' => 'pdf',
-            'mimeType' => 'application/pdf',
-        ]], Context::createDefaultContext());
+        static::getContainer()->get('media.repository')->create([$this->file('manual')], Context::createDefaultContext());
     }
 
     public function testDocumentRoutesOfTheAdminApiInvalidateTheProductAndItsVariants(): void
@@ -58,6 +56,39 @@ class ProductDocumentApiTest extends TestCase
         $deleted = $this->collectInvalidatedProductIds('DELETE', '/api/product-document/' . $this->ids->get('document'));
         static::assertContains($this->ids->get('drill'), $deleted);
         static::assertContains($this->ids->get('drill.blue'), $deleted);
+    }
+
+    public function testTheProductDetailRouteReturnsEachDocumentWithItsFileInTheShoppersLanguage(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $germanId]],
+        ]);
+        $browser->setServerParameter('HTTP_SW_LANGUAGE_ID', $germanId);
+
+        static::getContainer()->get('media.repository')->create([$this->file('handbuch'), $this->file('datasheet')], Context::createDefaultContext());
+        $product = (new ProductBuilder($this->ids, 'drill'))->price(10)->visibility($this->ids->get('sales-channel'))->build();
+        $product['documents'] = [
+            [...$this->manual(), 'position' => 2, 'translations' => [$germanId => ['title' => 'Handbuch', 'mediaId' => $this->ids->get('handbuch')]]],
+            ['title' => 'Datasheet', 'mediaId' => $this->ids->get('datasheet'), 'position' => 1],
+        ];
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $browser->request('GET', '/store-api/product/' . $this->ids->get('drill'));
+
+        $documents = json_decode((string) $browser->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR)['product']['documents'];
+        static::assertSame(['Datasheet', 'Handbuch'], array_column(array_column($documents, 'translated'), 'title'));
+        static::assertSame([$this->ids->get('datasheet'), $this->ids->get('handbuch')], array_column(array_column($documents, 'media'), 'id'));
+        static::assertSame([Defaults::LANGUAGE_SYSTEM, $germanId], array_column($documents, 'mediaLanguageId'));
+    }
+
+    /**
+     * @return array{id: string, fileName: string, fileExtension: string, mimeType: string}
+     */
+    private function file(string $name): array
+    {
+        return ['id' => $this->ids->create($name), 'fileName' => $name, 'fileExtension' => 'pdf', 'mimeType' => 'application/pdf'];
     }
 
     /**

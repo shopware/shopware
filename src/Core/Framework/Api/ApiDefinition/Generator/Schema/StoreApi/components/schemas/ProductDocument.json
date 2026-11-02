@@ -1,0 +1,75 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductDocument": {
+                "description": "Added since version: 6.7.17.0",
+                "required": [
+                    "id",
+                    "productId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productId": {
+                        "description": "Unique identity of the product.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "position": {
+                        "description": "The order in which the documents of a product are displayed.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "title": {
+                        "description": "Display name of the document.",
+                        "type": "string"
+                    },
+                    "mediaId": {
+                        "description": "Unique identity of the file of the document.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "mediaLanguageId": {
+                        "description": "The language of the file in `media`.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "media": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "The file of the document in the shopper's language, or in the language it falls back to."
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

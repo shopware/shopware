@@ -434,6 +434,13 @@
                             "$ref": "#/components/schemas/ProductDownload"
                         }
                     },
+                    "documents": {
+                        "description": "Documents of the product, such as manuals, datasheets or certificates",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductDocument"
+                        }
+                    },
                     "parent": {
                         "$ref": "#/components/schemas/Product",
                         "description": "Unique identity of the product."

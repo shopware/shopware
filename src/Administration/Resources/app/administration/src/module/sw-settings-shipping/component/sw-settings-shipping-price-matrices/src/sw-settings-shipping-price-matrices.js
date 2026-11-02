@@ -10,8 +10,9 @@ const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

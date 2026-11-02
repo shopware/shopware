@@ -6,3 +6,4 @@
  */
 
 import '../src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/global';
+import '../src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global';

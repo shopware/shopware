@@ -73,7 +73,7 @@ class OrderRouteTest extends TestCase
      * @param class-string<\Throwable>|null $exception
      */
     #[DataProvider('guestCredentialsProvider')]
-    public function testValidateGuestCustomer(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception): void
+    public function testValidateGuestCustomer(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception): void
     {
         if ($exception !== null) {
             $this->expectException($exception);
@@ -131,7 +131,7 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>}>
+     * @return iterable<string, array{?bool, mixed, mixed, ?class-string<\Throwable>}>
      */
     public static function guestCredentialsProvider(): iterable
     {
@@ -141,6 +141,9 @@ class OrderRouteTest extends TestCase
         yield 'no request postal code' => [true, 'test@example.com', null, GuestNotAuthenticatedException::class];
         yield 'wrong e-mail' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class];
         yield 'wrong postal code' => [true, 'test@example.com', '12345', WrongGuestCredentialsException::class];
+        yield 'non-string e-mail' => [true, true, 'AA-345', WrongGuestCredentialsException::class];
+        yield 'integer postal code' => [true, 'test@example.com', 12345, WrongGuestCredentialsException::class];
+        yield 'array postal code' => [true, 'test@example.com', ['AA-345'], WrongGuestCredentialsException::class];
         yield 'valid guest' => [true, 'test@example.com', 'AA-345', null];
         yield 'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null];
         yield 'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null];

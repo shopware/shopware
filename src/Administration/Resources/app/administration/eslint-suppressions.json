@@ -12524,9 +12524,6 @@
     }
   },
   "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/src/sw-settings-shipping-price-matrices.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }

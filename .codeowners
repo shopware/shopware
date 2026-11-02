@@ -69,3 +69,6 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/regressions.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global.d.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/requirements.spec.ts @shopware/product-cc-checkout

@@ -227,7 +227,7 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private function createFolderRepository(): StaticEntityRepository
     {
-        $repository = new StaticEntityRepository([new MediaFolderCollection()], new TestEntityDefinition());
+        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[]], new TestEntityDefinition());
 
         return $repository;
     }

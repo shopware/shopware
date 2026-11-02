@@ -336,7 +336,7 @@
         "productActive": "Produkt ist inaktiv",
         "inStock": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte aus",
         "inStockPossibly": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte möglicherweise aus",
-        "storefrontShowsProduct": "Dieser Verkaufskanal zeigt das Produkt nicht an. Eine Storefront-Regel blendet das gespeicherte Produkt aus, zum Beispiel seine Sichtbarkeit, seine Verfügbarkeit oder eine Erweiterung."
+        "storefrontShowsProduct": "Dieser Verkaufskanal zeigt das Produkt nicht an, zum Beispiel wegen seiner Sichtbarkeit, seiner Verfügbarkeit oder einer installierten Erweiterung."
       },
       "maintenanceHint": "Verkaufskanal ist im Wartungsmodus. Nur IP-Adressen auf seiner Allowlist können ihn öffnen."
     },

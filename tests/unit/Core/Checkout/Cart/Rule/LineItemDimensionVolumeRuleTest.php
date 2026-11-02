@@ -96,7 +96,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         yield 'match / operator greater than equals / higher volume' => [Rule::OPERATOR_GTE, 100, 200, true];
         // OPERATOR_LT
         yield 'match / operator lower than / lower volume' => [Rule::OPERATOR_LT, 100, 50, true];
-        yield 'no match / operator lower  than / same volume' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / same volume' => [Rule::OPERATOR_LT, 100, 100, false];
         yield 'no match / operator lower than / higher volume' => [Rule::OPERATOR_LT, 100, 200, false];
         // OPERATOR_LTE
         yield 'match / operator lower than equals / lower volume' => [Rule::OPERATOR_LTE, 100, 50, true];
@@ -315,7 +315,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
             'lineItemVolume2' => 120,
             'expected' => true,
         ];
-        yield 'no match / operator lower  than / same volume' => [
+        yield 'no match / operator lower than / same volume' => [
             'operator' => Rule::OPERATOR_LT,
             'volume' => 100,
             'lineItemVolume1' => 100,

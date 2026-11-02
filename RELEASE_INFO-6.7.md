@@ -2,6 +2,10 @@
 
 ## Core
 
+### Rule Builder: new "Item with girth" and "Item with longest side + girth" conditions
+
+Two new line item rule conditions `LineItemDimensionGirthRule` (`cartLineItemDimensionGirth`) and `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) were added. They match the cart against the girth of each individual line item, and the longest side plus girth, respectively. Girth is calculated as `2 * (shortest side + second shortest side)` and the longest side plus girth is calculated as `longest side + 2 * (shortest side + second shortest side)`. These conditions allow for more precise shipping rules based on the dimensions of the items in the cart.
+
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.

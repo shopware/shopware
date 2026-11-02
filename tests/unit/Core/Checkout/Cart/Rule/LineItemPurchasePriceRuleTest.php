@@ -181,7 +181,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
 
         // OPERATOR_LT
         yield 'match / operator lower than / lower price' => [Rule::OPERATOR_LT, 100, 50, true];
-        yield 'no match / operator lower  than / same price' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / same price' => [Rule::OPERATOR_LT, 100, 100, false];
         yield 'no match / operator lower than / higher price' => [Rule::OPERATOR_LT, 100, 200, false];
 
         // OPERATOR_LTE
@@ -320,7 +320,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
 
         // OPERATOR_LT
         yield 'match / operator lower than / lower price' => [Rule::OPERATOR_LT, 100, 50, 120, true];
-        yield 'no match / operator lower  than / same price' => [Rule::OPERATOR_LT, 100, 100, 120, false];
+        yield 'no match / operator lower than / same price' => [Rule::OPERATOR_LT, 100, 100, 120, false];
         yield 'no match / operator lower than / higher price' => [Rule::OPERATOR_LT, 100, 200, 120, false];
 
         // OPERATOR_LTE

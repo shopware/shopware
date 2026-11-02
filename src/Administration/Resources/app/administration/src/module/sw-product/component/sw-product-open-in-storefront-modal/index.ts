@@ -148,7 +148,17 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    created(): void {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent(): void {
+            if (this.salesChannels.length === 1) {
+                this.selectedSalesChannelId = this.salesChannels[0].id;
+            }
+        },
+
         async loadSelectedSalesChannel(): Promise<void> {
             const salesChannel = this.selectedSalesChannel;
             if (!salesChannel?.active) {

@@ -91,6 +91,18 @@ function failingReasons(wrapper: Awaited<ReturnType<typeof createWrapper>>['wrap
 }
 
 describe('module/sw-product/component/sw-product-open-in-storefront-modal', () => {
+    it('selects and loads the only sales channel right away', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+
+        expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledTimes(1);
+        expect(productStorefrontUrlApiService.fetchSalesChannel).toHaveBeenCalledWith('product-id', 'sales-channel-id');
+        expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toBe('sales-channel-id');
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domain a').attributes('href')).toBe(
+            'https://shop.test/Shirt/SW10000',
+        );
+    });
+
     it('loads nothing before a sales channel is selected', async () => {
         const { wrapper } = await createWrapper({
             salesChannels: [

@@ -20,7 +20,9 @@ const realExistsSync = fs.existsSync;
 describe('mini-module-boundaries', () => {
     beforeEach(() => {
         jest.spyOn(fs, 'existsSync').mockImplementation(
-            (file) => /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) || realExistsSync(file),
+            (file) =>
+                /(^|\/)(src\/core\/example-module|build\/example-tool)\/(index\.ts|src|tests)$/.test(file) ||
+                realExistsSync(file),
         );
     });
 
@@ -61,6 +63,21 @@ describe('mini-module-boundaries', () => {
                 filename: 'src/app/main.ts',
                 code: "import { x } from 'src/app/private';",
             },
+            {
+                name: 'a side-effect file runs its own src',
+                filename: 'build/example-tool/setup.ts',
+                code: "import { registerMocks } from './src/mocks';",
+            },
+            {
+                name: 'build tooling imports a mini-module below build/ through its directory',
+                filename: 'vite.config.mts',
+                code: "import plugin from './build/example-tool';",
+            },
+            {
+                name: 'a directory below build/ with a src/ but no index.ts is ordinary code',
+                filename: 'build/vite-plugins/consumer.ts',
+                code: "import { fixture } from './shopware-setup/fixtures/sourcemap-composition/src/fixture';",
+            },
         ],
         invalid: [
             {
@@ -73,6 +90,12 @@ describe('mini-module-boundaries', () => {
                 name: 'other code reaches into src through a relative path',
                 filename: 'src/core/other-module/src/other.ts',
                 code: "import { helper } from '../../example-module/src/helper';",
+                errors: [{ messageId: 'srcImport' }],
+            },
+            {
+                name: 'build tooling reaches into the src/ of a mini-module below build/',
+                filename: 'vite.config.mts',
+                code: "import plugin from './build/example-tool/src/plugin';",
                 errors: [{ messageId: 'srcImport' }],
             },
             {

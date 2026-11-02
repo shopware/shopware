@@ -32,6 +32,16 @@ describe('mini-module-side-effects', () => {
                 code: "import SwExample from './index';\nShopware.Component.register(SwExample);",
             },
             {
+                name: 'setup.ts prepares the Jest environment',
+                filename: `${moduleRoot}/setup.ts`,
+                code: "import { registerMocks } from './src/mocks';\nregisterMocks(jest);",
+            },
+            {
+                name: 'generate.ts writes the generated files',
+                filename: `${moduleRoot}/generate.ts`,
+                code: "import { writeFiles } from './src/files';\nwriteFiles();",
+            },
+            {
                 name: 'src imports its template and styles',
                 filename: `${moduleRoot}/src/sw-example.js`,
                 code: "import template from './sw-example.html.twig';\nimport './sw-example.scss';\nexport default { template };",

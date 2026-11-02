@@ -40,7 +40,7 @@ Every export of `private.ts` is marked `@private`, and `private.ts` never reache
 Exports in `src/` and `dependencies.ts` carry a marker too, so the source shows what is exposed: `@public` when `index.ts` exposes the export, `@private` otherwise.
 Outside mini-modules, `@public` is not allowed at all.
 
-A component in a mini-module declares itself in `index.ts` and registers in `register.ts`, the only file with side effects:
+A component in a mini-module declares itself in `index.ts` and registers in `register.ts`:
 
 ```ts
 // index.ts: name, lazy loader and the complete public API
@@ -56,6 +56,12 @@ import SwExample from './index';
 
 Shopware.Component.register(SwExample);
 ```
+
+Side effects live only in files named by what they do, and each one has a single runner:
+
+- `register.ts` publishes the module to Shopware; the Administration runs it when it boots.
+- `setup.ts` prepares the Jest environment; the Jest config lists it in `setupFiles`, so it runs before every spec.
+- `generate.ts` rewrites files that are checked in; a developer runs it as a command, through an npm script.
 
 Anything the `public` lists leave out is private, and a meta test checks that every listed name exists.
 A native-setup component (`load: () => import('./src/sw-example.vue')`) lists all its props, emits, slots and blocks, and its `swDefinePublic()` bindings under `setup`:
@@ -84,6 +90,8 @@ Shopware._private.publishMiniModule('sw-example', SwExample);
 
 Run `composer admin:generate-shopware-modules` after adding a mini-module or changing the exports of its `index.ts`.
 A spec fails when a `register.ts` publishes anything else, or when the generated files are stale.
+Build tooling can be a mini-module below `build/` too, like `build/shopware-modules`, which serves these imports in Vite and Jest.
+It follows the same lint rules, has no `register.ts` and is never published, because it does not run in the browser.
 
 ```ts
 // global.d.ts

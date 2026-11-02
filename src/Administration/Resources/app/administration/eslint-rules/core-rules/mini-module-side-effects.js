@@ -12,11 +12,12 @@ module.exports = {
     meta: {
         type: 'problem',
         docs: {
-            description: 'Only the register.ts of a mini-module has side effects',
+            description:
+                'Only the side-effect files of a mini-module, register.ts, setup.ts and generate.ts, have side effects',
         },
         messages: {
             sideEffect:
-                'Only the register.ts of a mini-module may have side effects. Move this {{what}} there, or make it lazy.',
+                'Only register.ts, setup.ts and generate.ts of a mini-module may have side effects. Move this {{what}} into one of them, or make it lazy.',
         },
         schema: [],
     },

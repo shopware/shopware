@@ -176,7 +176,7 @@ const baseRules = {
     'sw-core-rules/native-setup-filename': 'error',
     // Code outside a mini-module may import only its `index.ts`.
     'sw-core-rules/mini-module-boundaries': 'error',
-    // Only the register.ts of a mini-module has side effects.
+    // Only the side-effect files of a mini-module, register.ts, setup.ts and generate.ts, have side effects.
     'sw-core-rules/mini-module-side-effects': 'error',
     // The src/ of a mini-module reaches outside only through its dependencies.ts.
     'sw-core-rules/mini-module-dependencies': 'error',

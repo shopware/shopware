@@ -28,26 +28,29 @@ const INSTANCE_MEMBER_KINDS = [
 
 /**
  * Finds the mini-module a path belongs to and the part of it the path points at.
- * A mini-module is a directory below the Administration `src/` with an `index.ts`, its own `src/` and `tests/`,
- * and optionally a `private.ts`, `register.ts` and `dependencies.ts`.
+ * A mini-module is a directory below the Administration `src/` or `build/` with an `index.ts`, its own `src/` and `tests/`,
+ * and optionally a `private.ts`, `dependencies.ts` and the side-effect files `register.ts`, `setup.ts` and `generate.ts`.
+ * Below `build/`, a `src/` folder alone is common in fixtures, so only a directory with an `index.ts` counts there.
  *
  * @example
  * findMiniModule('src/core/order/primary-delivery/src/primary-delivery.ts', cwd)
  * // → { root: 'src/core/order/primary-delivery', part: 'src', rest: 'primary-delivery.ts' }
  * findMiniModule('src/core/order/primary-delivery/private', cwd)
  * // → { root: 'src/core/order/primary-delivery', part: 'private', rest: '' }
+ * findMiniModule('build/shopware-modules/setup.ts', cwd)
+ * // → { root: 'build/shopware-modules', part: 'setup', rest: '' }
  *
  * @param {string} relativePath - posix path relative to the Administration root
  * @param {string} cwd - the Administration root, used to look for the `tests/` folder next to a file at the module's root
- * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'register'|'dependencies', rest: string } | null}
+ * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'dependencies'|'register'|'setup'|'generate', rest: string } | null}
  */
 function findMiniModule(relativePath, cwd) {
-    const inside = /^(src\/.+?)\/(src|tests)\/(.+)$/.exec(relativePath);
-    if (inside) {
+    const inside = /^((?:src|build)\/.+?)\/(src|tests)\/(.+)$/.exec(relativePath);
+    if (inside && (inside[1].startsWith('src/') || fs.existsSync(path.join(cwd, inside[1], 'index.ts')))) {
         return { root: inside[1], part: inside[2], rest: inside[3] };
     }
 
-    const entry = /^(src\/.+)\/(index|private|register|dependencies)(\.[jt]s)?$/.exec(relativePath);
+    const entry = /^((?:src|build)\/.+)\/(index|private|dependencies|register|setup|generate)(\.[jt]s)?$/.exec(relativePath);
     if (entry && fs.existsSync(path.join(cwd, entry[1], 'tests'))) {
         return { root: entry[1], part: entry[2], rest: '' };
     }

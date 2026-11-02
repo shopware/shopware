@@ -67,23 +67,19 @@ const BLOCK_TAGS = new Set([
 /**
  * Stored text to editor markup.
  *
- * `isKnownPath` decides which valid server-recognized tokens become nodes. Recognition comes from the PHP parser,
+ * Valid server-parsed tokens outside markup become nodes. Recognition comes from the PHP parser,
  * not from the selectable candidate catalogue: a token stays editable when its label is unavailable, and the node
  * falls back to showing its path. Malformed tokens stay visible as text, with markup characters escaped so they
  * cannot create editor elements. Candidate availability controls insertion and resolution, not recognition.
  *
  * @private
  */
-export function tokensToEditorHtml(
-    text: string,
-    tokens: ContentSystemInlineMappingToken[],
-    isKnownPath: (path: string) => boolean,
-): string {
+export function tokensToEditorHtml(text: string, tokens: ContentSystemInlineMappingToken[]): string {
     let substituted = '';
     let cursor = 0;
 
     for (const token of tokens) {
-        if (token.insideMarkup || (!token.malformed && !isKnownPath(token.path))) {
+        if (token.insideMarkup) {
             continue;
         }
 

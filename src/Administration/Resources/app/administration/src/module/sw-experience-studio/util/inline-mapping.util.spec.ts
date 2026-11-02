@@ -1,7 +1,7 @@
 import { editorHtmlToTokens, tokensToEditorHtml } from './inline-mapping.util';
 import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
-const KNOWN_TOKENS = new Map([
+const CANONICAL_TOKENS = new Map([
     [
         'product.name',
         '{{map:product.name}}',
@@ -9,6 +9,10 @@ const KNOWN_TOKENS = new Map([
     [
         'product.price',
         '{{map:product.price}}',
+    ],
+    [
+        'product.nmae',
+        '{{map:product.nmae}}',
     ],
     [
         'product.customFields.swag_color',
@@ -27,7 +31,6 @@ const KNOWN_TOKENS = new Map([
         '{{map:external-source:lookup-id.value}}',
     ],
 ]);
-const isKnownPath = (path: string) => KNOWN_TOKENS.has(path);
 
 function utf8ByteLength(text: string): number {
     let bytes = 0;
@@ -46,7 +49,7 @@ function parsedTokens(text: string): ContentSystemInlineMappingToken[] {
     for (const [
         path,
         canonicalToken,
-    ] of KNOWN_TOKENS) {
+    ] of CANONICAL_TOKENS) {
         const match = canonicalToken;
         let offset = text.indexOf(match);
 
@@ -61,11 +64,35 @@ function parsedTokens(text: string): ContentSystemInlineMappingToken[] {
 }
 
 describe('module/sw-experience-studio/util/inline-mapping.util', () => {
-    it('turns known tokens into nodes and leaves unknown ones as text', () => {
+    it('turns all server-parsed tokens into nodes, including an unavailable path', () => {
         const text = '<p>Buy the {{map:product.name}} in {{map:product.nmae}} today.</p>';
-        const html = tokensToEditorHtml(text, parsedTokens(text), isKnownPath);
+        const html = tokensToEditorHtml(text, parsedTokens(text));
 
-        expect(html).toBe('<p>Buy the <span data-sw-map="product.name"></span> in {{map:product.nmae}} today.</p>');
+        expect(html).toBe(
+            '<p>Buy the <span data-sw-map="product.name"></span> in <span data-sw-map="product.nmae"></span> today.</p>',
+        );
+    });
+
+    it('leaves mapping-looking text literal when the server supplies no token spans', () => {
+        const text = '<p>Buy the {{map:product.name}} today.</p>';
+
+        expect(tokensToEditorHtml(text, [])).toBe(text);
+    });
+
+    it('keeps a server-parsed token inside an HTML attribute literal', () => {
+        const text = '<a title="{{map:product.name}}">Product</a>';
+        const tokens: ContentSystemInlineMappingToken[] = [
+            {
+                path: 'product.name',
+                match: '{{map:product.name}}',
+                canonicalToken: '{{map:product.name}}',
+                offset: 10,
+                insideMarkup: true,
+                malformed: false,
+            },
+        ];
+
+        expect(tokensToEditorHtml(text, tokens)).toBe(`<p>${text}</p>`);
     });
 
     it('uses UTF-8 byte spans correctly when text before a token contains an astral character', () => {
@@ -81,7 +108,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             },
         ];
 
-        expect(tokensToEditorHtml(text, spans, isKnownPath)).toBe('<p>🙂 <span data-sw-map="product.name"></span></p>');
+        expect(tokensToEditorHtml(text, spans)).toBe('<p>🙂 <span data-sw-map="product.name"></span></p>');
     });
 
     it('normalises whitespace inside a token when converting to a node', () => {
@@ -97,7 +124,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             },
         ];
 
-        expect(tokensToEditorHtml(text, spans, isKnownPath)).toBe('<p><span data-sw-map="product.name"></span></p>');
+        expect(tokensToEditorHtml(text, spans)).toBe('<p><span data-sw-map="product.name"></span></p>');
     });
 
     it.each([
@@ -119,7 +146,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             'product.<img src=x onerror=alert(1)>',
             '{{map:product.&lt;img src=x onerror=alert(1)&gt;}}',
         ],
-    ])('keeps a malformed %s token as safe text even when its path is known', (_case, text, path, expected) => {
+    ])('keeps a malformed %s server token as safe text', (_case, text, path, expected) => {
         const tokens: ContentSystemInlineMappingToken[] = [
             {
                 path,
@@ -131,7 +158,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             },
         ];
 
-        const html = tokensToEditorHtml(text, tokens, () => true);
+        const html = tokensToEditorHtml(text, tokens);
 
         expect(html).toBe(`<p>${expected}</p>`);
         expect(new DOMParser().parseFromString(html, 'text/html').querySelector('img')).toBeNull();
@@ -151,7 +178,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             },
         ];
 
-        const html = tokensToEditorHtml(text, tokens, () => true);
+        const html = tokensToEditorHtml(text, tokens);
         const chip = new DOMParser().parseFromString(html, 'text/html').querySelector('span');
 
         expect(chip?.getAttribute('data-sw-map')).toBe(path);
@@ -190,39 +217,43 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '<p></p>',
         ],
     ])('wraps %s in a paragraph', (_name, stored, expected) => {
-        expect(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath)).toBe(expected);
+        expect(tokensToEditorHtml(stored, parsedTokens(stored))).toBe(expected);
     });
 
     it.each([
         [
             'a paragraph',
             '<p>{{map:product.name}}</p>',
+            '<p><span data-sw-map="product.name"></span></p>',
         ],
         [
             'a heading',
+            '<h2>Title</h2>',
             '<h2>Title</h2>',
         ],
         [
             'several blocks',
             '<p>One</p><p>Two</p>',
+            '<p>One</p><p>Two</p>',
         ],
         [
             'a list',
             '<ul><li><p>One</p></li></ul>',
+            '<ul><li><p>One</p></li></ul>',
         ],
-    ])('leaves %s alone, because it already has a block structure', (_name, stored) => {
-        expect(tokensToEditorHtml(stored, parsedTokens(stored), () => false)).toBe(stored);
+    ])('preserves %s block structure while converting parsed tokens', (_name, stored, expected) => {
+        expect(tokensToEditorHtml(stored, parsedTokens(stored))).toBe(expected);
     });
 
     it('leaves an ordinary placeholder untouched', () => {
         const text = '<p>Hello {{ product.name }}</p>';
-        expect(tokensToEditorHtml(text, parsedTokens(text), isKnownPath)).toBe(text);
+        expect(tokensToEditorHtml(text, parsedTokens(text))).toBe(text);
     });
 
     it('turns nodes back into tokens, discarding the rendered label', () => {
         const stored = editorHtmlToTokens(
             '<p>Buy the <span data-sw-map="product.name" class="chip">Product name</span> today.</p>',
-            KNOWN_TOKENS,
+            CANONICAL_TOKENS,
         );
 
         expect(stored).toBe('<p>Buy the {{map:product.name}} today.</p>');
@@ -231,20 +262,20 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     it('reads the path regardless of attribute order', () => {
         const stored = editorHtmlToTokens(
             '<span class="chip" contenteditable="false" data-sw-map="product.price">9</span>',
-            KNOWN_TOKENS,
+            CANONICAL_TOKENS,
         );
 
         expect(stored).toBe('{{map:product.price}}');
     });
 
     it('unwraps a node whose path is not a dotted path rather than dropping the text', () => {
-        expect(editorHtmlToTokens('<p>a <span data-sw-map="nonsense">kept words</span> b</p>', KNOWN_TOKENS)).toBe(
+        expect(editorHtmlToTokens('<p>a <span data-sw-map="nonsense">kept words</span> b</p>', CANONICAL_TOKENS)).toBe(
             '<p>a kept words b</p>',
         );
     });
 
     it('keeps a token the author typed as text, so typing one by hand works', () => {
-        expect(editorHtmlToTokens('<p>Buy the {{map:product.name}} today.</p>', KNOWN_TOKENS)).toBe(
+        expect(editorHtmlToTokens('<p>Buy the {{map:product.name}} today.</p>', CANONICAL_TOKENS)).toBe(
             '<p>Buy the {{map:product.name}} today.</p>',
         );
     });
@@ -252,19 +283,19 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     it('round-trips a stored text through the editor representation', () => {
         const stored = '<p>Buy the {{map:product.name}} today, only {{map:product.price}}.</p>';
 
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN_TOKENS)).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored)), CANONICAL_TOKENS)).toBe(stored);
     });
 
     it('round-trips a Unicode custom field path through the editor representation', () => {
         const stored = '<p>Size: {{map:product.customFields.größe}}</p>';
 
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN_TOKENS)).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored)), CANONICAL_TOKENS)).toBe(stored);
     });
 
-    it('round-trips a text whose tokens are all unknown', () => {
+    it('round-trips a server-recognized token whose source is unavailable', () => {
         const stored = '<p>Buy the {{map:product.nmae}} today.</p>';
 
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN_TOKENS)).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored)), CANONICAL_TOKENS)).toBe(stored);
     });
 
     /**
@@ -274,11 +305,11 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
      */
     it('round-trips a whole-text mapping to the bare token it was stored as', () => {
         const stored = '{{map:product.name}}';
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN_TOKENS)).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored)), CANONICAL_TOKENS)).toBe(stored);
     });
 
     it('takes the paragraph off a text that holds nothing but a token', () => {
-        expect(editorHtmlToTokens('<p><span data-sw-map="product.name">Product name</span></p>', KNOWN_TOKENS)).toBe(
+        expect(editorHtmlToTokens('<p><span data-sw-map="product.name">Product name</span></p>', CANONICAL_TOKENS)).toBe(
             '{{map:product.name}}',
         );
     });
@@ -306,15 +337,15 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '',
         ],
     ])('stores %s as an empty value', (_name, editorHtml) => {
-        expect(editorHtmlToTokens(editorHtml, KNOWN_TOKENS)).toBe('');
+        expect(editorHtmlToTokens(editorHtml, CANONICAL_TOKENS)).toBe('');
     });
 
     it('round-trips an empty value', () => {
-        expect(editorHtmlToTokens(tokensToEditorHtml('', parsedTokens(''), isKnownPath), KNOWN_TOKENS)).toBe('');
+        expect(editorHtmlToTokens(tokensToEditorHtml('', parsedTokens('')), CANONICAL_TOKENS)).toBe('');
     });
 
     it('keeps empty paragraphs the author typed as spacing', () => {
-        expect(editorHtmlToTokens('<p></p><p></p>', KNOWN_TOKENS)).toBe('<p></p><p></p>');
+        expect(editorHtmlToTokens('<p></p><p></p>', CANONICAL_TOKENS)).toBe('<p></p><p></p>');
     });
 
     it.each([
@@ -339,7 +370,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '<p style="text-align: center">{{map:product.name}}</p>',
         ],
     ])('keeps the paragraph when the author put %s there', (_name, editorHtml, expected) => {
-        expect(editorHtmlToTokens(editorHtml, KNOWN_TOKENS)).toBe(expected);
+        expect(editorHtmlToTokens(editorHtml, CANONICAL_TOKENS)).toBe(expected);
     });
 
     it('serializes the exact canonical token text returned by the server', () => {

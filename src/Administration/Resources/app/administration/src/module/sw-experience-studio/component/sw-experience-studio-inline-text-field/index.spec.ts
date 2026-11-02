@@ -97,9 +97,6 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
     Object.defineProperty(vm, 'knownTokenTexts', {
         get: () => computed.knownTokenTexts.call(vm),
     });
-    Object.defineProperty(vm, 'knownTokenPaths', {
-        get: () => computed.knownTokenPaths.call(vm),
-    });
 
     vm.refreshEditorValue(value);
 
@@ -255,15 +252,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
                 methods.scheduleEditorValueParse.call(this, value);
             },
         };
-        Object.defineProperty(vm, 'knownTokenPaths', {
-            get: () =>
-                new Map(
-                    vm.parsedTokens.map((token) => [
-                        token.path,
-                        token.canonicalToken,
-                    ]),
-                ),
-        });
 
         jest.useFakeTimers();
         methods.onUpdateEditorHtml.call(vm, editorHtml);

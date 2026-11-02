@@ -155,10 +155,6 @@ export default Shopware.Component.wrapComponentConfig({
             return canonicalTokens;
         },
 
-        knownTokenPaths(): Set<string> {
-            return new Set(this.knownTokenTexts.keys());
-        },
-
         editorBindings(): object {
             return {
                 modelValue: this.editorHtml,
@@ -172,7 +168,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         toEditorHtml(value: string): string {
-            return tokensToEditorHtml(value, this.parsedTokens, (path) => this.knownTokenPaths.has(path));
+            return tokensToEditorHtml(value, this.parsedTokens);
         },
 
         async refreshEditorValue(value: string, updateEditorMarkup = true, requestRevision?: number): Promise<void> {

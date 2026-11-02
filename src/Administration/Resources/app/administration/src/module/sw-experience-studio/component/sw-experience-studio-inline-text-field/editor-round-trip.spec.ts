@@ -17,6 +17,12 @@ import type { ContentSystemInlineMappingToken } from 'src/core/service/api/conte
  */
 describe('module/sw-experience-studio/component/sw-experience-studio-inline-text-field - editor round trip', () => {
     const KNOWN = new Set(['category.description']);
+    const wrappers: ReturnType<typeof mount>[] = [];
+
+    afterEach(() => {
+        wrappers.forEach((wrapper) => wrapper.unmount());
+        wrappers.length = 0;
+    });
 
     const parseFixture = (text: string): ContentSystemInlineMappingToken[] => {
         const tokens: ContentSystemInlineMappingToken[] = [];
@@ -42,11 +48,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
 
     const mountEditor = async (storedValue: string) => {
         const tokens = parseFixture(storedValue);
-        const modelValue = tokensToEditorHtml(
-            storedValue,
-            tokens,
-            (path) => KNOWN.has(path) || tokens.some((token) => token.path === path),
-        );
+        const modelValue = tokensToEditorHtml(storedValue, tokens);
 
         const wrapper = mount(await wrapTestComponent('mt-text-editor', { sync: true }), {
             props: {
@@ -66,6 +68,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
             },
         });
 
+        wrappers.push(wrapper);
         await flushPromises();
 
         return wrapper;

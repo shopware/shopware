@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -141,7 +142,8 @@ class DocumentRouteTest extends TestCase
         $route->download('documentId', $request, $context);
     }
 
-    public function testThrowExceptionWrongCredentialsForGuestAuthentication(): void
+    #[DataProvider('wrongGuestCredentialsProvider')]
+    public function testThrowExceptionWrongCredentialsForGuestAuthentication(mixed $email, mixed $zipcode): void
     {
         $billingAddress = new OrderAddressEntity();
         $billingAddress->setId(Uuid::randomHex());
@@ -180,8 +182,8 @@ class DocumentRouteTest extends TestCase
         );
 
         $request = new Request([
-            'email' => 'email',
-            'zipcode' => 'not matching',
+            'email' => $email,
+            'zipcode' => $zipcode,
         ]);
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -191,6 +193,17 @@ class DocumentRouteTest extends TestCase
         static::expectExceptionMessage('Wrong credentials for guest authentication');
 
         $route->download($document->getId(), $request, $context, 'deepLinkCode');
+    }
+
+    /**
+     * @return iterable<string, array{mixed, mixed}>
+     */
+    public static function wrongGuestCredentialsProvider(): iterable
+    {
+        yield 'not matching zipcode' => ['email', 'not matching'];
+        yield 'non-string email' => [true, 'zipcode'];
+        yield 'integer zipcode' => ['email', 12345];
+        yield 'array zipcode' => ['email', ['zipcode']];
     }
 
     public function testThrowExceptionGuestNotAuthenticated(): void
@@ -384,6 +397,57 @@ class DocumentRouteTest extends TestCase
             'email' => 'email',
             'zipcode' => 'zipcode',
         ], [], [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $response = $route->download($document->getId(), $request, $context, 'deepLinkCode');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAnonymousGuestCredentialsAreCaseInsensitive(): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('aa-345');
+
+        $customerId = Uuid::randomHex();
+        $customer = new CustomerEntity();
+        $customer->setId($customerId);
+        $customer->setGuest(true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customerId);
+        $orderCustomer->setEmail('Test@Example.com');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setDeepLinkCode('deepLinkCode');
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $route = new DocumentRoute(
+            $this->createMock(DocumentGenerator::class),
+            $documentRepository,
+            static::createStub(RateLimiter::class),
+        );
+
+        $request = new Request([
+            'email' => 'test@example.COM',
+            'zipcode' => 'AA-345',
+        ]);
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);

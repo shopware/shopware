@@ -1,10 +1,12 @@
 /**
- * Decides which plugin elements a morph may touch.
+ * Decides which plugin and component elements a morph may touch.
  *
- * Plugins cache child elements and add their own markup, so a morph inside a plugin element can leave
- * listeners on removed nodes. The morph therefore never enters a plugin element.
+ * Plugins and components of the component system cache child elements and add their own markup,
+ * so a morph inside their element can leave listeners on removed nodes. The morph therefore never enters these elements.
  * The server markup of the previous and the new render tells whether the template changed the element:
- * an unchanged element keeps its instance as it is, a changed one keeps its old markup and needs a reload.
+ * an unchanged element keeps its instance as it is.
+ * A changed plugin element keeps its old markup and needs a reload.
+ * A changed component element is replaced, the component system then destroys the old instance and creates a new one.
  *
  * @sw-package framework
  * @private
@@ -14,6 +16,7 @@ import { CLIENT_OWNED_SELECTOR } from './ownership';
 /**
  * @typedef {object} PluginElementPlan
  * @property {string[]} pluginNames
+ * @property {string[]} componentNames - components of the component system, `window.Shopware`
  * @property {boolean} changed - the template changed the server markup of the element
  * @property {string|null} expectedMarkup - the new server markup, null if it cannot be assigned
  * @property {Element|null} nextElement - the element of the new server markup, null if it cannot be assigned
@@ -21,9 +24,17 @@ import { CLIENT_OWNED_SELECTOR } from './ownership';
  */
 
 /**
- * @returns {{name: string, selector: string}[]}
+ * @typedef {object} Registration
+ * @property {'pluginNames'|'componentNames'} kind
+ * @property {string} name
+ * @property {string} selector
+ * @property {function(Element): boolean} hasInstance
  */
-function getStringRegistrations() {
+
+/**
+ * @returns {Registration[]}
+ */
+function getPluginRegistrations() {
     const pluginList = window.PluginManager?.getPluginList?.() ?? {};
 
     return Object.entries(pluginList).flatMap(([name, plugin]) => {
@@ -36,8 +47,28 @@ function getStringRegistrations() {
         // Plugins registered on an element or a NodeList have no selector to evaluate on server markup.
         return [...registrations.values()]
             .filter(({ selector }) => typeof selector === 'string')
-            .map(({ selector }) => ({ name, selector }));
+            .map(({ selector }) => ({
+                kind: 'pluginNames',
+                name,
+                selector,
+                hasInstance: (element) => !!window.PluginManager.getPluginInstanceFromElement(element, name),
+            }));
     });
+}
+
+/**
+ * @returns {Registration[]}
+ */
+function getComponentRegistrations() {
+    const instances = window.Shopware?.getComponentInstances?.(/^/) ?? [];
+    const names = new Set(instances.map((instance) => instance.componentName).filter(Boolean));
+
+    return [...names].map((name) => ({
+        kind: 'componentNames',
+        name,
+        selector: `[data-component="${name.replace(/["\\]/g, '\\$&')}"]`,
+        hasInstance: (element) => !!window.Shopware.getComponentInstanceByElement(name, element),
+    }));
 }
 
 function queryAll(root, selector) {
@@ -74,9 +105,9 @@ function sameList(first, second) {
 export function planPluginElements({ liveRoot, previousServerRoot, nextServerRoot, isExcluded }) {
     const plan = new Map();
 
-    getStringRegistrations().forEach(({ name, selector }) => {
+    [...getPluginRegistrations(), ...getComponentRegistrations()].forEach(({ kind, name, selector, hasInstance }) => {
         const liveElements = queryAll(liveRoot, selector).filter((element) => {
-            return !isExcluded(element) && !!window.PluginManager.getPluginInstanceFromElement(element, name);
+            return !isExcluded(element) && hasInstance(element);
         });
 
         if (liveElements.length === 0) {
@@ -94,6 +125,7 @@ export function planPluginElements({ liveRoot, previousServerRoot, nextServerRoo
         liveElements.forEach((element, index) => {
             const entry = plan.get(element) ?? {
                 pluginNames: [],
+                componentNames: [],
                 changed: false,
                 expectedMarkup: null,
                 nextElement: null,
@@ -101,7 +133,7 @@ export function planPluginElements({ liveRoot, previousServerRoot, nextServerRoo
             };
             const changed = !unchanged && !(assignable && previousMarkup?.[index] === nextMarkup[index]);
 
-            entry.pluginNames.push(name);
+            entry[kind].push(name);
             entry.changed = entry.changed || changed;
             entry.expectedMarkup = assignable ? nextMarkup[index] : entry.expectedMarkup;
             entry.nextElement = assignable ? nextElements[index] : entry.nextElement;

@@ -445,8 +445,9 @@ async function prepare(structural) {
  * @param {string[]} reasons
  * @param {{toLive: function(Node): Node, scriptMatches: Element[]}|null} dryRun - maps the nodes of a dry run to the live nodes
  *     and collects the elements of scripts that new markup was matched with
+ * @param {{element: Element, next: Element}[]} replacements - collects the component elements to replace after the morph
  */
-function createMorphCallbacks(target, plan, reasons, dryRun = null) {
+function createMorphCallbacks(target, plan, reasons, dryRun = null, replacements = []) {
     const toLive = dryRun?.toLive ?? ((node) => node);
     const insideFragment = target.kind !== 'page';
     const { ownership, interaction } = session;
@@ -471,6 +472,19 @@ function createMorphCallbacks(target, plan, reasons, dryRun = null) {
             const entry = plan.get(oldNode);
             if (!entry) {
                 return true;
+            }
+
+            // The component system creates a component again for a new element, so a changed component element is replaced.
+            if (entry.pluginNames.length === 0) {
+                if (!dryRun && (entry.changed || !matchesExpectedMarkup(entry, newNode))) {
+                    const next = newNode.cloneNode(true);
+                    if (entry.temporaryId !== null && next.id === entry.temporaryId) {
+                        next.removeAttribute('id');
+                    }
+                    replacements.push({ element: oldNode, next });
+                }
+
+                return false;
             }
 
             const plugins = entry.pluginNames.join(', ');
@@ -557,7 +571,12 @@ function collectGuardedElements(target, plan) {
         }
     };
 
-    plan.forEach((entry, element) => guard(element, `holds the plugins ${entry.pluginNames.join(', ')}`));
+    // The component system destroys the components of removed elements itself.
+    plan.forEach((entry, element) => {
+        if (entry.pluginNames.length > 0) {
+            guard(element, `holds the plugins ${entry.pluginNames.join(', ')}`);
+        }
+    });
     target.liveRoot.querySelectorAll('*').forEach((element) => {
         if (session.ownership.isClientOwned(element, insideFragment)) {
             guard(element, 'a script added');
@@ -668,6 +687,7 @@ function morphTarget(target, reasons) {
     });
 
     const removeTemporaryIds = assignTemporaryIds(plan);
+    const replacements = [];
     let guarded;
 
     try {
@@ -689,7 +709,7 @@ function morphTarget(target, reasons) {
         Idiomorph.morph(target.liveRoot, target.nextRoot.childNodes, {
             morphStyle: 'innerHTML',
             restoreFocus: true,
-            callbacks: createMorphCallbacks(target, plan, reasons),
+            callbacks: createMorphCallbacks(target, plan, reasons, null, replacements),
         });
     } finally {
         removeTemporaryIds();
@@ -702,7 +722,37 @@ function morphTarget(target, reasons) {
         }
     });
 
+    replaceComponentElements(replacements, plan, reasons);
+
     return true;
+}
+
+/**
+ * Replaces changed component elements with their new markup.
+ * The mutation observer of `window.Shopware` destroys the old components and creates new ones.
+ * A plugin inside the element would lose its element without being destroyed, so such an element keeps its markup.
+ *
+ * @param {{element: Element, next: Element}[]} replacements
+ * @param {Map<Element, object>} plan
+ * @param {string[]} reasons
+ */
+function replaceComponentElements(replacements, plan, reasons) {
+    replacements.forEach(({ element, next }) => {
+        const components = plan.get(element).componentNames.join(', ');
+        const plugins = [...plan]
+            .filter(([other, entry]) => other !== element && entry.pluginNames.length > 0 && element.contains(other))
+            .flatMap(([, entry]) => entry.pluginNames);
+
+        if (plugins.length > 0) {
+            reasons.push(`The markup of ${describeElement(element)} changed. Components: ${components}. Plugins inside: ${[...new Set(plugins)].join(', ')}.`);
+
+            return;
+        }
+
+        if (element.isConnected) {
+            element.replaceWith(next);
+        }
+    });
 }
 
 /**

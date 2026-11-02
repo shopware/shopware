@@ -84,7 +84,7 @@ So the client sees the server markup of the page and every element that scripts 
 |------------------------|-----------------------------------------------------------------------|
 | `twig-hmr.js`          | The two-phase refresh, the morph callbacks and the queue              |
 | `ownership.js`         | Which elements belong to scripts instead of the Twig output           |
-| `plugin-policy.js`     | Which plugin elements changed between the previous and the new render |
+| `plugin-policy.js`     | Which plugin and component elements changed between the previous and the new render |
 | `interaction-state.js` | Edited controls and the Bootstrap state that a user created           |
 | `notice.js`            | The "reload required" notice                                          |
 
@@ -134,9 +134,21 @@ The client compares the server markup of the previous and the new render for eve
   Morphing it would remove the element without destroying the plugin instance.
 - New plugin elements are initialized by `PluginManager.initializePlugins()`.
 
+**Component policy.**
+Components of the component system, `window.Shopware`, cache child elements as well, so the morph never enters an element with a component instance either.
+The component system destroys the components of removed elements and creates components for added elements itself,
+so a changed component element does not need a reload:
+
+- Unchanged component elements keep their DOM, their instance and its state.
+- A changed component element is replaced with its new markup after the morph, and the component system creates the component again.
+  The state of the old instance and the focus inside the element are lost.
+- A changed component element with a plugin element inside keeps its old DOM, and the notice asks for a reload.
+  Replacing it would remove the plugin element without destroying the plugin instance.
+- Component elements that the template adds or removes are created or destroyed by the component system.
+
 The previous render of the page is a copy of the body taken by `init()`.
 The previous render of a fragment is fetched when the fragment opens.
-Without a previous render, every plugin element counts as changed.
+Without a previous render, every plugin and component element counts as changed.
 
 **Interaction state.**
 Only state that a user created is kept:
@@ -194,6 +206,7 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - The tests of `OffCanvasCartPlugin` and `OffcanvasMenuPlugin` cover the source attributes they store.
 - `build/vite/twig-hmr-plugin.test.ts` covers the Vite watcher, `test/build` the shared watch paths, the debounce and the webpack watcher.
 - `twig-hmr.plugins.test.js` runs the real `PluginManager` with `QuantitySelectorPlugin` and a plugin that wraps its children like a slider.
+- `twig-hmr.components.test.js` runs the real component system with a component that caches its button.
 
 `AGENTS.md` next to this file holds the browser and proxy matrix for manual verification.
 

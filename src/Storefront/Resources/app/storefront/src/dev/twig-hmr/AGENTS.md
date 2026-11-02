@@ -68,6 +68,8 @@ Keep the markers out of commits.
 | Unsafe change | Remove the `id` of an open modal in its template | The notice names the open element and offers a "Reload page" button, the page keeps its content until you reload |
 | Body script change | Add `<script>console.log(1)</script>` to a body template | The markup is applied, the script does not run, notice with "An inline script in the page changed" |
 | Head script change | Edit the inline script in `utilities/form-validation-config.html.twig` | Notice with "The <head> changed" and a "Reload page" button |
+| Component changed | Edit the template of a Twig component with a `data-component` script, for example a button label | The element is replaced, the component works and logs a new `init()`, no notice |
+| Component unchanged | Click a component that counts its state, then edit another block of the page | The component keeps its instance and its state |
 | Symfony toolbar | Edit any template with the toolbar open | Toolbar stays, its `_wdt` request loads from the proxy origin |
 | Mini cart after POST | Add a product to the cart on a detail page, then edit `component/checkout/offcanvas-cart.html.twig` | Offcanvas stays open, line items stay, marker updates |
 | Mobile navigation | Viewport below 768px, open the menu, go to a second level, then edit `layout/navigation/offcanvas/categories.html.twig` | Menu stays open at the same level, marker updates, Back still works |

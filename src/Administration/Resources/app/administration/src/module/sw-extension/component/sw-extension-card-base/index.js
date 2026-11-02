@@ -141,7 +141,7 @@ export default {
         },
 
         hasDeletableFiles() {
-            return this.extension.source === 'local' && this.extension.allowUpdate === true;
+            return this.extension.allowRemove === true;
         },
 
         isRemovable() {

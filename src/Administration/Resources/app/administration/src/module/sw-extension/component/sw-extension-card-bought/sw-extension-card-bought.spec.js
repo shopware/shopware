@@ -49,7 +49,6 @@ const defaultExtension = {
     active: false,
     source: 'store',
     type: 'app',
-    allowUpdate: true,
 };
 
 function createExtension(overrides = {}) {
@@ -441,7 +440,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             active: false,
             type: 'plugin',
             source: 'local',
-            allowUpdate: true,
+            allowRemove: true,
         });
 
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
@@ -458,6 +457,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             ...defaultExtension,
             installedAt: null,
             source: 'local',
+            allowRemove: true,
             storeLicense: {
                 variants: [{}],
                 variant: 'rent',
@@ -515,7 +515,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             active: false,
             type: 'plugin',
             source: 'local',
-            allowUpdate: true,
+            allowRemove: true,
         });
 
         await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
@@ -537,7 +537,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 source: 'local',
                 installedAt: { date: '2026-09-02T10:00:00+00:00' },
                 managedByComposer: true,
-                allowUpdate: false,
+                allowRemove: false,
             },
         ],
         ['is no longer on the server', { source: 'store' }],
@@ -575,12 +575,29 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             createExtension({
                 source: 'local',
                 managedByComposer: true,
-                allowUpdate: false,
+                allowRemove: false,
                 storeLicense: { variant: 'buy' },
             }),
         );
 
         expect(wrapper.find('.sw-extension-card-base__remove-link').exists()).toBe(false);
+    });
+
+    it.each([
+        ['remove', { variant: 'buy' }, '.sw-extension-card-base__remove-link'],
+        ['cancel and remove', { expirationDate: null }, '.sw-extension-card-base__cancel-and-remove-link'],
+    ])('should offer %s for a plugin in custom/plugins that Composer manages', async (_, storeLicense, removalLink) => {
+        const wrapper = await createWrapper(
+            createExtension({
+                source: 'local',
+                type: 'plugin',
+                managedByComposer: true,
+                allowRemove: true,
+                storeLicense,
+            }),
+        );
+
+        expect(wrapper.find(removalLink).exists()).toBe(true);
     });
 
     it('should show the error when removing the extension fails', async () => {
@@ -593,7 +610,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         });
 
         const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-        const wrapper = await createWrapper(createExtension({ source: 'local', storeLicense: { variant: 'buy' } }));
+        const wrapper = await createWrapper(
+            createExtension({ source: 'local', allowRemove: true, storeLicense: { variant: 'buy' } }),
+        );
 
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
         await wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove').trigger('click');
@@ -771,7 +790,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 active: true,
                 allowDisable: true,
                 managedByComposer: true,
-                allowUpdate: false,
+                allowRemove: false,
                 storeLicense: { expirationDate: null },
             }),
         );

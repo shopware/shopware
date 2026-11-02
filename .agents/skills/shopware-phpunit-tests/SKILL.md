@@ -6,7 +6,7 @@ description: >
   coverage annotations. Also use for issue-style requests whose fix needs a regression
   test, such as "fix #12345 and add a regression test", "this bug must not come back",
   or "cover the fixed entity definition with a unit test", even when no test file is
-  named. Not for Admin Jest specs, Storefront JS tests, or PR text.
+  named.
 license: MIT
 ---
 

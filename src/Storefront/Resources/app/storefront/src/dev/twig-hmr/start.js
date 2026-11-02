@@ -27,5 +27,5 @@ export function start(subscribe) {
     subscribe((update) => {
         void refresh(update?.files ?? [], { structural: update?.structural === true });
     });
-    console.info(`${LOG_PREFIX} Experimental: Twig changes are applied without a page reload.`);
+    console.info(`${LOG_PREFIX} Twig changes are applied without a page reload.`);
 }

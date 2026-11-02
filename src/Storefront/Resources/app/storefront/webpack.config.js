@@ -56,8 +56,6 @@ try {
 }
 
 const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
-// Experimental: `SHOPWARE_STOREFRONT_TWIG_HMR=1` applies Twig changes in place instead of reloading the page.
-const useTwigHmr = isHotMode && process.env.SHOPWARE_STOREFRONT_TWIG_HMR === '1';
 
 const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
 
@@ -500,7 +498,7 @@ if (isHotMode) {
     coreConfig.entry['hot-reloading'] = [
         scssEntryFilePath,
         path.resolve(__dirname, 'src/dev/hot-mode/missing-extension-scripts.js'),
-        ...(useTwigHmr ? [path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js')] : []),
+        path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js'),
     ];
 }
 
@@ -539,21 +537,12 @@ const mergedCoreConfig = merge([
                     headers: {
                         'Access-Control-Allow-Origin': '*',
                     },
-                    // With Twig HMR the watcher below handles the Twig files, `watchFiles` would reload the page.
-                    watchFiles: useTwigHmr ? [] : {
-                        paths: watchFilePaths,
-                        options: {
-                            persistent: true,
-                            cwd: projectRootPath,
-                            ignorePermissionErrors: true,
-                        },
-                    },
+                    // The Twig hot reload watches the Twig files, `watchFiles` would reload the page.
+                    watchFiles: [],
                     setupMiddlewares: (middlewares, devServer) => {
-                        if (useTwigHmr) {
-                            // Required here, because production builds install no dev dependencies such as chokidar.
-                            const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
-                            setupTwigHmrWatcher(devServer, watchFilePaths, projectRootPath);
-                        }
+                        // Required here, because production builds install no dev dependencies such as chokidar.
+                        const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
+                        setupTwigHmrWatcher(devServer, watchFilePaths, projectRootPath);
 
                         return middlewares;
                     },

@@ -26,7 +26,8 @@ export function devServerNoticePlugin(): Plugin {
                     '\n' +
                     '  ' + pc.green('➜') + pc.green('  Storefront dev server ready') + ' (Port: ' + port + ').\n' +
                     '     Open your Shopware Storefront in the browser as usual —\n' +
-                    '     JS and CSS are loaded from this server automatically.\n',
+                    '     JS and CSS are loaded from this server automatically.\n' +
+                    '     Twig hot reload: on. Template changes are applied to the open page without a reload.\n',
                     { timestamp: false },
                 );
             };

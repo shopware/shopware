@@ -138,6 +138,7 @@ const server = createLiveReloadServer(sslOptions).catch((e) => {
     return createLiveReloadServer({});
 }).then(() => {
     console.log(`Watcher started at ${proxyUrlEnv.origin}`);
+    console.log('Twig hot reload: on. Template changes are applied to the open page without a reload.');
 
     console.warn('\x1b[33m');
     console.warn('');

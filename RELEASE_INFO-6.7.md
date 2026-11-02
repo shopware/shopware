@@ -605,10 +605,9 @@ With the `v6.8.0.0` flag active, the template no longer sets the deprecated `bre
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
 
-### Experimental: Twig changes apply without a reload in the Storefront watcher
+### Twig changes apply without a reload in the Storefront dev servers
 
-Start `composer watch:storefront` with `SHOPWARE_STOREFRONT_TWIG_HMR=1` to apply Twig changes to the open page without a reload.
-The feature is experimental and off by default.
+`composer watch:storefront` and the Vite dev server `composer storefront:dev-server` apply Twig changes to the open page without a reload.
 Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are, and open AJAX modals, the cart and the navigation offcanvas are rendered again as well.
 Elements with a Storefront plugin keep their markup.
 If a change cannot be applied, for example because the markup of a plugin element changed, a notice on the page asks for a reload.

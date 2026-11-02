@@ -24,7 +24,7 @@ The browser matrix below is for the parts that unit tests cannot cover: real tem
 ## Browser setup
 
 1. Start the Storefront with `APP_ENV=dev`, so that the Symfony toolbar is part of every page.
-2. Dump the theme for the domain the proxy targets, then start the watcher with `SHOPWARE_STOREFRONT_TWIG_HMR=1 composer watch:storefront`.
+2. Dump the theme for the domain the proxy targets, then start the watcher with `composer watch:storefront`.
    `var/theme-files.json` tells the proxy which shop origin to rewrite.
 3. Open the proxy URL, by default port 9998, not the shop URL.
    Only the proxy page has the hot reload client.

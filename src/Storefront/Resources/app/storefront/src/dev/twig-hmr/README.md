@@ -1,23 +1,22 @@
 # Twig hot reload for the Storefront watcher
 
-**Experimental and opt-in.**
-The Storefront watcher can apply Twig changes to the open page without a reload.
+The Storefront dev servers apply Twig changes to the open page without a reload.
 Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are.
 When a change cannot be applied safely, a notice on the page says so and offers a reload.
 The code in this directory is only loaded by the webpack and the Vite dev server and is never shipped in production builds.
 
 ## Usage
 
-Start the watcher with the opt-in variable:
+The Twig hot reload is always on in both dev servers:
 
 ```bash
-SHOPWARE_STOREFRONT_TWIG_HMR=1 composer watch:storefront
+composer watch:storefront
+composer storefront:dev-server
 ```
 
-Without the variable, the watcher reloads the page on Twig changes as before.
-
-The Vite dev server, `composer storefront:dev-server`, always applies Twig changes in place.
-Open the shop URL as usual, the dev server only serves the scripts and styles.
+The webpack watcher, `composer watch:storefront`, serves the shop through its proxy, by default on port 9998.
+The Vite dev server, `composer storefront:dev-server`, only serves the scripts and styles, so open the shop URL as usual.
+Both print `Twig hot reload: on` at startup.
 
 `SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH=1` limits the watched files to the Storefront bundle in both dev servers.
 

@@ -58,13 +58,14 @@ ${lists}
 `;
 };
 
-const renderRegister = (packageName: string) => `import Component from './index';
+const renderRegister = (name: string, packageName: string) => `import Component, * as Module from './index';
 
 /**
  * @sw-package ${packageName}
  */
 
 Shopware.Component.register(Component);
+Shopware._private.publishMiniModule('${name}', Module);
 `;
 
 const renderGlobalTypes = (name: string, packageName: string) => `import type Component from './index';
@@ -113,6 +114,34 @@ const markPublic = (source: string) =>
             '',
         )
         .replace(/^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(export default)/m, '$1\n *\n * @public\n */\n$2');
+
+/**
+ * Rewrites the relative imports of a moved file that lead out of the component directory,
+ * so they still reach their target from the file's new place. Imports between moved files stay as they are.
+ *
+ * @example
+ * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
+ */
+const rewriteOutsideImports = (componentDirectory: string, from: string, to: string) => {
+    const file = path.join(adminRoot, to);
+    const source = fs.readFileSync(file, 'utf8');
+    const rewritten = source.replace(
+        /((?:from|import\(|require\(|jest\.mock\()\s*')(\.\.?\/[^']+)'/g,
+        (statement, prefix: string, specifier: string) => {
+            const target = path.resolve(path.dirname(path.join(adminRoot, from)), specifier);
+            if (target.startsWith(`${componentDirectory}${path.sep}`)) {
+                return statement;
+            }
+
+            const moved = path.relative(path.dirname(file), target).split(path.sep).join('/');
+            return `${prefix}${moved.startsWith('.') ? moved : `./${moved}`}'`;
+        },
+    );
+
+    if (rewritten !== source) {
+        fs.writeFileSync(file, rewritten);
+    }
+};
 
 const moveSuppressions = (moves: Map<string, string>) => {
     const file = path.join(adminRoot, 'eslint-suppressions.json');
@@ -166,11 +195,17 @@ function run(directory: string) {
         }
     }
 
+    for (const [from, to] of moves) {
+        if (/\.[jt]s$/.test(to)) {
+            rewriteOutsideImports(componentDirectory, from, to);
+        }
+    }
+
     const sourceFile = path.join(adminRoot, root, 'src', `${name}${path.extname(entry)}`);
     fs.writeFileSync(sourceFile, markPublic(fs.readFileSync(sourceFile, 'utf8')));
     fs.mkdirSync(path.join(componentDirectory, 'tests'), { recursive: true });
     fs.writeFileSync(path.join(componentDirectory, 'index.ts'), renderIndex(name, packageName, api));
-    fs.writeFileSync(path.join(componentDirectory, 'register.ts'), renderRegister(packageName));
+    fs.writeFileSync(path.join(componentDirectory, 'register.ts'), renderRegister(name, packageName));
     fs.writeFileSync(path.join(componentDirectory, 'global.d.ts'), renderGlobalTypes(name, packageName));
 
     const registrationFile = path.join(adminRoot, registration.file);
@@ -216,15 +251,22 @@ This is a refactor: behaviour must not change, so keep odd code, unused injects 
 ${outside.map((line) => `   - ${line}`).join('\n') || '   - nothing found'}
    - A service name in inject becomes a constant from src/app/service-names; add a missing one there.
    - A store id in Shopware.Store.get() becomes the id the store file exports, wrapped in a function such as useXStore().
+     If the store file exports no id yet, export it there, like sw-settings-shipping-detail/store.ts does.
+   - A filter in Shopware.Filter.getByName('x') becomes the name the filter file exports; export one if it has none.
+   - A new constant in src/app/service-names is public API owned by framework: add only what the module injects.
    - Mixin.getByName('x') becomes the default import of the mixin's file.
 2. Complete the public lists in index.ts where the codemod could not read them:
 ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unresolved'}
    Add one sentence to the doc comment of index.ts that says what the component is for.
 3. Add tests/<name>.harness.ts and the contract tests: rough requirements.spec.ts from the user's view, details in pinned.spec.ts.
    The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
+   Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm.
+   A contract spec over 500 lines splits into a directory, e.g. tests/pinned.spec/search.spec.ts.
 4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts.
    The team is the one that owns other code of @sw-package ${packageName} there.
-5. Run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
+5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:mini-modules/${name}.
+   Run npm run unit-setup, so Jest finds the moved component by its name.
+   Then run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
    Lines the contract tests leave uncovered are code no contract protects: pin them, or name them in the PR.
 `);
 }

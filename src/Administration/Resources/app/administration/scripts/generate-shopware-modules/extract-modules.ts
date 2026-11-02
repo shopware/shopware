@@ -62,6 +62,17 @@
  * Neither registry family publishes a root import: resolving one would have to resolve every entry. And
  * both are only as honest as the interface — a key nobody registers passes here and throws on import.
  *
+ * `Shopware.MiniModules` — the `index.ts` of every mini-module below `src/`
+ * Each `index.ts` is the public contract of its module, so its value exports are the subpath's exports:
+ *
+ *     // src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.ts
+ *     export default definePublicComponent({ name: 'sw-settings-shipping-price-matrix', … });
+ *
+ *     → shopware:mini-modules/sw-settings-shipping-price-matrix  named exports { default }
+ *
+ * The subpath is the name of the module directory. A component module's directory carries the component
+ * name already, and a helper module such as `order-delivery` has no other name.
+ *
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */
 
@@ -320,6 +331,139 @@ function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
     return central;
 }
 
+/**
+ * Every mini-module below `src/`: a directory with an `index.ts`, its own `src/` and `tests/`, as
+ * `eslint-rules/core-rules/mini-module.js` defines it. Paths are relative to the Administration root.
+ */
+function findMiniModules(administrationRoot: string): string[] {
+    const srcDir = path.join(administrationRoot, 'src');
+
+    return (fs.readdirSync(srcDir, { recursive: true }) as string[])
+        .filter((file) => path.basename(file) === 'index.ts')
+        .map((file) => path.join(srcDir, path.dirname(file)))
+        .filter((dir) => fs.existsSync(path.join(dir, 'src')) && fs.existsSync(path.join(dir, 'tests')))
+        .map((dir) => path.relative(administrationRoot, dir).split(path.sep).join('/'))
+        .sort((a, b) => (path.posix.basename(a) < path.posix.basename(b) ? -1 : 1));
+}
+
+function hasModifier(statement: ts.Statement, kind: ts.SyntaxKind): boolean {
+    return ts.canHaveModifiers(statement) && (ts.getModifiers(statement) ?? []).some((modifier) => modifier.kind === kind);
+}
+
+/**
+ * The value exports of a mini-module's `index.ts`, which are what reaches the global object at runtime.
+ *
+ *     export default definePublicComponent({ … });       → "default"
+ *     export { repositoryFactory } from './src/…';       → "repositoryFactory"
+ *     export type { PublicInstance } from './src/…';     → nothing, a type has no runtime value
+ *
+ * `export *` throws, because syntax alone cannot tell which names it publishes.
+ */
+function indexExports(sourceFile: ts.SourceFile, relativePath: string): string[] {
+    const names: string[] = [];
+
+    sourceFile.statements.forEach((statement) => {
+        if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+            names.push('default');
+            return;
+        }
+
+        if (ts.isExportDeclaration(statement)) {
+            if (statement.isTypeOnly) {
+                return;
+            }
+
+            if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) {
+                throw new Error(`"${relativePath}" uses "export *". List the public exports by name.`);
+            }
+
+            statement.exportClause.elements
+                .filter((element) => !element.isTypeOnly)
+                .forEach((element) => names.push(element.name.text));
+            return;
+        }
+
+        if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword) || hasModifier(statement, ts.SyntaxKind.DeclareKeyword)) {
+            return;
+        }
+
+        if (hasModifier(statement, ts.SyntaxKind.DefaultKeyword)) {
+            names.push('default');
+        } else if (ts.isVariableStatement(statement)) {
+            statement.declarationList.declarations
+                .filter((declaration) => ts.isIdentifier(declaration.name))
+                .forEach((declaration) => names.push((declaration.name as ts.Identifier).text));
+        } else if (
+            (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) || ts.isEnumDeclaration(statement)) &&
+            statement.name
+        ) {
+            names.push(statement.name.text);
+        }
+    });
+
+    return names;
+}
+
+/**
+ * The `name` of a component that `index.ts` declares with `definePublicComponent({ name: '…' })`, if any.
+ */
+function declaredComponentName(sourceFile: ts.SourceFile): string | undefined {
+    const declaration = sourceFile.statements.find(ts.isExportAssignment)?.expression;
+
+    if (
+        !declaration ||
+        !ts.isCallExpression(declaration) ||
+        !ts.isIdentifier(declaration.expression) ||
+        declaration.expression.text !== 'definePublicComponent'
+    ) {
+        return undefined;
+    }
+
+    const options = declaration.arguments[0];
+    const name =
+        options && ts.isObjectLiteralExpression(options)
+            ? options.properties.find(
+                  (property): property is ts.PropertyAssignment =>
+                      ts.isPropertyAssignment(property) && memberName(property.name) === 'name',
+              )?.initializer
+            : undefined;
+
+    return name && ts.isStringLiteral(name) ? name.text : undefined;
+}
+
+/**
+ * @private
+ *
+ * The `shopware:mini-modules` family: one subpath per mini-module, named after its directory.
+ *
+ * Throws when two modules share a directory name, because they would share a specifier, and when a
+ * component module's directory is not named after its component, because the specifier would mislead.
+ */
+export function extractMiniModules(administrationRoot: string): ModuleRegistry[string] {
+    const subpaths: Record<string, string[]> = {};
+    const sources: Record<string, string> = {};
+
+    findMiniModules(administrationRoot).forEach((moduleDir) => {
+        const name = path.posix.basename(moduleDir);
+        const indexFile = `${moduleDir}/index.ts`;
+        const sourceFile = parse(administrationRoot, indexFile);
+        const componentName = declaredComponentName(sourceFile);
+
+        if (Object.hasOwn(sources, name)) {
+            throw new Error(`The mini-modules "${sources[name]}" and "${moduleDir}" share the name "${name}".`);
+        }
+
+        if (componentName !== undefined && componentName !== name) {
+            throw new Error(`"${moduleDir}" declares the component "${componentName}". Name the directory after it.`);
+        }
+
+        subpaths[name] = indexExports(sourceFile, indexFile);
+        sources[name] = moduleDir;
+    });
+
+    return { exports: [], subpaths, sources };
+}
+
 function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
     return Object.fromEntries(
         keys.map((key) => [
@@ -385,5 +529,6 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
             exports: [],
             subpaths: defaultOnlySubpaths(interfaceKeys(globalTypes, 'PiniaRootState')),
         },
+        'shopware:mini-modules': extractMiniModules(administrationRoot),
     };
 }

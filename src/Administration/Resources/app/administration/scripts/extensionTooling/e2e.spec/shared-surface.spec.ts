@@ -99,7 +99,7 @@ describe('extension tooling shared type surface (e2e)', () => {
     );
 
     it(
-        'type-checks an extension that imports the shopware:* modules',
+        'type-checks an extension that imports the shopware:* modules, the mini-modules included',
         async () => {
             const projectRoot = createTempProject('sw-tooling-surface-virtual-');
             const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'real' });
@@ -147,6 +147,48 @@ describe('extension tooling shared type surface (e2e)', () => {
                     'export const listing = () => useListing({ getList: () => undefined }).page.value;',
                     'export const globalListing = () => Shopware.Composables.useListing({ getList: () => undefined });',
                 ]);
+                writeFile(
+                    path.join(projectRoot, 'custom/plugins/Plug/src/Resources/app/administration/src/mini-modules.ts'),
+                    [
+                        "import { definePublicComponent, type PublicOverride } from 'shopware:mini-modules/public-component';",
+                        "import { repositoryFactory } from 'shopware:mini-modules/service-names';",
+                        "import SwSettingsShippingPriceMatrix from 'shopware:mini-modules/sw-settings-shipping-price-matrix';",
+                        '// @ts-expect-error The mini-modules have no root import.',
+                        "import * as miniModules from 'shopware:mini-modules';",
+                        '',
+                        'void miniModules;',
+                        '',
+                        'export const PlugExample = definePublicComponent({',
+                        "    name: 'plug-example',",
+                        '    load: () => Promise.resolve({ default: { methods: { save(): void {}, secret(): void {} } } }),',
+                        "    public: { methods: ['save'] },",
+                        '});',
+                        '',
+                        'export const service: string = repositoryFactory;',
+                        'export const override: PublicOverride<typeof PlugExample> = {',
+                        '    methods: {',
+                        '        save(): void {',
+                        "            this.$super('save');",
+                        '        },',
+                        '    },',
+                        '};',
+                        'Shopware.Component.override(SwSettingsShippingPriceMatrix.name, {',
+                        '    methods: {',
+                        '        onDeleteShippingPrice(shippingPrice: unknown): void {',
+                        "            this.$super('onDeleteShippingPrice', shippingPrice);",
+                        '            // @ts-expect-error $super() takes the name of a public method only.',
+                        "            this.$super('onDeleteShippingPrise', shippingPrice);",
+                        '        },',
+                        '    },',
+                        '});',
+                        'export const privateOverride: PublicOverride<typeof PlugExample> = {',
+                        '    methods: {',
+                        '        // @ts-expect-error A private method cannot be overridden.',
+                        '        secret(): void {},',
+                        '    },',
+                        '};',
+                    ],
+                );
 
                 const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Plug' });
 

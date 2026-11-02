@@ -57,6 +57,23 @@ describe('extension-tooling type surface', () => {
         expect(notImported).toEqual([]);
     });
 
+    it('declares a shopware:mini-modules module for every mini-module so extensions can import its index.ts', () => {
+        const declarations = fs.readFileSync(path.join(srcDir, 'shopware-virtual-modules.d.ts'), 'utf8');
+
+        const miniModules = (fs.readdirSync(srcDir, { recursive: true }) as string[])
+            .filter((file) => path.basename(file) === 'index.ts')
+            .map((file) => path.dirname(path.join(srcDir, file)))
+            .filter((dir) => fs.existsSync(path.join(dir, 'src')) && fs.existsSync(path.join(dir, 'tests')));
+
+        expect(miniModules.length).toBeGreaterThan(0);
+
+        const notDeclared = miniModules.filter(
+            (dir) => !declarations.includes(`declare module 'shopware:mini-modules/${path.basename(dir)}'`),
+        );
+
+        expect(notDeclared).toEqual([]);
+    });
+
     it('carries the native-setup macro declarations so extensions type-check swDefinePublic and friends', () => {
         const adminTypes = fs.readFileSync(adminTypesPath, 'utf8');
 

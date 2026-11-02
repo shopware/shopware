@@ -58,13 +58,13 @@ ${lists}
 `;
 };
 
-const renderRegister = (name: string, packageName: string) => `import * as Module from './index';
+const renderRegister = (name: string, packageName: string) => `import Component, * as Module from './index';
 
 /**
  * @sw-package ${packageName}
  */
 
-Shopware.Component.register(Module.default);
+Shopware.Component.register(Component);
 Shopware._private.publishMiniModule('${name}', Module);
 `;
 

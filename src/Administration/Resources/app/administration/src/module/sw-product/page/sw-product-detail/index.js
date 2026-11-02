@@ -83,6 +83,8 @@ export default {
             updateSeoPromises: [],
             isProductNotFound: false,
             lastViewedProductId: null,
+            showOpenInStorefrontModal: false,
+            openInStorefrontHasUnsavedChanges: false,
         };
     },
 
@@ -334,6 +336,24 @@ export default {
             return {
                 message: 'ESC',
                 appearance: 'light',
+            };
+        },
+
+        visibleStorefrontSalesChannels() {
+            const visibilities = this.product?.visibilities?.length
+                ? this.product.visibilities
+                : (this.parentProduct?.visibilities ?? []);
+
+            return Array.from(visibilities)
+                .map((visibility) => visibility.salesChannel)
+                .filter((salesChannel) => salesChannel?.typeId === Shopware.Defaults.storefrontSalesChannelTypeId);
+        },
+
+        tooltipOpenInStorefront() {
+            return {
+                message: this.$t('sw-product.detail.tooltipOpenInStorefrontNewProduct'),
+                disabled: !!this.productId,
+                showOnDisabledElements: true,
             };
         },
 
@@ -1507,6 +1527,15 @@ export default {
                     weight: this.weightUnit,
                 },
             });
+        },
+
+        onOpenInStorefront() {
+            this.openInStorefrontHasUnsavedChanges = this.productRepository.hasChanges(this.product);
+            this.showOpenInStorefrontModal = true;
+        },
+
+        onCloseOpenInStorefrontModal() {
+            this.showOpenInStorefrontModal = false;
         },
     },
 };

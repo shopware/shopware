@@ -55,6 +55,10 @@ class SystemConfigApiService extends ApiService {
             });
     }
 
+    /**
+     * @param {string} domain
+     * @param {string|null} [salesChannelId]
+     */
     getValues(domain, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config', {

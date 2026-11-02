@@ -16,6 +16,26 @@
 
     {% block sw_product_detail_actions %}
     <template #smart-bar-actions>
+        {% block sw_product_detail_actions_open_in_storefront %}
+        <mt-button
+            v-tooltip.bottom="tooltipOpenInStorefront"
+            class="sw-product-detail__open-in-storefront"
+            :disabled="isLoading || !productId"
+            variant="secondary"
+            size="default"
+            @click="onOpenInStorefront"
+        >
+            {{ $t('sw-product.detail.buttonOpenInStorefront') }}
+
+            <template #iconBack>
+                <mt-icon
+                    name="regular-external-link-s"
+                    size="12px"
+                />
+            </template>
+        </mt-button>
+        {% endblock %}
+
         {% block sw_product_detail_actions_abort %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
@@ -280,6 +300,18 @@
                 :product="product"
                 :product-number-preview="productNumberPreview"
                 @clone-finish="onDuplicateFinish"
+            />
+            {% endblock %}
+
+            {% block sw_product_detail_content_open_in_storefront_modal %}
+            <sw-product-open-in-storefront-modal
+                v-if="showOpenInStorefrontModal"
+                :product="product"
+                :parent-product="parentProduct"
+                :product-name="productTitle"
+                :sales-channels="visibleStorefrontSalesChannels"
+                :has-unsaved-changes="openInStorefrontHasUnsavedChanges"
+                @modal-close="onCloseOpenInStorefrontModal"
             />
             {% endblock %}
 

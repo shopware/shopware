@@ -261,12 +261,6 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                                 'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/import-export-log-entries', $baseUrl),
                             ],
                         ],
-                        'recoveryUser' => [
-                            'data' => null,
-                            'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/recovery-user', $baseUrl),
-                            ],
-                        ],
                         'aclRoles' => [
                             'data' => [],
                             'links' => [

@@ -2,6 +2,18 @@
 
 ## Core
 
+### Services can be reset between requests in long running runtimes
+
+With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole).
+Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing.
+Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
+
+The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching keeps being handled by Shopware's own cache layer.
+Projects that reference the `http_cache` service must remove those references before enabling the flag.
+The flag becomes the default with Shopware 6.8.
+
 ### Sensitive mail logs contain metadata only
 
 Password recovery and customer double-opt-in mail logs contain delivery metadata instead of bodies, template data or complete messages.
@@ -395,6 +407,7 @@ Shopware.Service('searchTypeService').upsertType('my_entity', {
 ```
 
 Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
+
 ### Empty snippet filter ignores snippets with the value `0`
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
@@ -406,10 +419,20 @@ The Administration uses vue-i18n 11 instead of 10, which fixes the advisories GH
 In snippets, a backslash now escapes `{`, `}`, `@`, `|` and the backslash itself, so `\{name\}` renders as `{name}`.
 If a snippet of your extension needs to display such a backslash, escape it with a second backslash.
 
+### Promotion code filter in the order list only matches promotion line items
+
+The "Promotion code" filter in the order list now only checks line items of type `promotion`.
+Together with a new index on `order_line_item.type`, the database no longer reads every line item, so the filter stays fast on shops with many orders.
+Line items of other types that carry a `code` in their payload, for example from extensions, no longer match this filter.
+
 ### Meteor radio group components are available globally
 
 `mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
 The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
+
+### Bulk order status handler results
+
+`bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
 ## API
 

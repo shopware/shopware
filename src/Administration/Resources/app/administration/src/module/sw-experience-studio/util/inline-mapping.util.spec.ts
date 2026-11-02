@@ -124,7 +124,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             {
                 path,
                 match: text,
-                canonicalToken: text,
+                canonicalToken: null,
                 offset: 0,
                 insideMarkup: false,
                 malformed: true,

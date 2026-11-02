@@ -147,7 +147,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             for (const token of this.parsedTokens) {
-                if (!token.malformed) {
+                if (!token.malformed && token.canonicalToken !== null) {
                     canonicalTokens.set(token.path, token.canonicalToken);
                 }
             }

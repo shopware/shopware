@@ -47,7 +47,8 @@ export interface ContentSystemMappingCandidateResponse {
 export interface ContentSystemInlineMappingToken {
     path: string;
     match: string;
-    canonicalToken: string;
+    /** Canonical server-generated token text, or null for a malformed token. */
+    canonicalToken: string | null;
     offset: number;
     insideMarkup: boolean;
     malformed: boolean;

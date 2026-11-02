@@ -9,7 +9,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
               tokens: {
                   path: string;
                   match: string;
-                  canonicalToken: string;
+                  canonicalToken: string | null;
                   offset: number;
                   insideMarkup: boolean;
                   malformed: boolean;
@@ -32,7 +32,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
                     tokens: {
                         path: string;
                         match: string;
-                        canonicalToken: string;
+                        canonicalToken: string | null;
                         offset: number;
                         insideMarkup: boolean;
                         malformed: boolean;
@@ -99,7 +99,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
                     tokens: {
                         path: string;
                         match: string;
-                        canonicalToken: string;
+                        canonicalToken: string | null;
                         offset: number;
                         insideMarkup: boolean;
                         malformed: boolean;
@@ -124,7 +124,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
                 {
                     path,
                     match: value,
-                    canonicalToken: value,
+                    canonicalToken: null,
                     offset: 0,
                     insideMarkup: false,
                     malformed: true,

@@ -50,7 +50,7 @@ class ContentInlineMappingParseControllerTest extends TestCase
             'tokens' => [[
                 'path' => 'product',
                 'match' => '{{map:product}}',
-                'canonicalToken' => '{{map:product}}',
+                'canonicalToken' => null,
                 'offset' => 4,
                 'insideMarkup' => false,
                 'malformed' => true,
@@ -69,7 +69,7 @@ class ContentInlineMappingParseControllerTest extends TestCase
             'tokens' => [[
                 'path' => 'x" onmouseover="alert(1)',
                 'match' => '{{map:x" onmouseover="alert(1)}}',
-                'canonicalToken' => '{{map:x" onmouseover="alert(1)}}',
+                'canonicalToken' => null,
                 'offset' => 0,
                 'insideMarkup' => false,
                 'malformed' => true,

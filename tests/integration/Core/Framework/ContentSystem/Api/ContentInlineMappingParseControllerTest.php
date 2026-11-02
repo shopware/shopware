@@ -37,4 +37,45 @@ class ContentInlineMappingParseControllerTest extends TestCase
             ]],
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
+
+    public function testOnlyMalformedTokensHaveNoCanonicalText(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
+            'text' => '🙂 {{ map:product }} / {{map:AcmePlugin:unknown.title}} <a title="{{map:product.name}}">link</a>',
+            'revision' => 8,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame([
+            'revision' => 8,
+            'tokens' => [
+                [
+                    'path' => 'product',
+                    'match' => '{{ map:product }}',
+                    'canonicalToken' => null,
+                    'offset' => 5,
+                    'insideMarkup' => false,
+                    'malformed' => true,
+                ],
+                [
+                    'path' => 'AcmePlugin:unknown.title',
+                    'match' => '{{map:AcmePlugin:unknown.title}}',
+                    'canonicalToken' => '{{map:AcmePlugin:unknown.title}}',
+                    'offset' => 25,
+                    'insideMarkup' => false,
+                    'malformed' => false,
+                ],
+                [
+                    'path' => 'product.name',
+                    'match' => '{{map:product.name}}',
+                    'canonicalToken' => '{{map:product.name}}',
+                    'offset' => 68,
+                    'insideMarkup' => true,
+                    'malformed' => false,
+                ],
+            ],
+        ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+    }
 }

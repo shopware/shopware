@@ -41,7 +41,7 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         parsedTokens: [] as {
             path: string;
             match: string;
-            canonicalToken: string;
+            canonicalToken: string | null;
             offset: number;
             insideMarkup: boolean;
             malformed: boolean;
@@ -59,7 +59,7 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
             const tokens: {
                 path: string;
                 match: string;
-                canonicalToken: string;
+                canonicalToken: string | null;
                 offset: number;
                 insideMarkup: boolean;
                 malformed: boolean;
@@ -121,7 +121,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
             {
                 path: 'product',
                 match: '{{map:product}}',
-                canonicalToken: '{{map:product}}',
+                canonicalToken: null,
                 offset: 0,
                 insideMarkup: false,
                 malformed: true,

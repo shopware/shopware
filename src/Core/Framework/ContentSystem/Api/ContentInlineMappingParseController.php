@@ -40,7 +40,7 @@ class ContentInlineMappingParseController
             $tokens[] = [
                 'path' => $token->path,
                 'match' => $token->match,
-                'canonicalToken' => $this->parser->canonicalToken($token->path),
+                'canonicalToken' => $token->malformed ? null : $this->parser->canonicalToken($token->path),
                 'offset' => $token->offset,
                 'insideMarkup' => $token->insideMarkup,
                 'malformed' => $token->malformed,

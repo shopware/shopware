@@ -56,7 +56,7 @@ describe('contentSystemMappingCandidateService', () => {
         await expect(service.getMappingCandidates()).resolves.toEqual({});
     });
 
-    it('returns server-parsed inline mapping token spans with their revision', async () => {
+    it('returns valid and malformed token spans with their revision and canonical nullability', async () => {
         const { service, clientMock } = createService();
         const parsed = {
             revision: 4,
@@ -69,11 +69,21 @@ describe('contentSystemMappingCandidateService', () => {
                     insideMarkup: false,
                     malformed: false,
                 },
+                {
+                    path: 'product',
+                    match: '{{map:product}}',
+                    canonicalToken: null,
+                    offset: 28,
+                    insideMarkup: false,
+                    malformed: true,
+                },
             ],
         };
 
         clientMock.onPost('/_action/content-system/inline-mapping/parse').reply(200, parsed);
 
-        await expect(service.parseInlineMappingTokens('<p>{{map:product.name}}</p>', 4)).resolves.toEqual(parsed);
+        await expect(
+            service.parseInlineMappingTokens('<p>{{  map:product.name  }} {{map:product}}</p>', 4),
+        ).resolves.toEqual(parsed);
     });
 });

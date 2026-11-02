@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -46,23 +44,6 @@ class ApiControllerCreateTest extends TestCase
     use KernelTestBehaviour;
 
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
-
-    public function testUnsupportedContentType(): void
-    {
-        $browser = $this->getBrowser();
-        $browser->request('POST', '/api/category', [], [], ['CONTENT_TYPE' => 'text/plain'], 'invalid');
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(
-            Feature::isActive('v6.8.0.0') ? ApiException::API_UNSUPPORTED_MEDIA_TYPE : '0',
-            $data['errors'][0]['code']
-        );
-        static::assertSame('The Content-Type "text/plain" is unsupported.', $data['errors'][0]['detail']);
-    }
 
     public function testInsert(): void
     {

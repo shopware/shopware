@@ -55,8 +55,6 @@ class ResponseFactoryRegistry
             }
         }
 
-        $unsupportedTypes = implode(', ', $contentTypes);
-
-        throw ApiException::unsupportedMediaType($unsupportedTypes, \sprintf('All provided media types are unsupported. (%s)', $unsupportedTypes));
+        throw ApiException::unsupportedResponseMediaTypes($contentTypes);
     }
 }

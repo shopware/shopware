@@ -365,7 +365,7 @@ This header also works on earlier Shopware 6 versions.
 Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
 Listing responses contain `data`, `total`, and `aggregations`.
 
-Unsupported request and response formats now return HTTP 415 with error code `FRAMEWORK__API_UNSUPPORTED_MEDIA_TYPE` instead of `0`.
+Unsupported response formats now return HTTP 415 with error code `FRAMEWORK__API_UNSUPPORTED_RESPONSE_MEDIA_TYPES` instead of `0`.
 
 ## Product reviews require a rating
 
@@ -466,13 +466,12 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 <details>
 
-## Unsupported Admin API media type exception
+## Unsupported Admin API response format exception
 
-Unsupported Admin API request and response formats switched from Symfony's `UnsupportedMediaTypeHttpException` to `ApiException`.
-Update exception catches to handle `ApiException` and check `ApiException::API_UNSUPPORTED_MEDIA_TYPE`.
-`ApiException::unsupportedMediaType()` narrowed its return type to `self`.
-Overrides must also accept the optional `?string $message = null` parameter.
-HTTP status 415 and the existing request and response error messages were preserved.
+`ResponseFactoryRegistry::getType()` switched from Symfony's `UnsupportedMediaTypeHttpException` to `ApiException` when none of the requested response formats are supported.
+Update exception catches to handle `ApiException` and check `ApiException::API_UNSUPPORTED_RESPONSE_MEDIA_TYPES`.
+`ApiException::unsupportedResponseMediaTypes()` narrowed its return type to `self`.
+HTTP status 415 and the message were preserved.
 
 ## Multiple SQL statements restricted to migrations and installation
 

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
-use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -70,7 +69,7 @@ class ApiException extends HttpException
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
     public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
     public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
-    public const API_UNSUPPORTED_MEDIA_TYPE = 'FRAMEWORK__API_UNSUPPORTED_MEDIA_TYPE';
+    public const API_UNSUPPORTED_RESPONSE_MEDIA_TYPES = 'FRAMEWORK__API_UNSUPPORTED_RESPONSE_MEDIA_TYPES';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -177,23 +176,27 @@ class ApiException extends HttpException
         );
     }
 
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'message', parameterType: '?string', defaultValue: null)]
-    public static function unsupportedMediaType(string $contentType/* , ?string $message = null */): SymfonyHttpException
+    public static function unsupportedMediaType(string $contentType): SymfonyHttpException
     {
-        // @deprecated tag:v6.8.0 - Add $message to the method signature.
-        $message = \func_get_args()[1] ?? \sprintf('The Content-Type "%s" is unsupported.', $contentType);
+        return new UnsupportedMediaTypeHttpException(\sprintf('The Content-Type "%s" is unsupported.', $contentType));
+    }
 
+    /**
+     * @param array<string> $contentTypes
+     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function unsupportedResponseMediaTypes(array $contentTypes): self|UnsupportedMediaTypeHttpException
+    {
         // @deprecated tag:v6.8.0 - Remove the legacy Symfony exception.
         if (!Feature::isActive('v6.8.0.0')) {
-            return new UnsupportedMediaTypeHttpException($message);
+            return new UnsupportedMediaTypeHttpException(\sprintf('All provided media types are unsupported. (%s)', implode(', ', $contentTypes)));
         }
 
         return new self(
             Response::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            self::API_UNSUPPORTED_MEDIA_TYPE,
-            $message,
-            ['contentType' => $contentType]
+            self::API_UNSUPPORTED_RESPONSE_MEDIA_TYPES,
+            'All provided media types are unsupported. ({{ mediaTypes }})',
+            ['mediaTypes' => implode(', ', $contentTypes)]
         );
     }
 

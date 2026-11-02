@@ -81,43 +81,29 @@ class ApiExceptionTest extends TestCase
     {
         $exception = ApiException::unsupportedMediaType('jpeg');
 
-        static::assertInstanceOf(ApiException::class, $exception);
-        static::assertSame(ApiException::API_UNSUPPORTED_MEDIA_TYPE, $exception->getErrorCode());
-        static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
-        static::assertSame('The Content-Type "jpeg" is unsupported.', $exception->getMessage());
-        static::assertSame('jpeg', $exception->getParameter('contentType'));
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testUnsupportedMediaTypeLegacy(): void
-    {
-        $exception = ApiException::unsupportedMediaType('jpeg');
-
         static::assertInstanceOf(UnsupportedMediaTypeHttpException::class, $exception);
-        static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
         static::assertSame('The Content-Type "jpeg" is unsupported.', $exception->getMessage());
     }
 
-    public function testUnsupportedMediaTypeWithCustomMessage(): void
+    public function testUnsupportedResponseMediaTypes(): void
     {
-        $message = 'All provided media types are unsupported. (text/plain, application/xml)';
-        $exception = ApiException::unsupportedMediaType('text/plain, application/xml', $message);
+        $exception = ApiException::unsupportedResponseMediaTypes(['text/plain', 'application/xml']);
 
         static::assertInstanceOf(ApiException::class, $exception);
-        static::assertSame(ApiException::API_UNSUPPORTED_MEDIA_TYPE, $exception->getErrorCode());
+        static::assertSame(ApiException::API_UNSUPPORTED_RESPONSE_MEDIA_TYPES, $exception->getErrorCode());
         static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
-        static::assertSame($message, $exception->getMessage());
+        static::assertSame('All provided media types are unsupported. (text/plain, application/xml)', $exception->getMessage());
+        static::assertSame('text/plain, application/xml', $exception->getParameter('mediaTypes'));
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testUnsupportedMediaTypeWithCustomMessageLegacy(): void
+    public function testUnsupportedResponseMediaTypesLegacy(): void
     {
-        $message = 'All provided media types are unsupported. (text/plain, application/xml)';
-        $exception = ApiException::unsupportedMediaType('text/plain, application/xml', $message);
+        $exception = ApiException::unsupportedResponseMediaTypes(['text/plain', 'application/xml']);
 
         static::assertInstanceOf(UnsupportedMediaTypeHttpException::class, $exception);
         static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
-        static::assertSame($message, $exception->getMessage());
+        static::assertSame('All provided media types are unsupported. (text/plain, application/xml)', $exception->getMessage());
     }
 
     public function testNotExistingRelation(): void

@@ -1,6 +1,12 @@
 ---
 name: shopware-php-code
-description: Apply Shopware PHP/server-side coding guidance. Use when editing PHP under src/Core, src/Administration, or src/Storefront — including migrations, API schema, deprecations, or BC-sensitive code.
+description: >
+  Apply Shopware PHP/server-side coding guidance. Use when editing PHP under src/Core,
+  src/Administration, or src/Storefront — including migrations, API schema,
+  deprecations, or BC-sensitive code. Also use for issue-style requests that fix backend
+  behavior, such as "#12345: Fix entity associations that are always null" or "fix the
+  DAL entity/definition for X", even when no file is named. Not for Admin JS/Vue, tests
+  only, or PR text.
 license: MIT
 ---
 

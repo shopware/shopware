@@ -1,6 +1,12 @@
 ---
 name: shopware-admin-js
-description: Apply Shopware Administration JS/TS/Vue coding rules. Use when editing Admin UI code (.js/.ts/.vue) under src/Administration, including Jest specs and ACL-backed components.
+description: >
+  Apply Shopware Administration JS/TS/Vue coding rules. Use when editing Admin UI code
+  (.js/.ts/.vue) under src/Administration, including Jest specs and ACL-backed
+  components. Also use for issue-style requests that change Admin behavior, such as
+  "#12345: Improve the filter settings in the product listing config", or "add a button
+  to the product detail page", even when no file is named. Not for PHP/server code,
+  Storefront code, or PR text.
 license: MIT
 ---
 

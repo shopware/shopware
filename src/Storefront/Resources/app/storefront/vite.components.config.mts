@@ -8,6 +8,7 @@ import { extensionModuleResolverPlugin } from './build/vite/extension-module-res
 import { plainCssShimPlugin } from './build/vite/plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './build/vite/scoped-subpath-exports-plugin';
 import { themeScssWatcherPlugin } from './build/vite/theme-scss-watcher-plugin';
+import { twigHmrPlugin } from './build/vite/twig-hmr-plugin';
 import {
     extensionComponentAliasesPlugin,
     loadExtensionComponentAliases,
@@ -125,6 +126,7 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             extensionModuleResolverPlugin(projectRoot),
             plainCssShimPlugin(plainCssShims),
             themeScssWatcherPlugin(projectRoot),
+            twigHmrPlugin(projectRoot),
         ],
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),

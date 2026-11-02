@@ -12,7 +12,7 @@ const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
-const getTwigWatchPaths = require('./build/webpack/twig-watch-paths');
+const getTwigWatchPaths = require('./build/twig-hmr/watch-paths');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');

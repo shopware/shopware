@@ -4,7 +4,7 @@
 The Storefront watcher can apply Twig changes to the open page without a reload.
 Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are.
 When a change cannot be applied safely, a notice on the page says so and offers a reload.
-The code in this directory is only part of the `hot-reloading` dev entry and is never shipped in production builds.
+The code in this directory is only loaded by the webpack and the Vite dev server and is never shipped in production builds.
 
 ## Usage
 
@@ -15,7 +15,11 @@ SHOPWARE_STOREFRONT_TWIG_HMR=1 composer watch:storefront
 ```
 
 Without the variable, the watcher reloads the page on Twig changes as before.
-`SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH=1` still limits the watched files to the Storefront bundle.
+
+The Vite dev server, `composer storefront:dev-server`, always applies Twig changes in place.
+Open the shop URL as usual, the dev server only serves the scripts and styles.
+
+`SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH=1` limits the watched files to the Storefront bundle in both dev servers.
 
 For debugging, `await window.swTwigHmr.refresh([])` triggers a refresh in the browser console.
 After every refresh, the client dispatches `sw-twig-hmr:updated` on the document.
@@ -25,8 +29,8 @@ After every refresh, the client dispatches `sw-twig-hmr:updated` on the document
 
 ```text
 file save
-  -> chokidar watcher in the webpack dev server (debounced 50 ms)
-  -> web socket message "sw-twig-update" { files, structural }
+  -> chokidar watcher of the webpack dev server or the Vite dev server (debounced 50 ms)
+  -> web socket message "sw-twig-update" (webpack) or event "sw:twig-update" (Vite) { files, structural }
   -> browser client
        1. prepare: fetch the page and every open AJAX modal and offcanvas, validate all responses
        2. apply: reject unsafe changes, morph all other responses in one synchronous step, restore the interaction state
@@ -41,13 +45,18 @@ No Twig is compiled in the browser.
 
 ### Watcher
 
-`build/webpack/twig-watch-paths.js` reads the view directories of every bundle and every active app from `var/plugins.json`.
+`build/twig-hmr/watch-paths.js` reads the view directories of every bundle and every active app from `var/plugins.json`.
 In the dev environment Twig loads app templates from the same directories, so app overrides hot reload like plugin overrides.
 It watches those with a `storefront` or `components` directory.
-`build/webpack/twig-hmr-watcher.js` collects the changes of 50 ms and sends them as one message through `devServer.sendMessage`.
+`build/twig-hmr/update-batcher.js` collects the changes of 50 ms, so both dev servers send them as one update.
+A batch with an added or removed file is sent with `structural: true`.
+
+In webpack, `build/webpack/twig-hmr-watcher.js` sends the update through `devServer.sendMessage`.
 `awaitWriteFinish` waits until the file is completely written, because editors and file syncs such as Mutagen write in several steps.
 The Twig files are removed from `watchFiles` of the dev server, otherwise it would send a full reload.
-A batch with an added or removed file is sent with `structural: true`.
+
+In Vite, `build/vite/twig-hmr-plugin.ts` adds the view directories to `server.watcher` and sends the update with `server.ws.send`.
+Its `hotUpdate` hook returns no modules for Twig files, so Vite never reloads the page on its own.
 
 ### HTTP cache
 
@@ -67,7 +76,10 @@ A parallel render, for example of the Symfony toolbar, writes a temporary file a
 ### Client
 
 `twig-hmr.client.js` connects to the web socket of the webpack dev server and reconnects after a restart.
-It calls `init()` before the theme scripts run, so the client sees the server markup of the page and every element that scripts add later.
+`twig-hmr.vite.js` subscribes with `import.meta.hot.on()`, and the Vite client reconnects on its own.
+The dev flag file of the Vite dev server lists it after `/@vite/client` and before `main.js`.
+Both call `start()` in `start.js`, which calls `init()` before the theme scripts run.
+So the client sees the server markup of the page and every element that scripts add later.
 
 | File                   | Responsibility                                                        |
 |------------------------|-----------------------------------------------------------------------|
@@ -181,6 +193,7 @@ These are covered by the tests in `test/dev/twig-hmr`:
 
 - `twig-hmr.test.js` covers the refresh, the validation, the ownership and the interaction state.
 - The tests of `OffCanvasCartPlugin` and `OffcanvasMenuPlugin` cover the source attributes they store.
+- `build/vite/twig-hmr-plugin.test.ts` covers the Vite watcher, `test/build` the shared watch paths, the debounce and the webpack watcher.
 - `twig-hmr.plugins.test.js` runs the real `PluginManager` with `QuantitySelectorPlugin` and a plugin that wraps its children like a slider.
 
 `AGENTS.md` next to this file holds the browser and proxy matrix for manual verification.
@@ -226,13 +239,3 @@ These are covered by the tests in `test/dev/twig-hmr`:
   `src/dev/hot-mode/missing-extension-scripts.js` warns about these extensions in the browser console in every hot mode session, also without the Twig hot reload.
   After you add or remove a `dist` folder, run `theme:refresh` and `cache:clear`, because the script list is stored in `theme_runtime_config`.
 
-## Vite dev server
-
-The Webpack hot mode is deprecated for 6.8.
-The same client logic fits the Vite dev server:
-
-1. A Vite plugin adds the view directories to `server.watcher` and sends `server.ws.send({ type: 'custom', event: 'sw:twig-update', data: { files } })`.
-2. `handleHotUpdate` returns early for Twig files, so Vite does not send its own `full-reload`.
-3. The client subscribes with `import.meta.hot.on('sw:twig-update', ...)` instead of its own web socket.
-
-`twig-hmr.js` has no dependency on the transport, so only the entry file changes.

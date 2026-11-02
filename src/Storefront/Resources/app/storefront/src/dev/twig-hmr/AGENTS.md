@@ -5,7 +5,7 @@ This file tells an agent how to verify the Twig hot reload end to end.
 The code lives in three places:
 
 - `src/dev/twig-hmr/` holds the browser client.
-- `build/webpack/twig-watch-paths.js` and `build/webpack/twig-hmr-watcher.js` watch the templates.
+- `build/twig-hmr/`, `build/webpack/twig-hmr-watcher.js` and `build/vite/twig-hmr-plugin.ts` watch the templates.
 - `build/start-hot-reload.js` and `build/rewrite-origin-urls.js` are the hot proxy.
 
 ## Unit tests
@@ -14,6 +14,7 @@ Run them from `src/Storefront/Resources/app/storefront`:
 
 ```bash
 npx jest --config jest.config.js --coverage=false test/dev/twig-hmr test/build
+npx vitest run --config vitest.config.mts build/vite/twig-hmr-plugin.test.ts build/vite/dev-import-map-plugin.test.ts
 npx eslint src/dev/twig-hmr build test/dev/twig-hmr test/build
 ```
 
@@ -30,6 +31,11 @@ The browser matrix below is for the parts that unit tests cannot cover: real tem
 4. For override scenarios, install a minimal plugin or app with a `Resources/views/storefront` directory.
    Create the directory before `cache:clear` and before the watcher starts, otherwise neither Twig nor the watcher knows it.
    An app needs `app:install --activate`, `bundle:dump` and `cache:clear`, a manifest with only a `meta` block is enough.
+
+For the Vite dev server, run `APP_ENV=dev` for the web server, `theme:dump` for the default theme and `composer storefront:dev-server`.
+Open the shop URL, not the Vite port.
+The dev flag file `var/cache/storefront_components.dev.json` is only used for the theme in its `themeId`.
+Run the scenarios below once with each dev server.
 
 Drive the browser with the DevTools protocol or Playwright, a headless Chrome is enough.
 Install this harness once per page load and keep it across the scenarios:

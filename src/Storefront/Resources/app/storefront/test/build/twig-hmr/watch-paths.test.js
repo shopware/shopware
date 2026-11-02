@@ -4,9 +4,9 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const getTwigWatchPaths = require('../../../build/webpack/twig-watch-paths');
+const getTwigWatchPaths = require('../../../build/twig-hmr/watch-paths');
 
-describe('build/webpack/twig-watch-paths', () => {
+describe('build/twig-hmr/watch-paths', () => {
     let projectRoot;
 
     const pluginDefinition = {

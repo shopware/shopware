@@ -59,8 +59,9 @@ function fileToTag(relPath: string, namespace: string | undefined): string {
  *              modules. The first entry is always the Vite client
  *              (/@vite/client), which connects to the dev server and applies
  *              reloads and CSS updates. No Storefront module uses
- *              import.meta.hot, so Vite would not load it on its own. The core
- *              storefront main.js follows, then any plugin bundles with a
+ *              import.meta.hot, so Vite would not load it on its own. The Twig
+ *              hot reload entry follows, then the core storefront main.js,
+ *              then any plugin bundles with a
  *              storefront entryFilePath in plugins.json order. Present only
  *              when var/plugins.json exists.
  *
@@ -417,8 +418,10 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
                 // 'storefront' is the core entry, not a plugin.
                 const scripts: string[] = [];
                 if (fs.existsSync(pluginsJsonPath)) {
-                    // The Vite client is first, then the core storefront entry.
+                    // The Vite client is first, then the Twig hot reload, which must
+                    // see the server markup before main.js runs, then the core entry.
                     scripts.push(`${origin}/@vite/client`);
+                    scripts.push(`${origin}/src/dev/twig-hmr/twig-hmr.vite.js`);
                     scripts.push(`${origin}/src/main.js`);
 
                     for (const [, bundle] of Object.entries(bundles)) {

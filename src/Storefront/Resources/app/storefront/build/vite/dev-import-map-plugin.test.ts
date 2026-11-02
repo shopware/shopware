@@ -170,9 +170,11 @@ describe('devImportMapPlugin', () => {
         });
 
         // No Storefront module uses import.meta.hot, so the Vite client must be loaded explicitly and first.
+        // The Twig hot reload must run before main.js.
         const { scripts } = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { scripts: string[] };
-        expect(scripts.slice(0, 2)).toEqual([
+        expect(scripts.slice(0, 3)).toEqual([
             'http://localhost:5181/@vite/client',
+            'http://localhost:5181/src/dev/twig-hmr/twig-hmr.vite.js',
             'http://localhost:5181/src/main.js',
         ]);
 

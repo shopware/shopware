@@ -208,16 +208,24 @@ function printSweepChecklist(root: string, name: string, packageName: string, ap
 
     console.log(`# Sweep ${root}
 
-The codemod moved ${name} into the mini-module layout. Finish it by hand, following src/module/AGENTS.md "Mini-Modules":
+The codemod moved ${name} into the mini-module layout. Finish it by hand, following src/module/AGENTS.md "Mini-Modules".
+A finished example is src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix: copy its patterns.
+This is a refactor: behaviour must not change, so keep odd code, unused injects and the mixin order.
 
-1. Write dependencies.ts and route every outside access of src/ through it (string names stay strings, imported from their owner; side effects become functions):
+1. Write dependencies.ts and route every outside access of src/ through it:
 ${outside.map((line) => `   - ${line}`).join('\n') || '   - nothing found'}
-2. Complete the public lists in index.ts by hand where the codemod could not read them:
+   - A service name in inject becomes a constant from src/app/service-names; add a missing one there.
+   - A store id in Shopware.Store.get() becomes the id the store file exports, wrapped in a function such as useXStore().
+   - Mixin.getByName('x') becomes the default import of the mixin's file.
+2. Complete the public lists in index.ts where the codemod could not read them:
 ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unresolved'}
-3. Add a test harness and contract tests: rough requirements.spec.ts from the user's view, details in pinned.spec.ts.
-   The moved specs in tests/ stay workshop specs.
-4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts (@sw-package ${packageName}).
-5. Run eslint, tsc and the module's tests: npm run unit:mini-module -- ${root}
+   Add one sentence to the doc comment of index.ts that says what the component is for.
+3. Add tests/<name>.harness.ts and the contract tests: rough requirements.spec.ts from the user's view, details in pinned.spec.ts.
+   The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
+4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts.
+   The team is the one that owns other code of @sw-package ${packageName} there.
+5. Run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
+   Lines the contract tests leave uncovered are code no contract protects: pin them, or name them in the PR.
 `);
 }
 

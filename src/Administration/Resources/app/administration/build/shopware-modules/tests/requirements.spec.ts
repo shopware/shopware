@@ -5,8 +5,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+/* eslint-disable sw-core-rules/mini-module-shopware-imports -- the spec proves that these imports resolve in Jest */
 import { Criteria } from 'shopware:data';
 import { createId } from 'shopware:utils';
+/* eslint-enable sw-core-rules/mini-module-shopware-imports */
 import VirtualShopwareModulesPlugin, { type ModuleRegistry } from '../index';
 
 const administrationRoot = path.resolve(__dirname, '../../..');

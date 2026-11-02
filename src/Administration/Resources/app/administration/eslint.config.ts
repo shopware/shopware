@@ -180,6 +180,8 @@ const baseRules = {
     'sw-core-rules/mini-module-side-effects': 'error',
     // The src/ of a mini-module reaches outside only through its dependencies.ts.
     'sw-core-rules/mini-module-dependencies': 'error',
+    // Inside the Administration, a shopware:* module is imported only in the dependencies.ts of a mini-module.
+    'sw-core-rules/mini-module-shopware-imports': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [

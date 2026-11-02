@@ -5,6 +5,7 @@
  * the global `Shopware` holds rather than a copy of it. `setup.ts` registers them for every spec.
  */
 
+/* eslint-disable sw-core-rules/mini-module-shopware-imports -- the spec proves that these imports resolve in Jest */
 import { createId, object } from 'shopware:utils';
 import { warn, error } from 'shopware:utils/debug';
 import debugNamespace from 'shopware:utils/debug';
@@ -20,6 +21,7 @@ import directUseListing from 'src/app/composables/use-listing';
 import 'src/core/public-component/register';
 import { definePublicComponent } from 'shopware:mini-modules/public-component';
 import { definePublicComponent as directDefinePublicComponent } from 'src/core/public-component';
+/* eslint-enable sw-core-rules/mini-module-shopware-imports */
 
 // `Shopware` is declared `const` on the global, which puts it outside the keys `replaceProperty` accepts.
 const globalObject = global as unknown as { Shopware: unknown };

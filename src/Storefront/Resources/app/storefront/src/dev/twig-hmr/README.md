@@ -106,6 +106,8 @@ The morph never changes these elements, and a template that would remove them is
 The same applies to elements matching `.modal-backdrop`, `.offcanvas-backdrop`, `.js-pseudo-modal`, `.js-offcanvas-singleton` or `[data-sw-twig-hmr-preserve]`.
 The Symfony web debug toolbar, `.sf-toolbar` or `[data-frankenphp-hot-reload-preserve]`, is server markup that its own script loads and that changes on every request.
 The client removes it from every render, so the live toolbar stays as it is.
+Flash messages, the children of `.flashbags`, are handled the same way.
+The request after a redirect shows them, the GET request of a hot reload does not, so without this every page after a logout or a saved form would ask for a reload.
 Server elements that a template removed are removed, also direct children of the body.
 The morph itself is not recorded, so elements that the template adds stay server markup.
 
@@ -186,6 +188,11 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - **Random ids.**
   Templates that render ids with `random()`, such as listing filters, captchas and the address dropdown, change on every render.
   Their plugin elements always count as changed and ask for a reload.
+- **Plugins on large wrappers** turn every change inside the wrapper into a reload.
+  `CheckoutCustomerStorageReset` sits on the whole register page and on the order details of the finish page,
+  `FormHandler` on the login and register forms.
+- **Flash messages** keep the markup of the page load, also when a template changes them.
+  Cart errors are flash messages too, so a change to their markup needs a reload.
 - **Plugins with references outside their element** can still point to replaced nodes.
 - **Plugin options** of existing elements are not applied again.
   A changed plugin element asks for a reload instead.

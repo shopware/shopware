@@ -65,9 +65,20 @@ Keep the markers out of commits.
 | Mobile navigation | Viewport below 768px, open the menu, go to a second level, then edit `layout/navigation/offcanvas/categories.html.twig` | Menu stays open at the same level, marker updates, Back still works |
 | Ajax modal | Open a modal loaded with `data-ajax-modal`, edit its template | Modal stays open, content updates (unit tests cover this, verify in the browser when the modal code changes) |
 | Form state | Type into the search field, then edit a template | Value and focus survive the morph (unit tests cover this, verify in the browser when `interaction-state.js` changes) |
+| Registration form | On `/account/login`, fill the register form, pick a country with states, open the shipping address, focus a field with a selection, then edit `layout/footer/footer.html.twig` | Values, state dropdown, open collapse, focus and selection survive, marker updates |
+| Register page content | Edit `component/account/register.html.twig` | `reloadRequired` names `<div.account-register>` with `CheckoutCustomerStorageReset`, the page keeps working |
+| Registration and login | Submit the register form, log out, log in again | Each submit lands on the expected page, the hot reload works on every page after it |
+| Flash message | Log out, then edit any template on the login page | The "Successfully logged out." alert stays, marker updates, no reload required |
+| Account overview | Logged in, edit `page/account/index.html.twig` | Marker updates in place |
+| Cart page | Type a promotion code, keep the focus, edit `page/checkout/cart/index.html.twig` | Value and focus survive, marker updates |
+| Confirm page | Change the payment method, check the terms, edit `page/checkout/confirm/index.html.twig` and the terms block | Payment selection, terms checkbox and focus survive, marker updates |
+| Finish page | Place the order, edit `page/checkout/finish/finish-details.html.twig` | `reloadRequired` names `<div.card.checkout-card>` with `CheckoutCustomerStorageReset`, as documented in the README |
+| Domain with a path | Add a domain like `http://localhost:8000/de`, dump the theme for it, restart the watcher, edit a template on `/de/` | The watcher opens the proxy URL with `/de`, links keep `/de`, marker updates |
+| Save burst | Save one template ten times within five seconds | Updates are coalesced, the page ends on the last version, no reload |
 
-Verified in the browser on 2026-10-30 for every row except the last two, which are covered by unit tests.
+Verified in the browser on 2026-10-30 for the rows up to the form state, except the ajax modal and the form state, which are covered by unit tests.
 The app override row was verified on 2026-10-31.
+The rows from the registration form on were verified on 2026-11-02.
 
 ## Proxy matrix
 
@@ -95,6 +106,28 @@ Pass `-H 'Accept: text/html'` for pages, and no Accept header for fragments.
 - A `cache:clear` is needed when a plugin view directory is created after the container was compiled.
 - After switching branches in a shared checkout, clear the dev and the prod cache, or the compiled container references classes of the previous branch.
 - Add-to-cart answers with a redirect, so the offcanvas cart is loaded with a GET after the POST and the client reads its source from that GET.
+- A page reached through a redirect can show a flash message that the GET request of a hot reload does not repeat.
+  The client keeps the live flash messages, so test the hot reload right after a logout or a saved form.
+- Some Storefront plugins sit on large wrappers, for example `CheckoutCustomerStorageReset` on the register page and the finish page.
+  An edit inside them is expected to report `reloadRequired`, do not count it as a failure.
+- Inside a container the watcher does not try to open a browser.
+  It detects Docker by `/.dockerenv` and Podman by `/run/.containerenv`.
+- In a container, `theme:dump` and the watcher need `APP_ENV=dev` when the environment default is `prod`.
+
+## Resources
+
+Measure the watcher with the container tools while saving templates in a loop.
+Read CPU time from `/proc/<pid>/stat` or the cgroup `cpu.stat`, because `podman stats` without a stream shows an average since the start.
+On 2026-11-02, on a Podman machine with 8 CPUs, the numbers were:
+
+| Process | Memory | CPU |
+|---------|--------|-----|
+| Watcher node process | about 570 MB RSS, stable over 20 saves | about 0.2 s CPU time for 10 saves |
+| PHP-FPM, renders of the hot reloads | 100 to 155 MB per worker | about 3.5 s CPU time for 10 saves |
+| Mutagen sync agent | about 390 MB RSS | the largest part of the remaining container CPU time |
+
+The watcher is not the bottleneck.
+The Storefront render in PHP and the file sync into the container cost more than the watcher itself.
 
 ## Cleanup
 

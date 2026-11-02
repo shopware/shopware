@@ -1,23 +1,28 @@
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
 
-const {
-    Mixin,
-    Data: { Criteria },
-    Context,
-} = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+import {
+    Criteria,
+    cloneDeep,
+    getApiContext,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    ruleConditionDataProviderService,
+    useShippingDetailStore,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'ruleConditionDataProviderService'],
+    inject: [repositoryFactoryService, ruleConditionDataProviderService],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         disabled: {
@@ -29,23 +34,23 @@ export default {
 
     computed: {
         shippingMethod() {
-            return Shopware.Store.get('swShippingDetail').shippingMethod;
+            return useShippingDetailStore().shippingMethod;
         },
 
         shippingPriceGroups() {
-            return Shopware.Store.get('swShippingDetail').shippingPriceGroups;
+            return useShippingDetailStore().shippingPriceGroups;
         },
 
         usedRules() {
-            return Shopware.Store.get('swShippingDetail').usedRules;
+            return useShippingDetailStore().usedRules;
         },
 
         unrestrictedPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+            return useShippingDetailStore().unrestrictedPriceMatrixExists;
         },
 
         newPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+            return useShippingDetailStore().newPriceMatrixExists;
         },
 
         ruleRepository() {
@@ -74,7 +79,7 @@ export default {
 
     methods: {
         onAddNewPriceGroup() {
-            const newShippingPrice = this.shippingPriceRepository.create(Context.api);
+            const newShippingPrice = this.shippingPriceRepository.create(getApiContext());
             newShippingPrice.shippingMethodId = this.shippingMethod.id;
             newShippingPrice.quantityStart = 0;
             newShippingPrice.ruleId = null;
@@ -105,7 +110,7 @@ export default {
         onDuplicatePriceMatrix(priceGroup) {
             const newPrices = [];
             priceGroup.prices.forEach((price) => {
-                const newShippingPrice = this.shippingPriceRepository.create(Context.api);
+                const newShippingPrice = this.shippingPriceRepository.create(getApiContext());
                 // Create a flagged as new price matrix, if there is already an unrestricted.
                 if (this.unrestrictedPriceMatrixExists) {
                     // Flag to indicate that this price is in a new matrix

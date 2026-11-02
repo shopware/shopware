@@ -12523,15 +12523,12 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/src/sw-settings-shipping-price-matrices.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/sw-settings-shipping-price-matrices.spec.js": {
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/sw-settings-shipping-price-matrices.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

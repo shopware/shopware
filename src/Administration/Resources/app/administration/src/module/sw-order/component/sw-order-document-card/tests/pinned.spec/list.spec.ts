@@ -1,6 +1,7 @@
 import {
     BUTTON_CREATE_DOCUMENT,
     createDocument,
+    createOrder,
     getColumnLabels,
     getDocumentRows,
     getDocumentSearches,
@@ -180,6 +181,18 @@ describe('sw-order-document-card', () => {
             expect(wrapper.find('.sw-card-filter').exists()).toBe(true);
             expect(wrapper.find('.sw-order-document-card__empty-state').exists()).toBe(false);
             expect(getDocumentRows(wrapper)).toHaveLength(0);
+        });
+
+        it('does not search again when the order changes without changing its id', async () => {
+            // ARRANGE
+            const wrapper = await mountDocumentCard({ order: createOrder({ id: 'orderA' }) });
+
+            // ACT
+            await wrapper.setProps({ order: createOrder({ id: 'orderA', orderNumber: '10001' }) });
+            await flushPromises();
+
+            // ASSERT
+            expect(getDocumentSearches()).toHaveLength(1);
         });
     });
 });

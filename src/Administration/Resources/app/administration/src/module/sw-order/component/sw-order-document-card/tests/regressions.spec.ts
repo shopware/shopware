@@ -57,20 +57,4 @@ describe('sw-order-document-card', () => {
         // ASSERT
         expect(getShownDocumentNumbers(wrapper)).toEqual(['documentOfOrderB-number']);
     });
-
-    /**
-     * @regression https://github.com/shopware/shopware/issues/21619
-     * The card reloads for another order only, so editing the open order does not search its documents again.
-     */
-    it('does not search again when the order changes without changing its id', async () => {
-        // ARRANGE
-        const wrapper = await mountDocumentCard({ order: createOrder({ id: 'orderA' }) });
-
-        // ACT
-        await wrapper.setProps({ order: createOrder({ id: 'orderA', orderNumber: '10001' }) });
-        await flushPromises();
-
-        // ASSERT
-        expect(getDocumentSearches()).toHaveLength(1);
-    });
 });

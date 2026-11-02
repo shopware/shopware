@@ -65,53 +65,39 @@
                 {% endblock %}
 
                 {% block sw_product_open_in_storefront_modal_domains %}
-                <template v-if="result.reachable">
-                    <template
-                        v-for="domain in result.domains"
-                        :key="domain.id"
-                    >
-                        <a
-                            v-if="domain.productUrl"
-                            class="sw-product-open-in-storefront-modal__domain"
-                            :href="domain.productUrl"
-                            target="_blank"
-                            rel="noopener"
+                <component
+                    :is="domain.productUrl ? 'a' : 'div'"
+                    v-for="domain in result.domains"
+                    :key="domain.id"
+                    class="sw-product-open-in-storefront-modal__domain mt-link--external"
+                    :class="{ 'is--disabled': !domain.productUrl }"
+                    :href="domain.productUrl ?? undefined"
+                    :target="domain.productUrl ? '_blank' : undefined"
+                    :rel="domain.productUrl ? 'noopener' : undefined"
+                    :aria-disabled="domain.productUrl ? undefined : 'true'"
+                >
+                    <span class="sw-product-open-in-storefront-modal__domain-text">
+                        <span class="sw-product-open-in-storefront-modal__domain-header">
+                            {{ selectedSalesChannelName }}
+                        </span>
+                        <span class="sw-product-open-in-storefront-modal__domain-url">
+                            {{ domain.productUrl ?? domain.url }}
+                        </span>
+                        <span
+                            v-if="!domain.productUrl"
+                            class="sw-product-open-in-storefront-modal__domain-hint"
                         >
-                            <span class="sw-product-open-in-storefront-modal__domain-text">
-                                <span class="sw-product-open-in-storefront-modal__domain-header">
-                                    {{ selectedSalesChannelName }}
-                                </span>
-                                <span class="sw-product-open-in-storefront-modal__domain-url">
-                                    {{ domain.productUrl }}
-                                </span>
-                            </span>
+                            {{ $t('sw-product.openInStorefrontModal.infoDomainWithoutValidUrl') }}
+                        </span>
+                    </span>
 
-                            <mt-icon
-                                name="regular-external-link-s"
-                                size="14px"
-                                aria-hidden="true"
-                            />
-                        </a>
-
-                        <div
-                            v-else
-                            class="sw-product-open-in-storefront-modal__domain is--disabled"
-                            aria-disabled="true"
-                        >
-                            <span class="sw-product-open-in-storefront-modal__domain-text">
-                                <span class="sw-product-open-in-storefront-modal__domain-header">
-                                    {{ selectedSalesChannelName }}
-                                </span>
-                                <span class="sw-product-open-in-storefront-modal__domain-url">
-                                    {{ domain.url }}
-                                </span>
-                                <span class="sw-product-open-in-storefront-modal__domain-hint">
-                                    {{ $t('sw-product.openInStorefrontModal.infoDomainWithoutValidUrl') }}
-                                </span>
-                            </span>
-                        </div>
-                    </template>
-                </template>
+                    <mt-icon
+                        v-if="domain.productUrl"
+                        name="regular-external-link-s"
+                        size="14px"
+                        aria-hidden="true"
+                    />
+                </component>
                 {% endblock %}
 
                 {% block sw_product_open_in_storefront_modal_checks %}

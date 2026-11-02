@@ -34,17 +34,13 @@
         text-decoration: none;
         transition: background-color 0.15s ease-out;
 
-        &:hover {
+        &:not(.is--disabled):hover {
             background: var(--color-interaction-secondary-hover);
         }
 
         &.is--disabled {
             border-style: dashed;
             cursor: not-allowed;
-
-            &:hover {
-                background: var(--color-interaction-secondary-default);
-            }
         }
     }
 
@@ -91,17 +87,5 @@
 
     &__maintenance {
         color: var(--color-text-secondary-default);
-    }
-}
-
-.sw-product-open-in-storefront-modal a.sw-product-open-in-storefront-modal__domain[target] {
-    display: flex;
-    color: var(--color-text-primary-default);
-    font-size: inherit;
-    text-decoration: none;
-    word-break: normal;
-
-    &::after {
-        content: none;
     }
 }

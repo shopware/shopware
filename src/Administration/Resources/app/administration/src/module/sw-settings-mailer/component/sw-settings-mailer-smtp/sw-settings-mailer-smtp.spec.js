@@ -42,12 +42,6 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         );
     };
 
-    it('should be a vue js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should assign host value', async () => {
         const wrapper = await createWrapper({
             'core.mailerSettings.host': 'https://example.com',

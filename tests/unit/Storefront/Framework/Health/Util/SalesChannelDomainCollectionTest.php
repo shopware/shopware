@@ -17,8 +17,8 @@ class SalesChannelDomainCollectionTest extends TestCase
 {
     public function testCreate(): void
     {
-        $domain1 = SalesChannelDomain::create('test-sales-channel-id-1', 'http://localhost:8000');
-        $domain2 = SalesChannelDomain::create('test-sales-channel-id-2', 'http://localhost:8001');
+        $domain1 = SalesChannelDomain::create('test-sales-channel-id-1', 'http://localhost:8000', 'domain-1', 'language-1', 'currency-1');
+        $domain2 = SalesChannelDomain::create('test-sales-channel-id-2', 'http://localhost:8001', 'domain-2', 'language-2', 'currency-2');
 
         $collection = new SalesChannelDomainCollection([$domain1, $domain2]);
 

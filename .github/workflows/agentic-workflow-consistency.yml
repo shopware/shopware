@@ -9,6 +9,7 @@ on:
       - ".github/aw/**"
       - ".github/dependabot.yml"
       - ".gitattributes"
+      - ".agents/skills/sw-review/**"
   workflow_dispatch:
 
 permissions:
@@ -45,3 +46,29 @@ jobs:
             echo "::error::gh aw compile output differs from the committed files. Run 'gh aw compile' with the pinned version and commit the result."
             exit 1
           fi
+
+  review-routing:
+    name: sw-review routing cases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Same Node as the sw-review workflow pins for its change-profile step, so the
+      # tests prove the scripts on the version that runs them.
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      # Deterministic classification of real PR diffs and the eval graders (no LLM). Node
+      # runs the TypeScript directly (type stripping, no build step). The routing test fails
+      # on an empty fixture directory, so it cannot pass without evaluating cases. The grader
+      # test runs every eval grader once, so a grader that does not load fails here.
+      - name: Run classifier unit tests, routing cases and grader tests
+        run: |
+          set -euo pipefail
+          node --test .agents/skills/sw-review/scripts/*.test.ts .agents/skills/sw-review/tests/*.test.ts .agents/skills/sw-review/tests/routing/*.test.ts

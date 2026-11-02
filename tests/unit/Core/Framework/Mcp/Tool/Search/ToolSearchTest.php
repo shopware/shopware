@@ -7,14 +7,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
-use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearchResult;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(ToolSearch::class)]
-#[CoversClass(ToolSearchResult::class)]
 class ToolSearchTest extends TestCase
 {
     public function testEmptyQueryReturnsNoResults(): void

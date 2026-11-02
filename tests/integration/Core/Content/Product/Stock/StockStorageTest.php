@@ -7,8 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -37,6 +41,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -621,6 +626,64 @@ class StockStorageTest extends TestCase
         $this->assertStock(0, $product);
     }
 
+    public function testProductLineItemWithoutProductReferenceDoesNotChangeStock(): void
+    {
+        $context = Context::createDefaultContext();
+        $productId = $this->createProduct(['stock' => 5]);
+        $orderId = $this->orderProduct($productId, 5);
+
+        $this->lineItemRepository->create([[
+            'id' => Uuid::randomHex(),
+            'orderId' => $orderId,
+            'identifier' => 'deleted-product',
+            'quantity' => 2,
+            'label' => 'Deleted product',
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'price' => new CalculatedPrice(10, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), 2),
+            'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+        ]], $context);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        $this->assertStock(0, $product);
+    }
+
+    public function testRemovingTheProductReferenceOfAnOrderLineItemRestoresStock(): void
+    {
+        $context = Context::createDefaultContext();
+        $productId = $this->createProduct(['stock' => 5]);
+        $orderId = $this->orderProduct($productId, 5);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $lineItem = $this->lineItemRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
+
+        $this->lineItemRepository->update([['id' => $lineItem->getId(), 'referencedId' => null, 'productId' => null, 'payload' => ['productNumber' => null]]], $context);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        $this->assertStock(5, $product);
+    }
+
+    public function testCancellingAnOrderWithAProductLineItemWithoutProductReference(): void
+    {
+        $productId = $this->createProduct(['stock' => 5]);
+        $orderId = $this->orderProduct($productId, 5);
+
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE order_line_item SET referenced_id = NULL, product_id = NULL WHERE order_id = :orderId',
+            ['orderId' => Uuid::fromHexToBytes($orderId)]
+        );
+
+        $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_CANCEL);
+
+        static::assertSame('cancelled', static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT state_machine_state.technical_name FROM `order` INNER JOIN state_machine_state ON state_machine_state.id = `order`.state_id WHERE `order`.id = :orderId AND `order`.version_id = :versionId',
+            ['orderId' => Uuid::fromHexToBytes($orderId), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+        ));
+    }
+
     public function testStockIsUpdatedIfOrderLineItemIsDeleted(): void
     {
         $context = Context::createDefaultContext();
@@ -1085,13 +1148,13 @@ class StockStorageTest extends TestCase
 
     private function collectAvailabilityEvents(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $hooks = EventHookDispatcher::fromContainer(static::getContainer());
 
-        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, function (ProductNoLongerAvailableEvent $event): void {
+        $hooks->on(ProductNoLongerAvailableEvent::class, function (ProductNoLongerAvailableEvent $event): void {
             $this->noLongerAvailableIds = [...$this->noLongerAvailableIds, ...$event->getIds()];
         });
 
-        $this->addEventListener($dispatcher, ProductBackInStockEvent::class, function (ProductBackInStockEvent $event): void {
+        $hooks->on(ProductBackInStockEvent::class, function (ProductBackInStockEvent $event): void {
             $this->backInStockIds = [...$this->backInStockIds, ...$event->getIds()];
         });
     }

@@ -217,7 +217,7 @@ jobs:
     strategy:
       matrix:
         target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
-      fail-fast: true
+      fail-fast: false
     steps:
       - uses: shopware/octo-sts-action@main
         id: sts-shopware-backport
@@ -246,4 +246,5 @@ jobs:
             ${{ needs.collect-reviewers.outputs.reviewers && join(fromJSON(needs.collect-reviewers.outputs.reviewers), ',') || '' }}
           labels: >- # Inherit original labels, except backport and milestone ones
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
+          enable-err-notification: true
           dry-run: ${{ github.event.act && true || false }}

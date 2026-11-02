@@ -1,0 +1,8 @@
+RELEASE_INFO-6.7.md
+src/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandler.php
+src/Core/Framework/DataAbstractionLayer/Exception/InvalidForeignKeyReferenceException.php
+src/Core/Framework/DependencyInjection/data-abstraction-layer.php
+tests/integration/Core/Content/ImportExport/Command/ImportEntityCommandTest.php
+tests/integration/Core/Content/ImportExport/ImportExportTest.php
+tests/integration/Core/Framework/Api/Sync/SyncServiceTest.php
+tests/unit/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandlerTest.php

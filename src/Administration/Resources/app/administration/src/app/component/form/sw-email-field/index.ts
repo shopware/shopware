@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated field's update:value reaches the parent only through $attrs */
 import template from './sw-email-field.html.twig';
 
 /**

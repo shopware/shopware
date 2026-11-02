@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
-use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -40,7 +39,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 #[Package('after-sales')]
 #[CoversClass(ZugferdBuilder::class)]
-#[CoversClass(ZugferdDocument::class)]
 class ZugferdBuilderTest extends TestCase
 {
     private const ALLOWANCE_TOTAL = 20.00;

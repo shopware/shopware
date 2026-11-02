@@ -21,7 +21,6 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal should be used over the CLI only
@@ -72,8 +71,6 @@ class SalesChannelListCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-
         $deprecatedOutput = $input->getOption('output');
         if ($deprecatedOutput !== null) {
             Feature::triggerDeprecationOrThrow(

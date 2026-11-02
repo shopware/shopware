@@ -115,6 +115,7 @@ class WriteCommandExtractorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertInstanceOf(ConstraintViolation::class, $violations->get(0));
         static::assertStringContainsString('This field is write-protected. (Got: "user" scope and "system" is required)', (string) $violations->get(0)->getMessage());
+        static::assertSame('/errorCount', iterator_to_array($exception->getErrors())[0]['source']['pointer']);
     }
 
     public static function writeProtectedFieldsProvider(): \Generator

@@ -71,11 +71,11 @@ class ProductReviewRoute extends AbstractProductReviewRoute
                 $context,
                 $this->applyConfiguredLimit($criteria, $context->getSalesChannelId(), $request),
             ),
-            function: $this->_load(...),
+            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse => $this->_load($productId, $context, $criteria),
         );
     }
 
-    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
+    private function _load(string $productId, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $salesChannelId = $context->getSalesChannelId();
         if (!$this->systemConfigService->getBool('core.listing.showReview', $salesChannelId)) {

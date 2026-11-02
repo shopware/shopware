@@ -233,7 +233,71 @@ final class CartOrderConversionStub
                     ],
                 ],
             ],
-            'transactions' => [],
+            'transactions' => [
+                [
+                    'amount' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'paymentMethodId' => 'order-transaction-cancelled-payment-method-id',
+                    'validationStruct' => null,
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-cancelled-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                ],
+                [
+                    'amount' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'paymentMethodId' => 'order-transaction-payment-method-id',
+                    'validationStruct' => null,
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                ],
+                [
+                    'amount' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'paymentMethodId' => 'order-transaction-failed-payment-method-id',
+                    'validationStruct' => null,
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-failed-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                ],
+            ],
             'modified' => false,
             'customerComment' => null,
             'affiliateCode' => null,

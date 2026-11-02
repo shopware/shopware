@@ -62,6 +62,10 @@ includes:
 
 ## Customization
 
+Deprecated DAL definitions, entities and collections must declare a constructor starting with `Feature::throwIfActive()` for their removal flag. `DeprecatedEntityConstructionRule` checks this even when a constructor would otherwise be inherited. Entity and collection methods remain callable without per-accessor deprecation notices; explicitly deprecated methods still require their own guards. `DeprecatedFrameworkMethodPattern` keeps the configured definition metadata callable without guards. Definition service removal is covered by the existing service feature-tag rules.
+
+`DeprecatedExceptionPattern` validates constructors and factories on deprecated exception classes without `reason:remove-exception` exemptions. They must start with `Feature::throwIfActive()` for the removal flag; existing ordinary constructor/factory triggers remain supported. Known status/error-code and legacy metadata getters remain callable without deprecation guards, including after a flag-state change. Deprecated methods on retained domain exception classes use the ordinary `Feature::triggerDeprecationOrThrow()` rule.
+
 `DeprecatedMethodsThrowDeprecationRule` delegates framework callback checks to `DeprecatedFrameworkMethodPattern`.
 Its `frameworkMethods` constructor argument maps a contract class to method names and native values: `[]` or `null` specify the required return value when the removal flag is active; `true` keeps the method callable without a deprecation guard.
 The `throwOnlyClasses` and `throwOnlyServiceTags` arguments select classes whose other deprecated public methods must start with `Feature::throwIfActive()`.

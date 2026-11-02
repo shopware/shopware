@@ -145,10 +145,6 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         });
     });
 
-    it('should be a Vue component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should load measurement system data on creation', async () => {
         await wrapper.vm.createdComponent();
 

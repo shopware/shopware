@@ -18,8 +18,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -29,7 +32,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 /**
  * @internal
@@ -38,6 +44,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 #[CoversClass(ZugferdDocument::class)]
 class ZugferdDocumentTest extends TestCase
 {
+    use ClockSensitiveTrait;
+
     public function testViolations(): void
     {
         $this->expectException(DocumentException::class);
@@ -606,6 +614,235 @@ class ZugferdDocumentTest extends TestCase
             ?->getElementsByTagName('ChargeAmount')->item(0);
 
         static::assertSame('8.3943', $unitPrice?->nodeValue);
+    }
+
+    public function testWithBuyerInformationWritesTheBuyerParty(): void
+    {
+        $customer = new OrderCustomerEntity();
+        $customer->setFirstName('Max');
+        $customer->setLastName('Mustermann');
+        $customer->setCompany('ACME GmbH');
+        $customer->setCustomerNumber('10001');
+        $customer->setEmail('max@example.com');
+
+        $address = $this->createBillingAddress(countryIso: 'DE', stateShortCode: 'DE-NW');
+        $address->setAdditionalAddressLine1('Hinterhaus');
+        $address->setAdditionalAddressLine2('2. OG');
+
+        $document = $this->createDocument();
+        $document->withBuyerInformation($customer, $address);
+
+        $buyer = $this->getDom($document)->getElementsByTagName('BuyerTradeParty')->item(0);
+        static::assertNotNull($buyer);
+        static::assertSame('Max Mustermann - ACME GmbH', self::nodeValue($buyer, 'Name'));
+        static::assertSame('10001', self::nodeValue($buyer, 'ID'));
+        static::assertSame('max@example.com', self::nodeValue($buyer, 'URIID'));
+        static::assertSame('Musterstraße 1', self::nodeValue($buyer, 'LineOne'));
+        static::assertSame('Hinterhaus', self::nodeValue($buyer, 'LineTwo'));
+        static::assertSame('2. OG', self::nodeValue($buyer, 'LineThree'));
+        static::assertSame('48149', self::nodeValue($buyer, 'PostcodeCode'));
+        static::assertSame('Münster', self::nodeValue($buyer, 'CityName'));
+        static::assertSame('DE', self::nodeValue($buyer, 'CountryID'));
+        // the country prefix of the ISO 3166-2 state code is dropped, the country is already given
+        static::assertSame('NW', self::nodeValue($buyer, 'CountrySubDivisionName'));
+    }
+
+    public function testWithBuyerInformationKeepsAStateCodeOfAnotherCountry(): void
+    {
+        $customer = new OrderCustomerEntity();
+        $customer->setFirstName('Max');
+        $customer->setLastName('Mustermann');
+        $customer->setEmail('max@example.com');
+
+        $document = $this->createDocument();
+        $document->withBuyerInformation($customer, $this->createBillingAddress(countryIso: 'DE', stateShortCode: 'US-NY'));
+
+        $buyer = $this->getDom($document)->getElementsByTagName('BuyerTradeParty')->item(0);
+        static::assertNotNull($buyer);
+        static::assertSame('Max Mustermann', self::nodeValue($buyer, 'Name'));
+        static::assertSame('US-NY', self::nodeValue($buyer, 'CountrySubDivisionName'));
+    }
+
+    public function testWithBuyerReferenceWritesTheBuyerReference(): void
+    {
+        $document = $this->createDocument();
+        $document->withBuyerReference('PO-4711');
+
+        static::assertSame('PO-4711', self::nodeValue($this->getDom($document)->documentElement, 'BuyerReference'));
+    }
+
+    public function testWithSellerInformationWritesTheSellerPartyAndThePaymentTerm(): void
+    {
+        self::mockTime('2026-10-13 10:00:00');
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $country->setIso('DE');
+
+        $documentConfig = DocumentConfigurationFactory::createConfiguration([
+            'companyName' => 'Muster company SE',
+            'companyStreet' => 'Musterstreet 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Mustercity',
+            'companyEmail' => 'billing@example.com',
+            'companyPhone' => '0123456789',
+            'executiveDirector' => 'Erika Musterfrau',
+            'taxNumber' => '123/456/7890',
+            'vatId' => 'DE123456789',
+            'paymentDueDate' => '+14 days',
+        ]);
+        $documentConfig->setCompanyCountry($country);
+
+        $document = $this->createDocument();
+        $document->withSellerInformation($documentConfig);
+        $dom = $this->getDom($document);
+
+        $seller = $dom->getElementsByTagName('SellerTradeParty')->item(0);
+        static::assertNotNull($seller);
+        static::assertSame('Muster company SE', self::nodeValue($seller, 'Name'));
+        static::assertSame('Musterstreet 1', self::nodeValue($seller, 'LineOne'));
+        static::assertSame('12345', self::nodeValue($seller, 'PostcodeCode'));
+        static::assertSame('Mustercity', self::nodeValue($seller, 'CityName'));
+        static::assertSame('DE', self::nodeValue($seller, 'CountryID'));
+        static::assertSame('Erika Musterfrau', self::nodeValue($seller, 'PersonName'));
+        static::assertSame('0123456789', self::nodeValue($seller, 'CompleteNumber'));
+
+        $registrations = [];
+        foreach ($seller->getElementsByTagName('SpecifiedTaxRegistration') as $registration) {
+            $id = $registration->getElementsByTagName('ID')->item(0);
+            static::assertNotNull($id);
+            $registrations[$id->getAttribute('schemeID')] = $id->nodeValue;
+        }
+        static::assertSame(['FC' => '123/456/7890', 'VA' => 'DE123456789'], $registrations);
+
+        $emails = [];
+        foreach ($seller->getElementsByTagName('URIID') as $uri) {
+            $emails[] = $uri->nodeValue;
+        }
+        static::assertSame(['billing@example.com', 'billing@example.com'], $emails);
+
+        $paymentTerm = $dom->getElementsByTagName('SpecifiedTradePaymentTerms')->item(0);
+        static::assertNotNull($paymentTerm);
+        static::assertSame('20261027', \trim(self::nodeValue($paymentTerm, 'DateTimeString') ?? ''));
+    }
+
+    public function testWithGeneralOrderDataWritesTheInvoiceHeader(): void
+    {
+        $document = $this->createDocument();
+        $document->withGeneralOrderData(new \DateTime('2024-01-05'), '2024-01-03', '1002', 'EUR');
+        $dom = $this->getDom($document);
+
+        $general = $dom->getElementsByTagName('ExchangedDocument')->item(0);
+        static::assertNotNull($general);
+        static::assertSame('1002', self::nodeValue($general, 'ID'));
+        static::assertSame(ZugferdInvoiceType::INVOICE, self::nodeValue($general, 'TypeCode'));
+        static::assertSame('20240103', \trim(self::nodeValue($general, 'DateTimeString') ?? ''));
+        static::assertSame('EUR', self::nodeValue($dom->documentElement, 'InvoiceCurrencyCode'));
+
+        $delivery = $dom->getElementsByTagName('ActualDeliverySupplyChainEvent')->item(0);
+        static::assertNotNull($delivery);
+        static::assertSame('20240105', \trim(self::nodeValue($delivery, 'DateTimeString') ?? ''));
+    }
+
+    public function testWithTaxesWritesOneBreakdownPerTaxRateOnANetBasis(): void
+    {
+        $taxes = new CalculatedTaxCollection([
+            new CalculatedTax(15.97, 19.0, 100.0),
+            new CalculatedTax(1.31, 7.0, 20.0),
+        ]);
+        $price = new CartPrice(102.72, 120.0, 120.0, $taxes, new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
+
+        $document = $this->createDocument(isGross: true);
+        $document->withTaxes($price);
+
+        $breakdowns = [];
+        foreach ($this->getDom($document)->getElementsByTagName('ApplicableTradeTax') as $tax) {
+            $rate = self::nodeValue($tax, 'RateApplicablePercent');
+            static::assertNotNull($rate);
+            $breakdowns[$rate] = [
+                self::nodeValue($tax, 'CategoryCode'),
+                self::nodeValue($tax, 'BasisAmount'),
+                self::nodeValue($tax, 'CalculatedAmount'),
+            ];
+        }
+
+        // the basis is the gross price of the tax group minus its tax
+        static::assertSame([
+            '19.00' => ['S', '84.03', '15.97'],
+            '7.00' => ['S', '18.69', '1.31'],
+        ], $breakdowns);
+    }
+
+    public function testWithTaxesOnATaxFreeOrderWritesASingleZeroRatedBreakdown(): void
+    {
+        $price = new CartPrice(50.0, 50.0, 50.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE);
+
+        $document = $this->createDocument();
+        $document->withTaxes($price);
+
+        $taxes = $this->getDom($document)->getElementsByTagName('ApplicableTradeTax');
+        static::assertSame(1, $taxes->length);
+        $tax = $taxes->item(0);
+        static::assertNotNull($tax);
+        static::assertSame('Z', self::nodeValue($tax, 'CategoryCode'));
+        static::assertSame('50.00', self::nodeValue($tax, 'BasisAmount'));
+        static::assertSame('0.00', self::nodeValue($tax, 'CalculatedAmount'));
+        static::assertSame('0.00', self::nodeValue($tax, 'RateApplicablePercent'));
+    }
+
+    public function testGetBuilderReturnsTheBuilderTheDocumentWritesTo(): void
+    {
+        $builder = ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3);
+
+        static::assertSame($builder, (new ZugferdDocument($builder))->getBuilder());
+    }
+
+    private function createDocument(bool $isGross = false): ZugferdDocumentMock
+    {
+        return new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
+    }
+
+    /**
+     * Renders the document for an empty order; the mock skips the schema validation so partial documents can be inspected.
+     */
+    private function getDom(ZugferdDocumentMock $document): \DOMDocument
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        return $document->getDomContent($order, new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator()));
+    }
+
+    private function createBillingAddress(string $countryIso, string $stateShortCode): OrderAddressEntity
+    {
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $country->setIso($countryIso);
+
+        $state = new CountryStateEntity();
+        $state->setId(Uuid::randomHex());
+        $state->setShortCode($stateShortCode);
+
+        $address = new OrderAddressEntity();
+        $address->setId(Uuid::randomHex());
+        $address->setFirstName('Max');
+        $address->setLastName('Mustermann');
+        $address->setStreet('Musterstraße 1');
+        $address->setZipcode('48149');
+        $address->setCity('Münster');
+        $address->setCountry($country);
+        $address->setCountryState($state);
+
+        return $address;
+    }
+
+    private static function nodeValue(?\DOMElement $parent, string $tag): ?string
+    {
+        return $parent?->getElementsByTagName($tag)->item(0)?->nodeValue;
     }
 
     private function createDeliveryDocumentDom(float $shippingTotal, string $documentType): \DOMDocument

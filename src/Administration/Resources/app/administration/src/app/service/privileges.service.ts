@@ -249,7 +249,7 @@ export default class PrivilegesService {
         }
 
         Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
-            if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
+            if (existingCategoryKeyCombination.roles.hasOwnProperty(role)) {
                 existingCategoryKeyCombination.roles[role] = object.deepMergeObject(
                     existingCategoryKeyCombination.roles[role],
                     entry,

@@ -2,20 +2,11 @@
  * @sw-package framework
  */
 
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { parse } from 'yaml';
-
 import Feature from 'src/core/feature';
-import getMajorFeatureFlags from '../_helper_/majorFeatureFlags';
+import getMajorFeatureFlags, { loadFeatureConfig } from '../_helper_/majorFeatureFlags';
 import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
 
-const featureConfigPath = resolve(
-    process.env.ADMIN_PATH,
-    '../../../../Core/Framework/Resources/config/packages/feature.yaml',
-);
-
-const featureConfig = parse(readFileSync(featureConfigPath, 'utf8'));
+const featureConfig = loadFeatureConfig();
 const { flags } = featureConfig.shopware.feature;
 
 // Like in the browser, the flags that are on by default are active unless the environment switches them

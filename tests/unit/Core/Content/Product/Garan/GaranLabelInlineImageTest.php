@@ -95,6 +95,7 @@ class GaranLabelInlineImageTest extends TestCase
         yield 'foreign file' => ['composer.json'];
         yield 'duration without label' => ['garan-label-nested-999.png'];
         yield 'other extension' => ['garan-label-nested-36.svg'];
+        yield 'trailing newline' => ["garan-label-nested-36.png\n"];
     }
 
     #[DataProvider('invalidNameProvider')]

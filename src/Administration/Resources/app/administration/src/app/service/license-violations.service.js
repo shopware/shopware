@@ -98,7 +98,7 @@ export default function createLicenseViolationsService(storeService) {
         ];
 
         // if the user is on a allowlisted domain
-        if (allowlistDomains.includes(hostnameParts)) {
+        if (allowlistDomains.includes(hostnameParts) || hostname === 'ddev.site' || hostname.endsWith('.ddev.site')) {
             return emptyViolationsResponse;
         }
 

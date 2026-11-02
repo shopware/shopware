@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
@@ -16,6 +17,16 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(XmlParserUtils::class)]
 class XmlParserUtilsTest extends TestCase
 {
+    public function testAFileThatCannotBeLoadedThrowsAnXmlParsingException(): void
+    {
+        $this->expectExceptionObject(AppException::xmlParsingException(
+            '/non/existent/file.xml',
+            'Resource "/non/existent/file.xml" is not a file.',
+        ));
+
+        XmlParserUtils::loadFile('/non/existent/file.xml', '/non/existent/schema.xsd');
+    }
+
     public function testParseAttributes(): void
     {
         $element = $this->createDOMElement(['attr1' => 'value1', 'attr_2' => 'value2']);
@@ -186,6 +197,19 @@ class XmlParserUtilsTest extends TestCase
                 ],
             ],
             $result
+        );
+    }
+
+    public function testParseTranslations(): void
+    {
+        $document = new \DOMDocument();
+        $document->loadXML('<item><label> English </label><label lang="de-DE">German</label><description>Other</description><nested><label lang="fr-FR">Nested</label></nested></item>');
+        $element = $document->documentElement;
+        static::assertInstanceOf(\DOMElement::class, $element);
+
+        static::assertSame(
+            ['en-GB' => 'English', 'de-DE' => 'German'],
+            XmlParserUtils::parseTranslations($element, 'label'),
         );
     }
 

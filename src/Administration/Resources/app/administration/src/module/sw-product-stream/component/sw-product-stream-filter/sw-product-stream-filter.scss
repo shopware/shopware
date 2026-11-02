@@ -8,3 +8,9 @@
 .sw-condition .sw-condition__container:has(> .sw-product-stream-filter__fields) {
     grid-template-columns: minmax(var(--scale-size-256), auto) minmax(var(--scale-size-256), 1fr) auto;
 }
+
+.sw-condition .sw-condition__container {
+    > .sw-product-stream-filter__fields {
+        max-height: none;
+    }
+}

@@ -1027,7 +1027,7 @@ class EntityReader implements EntityReaderInterface
             );
             $query->setParameter('limit', $fieldCriteria->getLimit());
 
-            $this->connection->executeQuery('SET @n = 0; SET @c = null;');
+            $this->connection->executeStatement('SET @n = 0, @c = null');
         }
 
         $mapping = $query->executeQuery()->fetchAllKeyValue();

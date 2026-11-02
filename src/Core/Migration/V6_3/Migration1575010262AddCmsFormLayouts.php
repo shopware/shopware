@@ -119,7 +119,6 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
             ]),
         ];
 
-        $slotTranslationData['language_id'] = $languageEn;
         $slotTranslations[] = $slotTranslationData;
 
         if ($languageDe !== null) {

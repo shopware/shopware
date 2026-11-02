@@ -123,7 +123,7 @@ class CategoryIndexingConcurrencyTest extends TestCase
         $this->seedSeoUrlPool();
 
         $this->assertNoDeadlocksWhile(
-            fn () => $this->generateSeoUrls(),
+            $this->generateSeoUrls(...),
             'wrote overlapping seo_url rows concurrently',
         );
     }

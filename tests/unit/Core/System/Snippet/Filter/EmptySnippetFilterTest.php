@@ -51,6 +51,16 @@ class EmptySnippetFilterTest extends TestCase
                         'setId' => '',
                         'hasFileValue' => false,
                     ],
+                    '1.zero' => [
+                        'value' => '0',
+                        'origin' => '0',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                        'hasFileValue' => false,
+                    ],
                 ],
             ],
             'secondSetId' => [
@@ -68,6 +78,16 @@ class EmptySnippetFilterTest extends TestCase
                     '2.baz' => [
                         'value' => '2_baz',
                         'origin' => '2_baz',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                        'hasFileValue' => false,
+                    ],
+                    '2.zero' => [
+                        'value' => '0',
+                        'origin' => '0',
                         'resetTo' => '',
                         'translationKey' => '',
                         'author' => '',

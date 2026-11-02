@@ -1,0 +1,117 @@
+diff --git a/src/Core/Migration/V6_7/Migration1791537247AddIsSystemToProductSorting.php b/src/Core/Migration/V6_7/Migration1791537247AddIsSystemToProductSorting.php
+new file mode 100644
+index 0000000..3f50993
+--- /dev/null
++++ b/src/Core/Migration/V6_7/Migration1791537247AddIsSystemToProductSorting.php
+@@ -0,0 +1,30 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Migration\V6_7;
++
++use Doctrine\DBAL\Connection;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Migration\MigrationStep;
++
++/**
++ * Adds `product_sorting.is_system`, which replaces the `locked` flag for sortings shipped by Shopware.
++ *
++ * @internal
++ */
++#[Package('inventory')]
++class Migration1791537247AddIsSystemToProductSorting extends MigrationStep
++{
++    public function getCreationTimestamp(): int
++    {
++        return 1791537247;
++    }
++
++    public function update(Connection $connection): void
++    {
++        $this->addColumn($connection, 'product_sorting', 'is_system', 'TINYINT(1)', false, '0');
++
++        $connection->executeStatement(
++            'ALTER TABLE `product_sorting` ADD INDEX `idx.product_sorting.is_system` (`is_system`)'
++        );
++    }
++}
+diff --git a/src/Core/Migration/V6_7/Migration1791537318RemoveLockedFromProductSorting.php b/src/Core/Migration/V6_7/Migration1791537318RemoveLockedFromProductSorting.php
+new file mode 100644
+index 0000000..4148204
+--- /dev/null
++++ b/src/Core/Migration/V6_7/Migration1791537318RemoveLockedFromProductSorting.php
+@@ -0,0 +1,30 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Migration\V6_7;
++
++use Doctrine\DBAL\Connection;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Migration\MigrationStep;
++use Shopware\Core\Framework\Util\Database\TableHelper;
++
++/**
++ * Copies the `locked` flag into `is_system` and removes the old column.
++ *
++ * @internal
++ */
++#[Package('inventory')]
++class Migration1791537318RemoveLockedFromProductSorting extends MigrationStep
++{
++    public function getCreationTimestamp(): int
++    {
++        return 1791537318;
++    }
++
++    public function update(Connection $connection): void
++    {
++        if (TableHelper::columnExists($connection, 'product_sorting', 'locked')) {
++            $connection->executeStatement('UPDATE `product_sorting` SET `is_system` = `locked`');
++            $connection->executeStatement('ALTER TABLE `product_sorting` DROP COLUMN `locked`');
++        }
++    }
++}
+diff --git a/tests/migration/Core/V6_7/Migration1791537247AddIsSystemToProductSortingTest.php b/tests/migration/Core/V6_7/Migration1791537247AddIsSystemToProductSortingTest.php
+new file mode 100644
+index 0000000..71ed3ed
+--- /dev/null
++++ b/tests/migration/Core/V6_7/Migration1791537247AddIsSystemToProductSortingTest.php
+@@ -0,0 +1,39 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Migration\Core\V6_7;
++
++use Doctrine\DBAL\Connection;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\TestCase;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
++use Shopware\Core\Framework\Util\Database\TableHelper;
++use Shopware\Core\Migration\V6_7\Migration1791537247AddIsSystemToProductSorting;
++
++/**
++ * @internal
++ */
++#[Package('inventory')]
++#[CoversClass(Migration1791537247AddIsSystemToProductSorting::class)]
++class Migration1791537247AddIsSystemToProductSortingTest extends TestCase
++{
++    private Connection $connection;
++
++    protected function setUp(): void
++    {
++        $this->connection = KernelLifecycleManager::getConnection();
++    }
++
++    public function testAddsTheIsSystemColumnAndIndex(): void
++    {
++        if (TableHelper::columnExists($this->connection, 'product_sorting', 'is_system')) {
++            $this->connection->executeStatement('ALTER TABLE `product_sorting` DROP INDEX `idx.product_sorting.is_system`');
++            $this->connection->executeStatement('ALTER TABLE `product_sorting` DROP COLUMN `is_system`');
++        }
++
++        (new Migration1791537247AddIsSystemToProductSorting())->update($this->connection);
++
++        static::assertTrue(TableHelper::columnExists($this->connection, 'product_sorting', 'is_system'));
++        static::assertTrue(TableHelper::indexExists($this->connection, 'product_sorting', 'idx.product_sorting.is_system'));
++    }
++}

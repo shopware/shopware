@@ -1,0 +1,26 @@
+{
+  "$comment": "A real change moved theme-folder cleanup from the scheduled task into theme:compile; cached storefront pages then requested CSS/JS from deleted folders and got 404s. Code-only routing must reach platform-scope, scheduled-tasks-and-queue and cache-and-asset-lifetime without reading the PR text. Test files changed, so the tests guide loads too.",
+  "signals": [
+    "scheduled_task",
+    "command",
+    "sync_path_change",
+    "filesystem",
+    "fork_pr",
+    "external",
+    "php_src",
+    "tests_changed"
+  ],
+  "not_signals": [
+    "migration",
+    "admin_ui",
+    "storefront_ui"
+  ],
+  "guides": [
+    "platform-scope",
+    "bc-php",
+    "cache-and-asset-lifetime",
+    "scheduled-tasks-and-queue",
+    "release-docs",
+    "tests-for-behavior-change"
+  ]
+}

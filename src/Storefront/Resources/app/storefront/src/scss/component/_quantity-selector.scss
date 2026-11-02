@@ -1,4 +1,6 @@
 .quantity-selector-group {
+    flex-wrap: nowrap;
+
     .quantity-selector-group-input {
         -moz-appearance: textfield;
         text-align: center;
@@ -7,6 +9,7 @@
         padding-left: 0;
         padding-right: 0;
         line-height: 1rem;
+        min-width: 2ch;
 
         &:disabled {
             color: $gray-600;
@@ -46,5 +49,16 @@
 
     .input-group-text {
         line-height: 1rem;
+    }
+}
+
+.buy-widget-container {
+    .buy-widget-quantity {
+        min-width: min-content;
+    }
+
+    .buy-widget-buy-button {
+        flex: 1 0 10em;
+        width: auto;
     }
 }

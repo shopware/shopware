@@ -80,7 +80,8 @@
                 ref="product-stream-value-select-custom-field"
                 v-model:value="actualCondition.value"
                 :entity="getCustomFieldEntityName(fieldName)"
-                :criteria="isProductEntity ? productCriteria : customFieldCriteria"
+                :criteria="customFieldCriteria"
+                :label-property="customFieldLabelProperty"
                 :context="context"
                 :disabled="disabled"
                 :display-variants="isProductEntity"
@@ -93,7 +94,7 @@
                         name="selection-label-property"
                         v-bind="{ item }"
                     >
-                        {{ item.translated?.name || item.name }}
+                        {{ getCustomFieldLabel(item) }}
                     </slot>
                 </template>
             </sw-entity-single-select>
@@ -106,6 +107,7 @@
                 v-model:value="multiValue"
                 :repository="entityCustomFieldRepository"
                 :criteria="customFieldCriteria"
+                :label-property="customFieldLabelProperty"
                 :context="context"
                 :disabled="disabled"
                 @select-collapsed="onSelectCollapsed"
@@ -122,10 +124,10 @@
                             :variations="item.variation"
                             :search-term="searchTerm"
                         >
-                            {{ item.translated?.name || item.name }}
+                            {{ getCustomFieldLabel(item) }}
                         </sw-product-variant-info>
                         <template v-else>
-                            {{ item.translated?.name || item.name }}
+                            {{ getCustomFieldLabel(item) }}
                         </template>
                     </slot>
                 </template>
@@ -316,7 +318,7 @@
                             class="product-view"
                             :variations="item.variation"
                         >
-                            {{ item.translated.name || item.name }}
+                            {{ getProductLabel(item) }}
                         </sw-product-variant-info>
                     </slot>
                 </template>
@@ -329,7 +331,7 @@
                         {% block sw_product_stream_value_results_list_result_label %}
                         <span class="sw-select-result__result-item-text">
                             <sw-product-variant-info :variations="item.variation">
-                                {{ item.translated.name || item.name }}
+                                {{ getProductLabel(item) }}
                             </sw-product-variant-info>
                         </span>
                         {% endblock %}

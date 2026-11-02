@@ -145,7 +145,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             ]),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.$forceUpdate();
         await flushPromises();
 
@@ -168,7 +168,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         const itemBar = wrapper.find('.column-priority_bar');
         await itemBar.find('input').setValue(7);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(7);

@@ -10,7 +10,7 @@
     }
 
     .sw-loader {
-        background-color: var(--color-background-secondary-default);
+        background-color: color-mix(in srgb, var(--color-background-secondary-default) 80%, transparent);
     }
 
     .sw-extension-card-bought__info-subscription-expiry {

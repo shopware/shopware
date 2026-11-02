@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -38,14 +39,17 @@ class PromotionItemBuilder
     final public const PROMOTION_TYPE_FIXED = 'fixed';
 
     /**
-     * Builds a new placeholder promotion line item that does not have
-     * any side effects for the calculation. It will contain the code
-     * within the payload which can then be used to create a real promotion item.
+     * @deprecated tag:v6.8.0 - Will be removed, use {@see PromotionLineItemFactory::create()} instead
      *
      * @throws CartException
      */
     public function buildPlaceholderItem(string $code): LineItem
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', PromotionLineItemFactory::class . '::create')
+        );
+
         $code = mb_trim($code);
 
         // void duplicate codes with other items

@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\ArrayLoader;
@@ -100,6 +101,51 @@ class DocumentTemplateRendererTest extends TestCase
 
         static::assertSame('2026-01-01', $result);
         static::assertSame('UTC', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
+    }
+
+    public function testRenderFallsBackToPlainRenderWhenTwigIsDecorated(): void
+    {
+        $template = 'rendered template';
+
+        $templateFinder = static::createStub(TemplateFinder::class);
+        $templateFinder->method('find')->willReturnArgument(0);
+
+        $twig = $this->createMock(Environment::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->with('view')
+            ->willReturn($template);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setBusinessTimeZone('Europe/Berlin');
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
+        $contextFactory->method('create')->willReturn($salesChannelContext);
+
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $renderer = new DocumentTemplateRenderer(
+            $templateFinder,
+            $twig,
+            static::createStub(AbstractTranslator::class),
+            $contextFactory,
+            $eventDispatcher,
+        );
+
+        $result = $renderer->render(
+            'view',
+            [],
+            Context::createDefaultContext(),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            'en-GB',
+        );
+
+        static::assertSame($template, $result);
     }
 
     private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer

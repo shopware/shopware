@@ -83,7 +83,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category'],
+            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category', 'salesChannelId' => null],
         ]);
 
         $messageBus = $this->createMock(MessageBusInterface::class);
@@ -142,7 +142,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         // subscriber must regenerate rather than silently skip.
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category'],
+            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category', 'salesChannelId' => null],
         ]);
 
         $messageBus = $this->createMock(MessageBusInterface::class);
@@ -222,13 +222,71 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $event->success();
     }
 
+    public function testLimitsTheMessageToTheSalesChannelOfAnInsertedTemplate(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn (SeoUrlTemplateIndexingMessage $message): bool => $message->onlyChangedTemplate
+                && $message->templateSalesChannelId === $salesChannelId))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $subscriber = new SeoUrlTemplateChangeSubscriber(static::createStub(Connection::class), $messageBus);
+
+        $event = $this->createEvent([
+            $this->insertCommand([
+                'template' => 'custom-prefix/{{ category.name }}',
+                'route_name' => 'frontend.navigation.page',
+                'entity_name' => 'category',
+                'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+            ]),
+        ]);
+
+        $subscriber->onSeoUrlTemplateWrite($event);
+        $event->success();
+    }
+
+    public function testDispatchesOneMessagePerChangedTemplateOfTheSameRoute(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category', 'salesChannelId' => $salesChannelId],
+            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category', 'salesChannelId' => null],
+        ]);
+
+        $scopes = [];
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $messageBus->method('dispatch')
+            ->willReturnCallback(static function (SeoUrlTemplateIndexingMessage $message) use (&$scopes): Envelope {
+                $scopes[] = [$message->onlyChangedTemplate, $message->templateSalesChannelId];
+
+                return new Envelope($message);
+            });
+
+        $subscriber = new SeoUrlTemplateChangeSubscriber($connection, $messageBus);
+
+        $event = $this->createEvent([
+            $this->updateCommand(['template' => 'a']),
+            $this->updateCommand(['template' => 'b']),
+        ]);
+
+        $subscriber->onSeoUrlTemplateWrite($event);
+        $event->success();
+
+        static::assertSame([[true, $salesChannelId], [true, null]], $scopes);
+    }
+
     public function testDispatchesOneMessagePerRoute(): void
     {
         // Multiple writes resolving to the same route must produce a single message.
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category'],
-            ['routeName' => 'frontend.detail.page', 'entityName' => 'product'],
+            ['routeName' => 'frontend.navigation.page', 'entityName' => 'category', 'salesChannelId' => null],
+            ['routeName' => 'frontend.detail.page', 'entityName' => 'product', 'salesChannelId' => null],
         ]);
 
         $messageBus = $this->createMock(MessageBusInterface::class);
@@ -256,8 +314,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['routeName' => '', 'entityName' => 'category'],
-            ['routeName' => 'frontend.navigation.page', 'entityName' => ''],
+            ['routeName' => '', 'entityName' => 'category', 'salesChannelId' => null],
+            ['routeName' => 'frontend.navigation.page', 'entityName' => '', 'salesChannelId' => null],
         ]);
 
         $messageBus = $this->createMock(MessageBusInterface::class);

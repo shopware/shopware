@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentSource;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\ArrayLoader;
@@ -216,6 +217,25 @@ class DocumentTemplateRendererTest extends TestCase
         static::assertSame('UTC', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
     }
 
+    public function testRenderFallsBackToPlainRenderWhenTwigIsDecorated(): void
+    {
+        $twig = $this->createMock(Environment::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->with('view')
+            ->willReturn('rendered template');
+
+        $renderer = $this->createRenderer($twig, 'Europe/Berlin');
+
+        $result = $renderer->render(
+            'view',
+            $this->createRenderInput(),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('rendered template', $result);
+    }
+
     public function testRenderDispatchesTheV1ParameterEventWithTheTemplateScope(): void
     {
         $captured = null;
@@ -294,7 +314,7 @@ class DocumentTemplateRendererTest extends TestCase
     }
 
     private function createRenderer(
-        TwigEnvironment $twig,
+        Environment $twig,
         ?string $businessTimeZone,
         ?EventDispatcherInterface $eventDispatcher = null,
         ?AbstractTranslator $translator = null,

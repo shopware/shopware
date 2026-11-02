@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\Log\Package;
@@ -42,6 +43,25 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     public function update(AppPersistContext $context): void
     {
         $this->persist($context);
+    }
+
+    public function uninstall(AppRemovalContext $context): void
+    {
+        $this->deleteApiWebhooks($context->app->getIntegrationId());
+    }
+
+    public function delete(AppRemovalContext $context): void
+    {
+        $this->deleteApiWebhooks($context->app->getIntegrationId());
+    }
+
+    /**
+     * Webhooks an app created through the Admin API are owned by its integration, not linked by app id.
+     */
+    private function deleteApiWebhooks(string $integrationId): void
+    {
+        $this->connection->delete('webhook', ['owner_integration_id' => Uuid::fromHexToBytes($integrationId)]);
+        $this->cacheClearer->clearWebhookCache();
     }
 
     private function persist(AppPersistContext $context): void

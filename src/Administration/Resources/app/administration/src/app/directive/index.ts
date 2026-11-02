@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access -- import.meta.glob returns untyped modules */
 /**
  * @sw-package framework
  */

@@ -28,6 +28,8 @@ interface TreeItem {
 export default Component.wrapComponentConfig({
     template,
 
+    emits: ['modal-close', 'change'],
+
     props: {
         selections: {
             type: Array as PropType<Selection[]>,

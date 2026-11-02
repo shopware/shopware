@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -101,11 +102,16 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('theme')
                     ->treatNullLike(false)
                     ->canBeUnset()
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
                         ->scalarNode('visibility')->end()
                         ->variableNode('config')->end()
+                        ->booleanNode('use_last_modified_version_strategy')
+                            ->defaultTrue()
+                            ->info('When disabled, the theme asset version strategy uses an empty version strategy instead of fetching last-modified timestamps from the filesystem. Safe to disable when using SeedingThemePathBuilder, as the seed already invalidates caches.')
+                        ->end()
                     ->end()
                 ->end()
                 ->arrayNode('asset')
@@ -232,6 +238,16 @@ class Configuration implements ConfigurationInterface
                 ->children()
                 ->booleanNode('auth_required')
                     ->defaultTrue()
+                ->end()
+            ->end()
+            ->end()
+            ->arrayNode('user_recovery')
+                ->info('Administration user password recovery ("forgot password") flow. Disable it when passwords are managed externally, e.g. via SSO.')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('enabled')
+                        ->defaultTrue()
+                    ->end()
                 ->end()
             ->end();
 
@@ -663,7 +679,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('default')->defaultFalse()->end()
                         ->stringNode('major')->cannotBeEmpty()
                             ->validate()
-                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/D', $major))
                                 ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
                             ->end()
                         ->end()
@@ -1704,6 +1720,11 @@ class Configuration implements ConfigurationInterface
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
                     ->defaultValue(10)
                     ->min(1)
+                ->end()
+                ->integerNode('tool_result_cache_ttl')
+                    ->info('Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer.')
+                    ->defaultValue(ToolResultCacheStorage::DEFAULT_TTL_SECONDS)
+                    ->min(60)
                 ->end()
             ->end();
 

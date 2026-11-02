@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
@@ -412,6 +413,24 @@ class ShippingMethodValidatorTest extends TestCase
             ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
             $this->firstViolation($exception)->getCode()
         );
+    }
+
+    public function testRemovingTheTaxIdOfAShippingMethodWithFixedTaxIsRejected(): void
+    {
+        $this->createShippingMethod(active: false, priceKeys: []);
+        $this->shippingMethodRepository->update([[
+            'id' => $this->ids->get('shipping'),
+            'taxType' => ShippingMethodEntity::TAX_TYPE_FIXED,
+            'taxId' => $this->getValidTaxId(),
+        ]], $this->context);
+
+        $exception = $this->write(fn () => $this->shippingMethodRepository->update([[
+            'id' => $this->ids->get('shipping'),
+            'taxId' => null,
+        ]], $this->context));
+
+        static::assertNotNull($exception);
+        static::assertSame(ShippingMethodValidator::VIOLATION_TAX_ID_REQUIRED, $this->firstViolation($exception)->getCode());
     }
 
     private function addPriceWithoutCurrencyValues(string $key, string $shippingMethodKey = 'shipping'): void

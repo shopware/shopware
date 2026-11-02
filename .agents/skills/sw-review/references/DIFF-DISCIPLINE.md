@@ -28,11 +28,19 @@ Use file-scoped diff or `Read` around the changed area when needed.
 
 ## Size Caps
 
-| Scope      |               Cap | Action                                                                  |
-| ---------- | ----------------: | ----------------------------------------------------------------------- |
-| Per file   | 400 changed lines | skim first hunk/header, no per-line findings unless obvious             |
-| PR lines   |              5000 | throttle personas, max 5 findings, set decision to `needs_human_review` |
-| PR files   |               200 | same as PR lines                                                        |
-| Shell time |            ~3 min | stop and declare gaps                                                   |
+A large PR is split, never skipped. Dropping a persona or a guide because the
+diff is big is a silent gap, and silent gaps cost real findings: a throttled
+review of a 250-file PR missed a merchant-visible Admin bug that the skipped
+`ux` persona found within minutes when it was run afterwards.
 
-Past caps, prefer `needs_human_review` over speculative findings.
+| Scope          |                    Cap | Action                                                                                                                       |
+| -------------- | ---------------------: | ---------------------------------------------------------------------------------------------------------------------------- |
+| Generated file |                    any | lockfiles, snapshots, `dist/`, vendored code: skim the header, no per-line findings                                          |
+| Source file    |      400 changed lines | read it anyway; if the slice is large, split the file's hunks between workers of the same persona                            |
+| Persona slice  | 3000 lines or 60 files | split into up to 3 workers of the same persona along `change_profile.path_groups` (largest first); each gets the same guides |
+| PR             | 5000 lines or 200 files | every gated persona still runs; decision at least `needs_human_review`; `not_reviewed` lists anything left out               |
+| Guides         |         no cap on count | unaffected by size; every matching guide loads for every worker of its personas                                              |
+| Budget / time  |         run limits hit | stop in persona priority order (security, architecture, maintainer, ux, code-style); every unreviewed slice goes into `not_reviewed` with paths and changed lines |
+
+Past caps, prefer `needs_human_review` over speculative findings, and prefer an
+explicit `not_reviewed` entry over a persona that silently did not run.

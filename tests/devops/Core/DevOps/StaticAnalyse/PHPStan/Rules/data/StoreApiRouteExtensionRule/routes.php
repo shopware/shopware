@@ -82,9 +82,34 @@ class Routes
         return 'not an endpoint';
     }
 
+    #[Route('/arrow-function')]
+    public function arrowFunction(): string
+    {
+        return $this->extensions->publish(
+            name: TestExtension::NAME,
+            extension: new TestExtension(),
+            function: fn () => $this->body(),
+        );
+    }
+
+    #[Route('/arrow-function-subset')]
+    public function arrowFunctionWithSubset(string $value, string $unused): string
+    {
+        return $this->extensions->publish(
+            name: SubsetParametersExtension::NAME,
+            extension: new SubsetParametersExtension($value, $unused),
+            function: fn (string $value, string $unused) => $this->bodyWithValue($value),
+        );
+    }
+
     private function body(): string
     {
         return 'result';
+    }
+
+    private function bodyWithValue(string $value): string
+    {
+        return $value;
     }
 }
 
@@ -266,5 +291,19 @@ class UnpublishedAbstractContractRoute extends AbstractMigratedRoute
     public function load(): string
     {
         return 'a kept abstract contract still has to publish';
+    }
+}
+
+/**
+ * @extends Extension<string>
+ */
+final class SubsetParametersExtension extends Extension
+{
+    public const NAME = 'test.subset-parameters';
+
+    public function __construct(
+        public readonly string $value,
+        public readonly string $unused,
+    ) {
     }
 }

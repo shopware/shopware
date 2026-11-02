@@ -69,7 +69,7 @@ class EmailRule extends Rule
         }
 
         $email = str_replace('\*', '(.*?)', preg_quote($this->email, '/'));
-        $regex = \sprintf('/^%s$/i', $email);
+        $regex = \sprintf('/^%s$/Di', $email);
 
         return match ($this->operator) {
             Rule::OPERATOR_EQ => preg_match($regex, $customer->getEmail()) === 1,

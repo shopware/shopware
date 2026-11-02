@@ -506,7 +506,6 @@ class AttributeEntityCompiler
     {
         $enumType = $property->getType();
         if (!$enumType instanceof \ReflectionNamedType) {
-            /** @phpstan-ignore class.toStringDeprecated (False positive. See https://github.com/phpstan/phpstan/issues/14963) */
             throw DataAbstractionLayerException::invalidEnumField($property->getName(), $enumType?->__toString() ?? 'null');
         }
 

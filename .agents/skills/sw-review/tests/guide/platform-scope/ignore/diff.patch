@@ -1,0 +1,112 @@
+diff --git a/src/Core/Content/Mail/Message/SendMailHandler.php b/src/Core/Content/Mail/Message/SendMailHandler.php
+index ccb06fc..7d3a4b6 100644
+--- a/src/Core/Content/Mail/Message/SendMailHandler.php
++++ b/src/Core/Content/Mail/Message/SendMailHandler.php
+@@ -7,8 +7,10 @@ use League\Flysystem\FilesystemOperator;
+ use Psr\Log\LoggerInterface;
+ use Shopware\Core\Framework\Log\Package;
+ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
++use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
+ use Symfony\Component\Mailer\Transport\TransportInterface;
+ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++use Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException;
+ use Symfony\Component\Mime\Email;
+ 
+ /**
+@@ -18,6 +20,12 @@ use Symfony\Component\Mime\Email;
+ #[AsMessageHandler(handles: SendMailMessage::class)]
+ final readonly class SendMailHandler
+ {
++    /**
++     * SMTP servers that answer with a temporary 4xx code (greylisting, rate limits) usually accept
++     * the mail only after a few minutes. The default retry backoff of the transport is too short for that.
++     */
++    private const TEMPORARY_FAILURE_RETRY_DELAY_MS = 300_000;
++
+     /**
+      * @internal
+      */
+@@ -56,7 +64,21 @@ final readonly class SendMailHandler
+             return;
+         }
+ 
+-        $this->transport->send($mail);
++        try {
++            $this->transport->send($mail);
++        } catch (UnexpectedResponseException $e) {
++            if ($e->getCode() < 400 || $e->getCode() >= 500) {
++                throw $e;
++            }
++
++            throw new RecoverableMessageHandlingException(
++                \sprintf('SMTP server answered with temporary failure %d, retrying later.', $e->getCode()),
++                $e->getCode(),
++                $e,
++                self::TEMPORARY_FAILURE_RETRY_DELAY_MS
++            );
++        }
++
+         $this->cleanup($message);
+     }
+ 
+diff --git a/tests/unit/Core/Content/Mail/Message/SendMailHandlerTest.php b/tests/unit/Core/Content/Mail/Message/SendMailHandlerTest.php
+index 499d696..15d3506 100644
+--- a/tests/unit/Core/Content/Mail/Message/SendMailHandlerTest.php
++++ b/tests/unit/Core/Content/Mail/Message/SendMailHandlerTest.php
+@@ -14,7 +14,9 @@ use Psr\Log\LoggerInterface;
+ use Shopware\Core\Content\Mail\Message\SendMailHandler;
+ use Shopware\Core\Content\Mail\Message\SendMailMessage;
+ use Shopware\Core\Framework\Log\Package;
++use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
+ use Symfony\Component\Mailer\Transport\TransportInterface;
++use Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException;
+ use Symfony\Component\Mime\Email;
+ 
+ /**
+@@ -174,6 +176,46 @@ class SendMailHandlerTest extends TestCase
+         $this->createHandler(transport: $transport, logger: $logger)->__invoke($message);
+     }
+ 
++    public function testTemporarySmtpFailureIsRetriedWithLongerDelay(): void
++    {
++        $mail = new Email();
++
++        $this->fileSystem->expects($this->once())
++            ->method('read')
++            ->with('mail-data/test')
++            ->willReturn(serialize($mail));
++
++        $this->fileSystem->expects($this->never())->method('delete');
++
++        $transport = static::createStub(TransportInterface::class);
++        $transport->method('send')->willThrowException(new UnexpectedResponseException('Greylisted', 451));
++
++        try {
++            $this->createHandler(transport: $transport)->__invoke(new SendMailMessage('mail-data/test'));
++            static::fail('Expected a recoverable exception');
++        } catch (RecoverableMessageHandlingException $e) {
++            static::assertSame(300_000, $e->getRetryDelay());
++            static::assertSame(451, $e->getCode());
++        }
++    }
++
++    public function testPermanentSmtpFailureIsRethrown(): void
++    {
++        $mail = new Email();
++
++        $this->fileSystem->expects($this->once())
++            ->method('read')
++            ->with('mail-data/test')
++            ->willReturn(serialize($mail));
++
++        $transport = static::createStub(TransportInterface::class);
++        $transport->method('send')->willThrowException(new UnexpectedResponseException('Mailbox unavailable', 550));
++
++        $this->expectException(UnexpectedResponseException::class);
++
++        $this->createHandler(transport: $transport)->__invoke(new SendMailMessage('mail-data/test'));
++    }
++
+     private function createHandler(?TransportInterface $transport = null, ?LoggerInterface $logger = null): SendMailHandler
+     {
+         return new SendMailHandler($transport ?? $this->transport, $this->fileSystem, $logger ?? $this->logger);

@@ -1,0 +1,25 @@
+{# DEMO: Twig hot reload playground for the draft pull request. Remove before merge. #}
+<div class="container py-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#twigHmrDemoModal">
+        Open Twig HMR demo modal
+    </button>
+
+    {% set ajaxModalUrl = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
+    <a href="{{ ajaxModalUrl }}" class="btn btn-secondary twig-hmr-demo-ajax-trigger" data-ajax-modal="true" data-url="{{ ajaxModalUrl }}">
+        Open Twig HMR demo AJAX modal
+    </a>
+</div>
+
+<div class="modal fade" id="twigHmrDemoModal" tabindex="-1" aria-labelledby="twigHmrDemoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="twigHmrDemoModalLabel">Twig HMR demo</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% sw_include '@Storefront/storefront/component/twig-hmr-demo/modal-body.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>

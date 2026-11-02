@@ -65,11 +65,11 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
         expect(wrapper.html()).toBe('<span class="first"></span>\n<span class="second"></span>');
     });
 
-    it('silences the components inside of it', () => {
+    it('silences the components directly inside of it, with plain elements in between', () => {
         mountTemplate(`
             <sw-silence-deprecations flag="V6_9_0_0">
                 <sw-silence-deprecations-test-child />
-                <sw-silence-deprecations-test-other />
+                <div><sw-silence-deprecations-test-other /></div>
             </sw-silence-deprecations>
         `);
 
@@ -156,19 +156,80 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
         expect(deprecations).toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
     });
 
-    it('silences the slot content of a wrapper component written inside of it', () => {
+    it('keeps the deprecations of the slot content it passes into a component inside of it', () => {
+        mountTemplate(`
+            <sw-silence-deprecations flag="V6_9_0_0">
+                <sw-silence-deprecations-test-child>
+                    <sw-silence-deprecations-test-other />
+                </sw-silence-deprecations-test-child>
+            </sw-silence-deprecations>
+        `);
+
+        expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+        expect(deprecations).toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
+    });
+
+    it('keeps the deprecations of a page a router view in its slot content renders', () => {
+        const routerView = {
+            name: 'sw-silence-deprecations-test-router-view',
+            setup(_props, { slots }) {
+                return () => slots.default({ Component: otherDeprecatedChild });
+            },
+        };
+
         mountTemplate(
             `
             <sw-silence-deprecations flag="V6_9_0_0">
-                <sw-silence-deprecations-test-wrapper>
-                    <sw-silence-deprecations-test-other />
-                </sw-silence-deprecations-test-wrapper>
+                <sw-silence-deprecations-test-child>
+                    <sw-silence-deprecations-test-router-view v-slot="{ Component }">
+                        <component :is="Component" />
+                    </sw-silence-deprecations-test-router-view>
+                </sw-silence-deprecations-test-child>
             </sw-silence-deprecations>
         `,
-            { 'sw-silence-deprecations-test-wrapper': wrapperComponent() },
+            { 'sw-silence-deprecations-test-router-view': routerView },
         );
 
-        expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
+        expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+        expect(deprecations).toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
+    });
+
+    it('keeps the deprecations of a component nested in another component inside of it', () => {
+        const card = { name: 'sw-silence-deprecations-test-card', template: '<div><slot /></div>' };
+
+        mountTemplate(
+            `
+            <sw-silence-deprecations flag="V6_9_0_0">
+                <sw-silence-deprecations-test-card>
+                    <sw-silence-deprecations-test-child />
+                </sw-silence-deprecations-test-card>
+            </sw-silence-deprecations>
+        `,
+            { 'sw-silence-deprecations-test-card': card },
+        );
+
+        expect(deprecations).toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+    });
+
+    it('silences the lifecycle hooks of the components inside of it', () => {
+        const mounting = {
+            name: 'sw-silence-deprecations-test-mounting',
+            template: '<div />',
+            mounted() {
+                Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'A mounted hook called a deprecated API.');
+            },
+        };
+
+        mountTemplate(
+            `
+            <sw-silence-deprecations flag="V6_9_0_0">
+                <sw-silence-deprecations-test-mounting />
+            </sw-silence-deprecations>
+        `,
+            { 'sw-silence-deprecations-test-mounting': mounting },
+        );
+
+        expect(deprecations).not.toHaveTriggered('A mounted hook called a deprecated API.');
     });
 
     it('keeps the deprecations of components outside of it', () => {

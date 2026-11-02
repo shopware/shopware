@@ -8,6 +8,31 @@ Field paths in Store API criteria (filters, sortings, and aggregations) are reso
 A path that uses `extensions` as a whole segment keeps working;
 a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
 Integrations that use valid field paths are unaffected.
+### Content Security Policy for Storefront documents
+
+Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
+
+The Storefront document policy can be overridden through the container parameter `shopware.security.private_media_csp` in `config/services.yaml`.
+
+### HTML files are no longer accepted as public media
+
+`html` was removed from the default `shopware.filesystem.allowed_extensions`. Public media is served from the shop's own domain, so an uploaded HTML file ran its scripts in the same origin as the Administration and could read the session of an administrator who opened it.
+
+HTML files are still accepted as private media, for example for accessible HTML documents. Uploads of HTML files to public media now fail with `CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED`. HTML files that were uploaded to public media before this change are still served. Review them and delete the ones you do not need.
+
+S3 and other object storages serve a file with the content type stored at upload time, not with the type of its extension. Uploads whose content is HTML, XHTML, SVG or another XML type are therefore rejected with `CONTENT__MEDIA_INVALID_FILE` unless the file extension belongs to that type. This applies to the regular and the presigned upload flow. For example, an HTML document uploaded as `.jpg` or an SVG uploaded as `.png` is no longer accepted.
+
+If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
+
+### Media visibility is immutable
+
+The `private` field of media can now only be set when creating the media entity.
+Updates that change its value are rejected because toggling the flag does not move the actual file or its thumbnails between the public and private filesystems.
+Set the intended visibility during creation.
+Updates that resend the existing value remain supported.
+
+The DAL `Immutable` flag now correctly rejects changes to falsy values such as `false`, `0`, and an empty string.
+
 ### Media paths and file names are validated on API writes
 
 Admin API and Sync API writes can no longer set `media.path` or `media_thumbnail.path` to a relative path or reset it to `null`.
@@ -37,6 +62,28 @@ Writes to other users or their access keys are rejected with `403` and `USER__US
 A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
 Administrators are unaffected.
 The user of an access key can no longer be changed after the key was created, also not by administrators.
+
+### Presigned media upload endpoints now require ACL privileges
+
+`POST /api/_action/media/presign-upload` and `POST /api/_action/media/{mediaId}/finalize-upload` now require the `media:update` privilege.
+Preparing an upload without a `mediaId`, which creates a new media entity, additionally requires `media:create`.
+Requests with tokens lacking a privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+Administration users are not affected: the "Media creator" permission already includes `media:update`.
+Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+When `finalize-upload` fails for a new media, the media and the uploaded file are only removed if the caller also holds `media:delete`.
+Otherwise the media stays without a file.
+### Integrations no longer act as the user named in `sw-app-user-id`
+
+A standard integration that sends the `sw-app-user-id` header keeps its own identity.
+The header only narrows its permissions to those of the named user.
+Writes are no longer attributed to that user: `created_by_id` stays empty and `updated_by_id` keeps its previous value.
+Naming an inactive or unknown user is rejected with a `403` and the error code `FRAMEWORK__APP_USER_NOT_FOUND`, and requests of a deactivated app are rejected as well.
+An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
+
+Routes that act on the signed-in Administration user now require a directly authenticated user and reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
+To read a user, use `GET /api/user/{id}` with `user:read`.
+To change a user, use `PATCH /api/user/{id}` with `user:update`.
+That route requires an admin integration or a directly authenticated user, because a non-admin caller may only change its own user.
 
 # 6.7.16.0 (upcoming)
 

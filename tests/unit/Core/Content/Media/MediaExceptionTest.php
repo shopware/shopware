@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -46,6 +47,16 @@ class MediaExceptionTest extends TestCase
         static::assertSame(MediaException::MEDIA_ILLEGAL_URL, $exception->getErrorCode());
         static::assertSame('Provided URL "http://illegal-url" is not allowed.', $exception->getMessage());
         static::assertSame(['url' => $url], $exception->getParameters());
+    }
+
+    public function testUrlExceptionsOmitCredentials(): void
+    {
+        $url = 'ftp://user:s3cret@ftp.example.com/file.jpg';
+        $expected = ['url' => 'ftp://ftp.example.com/file.jpg'];
+
+        static::assertSame($expected, MediaException::invalidUrl($url)->getParameters());
+        static::assertSame($expected, MediaException::illegalUrl($url)->getParameters());
+        static::assertSame($expected, MediaException::cannotOpenSourceStreamToRead($url)->getParameters());
     }
 
     public function testDisableUrlUploadFeature(): void
@@ -610,5 +621,15 @@ class MediaExceptionTest extends TestCase
         static::assertSame('Failed to generate presigned URL: S3 connection failed', $exception->getMessage());
         static::assertSame(['message' => 'S3 connection failed'], $exception->getParameters());
         static::assertSame($previousException, $exception->getPrevious());
+    }
+
+    public function testMissingPrivileges(): void
+    {
+        $exception = MediaException::missingPrivileges(['media:create']);
+
+        static::assertInstanceOf(MissingPrivilegeException::class, $exception);
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $exception->getErrorCode());
+        static::assertSame('{"message":"Missing privilege","missingPrivileges":["media:create"]}', $exception->getMessage());
     }
 }

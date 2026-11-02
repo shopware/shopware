@@ -212,6 +212,7 @@ class CreateAliasTaskHandlerTest extends TestCase
             ->willReturn([
                 [
                     'id' => 2,
+                    'entity' => 'product',
                     'index' => 'deleted_index',
                     'alias' => 'alias',
                     'doc_count' => 0,
@@ -231,9 +232,15 @@ class CreateAliasTaskHandlerTest extends TestCase
         $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with('Dropped the alias switch of the Elasticsearch index "deleted_index", because the index no longer exists. Reindex the entity "product" to rebuild it.');
+
         $handler = new CreateAliasTaskHandler(
             static::createStub(EntityRepository::class),
-            static::createStub(LoggerInterface::class),
+            $logger,
             $client,
             $connection,
             static::createStub(ElasticsearchHelper::class),

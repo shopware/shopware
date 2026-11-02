@@ -364,7 +364,6 @@ Integrations that parse JSON:API responses must explicitly send `Accept: applica
 This header also works on earlier Shopware 6 versions.
 Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
 Listing responses contain `data`, `total`, and `aggregations`.
-The request body format is still selected independently through `Content-Type`.
 
 ## Product reviews require a rating
 

@@ -1,3 +1,4 @@
+import { watchEffect } from 'vue';
 import { Node, mergeAttributes } from 'src/app/component/meteor-wrapper/mt-text-editor/tiptap';
 import { MAPPING_TOKEN_ATTRIBUTE, MAPPING_TOKEN_NODE_NAME } from './inline-mapping.util';
 
@@ -74,10 +75,8 @@ export function createMappingTokenNode(options: { resolveLabel: (path: string) =
          * `HTMLElement`, so no ProseMirror object is ever constructed from our copy of tiptap. A Vue node view via
          * `VueNodeViewRenderer` would be a different matter and stays out of bounds.
          *
-         * The label is resolved when ProseMirror first draws the node and is not re-resolved if the catalogue
-         * arrives later. Falling back to the raw path matches what the whole-field mapping chip does when the current
-         * catalogue no longer describes a stored path, so the failure mode is a technical label rather than a blank
-         * one.
+         * Reactively resolve the label without changing the document or serialized HTML. Missing catalogue entries
+         * fall back to their path. Destroying the node view stops its watcher, including after deleting a chip.
          */
         addNodeView() {
             const { resolveLabel } = (this as unknown as { options: { resolveLabel: (path: string) => string } }).options;
@@ -88,9 +87,11 @@ export function createMappingTokenNode(options: { resolveLabel: (path: string) =
 
                 dom.className = MAPPING_TOKEN_CLASS;
                 dom.setAttribute(MAPPING_TOKEN_ATTRIBUTE, path);
-                dom.textContent = resolveLabel(path);
+                const stopLabelWatch = watchEffect(() => {
+                    dom.textContent = resolveLabel(path);
+                });
 
-                return { dom };
+                return { dom, destroy: stopLabelWatch };
             };
         },
     }).configure(options);

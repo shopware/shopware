@@ -1,3 +1,4 @@
+import { nextTick, reactive } from 'vue';
 import { createMappingTokenNode, MAPPING_TOKEN_CLASS } from './mapping-token-node';
 
 type RenderableNode = {
@@ -10,7 +11,10 @@ type RenderableNode = {
         atom: boolean;
         parseHTML: () => Array<{ tag: string }>;
         renderHTML: (props: { HTMLAttributes: object }) => unknown[];
-        addNodeView: () => (props: { node: { attrs: Record<string, unknown> } }) => { dom: HTMLElement };
+        addNodeView: () => (props: { node: { attrs: Record<string, unknown> } }) => {
+            dom: HTMLElement;
+            destroy?: () => void;
+        };
         addAttributes: () => {
             path: {
                 default: unknown;
@@ -96,5 +100,26 @@ describe('module/sw-experience-studio/util/mapping-token-node', () => {
         const { dom } = node.config.addNodeView.call(node)({ node: { attrs: { path: 'product.unknown' } } });
 
         expect(dom.textContent).toBe('product.unknown');
+    });
+
+    it('refreshes a reactive label and stops resolving it after the node view is destroyed', async () => {
+        const state = reactive({ label: null as string | null });
+        const resolveLabel = jest.fn((path: string) => state.label ?? path);
+        const node = createNode(resolveLabel);
+        const view = node.config.addNodeView.call(node)({ node: { attrs: { path: 'product.name' } } });
+        expect(view.dom.textContent).toBe('product.name');
+
+        state.label = 'Product name';
+        await nextTick();
+
+        expect(view.dom.textContent).toBe('Product name');
+        expect(view.destroy).toBeDefined();
+        view.destroy?.();
+        resolveLabel.mockClear();
+        state.label = 'Updated label';
+        await nextTick();
+
+        expect(resolveLabel).not.toHaveBeenCalled();
+        expect(view.dom.textContent).toBe('Product name');
     });
 });

@@ -123,19 +123,6 @@ export default Shopware.Component.wrapComponentConfig({
             this.lastEmittedValue = null;
             void this.refreshEditorValue(nextValue);
         },
-
-        /**
-         * The catalogue loads asynchronously, so a text opened before it arrives shows its tokens as literal text.
-         * Redrawing them as chips once it lands is safe only while the author has not started typing, for the same
-         * caret reason as above.
-         */
-        candidates() {
-            if (!this.isEditorReady || this.hasParseError || this.lastEmittedValue !== null) {
-                return;
-            }
-
-            this.editorHtml = this.toEditorHtml(this.value);
-        },
     },
 
     computed: {

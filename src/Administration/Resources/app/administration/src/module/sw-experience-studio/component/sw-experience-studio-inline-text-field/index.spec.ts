@@ -298,21 +298,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         jest.restoreAllMocks();
     });
 
-    it('redraws tokens as nodes once the catalogue arrives, but not once the author has typed', () => {
-        const pending = createVm('<p>{{map:product.name}}</p>', []);
-        expect(pending.editorHtml).toBe('<p><span data-sw-map="product.name"></span></p>');
-
-        pending.candidates = [candidate('product.name')];
-        watch.candidates.call(pending);
-        expect(pending.editorHtml).toBe('<p><span data-sw-map="product.name"></span></p>');
-
-        const edited = createVm('<p>{{map:product.name}}</p>', []);
-        methods.onUpdateEditorHtml.call(edited, '<p>mid-edit</p>');
-        edited.candidates = [candidate('product.name')];
-        watch.candidates.call(edited);
-        expect(edited.editorHtml).toBe('<p>mid-edit</p>');
-    });
-
     it('inserts the picked candidate as a node, by name', () => {
         const vm = createVm('<p></p>');
         const run = jest.fn();

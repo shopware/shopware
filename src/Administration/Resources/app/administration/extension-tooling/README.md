@@ -140,6 +140,11 @@ carries the macro declarations so they type-check. Both flow through the same
 package resolution as the rest of the preset, so a dependency bump can never leave
 a stale hand-copied path behind.
 
+A native-setup base component can live in a mini-module of the extension, declared in its `index.ts` with `definePublicComponent()` from `shopware:mini-modules/public-component`.
+The extension build compares the `public` lists of `index.ts` with the SFC and fails on any drift, like the Administration's own build.
+The preset tells vue-tsc that `swDefinePublic()` exposes its bindings, so `PublicInstance<typeof MyComponent>` types them for a parent or another extension.
+See [Native Setup Authoring](../technical-docs/03-extensibility/07-native-setup-authoring.md#in-a-mini-module-indexts-lists-the-same-api).
+
 ## Code-quality rules
 
 The generated ESLint config reports redundant code with `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.

@@ -27,5 +27,10 @@
             "@shopware-ag/meteor-admin-sdk/es/*": ["../node_modules/@shopware-ag/meteor-admin-sdk/es/*"],
             "@shopware-ag/meteor-component-library/dist/*": ["../node_modules/@shopware-ag/meteor-component-library/dist/*"]
         }
+    },
+    "vueCompilerOptions": {
+        "macros": {
+            "defineExpose": ["defineExpose", "swDefinePublic"]
+        }
     }
 }

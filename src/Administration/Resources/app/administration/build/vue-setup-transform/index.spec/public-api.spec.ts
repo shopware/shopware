@@ -3,6 +3,7 @@
  */
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 import { ShopwareSetupTransformError, validateShopwareSetupSfc } from '../index.ts';
@@ -76,6 +77,41 @@ function captureDrift(source: string, indexSource: string): ShopwareSetupTransfo
     }
 
     throw new Error('Expected the public API check to fail');
+}
+
+/**
+ * A mini-module whose SFC imports its props type through a tsconfig path:
+ * the tsconfig files by their path in the project, where the type lives, and how the SFC imports it.
+ */
+type AliasedModule = {
+    tsconfigs: Record<string, object>;
+    typesFile: string;
+    typesImport: string;
+};
+
+/**
+ * Writes sw-thing as such a mini-module to disk and returns the path of its SFC.
+ */
+function writeAliasedModule(input: AliasedModule) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-public-api-alias-'));
+    const files: Record<string, string> = {
+        [input.typesFile]: 'export interface SwThingProps { label: string; disabled?: boolean }\n',
+        'src/sw-thing/index.ts': indexWith(matchingPublic.replace("props: ['label',", "props: ['label', 'disabled',")),
+        'src/sw-thing/src/sw-thing.vue': sfc.replace(
+            "const props = defineProps(['label']);",
+            `import type { SwThingProps } from '${input.typesImport}';\nconst props = defineProps<SwThingProps>();`,
+        ),
+    };
+
+    Object.entries(input.tsconfigs).forEach(([file, config]) => {
+        files[file] = JSON.stringify(config);
+    });
+    Object.entries(files).forEach(([file, content]) => {
+        fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+        fs.writeFileSync(path.join(root, file), content);
+    });
+
+    return path.join(root, 'src/sw-thing/src/sw-thing.vue');
 }
 
 describe('build/vue-setup-transform public API in index.ts', () => {
@@ -183,6 +219,33 @@ describe('build/vue-setup-transform public API in index.ts', () => {
 
         // ASSERT
         expect(error.message).toContain('Cannot read the props of this component for the index.ts check.');
+    });
+
+    it.each<AliasedModule & { alias: string }>([
+        {
+            alias: "the Administration's src/ alias",
+            tsconfigs: { 'tsconfig.json': { compilerOptions: { baseUrl: './' } } },
+            typesFile: 'src/shared/sw-thing.types.ts',
+            typesImport: 'src/shared/sw-thing.types',
+        },
+        {
+            alias: 'an extension alias in an extended tsconfig',
+            tsconfigs: {
+                'tsconfig.json': { extends: './.shopware/tsconfig.json' },
+                '.shopware/tsconfig.json': { compilerOptions: { paths: { 'MyPlugin/*': ['../lib/*'] } } },
+            },
+            typesFile: 'lib/sw-thing.types.ts',
+            typesImport: 'MyPlugin/sw-thing.types',
+        },
+    ])('reads props whose type is imported through $alias', ({ tsconfigs, typesFile, typesImport }) => {
+        // ARRANGE
+        const sfcFile = writeAliasedModule({ tsconfigs, typesFile, typesImport });
+
+        // ACT
+        const result = transformOrFail(fs.readFileSync(sfcFile, 'utf8'), sfcFile);
+
+        // ASSERT
+        expect(result.publicApiFile).toBe(path.join(path.dirname(sfcFile), '../index.ts'));
     });
 
     it('leaves an SFC in src/ alone when index.ts does not load it', () => {

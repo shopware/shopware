@@ -152,6 +152,8 @@ export function createVendorAdmin(projectRoot: string, options: { entitySchema: 
 
     fs.symlinkSync(path.join(realAdministrationRoot, 'node_modules'), path.join(administrationRoot, 'node_modules'), 'dir');
     fs.symlinkSync(path.join(realAdministrationRoot, 'eslint-rules'), path.join(administrationRoot, 'eslint-rules'), 'dir');
+    // admin-types.d.ts imports the native-setup macro types from here.
+    fs.symlinkSync(path.join(realAdministrationRoot, 'build'), path.join(administrationRoot, 'build'), 'dir');
     fs.copyFileSync(path.join(realAdministrationRoot, 'package.json'), path.join(administrationRoot, 'package.json'));
 
     return administrationRoot;

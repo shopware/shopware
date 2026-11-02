@@ -73,8 +73,9 @@ const UNUSED_BY_SPECS = [
  * Inside a mini-module, the edges are explicit: a change in `tests/` needs only the module's own specs, because other
  * code imports the module only through `index.ts` and relies on its contract tests.
  * A change in `src/` or `dependencies.ts` adds the specs that mount the component by name, because they render its
- * implementation. Changes to `index.ts`, `private.ts` or `global.d.ts` add their importers, and `register.ts` adds
- * the specs that mention the component name.
+ * implementation; in a module without a component it adds the importers of `index.ts` and `private.ts` instead.
+ * Changes to `index.ts`, `private.ts` or `global.d.ts` add their importers, and `register.ts` adds the specs that
+ * mention the component name.
  * Outside mini-modules, it takes the import graph plus every spec that mentions a name the file registers or
  * belongs to, and reports the files for which that is not enough.
  *
@@ -156,8 +157,11 @@ async function selectForMiniModule(
 
     const name = findPublicComponentName(repository.read(`${miniModule}/index.ts`) ?? '');
     if (!name) {
-        if (part === 'register.ts') {
+        if (part === 'register.ts' && /\bComponent\.(register|extend)\(/.test(repository.read(file) ?? '')) {
             uncertain.push({ file, reason: 'registers a component whose name index.ts does not declare' });
+        }
+        if (mountsByName) {
+            await selectImplementationUsers(miniModule, repository, select, uncertain, file);
         }
         return;
     }
@@ -179,6 +183,25 @@ async function selectForMiniModule(
         },
         (mentioned, via) => `mounts component ${mentioned} by name${via}`,
     );
+}
+
+/**
+ * Selects the specs that import a module without a component, which run its implementation the way specs that mount
+ * a component by name run the component's.
+ */
+async function selectImplementationUsers(
+    miniModule: string,
+    repository: Repository,
+    select: Select,
+    uncertain: Uncertainty[],
+    changedFile: string,
+): Promise<void> {
+    for (const entry of ['index.ts', 'private.ts']) {
+        const entryFile = `${miniModule}/${entry}`;
+        if (repository.read(entryFile) !== null) {
+            await selectImporters(entryFile, repository, select, uncertain, changedFile);
+        }
+    }
 }
 
 async function selectByGraphAndNames(

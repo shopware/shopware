@@ -25,8 +25,7 @@ class CollectEntityDataTaskHandlerTest extends TestCase
         $entityDispatchService->expects($this->once())
             ->method('dispatchCollectEntityDataMessage');
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> */
-        $repository = new StaticEntityRepository([], new ScheduledTaskDefinition());
+        $repository = StaticEntityRepository::of(ScheduledTaskCollection::class, [], new ScheduledTaskDefinition());
 
         $taskHandler = new CollectEntityDataTaskHandler(
             $repository,

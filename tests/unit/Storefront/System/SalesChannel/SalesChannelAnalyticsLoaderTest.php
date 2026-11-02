@@ -25,8 +25,7 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
     public function testSalesChannelDoesNotHaveAnalytics(): void
     {
         $event = $this->getEvent(Generator::generateSalesChannelContext());
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(SalesChannelAnalyticsCollection::class);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
         $loader->loadAnalytics($event);
@@ -42,7 +41,6 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
         $event = $this->getEvent($salesChannelContext);
         $analytics = new SalesChannelAnalyticsEntity();
         $analytics->setId($analyticsId);
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
@@ -58,7 +56,6 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
         $event = $this->getEvent($salesChannelContext);
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
@@ -66,6 +63,54 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
 
         static::assertArrayHasKey('storefrontAnalytics', $event->getParameters());
         static::assertNull($event->getParameters()['storefrontAnalytics']);
+    }
+
+    public function testIsNotActiveWithoutAnalytics(): void
+    {
+        $repository = StaticEntityRepository::of(SalesChannelAnalyticsCollection::class);
+
+        $loader = new SalesChannelAnalyticsLoader($repository);
+
+        static::assertFalse(
+            $loader->isActive(Generator::generateSalesChannelContext()),
+            'A sales channel without an analytics id is never active. The empty static repository throws if the loader searches it.'
+        );
+    }
+
+    public function testIsActiveWithActiveAnalytics(): void
+    {
+        static::assertTrue($this->createLoader(true)->isActive($this->contextWithAnalytics()));
+    }
+
+    public function testIsNotActiveWithInactiveAnalytics(): void
+    {
+        static::assertFalse($this->createLoader(false)->isActive($this->contextWithAnalytics()));
+    }
+
+    public function testIsNotActiveWhenTheAnalyticsAreNotFound(): void
+    {
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        static::assertFalse((new SalesChannelAnalyticsLoader($repository))->isActive($this->contextWithAnalytics()));
+    }
+
+    private function createLoader(bool $active): SalesChannelAnalyticsLoader
+    {
+        $analytics = new SalesChannelAnalyticsEntity();
+        $analytics->setId(Uuid::randomHex());
+        $analytics->setActive($active);
+
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
+
+        return new SalesChannelAnalyticsLoader($repository);
+    }
+
+    private function contextWithAnalytics(): SalesChannelContext
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->getSalesChannel()->setAnalyticsId(Uuid::randomHex());
+
+        return $salesChannelContext;
     }
 
     private function getEvent(SalesChannelContext $salesChannelContext): StorefrontRenderEvent

@@ -14,8 +14,16 @@ const { parse } = require('@typescript-eslint/parser');
  */
 const CONTRACT_SPEC = /(^|\/)(requirements|pinned|regressions|public-api)\.spec\.[jt]s$/;
 
-/** The kinds of members a `public` list of `definePublicComponent()` names, that a component instance carries. */
-const INSTANCE_MEMBER_KINDS = ['props', 'computed', 'methods'];
+/**
+ * The kinds of members a `public` list of `definePublicComponent()` names, that a component instance carries.
+ * `setup` holds the `swDefinePublic()` bindings of a native-setup component.
+ */
+const INSTANCE_MEMBER_KINDS = [
+    'props',
+    'computed',
+    'methods',
+    'setup',
+];
 
 /**
  * Finds the mini-module a path belongs to and the part of it the path points at.
@@ -79,16 +87,16 @@ function findNode(node, matches) {
 
 /**
  * Reads the instance members a mini-module's `index.ts` lists in `definePublicComponent({ public: { … } })`:
- * the props, computed values and methods that other code and extensions may use on the component.
+ * the props, computed values, methods and native-setup bindings that other code and extensions may use on the component.
  * Use it to check code against the public API without loading the component.
  *
  * @example
  * // index.ts: definePublicComponent({ name: 'sw-x', load, public: { props: ['value'], blocks: ['sw_x'] } })
- * readPublicMembers('src/module/sw-x', cwd) // → { props: ['value'], computed: [], methods: [] }
+ * readPublicMembers('src/module/sw-x', cwd) // → { props: ['value'], computed: [], methods: [], setup: [] }
  *
  * @param {string} root - the module's root, relative to `cwd`
  * @param {string} cwd - the Administration root
- * @returns {{ props: string[], computed: string[], methods: string[] }} empty lists when index.ts declares none
+ * @returns {{ props: string[], computed: string[], methods: string[], setup: string[] }} empty lists when index.ts declares none
  */
 function readPublicMembers(root, cwd) {
     const members = Object.fromEntries(INSTANCE_MEMBER_KINDS.map((kind) => [kind, []]));

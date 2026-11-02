@@ -413,6 +413,12 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
 
+### vue-i18n 11 in the Administration
+
+The Administration uses vue-i18n 11 instead of 10, which fixes the advisories GHSA-83rm-6c8r-g728 and GHSA-8rc2-428q-7ww3.
+In snippets, a backslash now escapes `{`, `}`, `@`, `|` and the backslash itself, so `\{name\}` renders as `{name}`.
+If a snippet of your extension needs to display such a backslash, escape it with a second backslash.
+
 ### Promotion code filter in the order list only matches promotion line items
 
 The "Promotion code" filter in the order list now only checks line items of type `promotion`.

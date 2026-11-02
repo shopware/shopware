@@ -159,9 +159,6 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?PromotionCollection $promotions = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - The recoveryCustomer association was removed.
-     */
     protected ?CustomerRecoveryEntity $recoveryCustomer = null;
 
     protected ?ProductReviewCollection $productReviews = null;
@@ -762,23 +759,13 @@ class CustomerEntity extends Entity implements \Stringable
         $this->productReviews = $productReviews;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - The recoveryCustomer association was removed.
-     */
     public function getRecoveryCustomer(): ?CustomerRecoveryEntity
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The recoveryCustomer association was removed.');
-
         return $this->recoveryCustomer;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - The recoveryCustomer association was removed.
-     */
     public function setRecoveryCustomer(?CustomerRecoveryEntity $recoveryCustomer): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The recoveryCustomer association was removed.');
-
         $this->recoveryCustomer = $recoveryCustomer;
     }
 

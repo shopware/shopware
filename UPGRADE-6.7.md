@@ -609,10 +609,10 @@ We made some changes in the PHP core, which might affect your plugins.
 <details>
   <summary>Detailed Changes</summary>
 
-## Recovery entity accessors
+## Recovery associations
 
-`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` were deprecated because the recovery associations were removed.
-Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations.
+The `user.recoveryUser` and `customer.recoveryCustomer` DAL associations were removed.
+Remove criteria using these associations.
 
 ## Native types for PHP class properties
 

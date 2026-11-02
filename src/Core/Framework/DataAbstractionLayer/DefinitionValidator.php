@@ -40,6 +40,9 @@ use Symfony\Component\String\Inflector\EnglishInflector;
 class DefinitionValidator
 {
     private const IGNORE_FIELDS = [
+        // Retained entity properties whose incoming recovery associations were removed.
+        'user.recoveryUser',
+        'customer.recoveryCustomer',
         'product.cover',
         'order_line_item.cover',
         'customer.defaultBillingAddress',

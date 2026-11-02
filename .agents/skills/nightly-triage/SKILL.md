@@ -4,8 +4,8 @@ description: >
   Triage a failed Shopware nightly or multi-job PHPUnit CI run (e.g. integration-major):
   extract failing tests from job logs, map each to its domain via #[Package] markers,
   cluster by error signature into root causes, reproduce opaque ones in Docker, file one
-  flat GitHub issue per domain, routing collateral failures to the root-cause owner. Not
-  for one failing test or a failed pull request check.
+  flat GitHub issue per domain, routing collateral failures to the root-cause owner. Also
+  for a run with a single failing test.
 disable-model-invocation: true
 license: MIT
 allowed-tools: Bash(gh run view:*) Bash(gh run list:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(rg:*) Bash(grep:*) Bash(git log:*) Bash(git show:*) Bash(python3:*) Bash(docker compose exec:*) Read Glob Grep

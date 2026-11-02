@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Response;
 
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,8 +35,12 @@ class ResponseFactoryRegistry
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
 
         $contentTypes = $request->getAcceptableContentTypes();
+        if ($contentTypes === [] && Feature::isActive('v6.8.0.0')) {
+            $contentTypes[] = 'application/json';
+        }
+
         if (\in_array('*/*', $contentTypes, true)) {
-            $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
+            $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource || Feature::isActive('v6.8.0.0'))
                 ? self::SALES_CHANNEL_DEFAULT_RESPONSE_TYPE
                 : self::DEFAULT_RESPONSE_TYPE;
         }

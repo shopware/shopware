@@ -65,7 +65,7 @@
                     },
                     "media": {
                         "$ref": "#/components/schemas/Media",
-                        "description": "The file of the document in the shopper's language, or in the language it falls back to."
+                        "description": "The file of the document in the requested language, or in the language it falls back to."
                     }
                 },
                 "type": "object"

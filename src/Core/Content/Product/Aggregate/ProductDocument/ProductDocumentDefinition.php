@@ -71,7 +71,7 @@ class ProductDocumentDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new ReverseInherited('documents')),
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Runtime())->setDescription('The file of the document in the shopper\'s language, or in the language it falls back to. Only set in the Store API.'),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Runtime())->setDescription('The file of the document in the requested language, or in the language it falls back to. Only set in the Store API.'),
             (new TranslationsAssociationField(ProductDocumentTranslationDefinition::class, 'product_document_id'))->addFlags(new ApiAware(), new Required()),
         ]);
     }

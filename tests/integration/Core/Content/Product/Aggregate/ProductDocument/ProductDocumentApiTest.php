@@ -58,7 +58,7 @@ class ProductDocumentApiTest extends TestCase
         static::assertContains($this->ids->get('drill.blue'), $deleted);
     }
 
-    public function testTheProductDetailRouteReturnsEachDocumentWithItsFileInTheShoppersLanguage(): void
+    public function testTheProductDetailRouteReturnsEachDocumentWithItsFileInTheRequestedLanguage(): void
     {
         $germanId = $this->getDeDeLanguageId();
         $browser = $this->createCustomSalesChannelBrowser([

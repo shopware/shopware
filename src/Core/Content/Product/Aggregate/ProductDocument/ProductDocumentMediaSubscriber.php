@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Gives each document loaded for a sales channel its file in the shopper's language,
+ * Gives each document loaded for a sales channel its file in the requested language,
  * or in the language it falls back to.
  *
  * @internal
@@ -38,6 +38,9 @@ final class ProductDocumentMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * Loads the files the DAL resolved for the documents (`translated.mediaId`) in one search,
+     * and adds each file with its language.
+     *
      * @param SalesChannelEntityLoadedEvent<ProductDocumentEntity> $event
      */
     public function addMedia(SalesChannelEntityLoadedEvent $event): void
@@ -68,8 +71,9 @@ final class ProductDocumentMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * A document's own file is in the shopper's language. Otherwise the file comes from the parent language,
-     * if the shopper's language has one with a file, or else from the default language.
+     * The DAL takes a document's file from the first language of the context's language chain that has one.
+     * The chain is: the requested language, then its parent language if it has one, then the default language.
+     * This returns which of them it was, per document.
      *
      * @param list<ProductDocumentEntity> $documents
      *
@@ -84,6 +88,7 @@ final class ProductDocumentMediaSubscriber implements EventSubscriberInterface
         $fileLanguages = [];
         $fallbackDocumentIds = [];
         foreach ($documents as $document) {
+            // `mediaId` is the requested language's own file, `translated.mediaId` the resolved one
             if ($document->getMediaId() !== null) {
                 $fileLanguages[$document->getId()] = $languageIds[0];
 

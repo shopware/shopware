@@ -53,7 +53,7 @@ class ProductDocumentMediaSubscriberTest extends TestCase
 
     public static function fileLanguageProvider(): \Generator
     {
-        yield 'the shopper\'s own file' => [[self::GERMAN, Defaults::LANGUAGE_SYSTEM], true, null, self::GERMAN];
+        yield 'the requested language\'s own file' => [[self::GERMAN, Defaults::LANGUAGE_SYSTEM], true, null, self::GERMAN];
         yield 'the file of the default language' => [[self::GERMAN, Defaults::LANGUAGE_SYSTEM], false, null, Defaults::LANGUAGE_SYSTEM];
         yield 'the own file of a language with a parent' => [[self::SWISS_GERMAN, self::GERMAN, Defaults::LANGUAGE_SYSTEM], true, null, self::SWISS_GERMAN];
         yield 'the file of the parent language' => [[self::SWISS_GERMAN, self::GERMAN, Defaults::LANGUAGE_SYSTEM], false, true, self::GERMAN];
@@ -131,7 +131,7 @@ class ProductDocumentMediaSubscriberTest extends TestCase
     }
 
     /**
-     * The DAL puts the resolved file into `translated` and the shopper's own file into `mediaId`.
+     * The DAL puts the resolved file into `translated` and the requested language's own file into `mediaId`.
      */
     private static function document(string $id, ?string $file, bool $ownFile): ProductDocumentEntity
     {

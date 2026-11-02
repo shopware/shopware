@@ -55,12 +55,12 @@ class LayoutGateTest extends TestCase
         $diagnostics = static::createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with(static::identicalTo($tree), static::identicalTo($rootContext))
+            ->with(static::identicalTo($tree), static::identicalTo($rootContext), 'product', false)
             ->willReturn(new LayoutAnalysis($report, []));
 
         $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $gate->resolvability($tree, $rootContext));
+        static::assertSame($report, $gate->resolvability($tree, $rootContext, 'product'));
     }
 
     #[TestDox('hands an empty tree to the diagnostics pass unconverted')]
@@ -90,12 +90,12 @@ class LayoutGateTest extends TestCase
         $diagnostics = static::createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with(static::identicalTo($tree), static::identicalTo($rootContext))
+            ->with(static::identicalTo($tree), static::identicalTo($rootContext), 'header', false)
             ->willReturn(new LayoutAnalysis($report, []));
 
         $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $gate->resolvability($tree, $rootContext));
+        static::assertSame($report, $gate->resolvability($tree, $rootContext, 'header'));
     }
 
     /**

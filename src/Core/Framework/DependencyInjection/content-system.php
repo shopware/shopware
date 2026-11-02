@@ -709,6 +709,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementResolver::class),
             service(ProviderDeliveryKeyResolver::class),
             service(ContextPathResolver::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(ElementResolver::class)

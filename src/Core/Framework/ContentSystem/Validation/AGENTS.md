@@ -20,3 +20,5 @@
 - Atomic create-and-bind — a layout and its assignment written in one batch (Admin or Sync) — is matched, not skipped: `LayoutRootSourceReader` reads the layout's in-flight INSERT `root_source` so the assignment type-match runs
 - `ContentLayoutWriteValidator`, `ContentLayoutAssignmentWriteValidator` and `ContentLayoutDefaultValidator` are registered as `kernel.event_subscriber` in `content-system.php`; Storefront registers its own `HeaderFooterAssignmentWriteValidator` using the same `LayoutRootSourceReader`
 - `ViolationConstraintMapper` accumulates all violations into one list; a batch write reports every violation rather than short-circuiting on the first
+
+- `LayoutGate::resolvability()` forwards the known root source to analysis for mapped provider backing, with `reportMappingProblems: false`. Preserve separate `StoredMappingValidator` error codes; do not report duplicate generic `invalid_mapping` write errors.

@@ -135,12 +135,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
                     return;
                 }
 
-                $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context));
+                $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context), $rootSource);
                 $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
 
                 // Step 4: admissibility of every stored data mapping against that same root source. It runs here
-                // rather than inside the analysis above because its rules are keyed on the root source itself, not
-                // on the root-ambient context the analysis is handed — a catalogue lookup needs the source id.
+                // rather than as generic mapping diagnostics so each rule retains its specific error code.
                 $violations->addAll($this->mappingValidator->validate($tree->roots, $rootSource));
             }
         }

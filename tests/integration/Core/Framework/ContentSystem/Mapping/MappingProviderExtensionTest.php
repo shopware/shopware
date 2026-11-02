@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mapping;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
@@ -18,6 +19,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
@@ -45,6 +50,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestKernel;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -217,6 +223,54 @@ class MappingProviderExtensionTest extends TestCase
     {
         yield 'missing source' => [MappingSourceResolution::noValue()];
         yield 'empty source' => [MappingSourceResolution::resolved('')];
+    }
+
+    #[DataProvider('mappedMediaProviderSources')]
+    public function testMappedMediaBacksARequiredChildDuringDiagnosisAndSaving(MappingSourceReference $source): void
+    {
+        $previousKernelClass = KernelFactory::$kernelClass;
+        KernelFactory::$kernelClass = MappingProviderBackingTestKernel::class;
+        try {
+            KernelLifecycleManager::bootKernel(cacheId: 'mapping-provider-backing');
+        } finally {
+            KernelFactory::$kernelClass = $previousKernelClass;
+        }
+        $pluginSource = new MappingSourceReference('AcmePlugin', 'image', path: 'media');
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([
+            new MappingCandidate($pluginSource->displayName(), 'Image', '', 'media', MediaEntity::class, source: $pluginSource),
+        ]);
+        $provider->expects($this->never())->method('resolveSource');
+        $this->installRegistry([$provider]);
+        $elements = [[
+            'id' => 'mapped-parent', 'component' => 'Sw:Test:MappedMediaContainer',
+            'acceptsContext' => ['picture' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => $source->jsonSerialize()]],
+            'providesContext' => ['picture' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'image']],
+            'slots' => ['content' => [[
+                'id' => 'required-child', 'component' => 'Sw:Test:RequiredMedia',
+                'acceptsContext' => ['image' => ['type' => 'single', 'required' => true]],
+            ]]],
+        ]];
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/layout/diagnose', ['layout' => $elements, 'rootSource' => 'product']);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($body['diagnostics']['resolvable'], json_encode($body['diagnostics']['violations'], \JSON_THROW_ON_ERROR));
+        $childResolution = $body['resolutions']['required-child'][0];
+        static::assertSame('parent', $childResolution['resolved']['origin']);
+        static::assertSame('mapped-parent', $childResolution['resolved']['providerElementId']);
+        $this->save($elements);
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference}>
+     */
+    public static function mappedMediaProviderSources(): iterable
+    {
+        yield 'reshaped core media with a different destination key' => [MappingSourceReference::root('product', 'cover')];
+        yield 'typed non-root plugin media' => [new MappingSourceReference('AcmePlugin', 'image', path: 'media')];
     }
 
     public function testRegistryCanBeDecoratedThroughItsPublicAliasWithoutASecondProvider(): void
@@ -487,5 +541,47 @@ class MappingRegistryDecorationTestKernel extends TestKernel
         $container->register(ProductNameOverrideRegistry::class)
             ->setDecoratedService(AbstractContentSystemMappingCandidateRegistry::class)
             ->setArguments([new Reference(ProductNameOverrideRegistry::class . '.inner')]);
+    }
+}
+
+/**
+ * @internal
+ */
+class MappingProviderBackingTestKernel extends TestKernel
+{
+    public function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        parent::configureContainer($container, $loader);
+        $container->register(MappingProviderBackingTypeLoader::class)->addTag('content_system.type_loader');
+    }
+}
+
+/**
+ * @internal
+ */
+class MappingProviderBackingTypeLoader extends AbstractContentSystemElementTypeLoader
+{
+    public function load(): array
+    {
+        $parentProperties = ContentSystemElementTypeSpecificationBuilder::create('Sw:Test:MappedMediaContainer')
+            ->reference('picture', MediaEntity::class, mappable: true)
+            ->build()->properties();
+
+        return [
+            new ContentSystemElementTypeSpecification(
+                'Sw:Test:MappedMediaContainer',
+                'Mapped media container',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                $parentProperties,
+                [new SlotSpecification('content', null, [], '')],
+                'test',
+            ),
+            ContentSystemElementTypeSpecificationBuilder::create('Sw:Test:RequiredMedia')
+                ->reference('image', MediaEntity::class, required: true)
+                ->build(),
+        ];
     }
 }

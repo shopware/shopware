@@ -39,8 +39,8 @@ use Shopware\Core\Framework\Log\Package;
  * admissibility is decided against the bound source's candidate catalogue, and a resolved root context
  * cannot be turned back into a source id, so a caller that has the id passes it and a caller that does not
  * gets no mapping checks. The diagnose route, both mutation routes and the persisted mutator all have it;
- * `Validation/LayoutGate` deliberately does not, because the write path reports mapping problems through
- * `Validation/StoredMappingValidator` instead, with per-rule error codes rather than one violation code.
+ * `Validation/LayoutGate` passes it for mapped provider backing but disables mapping-problem reporting:
+ * the write path uses `Validation/StoredMappingValidator` and its per-rule error codes for those findings.
  *
  * @internal
  *
@@ -68,7 +68,7 @@ class LayoutDiagnostics
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null when none is bound
      * @param string|null $rootSource the id of the bound source, or null when none is bound
      */
-    public function analyze(array $tree, ?array $rootContext, ?string $rootSource = null): LayoutAnalysis
+    public function analyze(array $tree, ?array $rootContext, ?string $rootSource = null, bool $reportMappingProblems = true): LayoutAnalysis
     {
         $elements = $this->flatten($tree);
 
@@ -90,7 +90,7 @@ class LayoutDiagnostics
             }
 
             try {
-                $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? []);
+                $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? [], $rootSource);
             } catch (ContentSystemException $exception) {
                 if (!ContentSystemException::isClientDefect($exception)) {
                     throw $exception;
@@ -155,11 +155,11 @@ class LayoutDiagnostics
         // Runs over the whole tree rather than per element, because the catalogue is fetched once per root
         // source. Outside the per-element loop for the same reason the loop skips it: a mapping is judged
         // against the source id, which the loop above never sees.
-        if ($rootSource !== null) {
+        if ($reportMappingProblems && $rootSource !== null) {
             foreach ($this->mappingViolations($tree, $rootSource) as $violation) {
                 $violations[] = $violation;
             }
-        } elseif ($rootContext === null) {
+        } elseif ($reportMappingProblems && $rootContext === null) {
             foreach ($this->inlineMappingViolationsWithoutRootSource($tree) as $violation) {
                 $violations[] = $violation;
             }

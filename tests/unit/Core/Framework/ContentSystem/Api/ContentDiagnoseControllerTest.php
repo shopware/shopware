@@ -344,8 +344,16 @@ class ContentDiagnoseControllerTest extends TestCase
             new MappingConsumers(),
         );
 
+        $mappingInspector = new StoredMappingInspector(
+            $registry,
+            static::createStub(AbstractContentSystemMappingCandidateRegistry::class),
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
+
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver()),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver(), $mappingInspector),
             $elementResolver,
             $registry,
             new RootContextMapper(static::createStub(DataLoaderProvider::class)),
@@ -354,13 +362,7 @@ class ContentDiagnoseControllerTest extends TestCase
             static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             new ContextPathResolver(),
             new MappingConsumers(),
-            new StoredMappingInspector(
-                $registry,
-                static::createStub(AbstractContentSystemMappingCandidateRegistry::class),
-                new MappingTypeCompatibility(),
-                new MappingConsumers(),
-                new InlineMappingTokenParser(),
-            ),
+            $mappingInspector,
         );
     }
 

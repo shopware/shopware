@@ -48,8 +48,8 @@ class LayoutGate
      * @param list<StoredElement> $tree
      * @param list<ProvidedContext> $providedRootContext
      */
-    public function resolvability(array $tree, array $providedRootContext): DiagnosticsReport
+    public function resolvability(array $tree, array $providedRootContext, ?string $rootSource = null): DiagnosticsReport
     {
-        return $this->diagnostics->analyze($tree, $providedRootContext)->report;
+        return $this->diagnostics->analyze($tree, $providedRootContext, $rootSource, reportMappingProblems: false)->report;
     }
 }

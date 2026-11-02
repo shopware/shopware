@@ -77,6 +77,8 @@ The concrete mapping registry requires an explicit logger for catalogue warnings
 
 For a mapping in fallback mode, a null loader result does not replace an authored value, either on the rendered element or in the working values supplied to child providers. A non-null loader result keeps its precedence. This exception does not apply to ordinary unmapped properties or a null value resolved by the mapping itself.
 
+Static diagnostics recognize an admitted reference mapping as backing for context provided to children. They use the candidate's effective output type and validate its stored cardinality, without reading source values. The known layout source is supplied explicitly, including at the write gate, which leaves mapping error codes to `StoredMappingValidator`. This checks capability rather than whether a particular preview entity has a value.
+
 ## Runtime error handling
 
 Provider faults and inline-output exhaustion abort the content pipeline rather than becoming missing values or successful partial content results. The outer request handling differs:

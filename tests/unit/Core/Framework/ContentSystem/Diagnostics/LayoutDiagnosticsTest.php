@@ -1416,8 +1416,10 @@ class LayoutDiagnosticsTest extends TestCase
             new MappingConsumers(),
         );
 
+        $mappingInspector = $this->mappingInspector($registry, $candidates ?? []);
+
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver()),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver(), $mappingInspector),
             $elementResolver,
             $registry,
             new RootContextMapper($loaderProvider),
@@ -1426,7 +1428,7 @@ class LayoutDiagnosticsTest extends TestCase
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
             new ContextPathResolver(),
             new MappingConsumers(),
-            $this->mappingInspector($registry, $candidates ?? []),
+            $mappingInspector,
         );
     }
 

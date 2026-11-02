@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
- * The configuration of product documents in `shopware.product_documents`: the limits that saving a document checks.
+ * The product document limits from `shopware.product_documents`.
  *
  * @internal
  */
@@ -52,9 +52,8 @@ readonly class ProductDocumentConfig
     }
 
     /**
-     * The largest file the Administration can upload. It sends the file as the request body, so PHP's `post_max_size`
-     * can lower the configured size, and `upload_max_filesize` doesn't apply. A presigned upload goes straight to the
-     * storage, past PHP.
+     * The largest file the Administration can upload: the configured size, lowered by PHP's `post_max_size`.
+     * The Administration sends the raw file, so `upload_max_filesize` doesn't apply; presigned uploads skip PHP.
      */
     public function getMaxUploadFileSize(bool $presignedUploadSupported): int
     {

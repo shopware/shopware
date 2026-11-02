@@ -21,10 +21,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * Checks written product documents against the limits in `shopware.product_documents`.
- * Only what a write changes is checked: a file when a translation gets it, the number of documents when one is added
- * to a product, and the default-language translation of a new document. These checks run on the outcome of the write,
- * before it is executed.
+ * Checks product documents against `shopware.product_documents` before they are written.
+ * Only what the write changes is checked: new files, added documents and the default-language file of new documents.
  *
  * @internal
  */
@@ -87,7 +85,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      */
     private function validateFiles(PreWriteValidationEvent $event, array $translations, ConstraintViolationList $violations): void
     {
-        // translations that get another file, with the file's id
         $changedFiles = [];
         foreach ($translations as $translation) {
             $mediaId = $translation->getResultingValue('media_id');
@@ -106,7 +103,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         foreach ($changedFiles as [$translation, $mediaId]) {
             $file = $files[$mediaId] ?? null;
             if ($file === null) {
-                // the foreign key rejects a file that doesn't exist
+                // the database rejects a missing file
                 continue;
             }
 
@@ -121,7 +118,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 ));
             }
 
-            // a link to a file on another server, whose size is only what that server reported when it was linked
+            // a linked file lives on another server and can change at any time
             if ($file['path'] !== null && MediaUploadService::isExternalUrl($file['path'])) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
@@ -133,7 +130,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            // a file that has no content yet
             if ($file['size'] === null) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
@@ -166,8 +162,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * The files as they will be after the write: a file the same write creates or changes from the write, the others
-     * as stored.
+     * The files as they will be after the write: from the write if it changes them, else as stored.
      *
      * @param list<string> $mediaIds hex
      *
@@ -201,8 +196,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * A new document needs a file in the default language, which other languages fall back to. An existing document
-     * can't lose it: its default-language translation can't be deleted, and the file of that translation is required.
+     * A new document needs a file in the default language, which other languages fall back to.
+     * Existing documents can't lose it, so they are not checked.
      *
      * @param list<OutcomeRow> $documents
      * @param list<OutcomeRow> $translations
@@ -234,13 +229,14 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * Each document exists in the default language, so the default language always has the most documents of a product.
+     * The limit is per language, but every document exists in the default language,
+     * so counting per product gives the same number.
      *
      * @param list<OutcomeRow> $documents
      */
     private function validateNumberOfDocuments(array $documents, ConstraintViolationList $violations): void
     {
-        // per product, the documents the write adds to it in write order, and how many it takes away
+        // per product: the added documents in write order, and the number removed
         $added = [];
         $removed = [];
         foreach ($documents as $document) {
@@ -271,7 +267,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            // the documents added last are the ones that don't fit anymore
+            // the last added documents are the ones over the limit
             foreach (\array_slice($addedDocuments, -$tooMany) as $document) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_TOO_MANY_DOCUMENTS,
@@ -284,9 +280,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * Whether the write can add a document to a product: by creating one, or by setting the product of one. Only then
-     * do the stored documents matter. The DAL sets the product version of every document it updates, so that column
-     * tells nothing.
+     * Whether the write creates a document or moves one to another product. Only then are the stored documents needed.
+     * The product version doesn't count: the DAL sets it on every update.
      *
      * @param list<WriteCommand> $commands
      */
@@ -311,7 +306,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * An id and a version id, as ProductDocumentReader keys products.
+     * The product key format of ProductDocumentReader.
      */
     private function key(string $id, string $versionId): string
     {

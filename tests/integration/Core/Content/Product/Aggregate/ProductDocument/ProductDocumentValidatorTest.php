@@ -67,7 +67,7 @@ class ProductDocumentValidatorTest extends TestCase
         $this->addDocuments(array_map(fn (int $number): array => $this->document('file-' . $number), range(1, 9)));
 
         $errors = $this->errorsOf(fn () => $this->addDocuments([
-            // a write through the product doesn't add the documents it edits
+            // editing a document through the product doesn't add it
             ['id' => $this->ids->get('file-1-document'), 'title' => 'Renamed'],
             $this->document('file-10'),
             $this->document('file-11'),
@@ -89,7 +89,7 @@ class ProductDocumentValidatorTest extends TestCase
                     $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', private: true)],
                 ],
             ],
-            // a file the same write creates has no content yet
+            // a file created in the same write has no content yet
             ['translations' => [Defaults::LANGUAGE_SYSTEM => ['title' => 'Datasheet', 'media' => ['id' => Uuid::randomHex()]]]],
         ]));
 
@@ -139,7 +139,7 @@ class ProductDocumentValidatorTest extends TestCase
     }
 
     /**
-     * Where the default-language translation of a written document is, when the document sets its title and file directly.
+     * The path of a document's default-language translation, when title and file are set at the top.
      */
     private function defaultTranslationPointer(int $document): string
     {

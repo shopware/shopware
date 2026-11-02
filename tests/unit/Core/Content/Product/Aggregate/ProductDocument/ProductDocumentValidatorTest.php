@@ -43,23 +43,17 @@ class ProductDocumentValidatorTest extends TestCase
     private StaticDefinitionInstanceRegistry $registry;
 
     /**
-     * The documents the write touches, as WriteOutcome returns them.
-     *
-     * @var list<OutcomeRow>
+     * @var list<OutcomeRow> what WriteOutcome returns for the documents
      */
     private array $documents = [];
 
     /**
-     * The translations the write gives a file, as WriteOutcome returns them.
-     *
-     * @var list<OutcomeRow>
+     * @var list<OutcomeRow> what WriteOutcome returns for the translations
      */
     private array $translations = [];
 
     /**
-     * The files the write creates or changes, as WriteOutcome returns them.
-     *
-     * @var list<OutcomeRow>
+     * @var list<OutcomeRow> what WriteOutcome returns for the media
      */
     private array $media = [];
 
@@ -130,7 +124,7 @@ class ProductDocumentValidatorTest extends TestCase
 
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
     {
-        // the file broke a limit after it was added, which doesn't stop writes that keep it
+        // a file that broke a limit later doesn't block writes that keep it
         $this->storedFiles = [$this->ids->get('manual-file') => self::file(private: true)];
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
 
@@ -146,7 +140,7 @@ class ProductDocumentValidatorTest extends TestCase
         $this->documents = [
             $this->addedDocument('manual', '/0/documents/0'),
             $this->addedDocument('certificate', '/0/documents/1'),
-            // an existing document can't lose its default-language file
+            // existing documents are not checked
             $this->editedDocument('datasheet', '/0/documents/2'),
         ];
         $this->translations = [
@@ -174,7 +168,7 @@ class ProductDocumentValidatorTest extends TestCase
     }
 
     /**
-     * @param list<array{string, string}> $changes what the write does to which document
+     * @param list<array{string, string}> $changes the change and path of each document
      * @param list<string> $pointers
      */
     #[DataProvider('documentCountProvider')]
@@ -245,7 +239,7 @@ class ProductDocumentValidatorTest extends TestCase
     }
 
     /**
-     * A command for each document row, as a write through the product sends them: each one sets the product.
+     * One command per document row, each setting the product, like a save through the product.
      *
      * @return list<WriteCommand>
      */
@@ -332,7 +326,7 @@ class ProductDocumentValidatorTest extends TestCase
             path: $path,
             isNew: false,
             isDeleted: false,
-            // a write through the product sets the product of each of its documents, moved or not
+            // a save through the product sets the product of every document, moved or not
             payload: ['product_id' => $this->ids->getBytes($movedTo ?? $product), 'position' => 1],
             state: ['product_id' => $this->ids->getBytes($product), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
         );

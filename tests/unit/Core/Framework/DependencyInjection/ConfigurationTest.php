@@ -158,7 +158,7 @@ class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
 
-        // like filesystem.allowed_extensions, the core list of file types is in shopware.yaml
+        // the core list lives in shopware.yaml, like filesystem.allowed_extensions
         static::assertSame([
             'allowed_extensions' => [],
             'max_per_language' => 10,

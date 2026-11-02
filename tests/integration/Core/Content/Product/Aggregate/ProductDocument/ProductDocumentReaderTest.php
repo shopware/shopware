@@ -93,7 +93,7 @@ class ProductDocumentReaderTest extends TestCase
     }
 
     /**
-     * Stores a document past the validator.
+     * Inserts a document with SQL, past the validator.
      *
      * @param array<string, string> $files the file of each language
      */

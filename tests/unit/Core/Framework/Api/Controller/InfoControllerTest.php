@@ -65,7 +65,7 @@ class InfoControllerTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        // the config reads PHP's upload limit; registering first keeps the ini mocks of later tests working
+        // register before the first ini_get(), or the ini mocks of later tests stop working
         IniMock::register(ProductDocumentConfig::class);
     }
 

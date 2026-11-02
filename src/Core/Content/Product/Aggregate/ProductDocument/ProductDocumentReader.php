@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Reads what ProductDocumentValidator needs from the database. Products are keyed by their id and version id, both
- * hex, joined.
+ * Database reads for ProductDocumentValidator.
+ * A product's key is its id and version id in hex, one after the other.
  *
  * @internal
  *
@@ -53,7 +53,7 @@ class ProductDocumentReader
     /**
      * @param list<string> $products
      *
-     * @return array<string, int> the number of stored documents of each product that has any
+     * @return array<string, int> number of documents per product; products without any are left out
      */
     public function countDocuments(array $products): array
     {

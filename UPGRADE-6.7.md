@@ -609,13 +609,7 @@ We made some changes in the PHP core, which might affect your plugins.
 <details>
   <summary>Detailed Changes</summary>
 
-## Recovery associations
-
-The `user.recoveryUser` and `customer.recoveryCustomer` DAL associations were removed.
-Remove criteria using these associations.
-
 ## Native types for PHP class properties
-
 All PHP class properties now have a native type.
 If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
 

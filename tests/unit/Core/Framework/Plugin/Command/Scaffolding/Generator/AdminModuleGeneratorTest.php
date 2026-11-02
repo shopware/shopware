@@ -96,11 +96,11 @@ class AdminModuleGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([AdminModuleGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/app/administration/src/module/swag-example/index.js',
-                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/index.js',
+                'src/Resources/app/administration/src/module/swag-example/index.ts',
+                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/index.ts',
                 'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/swag-example-list.html.twig',
                 'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/swag-example-list.scss',
-                'src/Resources/app/administration/src/main.js',
+                'src/Resources/app/administration/src/main.ts',
                 'src/Resources/app/administration/src/snippet/en.json',
                 'src/Resources/app/administration/src/snippet/de.json',
             ],

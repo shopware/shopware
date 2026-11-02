@@ -22,13 +22,12 @@ class JavascriptPluginGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION_LONG = 'A custom Storefront JavaScript plugin is an ES6 class that extends Shopware\'s plugin base class and adds client-side functionality to the storefront. Use one when you need to implement custom interactions or behavior, such as reacting to user actions or DOM events.';
     private const CLI_QUESTION = 'Do you want to create an example javascript plugin?';
 
-    private string $mainJsEntry = <<<'EOL'
+    private string $mainTsEntry = <<<'EOL'
     // Import all necessary Storefront plugins
+    import PluginManager from 'src/plugin-system/plugin.manager';
     import ExamplePlugin from './example-plugin/example-plugin.plugin';
 
-    // Register your plugin via the existing PluginManager
-    const PluginManager = window.PluginManager;
-
+    // Register your plugin via the PluginManager
     PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
 
     EOL;
@@ -45,16 +44,16 @@ class JavascriptPluginGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createTemplate());
 
         $stubCollection->append(
-            'src/Resources/app/storefront/src/main.js',
-            $this->mainJsEntry
+            'src/Resources/app/storefront/src/main.ts',
+            $this->mainTsEntry
         );
     }
 
     private function createPluginFile(): Stub
     {
         return Stub::template(
-            'src/Resources/app/storefront/src/example-plugin/example-plugin.plugin.js',
-            self::STUB_DIRECTORY . '/js-plugin.stub'
+            'src/Resources/app/storefront/src/example-plugin/example-plugin.plugin.ts',
+            self::STUB_DIRECTORY . '/ts-plugin.stub'
         );
     }
 

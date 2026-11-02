@@ -89,6 +89,18 @@ class ApiExceptionTest extends TestCase
     {
         $exception = ApiException::unsupportedResponseMediaTypes(['text/plain', 'application/xml']);
 
+        static::assertInstanceOf(ApiException::class, $exception);
+        static::assertSame(ApiException::API_UNSUPPORTED_RESPONSE_MEDIA_TYPES, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
+        static::assertSame('All provided media types are unsupported. (text/plain, application/xml)', $exception->getMessage());
+        static::assertSame('text/plain, application/xml', $exception->getParameter('mediaTypes'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedResponseMediaTypesLegacy(): void
+    {
+        $exception = ApiException::unsupportedResponseMediaTypes(['text/plain', 'application/xml']);
+
         static::assertInstanceOf(UnsupportedMediaTypeHttpException::class, $exception);
         static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
         static::assertSame('All provided media types are unsupported. (text/plain, application/xml)', $exception->getMessage());

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
@@ -157,9 +158,9 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testAdminApiUnsupportedContentType(): void
     {
-        $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::randomHex();
         $accept = 'text/plain';
+        $this->expectExceptionObject(ApiException::unsupportedResponseMediaTypes([$accept]));
         $self = 'http://localhost/api/category/' . $id;
         $context = $this->getAdminContext();
         $this->getDetailResponse($context, $id, $self, $accept, false);

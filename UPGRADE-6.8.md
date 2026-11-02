@@ -365,6 +365,8 @@ This header also works on earlier Shopware 6 versions.
 Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
 Listing responses contain `data`, `total`, and `aggregations`.
 
+Unsupported response formats now return HTTP 415 with error code `FRAMEWORK__API_UNSUPPORTED_RESPONSE_MEDIA_TYPES` instead of `0`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
@@ -463,6 +465,13 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 # Core
 
 <details>
+
+## Unsupported Admin API response format exception
+
+`ResponseFactoryRegistry::getType()` switched from Symfony's `UnsupportedMediaTypeHttpException` to `ApiException` when none of the requested response formats are supported.
+Update exception catches to handle `ApiException` and check `ApiException::API_UNSUPPORTED_RESPONSE_MEDIA_TYPES`.
+`ApiException::unsupportedResponseMediaTypes()` narrowed its return type to `self`.
+HTTP status 415 and the message were preserved.
 
 ## Multiple SQL statements restricted to migrations and installation
 

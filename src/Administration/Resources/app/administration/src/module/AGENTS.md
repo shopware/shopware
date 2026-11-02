@@ -169,6 +169,7 @@ A changed public-api test is a changed pin too: which members are public is alre
 
 Put a requirement into the smallest module that owns it, and let the code that uses the module rely on its requirements.
 Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.
+A contract spec that grows past 500 lines splits into a directory of the same name, such as `tests/pinned.spec/search.spec.ts`.
 `sw-core-rules/mini-module-boundaries`, `sw-test-rules/require-test-origin` and `sw-test-rules/no-vm-access` check these rules.
 
 `npm run unit:mini-module -- <module directory>` runs one module's tests with coverage of its `src/` only.

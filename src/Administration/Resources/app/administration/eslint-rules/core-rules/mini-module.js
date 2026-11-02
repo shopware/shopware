@@ -11,8 +11,9 @@ const { parse } = require('@typescript-eslint/parser');
  *
  * @example
  * CONTRACT_SPEC.test('src/core/order/primary-delivery/tests/pinned.spec.ts') // → true
+ * CONTRACT_SPEC.test('src/core/order/primary-delivery/tests/pinned.spec/search.spec.ts') // → true, a split spec
  */
-const CONTRACT_SPEC = /(^|\/)(requirements|pinned|regressions|public-api)\.spec\.[jt]s$/;
+const CONTRACT_SPEC = /(^|\/)(requirements|pinned|regressions|public-api)\.spec(\/[^/]+\.spec)?\.[jt]s$/;
 
 /**
  * The kinds of members a `public` list of `definePublicComponent()` names, that a component instance carries.

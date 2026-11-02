@@ -23,7 +23,7 @@ describe('buildJestArguments', () => {
 
         // ASSERT
         expect(jestArguments[1]).toBe(
-            'src/core/order/primary-delivery/tests/(requirements|pinned|regressions|public-api)\\.spec\\.[jt]s$',
+            'src/core/order/primary-delivery/tests/(requirements|pinned|regressions|public-api)\\.spec(/[^/]+\\.spec)?\\.[jt]s$',
         );
     });
 
@@ -34,7 +34,7 @@ describe('buildJestArguments', () => {
         // ASSERT
         expect(jestArguments).toEqual([
             '--testPathPatterns',
-            '/tests/(requirements|pinned|regressions|public-api)\\.spec\\.[jt]s$',
+            '/tests/(requirements|pinned|regressions|public-api)\\.spec(/[^/]+\\.spec)?\\.[jt]s$',
             '--coverage=false',
         ]);
     });

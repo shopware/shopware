@@ -10,17 +10,17 @@ const { isTestDeclaration } = require('./test-declaration');
  */
 const REQUIRED_TAGS = [
     {
-        file: /(^|\/)(pinned|public-api)\.spec\.[jt]s$/,
+        file: /(^|\/)(pinned|public-api)\.spec(\/[^/]+\.spec)?\.[jt]s$/,
         tag: null,
     },
     {
-        file: /(^|\/)requirements\.spec\.[jt]s$/,
+        file: /(^|\/)requirements\.spec(\/[^/]+\.spec)?\.[jt]s$/,
         tag: '@requirement',
         pattern: /@requirement\s+\S/,
         hint: 'what a user expects and why',
     },
     {
-        file: /(^|\/)regressions\.spec\.[jt]s$/,
+        file: /(^|\/)regressions\.spec(\/[^/]+\.spec)?\.[jt]s$/,
         tag: '@regression',
         pattern: /@regression\s+(#\d+|https?:\/\/\S+)/,
         hint: 'the issue (#1234 or a link) and what users saw',

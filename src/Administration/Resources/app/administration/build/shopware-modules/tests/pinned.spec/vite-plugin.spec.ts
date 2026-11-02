@@ -5,12 +5,12 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import VirtualShopwareModulesPlugin, { generateModuleSource } from '../src/vite-plugin';
-import { exportNames, parseSpecifier, type ModuleRegistry } from '../src/definitions';
-import { readRegistry } from '../private';
+import VirtualShopwareModulesPlugin, { type Consumer, type ModuleRegistry } from '../../index';
 
-const administrationRoot = path.resolve(__dirname, '../../..');
-const registry = readRegistry(administrationRoot);
+const administrationRoot = path.resolve(__dirname, '../../../..');
+const registry = JSON.parse(
+    fs.readFileSync(path.join(administrationRoot, 'shopware-modules.json'), 'utf8'),
+) as ModuleRegistry;
 
 type PluginHooks = {
     resolveId: (id: string) => string | null;
@@ -26,8 +26,8 @@ type PluginHooks = {
     }) => Array<{ id: string | null }> | undefined;
 };
 
-function createPlugin(root = administrationRoot): PluginHooks {
-    return VirtualShopwareModulesPlugin({ administrationRoot: root, consumer: 'host' }) as unknown as PluginHooks;
+function createPlugin(root = administrationRoot, consumer: Consumer = 'host'): PluginHooks {
+    return VirtualShopwareModulesPlugin({ administrationRoot: root, consumer }) as unknown as PluginHooks;
 }
 
 function writeRegistry(root: string, exportName: string): string {
@@ -52,9 +52,18 @@ function load(plugin: PluginHooks, id: string): { source: string | null; watched
     return { source, watched };
 }
 
-describe('build/shopware-modules/src/vite-plugin', () => {
+/** The module the plugin serves for a specifier, as a build of that consumer loads it. */
+function sourceOf(specifier: string, consumer: Consumer = 'host'): string | null {
+    return load(createPlugin(administrationRoot, consumer), `\0${specifier}`).source;
+}
+
+describe('build/shopware-modules: the Vite plugin', () => {
     it('is a plugin named shopware-virtual-modules', () => {
-        expect(VirtualShopwareModulesPlugin({ administrationRoot, consumer: 'host' }).name).toBe('shopware-virtual-modules');
+        // ACT
+        const plugin = VirtualShopwareModulesPlugin({ administrationRoot, consumer: 'host' });
+
+        // ASSERT
+        expect(plugin.name).toBe('shopware-virtual-modules');
     });
 
     describe('resolveId', () => {
@@ -66,58 +75,80 @@ describe('build/shopware-modules/src/vite-plugin', () => {
             'shopware:mixins/sw-form-field',
             'shopware:stores/notification',
         ])('claims %s', (specifier) => {
-            expect(createPlugin().resolveId(specifier)).toBe(`\0${specifier}`);
+            // ACT
+            const resolved = createPlugin().resolveId(specifier);
+
+            // ASSERT
+            expect(resolved).toBe(`\0${specifier}`);
         });
 
-        it('refuses a key the registry does not list', () => {
-            const plugin = createPlugin();
+        it.each([
+            'shopware:utils/notAUtil',
+            'shopware:stores/notARegisteredStore',
+            'shopware:mixins/notAMixin',
+            'shopware:utils/constructor',
+            'shopware:utils/toString',
+            'shopware:utils/__proto__',
+        ])('refuses %s, a key the registry does not list', (specifier) => {
+            // ACT
+            const resolved = createPlugin().resolveId(specifier);
 
-            expect(plugin.resolveId('shopware:utils/notAUtil')).toBeNull();
-            expect(plugin.resolveId('shopware:stores/notARegisteredStore')).toBeNull();
-            expect(plugin.resolveId('shopware:mixins/notAMixin')).toBeNull();
-            expect(plugin.resolveId('shopware:utils/constructor')).toBeNull();
-            expect(plugin.resolveId('shopware:utils/toString')).toBeNull();
-            expect(plugin.resolveId('shopware:utils/__proto__')).toBeNull();
+            // ASSERT
+            expect(resolved).toBeNull();
         });
 
-        it('refuses a bare import of the registry-backed families', () => {
-            const plugin = createPlugin();
+        it.each([
+            'shopware:mixins',
+            'shopware:stores',
+        ])('refuses the bare import %s of a registry-backed family', (specifier) => {
+            // ACT
+            const resolved = createPlugin().resolveId(specifier);
 
-            expect(plugin.resolveId('shopware:mixins')).toBeNull();
-            expect(plugin.resolveId('shopware:stores')).toBeNull();
+            // ASSERT
+            expect(resolved).toBeNull();
         });
 
-        it('leaves every other import alone', () => {
-            const plugin = createPlugin();
+        it.each([
+            'src/core/service/util.service',
+            'vue',
+        ])('leaves the import %s alone', (specifier) => {
+            // ACT
+            const resolved = createPlugin().resolveId(specifier);
 
-            expect(plugin.resolveId('src/core/service/util.service')).toBeNull();
-            expect(plugin.resolveId('vue')).toBeNull();
+            // ASSERT
+            expect(resolved).toBeNull();
         });
     });
 
     describe('load', () => {
         it('serves a specifier under its resolved id and watches the registry', () => {
+            // ACT
             const { source, watched } = load(createPlugin(), '\0shopware:utils/debug');
 
-            expect(source).toBe(generateModuleSource('shopware:utils/debug', registry));
+            // ASSERT
+            expect(source).toContain('export default shopware.Utils["debug"];');
             expect(watched).toEqual([path.join(administrationRoot, 'shopware-modules.json')]);
         });
 
-        it('leaves ids it did not resolve alone', () => {
-            const plugin = createPlugin();
+        it.each([
+            'src/core/shopware.ts',
+            '\0other-plugin:thing',
+        ])('leaves the id %s alone, which it did not resolve', (id) => {
+            // ACT
+            const { source } = load(createPlugin(), id);
 
-            expect(load(plugin, 'src/core/shopware.ts').source).toBeNull();
-            expect(load(plugin, '\0other-plugin:thing').source).toBeNull();
+            // ASSERT
+            expect(source).toBeNull();
         });
     });
 
     describe('handleHotUpdate', () => {
         it('reloads the registry and invalidates loaded virtual modules', () => {
+            // ARRANGE
             const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shopware-virtual-modules-'));
 
             try {
                 const registryFile = writeRegistry(root, 'first');
-
                 const plugin = createPlugin(root);
                 const virtualModule = { id: '\0shopware:utils' };
                 const otherVirtualModule = { id: '\0other-plugin:thing' };
@@ -139,6 +170,7 @@ describe('build/shopware-modules/src/vite-plugin', () => {
 
                 writeRegistry(root, 'second');
 
+                // ACT
                 const updatedModules = plugin.handleHotUpdate({
                     file: registryFile,
                     server: {
@@ -149,6 +181,7 @@ describe('build/shopware-modules/src/vite-plugin', () => {
                     },
                 });
 
+                // ASSERT
                 expect(updatedModules).toEqual([virtualModule]);
                 expect(invalidateModule).toHaveBeenCalledTimes(1);
                 expect(invalidateModule).toHaveBeenCalledWith(virtualModule);
@@ -161,68 +194,85 @@ describe('build/shopware-modules/src/vite-plugin', () => {
         });
     });
 
-    describe('generateModuleSource', () => {
+    describe('the generated module source', () => {
         it('gives a root import one binding per member plus the branch as default', () => {
-            const source = generateModuleSource('shopware:utils', registry) as string;
+            // ACT
+            const source = sourceOf('shopware:utils');
 
+            // ASSERT
             registry['shopware:utils'].exports.forEach((member) => {
                 expect(source).toContain(`export const ${member} = shopware.Utils["${member}"];`);
             });
-
             expect(source).toContain('export default shopware.Utils;');
         });
 
         it('gives a namespace subpath its own members plus the namespace as default', () => {
-            const source = generateModuleSource('shopware:utils/debug', registry) as string;
+            // ACT
+            const source = sourceOf('shopware:utils/debug');
 
+            // ASSERT
             expect(source).toContain('export const warn = shopware.Utils["debug"]["warn"];');
             expect(source).toContain('export const error = shopware.Utils["debug"]["error"];');
             expect(source).toContain('export default shopware.Utils["debug"];');
         });
 
         it('gives a mixin subpath a single pure lookup, so an unused import resolves nothing', () => {
-            const source = generateModuleSource('shopware:mixins/sw-form-field', registry) as string;
+            // ACT
+            const source = sourceOf('shopware:mixins/sw-form-field');
 
+            // ASSERT
             expect(source).toContain('export default /*@__PURE__*/ shopware.Mixin.getByName("sw-form-field");');
-            expect(source.match(/getByName/g)).toHaveLength(1);
+            expect(source?.match(/getByName/g)).toHaveLength(1);
         });
 
         it('gives a store subpath a composable, so the lookup happens per call', () => {
-            const source = generateModuleSource('shopware:stores/notification', registry) as string;
+            // ACT
+            const source = sourceOf('shopware:stores/notification');
 
+            // ASSERT
             expect(source).toContain('export default () => shopware.Store.get("notification");');
         });
 
         it('imports the instance for the host, so evaluation order settles when it exists', () => {
-            const source = generateModuleSource('shopware:data/Criteria', registry, 'host') as string;
+            // ACT
+            const source = sourceOf('shopware:data/Criteria', 'host');
 
+            // ASSERT
             expect(source).toContain("import { ShopwareInstance as shopware } from 'src/core/shopware';");
             expect(source).not.toContain('globalThis.Shopware');
         });
 
         it('imports the mixin registry too, so the lookup cannot run before registration', () => {
-            const source = generateModuleSource('shopware:mixins/sw-form-field', registry, 'host') as string;
+            // ACT
+            const source = sourceOf('shopware:mixins/sw-form-field', 'host');
 
+            // ASSERT
             expect(source).toContain("import 'src/app/mixin';");
         });
 
         it('exports the composables of the instance', () => {
-            const source = generateModuleSource('shopware:composables', registry, 'host') as string;
+            // ACT
+            const source = sourceOf('shopware:composables', 'host');
 
+            // ASSERT
             expect(source).toContain('export const useListing = shopware.Composables["useListing"];');
             expect(source).toContain('export default shopware.Composables;');
         });
 
         it('gives a composable subpath the composable as its only export', () => {
-            const source = generateModuleSource('shopware:composables/useListing', registry, 'host') as string;
+            // ACT
+            const source = sourceOf('shopware:composables/useListing', 'host');
 
+            // ASSERT
             expect(source).toContain('export default shopware.Composables["useListing"];');
             expect(source).not.toContain('export const');
         });
 
         it('reads the global for an extension, which has no Administration source to import', () => {
-            const source = generateModuleSource('shopware:data/Criteria', registry, 'extension') as string;
+            // ACT
+            const source = sourceOf('shopware:data/Criteria', 'extension');
 
+            // ASSERT
             expect(source).toContain('const shopware = globalThis.Shopware;');
             expect(source).not.toContain("from 'src/core/shopware'");
             expect(source).toContain('should be unreachable');
@@ -233,20 +283,26 @@ describe('build/shopware-modules/src/vite-plugin', () => {
             'shopware:composables',
             'shopware:composables/useListing',
         ])('checks for the branch before an extension reads %s, which older Administrations lack', (specifier) => {
-            const source = generateModuleSource(specifier, registry, 'extension') as string;
+            // ACT
+            const source = sourceOf(specifier, 'extension');
 
+            // ASSERT
             expect(source).toMatch(/if \(!shopware\.Composables\) \{[\s\S]*requires Shopware 6\.7\.16\.0[\s\S]*export/);
         });
 
         it('leaves the branch check out of the host, which imports its own instance', () => {
-            const source = generateModuleSource('shopware:composables', registry, 'host') as string;
+            // ACT
+            const source = sourceOf('shopware:composables', 'host');
 
+            // ASSERT
             expect(source).not.toContain('requires Shopware');
         });
 
         it('re-exports the index.ts of a mini-module, without a default export when it has none', () => {
-            const source = generateModuleSource('shopware:mini-modules/public-component', registry, 'extension') as string;
+            // ACT
+            const source = sourceOf('shopware:mini-modules/public-component', 'extension');
 
+            // ASSERT
             expect(source).toContain(
                 'export const definePublicComponent = shopware.MiniModules["public-component"]["definePublicComponent"];',
             );
@@ -254,19 +310,15 @@ describe('build/shopware-modules/src/vite-plugin', () => {
             expect(source).toMatch(/if \(!shopware\.MiniModules\) \{[\s\S]*requires Shopware 6\.7\.17\.0/);
         });
 
-        it('returns nothing for a specifier the registry does not list', () => {
-            expect(generateModuleSource('shopware:nope', registry)).toBeUndefined();
-            expect(generateModuleSource('shopware:mixins/notAMixin', registry)).toBeUndefined();
-        });
-    });
+        it.each([
+            'shopware:nope',
+            'shopware:mixins/notAMixin',
+        ])('serves nothing for %s, which the registry does not list', (specifier) => {
+            // ACT
+            const source = sourceOf(specifier);
 
-    describe('exportNames', () => {
-        it('separates a missing key from a key with no named exports', () => {
-            const mixin = parseSpecifier('shopware:mixins/sw-form-field');
-            const missing = parseSpecifier('shopware:mixins/notAMixin');
-
-            expect(exportNames(registry, mixin!)).toEqual([]);
-            expect(exportNames(registry, missing!)).toBeUndefined();
+            // ASSERT
+            expect(source).toBeNull();
         });
     });
 });

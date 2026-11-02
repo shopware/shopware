@@ -84,6 +84,37 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(['block-a'], $body['affectedElementIds']);
     }
 
+    public function testReplacementReportsInvalidChildMappingsWithoutDroppingParentWiring(): void
+    {
+        $source = ['type' => 'root', 'id' => 'product', 'path' => 'missing'];
+        $child = [
+            'id' => 'child', 'component' => TestElementTypeLoader::MAPPABLE_PRIMITIVE,
+            'properties' => ['text' => 'Child fallback'],
+            'acceptsContext' => ['text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => $source]],
+        ];
+
+        $body = $this->mutate('replace-element', [
+            'layout' => [[
+                'id' => 'parent', 'component' => 'Sw:Grid:Container',
+                'slots' => ['content' => [$child]],
+            ]],
+            'elementId' => 'parent', 'newType' => 'Sw:Grid:Container', 'rootSource' => 'product',
+        ]);
+
+        static::assertSame([], $body['droppedWiring']);
+        static::assertSame($source, $body['layout'][0]['slots']['content'][0]['acceptsContext']['text']['source']);
+        static::assertSame('Child fallback', $body['layout'][0]['slots']['content'][0]['properties']['text']);
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_mapping',
+        ));
+        static::assertCount(1, $violations);
+        static::assertSame('child', $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
     #[TestDox('duplicates an element with a server-minted id')]
     public function testDuplicateElement(): void
     {

@@ -262,6 +262,10 @@ final class ReplaceElement extends AbstractLayoutMutation
         $consumers = $definitions->getAllConsumers();
 
         foreach ($problems as $problem) {
+            if ($problem->elementId !== $replacement->id) {
+                continue;
+            }
+
             unset($consumers[$problem->propertyKey]);
             $this->droppedWiring[] = $problem->propertyKey;
         }

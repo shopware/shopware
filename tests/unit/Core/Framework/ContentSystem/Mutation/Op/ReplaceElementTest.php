@@ -637,6 +637,64 @@ class ReplaceElementTest extends TestCase
         static::assertSame($rootSource, $result->rootSource);
     }
 
+    #[DataProvider('childMappingProblems')]
+    public function testReplaceScopesMappingCleanupToTheReplacedElement(string $childProperty, bool $parentMappingValid): void
+    {
+        $properties = ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->primitive('text', 'string', mappable: true)
+            ->primitive('headline', 'string', mappable: true)
+            ->build()->properties();
+        $specification = new ContentSystemElementTypeSpecification(
+            'Sw:New',
+            'New',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            $properties,
+            [new SlotSpecification('content', null, [], '')],
+        );
+        $registry = TestElementTypeRegistry::of(['Sw:New' => $specification]);
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([
+            'product.name' => new MappingCandidate('product.name', 'Name', '', 'basic', 'string'),
+        ]);
+        $inspector = new StoredMappingInspector($registry, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser());
+        $child = StoredElementBuilder::create('Sw:New', 'child')
+            ->withProperty($childProperty, 'Child fallback')
+            ->withConsumer($childProperty, ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'missing'))
+            ->build();
+        $old = StoredElementBuilder::create('Sw:Old', 'parent')
+            ->withProperty('text', 'Parent fallback')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', $parentMappingValid ? 'name' : 'missing'))
+            ->withSlot('content', [$child])
+            ->build();
+        $replace = new ReplaceElement($registry, 'parent', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), $inspector);
+
+        $result = $replace->apply(new StoredTree([$old], 'product'));
+
+        $parent = $result->roots[0];
+        static::assertSame($parentMappingValid, isset($parent->contextDefinitions->getAllConsumers()['text']));
+        static::assertSame($parentMappingValid ? [] : ['text'], $replace->droppedWiring());
+        static::assertSame('Parent fallback', $parent->property('text')?->asString());
+        static::assertSame($child, $parent->slots['content'][0]);
+        $remainingProblems = $inspector->inspectWholeField($result->roots, 'product');
+        static::assertCount(1, $remainingProblems);
+        static::assertSame('child', $remainingProblems[0]->elementId);
+        static::assertSame($childProperty, $remainingProblems[0]->propertyKey);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function childMappingProblems(): iterable
+    {
+        yield 'child cannot remove a valid same-named parent mapping' => ['text', true];
+        yield 'child cannot add a false dropped-wiring entry' => ['headline', true];
+        yield 'invalid parent and same-named child stay separate' => ['text', false];
+        yield 'only the invalid parent mapping is reported as dropped' => ['headline', false];
+    }
+
     public function testReplaceDoesNotReportAnInlineTokenProblemAsDroppedConsumerWiring(): void
     {
         $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:New')

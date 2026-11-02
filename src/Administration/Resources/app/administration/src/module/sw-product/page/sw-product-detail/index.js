@@ -516,6 +516,7 @@ export default {
 
     watch: {
         productId() {
+            this.showOpenInStorefrontModal = false;
             this.createdComponent();
         },
     },

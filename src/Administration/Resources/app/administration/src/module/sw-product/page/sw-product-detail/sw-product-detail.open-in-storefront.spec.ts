@@ -115,6 +115,15 @@ describe('module/sw-product/page/sw-product-detail open in Storefront', () => {
         expect((modal.props('salesChannels') as { id: string }[]).map(({ id }) => id)).toEqual(['parent-storefront']);
     });
 
+    it('closes the modal when another product is opened', async () => {
+        wrapper = await createWrapper();
+        await openModal(wrapper);
+
+        await wrapper.setProps({ productId: 'product-b' });
+
+        expect(wrapper.findComponent(openInStorefrontModalStub).exists()).toBe(false);
+    });
+
     it('disables the button for a product that is not saved yet', async () => {
         wrapper = await createWrapper({ productId: null });
 

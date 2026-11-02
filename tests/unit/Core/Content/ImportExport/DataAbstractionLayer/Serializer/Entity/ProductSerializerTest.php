@@ -70,4 +70,30 @@ class ProductSerializerTest extends TestCase
             $resolved
         );
     }
+
+    public function testTheVisibilitiesOfARecordWithoutAProductAreNotLookedUp(): void
+    {
+        $salesChannelIds = [Uuid::randomHex(), Uuid::randomHex()];
+
+        /** @var StaticEntityRepository<ProductVisibilityCollection> $visibilityRepository */
+        $visibilityRepository = new StaticEntityRepository([], new ProductVisibilityDefinition());
+
+        $serializer = new ProductSerializer(
+            $visibilityRepository,
+            StaticEntityRepository::of(SalesChannelCollection::class),
+            StaticEntityRepository::of(ProductMediaCollection::class),
+            StaticEntityRepository::of(ProductConfiguratorSettingCollection::class)
+        );
+        $serializer->setRegistry(new SerializerRegistry([], [new FieldSerializer()]));
+
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $record = ['visibilities' => ['all' => implode('|', $salesChannelIds)]];
+
+        $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
+
+        static::assertSame([], $visibilityRepository->searchedCriteria);
+        static::assertSame($salesChannelIds, array_column($result['visibilities'], 'salesChannelId'));
+    }
 }

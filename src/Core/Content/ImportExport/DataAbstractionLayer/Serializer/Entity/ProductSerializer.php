@@ -167,37 +167,25 @@ class ProductSerializer extends EntitySerializer
      */
     private function findVisibilityIds(array $visibilities, Context $context): array
     {
-        $productIds = [];
-        $salesChannelIds = [];
+        $productId = $visibilities[0]['productId'] ?? null;
 
-        foreach ($visibilities as $visibility) {
-            if (!isset($visibility['productId'])) {
-                continue;
-            }
-
-            $productIds[] = $visibility['productId'];
-            $salesChannelIds[] = $visibility['salesChannelId'];
-        }
-
-        if ($productIds === []) {
+        if ($productId === null) {
             return $visibilities;
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('productId', array_unique($productIds)));
-        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_unique($salesChannelIds)));
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_column($visibilities, 'salesChannelId')));
 
         $existingIds = [];
         foreach ($this->visibilityRepository->search($criteria, $context)->getEntities() as $existing) {
-            $existingIds[$existing->getProductId()][$existing->getSalesChannelId()] = $existing->getId();
+            $existingIds[$existing->getSalesChannelId()] = $existing->getId();
         }
 
         foreach ($visibilities as $i => $visibility) {
-            if (!isset($visibility['productId'], $existingIds[$visibility['productId']][$visibility['salesChannelId']])) {
-                continue;
+            if (isset($existingIds[$visibility['salesChannelId']])) {
+                $visibilities[$i]['id'] = $existingIds[$visibility['salesChannelId']];
             }
-
-            $visibilities[$i]['id'] = $existingIds[$visibility['productId']][$visibility['salesChannelId']];
         }
 
         return $visibilities;

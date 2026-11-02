@@ -27,7 +27,7 @@ export function findComponentName(moduleUrl) {
     for (const script of document.querySelectorAll('script[type="importmap"]')) {
         let imports;
         try {
-            imports = JSON.parse(script.textContent ?? '').imports ?? {};
+            imports = JSON.parse(script.textContent).imports ?? {};
         } catch {
             continue;
         }

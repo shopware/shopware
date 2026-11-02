@@ -60,4 +60,18 @@ describe('build/vite/component-hmr-plugin', () => {
         expect(plugin.hotUpdate.call(context, { modules: [helper] })).toBeUndefined();
         expect(context.environment.hot.send).not.toHaveBeenCalled();
     });
+
+    it('handles circular imports and ignores server environments', () => {
+        const component = moduleNode(COMPONENT);
+        const helper = moduleNode('/project/custom/plugins/Demo/src/Resources/views/components/Demo/Counter/format.ts', [component]);
+        component.importers.add(helper);
+        const context = createContext();
+
+        expect(plugin.hotUpdate.call(context, { modules: [helper] })).toBeUndefined();
+
+        const runtime = moduleNode(`${STOREFRONT_ROOT}/src/shopware.ts`);
+        const ssr = createContext('ssr');
+        expect(plugin.hotUpdate.call(ssr, { modules: [runtime] })).toBeUndefined();
+        expect(ssr.environment.hot.send).not.toHaveBeenCalled();
+    });
 });

@@ -56,7 +56,7 @@ export function componentHmrPlugin(storefrontRoot: string): Plugin {
         apply: 'serve',
 
         transform(code, id) {
-            if (this.environment.name !== 'client' || !COMPONENT_SCRIPT.test(id.split('?')[0] ?? id)) {
+            if (this.environment.name !== 'client' || !COMPONENT_SCRIPT.test(id.replace(/\?.*/, ''))) {
                 return undefined;
             }
 

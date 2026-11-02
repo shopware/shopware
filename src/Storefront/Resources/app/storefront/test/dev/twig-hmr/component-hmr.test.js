@@ -56,6 +56,23 @@ describe('dev/twig-hmr/component-hmr', () => {
         expect(findComponentName('http://localhost:5173/@fs/project/Resources/views/components/Sw/Counter/helper.js')).toBeNull();
     });
 
+    it('skips import maps that are invalid or have no imports', () => {
+        document.head.insertAdjacentHTML('afterbegin', '<script type="importmap">{invalid</script><script type="importmap">{}</script>');
+
+        expect(findComponentName(COUNTER_URL)).toBe('Sw:Counter');
+    });
+
+    it('asks for a reload if the component system has no replaceComponent', () => {
+        const original = window.Shopware;
+        window.Shopware = {};
+
+        try {
+            expect(replace(COUNTER_URL, NewCounterComponent)).toBe(false);
+        } finally {
+            window.Shopware = original;
+        }
+    });
+
     it('destroys the instances and starts them again with the new class on the same elements', () => {
         const [first, second] = startCounters();
 

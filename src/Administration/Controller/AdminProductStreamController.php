@@ -4,8 +4,10 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -105,6 +107,9 @@ class AdminProductStreamController extends AbstractController
 
     /**
      * The grouping returns an arbitrary variant per display group
+     *
+     * @see ProductStreamProcessor::collectFinalProductIds()
+     * @see ProductListingLoader::loadPreviews()
      */
     private function resolvePresentationProducts(
         ProductCollection $groupedProducts,

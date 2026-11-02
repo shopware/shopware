@@ -10,6 +10,10 @@ export default {
     template,
 
     computed: {
+        hasMailContent() {
+            return !!this.logEntry.context?.additionalData?.contents;
+        },
+
         recipientString() {
             let recipients = '';
             const addresses = Object.keys(this.logEntry.context.additionalData.recipients);
@@ -31,7 +35,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.activeTab = 'html';
+            this.activeTab = this.hasMailContent ? 'html' : 'raw';
         },
     },
 };

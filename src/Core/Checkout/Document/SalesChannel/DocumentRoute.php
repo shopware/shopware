@@ -164,8 +164,8 @@ final class DocumentRoute extends AbstractDocumentRoute
         if ($email && $zipcode) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || $email !== $orderCustomer->getEmail()
-                || $zipcode !== $billingAddress->getZipcode()) {
+                || strtolower($email) !== strtolower($orderCustomer->getEmail())
+                || strtoupper($zipcode) !== strtoupper($billingAddress->getZipcode() ?: '')) {
                 throw DocumentException::wrongGuestCredentials();
             }
         } else {

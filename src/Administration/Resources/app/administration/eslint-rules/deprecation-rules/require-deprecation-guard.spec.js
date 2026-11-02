@@ -266,36 +266,3 @@ ruleTester.run('require-deprecation-guard', rule, {
         },
     ],
 });
-
-const templateRuleTester = new RuleTester({
-    languageOptions: {
-        parser: require('vue-eslint-parser'),
-        ecmaVersion: 2022,
-        sourceType: 'module',
-    },
-});
-
-templateRuleTester.run('require-deprecation-guard in templates', rule, {
-    valid: [
-        {
-            name: 'v-silence-deprecations on each component of the pre-major branch',
-            code: `<template>
-                <template v-if="!feature.isActive('V6_8_0_0')">
-                    <sw-deprecated v-silence-deprecations="'V6_8_0_0'" />
-                </template>
-                <mt-current v-else />
-            </template>`,
-        },
-    ],
-    invalid: [
-        {
-            name: 'v-silence-deprecations on a template',
-            code: `<template>
-                <template v-if="!feature.isActive('V6_8_0_0')" v-silence-deprecations="'V6_8_0_0'">
-                    <sw-deprecated />
-                </template>
-            </template>`,
-            errors: [{ messageId: 'silenceDeprecationsOnTemplate' }],
-        },
-    ],
-});

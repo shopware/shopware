@@ -113,11 +113,19 @@ export function planPluginElements({ liveRoot, previousServerRoot, nextServerRoo
 }
 
 /**
+ * Prefix of the ids that the morph sets on plugin elements without an id while it runs.
+ * Notices must not show them, they are gone after the morph.
+ */
+export const TEMPORARY_ID_PREFIX = 'sw-twig-hmr-';
+
+const TEMPORARY_ID_PATTERN = new RegExp(`^${TEMPORARY_ID_PREFIX}\\d+$`);
+
+/**
  * @param {Element} element
  * @returns {string}
  */
 export function describeElement(element) {
-    const id = element.id ? `#${element.id}` : '';
+    const id = element.id && !TEMPORARY_ID_PATTERN.test(element.id) ? `#${element.id}` : '';
     const classes = [...element.classList].slice(0, 2).map((name) => `.${name}`).join('');
 
     return `<${element.localName}${id}${classes}>`;

@@ -123,6 +123,33 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 
+    it('names a changed plugin element without an id by its tag and classes', async () => {
+        await load(`<main><h1>Version 1</h1>${slider()}</main>`);
+        const sliderElement = document.querySelector('.slider');
+        pages['http://localhost/'] = page('<main><h1>Version 2</h1><div class="slider" data-track><div class="slide">A</div><div class="slide">C</div></div></main>');
+
+        await refresh(['slider.html.twig']);
+
+        expect(document.querySelector('.slider')).toBe(sliderElement);
+        expect(sliderElement.hasAttribute('id')).toBe(false);
+        expect(document.getElementById(NOTICE_ID).textContent).toContain('The markup of <div.slider> changed. Plugins: Track.');
+    });
+
+    it('keeps a flash message of the previous request, which the new render does not repeat', async () => {
+        const body = (heading, flash) => `<main><div class="flashbags container">${flash}</div><h1>${heading}</h1></main>`;
+        await load(body('Version 1', '<div class="alert alert-success" data-track>Successfully logged out.</div>'));
+        const alert = document.querySelector('.alert');
+        const instance = PluginManager.getPluginInstanceFromElement(alert, 'Track');
+        pages['http://localhost/'] = page(body('Version 2', ''));
+
+        await refresh(['account.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.querySelector('.flashbags .alert')).toBe(alert);
+        expect(PluginManager.getPluginInstanceFromElement(alert, 'Track')).toBe(instance);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
     it.each([
         ['changed the id of', (id) => `<main><h1>Version 2</h1><div class="slider" id="${id}-new" data-track><div class="slide">A</div><div class="slide">B</div></div></main>`],
         ['removed an ancestor of', () => '<main><h1>Version 2</h1></main>'],

@@ -16,7 +16,7 @@
  */
 import { Idiomorph } from 'idiomorph';
 import { createOwnership, removeServerPreserved, PRESERVE_ATTRIBUTE } from './ownership';
-import { planPluginElements, describeElement } from './plugin-policy';
+import { planPluginElements, describeElement, TEMPORARY_ID_PREFIX } from './plugin-policy';
 import { createInteractionState, findInertBackground, OVERLAY_SELECTOR } from './interaction-state';
 import { addReloadReasons, setRenderError, resetNotice } from './notice';
 
@@ -402,7 +402,7 @@ function assignTemporaryIds(plan) {
         }
 
         temporaryIdCounter += 1;
-        entry.temporaryId = `sw-twig-hmr-${temporaryIdCounter}`;
+        entry.temporaryId = `${TEMPORARY_ID_PREFIX}${temporaryIdCounter}`;
         element.id = entry.temporaryId;
         entry.nextElement.id = entry.temporaryId;
         assigned.push({ entry, element });

@@ -14,10 +14,15 @@ export const PRESERVE_ATTRIBUTE = 'data-sw-twig-hmr-preserve';
  * Server markup that its own script fills and that changes on every request, such as the Symfony web debug toolbar.
  * Symfony marks the toolbar for hot reloads with `data-frankenphp-hot-reload-preserve`, older versions only have the class.
  * The live element is kept and the element of a new render is dropped.
+ *
+ * Flash messages are one-shot server output.
+ * The request after a redirect shows them, the GET request of a hot reload does not.
+ * Without this entry, every page reached through a redirect with a flash message would need a reload, for example after the logout.
  */
 export const SERVER_PRESERVED_SELECTOR = [
     '.sf-toolbar',
     '[data-frankenphp-hot-reload-preserve]',
+    '.flashbags > *',
 ].join(',');
 
 /**

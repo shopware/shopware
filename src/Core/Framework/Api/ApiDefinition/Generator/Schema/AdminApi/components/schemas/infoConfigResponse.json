@@ -162,7 +162,7 @@
               },
               "productDocuments": {
                 "type": "object",
-                "description": "Limits for the documents of products, configured in `shopware.product_documents`.",
+                "description": "The `shopware.product_documents` settings: allowed file types, documents per language and file size.",
                 "properties": {
                   "allowedExtensions": {
                     "type": "array",

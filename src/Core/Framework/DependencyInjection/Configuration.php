@@ -1070,7 +1070,7 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
         $rootNode
-            ->info('Limits for the documents of products, such as manuals or datasheets. Saving a document checks them.')
+            ->info('Settings for product documents, such as manuals or datasheets. They are checked when a document is saved.')
             ->addDefaultsIfNotSet()
             ->children()
                 ->arrayNode('allowed_extensions')

@@ -8,14 +8,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { extractMiniModules, extractModuleRegistry } from './extract-modules';
-import { renderDeclarations, REGENERATE_COMMAND } from './render-declarations';
-import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from './index';
+import { extractMiniModules, extractModuleRegistry } from '../src/extract-modules';
+import { renderDeclarations, REGENERATE_COMMAND } from '../src/render-declarations';
+import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from '../src/generator';
 
-const administrationRoot = path.resolve(__dirname, '../..');
+const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = extractModuleRegistry(administrationRoot);
 
-describe('scripts/generate-shopware-modules', () => {
+describe('build/shopware-modules/src/generator', () => {
     it('has a checked-in registry that matches the Administration sources', () => {
         expect(
             fs.readFileSync(REGISTRY_FILE, 'utf8'),

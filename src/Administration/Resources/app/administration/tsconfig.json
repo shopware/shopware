@@ -49,12 +49,12 @@
     "./src/**/*",
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
+    "./build/shopware-modules/**/*",
     "./build/vue-setup-transform/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",
     "./scripts/codemods/**/*.ts",
     "./scripts/extensionTooling/**/*.ts",
-    "./scripts/generate-shopware-modules/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",
     "./twigVuePlugin/**/*.ts"

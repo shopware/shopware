@@ -8,8 +8,8 @@
  */
 
 const path = require('path');
-const definitions = require('../../../build/vite-plugins/virtual-shopware-modules/definitions');
-const { readRegistry } = require('../../../build/vite-plugins/virtual-shopware-modules/index');
+const definitions = require('./definitions');
+const { readRegistry } = require('./vite-plugin');
 
 const { parseSpecifier, exportNames, isEsModuleSubpath, resolveVirtualExport } = definitions;
 

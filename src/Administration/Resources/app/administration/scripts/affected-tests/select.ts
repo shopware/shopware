@@ -52,7 +52,7 @@ const TEST_INFRASTRUCTURE = [
     /^package(-lock)?\.json$/,
     /^tsconfig\.json$/,
     /^scripts\/componentImportResolver\//,
-    /^build\/vite-plugins\/virtual-shopware-modules\//,
+    /^build\/shopware-modules\//,
 ];
 
 /** Files no spec can observe, like styles, which Jest replaces by a mock. */

@@ -5,9 +5,9 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import VirtualShopwareModulesPlugin, { exportNames, generateModuleSource, readRegistry } from './index';
-import { parseSpecifier } from './definitions';
-import type { ModuleRegistry } from './definitions';
+import VirtualShopwareModulesPlugin, { exportNames, generateModuleSource, readRegistry } from '../src/vite-plugin';
+import { parseSpecifier } from '../src/definitions';
+import type { ModuleRegistry } from '../src/definitions';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);
@@ -52,7 +52,7 @@ function load(plugin: PluginHooks, id: string): { source: string | null; watched
     return { source, watched };
 }
 
-describe('build/vite-plugins/virtual-shopware-modules', () => {
+describe('build/shopware-modules/src/vite-plugin', () => {
     it('is a plugin named shopware-virtual-modules', () => {
         expect(VirtualShopwareModulesPlugin({ administrationRoot, consumer: 'host' }).name).toBe('shopware-virtual-modules');
     });

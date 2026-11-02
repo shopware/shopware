@@ -13,8 +13,8 @@
  */
 
 const path = require('path');
-const { allSpecifiers, readRegistry } = require('../../../build/vite-plugins/virtual-shopware-modules/index');
+const { allSpecifiers, readRegistry } = require('../../build/shopware-modules/src/vite-plugin');
 
-allSpecifiers(readRegistry(path.resolve(__dirname, '../../..'))).forEach((specifier) =>
-    jest.mock(specifier, () => require('./resolve-module')(specifier), { virtual: true }),
+allSpecifiers(readRegistry(path.resolve(__dirname, '../..'))).forEach((specifier) =>
+    jest.mock(specifier, () => require('../../build/shopware-modules/src/jest-resolver')(specifier), { virtual: true }),
 );

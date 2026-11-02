@@ -10,7 +10,7 @@
  * Types come from the same global branches and registry interfaces as the runtime values.
  */
 
-import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
+import type { ModuleRegistry } from './definitions';
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
@@ -36,7 +36,7 @@ const FILE_HEADER = `/**
  * @experimental stableVersion:v6.8.0
  *
  * Types for the \`shopware:*\` modules, which expose the global \`Shopware\` object as ordinary
- * imports. \`build/vite-plugins/virtual-shopware-modules\` generates their runtime counterpart from
+ * imports. \`build/shopware-modules\` generates their runtime counterpart from
  * the same \`shopware-modules.json\`.
  *
  * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, composable, mixin, store,

@@ -4,7 +4,17 @@
       "count": 2
     }
   },
-  "build/vite-plugins/virtual-shopware-modules/definitions.spec.ts": {
+  "build/shopware-modules/src/generator.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "build/shopware-modules/tests/definitions.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "build/shopware-modules/tests/jest-resolver.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
@@ -35,11 +45,6 @@
     }
   },
   "scripts/extensionTooling/test-helpers.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "scripts/generate-shopware-modules/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
@@ -13375,11 +13380,6 @@
   "test/_helper_/componentWrapper/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
-    }
-  },
-  "test/_helper_/virtual-shopware-modules/resolve-module.spec.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
     }
   },
   "test/_setup/prepare_environment.js": {

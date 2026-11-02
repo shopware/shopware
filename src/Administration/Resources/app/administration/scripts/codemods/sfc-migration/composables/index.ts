@@ -27,7 +27,7 @@
  */
 
 import path from 'node:path';
-import { readRegistry } from '../../../../build/vite-plugins/virtual-shopware-modules/index';
+import { readRegistry } from '../../../../build/shopware-modules/src/vite-plugin';
 import {
     type ComposableCallback,
     type ComposableCallbackKind,

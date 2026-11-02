@@ -123,6 +123,7 @@ const config: Config = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+        'build/shopware-modules/src/**/*.ts',
         'build/vue-setup-transform/**/*.ts',
         '!build/vue-setup-transform/**/*.spec.ts',
         '!build/vue-setup-transform/**/index.spec/**',
@@ -145,7 +146,7 @@ const config: Config = {
     setupFiles: [
         // Ahead of every other setup file: `setup-shopware.js` loads the mixin registry, which imports
         // `shopware:utils`, and a virtual module has to be registered before anything requires it.
-        resolve(join(__dirname, '/test/_helper_/virtual-shopware-modules/register-mocks.js')),
+        resolve(join(__dirname, '/test/_setup/register-shopware-modules.js')),
         resolve(join(__dirname, '/test/_setup/jsdom-polyfills.js')),
     ],
 
@@ -248,6 +249,7 @@ const config: Config = {
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
+        '<rootDir>/build/shopware-modules/**/*.spec.ts',
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
         '<rootDir>/test/_setup/**/*.spec.ts',

@@ -5,16 +5,16 @@
  *
  *     composer admin:generate-shopware-modules
  *
- * Both outputs are checked in. `generate-shopware-modules.spec.ts` fails when they drift from source.
+ * Both outputs are checked in. `tests/generator.spec.ts` fails when they drift from source.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractModuleRegistry } from './extract-modules';
 import { renderDeclarations } from './render-declarations';
-import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
+import type { ModuleRegistry } from './definitions';
 
-const administrationRoot = path.resolve(__dirname, '../..');
+const administrationRoot = path.resolve(__dirname, '../../..');
 
 /** @private */
 export const REGISTRY_FILE = path.join(administrationRoot, 'shopware-modules.json');

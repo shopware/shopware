@@ -19,8 +19,8 @@ import {
     parseSpecifier,
     resolveVirtualExport,
     type VirtualModuleGlobal,
-} from './definitions';
-import { readRegistry } from './index';
+} from '../src/definitions';
+import { readRegistry } from '../src/vite-plugin';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);
@@ -78,7 +78,7 @@ function unwrap(value: unknown): unknown {
     return typeof value === 'function' ? (value as () => unknown)() : value;
 }
 
-describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
+describe('build/shopware-modules/src/definitions', () => {
     it('has a registry entry for every module family', () => {
         expect(Object.keys(registry).sort()).toEqual([...MODULE_FAMILIES].sort());
     });

@@ -117,7 +117,7 @@ Both files are checked in. The generator test fails when either file does not ma
 
 ## Build and test integration
 
-The Vite plugin in `build/vite-plugins/virtual-shopware-modules` generates one ES module for each valid
+The Vite plugin in `build/shopware-modules` generates one ES module for each valid
 specifier. It emits static named exports so Rollup can reject invalid imports and remove unused exports.
 A pure annotation lets Rollup remove an unused mixin lookup.
 

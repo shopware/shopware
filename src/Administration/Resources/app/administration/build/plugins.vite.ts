@@ -24,7 +24,7 @@ import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
-import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
+import VirtualShopwareModulesPlugin from './shopware-modules/src/vite-plugin';
 import {
     createPluginDevJson,
     loadExtensions,

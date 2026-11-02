@@ -100,7 +100,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             return;
         }
 
-        $files = $this->getFiles($event, array_values(array_unique(array_column($changedFiles, 1))));
+        $files = $this->getResultingFiles($event, array_values(array_unique(array_column($changedFiles, 1))));
         $allowedExtensions = $this->config->allowedExtensions;
 
         foreach ($changedFiles as [$translation, $mediaId]) {
@@ -173,7 +173,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      *
      * @return array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}> keyed by media id
      */
-    private function getFiles(PreWriteValidationEvent $event, array $mediaIds): array
+    private function getResultingFiles(PreWriteValidationEvent $event, array $mediaIds): array
     {
         $ids = array_flip(Uuid::fromHexToBytesList($mediaIds));
         $mediaCommands = array_values(array_filter(

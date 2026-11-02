@@ -321,7 +321,7 @@
       "tooltipOpenInStorefrontNewProduct": "Save the product first to open it in the Storefront."
     },
     "openInStorefrontModal": {
-      "title": "Open \"{name}\" ({productNumber}) in the Storefront",
+      "title": "Open \"{name} ({productNumber})\" in the Storefront",
       "description": "Choose the Sales Channel in which you would like to open the product \"{name} ({productNumber})\".",
       "infoUnsavedChanges": "The product has unsaved changes. The Storefront shows the last saved state.",
       "infoNoSalesChannels": "The product is not assigned to any Storefront sales channel.",
@@ -333,7 +333,7 @@
         "productActive": "Product is inactive",
         "inStock": "Product is sold out, and this sales channel hides sold-out clearance sale products",
         "inStockPossibly": "Product is sold out, and this sales channel may hide sold-out clearance sale products",
-        "storefrontShowsProduct": "This sales channel does not show the product, for example because of visibility, stock or an installed extension."
+        "storefrontShowsProduct": "This sales channel does not show the product, for example because of visibility, stock or an installed extension"
       },
       "maintenanceHint": "Sales channel is in maintenance mode. Only IP addresses on its allowlist can open it.",
       "infoDomainWithoutValidUrl": "This domain has no valid http or https URL.",

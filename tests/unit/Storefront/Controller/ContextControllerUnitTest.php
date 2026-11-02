@@ -221,7 +221,7 @@ class ContextControllerUnitTest extends TestCase
         $routerMock = $this->createRouterMock('/detail/' . $productId);
 
         $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->expects($this->exactly(2))
+        $seoUrlPlaceholderHandler->expects($this->once())
             ->method('generate')
             ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId])
             ->willReturn('placeholder/detail/' . $productId . '#');
@@ -260,7 +260,7 @@ class ContextControllerUnitTest extends TestCase
         $routerMock = $this->createRouterMock('/detail/' . $productId . '?offcanvas=menu');
 
         $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->expects($this->exactly(2))
+        $seoUrlPlaceholderHandler->expects($this->once())
             ->method('generate')
             ->willReturnCallback(static fn (string $name, array $parameters): string => 'placeholder/detail/' . $parameters['productId']
                 . (isset($parameters['offcanvas']) ? '?offcanvas=' . $parameters['offcanvas'] : '') . '#');
@@ -331,6 +331,29 @@ class ContextControllerUnitTest extends TestCase
         $response = $controller->switchLanguage($request, static::createStub(SalesChannelContext::class));
 
         static::assertSame('http://localhost/en/detail/' . $productId, $response->getTargetUrl());
+    }
+
+    public function testSwitchUsesPortOfNewDomain(): void
+    {
+        $routerContext = new RequestContext(scheme: 'https');
+        $router = static::createStub(RouterInterface::class);
+        $router->method('getContext')->willReturn($routerContext);
+        $router->method('generate')->willReturn('https://localhost:8443/en/');
+
+        $controller = new ContextController(
+            $this->createContextSwitchRoute('https://localhost:8443/en'),
+            static::createStub(RequestStack::class),
+            $router,
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class),
+        );
+
+        $controller->switchLanguage(
+            new Request([], ['languageId' => Uuid::randomHex()]),
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(8443, $routerContext->getHttpPort());
+        static::assertSame(8443, $routerContext->getHttpsPort());
     }
 
     private function createRouterMock(string $path): RouterInterface

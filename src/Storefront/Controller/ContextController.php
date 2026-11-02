@@ -31,6 +31,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class ContextController extends StorefrontController
 {
+    private const HOME_PAGE_ROUTE = 'frontend.home.page';
+
     /**
      * @internal
      */
@@ -85,9 +87,9 @@ class ContextController extends StorefrontController
             $params['_locale'] = $languageCode;
         }
 
-        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
+        $route = (string) $request->request->get('redirectTo', self::HOME_PAGE_ROUTE);
         if ($route === '' || $this->routeTargetExists($route, $params) === false) {
-            $route = 'frontend.home.page';
+            $route = self::HOME_PAGE_ROUTE;
             $params = [];
         }
 
@@ -126,13 +128,14 @@ class ContextController extends StorefrontController
             throw RoutingException::languageNotFound($languageId);
         }
 
-        $query = (string) parse_url($this->seoUrlPlaceholderHandler->generate($route, $params), \PHP_URL_QUERY);
-        parse_str($query, $queryParams);
         // SEO URLs are stored without query and the placeholder must be generated before the router context switches to the new domain
-        $seoUrlPlaceholder = $this->seoUrlPlaceholderHandler->generate($route, array_diff_key($params, $queryParams));
+        $placeholder = rtrim($this->seoUrlPlaceholderHandler->generate($route, $params), '#');
+        [$path, $query] = explode('?', $placeholder, 2) + [1 => ''];
+        $seoUrlPlaceholder = $path . '#';
 
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
+        $routerContext->setHttpsPort($parsedUrl['port'] ?? 443);
         $routerContext->setMethod('GET');
         $routerContext->setHost($parsedUrl['host'] ?? '');
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
@@ -146,7 +149,7 @@ class ContextController extends StorefrontController
 
         $newContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
         if ($newContext instanceof SalesChannelContext && $newContext->getLanguageId() === $languageId) {
-            $baseUrl = rtrim($this->router->generate('frontend.home.page', [], Router::ABSOLUTE_URL), '/');
+            $baseUrl = rtrim($this->router->generate(self::HOME_PAGE_ROUTE, [], Router::ABSOLUTE_URL), '/');
             $url = $this->seoUrlPlaceholderHandler->replace($seoUrlPlaceholder, $baseUrl, $newContext);
 
             if ($query !== '') {

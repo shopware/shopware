@@ -225,6 +225,16 @@ describe('devImportMapPlugin', () => {
                 timestamp: expect.any(Number) as number,
             })),
         });
+
+        const swappedRes = { ...res, headers: {} as Record<string, string>, body: '' };
+        cssMiddleware!.handler(
+            { url: '/TestPlugin/Foo/Bar.css?t=1793618997559' },
+            swappedRes,
+            next,
+        );
+
+        expect(swappedRes.body).toContain('color: blue');
+        expect(next).not.toHaveBeenCalled();
     });
 
     it('rejects path traversal attempts in component css middleware', () => {

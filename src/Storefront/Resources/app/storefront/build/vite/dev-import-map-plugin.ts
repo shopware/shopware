@@ -282,7 +282,8 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
             // targets in dev mode — matching the per-file CSS behaviour of the
             // production Vite build.
             server.middlewares.use(COMP_CSS_PREFIX, (req, res, next) => {
-                const relUrl = req.url?.replace(/^\//, '') ?? '';
+                // The Vite client requests swapped styles with a `?t=` query.
+                const relUrl = req.url?.split('?')[0]?.replace(/^\//, '') ?? '';
 
                 // Determine namespace and file path from the URL.
                 // URLs look like "ComponentTestApp/Wusel/Dusel.scss" (namespaced)

@@ -57,9 +57,11 @@
         </div>
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
-            v-silence-deprecations="'V6_9_0_0'"
             class="sw-order-address-modal"
             position-identifier="sw-order-address-modal"
             default-item="edit"
@@ -126,7 +128,7 @@
                 {% endblock %}
             </template>
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 
     {% block sw_order_address_modal_actions %}

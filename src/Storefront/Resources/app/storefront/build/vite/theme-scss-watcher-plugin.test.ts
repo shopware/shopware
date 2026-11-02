@@ -334,7 +334,7 @@ describe('themeScssWatcherPlugin', () => {
         );
     });
 
-    it('reloads the page when a watched SCSS file changes and ignores other files', () => {
+    it('swaps the css in place when a watched SCSS file changes and ignores other files', async () => {
         const projectRoot = path.join(fixtureRoot, 'change-project');
         const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
         writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
@@ -344,12 +344,74 @@ describe('themeScssWatcherPlugin', () => {
         server.watcher.emit('change', path.join(projectRoot, 'unrelated.scss'));
         expect(server.ws.send).not.toHaveBeenCalled();
 
+        writeFile(entry, '.a { color: green; }');
         server.watcher.emit('change', entry);
-        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        const payload = server.ws.send.mock.calls[0]?.[0] as { type: string; updates: Array<Record<string, unknown>> };
+        expect(payload.type).toBe('update');
+        expect(payload.updates).toEqual([{
+            type: 'css-update',
+            path: '/theme-scss/all.css',
+            acceptedPath: '/theme-scss/all.css',
+            timestamp: expect.any(Number) as number,
+        }]);
         expect(server.config.logger.info).toHaveBeenCalledWith(
-            expect.stringContaining('SCSS changed: entry.scss'),
+            '[sw-theme-scss] SCSS changed: entry.scss → css update',
             { timestamp: true },
         );
+
+        const compileCalls = vi.mocked(SassEmbedded.compileStringAsync).mock.calls.length;
+        const swapped = await requestCss(server, `/theme-scss/all.css?t=${String(payload.updates[0]?.timestamp)}`);
+
+        expect(swapped.body).toContain('color: green');
+        expect(swapped.headers['Cache-Control']).toBe('no-cache');
+        expect(vi.mocked(SassEmbedded.compileStringAsync).mock.calls).toHaveLength(compileCalls);
+    });
+
+    it('shows the error overlay instead of swapping when the changed SCSS does not compile', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-broken-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot);
+        writeFile(entry, '.a { color: $undefined-variable; }');
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        expect(server.ws.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: {
+                message: expect.stringContaining('Undefined variable') as string,
+                stack: '',
+                id: entry,
+                plugin: 'sw-theme-scss',
+            },
+        });
+        expect(server.config.logger.error).toHaveBeenCalledWith(
+            expect.stringContaining('Undefined variable'),
+            { timestamp: true },
+        );
+    });
+
+    it('only sends the result of the latest change', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-twice-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot);
+        server.watcher.emit('change', entry);
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        await new Promise(resolve => { setTimeout(resolve, 50); });
+        expect(server.ws.send).toHaveBeenCalledOnce();
     });
 
     it('keeps the current entries when theme-files.json becomes malformed', async () => {

@@ -169,6 +169,13 @@ describe('devImportMapPlugin', () => {
             expect(fs.existsSync(flagFile)).toBe(true);
         });
 
+        // No Storefront module uses import.meta.hot, so the Vite client must be loaded explicitly and first.
+        const { scripts } = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { scripts: string[] };
+        expect(scripts.slice(0, 2)).toEqual([
+            'http://localhost:5181/@vite/client',
+            'http://localhost:5181/src/main.js',
+        ]);
+
         const middlewareEntries = (server as unknown as { __middlewares: Array<{ prefix?: string; handler: (...args: unknown[]) => unknown }> }).__middlewares;
         const cssMiddleware = middlewareEntries.find(entry => entry.prefix === '/__sw-comp-css/');
         expect(cssMiddleware).toBeDefined();
@@ -203,6 +210,20 @@ describe('devImportMapPlugin', () => {
             expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
             const map = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { styles: string[] };
             expect(map.styles).toContain('http://localhost:5181/__sw-comp-css/TestPlugin/Foo/Baz.css');
+        });
+
+        server.ws.send.mockClear();
+        server.watcher.emit('change', path.join(namespacedCompRoot, 'Bar.css'));
+
+        expect(server.ws.send).toHaveBeenCalledOnce();
+        expect(server.ws.send).toHaveBeenCalledWith({
+            type: 'update',
+            updates: ['/__sw-comp-css/TestPlugin/Foo/Bar.css', '/__sw-comp-css/TestPlugin/Foo/Baz.css'].map(stylePath => ({
+                type: 'css-update',
+                path: stylePath,
+                acceptedPath: stylePath,
+                timestamp: expect.any(Number) as number,
+            })),
         });
     });
 

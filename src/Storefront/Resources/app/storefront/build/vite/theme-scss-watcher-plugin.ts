@@ -168,8 +168,10 @@ async function compileAll(entries: ThemeStyleEntry[], themeId: string, domainUrl
  *   that occur when skin partials are compiled in isolation.
  * - The CSS URL is registered in storefront_components.dev.json by
  *   dev-import-map-plugin — a single flag file covers both JS and CSS.
- * - Watches all registered SCSS files; a change triggers a full page reload so
- *   the browser fetches the freshly compiled CSS from the middleware.
+ * - Watches all registered SCSS files. A change compiles the CSS once and
+ *   asks the Vite client to swap the <link> in place (`css-update`), so the
+ *   page keeps its state. A compile error shows the Vite error overlay and
+ *   keeps the current styles on the page.
  * - Watches var/theme-files.json itself so that re-running theme:dump (e.g.
  *   after installing a new plugin) picks up new entries without a dev server
  *   restart.
@@ -183,6 +185,11 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
     let themeVariablesFile: string | null = null;
     // All files involved in the last compilation (entries + every transitive import).
     const watchedScssFiles = new Set<string>();
+    // CSS compiled by the change handler, served to the `?t=` request of the
+    // matching css-update so the swap does not compile a second time.
+    let preparedUpdate: { timestamp: number; css: string } | null = null;
+    // Increased on every change, so an older compile that finishes late is dropped.
+    let changeGeneration = 0;
 
     function applyThemeFiles(themeFiles: ThemeFilesJson): void {
         styleEntries = themeFiles.style;
@@ -213,7 +220,15 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
             // Re-compiling on each request means edits are always fresh.
             // ----------------------------------------------------------------
             server.middlewares.use((req, res, next) => {
-                if (req.url?.split('?')[0] !== '/theme-scss/all.css') return next();
+                const [requestPath, query = ''] = req.url?.split('?') ?? [];
+                if (requestPath !== '/theme-scss/all.css') return next();
+
+                if (preparedUpdate && new URLSearchParams(query).get('t') === String(preparedUpdate.timestamp)) {
+                    res.setHeader('Content-Type', 'text/css; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache');
+                    res.end(preparedUpdate.css);
+                    return;
+                }
 
                 if (styleEntries.length === 0) {
                     res.setHeader('Content-Type', 'text/css; charset=utf-8');
@@ -298,6 +313,9 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                     const updated = readThemeFiles(themeFilesPath);
                     if (!updated) return;
 
+                    changeGeneration++;
+                    preparedUpdate = null;
+
                     applyThemeFiles(updated);
                     // Re-seed entries and re-run warm-up for the new theme.
                     watchedScssFiles.clear();
@@ -321,12 +339,39 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                 const affected = watchedScssFiles.has(changedFile);
                 if (!affected) return;
 
-                logger.info(
-                    `[sw-theme-scss] SCSS changed: ${path.relative(projectRoot, changedFile)} → full reload`,
-                    { timestamp: true },
-                );
+                const relativeFile = path.relative(projectRoot, changedFile);
+                const generation = ++changeGeneration;
+                preparedUpdate = null;
 
-                server.ws.send({ type: 'full-reload' });
+                compileAll(styleEntries, themeId, domainUrl, projectRoot).then(({ css, loadedFiles }) => {
+                    if (generation !== changeGeneration) return;
+
+                    registerLoadedFiles(server, loadedFiles);
+                    const timestamp = Date.now();
+                    preparedUpdate = { timestamp, css };
+
+                    logger.info(`[sw-theme-scss] SCSS changed: ${relativeFile} → css update`, { timestamp: true });
+                    server.ws.send({
+                        type: 'update',
+                        updates: [{
+                            type: 'css-update',
+                            path: '/theme-scss/all.css',
+                            acceptedPath: '/theme-scss/all.css',
+                            timestamp,
+                        }],
+                    });
+                }, (err: unknown) => {
+                    if (generation !== changeGeneration) return;
+
+                    const message = err instanceof Error ? err.message : String(err);
+                    logger.error(`[sw-theme-scss] Compile error: ${message}`, { timestamp: true });
+                    // The overlay keeps the current styles on the page. The next
+                    // successful compile sends an update, which closes it again.
+                    server.ws.send({
+                        type: 'error',
+                        err: { message, stack: '', id: changedFile, plugin: 'sw-theme-scss' },
+                    });
+                });
             });
         },
     };

@@ -114,14 +114,17 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - dev-only plugin
   - writes `var/cache/storefront_components.dev.json`
   - provides dev import map + styles/scripts URLs
+  - puts the Vite client (`/@vite/client`) first in `scripts`, because no Storefront module uses `import.meta.hot`
   - serves component styles via `/__sw-comp-css/...`
-  - watches component style changes and triggers full reloads
+  - swaps component styles in place on change, and reloads the page when a style file is added or removed
 
 - `vite/theme-scss-watcher-plugin.ts`
   - dev-only plugin for theme SCSS
   - reads `var/theme-files.json`, compiles all theme style entries together
   - serves result at `/theme-scss/all.css`
   - watches SCSS graph and `theme-files.json`
+  - swaps `/theme-scss/all.css` in place on a SCSS change, and shows the Vite error overlay when it does not compile
+  - reloads the page when `theme-files.json` changes
 
 - `vite/dev-server-notice-plugin.ts`
   - dev-only UX plugin

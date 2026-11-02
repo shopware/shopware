@@ -100,13 +100,6 @@ class DeliveryInformation extends Struct
         $this->length = $length;
     }
 
-    public function hasAllDimensions(): bool
-    {
-        return $this->getLength() !== null && $this->getLength() > 0.0 &&
-               $this->getWidth() !== null && $this->getWidth() > 0.0 &&
-               $this->getHeight() !== null && $this->getHeight() > 0.0;
-    }
-
     public function getLongestDimension(): float
     {
         return \max($this->getLength() ?? 0, $this->getWidth() ?? 0, $this->getHeight() ?? 0);
@@ -114,7 +107,15 @@ class DeliveryInformation extends Struct
 
     public function getGirth(): float
     {
-        if (!$this->hasAllDimensions()) {
+        if ($this->getLength() === null || $this->getLength() <= 0.0) {
+            return 0;
+        }
+
+        if ($this->getWidth() === null || $this->getWidth() <= 0.0) {
+            return 0;
+        }
+
+        if ($this->getHeight() === null || $this->getHeight() <= 0.0) {
             return 0;
         }
 
@@ -123,7 +124,15 @@ class DeliveryInformation extends Struct
 
     public function getVolume(): float
     {
-        if (!$this->hasAllDimensions()) {
+        if ($this->getLength() === null || $this->getLength() <= 0.0) {
+            return 0;
+        }
+
+        if ($this->getWidth() === null || $this->getWidth() <= 0.0) {
+            return 0;
+        }
+
+        if ($this->getHeight() === null || $this->getHeight() <= 0.0) {
             return 0;
         }
 

@@ -79,12 +79,12 @@ class LineItemDimensionLongestAndGirthRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        if (!$deliveryInformation->hasAllDimensions()) {
+        $girth = $deliveryInformation->getGirth();
+
+        if ($girth === 0.0) {
             return RuleComparison::numeric(0, $this->amount, $this->operator);
         }
 
-        $longestAndGirth = $deliveryInformation->getLongestDimension() + $deliveryInformation->getGirth();
-
-        return RuleComparison::numeric($longestAndGirth, $this->amount, $this->operator);
+        return RuleComparison::numeric($deliveryInformation->getLongestDimension() + $girth, $this->amount, $this->operator);
     }
 }

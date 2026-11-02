@@ -3059,6 +3059,14 @@ Use `addressType` instead.
 The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.
 
 Use `Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION` instead.
+
+## Legal guarantee notice moved out of the privacy section
+
+In `@Storefront/storefront/component/privacy-notice.html.twig`, the blocks `component_privacy_legal_guarantee_notice_paragraph` and `component_privacy_legal_guarantee_notice_modal` were moved out of `component_privacy_dpi`.
+The notice paragraph now renders before the privacy `<fieldset>` and the modal after it, so the notice no longer appears under the "Privacy" heading.
+Overrides of these blocks keep working.
+If your theme overrides `component_privacy_dpi` with a copy that contains these blocks, remove them from the copy, otherwise the notice and its modal render twice.
+Styles for `.privacy-notice .legal-guarantee-notice` have to target `.legal-guarantee-notice` directly.
 </details>
 
 # App System

@@ -106,6 +106,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.product.active ?? this.parentProduct?.active ?? false;
         },
 
+        hasProductUrl(): boolean {
+            return this.result?.domains.some(({ productUrl }) => productUrl !== null) ?? false;
+        },
+
         reachabilityLabel(): string {
             return this.result?.reachable
                 ? this.$t('sw-product.openInStorefrontModal.labelReachable')

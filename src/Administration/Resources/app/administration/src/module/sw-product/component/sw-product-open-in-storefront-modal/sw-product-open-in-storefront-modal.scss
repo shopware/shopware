@@ -12,10 +12,16 @@
     }
 
     &__checks,
-    &__domains {
+    &__domain-list {
         list-style: none;
         margin: 0;
         padding: 0;
+    }
+
+    &__domains-caption {
+        margin: 0 0 var(--scale-size-4);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
     }
 
     &__check,

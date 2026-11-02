@@ -84,31 +84,42 @@
         {% endblock %}
 
         {% block sw_product_open_in_storefront_modal_domains %}
-        <ul
+        <div
             v-if="result.domains.length > 0"
             class="sw-product-open-in-storefront-modal__domains"
         >
-            <li
-                v-for="domain in result.domains"
-                :key="domain.id"
-                class="sw-product-open-in-storefront-modal__domain"
+            {% block sw_product_open_in_storefront_modal_domains_caption %}
+            <p
+                v-if="!hasProductUrl"
+                class="sw-product-open-in-storefront-modal__domains-caption"
             >
-                <sw-external-link
-                    v-if="domain.productUrl"
-                    :href="domain.productUrl"
-                    small
-                >
-                    {{ domain.productUrl }}
-                </sw-external-link>
+                {{ $t('sw-product.openInStorefrontModal.labelDomains') }}
+            </p>
+            {% endblock %}
 
-                <span
-                    v-else
-                    class="sw-product-open-in-storefront-modal__domain-url"
+            <ul class="sw-product-open-in-storefront-modal__domain-list">
+                <li
+                    v-for="domain in result.domains"
+                    :key="domain.id"
+                    class="sw-product-open-in-storefront-modal__domain"
                 >
-                    {{ domain.url }}
-                </span>
-            </li>
-        </ul>
+                    <sw-external-link
+                        v-if="domain.productUrl"
+                        :href="domain.productUrl"
+                        small
+                    >
+                        {{ domain.productUrl }}
+                    </sw-external-link>
+
+                    <span
+                        v-else
+                        class="sw-product-open-in-storefront-modal__domain-url"
+                    >
+                        {{ domain.url }}
+                    </span>
+                </li>
+            </ul>
+        </div>
         {% endblock %}
     </section>
     {% endblock %}

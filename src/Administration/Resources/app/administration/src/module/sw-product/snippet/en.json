@@ -329,6 +329,7 @@
       "placeholderSalesChannel": "Select a sales channel...",
       "labelReachable": "Can be opened",
       "labelNotReachable": "Cannot be opened",
+      "labelDomains": "Domains of this sales channel",
       "checks": {
         "salesChannelActive": "Sales channel is inactive",
         "hasDomain": "Sales channel has no domain",

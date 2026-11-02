@@ -329,6 +329,7 @@
       "placeholderSalesChannel": "Verkaufskanal auswählen ...",
       "labelReachable": "Kann geöffnet werden",
       "labelNotReachable": "Kann nicht geöffnet werden",
+      "labelDomains": "Domains dieses Verkaufskanals",
       "checks": {
         "salesChannelActive": "Verkaufskanal ist inaktiv",
         "hasDomain": "Verkaufskanal hat keine Domain",

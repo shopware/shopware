@@ -131,6 +131,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(link.attributes('href')).toBe('https://shop.test/Shirt/SW10000');
         expect(link.attributes('target')).toBe('_blank');
         expect(link.attributes('rel')).toBe('noopener');
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-caption').exists()).toBe(false);
     });
 
     it('names an inactive sales channel without asking the Storefront', async () => {
@@ -163,6 +164,9 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.storefrontShowsProduct']);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__domain a').exists()).toBe(false);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test');
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-caption').text()).toBe(
+            'sw-product.openInStorefrontModal.labelDomains',
+        );
     });
 
     it('names an inactive product, also when a variant inherits it', async () => {

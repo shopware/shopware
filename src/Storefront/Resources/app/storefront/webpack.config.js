@@ -13,7 +13,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 const getTwigWatchPaths = require('./build/webpack/twig-watch-paths');
-const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -551,6 +550,8 @@ const mergedCoreConfig = merge([
                     },
                     setupMiddlewares: (middlewares, devServer) => {
                         if (useTwigHmr) {
+                            // Required here, because production builds install no dev dependencies such as chokidar.
+                            const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
                             setupTwigHmrWatcher(devServer, watchFilePaths, projectRootPath);
                         }
 

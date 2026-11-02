@@ -55,6 +55,12 @@ it.deprecated('v6.8.0.0')('loads sorted', async () => {
             errors: [{ messageId: 'missingStep' }],
         },
         {
+            name: 'no step comments in a public-api spec',
+            filename: 'src/x/tests/public-api.spec.ts',
+            code: "it('works', () => { expect(true).toBe(true); });",
+            errors: [{ messageId: 'missingStep' }],
+        },
+        {
             name: 'code before act without arrange',
             filename: 'src/x/tests/pinned.spec.ts',
             code: `

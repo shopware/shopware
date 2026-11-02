@@ -45,7 +45,7 @@ function isDependencyFile(fileName: string): boolean {
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
+// eslint-disable-next-line @typescript-eslint/require-await -- async keeps the call sites awaiting one promise type
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
     // `require`, not `import()`: extension builds resolve this plugin as CommonJS, which cannot load the
     // file: URL that `import()` needs on Windows. A plain path works in both.
@@ -90,6 +90,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
     // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
+    // Mini-module index.ts -> the base SFCs whose public API was checked against it, to re-check on its change.
+    const publicApiDependents = new Map<string, Set<string>>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
@@ -141,6 +143,16 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         } catch (error) {
             return formatTransformError(error, fileName, source);
         }
+    }
+
+    function rememberPublicApiFile(result: ShopwareSetupTransformResult, fileName: string): void {
+        if (!result.publicApiFile) {
+            return;
+        }
+
+        const dependents = publicApiDependents.get(result.publicApiFile) ?? new Set<string>();
+        dependents.add(fileName);
+        publicApiDependents.set(result.publicApiFile, dependents);
     }
 
     function assertUniqueBaseComponent(result: ShopwareSetupTransformResult, fileName: string): void {
@@ -257,6 +269,11 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             }
 
             assertUniqueBaseComponent(result, originalFileName);
+            rememberPublicApiFile(result, originalFileName);
+
+            if (result.publicApiFile) {
+                this.addWatchFile(result.publicApiFile);
+            }
 
             virtualSourcemap.rememberSetupMap(fileName, result.map);
 
@@ -280,6 +297,11 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             }
 
             assertUniqueBaseComponent(result, fileName);
+            rememberPublicApiFile(result, fileName);
+
+            if (result.publicApiFile) {
+                this.addWatchFile(result.publicApiFile);
+            }
 
             return {
                 code: result.code,
@@ -301,6 +323,23 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
         async hotUpdate({ type, file, modules, read }) {
+            const publicApiSfcs = publicApiDependents.get(file);
+
+            // A changed index.ts leaves its SFC untouched, but the SFC's public API check reads it.
+            if (publicApiSfcs && type !== 'delete' && this.environment.name === 'client') {
+                const failures = await Promise.all(
+                    [...publicApiSfcs].map(async (sfc) => transformChangedFile(sfc, await fs.readFile(sfc, 'utf8'))),
+                );
+                const failure = failures.find((message) => message !== null);
+
+                if (failure) {
+                    this.environment.logger.error(failure);
+                    this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
+                }
+
+                return undefined;
+            }
+
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }

@@ -13,7 +13,7 @@ import type { ShopwareClass } from 'src/core/shopware';
  * `Utils`, `Data` and `Composables` keep their exact `ShopwareClass` types. The registry methods accept
  * strings because their keys come from `shopware-modules.json`.
  */
-export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Composables'> & {
+export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Composables' | 'MiniModules'> & {
     Mixin: { getByName: (name: string) => unknown };
     Store: { get: (id: string) => unknown };
 };
@@ -29,6 +29,8 @@ export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Compos
 export type ModuleRegistryEntry = {
     exports: string[];
     subpaths: Record<string, string[]>;
+    /** Where each subpath is declared, relative to the Administration root, for a family generated per file. */
+    sources?: Record<string, string>;
 };
 
 /** @private The checked-in registry of every `shopware:*` specifier, keyed by family. */
@@ -47,6 +49,11 @@ type Branch = {
      * an older Administration that has the branch.
      */
     readonly since?: string;
+    /**
+     * Each subpath holds the exports of an ES module, like `import * as` does: its default export is the
+     * `default` member, which exists only when the registry lists it, instead of the subpath object itself.
+     */
+    readonly esModuleSubpaths?: boolean;
     readonly root: {
         readonly emit: () => string;
         readonly read: (shopware: VirtualModuleGlobal) => unknown;
@@ -106,6 +113,18 @@ const BRANCHES: Record<string, Branch> = {
             // Annotated pure so Rollup drops the lookup when the importer's binding is unused.
             emit: (subpath) => `/*@__PURE__*/ shopware.Mixin.getByName(${JSON.stringify(subpath)})`,
             read: (shopware, subpath) => shopware.Mixin.getByName(subpath),
+        },
+    },
+    'shopware:mini-modules': {
+        since: '6.7.17.0',
+        esModuleSubpaths: true,
+        root: {
+            emit: () => 'shopware.MiniModules',
+            read: (shopware) => shopware.MiniModules,
+        },
+        subpath: {
+            emit: (subpath) => `shopware.MiniModules[${JSON.stringify(subpath)}]`,
+            read: (shopware, subpath) => readOwn(shopware.MiniModules, subpath, 'Shopware.MiniModules'),
         },
     },
     'shopware:stores': {
@@ -218,8 +237,8 @@ export function branchGuard(parsed: ParsedSpecifier): string[] {
     ];
 }
 
-/** @private The generated expression for a specifier's default export. */
-export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
+/** The generated expression for the object a specifier reads its exports from. */
+function moduleExpression(parsed: ParsedSpecifier): string | undefined {
     if (!Object.hasOwn(BRANCHES, parsed.family)) {
         return undefined;
     }
@@ -229,11 +248,39 @@ export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
     return parsed.subpath === undefined ? branch.root.emit() : branch.subpath.emit(parsed.subpath);
 }
 
+/** @private Whether a specifier is a subpath that holds the exports of an ES module. */
+export function isEsModuleSubpath(parsed: ParsedSpecifier): boolean {
+    return parsed.subpath !== undefined && BRANCHES[parsed.family]?.esModuleSubpaths === true;
+}
+
+/**
+ * @private
+ *
+ * The names a specifier publishes as `export const`. An ES module subpath lists `default` among its
+ * exports, but that one becomes the default export.
+ */
+export function namedExportNames(members: string[], parsed: ParsedSpecifier): string[] {
+    return isEsModuleSubpath(parsed) ? members.filter((member) => member !== 'default') : members;
+}
+
+/**
+ * @private
+ *
+ * Whether a resolving specifier has a default export. Only an ES module subpath can lack one, when its
+ * `index.ts` has no default export.
+ */
+export function hasDefaultExport(members: string[], parsed: ParsedSpecifier): boolean {
+    return !isEsModuleSubpath(parsed) || members.includes('default');
+}
+
 /** @private The generated expression for one named export. */
 export function memberExpression(parsed: ParsedSpecifier, member: string): string {
-    const moduleExpression = defaultExpression(parsed);
+    return `${moduleExpression(parsed)}[${JSON.stringify(member)}]`;
+}
 
-    return `${moduleExpression}[${JSON.stringify(member)}]`;
+/** @private The generated expression for a specifier's default export. */
+export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
+    return isEsModuleSubpath(parsed) ? memberExpression(parsed, 'default') : moduleExpression(parsed);
 }
 
 /**
@@ -265,7 +312,7 @@ export function resolveVirtualExport(
 
     const moduleValue = branch.subpath.read(shopware, parsed.subpath);
 
-    if (exportName === 'default') {
+    if (exportName === 'default' && !branch.esModuleSubpaths) {
         return moduleValue;
     }
 

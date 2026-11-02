@@ -39,7 +39,8 @@ const FILE_HEADER = `/**
  * imports. \`build/vite-plugins/virtual-shopware-modules\` generates their runtime counterpart from
  * the same \`shopware-modules.json\`.
  *
- * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, composable, mixin, or store.
+ * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, composable, mixin, store,
+ * or mini-module, or after changing the exports of a mini-module's index.ts.
  */`;
 
 function block(specifier: string, body: string[], stability = EXPERIMENTAL): string {
@@ -93,6 +94,19 @@ function defaultOnlyModule(specifier: string, value: string, type: string): stri
     ]);
 }
 
+/**
+ * A mini-module, e.g. `shopware:mini-modules/public-component`, which re-exports its `index.ts`: the
+ * values the registry lists, and every type.
+ */
+function miniModule(specifier: string, source: string, exports: string[]): string {
+    const body = [
+        ...(exports.length > 0 ? [`export { ${exports.join(', ')} } from '${source}';`] : []),
+        `export type * from '${source}';`,
+    ];
+
+    return block(specifier, body);
+}
+
 /** @private Renders all specifiers in registry order for deterministic diffs. */
 export function renderDeclarations(registry: ModuleRegistry): string {
     const blocks: string[] = [];
@@ -137,6 +151,14 @@ export function renderDeclarations(registry: ModuleRegistry): string {
 
     Object.keys(registry['shopware:stores'].subpaths).forEach((key) =>
         blocks.push(defaultOnlyModule(`shopware:stores/${key}`, 'useStore', `() => PiniaRootState['${key}']`)),
+    );
+
+    const miniModules = registry['shopware:mini-modules'];
+    Object.entries(miniModules.subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) => blocks.push(miniModule(`shopware:mini-modules/${key}`, miniModules.sources?.[key] ?? '', exports)),
     );
 
     return [

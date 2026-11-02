@@ -4,21 +4,21 @@
  */
 
 /** Spec files that test the public API of a mini-module, as opposed to its workshop specs. */
-const CONTRACT_SPECS = '(requirements|pinned|regressions)\\.spec\\.[jt]s$';
+const CONTRACT_SPECS = '(requirements|pinned|regressions|public-api)\\.spec\\.[jt]s$';
 
 /**
  * Builds the Jest arguments for a run scoped to mini-modules.
  * With a module directory, the run takes that module's tests and measures coverage of its `src/` only,
  * so the report shows which implementation code its tests reach.
- * With `contractsOnly`, the run takes only the requirements, pinned and regressions specs:
+ * With `contractsOnly`, the run takes only the contract specs (requirements, pinned, regressions, public-api):
  * the coverage then shows which code no contract protects.
  *
  * @example
  * buildJestArguments('src/core/order/primary-delivery', true);
- * // → ['--testPathPatterns', 'src/core/order/primary-delivery/tests/(requirements|pinned|regressions)\\.spec\\.[jt]s$',
+ * // → ['--testPathPatterns', 'src/core/order/primary-delivery/tests/(requirements|pinned|regressions|public-api)\\.spec\\.[jt]s$',
  * //    '--coverage', '--collectCoverageFrom', 'src/core/order/primary-delivery/src/**\/*.{js,ts}', '--coverageReporters', 'text']
  * buildJestArguments(null, true);
- * // → ['--testPathPatterns', '/tests/(requirements|pinned|regressions)\\.spec\\.[jt]s$', '--coverage=false']
+ * // → ['--testPathPatterns', '/tests/(requirements|pinned|regressions|public-api)\\.spec\\.[jt]s$', '--coverage=false']
  */
 export function buildJestArguments(moduleDirectory: string | null, contractsOnly: boolean): string[] {
     if (!moduleDirectory) {

@@ -230,8 +230,8 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-In templates, the renderless `sw-silence-deprecations` component does the same for what the template writes inside of it, and for what those components render in turn.
-Slot content that another template passes through, like the `<slot />` of a wrapper component, still reports:
+In templates, the renderless `sw-silence-deprecations` component does the same for the components directly inside of it, and for what those components render in turn.
+Slot content passed into those components still reports, like the `<slot />` of a wrapper component:
 
 ```html
 <sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
@@ -242,7 +242,7 @@ Slot content that another template passes through, like the `<slot />` of a wrap
 
 Both silence nothing once the major is active, and an unknown flag silences nothing and logs an error.
 The callback of `Feature.silence()` has to be synchronous.
-The component covers creating and rendering, so event handlers and watchers wrap their deprecated calls in `Feature.silence()`.
+The component covers `setup`, `data`, lifecycle hooks and rendering, so event handlers, watchers that are not `immediate`, and code after an `await` wrap their deprecated calls in `Feature.silence()`.
 
 ### Extension tooling reports redundant code
 

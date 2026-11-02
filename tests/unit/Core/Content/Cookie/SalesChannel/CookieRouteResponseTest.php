@@ -19,16 +19,22 @@ class CookieRouteResponseTest extends TestCase
     {
         $groups = new CookieGroupCollection();
 
-        $response = new CookieRouteResponse($groups, 'hash-value', 'language-id');
+        $response = new CookieRouteResponse($groups, 'hash-value', 'language-id', ['analytics' => 'analytics-hash']);
 
         static::assertSame($groups, $response->getCookieGroups());
         static::assertSame('hash-value', $response->getHash());
         static::assertSame('language-id', $response->getLanguageId());
+        static::assertSame(['analytics' => 'analytics-hash'], $response->getCookieHashes());
         static::assertSame('cookie_groups_hash', $response->getObject()->getApiAlias());
     }
 
     public function testLanguageIdDefaultsToAnEmptyString(): void
     {
         static::assertSame('', (new CookieRouteResponse(new CookieGroupCollection(), 'hash-value'))->getLanguageId());
+    }
+
+    public function testCookieHashesDefaultToAnEmptyList(): void
+    {
+        static::assertSame([], (new CookieRouteResponse(new CookieGroupCollection(), 'hash-value'))->getCookieHashes());
     }
 }

@@ -21,6 +21,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
+ *
+ * @phpstan-type EntryData array{cookie: string, value: ?string, expiration: ?int, name: ?string, description: ?string, hidden: bool}
+ * @phpstan-type GroupData array{technicalName: string, isRequired: bool, description: ?string, value: ?string, expiration: ?int, name: string, cookie: ?string, entries: list<EntryData>|null}
  */
 #[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -53,18 +56,23 @@ class CookieRoute extends AbstractCookieRoute
     private function _getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups($request, $salesChannelContext);
-        $hash = $this->generateCookieConfigurationHash($cookieGroups);
+        $configurationData = $this->getConfigurationData($cookieGroups);
+        $hash = $this->hash($configurationData);
+        $cookieHashes = $this->generateCookieHashes($configurationData);
         $this->setCookieConfigHashValue($cookieGroups, $hash);
 
-        return new CookieRouteResponse($cookieGroups, $hash, $salesChannelContext->getLanguageId());
+        return new CookieRouteResponse($cookieGroups, $hash, $salesChannelContext->getLanguageId(), $cookieHashes);
     }
 
     /**
+     * Builds the sorted configuration data both the configuration hash and the cookie hashes are generated from.
      * We use explicit properties to make hash generation robust against object extensions.
+     *
+     * @return list<GroupData>
      */
-    private function generateCookieConfigurationHash(CookieGroupCollection $cookieGroups): string
+    private function getConfigurationData(CookieGroupCollection $cookieGroups): array
     {
-        $hashData = [];
+        $configurationData = [];
 
         $groups = array_values($cookieGroups->getElements());
         usort($groups, static function (CookieGroup $a, CookieGroup $b): int {
@@ -104,11 +112,46 @@ class CookieRoute extends AbstractCookieRoute
                 $groupData['entries'] = $entriesData;
             }
 
-            $hashData[] = $groupData;
+            $configurationData[] = $groupData;
         }
 
+        return $configurationData;
+    }
+
+    /**
+     * Hashes the configuration data of each cookie together with the data of every group listing it.
+     * This allows clients to detect which cookies were added or changed when the configuration hash changes.
+     *
+     * @param list<GroupData> $configurationData
+     *
+     * @return array<string, string>
+     */
+    private function generateCookieHashes(array $configurationData): array
+    {
+        $cookieData = [];
+
+        foreach ($configurationData as $groupData) {
+            $entries = $groupData['entries'] ?? [];
+            unset($groupData['entries']);
+
+            if ($groupData['cookie'] !== null) {
+                $cookieData[$groupData['cookie']][] = ['group' => $groupData, 'entry' => null];
+            }
+
+            foreach ($entries as $entryData) {
+                $cookieData[$entryData['cookie']][] = ['group' => $groupData, 'entry' => $entryData];
+            }
+        }
+
+        ksort($cookieData, \SORT_STRING);
+
+        return array_map($this->hash(...), $cookieData);
+    }
+
+    private function hash(mixed $data): string
+    {
         try {
-            return Hasher::hash($hashData);
+            return Hasher::hash($data);
         } catch (UtilException $e) {
             throw CookieException::hashGenerationFailed('Cookie configuration processing failed: ' . $e->getMessage());
         }

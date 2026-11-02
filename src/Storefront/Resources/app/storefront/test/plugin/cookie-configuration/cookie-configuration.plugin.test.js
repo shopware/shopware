@@ -1558,6 +1558,7 @@ describe('CookieConfiguration plugin tests', () => {
             const mockResponse = {
                 hash: 'test-hash-789',
                 languageId: 'test-lang-id',
+                cookieHashes: { analytics: 'analytics-hash' },
                 elements: [
                     {
                         isRequired: false,
@@ -1583,7 +1584,7 @@ describe('CookieConfiguration plugin tests', () => {
             // Test acceptAllCookies
             await plugin.acceptAllCookies(false);
             expect(fetchCookieGroupsSpy).toHaveBeenCalled();
-            expect(applyCookieConfigurationSpy).toHaveBeenCalledWith(mockResponse.elements, 'all', [], mockResponse.languageId);
+            expect(applyCookieConfigurationSpy).toHaveBeenCalledWith(mockResponse.elements, 'all', [], mockResponse.languageId, mockResponse.cookieHashes);
             expect(closeOffCanvasSpy).toHaveBeenCalled();
 
             // Test _acceptAllCookiesFromOffCanvas
@@ -1593,7 +1594,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._acceptAllCookiesFromOffCanvas();
             expect(fetchCookieGroupsSpy).toHaveBeenCalled();
-            expect(applyCookieConfigurationSpy).toHaveBeenCalledWith(mockResponse.elements, 'all', [], mockResponse.languageId);
+            expect(applyCookieConfigurationSpy).toHaveBeenCalledWith(mockResponse.elements, 'all', [], mockResponse.languageId, mockResponse.cookieHashes);
             expect(closeOffCanvasSpy).toHaveBeenCalled();
 
             closeOffCanvasSpy.mockRestore();
@@ -1698,22 +1699,35 @@ describe('CookieConfiguration plugin tests', () => {
 });
 
 describe('Cookie configuration additions and removals', () => {
-    const configuration = (hash, cookies, languageId = 'language-id') => ({
-        hash,
-        languageId,
-        elements: [
-            {
-                isRequired: true,
-                entries: [
-                    { cookie: 'cookie-preference', value: '1', expiration: 30 },
-                    { cookie: 'cookie-config-hash', value: hash, expiration: 30 },
-                ],
-            },
-            {
-                entries: cookies.map(cookie => ({ cookie, value: '1', expiration: 30 })),
-            },
-        ],
-    });
+    const configuration = (hash, cookies, languageId = 'language-id', changedHashes = {}) => {
+        const cookieHashes = {
+            'cookie-preference': 'cookie-preference-hash',
+            'cookie-config-hash': 'cookie-config-hash-hash',
+        };
+        cookies.forEach(cookie => { cookieHashes[cookie] = `${cookie}-hash`; });
+
+        return {
+            hash,
+            languageId,
+            cookieHashes: { ...cookieHashes, ...changedHashes },
+            elements: [
+                {
+                    isRequired: true,
+                    entries: [
+                        { cookie: 'cookie-preference', value: '1', expiration: 30 },
+                        { cookie: 'cookie-config-hash', value: hash, expiration: 30 },
+                    ],
+                },
+                {
+                    entries: cookies.map(cookie => ({ cookie, value: '1', expiration: 30 })),
+                },
+            ],
+        };
+    };
+
+    const accept = (data, mode) => {
+        plugin._applyCookieConfiguration(data.elements, mode, [], data.languageId, plugin._getCookieHashes(data));
+    };
 
     let plugin;
 
@@ -1740,8 +1754,7 @@ describe('Cookie configuration additions and removals', () => {
     });
 
     test('removing a cookie preserves consent and remaining choices without showing the banner', async () => {
-        const previous = configuration('previous-hash', ['analytics', 'advertising']);
-        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
+        accept(configuration('previous-hash', ['analytics', 'advertising']), 'all');
         const current = configuration('current-hash', ['analytics']);
         fetch.mockResolvedValue({ json: async () => current });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
@@ -1757,7 +1770,7 @@ describe('Cookie configuration additions and removals', () => {
         expect(CookieStorage.getItem('advertising')).toBeFalsy();
         expect(publish).toHaveBeenCalledWith(COOKIE_CONFIGURATION_UPDATE, { advertising: false });
         expect(plugin._getStoredHashForLanguage(CookieStorage.getItem('cookie-config-hash'), current.languageId)).toBe(current.hash);
-        expect(Object.keys(plugin._getStoredCookieContents(current.languageId, current.hash))).toEqual(['cookie-preference', 'cookie-config-hash', 'analytics']);
+        expect(plugin._getStoredCookieHashes(current.languageId, current.hash)).toEqual(current.cookieHashes);
     });
 
     test.each([
@@ -1765,10 +1778,8 @@ describe('Cookie configuration additions and removals', () => {
         ['replacing a cookie', ['analytics'], ['advertising']],
         ['adding a cookie after all optional cookies were removed', [], ['advertising']],
     ])('%s requires renewed consent', async (_name, previousNames, currentNames) => {
-        const previous = configuration('previous-hash', previousNames);
-        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
-        const current = configuration('current-hash', currentNames);
-        fetch.mockResolvedValue({ json: async () => current });
+        accept(configuration('previous-hash', previousNames), 'all');
+        fetch.mockResolvedValue({ json: async () => configuration('current-hash', currentNames) });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
 
         await plugin._checkCookieConfigurationHash();
@@ -1783,10 +1794,8 @@ describe('Cookie configuration additions and removals', () => {
         ['changing only the configuration hash', ['analytics', 'advertising']],
         ['reordering cookies', ['advertising', 'analytics']],
     ])('%s preserves a declined choice', async (_name, currentNames) => {
-        const previous = configuration('previous-hash', ['analytics', 'advertising']);
-        plugin._applyCookieConfiguration(previous.elements, 'required', [], previous.languageId);
-        const current = configuration('current-hash', currentNames);
-        fetch.mockResolvedValue({ json: async () => current });
+        accept(configuration('previous-hash', ['analytics', 'advertising']), 'required');
+        fetch.mockResolvedValue({ json: async () => configuration('current-hash', currentNames) });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
 
         await plugin._checkCookieConfigurationHash();
@@ -1797,23 +1806,9 @@ describe('Cookie configuration additions and removals', () => {
         expect(CookieStorage.getItem('advertising')).toBeFalsy();
     });
 
-    test.each([
-        ['the group name', elements => { elements[1].name = 'Tracking'; }],
-        ['the group description', elements => { elements[1].description = 'Used for advertising'; }],
-        ['the entry name', elements => { elements[1].entries[0].name = 'Tracking'; }],
-        ['the entry description', elements => { elements[1].entries[0].description = 'Used for advertising'; }],
-        ['the entry value', elements => { elements[1].entries[0].value = '2'; }],
-        ['the entry expiration', elements => { elements[1].entries[0].expiration = 365; }],
-        ['the hidden state of the entry', elements => { elements[1].entries[0].hidden = true; }],
-        ['the group of the entry', elements => {
-            elements.push({ name: 'Marketing', entries: elements[1].entries });
-            elements[1].entries = [];
-        }],
-    ])('changing %s of a retained cookie requires renewed consent', async (_name, change) => {
-        const previous = configuration('previous-hash', ['analytics']);
-        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
-        const current = configuration('current-hash', ['analytics']);
-        change(current.elements);
+    test('a changed hash of a retained cookie requires renewed consent', async () => {
+        accept(configuration('previous-hash', ['analytics', 'advertising']), 'all');
+        const current = configuration('current-hash', ['analytics', 'advertising'], 'language-id', { analytics: 'changed-hash' });
         fetch.mockResolvedValue({ json: async () => current });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
 
@@ -1822,12 +1817,12 @@ describe('Cookie configuration additions and removals', () => {
         expect(showBanner).toHaveBeenCalledTimes(1);
         expect(CookieStorage.getItem('cookie-preference')).toBeFalsy();
         expect(CookieStorage.getItem('analytics')).toBeFalsy();
+        expect(CookieStorage.getItem('advertising')).toBeFalsy();
     });
 
     test('making a retained cookie required asks for renewed consent and keeps the cookie', async () => {
-        const previous = configuration('previous-hash', ['analytics']);
-        plugin._applyCookieConfiguration(previous.elements, 'required', [], previous.languageId);
-        const current = configuration('current-hash', ['analytics']);
+        accept(configuration('previous-hash', ['analytics']), 'required');
+        const current = configuration('current-hash', ['analytics'], 'language-id', { analytics: 'required-hash' });
         current.elements[1].isRequired = true;
         fetch.mockResolvedValue({ json: async () => current });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
@@ -1839,38 +1834,20 @@ describe('Cookie configuration additions and removals', () => {
         expect(CookieStorage.getItem('analytics')).toBe('1');
     });
 
-    test('changing a direct group cookie requires renewed consent', async () => {
-        const directCookie = { name: 'Analytics', cookie: 'analytics', value: '1', expiration: 30 };
-        const previous = configuration('previous-hash', []);
-        previous.elements.push(directCookie);
-        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
-        const current = configuration('current-hash', []);
-        current.elements.push({ ...directCookie, description: 'Used for advertising' });
+    test('direct group cookies also require renewed consent when added', async () => {
+        accept(configuration('previous-hash', []), 'required');
+        const current = configuration('current-hash', [], 'language-id', { advertising: 'advertising-hash' });
+        current.elements.push({ cookie: 'advertising', value: '1', expiration: 30 });
         fetch.mockResolvedValue({ json: async () => current });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
 
         await plugin._checkCookieConfigurationHash();
 
         expect(showBanner).toHaveBeenCalledTimes(1);
-        expect(CookieStorage.getItem('analytics')).toBeFalsy();
+        expect(CookieStorage.getItem('advertising')).toBeFalsy();
     });
 
-    test('changing a cookie listed in a second group requires renewed consent', async () => {
-        const previous = configuration('previous-hash', ['analytics']);
-        previous.elements.push({ name: 'Marketing', entries: [{ cookie: 'analytics', value: '1', expiration: 30 }] });
-        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
-        const current = configuration('current-hash', ['analytics']);
-        current.elements.push({ name: 'Marketing', entries: [{ cookie: 'analytics', value: '1', expiration: 30 }] });
-        current.elements[1].description = 'Used for advertising';
-        fetch.mockResolvedValue({ json: async () => current });
-        const showBanner = jest.spyOn(plugin, '_showCookieBar');
-
-        await plugin._checkCookieConfigurationHash();
-
-        expect(showBanner).toHaveBeenCalledTimes(1);
-    });
-
-    test('a matching legacy hash records cookie contents without asking for consent', async () => {
+    test('a matching legacy hash records cookie hashes without asking for consent', async () => {
         const current = configuration('current-hash', ['analytics']);
         CookieStorage.setItem('cookie-preference', '1', 30);
         CookieStorage.setItem('cookie-config-hash', JSON.stringify({ [current.languageId]: current.hash }), 30);
@@ -1880,14 +1857,14 @@ describe('Cookie configuration additions and removals', () => {
         await plugin._checkCookieConfigurationHash();
 
         expect(showBanner).not.toHaveBeenCalled();
-        expect(Object.keys(plugin._getStoredCookieContents(current.languageId, current.hash))).toEqual(['cookie-preference', 'cookie-config-hash', 'analytics']);
+        expect(plugin._getStoredCookieHashes(current.languageId, current.hash)).toEqual(current.cookieHashes);
     });
 
     test.each([
         ['missing snapshot', null],
         ['invalid JSON', '{invalid'],
-        ['a snapshot for another hash', JSON.stringify({ hash: 'different-hash', cookies: ['analytics'] })],
-        ['invalid cookie contents', JSON.stringify({ hash: 'previous-hash', cookies: { analytics: null } })],
+        ['a snapshot for another hash', JSON.stringify({ hash: 'different-hash', cookies: { analytics: 'analytics-hash' } })],
+        ['invalid cookie hashes', JSON.stringify({ hash: 'previous-hash', cookies: { analytics: null } })],
         ['a snapshot containing only cookie names', JSON.stringify({ hash: 'previous-hash', cookies: ['analytics'] })],
     ])('%s falls back to asking for consent when the hash changes', async (_name, stored) => {
         CookieStorage.setItem('cookie-preference', '1', 30);
@@ -1904,39 +1881,38 @@ describe('Cookie configuration additions and removals', () => {
         expect(CookieStorage.getItem('cookie-preference')).toBeFalsy();
     });
 
-    test('cookie contents and hashes remain independent for each language', async () => {
-        const previous = configuration('previous-hash', ['analytics']);
-        plugin._applyCookieConfiguration(previous.elements, 'selected', [], previous.languageId);
-        const other = configuration('other-hash', ['advertising'], 'other-language-id');
-        plugin._applyCookieConfiguration(other.elements, 'required', [], other.languageId);
-        const current = configuration('current-hash', [], previous.languageId);
-        fetch.mockResolvedValue({ json: async () => current });
-        const showBanner = jest.spyOn(plugin, '_showCookieBar');
-
-        await plugin._checkCookieConfigurationHash();
-
-        expect(showBanner).not.toHaveBeenCalled();
-        expect(Object.keys(plugin._getStoredCookieContents(other.languageId, other.hash))).toEqual(['cookie-preference', 'cookie-config-hash', 'advertising']);
-        expect(plugin._getStoredHashForLanguage(CookieStorage.getItem('cookie-config-hash'), other.languageId)).toBe(other.hash);
-    });
-
-    test('direct group cookies also require renewed consent when added', async () => {
-        const previous = configuration('previous-hash', []);
-        plugin._applyCookieConfiguration(previous.elements, 'required', [], previous.languageId);
-        const current = configuration('current-hash', []);
-        current.elements.push({ cookie: 'advertising', value: '1', expiration: 30 });
+    test.each([
+        ['without cookie hashes', undefined],
+        ['with an empty list of cookie hashes', []],
+    ])('a response %s falls back to asking for consent when the hash changes', async (_name, cookieHashes) => {
+        accept(configuration('previous-hash', ['analytics']), 'all');
+        const current = { ...configuration('current-hash', ['analytics']), cookieHashes };
         fetch.mockResolvedValue({ json: async () => current });
         const showBanner = jest.spyOn(plugin, '_showCookieBar');
 
         await plugin._checkCookieConfigurationHash();
 
         expect(showBanner).toHaveBeenCalledTimes(1);
-        expect(CookieStorage.getItem('advertising')).toBeFalsy();
+        expect(CookieStorage.getItem('cookie-preference')).toBeFalsy();
+        expect(CookieStorage.getItem('analytics')).toBeFalsy();
+    });
+
+    test('cookie hashes and configuration hashes remain independent for each language', async () => {
+        accept(configuration('previous-hash', ['analytics']), 'selected');
+        const other = configuration('other-hash', ['advertising'], 'other-language-id');
+        accept(other, 'required');
+        fetch.mockResolvedValue({ json: async () => configuration('current-hash', []) });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(showBanner).not.toHaveBeenCalled();
+        expect(plugin._getStoredCookieHashes(other.languageId, other.hash)).toEqual(other.cookieHashes);
+        expect(plugin._getStoredHashForLanguage(CookieStorage.getItem('cookie-config-hash'), other.languageId)).toBe(other.hash);
     });
 
     test('unavailable browser storage preserves the hash-based consent fallback', async () => {
-        const previous = configuration('previous-hash', ['analytics']);
-        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
+        accept(configuration('previous-hash', ['analytics']), 'all');
         jest.spyOn(Object.getPrototypeOf(Storage), 'getItem').mockImplementation(() => { throw new Error('Unavailable storage'); });
         jest.spyOn(Object.getPrototypeOf(Storage), 'setItem').mockImplementation(() => { throw new Error('Unavailable storage'); });
         fetch.mockResolvedValue({ json: async () => configuration('current-hash', []) });

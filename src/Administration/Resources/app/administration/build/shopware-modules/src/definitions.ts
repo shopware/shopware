@@ -5,7 +5,7 @@
  * decides which specifiers exist; the branch definitions below decide how each one reads `Shopware`.
  */
 
-import type { ShopwareClass } from 'src/core/shopware';
+import type { ShopwareClass } from '../dependencies';
 
 /**
  * @private
@@ -19,7 +19,7 @@ export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Compos
 };
 
 /**
- * @private
+ * @public
  *
  * What one `shopware:*` module family publishes.
  *
@@ -33,7 +33,7 @@ export type ModuleRegistryEntry = {
     sources?: Record<string, string>;
 };
 
-/** @private The checked-in registry of every `shopware:*` specifier, keyed by family. */
+/** @public The checked-in registry of every `shopware:*` specifier, keyed by family. */
 export type ModuleRegistry = Record<string, ModuleRegistryEntry>;
 
 /**

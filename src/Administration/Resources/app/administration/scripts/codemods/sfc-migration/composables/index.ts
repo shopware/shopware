@@ -27,7 +27,8 @@
  */
 
 import path from 'node:path';
-import { readRegistry } from '../../../../build/shopware-modules/src/vite-plugin';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- the codemod reads the registry outside a build
+import { readRegistry } from '../../../../build/shopware-modules/private';
 import {
     type ComposableCallback,
     type ComposableCallbackKind,

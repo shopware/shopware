@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { extractModuleRegistry } from './extract-modules';
 import { renderDeclarations } from './render-declarations';
-import type { ModuleRegistry } from '../../shopware-modules/src/definitions';
+import type { ModuleRegistry } from '../../shopware-modules';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 

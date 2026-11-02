@@ -20,7 +20,7 @@ import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
-import VirtualShopwareModulesPlugin from './build/shopware-modules/src/vite-plugin';
+import VirtualShopwareModulesPlugin from './build/shopware-modules';
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
 import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';

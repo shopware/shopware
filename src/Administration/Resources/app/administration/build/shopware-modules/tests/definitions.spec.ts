@@ -20,7 +20,7 @@ import {
     resolveVirtualExport,
     type VirtualModuleGlobal,
 } from '../src/definitions';
-import { readRegistry } from '../src/vite-plugin';
+import { readRegistry } from '../private';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);
@@ -67,7 +67,7 @@ function createProbeGlobal(): VirtualModuleGlobal {
 
 /** Evaluates a generated initialiser the way the generated module would. */
 function evaluate(expression: string, shopware: VirtualModuleGlobal): unknown {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval -- the test evaluates generated code on purpose
     const initialiser = new Function('shopware', `return (${expression});`) as (global: VirtualModuleGlobal) => unknown;
 
     return initialiser(shopware);

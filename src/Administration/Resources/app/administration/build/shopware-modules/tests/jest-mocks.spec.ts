@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const resolveShopwareModule = require('../src/jest-resolver') as (specifier: string) => unknown;
+import { resolveShopwareModule } from '../src/jest-mocks';
 
 // `Shopware` is declared `const` on the global, which puts it outside the keys `replaceProperty` accepts.
 const globalObject = global as unknown as { Shopware: unknown };

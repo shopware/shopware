@@ -5,9 +5,9 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import VirtualShopwareModulesPlugin, { exportNames, generateModuleSource, readRegistry } from '../src/vite-plugin';
-import { parseSpecifier } from '../src/definitions';
-import type { ModuleRegistry } from '../src/definitions';
+import VirtualShopwareModulesPlugin, { generateModuleSource } from '../src/vite-plugin';
+import { exportNames, parseSpecifier, type ModuleRegistry } from '../src/definitions';
+import { readRegistry } from '../private';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);

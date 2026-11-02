@@ -2,11 +2,8 @@
  * @sw-package framework
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import type { Plugin } from 'vite';
+import { path, type Plugin } from '../dependencies';
 import {
-    allSpecifiers,
     branchGuard,
     defaultExpression,
     exportNames,
@@ -17,6 +14,7 @@ import {
     type ModuleRegistry,
     type ParsedSpecifier,
 } from './definitions';
+import { readRegistry, REGISTRY_FILE } from './registry';
 
 type Options = {
     /** Root of the Administration package, i.e. the directory holding `src/` and `package.json`. */
@@ -31,31 +29,11 @@ type Options = {
     consumer: Consumer;
 };
 
-/** @private */
+/** @public */
 export type Consumer = 'host' | 'extension';
 
 /** Rollup convention: a leading NUL marks an id no other plugin should touch or read from disk. */
 const RESOLVED_PREFIX = '\0';
-
-const REGISTRY_FILE = 'shopware-modules.json';
-
-/**
- * @private
- *
- * The checked-in registry of every `shopware:*` specifier.
- *
- * The build reads this rather than parsing the Administration sources, so adding a utility, mixin or
- * store shows up as a diff in a pull request instead of silently changing what resolves.
- * `composer admin:generate-shopware-modules` rewrites it.
- */
-export function readRegistry(administrationRoot: string): ModuleRegistry {
-    const file = path.join(administrationRoot, REGISTRY_FILE);
-
-    return JSON.parse(fs.readFileSync(file, 'utf8')) as ModuleRegistry;
-}
-
-/** @private Re-exported so the Vite plugin and the Jest setup reach the whole contract from one module. */
-export { allSpecifiers, exportNames };
 
 /**
  * How a generated module gets hold of the `Shopware` object.
@@ -125,7 +103,7 @@ export function generateModuleSource(
 }
 
 /**
- * @private
+ * @public
  *
  * Serves the `shopware:*` modules, which expose the global `Shopware` object as ordinary imports:
  * `import { createId } from 'shopware:utils'` instead of `Shopware.Utils.createId`.

@@ -49,6 +49,13 @@ src/Core/Framework/Resources/views/documents/** @shopware/product-cc-after-sales
 ? src/Administration/Resources/app/administration/src/module/sw-flow/service/flow-builder.service.ts @shopware/product-cc-after-sales
 ? src/Core/Content/Mail/Service/** @shopware/product-cc-after-sales
 
+# framework: the Administration lint gate
+# The baselines have no owner: the "Lint baselines do not grow" job fails when one grows, and shrinking needs no review.
+src/Administration/Resources/app/administration/eslint.config.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/eslint-rules/** @shopware/product-cc-framework
+src/Administration/Resources/app/administration/extension-tooling/eslint.mjs @shopware/product-cc-framework
+& .github/bin/js/check-baseline-growth.ts @shopware/product-cc-framework
+
 # product-operations
 .github/** @shopware/product-operations
 

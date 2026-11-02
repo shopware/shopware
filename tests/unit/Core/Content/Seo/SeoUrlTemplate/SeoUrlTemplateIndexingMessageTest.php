@@ -21,6 +21,9 @@ class SeoUrlTemplateIndexingMessageTest extends TestCase
         static::assertSame('frontend.navigation.page', $message->routeName);
         static::assertSame('category', $message->entityName);
         static::assertNull($message->offset);
+        // messages without a template scope regenerate every sales channel
+        static::assertFalse($message->onlyChangedTemplate);
+        static::assertNull($message->templateSalesChannelId);
     }
 
     public function testItExposesIteratorOffsetForChainedMessages(): void

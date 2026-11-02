@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -135,6 +136,11 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 )
             );
 
+        $this->requestStack->method('getMainRequest')->willReturn(new Request(server: ['REMOTE_ADDR' => '10.0.0.1']));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::RESET_PASSWORD, 'test@test.dev-10.0.0.1');
+
         $MailRoute = new SendPasswordRecoveryMailRoute(
             $customerRepository,
             $customerRecoveryRepository,
@@ -142,7 +148,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             $this->validator,
             $this->systemConfigService,
             $this->requestStack,
-            $this->rateLimiter,
+            $rateLimiter,
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
@@ -153,7 +159,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             ->willReturnArgument(0);
 
         $data = new RequestDataBag();
-        $data->set('email', 'test@test.dev');
+        $data->set('email', " \u{00A0}Test@Test.DEV\u{3000}  ");
         $data->set('storefrontUrl', 'https://test.example.dev');
 
         $MailRoute->sendRecoveryMail($data, $this->context);

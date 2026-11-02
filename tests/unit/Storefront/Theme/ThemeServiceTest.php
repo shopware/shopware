@@ -743,6 +743,56 @@ class ThemeServiceTest extends TestCase
         ], $parameters);
     }
 
+    public function testCompileThemeByIdAsyncNotifiesCompletionOnlyForTheLastCompilation(): void
+    {
+        $themeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn(
+            [
+                [
+                    'id' => $themeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+            ]
+        );
+
+        $this->systemConfigMock->method('get')->willReturn(true);
+
+        $messages = [];
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->exactly(4))->method('dispatch')
+            ->willReturnCallback(static function (CompileThemeMessage $message) use (&$messages): Envelope {
+                $messages[] = $message;
+
+                return new Envelope($message);
+            });
+
+        $themeService = $this->getThemeService(messageBus: $messageBus);
+        $themeService->compileThemeById($themeId, $this->context);
+
+        static::assertSame(
+            [[$themeId, false], [$dependentThemeId, true]],
+            array_map(static fn (CompileThemeMessage $message) => [$message->getThemeId(), $message->isNotifyOnCompletion()], $messages)
+        );
+
+        $messages = [];
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+
+        static::assertCount(1, $messages);
+        static::assertTrue($messages[0]->isNotifyOnCompletion());
+
+        $messages = [];
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, true, false);
+
+        static::assertCount(1, $messages);
+        static::assertFalse($messages[0]->isNotifyOnCompletion());
+    }
+
     public function testUpdateTheme(): void
     {
         $themeId = Uuid::randomHex();

@@ -45,6 +45,10 @@ export default {
         showUsageDataConsentModalDataProvider() {
             return !this.isShopIdCheckPending && this.shopIdCheck === null;
         },
+
+        showWrongAppUrlModal() {
+            return !this.isShopIdCheckPending && this.shopIdCheck === null;
+        },
     },
 
     watch: {

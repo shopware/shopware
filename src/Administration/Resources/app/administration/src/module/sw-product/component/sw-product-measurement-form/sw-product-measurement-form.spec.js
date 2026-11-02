@@ -115,7 +115,7 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
         const unitSelect = lengthField.find('select');
 
         await unitSelect.setValue('cm');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.product.height).toBe(200);
         // eslint-disable-next-line jest/prefer-to-have-length

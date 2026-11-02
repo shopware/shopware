@@ -1,0 +1,43 @@
+diff --git a/src/Storefront/Resources/views/storefront/component/pagination.html.twig b/src/Storefront/Resources/views/storefront/component/pagination.html.twig
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Storefront/Resources/views/storefront/component/pagination.html.twig
++++ b/src/Storefront/Resources/views/storefront/component/pagination.html.twig
+@@ -77,7 +77,7 @@
+                                     {% block component_pagination_item_link_element %}
+                                         <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
+                                             {% block component_pagination_item_link_text %}
+-                                                <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ page }}
++                                                <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> <span class="page-number">{{ page }}</span>
+                                             {% endblock %}
+                                         </a>
+                                     {% endblock %}
+diff --git a/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js b/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
++++ b/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
+@@ -73,16 +73,6 @@
+     }
+ 
+     /**
+-     * Resume the previously saved focus state.
+-     *
+-     * @returns {void}
+-     * @private
+-     */
+-    _resumeFocusState() {
+-        window.focusHandler.resumeFocusState('listing-pagination', { preventScroll: true });
+-    }
+-
+-    /**
+      * @public
+      */
+     reset() {
+@@ -109,7 +99,7 @@
+         this._initButtons();
+ 
+         if (this.buttons && this._pageChanged) {
+-            this._resumeFocusState();
++            window.focusHandler.resumeFocusState('listing-pagination', { preventScroll: true });
+         }
+ 
+         this._pageChanged = false;

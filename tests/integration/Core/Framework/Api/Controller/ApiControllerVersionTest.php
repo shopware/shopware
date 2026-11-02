@@ -19,7 +19,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -31,6 +34,7 @@ class ApiControllerVersionTest extends TestCase
     use AdminApiTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
+    use OrderFixture;
 
     public function testCreateNewVersion(): void
     {
@@ -224,5 +228,232 @@ class ApiControllerVersionTest extends TestCase
 
         $name = $connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id AND product_version_id = :version', $live);
         static::assertSame('live name', $name, 'a discarded draft must not be merged into the live entity');
+    }
+
+    public function testCreateVersionRequiresReadPrivilege(): void
+    {
+        $id = $this->createProduct('live name');
+        $browser = $this->getBrowser();
+
+        TestUser::createNewTestUser($browser->getContainer()->get(Connection::class), ['category:read'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/version/product/' . $id);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('product:read', (string) $response->getContent());
+    }
+
+    public function testDeleteVersionRequiresDeletePrivilege(): void
+    {
+        $id = $this->createProduct('live name');
+        $versionId = $this->createVersion($id);
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+
+        // all discard privileges except the entity one, so only the entity check can deny the request
+        TestUser::createNewTestUser($connection, ['product:read', 'version:delete', 'version_commit:delete'])->authorizeBrowser($browser);
+
+        // the id has no row in the version, so deleting the entity itself checks no privilege
+        $browser->jsonRequest('POST', '/api/_action/version/' . $versionId . '/product/' . Uuid::randomHex());
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('product:delete', (string) $response->getContent());
+
+        $version = ['version' => Uuid::fromHexToBytes($versionId)];
+        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM version WHERE id = :version', $version), 'a denied discard must keep the version');
+        static::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM version_commit WHERE version_id = :version', $version), 'a denied discard must keep the change set');
+        static::assertSame(1, $this->countVersionedProducts($id, $versionId), 'a denied discard must keep the draft');
+    }
+
+    public function testMergeRequiresUpdatePrivilege(): void
+    {
+        $id = $this->createProduct('live name');
+        $versionId = $this->createVersion($id);
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('PATCH', '/api/product/' . $id, ['name' => 'draft name'], ['HTTP_SW_VERSION_ID' => $versionId]);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        $connection = $browser->getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:read'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/product/' . $versionId);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('product:update', (string) $response->getContent());
+        static::assertSame('live name', $this->fetchLiveProductName($id), 'a denied merge must not change the live entity');
+
+        TestUser::createNewTestUser($connection, ['product:read', 'product:update'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/product/' . $versionId);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('draft name', $this->fetchLiveProductName($id));
+    }
+
+    #[DataProvider('mergeThroughAnotherEntityProvider')]
+    public function testMergeRequiresPrivilegesForAllChangesOfTheVersion(bool $addCategoryToVersion): void
+    {
+        $id = $this->createProduct('live name');
+        $versionId = $this->createVersion($id);
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('PATCH', '/api/product/' . $id, ['name' => 'draft name'], ['HTTP_SW_VERSION_ID' => $versionId]);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        $categoryId = Uuid::randomHex();
+        $browser->jsonRequest('POST', '/api/category', ['id' => $categoryId, 'name' => 'category']);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        TestUser::createNewTestUser($browser->getContainer()->get(Connection::class), ['category:read', 'category:update'])->authorizeBrowser($browser);
+
+        if ($addCategoryToVersion) {
+            $browser->jsonRequest('POST', '/api/_action/version/category/' . $categoryId, ['versionId' => $versionId]);
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        }
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/category/' . $versionId);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('product:update', (string) $response->getContent());
+        static::assertSame('live name', $this->fetchLiveProductName($id), 'a category privilege must not publish a product draft');
+        static::assertSame(1, $this->countVersionedProducts($id, $versionId), 'a rejected merge must keep the version');
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function mergeThroughAnotherEntityProvider(): iterable
+    {
+        yield 'the version has no changes of the merged entity' => [false];
+        yield 'the version also has changes of the merged entity' => [true];
+    }
+
+    public function testMergeOfAnOrderCoversChangesOfItsChildEntities(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        static::getContainer()->get('order.repository')->create($this->getOrderData($orderId, $context), $context);
+
+        $productId = Uuid::randomHex();
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'product',
+            'active' => true,
+            'tax' => ['name' => 'test', 'taxRate' => 19],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
+            'visibilities' => [['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => 30]],
+        ]], $context);
+
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser($browser->getContainer()->get(Connection::class), ['order:read', 'order:update', 'product:read'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/version/order/' . $orderId);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $versionId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['versionId'];
+        static::assertIsString($versionId);
+
+        // the recalculation writes the line items and delivery positions in system scope
+        $browser->jsonRequest('POST', '/api/_action/order/' . $orderId . '/product/' . $productId, ['quantity' => 1], ['HTTP_SW_VERSION_ID' => $versionId]);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/order/' . $versionId);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $lineItemCount = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM order_line_item WHERE order_id = :id AND version_id = :version',
+            ['id' => Uuid::fromHexToBytes($orderId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+        );
+        static::assertSame(2, (int) $lineItemCount, 'the added product must be merged into the live order');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('versionHistoryWriteProvider')]
+    public function testVersionHistoryIsNotWritableThroughTheApi(string $path, array $payload): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('POST', $path, $payload);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function versionHistoryWriteProvider(): iterable
+    {
+        yield 'a commit cannot be injected into a version' => ['/api/version-commit', ['versionId' => Uuid::randomHex()]];
+        yield 'a recorded change cannot be injected into a commit' => ['/api/version-commit-data', [
+            'commit' => ['versionId' => Uuid::randomHex()],
+            'entityName' => 'product',
+            'entityId' => ['id' => Uuid::randomHex()],
+            'action' => 'update',
+            'payload' => '{}',
+        ]];
+    }
+
+    private function createProduct(string $name): string
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('POST', '/api/product', [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => $name,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ]);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        return $id;
+    }
+
+    private function createVersion(string $productId): string
+    {
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('POST', '/api/_action/version/product/' . $productId);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        $versionId = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['versionId'];
+        static::assertIsString($versionId);
+
+        return $versionId;
+    }
+
+    private function countVersionedProducts(string $productId, string $versionId): int
+    {
+        return (int) static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM product WHERE id = :id AND version_id = :version',
+            ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+    }
+
+    private function fetchLiveProductName(string $productId): string
+    {
+        $name = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT name FROM product_translation WHERE product_id = :id AND product_version_id = :version AND language_id = :language',
+            ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+        static::assertIsString($name);
+
+        return $name;
     }
 }

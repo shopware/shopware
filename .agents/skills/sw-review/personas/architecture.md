@@ -24,7 +24,7 @@ Ask: what does this make hard to change next or extend?
 - Auth/secrets/input validation → `security`;
 - Naming/formatting → `code-style`;
 - Frontend polish → `ux`;
-- UPGRADE/deprecation docs → `open-source`.
+- UPGRADE/deprecation docs → `maintainer`.
 
 ## Severity Anchors
 

@@ -1,0 +1,48 @@
+diff --git a/src/Core/Migration/V6_7/Migration1791538877MakeCustomerAddressPhoneNumberRequired.php b/src/Core/Migration/V6_7/Migration1791538877MakeCustomerAddressPhoneNumberRequired.php
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/src/Core/Migration/V6_7/Migration1791538877MakeCustomerAddressPhoneNumberRequired.php
+@@ -0,0 +1,29 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Migration\V6_7;
++
++use Doctrine\DBAL\Connection;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Migration\MigrationStep;
++
++/**
++ * @internal
++ */
++#[Package('checkout')]
++class Migration1791538877MakeCustomerAddressPhoneNumberRequired extends MigrationStep
++{
++    public function getCreationTimestamp(): int
++    {
++        return 1791538877;
++    }
++
++    public function update(Connection $connection): void
++    {
++        $connection->executeStatement('UPDATE `customer_address` SET `phone_number` = \'\' WHERE `phone_number` IS NULL');
++
++        $this->executeDdlStatement(
++            $connection,
++            'ALTER TABLE `customer_address` MODIFY COLUMN `phone_number` VARCHAR(40) NOT NULL'
++        );
++    }
++}
+diff --git a/src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php b/src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php
++++ b/src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php
+@@ -77,7 +77,7 @@
+             (new StringField('street', 'street'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Name of customer\'s street.'),
+             (new StringField('department', 'department'))->addFlags(new ApiAware())->setDescription('Name of customer\'s department.'),
+             (new StringField('title', 'title', self::MAX_LENGTH_TITLE))->addFlags(new ApiAware())->setDescription('Titles given to customer like Dr. , Prof., etc'),
+-            (new StringField('phone_number', 'phoneNumber', self::MAX_LENGTH_PHONE_NUMBER))->addFlags(new ApiAware())->setDescription('Customer\'s phone number.'),
++            (new StringField('phone_number', 'phoneNumber', self::MAX_LENGTH_PHONE_NUMBER))->addFlags(new ApiAware(), new Required())->setDescription('Customer\'s phone number.'),
+             (new StringField('additional_address_line1', 'additionalAddressLine1'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Additional customer\'s address information.'),
+             (new StringField('additional_address_line2', 'additionalAddressLine2'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Additional customer\'s address information.'),
+             (new StringField('hash', 'hash'))->addFlags(new ApiAware(), new Runtime()),

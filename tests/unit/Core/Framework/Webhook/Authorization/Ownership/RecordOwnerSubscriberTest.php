@@ -49,7 +49,7 @@ class RecordOwnerSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertSame([PreWriteValidationEvent::class => 'recordOwner'], RecordOwnerSubscriber::getSubscribedEvents());
+        static::assertSame([PreWriteValidationEvent::class => ['recordOwner', 100]], RecordOwnerSubscriber::getSubscribedEvents());
     }
 
     public function testIntegrationWinsWhenTheRequestCarriesBoth(): void

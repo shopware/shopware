@@ -31,8 +31,8 @@ class MissingReleaseInfo
     }
 
     /**
-     * Changes confined to the test suites or the static-analysis tooling are never relevant
-     * for external developers.
+     * Changes confined to the test suites, the static-analysis tooling or the GitHub automation are never
+     * relevant for external developers.
      *
      * @param array<string|int> $fileNames
      */
@@ -41,7 +41,8 @@ class MissingReleaseInfo
         foreach ($fileNames as $fileName) {
             $isIrrelevant = match (true) {
                 str_starts_with((string) $fileName, 'tests/'),
-                str_starts_with((string) $fileName, 'src/Core/DevOps/StaticAnalyze/') => true,
+                str_starts_with((string) $fileName, 'src/Core/DevOps/StaticAnalyze/'),
+                str_starts_with((string) $fileName, '.github/') => true,
                 default => false,
             };
 

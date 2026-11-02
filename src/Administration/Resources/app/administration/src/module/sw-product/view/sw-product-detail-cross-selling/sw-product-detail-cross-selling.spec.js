@@ -100,7 +100,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isChild).toBe(true);
         expect(wrapper.vm.isInherited).toBe(true);
@@ -114,7 +114,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
@@ -128,7 +128,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
         expect(emptyState.exists()).toBe(true);
@@ -147,7 +147,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
         expect(emptyState.text()).toContain('sw-product.crossselling.inheritedEmptyStateDescription');
@@ -165,10 +165,10 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.isInherited = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
         expect(emptyState.text()).toContain('sw-product.crossselling.notInheritedEmptyStateDescription');
@@ -186,13 +186,13 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const switchInput = () => wrapper.find('.sw-product-detail-cross-selling__inherit-switch input');
         expect(switchInput().attributes('disabled')).toBeDefined();
 
         wrapper.vm.isInherited = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(switchInput().attributes('disabled')).toBeUndefined();
     });

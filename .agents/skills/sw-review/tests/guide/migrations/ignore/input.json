@@ -1,0 +1,35 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-migrations-ignore",
+    "title": "feat(core): add is_system column to product_sorting",
+    "body": "Adds `product_sorting.is_system` with an index and marks the locked sortings. The column is guarded with `addColumn()` and `TableHelper::indexExists()`; the test runs the migration twice. `locked` stays until the next major.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/migrations-ignore",
+    "additions": 92,
+    "deletions": 0,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Migration/V6_7/Migration1791537247AddIsSystemToProductSorting.php",
+    "tests/migration/Core/V6_7/Migration1791537247AddIsSystemToProductSortingTest.php"
+  ],
+  "guides": [
+    "guides/migrations.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "migration",
+      "php_src"
+    ],
+    "guides": [
+      "migrations"
+    ]
+  }
+}

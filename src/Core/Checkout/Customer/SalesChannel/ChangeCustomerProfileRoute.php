@@ -95,10 +95,16 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->remove('accountType');
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $validation->add('company', new NotBlank());
-            $billingAddress = $customer->getDefaultBillingAddress();
-            if ($billingAddress) {
+        $keepsAccountType = !$data->has('accountType');
+        $accountType = $keepsAccountType ? $customer->getAccountType() : $data->get('accountType');
+
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            if (!$keepsAccountType || $data->has('company')) {
+                $validation->add('company', new NotBlank());
+            }
+
+            $billingAddress = $customer->getActiveBillingAddress();
+            if ($billingAddress && (!$keepsAccountType || $data->has('vatIds'))) {
                 $this->addVatIdsValidation($validation, $billingAddress);
             }
         } else {
@@ -122,13 +128,15 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company', 'accountType');
 
-        $vatIds = $data->get('vatIds');
+        if (!$keepsAccountType || $data->has('vatIds')) {
+            $vatIds = $data->get('vatIds');
 
-        if ($vatIds instanceof DataBag) {
-            $vatIds = $vatIds->all();
+            if ($vatIds instanceof DataBag) {
+                $vatIds = $vatIds->all();
+            }
+
+            $customerData['vatIds'] = $vatIds;
         }
-
-        $customerData['vatIds'] = $vatIds;
 
         if ($birthday = $this->getBirthday($data)) {
             $customerData['birthday'] = $birthday;

@@ -210,7 +210,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         await selectEdit.get('.sw-context-menu-item').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.currentAddress).toMatchObject({
             street: 'Denesik Bridge',

@@ -532,9 +532,23 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
+                },
+                "user_recovery": {
+                    "$ref": "#/definitions/api_user_recovery"
                 }
             },
             "title": "API"
+        },
+        "api_user_recovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "title": "Administration user password recovery"
         },
         "api_browser": {
             "type": "object",

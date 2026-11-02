@@ -248,6 +248,8 @@ shopware:
                     - 'http://[::1]/callback'
         api_browser:
             auth_required: true
+        user_recovery:
+            enabled: true # Administration "forgot password" flow; set to false to disable it, e.g. when passwords are managed via SSO
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
@@ -374,6 +376,17 @@ shopware:
                     - limit: 5
                       interval: '60 seconds'
                     - limit: 10
+                      interval: '90 seconds'
+            promotion_code:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 50
+                      interval: '30 seconds'
+                    - limit: 100
+                      interval: '60 seconds'
+                    - limit: 200
                       interval: '90 seconds'
             cart_add_line_item:
                 enabled: true

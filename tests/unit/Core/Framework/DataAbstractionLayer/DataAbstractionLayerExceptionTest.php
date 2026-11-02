@@ -143,6 +143,24 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('Entity "entity-name" is not version aware', $e->getMessage());
     }
 
+    public function testWriteOutcomeWithoutColumns(): void
+    {
+        $e = DataAbstractionLayerException::writeOutcomeWithoutColumns();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::WRITE_OUTCOME_WITHOUT_COLUMNS, $e->getErrorCode());
+        static::assertSame('WriteOutcome needs the columns to read.', $e->getMessage());
+    }
+
+    public function testOutcomeRowColumnNotRequested(): void
+    {
+        $e = DataAbstractionLayerException::outcomeRowColumnNotRequested('stock');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::OUTCOME_ROW_COLUMN_NOT_REQUESTED, $e->getErrorCode());
+        static::assertSame('Column "stock" was not requested. Pass it to WriteOutcome with the other columns.', $e->getMessage());
+    }
+
     public function testExpectedArray(): void
     {
         $e = DataAbstractionLayerException::expectedArray('some/path/0');
@@ -313,5 +331,14 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('Invalid _criteria parameter: error message', $e->getMessage());
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER', $e->getErrorCode());
+    }
+
+    public function testRepositoryIteratorMissingAutoIncrement(): void
+    {
+        $e = DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement();
+
+        static::assertSame('Expected the id search result to contain the autoIncrement value of the last id.', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT, $e->getErrorCode());
     }
 }

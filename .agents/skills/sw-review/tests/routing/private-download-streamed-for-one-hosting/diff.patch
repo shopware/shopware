@@ -1,0 +1,921 @@
+diff --git a/RELEASE_INFO-6.7.md b/RELEASE_INFO-6.7.md
+index 9e085577c72..2ce8d0b8107 100644
+--- a/RELEASE_INFO-6.7.md
++++ b/RELEASE_INFO-6.7.md
+@@ -612,6 +612,12 @@ A theme that lists several ancestors in the `configInheritance` of its `theme.js
+ 
+ ## Hosting & Configuration
+ 
++### Private file downloads through Shopware
++
++Import/Export files, private media downloads from the Administration, and purchased digital products stored as private media are now delivered through Shopware instead of redirecting browsers to presigned object-storage URLs. Private S3-compatible storage endpoints only need to be reachable by Shopware. Public media downloads retain their existing behavior.
++
++The existing `shopware.filesystem.private_local_download_strategy` setting controls delivery. With the default `php` strategy, file contents pass through PHP, increasing application-server traffic and occupying PHP workers during downloads.
++
+ ### Registering public OAuth clients
+ 
+ Public OAuth clients that may use the authorization code grant are configured under `shopware.api.oauth_clients`. Shopware ships `shopware-cli` with the loopback redirect URIs `http://127.0.0.1/callback` and `http://[::1]/callback`. Loopback URIs accept any port (RFC 8252), all other redirect URIs must match exactly. Additional clients are added per project:
+diff --git a/src/Core/Content/DependencyInjection/import_export.php b/src/Core/Content/DependencyInjection/import_export.php
+index 7a4896f4297..5ac0974839e 100644
+--- a/src/Core/Content/DependencyInjection/import_export.php
++++ b/src/Core/Content/DependencyInjection/import_export.php
+@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\DependencyInjection;
+ 
+ use Doctrine\DBAL\Connection;
+ use Psr\Clock\ClockInterface;
++use Psr\Http\Message\StreamFactoryInterface;
+ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition;
+ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
+ use Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand;
+@@ -53,6 +54,7 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+ use Shopware\Core\Content\ImportExport\Service\MappingService;
+ use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
+ use Shopware\Core\Content\Media\File\FileSaver;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
+ use Shopware\Core\Content\Media\MediaService;
+ use Shopware\Core\Content\Product\ProductTypeRegistry;
+ use Shopware\Core\Framework\Api\Sync\SyncService;
+@@ -163,11 +165,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+         ->args([
+             service('shopware.filesystem.private'),
+             service('import_export_file.repository'),
+-            service('logger'),
+             param('shopware.filesystem.private_local_download_strategy'),
+             service(RateLimiter::class),
+             param('shopware.filesystem.private_local_path_prefix'),
+             service(ClockInterface::class),
++            service(StreamFactoryInterface::class),
++            service(PrivateFileDownloadResponseGenerator::class),
+         ]);
+ 
+     $services->set(PrimaryKeyResolver::class)
+diff --git a/src/Core/Content/DependencyInjection/media.php b/src/Core/Content/DependencyInjection/media.php
+index ae60d42b7b1..4a823f1514c 100644
+--- a/src/Core/Content/DependencyInjection/media.php
++++ b/src/Core/Content/DependencyInjection/media.php
+@@ -46,6 +46,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
+ use Shopware\Core\Content\Media\File\FileService;
+ use Shopware\Core\Content\Media\File\FileUrlValidator;
+ use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
+ use Shopware\Core\Content\Media\File\SvgContentValidator;
+ use Shopware\Core\Content\Media\File\TrustedUrlResolver;
+ use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
+@@ -239,6 +240,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+             service('media.repository'),
+         ]);
+ 
++    $services->set(PrivateFileDownloadResponseGenerator::class);
++
+     $services->set(DownloadResponseGenerator::class)
+         ->args([
+             service('logger'),
+@@ -249,6 +252,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+             service(AbstractMediaUrlGenerator::class),
+             service(ClockInterface::class),
+             param('shopware.filesystem.private_local_path_prefix'),
++            service(PrivateFileDownloadResponseGenerator::class),
+         ]);
+     // endregion File Services
+ 
+diff --git a/src/Core/Content/ImportExport/Service/DownloadService.php b/src/Core/Content/ImportExport/Service/DownloadService.php
+index da73dfe2453..1e4f90a0ea0 100644
+--- a/src/Core/Content/ImportExport/Service/DownloadService.php
++++ b/src/Core/Content/ImportExport/Service/DownloadService.php
+@@ -3,13 +3,13 @@
+ namespace Shopware\Core\Content\ImportExport\Service;
+ 
+ use League\Flysystem\FilesystemOperator;
+-use League\Flysystem\UnableToGenerateTemporaryUrl;
+ use Psr\Clock\ClockInterface;
+-use Psr\Log\LoggerInterface;
++use Psr\Http\Message\StreamFactoryInterface;
++use Psr\Http\Message\StreamInterface;
+ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+ use Shopware\Core\Content\ImportExport\ImportExportException;
+ use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+-use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
+ use Shopware\Core\Content\Media\Util\PathHelper;
+ use Shopware\Core\Framework\Context;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+@@ -19,9 +19,7 @@ use Shopware\Core\Framework\Log\Package;
+ use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+ use Shopware\Core\Framework\RateLimiter\RateLimiter;
+ use Symfony\Component\HttpFoundation\HeaderUtils;
+-use Symfony\Component\HttpFoundation\RedirectResponse;
+ use Symfony\Component\HttpFoundation\Response;
+-use Symfony\Component\HttpFoundation\StreamedResponse;
+ 
+ /**
+  * @internal
+@@ -29,8 +27,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
+ #[Package('fundamentals@after-sales')]
+ class DownloadService
+ {
+-    private const EXPIRATION_TIME = '+120 minutes';
+-
+     /**
+      * @internal
+      *
+@@ -39,11 +35,12 @@ class DownloadService
+     public function __construct(
+         private readonly FilesystemOperator $filesystem,
+         private readonly EntityRepository $fileRepository,
+-        private readonly LoggerInterface $logger,
+         private readonly string $localDownloadStrategy,
+         private readonly RateLimiter $rateLimiter,
+         private readonly string $localPathPrefix,
+-        private readonly ClockInterface $clock
++        private readonly ClockInterface $clock,
++        private readonly StreamFactoryInterface $streamFactory,
++        private readonly PrivateFileDownloadResponseGenerator $privateFileDownloadResponseGenerator
+     ) {
+     }
+ 
+@@ -84,66 +81,20 @@ class DownloadService
+ 
+         $this->rateLimiter->reset(RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD, $cacheKey);
+ 
+-        try {
+-            $url = $this->filesystem->temporaryUrl(
+-                $entity->getPath(),
+-                $this->clock->now()->modify(self::EXPIRATION_TIME),
+-                $this->getTemporaryUrlConfig($entity)
+-            );
+-
+-            return new RedirectResponse($url);
+-        } catch (UnableToGenerateTemporaryUrl $exception) {
+-            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+-        } catch (\Exception $exception) {
+-            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
+-        }
+-
+-        return $this->createResponse($entity, $fileId);
+-    }
+-
+-    private function createResponse(ImportExportFileEntity $entity, string $fileId): Response
+-    {
+-        switch ($this->localDownloadStrategy) {
+-            case DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY:
+-                $location = $entity->getPath();
+-
+-                $stream = $this->filesystem->readStream($location);
++        return $this->privateFileDownloadResponseGenerator->createResponse(
++            streamProvider: function () use ($entity, $fileId): StreamInterface {
++                $stream = $this->filesystem->readStream($entity->getPath());
+                 if (!\is_resource($stream)) {
+                     throw ImportExportException::fileNotFound($fileId);
+                 }
+ 
+-                $location = stream_get_meta_data($stream)['uri'] ?? $location;
+-
+-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
+-                $response->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
+-
+-                return $response;
+-            case DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY:
+-                $location = $entity->getPath();
+-
+-                if ($this->localPathPrefix !== '') {
+-                    $location = $this->localPathPrefix . '/' . ltrim($location, '/');
+-                }
+-
+-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
+-                $response->headers->set(DownloadResponseGenerator::X_ACCEL_REDIRECT, $location);
+-
+-                return $response;
+-            default:
+-                return $this->createStreamedResponse($entity, $fileId);
+-        }
+-    }
+-
+-    private function createStreamedResponse(ImportExportFileEntity $entity, string $fileId): StreamedResponse
+-    {
+-        $stream = $this->filesystem->readStream($entity->getPath());
+-        if (!\is_resource($stream)) {
+-            throw ImportExportException::fileNotFound($fileId);
+-        }
+-
+-        return new StreamedResponse(static function () use ($stream): void {
+-            fpassthru($stream);
+-        }, Response::HTTP_OK, $this->getStreamHeaders($entity));
++                return $this->streamFactory->createStreamFromResource($stream);
++            },
++            headers: $this->getStreamHeaders($entity),
++            downloadStrategy: $this->localDownloadStrategy,
++            path: $entity->getPath(),
++            pathPrefix: $this->localPathPrefix,
++        );
+     }
+ 
+     /**
+@@ -160,24 +111,6 @@ class DownloadService
+         ];
+     }
+ 
+-    /**
+-     * S3 temporary URLs use GetObject response overrides to preserve the download
+-     * filename and content type after redirecting away from Shopware.
+-     *
+-     * @return array{get_object_options: array{ResponseContentDisposition: string, ResponseContentType: string}}
+-     */
+-    private function getTemporaryUrlConfig(ImportExportFileEntity $entity): array
+-    {
+-        $downloadHeaders = $this->getDownloadHeaders($entity);
+-
+-        return [
+-            'get_object_options' => [
+-                'ResponseContentDisposition' => $downloadHeaders['Content-Disposition'],
+-                'ResponseContentType' => $downloadHeaders['Content-Type'],
+-            ],
+-        ];
+-    }
+-
+     /**
+      * @return array{'Content-Disposition': string, 'Content-Type': string}
+      */
+diff --git a/src/Core/Content/Media/Api/MediaDownloadController.php b/src/Core/Content/Media/Api/MediaDownloadController.php
+index 9d45c565837..fc4aabd569f 100644
+--- a/src/Core/Content/Media/Api/MediaDownloadController.php
++++ b/src/Core/Content/Media/Api/MediaDownloadController.php
+@@ -43,6 +43,11 @@ class MediaDownloadController extends AbstractController
+     public function prepareMediaDownload(string $mediaId, Context $context): JsonResponse
+     {
+         $media = $this->getMedia($mediaId, $context);
++
++        if ($media->isPrivate()) {
++            return new JsonResponse(['type' => 'blob']);
++        }
++
+         $response = $this->downloadResponseGenerator->getResponseByContext($media, $context);
+ 
+         if ($response instanceof RedirectResponse) {
+diff --git a/src/Core/Content/Media/File/DownloadResponseGenerator.php b/src/Core/Content/Media/File/DownloadResponseGenerator.php
+index 677b79e34e8..1af092ed5a5 100644
+--- a/src/Core/Content/Media/File/DownloadResponseGenerator.php
++++ b/src/Core/Content/Media/File/DownloadResponseGenerator.php
+@@ -21,7 +21,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
+ use Symfony\Component\HttpFoundation\HeaderUtils;
+ use Symfony\Component\HttpFoundation\RedirectResponse;
+ use Symfony\Component\HttpFoundation\Response;
+-use Symfony\Component\HttpFoundation\StreamedResponse;
+ 
+ #[Package('discovery')]
+ class DownloadResponseGenerator
+@@ -42,7 +41,8 @@ class DownloadResponseGenerator
+         private readonly string $localPrivateDownloadStrategy,
+         private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
+         private readonly ClockInterface $clock,
+-        private readonly string $privateLocalPathPrefix = ''
++        private readonly string $privateLocalPathPrefix,
++        private readonly PrivateFileDownloadResponseGenerator $privateFileDownloadResponseGenerator
+     ) {
+     }
+ 
+@@ -59,6 +59,10 @@ class DownloadResponseGenerator
+         Context $context,
+         string $expiration = self::EXPIRATION_TIME
+     ): Response {
++        if ($media->isPrivate()) {
++            return $this->getDefaultResponse($media, $context);
++        }
++
+         $fileSystem = $this->getFileSystem($media);
+ 
+         $path = $media->getPath();
+@@ -73,10 +77,10 @@ class DownloadResponseGenerator
+             $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
+         }
+ 
+-        return $this->getDefaultResponse($media, $context, $fileSystem);
++        return $this->getDefaultResponse($media, $context);
+     }
+ 
+-    private function getDefaultResponse(MediaEntity $media, Context $context, FilesystemOperator $fileSystem): Response
++    private function getDefaultResponse(MediaEntity $media, Context $context): Response
+     {
+         if (!$media->isPrivate()) {
+             $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
+@@ -84,59 +88,18 @@ class DownloadResponseGenerator
+             return new RedirectResponse((string) array_shift($url));
+         }
+ 
+-        switch ($this->localPrivateDownloadStrategy) {
+-            case self::X_SENDFILE_DOWNLOAD_STRATEGY:
+-                $location = $media->getPath();
+-
+-                $stream = $fileSystem->readStream($location);
+-                if (\is_resource($stream)) {
+-                    $location = stream_get_meta_data($stream)['uri'] ?? $location;
+-                }
+-
+-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
+-                $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
+-
+-                return $response;
+-            case self::X_ACCEL_DOWNLOAD_STRATEGY:
+-                $location = $media->getPath();
+-
+-                // Apply the path prefix if configured
+-                if ($this->privateLocalPathPrefix !== '') {
+-                    $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
+-                }
+-
+-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
+-                $response->headers->set(self::X_ACCEL_REDIRECT, $location);
+-
+-                return $response;
+-            default:
+-                return $this->createStreamedResponse(
+-                    $media,
+-                    $context
++        return $this->privateFileDownloadResponseGenerator->createResponse(
++            streamProvider: function () use ($media, $context): StreamInterface {
++                return $context->scope(
++                    Context::SYSTEM_SCOPE,
++                    fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
+                 );
+-        }
+-    }
+-
+-    private function createStreamedResponse(MediaEntity $media, Context $context): StreamedResponse
+-    {
+-        $stream = $context->scope(
+-            Context::SYSTEM_SCOPE,
+-            fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
++            },
++            headers: $this->getStreamHeaders($media),
++            downloadStrategy: $this->localPrivateDownloadStrategy,
++            path: $media->getPath(),
++            pathPrefix: $this->privateLocalPathPrefix,
+         );
+-
+-        if (!$stream instanceof StreamInterface) {
+-            throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
+-        }
+-
+-        $stream = $stream->detach();
+-
+-        if (!\is_resource($stream)) {
+-            throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
+-        }
+-
+-        return new StreamedResponse(static function () use ($stream): void {
+-            fpassthru($stream);
+-        }, Response::HTTP_OK, $this->getStreamHeaders($media));
+     }
+ 
+     private function getFileSystem(MediaEntity $media): FilesystemOperator
+diff --git a/src/Core/Content/Media/File/PrivateFileDownloadResponseGenerator.php b/src/Core/Content/Media/File/PrivateFileDownloadResponseGenerator.php
+new file mode 100644
+index 00000000000..c40a2e4aefb
+--- /dev/null
++++ b/src/Core/Content/Media/File/PrivateFileDownloadResponseGenerator.php
+@@ -0,0 +1,66 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Content\Media\File;
++
++use Psr\Http\Message\StreamInterface;
++use Shopware\Core\Content\Media\MediaException;
++use Shopware\Core\Framework\Log\Package;
++use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\HttpFoundation\StreamedResponse;
++
++/**
++ * @internal
++ */
++#[Package('discovery')]
++final class PrivateFileDownloadResponseGenerator
++{
++    /**
++     * @param \Closure(): StreamInterface $streamProvider
++     * @param array<string, mixed> $headers
++     */
++    public function createResponse(
++        \Closure $streamProvider,
++        array $headers,
++        string $downloadStrategy,
++        string $path,
++        string $pathPrefix = ''
++    ): Response {
++        if ($downloadStrategy === DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY) {
++            $location = $path;
++
++            if ($pathPrefix !== '') {
++                $location = $pathPrefix . '/' . ltrim($location, '/');
++            }
++
++            $response = new Response(null, Response::HTTP_OK, $headers);
++            $response->headers->set(DownloadResponseGenerator::X_ACCEL_REDIRECT, $location);
++
++            return $response;
++        }
++
++        $stream = $streamProvider();
++        $resource = $stream->detach();
++
++        if (!\is_resource($resource)) {
++            throw MediaException::fileNotFound($path);
++        }
++
++        $metadata = stream_get_meta_data($resource);
++
++        if ($downloadStrategy === DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY
++            && $metadata['wrapper_type'] === 'plainfile'
++            && isset($metadata['uri'])
++        ) {
++            $location = $metadata['uri'];
++
++            $response = new Response(null, Response::HTTP_OK, $headers);
++            $response->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
++
++            return $response;
++        }
++
++        return new StreamedResponse(static function () use ($resource): void {
++            fpassthru($resource);
++        }, Response::HTTP_OK, $headers);
++    }
++}
+diff --git a/tests/integration/Core/Content/ImportExport/Service/DownloadServiceTest.php b/tests/integration/Core/Content/ImportExport/Service/DownloadServiceTest.php
+index 451abadfcdb..1be6604670c 100644
+--- a/tests/integration/Core/Content/ImportExport/Service/DownloadServiceTest.php
++++ b/tests/integration/Core/Content/ImportExport/Service/DownloadServiceTest.php
+@@ -4,11 +4,12 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
+ 
+ use Doctrine\DBAL\Connection;
+ use League\Flysystem\Filesystem;
++use Nyholm\Psr7\Factory\Psr17Factory;
+ use PHPUnit\Framework\TestCase;
+-use Psr\Log\LoggerInterface;
+ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+ use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
+ use Shopware\Core\Content\ImportExport\Service\DownloadService;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
+ use Shopware\Core\Defaults;
+ use Shopware\Core\Framework\Context;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+@@ -155,11 +156,12 @@ class DownloadServiceTest extends TestCase
+         return new DownloadService(
+             $fileSystem,
+             $fileRepository,
+-            $this->createMock(LoggerInterface::class),
+             self::DEFAULT_STRATEGY,
+             static::createStub(RateLimiter::class),
+             '',
+             new NativeClock(),
++            new Psr17Factory(),
++            new PrivateFileDownloadResponseGenerator(),
+         );
+     }
+ }
+diff --git a/tests/unit/Core/Content/ImportExport/Service/DownloadServiceTest.php b/tests/unit/Core/Content/ImportExport/Service/DownloadServiceTest.php
+index a188eb83631..714ab065f3f 100644
+--- a/tests/unit/Core/Content/ImportExport/Service/DownloadServiceTest.php
++++ b/tests/unit/Core/Content/ImportExport/Service/DownloadServiceTest.php
+@@ -4,15 +4,15 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Service;
+ 
+ use League\Flysystem\Filesystem;
+ use League\Flysystem\FilesystemOperator;
+-use League\Flysystem\UnableToGenerateTemporaryUrl;
++use Nyholm\Psr7\Factory\Psr17Factory;
+ use PHPUnit\Framework\Attributes\CoversClass;
+ use PHPUnit\Framework\Attributes\DataProvider;
+ use PHPUnit\Framework\TestCase;
+-use Psr\Log\LoggerInterface;
+ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+ use Shopware\Core\Content\ImportExport\ImportExportException;
+ use Shopware\Core\Content\ImportExport\Service\DownloadService;
+ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
+ use Shopware\Core\Framework\Context;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
+ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+ use Symfony\Component\Clock\NativeClock;
+ use Symfony\Component\HttpFoundation\HeaderUtils;
+-use Symfony\Component\HttpFoundation\RedirectResponse;
+ use Symfony\Component\HttpFoundation\Response;
+ use Symfony\Component\HttpFoundation\StreamedResponse;
+ 
+@@ -70,7 +69,6 @@ class DownloadServiceTest extends TestCase
+         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+ 
+         $fileSystem = $this->createMock(Filesystem::class);
+-        $fileSystem->method('temporaryUrl')->willReturn('');
+         $fileSystem->expects($this->once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
+         $fileSystem->expects($this->once())->method('fileSize')->willReturn(100);
+ 
+@@ -105,16 +103,13 @@ class DownloadServiceTest extends TestCase
+         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+ 
+         $fileSystem = $this->createMock(Filesystem::class);
+-        $fileSystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/any/path'));
+         $fileSystem->method('fileSize')->willReturn(100);
+ 
+         if ($strategy === DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY) {
+-            $stream = fopen('php://memory', 'r+');
++            $stream = fopen(__FILE__, 'r');
+             static::assertIsResource($stream);
+-            fwrite($stream, 'test');
+-            rewind($stream);
+             $fileSystem->expects($this->once())->method('readStream')->willReturn($stream);
+-            $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
++            $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, __FILE__);
+         } else {
+             $fileSystem->expects($this->never())->method('readStream');
+         }
+@@ -153,7 +148,7 @@ class DownloadServiceTest extends TestCase
+         ];
+     }
+ 
+-    public function testCreateFileResponseUsesTemporaryUrlWhenAvailable(): void
++    public function testCreateFileResponseStreamsPrivateFile(): void
+     {
+         $fileId = Uuid::randomHex();
+         $fileEntity = (new ImportExportFileEntity())->assign([
+@@ -167,22 +162,8 @@ class DownloadServiceTest extends TestCase
+         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+ 
+         $fileSystem = $this->createMock(Filesystem::class);
+-        $fileSystem->expects($this->once())->method('temporaryUrl')->with(
+-            'export/foobar.txt',
+-            static::isInstanceOf(\DateTimeImmutable::class),
+-            [
+-                'get_object_options' => [
+-                    'ResponseContentDisposition' => HeaderUtils::makeDisposition(
+-                        HeaderUtils::DISPOSITION_ATTACHMENT,
+-                        'products.csv',
+-                        'products.csv'
+-                    ),
+-                    'ResponseContentType' => 'text/csv',
+-                ],
+-            ]
+-        )->willReturn('https://example.com/download');
+-        $fileSystem->expects($this->never())->method('readStream');
+-        $fileSystem->expects($this->never())->method('fileSize');
++        $fileSystem->expects($this->once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
++        $fileSystem->expects($this->once())->method('fileSize')->willReturn(100);
+ 
+         $downloadService = $this->createDownloadService(
+             fileSystem: $fileSystem,
+@@ -191,7 +172,9 @@ class DownloadServiceTest extends TestCase
+ 
+         $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken', '127.0.0.1');
+ 
+-        AssertResponseHelper::assertResponseEquals(new RedirectResponse('https://example.com/download'), $response);
++        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
++        static::assertSame('text/csv', $response->headers->get('Content-Type'));
++        static::assertStringContainsString('products.csv', (string) $response->headers->get('Content-Disposition'));
+     }
+ 
+     /**
+@@ -385,24 +368,23 @@ class DownloadServiceTest extends TestCase
+     private function createDownloadService(
+         ?FilesystemOperator $fileSystem = null,
+         ?EntityRepository $fileRepository = null,
+-        ?LoggerInterface $logger = null,
+         string $localDownloadStrategy = self::DEFAULT_STRATEGY,
+         string $localPathPrefix = '',
+         ?RateLimiter $rateLimiter = null,
+     ): DownloadService {
+         $fileSystem ??= $this->createFileSystem();
+         $fileRepository ??= $this->createFileRepository();
+-        $logger ??= static::createStub(LoggerInterface::class);
+         $rateLimiter ??= static::createStub(RateLimiter::class);
+ 
+         return new DownloadService(
+             $fileSystem,
+             $fileRepository,
+-            $logger,
+             $localDownloadStrategy,
+             $rateLimiter,
+             $localPathPrefix,
+-            new NativeClock()
++            new NativeClock(),
++            new Psr17Factory(),
++            new PrivateFileDownloadResponseGenerator(),
+         );
+     }
+ 
+diff --git a/tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php b/tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php
+index 60a83d095a9..402860186f9 100644
+--- a/tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php
++++ b/tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php
+@@ -96,6 +96,27 @@ class MediaDownloadControllerTest extends TestCase
+         );
+     }
+ 
++    public function testPreparePrivateMediaDownloadReturnsBlobWithoutGeneratingResponse(): void
++    {
++        $mediaId = Uuid::randomHex();
++        $media = new MediaEntity();
++        $media->setId($mediaId);
++        $media->setPrivate(true);
++
++        $this->mediaRepository->addSearch(new MediaCollection([$media]));
++
++        $this->downloadResponseGenerator
++            ->expects($this->never())
++            ->method('getResponseByContext');
++
++        $response = $this->controller->prepareMediaDownload($mediaId, Context::createDefaultContext());
++
++        static::assertSame(
++            json_encode(['type' => 'blob'], \JSON_THROW_ON_ERROR),
++            $response->getContent()
++        );
++    }
++
+     public function testPrepareMediaDownloadSignalsBlobFallbackWhenGeneratorNeedsLocalResponse(): void
+     {
+         $mediaId = Uuid::randomHex();
+diff --git a/tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php b/tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php
+index 5549c5335d8..b6bbc931f11 100644
+--- a/tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php
++++ b/tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php
+@@ -13,6 +13,7 @@ use Psr\Http\Message\StreamInterface;
+ use Psr\Log\LoggerInterface;
+ use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
+ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
+ use Shopware\Core\Content\Media\MediaEntity;
+ use Shopware\Core\Content\Media\MediaException;
+ use Shopware\Core\Content\Media\MediaService;
+@@ -56,7 +57,8 @@ class DownloadResponseGeneratorTest extends TestCase
+             'php',
+             static::createStub(AbstractMediaUrlGenerator::class),
+             new NativeClock(),
+-            ''
++            '',
++            new PrivateFileDownloadResponseGenerator()
+         );
+ 
+         $this->salesChannelContext = static::createStub(SalesChannelContext::class);
+@@ -77,24 +79,27 @@ class DownloadResponseGeneratorTest extends TestCase
+             'php',
+             static::createStub(AbstractMediaUrlGenerator::class),
+             new NativeClock(),
+-            ''
++            '',
++            new PrivateFileDownloadResponseGenerator()
+         );
+ 
+-        $this->expectException(\RuntimeException::class);
++        $this->expectExceptionObject(MediaException::fileIsNotInstanceOfFileSystem());
+         $downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
+     }
+ 
+     public function testThrowsExceptionWithoutDetachableResource(): void
+     {
+-        $this->privateFilesystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('foo', 'baa'));
+-
+         $media = new MediaEntity();
+         $media->setId(Uuid::randomHex());
+         $media->setFileName('foobar');
+         $media->setPrivate(true);
+         $media->setPath('foobar.txt');
+ 
+-        $this->expectExceptionObject(MediaException::fileNotFound('foobar.'));
++        $stream = static::createStub(StreamInterface::class);
++        $stream->method('detach')->willReturn(null);
++        $this->mediaService->method('loadFileStream')->willReturn($stream);
++
++        $this->expectExceptionObject(MediaException::fileNotFound('foobar.txt'));
+         $this->downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
+     }
+ 
+@@ -122,11 +127,12 @@ class DownloadResponseGeneratorTest extends TestCase
+             $strategy ?? 'php',
+             $generator,
+             new NativeClock(),
+-            $privateLocalPathPrefix
++            $privateLocalPathPrefix,
++            new PrivateFileDownloadResponseGenerator()
+         );
+ 
+         $streamInterface = static::createStub(StreamInterface::class);
+-        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
++        $streamInterface->method('detach')->willReturn(fopen(__DIR__ . '/_fixtures/empty', 'r'));
+         $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
+ 
+         $response = $this->downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
+@@ -156,13 +162,13 @@ class DownloadResponseGeneratorTest extends TestCase
+ 
+     public static function filesystemProvider(): \Generator
+     {
+-        yield 'private / aws' => [true, 'external', new RedirectResponse('foobar.txt')];
++        yield 'private / aws' => [true, 'external', self::getExpectedStreamResponse()];
+         yield 'public / aws' => [false, 'external', new RedirectResponse('foobar.txt')];
+         yield 'private / local / php' => [true, 'local', self::getExpectedStreamResponse()];
+         yield 'private / local / x-sendfile' => [
+             true,
+             'local',
+-            self::getExpectedStreamResponse(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY),
++            self::getExpectedStreamResponse(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, locationPath: __DIR__ . '/_fixtures/empty'),
+             DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY,
+         ];
+         yield 'private / local / x-accel' => [
+@@ -181,7 +187,7 @@ class DownloadResponseGeneratorTest extends TestCase
+         yield 'public / local' => [false, 'local', new RedirectResponse('foobar.txt')];
+     }
+ 
+-    public function testGetResponseUsingAzureBlobStorageWithUnsupportedAuth(): void
++    public function testPublicGetResponseUsingAzureBlobStorageWithUnsupportedAuthFallsBackToGeneratedUrl(): void
+     {
+         $fileSystem = static::createStub(Filesystem::class);
+         $expectedException = new \Exception('UnableToGenerateSasException');
+@@ -198,7 +204,7 @@ class DownloadResponseGeneratorTest extends TestCase
+         $media->setId(Uuid::randomHex());
+         $media->setFileName('foobar');
+         $media->setFileExtension('txt');
+-        $media->setPrivate(true);
++        $media->setPrivate(false);
+         $media->setPath('foobar.txt');
+ 
+         $generator = static::createStub(AbstractMediaUrlGenerator::class);
+@@ -212,16 +218,13 @@ class DownloadResponseGeneratorTest extends TestCase
+             'php',
+             $generator,
+             new NativeClock(),
+-            ''
++            '',
++            new PrivateFileDownloadResponseGenerator()
+         );
+ 
+-        $streamInterface = static::createStub(StreamInterface::class);
+-        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
+-        $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
+-
+         $response = $downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
+ 
+-        AssertResponseHelper::assertResponseEquals(self::getExpectedStreamResponse(), $response);
++        AssertResponseHelper::assertResponseEquals(new RedirectResponse('foobar.txt'), $response);
+     }
+ 
+     /**
+@@ -243,7 +246,7 @@ class DownloadResponseGeneratorTest extends TestCase
+         return $fileSystem;
+     }
+ 
+-    private static function getExpectedStreamResponse(?string $strategy = null, string $privateLocalPathPrefix = ''): Response
++    private static function getExpectedStreamResponse(?string $strategy = null, string $privateLocalPathPrefix = '', ?string $locationPath = null): Response
+     {
+         $headers = [
+             'Content-Disposition' => HeaderUtils::makeDisposition(
+@@ -258,7 +261,7 @@ class DownloadResponseGeneratorTest extends TestCase
+         if ($strategy) {
+             $response = new Response(null, 200, $headers);
+ 
+-            $locationPath = 'foobar.txt';
++            $locationPath ??= 'foobar.txt';
+             if ($strategy === DownloadResponseGenerator::X_ACCEL_REDIRECT && $privateLocalPathPrefix !== '') {
+                 $locationPath = $privateLocalPathPrefix . '/foobar.txt';
+             }
+diff --git a/tests/unit/Core/Content/Media/File/PrivateFileDownloadResponseGeneratorTest.php b/tests/unit/Core/Content/Media/File/PrivateFileDownloadResponseGeneratorTest.php
+new file mode 100644
+index 00000000000..c6f0565b8c0
+--- /dev/null
++++ b/tests/unit/Core/Content/Media/File/PrivateFileDownloadResponseGeneratorTest.php
+@@ -0,0 +1,138 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Unit\Core\Content\Media\File;
++
++use Nyholm\Psr7\Factory\Psr17Factory;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\Attributes\DataProvider;
++use PHPUnit\Framework\TestCase;
++use Psr\Http\Message\StreamInterface;
++use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
++use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
++use Shopware\Core\Content\Media\MediaException;
++use Shopware\Core\Framework\Log\Package;
++use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\HttpFoundation\StreamedResponse;
++
++/**
++ * @internal
++ */
++#[Package('discovery')]
++#[CoversClass(PrivateFileDownloadResponseGenerator::class)]
++class PrivateFileDownloadResponseGeneratorTest extends TestCase
++{
++    public function testCreatesStreamedResponseFromTheProvidedStream(): void
++    {
++        $providerCalled = false;
++        $generator = new PrivateFileDownloadResponseGenerator();
++
++        $response = $generator->createResponse(
++            streamProvider: function () use (&$providerCalled): StreamInterface {
++                $providerCalled = true;
++
++                return (new Psr17Factory())->createStream('file contents');
++            },
++            headers: ['Content-Type' => 'text/plain'],
++            downloadStrategy: 'php',
++            path: 'private/file.txt',
++        );
++
++        static::assertInstanceOf(StreamedResponse::class, $response);
++        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
++        static::assertTrue($providerCalled);
++    }
++
++    public function testCreatesXAccelResponseWithoutOpeningTheFile(): void
++    {
++        $providerCalled = false;
++        $generator = new PrivateFileDownloadResponseGenerator();
++
++        $response = $generator->createResponse(
++            streamProvider: function () use (&$providerCalled): StreamInterface {
++                $providerCalled = true;
++
++                return (new Psr17Factory())->createStream('file contents');
++            },
++            headers: ['Content-Type' => 'text/plain'],
++            downloadStrategy: DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY,
++            path: 'private/file.txt',
++            pathPrefix: '/protected',
++        );
++
++        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
++        static::assertSame('/protected/private/file.txt', $response->headers->get(DownloadResponseGenerator::X_ACCEL_REDIRECT));
++        static::assertFalse($providerCalled);
++    }
++
++    public function testCreatesXSendfileResponseFromTheProvidedStream(): void
++    {
++        $providerCalled = false;
++        $generator = new PrivateFileDownloadResponseGenerator();
++        $resource = fopen(__DIR__ . '/_fixtures/empty', 'r');
++        static::assertIsResource($resource);
++
++        $response = $generator->createResponse(
++            streamProvider: function () use (&$providerCalled, $resource): StreamInterface {
++                $providerCalled = true;
++
++                return (new Psr17Factory())->createStreamFromResource($resource);
++            },
++            headers: ['Content-Type' => 'text/plain'],
++            downloadStrategy: DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY,
++            path: 'private/file.txt',
++        );
++
++        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
++        static::assertSame(__DIR__ . '/_fixtures/empty', $response->headers->get(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY));
++        static::assertTrue($providerCalled);
++    }
++
++    #[DataProvider('nonLocalStreamProvider')]
++    public function testXSendfileFallsBackToStreamingForNonLocalStreams(string $uri): void
++    {
++        $resource = fopen($uri, 'w+b');
++        static::assertIsResource($resource);
++        fwrite($resource, 'file contents');
++        rewind($resource);
++
++        $response = (new PrivateFileDownloadResponseGenerator())->createResponse(
++            streamProvider: static fn (): StreamInterface => (new Psr17Factory())->createStreamFromResource($resource),
++            headers: ['Content-Type' => 'text/plain', 'Content-Length' => '13'],
++            downloadStrategy: DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY,
++            path: 'private/file.txt',
++        );
++
++        static::assertInstanceOf(StreamedResponse::class, $response);
++        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
++        static::assertFalse($response->headers->has(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY));
++        static::assertSame('text/plain', $response->headers->get('Content-Type'));
++        static::assertSame('13', $response->headers->get('Content-Length'));
++        $this->expectOutputString('file contents');
++        $response->sendContent();
++    }
++
++    /**
++     * @return iterable<string, array{string}>
++     */
++    public static function nonLocalStreamProvider(): iterable
++    {
++        yield 'temporary stream used by S3' => ['php://temp'];
++        yield 'memory stream' => ['php://memory'];
++    }
++
++    public function testThrowsFileNotFoundWhenTheProvidedStreamCannotBeDetached(): void
++    {
++        $generator = new PrivateFileDownloadResponseGenerator();
++        $stream = static::createStub(StreamInterface::class);
++        $stream->method('detach')->willReturn(null);
++
++        $this->expectExceptionObject(MediaException::fileNotFound('private/file.txt'));
++
++        $generator->createResponse(
++            streamProvider: static fn (): StreamInterface => $stream,
++            headers: ['Content-Type' => 'text/plain'],
++            downloadStrategy: 'php',
++            path: 'private/file.txt',
++        );
++    }
++}

@@ -5,12 +5,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -58,7 +57,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ExceptionHandlerRegistry $exceptionHandlerRegistry,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly RowLoader $rowLoader,
     ) {
     }
 
@@ -108,21 +108,39 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     {
         $beforeWriteEvent = EntityWriteEvent::create($context, $commands);
 
-        $this->eventDispatcher->dispatch($beforeWriteEvent);
-
         try {
-            RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+            $this->eventDispatcher->dispatch($beforeWriteEvent);
+            $firstAttempt = true;
+
+            RetryableWriteTransaction::retryable($this->connection, function () use ($commands, $context, &$firstAttempt): void {
+                if (!$firstAttempt) {
+                    $context->resetExceptions();
+                }
+
+                $firstAttempt = false;
                 $this->executeCommands($commands, $context);
             });
 
+            // An outer transaction must not replay callbacks if they or its commit fail.
+            RetryableWriteTransaction::preventRetries($this->connection);
             $beforeWriteEvent->success();
         } catch (\Throwable $e) {
-            $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
-            $this->eventDispatcher->dispatch($event);
-
-            $beforeWriteEvent->error();
-
-            throw $e;
+            $callbacksCompleted = false;
+            try {
+                try {
+                    $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
+                    $this->eventDispatcher->dispatch($event);
+                } finally {
+                    $beforeWriteEvent->error();
+                }
+                $callbacksCompleted = true;
+            } finally {
+                if (!$callbacksCompleted) {
+                    RetryableWriteTransaction::preventRetries($this->connection);
+                }
+                // Keep the write failure primary; PHP chains a pending callback failure when rethrowing here.
+                throw $e;
+            }
         }
     }
 
@@ -231,6 +249,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $mappings->execute();
             $inserts->execute();
+            if ($entityDeleteEvent->filled()) {
+                RetryableWriteTransaction::preventRetries($this->connection);
+            }
             $entityDeleteEvent->success();
         } catch (Exception $e) {
             $innerException = $this->exceptionHandlerRegistry->matchException($e);
@@ -239,9 +260,16 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
             $context->getExceptions()->add($e);
 
-            $entityDeleteEvent->error();
-
-            throw $e;
+            $callbacksCompleted = false;
+            try {
+                $entityDeleteEvent->error();
+                $callbacksCompleted = true;
+            } finally {
+                if (!$callbacksCompleted) {
+                    RetryableWriteTransaction::preventRetries($this->connection);
+                }
+                throw $e;
+            }
         }
 
         // throws exception on violation and then aborts/rollbacks this transaction
@@ -507,14 +535,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $states = [];
         foreach ($primaryKeys as $entity => $ids) {
-            $query = $this->connection->createQueryBuilder();
-
-            $query->addSelect('*');
-            $query->from(EntityDefinitionQueryHelper::escape($entity));
-
-            $this->addPrimaryCondition($query, $ids);
-
-            $states[$entity] = $query->executeQuery()->fetchAllAssociative();
+            $states[$entity] = $this->rowLoader->load($entity, $ids);
         }
 
         foreach ($commands as $command) {
@@ -532,29 +553,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $this->calculateChangeSet($command, $states[$entity])
             );
         }
-    }
-
-    /**
-     * @param list<array<string, string>> $primaryKeys
-     */
-    private function addPrimaryCondition(DbalQueryBuilderAlias $query, array $primaryKeys): void
-    {
-        $all = [];
-        $i = 0;
-        foreach ($primaryKeys as $primaryKey) {
-            $where = [];
-
-            foreach ($primaryKey as $field => $value) {
-                ++$i;
-                $field = EntityDefinitionQueryHelper::escape($field);
-                $where[] = $field . ' = :param' . $i;
-                $query->setParameter('param' . $i, $value);
-            }
-
-            $all[] = implode(' AND ', $where);
-        }
-
-        $query->andWhere(implode(' OR ', $all));
     }
 
     /**

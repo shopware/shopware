@@ -70,6 +70,16 @@
     font-weight: $font-weight-bold;
 }
 
+.order-table-header-context-menu-content {
+    width: max-content;
+    min-width: min(10rem, 100vw - 2rem);
+    max-width: calc(100vw - 2rem);
+
+    .dropdown-item {
+        white-space: normal;
+    }
+}
+
 .order-table-header-context-menu-wrapper {
     position: absolute;
     top: $spacer-sm;

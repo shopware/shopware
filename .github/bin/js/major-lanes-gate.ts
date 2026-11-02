@@ -18,6 +18,7 @@ import { pullRequestNumbersInMergeGroup } from './milestone-label.ts';
 export const LANES = [
     { check: 'integration-major-check', labels: ['major-php', 'major-js', 'major-tests'] },
     { check: 'acceptance-major / acceptance-major-check', labels: ['major-acceptance', 'major-tests'] },
+    { check: 'downstream-major-check', labels: ['major-tests'] },
 ] as const;
 
 export type CheckRun = {

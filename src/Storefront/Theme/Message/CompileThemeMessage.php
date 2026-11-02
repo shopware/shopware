@@ -19,7 +19,8 @@ class CompileThemeMessage implements AsyncMessageInterface
         private readonly string $themeId,
         private readonly bool $withAssets,
         private readonly Context $context,
-        private readonly bool $assign = false
+        private readonly bool $assign = false,
+        private readonly bool $notifyOnCompletion = true
     ) {
     }
 
@@ -49,5 +50,13 @@ class CompileThemeMessage implements AsyncMessageInterface
     public function isAssign(): bool
     {
         return $this->assign;
+    }
+
+    /**
+     * Whether to notify the user once compiled. Only the last message of a batch does, so the user is notified once.
+     */
+    public function isNotifyOnCompletion(): bool
+    {
+        return $this->notifyOnCompletion;
     }
 }

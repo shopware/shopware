@@ -188,7 +188,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
-        ->set('shopware.app_dir', '%kernel.project_dir%/custom/apps');
+        ->set('shopware.app_dir', '%kernel.project_dir%/custom/apps')
+        ->set('env(APP_URL_CHECK_DISABLED)', 'false');
 
     $services = $containerConfigurator->services();
 
@@ -501,6 +502,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
             service(ClockInterface::class),
             service('logger'),
+            service(AppUrlVerifier::class),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -867,6 +869,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppManager::class),
             service(ShopIdProvider::class),
             service('logger'),
+            service(AppUrlVerifier::class),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => -100]);
 
@@ -876,6 +879,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppManager::class),
             service(ShopIdProvider::class),
             service('logger'),
+            service(AppUrlVerifier::class),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => 100]);
 
@@ -1079,17 +1083,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('kernel.environment'),
             param('kernel.shopware_version'),
-            service('cache.app'),
+            service('cache.app_url_verification'),
             service(HttpClientInterface::class),
             service('lock.factory'),
             service('logger'),
             service(ClockInterface::class),
-        ]);
+            env('APP_URL'),
+            env('APP_URL_CHECK_DISABLED')->bool(),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
-    $services->set(AppUrlVerificationPrinter::class)
-        ->args([
-            service(ShopIdProvider::class),
-        ]);
+    $services->set(AppUrlVerificationPrinter::class);
 
     $services->set(AppUrlVerificationStatusCommand::class)
         ->args([

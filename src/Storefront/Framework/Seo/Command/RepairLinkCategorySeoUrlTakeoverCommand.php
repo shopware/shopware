@@ -38,6 +38,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
           <info>bin/console seo:repair:link-category-takeover</info>
 
         A category whose SEO URL was set manually can appear in the list as well.
+        The "Likely cause" column guesses whether the indexing locked the URL or it was set manually.
         Repair asks for each listed category whether it should get its URL back from the link category:
 
           <info>bin/console seo:repair:link-category-takeover --apply</info>
@@ -91,7 +92,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
         }
 
         $io->table(
-            ['Category', 'Name', 'Locked URL', 'Created', 'URL held by link category', 'Created'],
+            ['Category', 'Name', 'Locked URL', 'Created', 'URL held by link category', 'Created', 'Likely cause'],
             array_map(static fn (array $category): array => [
                 $category['id'],
                 $category['names'],
@@ -99,6 +100,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 $category['lockedUrlCreatedAt'],
                 $category['linkUrls'],
                 $category['linkUrlCreatedAt'],
+                $category['likelyCause'],
             ], $categories),
         );
 
@@ -146,9 +148,9 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
     }
 
     /**
-     * @param list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected
+     * @param list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string, caused_by_indexing: string}> $affected
      *
-     * @return list<array{id: string, names: string, lockedUrls: string, lockedUrlCreatedAt: string, linkUrls: string, linkUrlCreatedAt: string, lockedUrlIds: list<string>}>
+     * @return list<array{id: string, names: string, lockedUrls: string, lockedUrlCreatedAt: string, linkUrls: string, linkUrlCreatedAt: string, lockedUrlIds: list<string>, likelyCause: string}>
      */
     private function groupByCategory(array $affected): array
     {
@@ -159,6 +161,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
 
         $categories = [];
         foreach ($rowsByCategory as $categoryId => $rows) {
+            $causes = array_values(array_unique(array_column($rows, 'caused_by_indexing')));
             $categories[] = [
                 'id' => (string) $categoryId,
                 'names' => implode(', ', array_unique(array_column($rows, 'name'))),
@@ -167,6 +170,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 'linkUrls' => implode(', ', array_unique(array_column($rows, 'link_url'))),
                 'linkUrlCreatedAt' => min(array_column($rows, 'link_url_created_at')),
                 'lockedUrlIds' => array_column($rows, 'locked_url_id'),
+                'likelyCause' => \count($causes) > 1 ? 'mixed' : ($causes[0] === '1' ? 'indexing' : 'manual'),
             ];
         }
 
@@ -176,11 +180,13 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
     /**
      * @param list<string> $categoryIds
      *
-     * @return list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}>
+     * @return list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string, caused_by_indexing: string}>
      */
     private function findAffected(array $categoryIds): array
     {
         // like the DAL, fall back to the system language translation
+        // the indexing locks the oldest URL of the target that is still in use, and the link takes over a newer one,
+        // while a manual change creates a new URL
         $query = $this->connection->createQueryBuilder()
             ->select(
                 'LOWER(HEX(target.id)) AS category_id',
@@ -190,6 +196,12 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 'target_url.created_at AS locked_url_created_at',
                 'link_url.seo_path_info AS link_url',
                 'link_url.created_at AS link_url_created_at',
+                'target_url.created_at < link_url.created_at AND NOT EXISTS (
+                    SELECT 1 FROM seo_url older_url
+                    WHERE older_url.foreign_key = target_url.foreign_key AND older_url.language_id = target_url.language_id
+                      AND older_url.sales_channel_id = target_url.sales_channel_id AND older_url.route_name = target_url.route_name
+                      AND older_url.is_deleted = 0 AND older_url.created_at < target_url.created_at
+                ) AS caused_by_indexing',
             )
             ->from('seo_url', 'link_url')
             ->innerJoin('link_url', 'category', 'link', 'link.id = link_url.foreign_key AND link.version_id = :versionId AND link.type = :linkType')
@@ -214,7 +226,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
                 ->setParameter('categoryIds', Uuid::fromHexToBytesList($categoryIds), ArrayParameterType::BINARY);
         }
 
-        /** @var list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected */
+        /** @var list<array{category_id: string, name: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string, caused_by_indexing: string}> $affected */
         $affected = $query->executeQuery()->fetchAllAssociative();
 
         return $affected;

@@ -76,6 +76,28 @@ class RepairLinkCategorySeoUrlTakeoverCommandTest extends TestCase
         static::assertSame(['Old-Guide/' => '1'], $this->getCanonicalSeoPaths($targetId));
     }
 
+    public function testGuessesThatTheIndexingLockedTheOldestUrl(): void
+    {
+        $this->createTakenOverTarget('Guide');
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
+
+        static::assertMatchesRegularExpression('/Guide\/ +\S+ \S+ +indexing/', $this->commandTester->getDisplay());
+    }
+
+    public function testGuessesThatANewerLockedUrlWasSetManually(): void
+    {
+        $targetId = $this->createTakenOverTarget('Guide');
+        $this->connection->executeStatement(
+            'UPDATE seo_url SET seo_path_info = :path, created_at = :createdAt WHERE foreign_key = :targetId AND is_canonical = 1',
+            ['path' => 'Huong-dan/', 'createdAt' => '2026-01-01 00:00:00.000', 'targetId' => Uuid::fromHexToBytes($targetId)]
+        );
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
+
+        static::assertMatchesRegularExpression('/Guide\/ +\S+ \S+ +manual/', $this->commandTester->getDisplay());
+    }
+
     public function testApplyGivesTheTargetItsSeoUrlBackWhenConfirmed(): void
     {
         $targetId = $this->createTakenOverTarget('Guide');
@@ -158,20 +180,22 @@ class RepairLinkCategorySeoUrlTakeoverCommandTest extends TestCase
         ]);
 
         $this->connection->executeStatement(
-            'UPDATE seo_url SET foreign_key = :linkId WHERE foreign_key = :targetId AND sales_channel_id = :salesChannelId AND seo_path_info = :path',
+            'UPDATE seo_url SET foreign_key = :linkId, created_at = :createdAt WHERE foreign_key = :targetId AND sales_channel_id = :salesChannelId AND seo_path_info = :path',
             [
                 'linkId' => Uuid::fromHexToBytes($linkId),
+                'createdAt' => '2025-06-01 00:00:00.000',
                 'targetId' => Uuid::fromHexToBytes($targetId),
                 'salesChannelId' => Uuid::fromHexToBytes($this->salesChannelId),
                 'path' => $name . '/',
             ]
         );
         $this->connection->executeStatement(
-            'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE foreign_key = :targetId AND sales_channel_id = :salesChannelId AND seo_path_info = :path',
+            'UPDATE seo_url SET is_canonical = 1, is_modified = 1, created_at = :createdAt WHERE foreign_key = :targetId AND sales_channel_id = :salesChannelId AND seo_path_info = :path',
             [
                 'targetId' => Uuid::fromHexToBytes($targetId),
                 'salesChannelId' => Uuid::fromHexToBytes($this->salesChannelId),
                 'path' => 'Old-' . $name . '/',
+                'createdAt' => '2025-01-01 00:00:00.000',
             ]
         );
 

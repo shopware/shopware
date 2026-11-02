@@ -713,6 +713,7 @@ bin/console seo:repair:link-category-takeover
 ```
 
 A category whose SEO URL was set manually can appear in the list as well.
+The "Likely cause" column guesses whether the indexing locked the URL (`indexing`) or it was set manually (`manual`).
 With `--apply`, the command asks for each listed category whether it should get its URL back:
 
 ```bash

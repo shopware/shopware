@@ -1,4 +1,4 @@
-import { createDeliveryStateGetter } from './order-list.harness';
+import { createDeliveryState, showDeliveryStates } from './order-list.harness';
 
 /**
  * @sw-package checkout
@@ -7,17 +7,15 @@ import { createDeliveryStateGetter } from './order-list.harness';
 describe('sw-order-list', () => {
     it('shows the state of the primary delivery', async () => {
         // ARRANGE
-        const getDeliveryState = await createDeliveryStateGetter();
-        const primary = { name: 'Shipped' };
         const order = {
-            primaryOrderDelivery: { stateMachineState: primary },
-            deliveries: [{ id: 'other', stateMachineState: { name: 'Open' } }],
+            primaryOrderDelivery: { stateMachineState: createDeliveryState('Shipped') },
+            deliveries: [{ id: 'other', stateMachineState: createDeliveryState('Open') }],
         };
 
         // ACT
-        const shown = getDeliveryState(order);
+        const shown = await showDeliveryStates([order]);
 
         // ASSERT
-        expect(shown).toBe(primary);
+        expect(shown).toEqual(['Shipped']);
     });
 });

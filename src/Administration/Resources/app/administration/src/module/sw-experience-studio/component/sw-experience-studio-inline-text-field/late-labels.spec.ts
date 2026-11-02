@@ -93,6 +93,10 @@ describe('Experience Studio inline mapping labels', () => {
         expect(editor.state.selection.to).toBe(selection.to);
         expect(wrapper.emitted('update:value')?.length ?? 0).toBe(updates);
         expect(wrapper.find('.mt-text-editor__gate').exists()).toBe(false);
+        const [insertButton] = wrapper.findComponent({ name: 'mt-text-editor' }).props('customButtons') as {
+            disabled: (editor: TextEditor, globalDisabled: boolean) => boolean;
+        }[];
+        expect(insertButton.disabled(editor, false)).toBe(false);
 
         await wrapper.setProps({ candidates: [] });
         await flushPromises();
@@ -100,6 +104,13 @@ describe('Experience Studio inline mapping labels', () => {
         expect(chip.text()).toBe('product.name');
         expect(editor.getHTML()).toBe(html);
         expect(wrapper.emitted('update:value')?.length ?? 0).toBe(updates);
+        expect(insertButton.disabled(editor, false)).toBe(true);
+
+        editor.commands.insertContent(' more');
+        await flushPromises();
+        const values = wrapper.emitted('update:value')!;
+        expect(values[values.length - 1][0]).toContain('{{map:product.name}}');
+        expect(values[values.length - 1][0]).toContain(' more');
 
         editor.commands.deleteRange({ from: 1, to: 2 });
         await flushPromises();

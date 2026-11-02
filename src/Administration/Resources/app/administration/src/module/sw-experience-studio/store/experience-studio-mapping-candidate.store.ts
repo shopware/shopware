@@ -48,19 +48,11 @@ const experienceStudioMappingCandidateStore = Shopware.Store.register({
 
             try {
                 const service = Shopware.Service('contentSystemMappingCandidateService');
-                const candidates = await service.getMappingCandidates();
-                const nextMap: Record<string, ContentSystemMappingCandidate[]> = {};
-
-                for (const [
-                    rootSource,
-                    rootSourceCandidates,
-                ] of Object.entries(candidates)) {
-                    nextMap[rootSource] = Array.isArray(rootSourceCandidates) ? rootSourceCandidates : [];
-                }
-
-                this.candidatesByRootSource = nextMap;
+                this.candidatesByRootSource = await service.getMappingCandidates();
                 this.hasLoaded = true;
             } catch (error) {
+                this.candidatesByRootSource = {};
+                this.hasLoaded = false;
                 this.loadError = (error as Error)?.message ?? 'Failed to load content system mapping candidates.';
             } finally {
                 this.isLoading = false;

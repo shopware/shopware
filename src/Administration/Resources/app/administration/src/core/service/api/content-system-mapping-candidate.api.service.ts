@@ -80,10 +80,15 @@ class ContentSystemMappingCandidateApiService extends ApiService {
             })
             .then((response) => {
                 const payload = ApiService.handleResponse<ContentSystemMappingCandidateResponse>(response);
-                const candidates = payload.mappingCandidates;
+                const candidates = payload?.mappingCandidates;
 
-                if (typeof candidates !== 'object' || candidates === null || Array.isArray(candidates)) {
-                    return {};
+                if (
+                    typeof candidates !== 'object' ||
+                    candidates === null ||
+                    Array.isArray(candidates) ||
+                    Object.values(candidates).some((entries) => !Array.isArray(entries))
+                ) {
+                    throw new Error('Invalid mapping candidate catalogue response.');
                 }
 
                 return candidates;

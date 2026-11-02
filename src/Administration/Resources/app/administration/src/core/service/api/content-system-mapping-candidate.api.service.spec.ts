@@ -46,14 +46,55 @@ describe('contentSystemMappingCandidateService', () => {
         await expect(service.getMappingCandidates()).resolves.toEqual(candidates);
     });
 
-    it('returns an empty catalogue when the response shape is invalid', async () => {
+    it.each([
+        [
+            'missing catalogue',
+            {},
+        ],
+        [
+            'null response',
+            null,
+        ],
+        [
+            'null catalogue',
+            { mappingCandidates: null },
+        ],
+        [
+            'array catalogue',
+            { mappingCandidates: [] },
+        ],
+        [
+            'string catalogue',
+            { mappingCandidates: 'invalid' },
+        ],
+        [
+            'object instead of a root list',
+            { mappingCandidates: { category: {} } },
+        ],
+        [
+            'null instead of a root list',
+            { mappingCandidates: { category: null } },
+        ],
+        [
+            'one broken root beside a valid root',
+            { mappingCandidates: { category: [], product: {} } },
+        ],
+    ])('rejects a %s instead of presenting an empty catalogue', async (_name, payload) => {
         const { service, clientMock } = createService();
 
-        clientMock.onGet('/_info/content-system-mapping-candidates.json').reply(200, {
-            mappingCandidates: [],
-        });
+        clientMock.onGet('/_info/content-system-mapping-candidates.json').reply(200, payload);
 
-        await expect(service.getMappingCandidates()).resolves.toEqual({});
+        await expect(service.getMappingCandidates()).rejects.toThrow('Invalid mapping candidate catalogue response.');
+    });
+
+    it.each([
+        {},
+        { category: [] },
+    ])('accepts a valid empty catalogue %j', async (mappingCandidates) => {
+        const { service, clientMock } = createService();
+        clientMock.onGet('/_info/content-system-mapping-candidates.json').reply(200, { mappingCandidates });
+
+        await expect(service.getMappingCandidates()).resolves.toEqual(mappingCandidates);
     });
 
     it('returns valid and malformed token spans with their revision and canonical nullability', async () => {

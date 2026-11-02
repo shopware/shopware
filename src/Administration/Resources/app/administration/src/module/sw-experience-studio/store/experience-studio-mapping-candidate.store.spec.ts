@@ -92,4 +92,45 @@ describe('src/module/sw-experience-studio/store/experience-studio-mapping-candid
         expect(store.hasLoaded).toBe(true);
         expect(store.loadError).toBeNull();
     });
+
+    it('clears stale choices after a failed refresh and allows an ordinary retry', async () => {
+        const getMappingCandidates = jest
+            .fn()
+            .mockResolvedValueOnce({ category: [candidate] })
+            .mockRejectedValueOnce(new Error('catalogue unavailable'))
+            .mockResolvedValueOnce({ category: [candidate] });
+        jest.spyOn(Shopware, 'Service').mockReturnValue({ getMappingCandidates } as never);
+        const store = getStore();
+        await store.loadMappingCandidates();
+        expect(store.getByRootSource('category')).toEqual([candidate]);
+
+        await store.loadMappingCandidates(true);
+
+        expect(store.getByRootSource('category')).toEqual([]);
+        expect(store.candidatesByRootSource).toEqual({});
+        expect(store.loadError).toBe('catalogue unavailable');
+        expect(store.hasLoaded).toBe(false);
+        expect(store.isLoading).toBe(false);
+
+        await store.loadMappingCandidates();
+
+        expect(getMappingCandidates).toHaveBeenCalledTimes(3);
+        expect(store.getByRootSource('category')).toEqual([candidate]);
+        expect(store.hasLoaded).toBe(true);
+        expect(store.loadError).toBeNull();
+    });
+
+    it('treats an empty valid catalogue as a successful cached load', async () => {
+        const getMappingCandidates = jest.fn().mockResolvedValue({});
+        jest.spyOn(Shopware, 'Service').mockReturnValue({ getMappingCandidates } as never);
+        const store = getStore();
+
+        await store.loadMappingCandidates();
+        await store.loadMappingCandidates();
+
+        expect(store.candidatesByRootSource).toEqual({});
+        expect(store.hasLoaded).toBe(true);
+        expect(store.loadError).toBeNull();
+        expect(getMappingCandidates).toHaveBeenCalledTimes(1);
+    });
 });

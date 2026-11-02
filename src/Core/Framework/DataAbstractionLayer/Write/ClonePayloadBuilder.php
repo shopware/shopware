@@ -462,12 +462,10 @@ final class ClonePayloadBuilder
             }
 
             if ($field instanceof OneToManyAssociationField) {
-                $items = [];
-                foreach ($value as $key => $item) {
-                    $items[$key] = \is_array($item) ? $this->remapForeignKeys($field->getReferenceDefinition(), $item, $clonedIds) : $item;
-                }
-
-                $payload[$property] = $items;
+                $payload[$property] = array_map(
+                    fn (array $item): array => $this->remapForeignKeys($field->getReferenceDefinition(), $item, $clonedIds),
+                    array_filter($value, \is_array(...))
+                );
 
                 continue;
             }
@@ -507,11 +505,7 @@ final class ClonePayloadBuilder
             }
 
             $reference = $field->getReferenceDefinition();
-            foreach ($field instanceof OneToOneAssociationField ? [$value] : $value as $item) {
-                if (!\is_array($item)) {
-                    continue;
-                }
-
+            foreach (array_filter($field instanceof OneToOneAssociationField ? [$value] : $value, \is_array(...)) as $item) {
                 if (\is_string($item['id'] ?? null)) {
                     $nestedIds[$reference->getEntityName()][$item['id']] = true;
                 }

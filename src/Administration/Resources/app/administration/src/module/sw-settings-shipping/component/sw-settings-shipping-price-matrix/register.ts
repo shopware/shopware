@@ -1,7 +1,8 @@
-import SwSettingsShippingPriceMatrix from './index';
+import Component, * as Module from './index';
 
 /**
  * @sw-package checkout
  */
 
-Shopware.Component.register(SwSettingsShippingPriceMatrix);
+Shopware.Component.register(Component);
+Shopware._private.publishMiniModule('sw-settings-shipping-price-matrix', Module);

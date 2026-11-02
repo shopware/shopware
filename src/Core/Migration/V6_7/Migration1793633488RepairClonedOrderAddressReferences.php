@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -19,6 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class Migration1793633488RepairClonedOrderAddressReferences extends MigrationStep
 {
+    public const BATCH_SIZE = 1000;
+
     /**
      * Every column that makes up what an order address shows; ids, the order reference and timestamps are left out
      */
@@ -49,69 +52,79 @@ class Migration1793633488RepairClonedOrderAddressReferences extends MigrationSte
     public function update(Connection $connection): void
     {
         $sameContent = $this->sameContentCondition($connection);
+
+        $this->repair($connection, $sameContent, 'order_delivery', 'shipping_order_address_id', 'shipping_order_address_version_id', 'order_id', 'order_version_id');
+        $this->repair($connection, $sameContent, 'order', 'billing_address_id', 'billing_address_version_id', 'id', 'version_id');
+    }
+
+    /**
+     * Walks the live rows of the table in batches and points each address reference to another order to the identical address of the own order
+     */
+    private function repair(
+        Connection $connection,
+        string $sameContent,
+        string $table,
+        string $addressColumn,
+        string $addressVersionColumn,
+        string $orderColumn,
+        string $orderVersionColumn,
+    ): void {
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $lastId = '';
 
-        $deliveries = $connection->fetchAllAssociative(
-            'SELECT `delivery`.`id`, `delivery`.`shipping_order_address_id` AS `referenced_id`, (
-                SELECT `own`.`id` FROM `order_address` `own`
-                WHERE `own`.`order_id` = `delivery`.`order_id`
-                    AND `own`.`order_version_id` = `delivery`.`order_version_id`
-                    AND `own`.`version_id` = :live
-                    AND ' . $sameContent . '
-                ORDER BY `own`.`id`
-                LIMIT 1
-            ) AS `own_id`
-            FROM `order_delivery` `delivery`
-            INNER JOIN `order_address` `referenced`
-                ON `referenced`.`id` = `delivery`.`shipping_order_address_id`
-                AND `referenced`.`version_id` = `delivery`.`shipping_order_address_version_id`
-            WHERE `delivery`.`version_id` = :live
-                AND `referenced`.`order_id` <> `delivery`.`order_id`',
-            ['live' => $liveVersion]
-        );
+        do {
+            /** @var list<string> $ids */
+            $ids = $connection->fetchFirstColumn(
+                \sprintf('SELECT `id` FROM `%s` WHERE `version_id` = :live AND `id` > :lastId ORDER BY `id` LIMIT %d', $table, self::BATCH_SIZE),
+                ['live' => $liveVersion, 'lastId' => $lastId]
+            );
 
-        foreach ($deliveries as $delivery) {
-            if ($delivery['own_id'] === null) {
-                continue;
+            if ($ids === []) {
+                return;
             }
 
-            $connection->executeStatement(
-                'UPDATE `order_delivery` SET `shipping_order_address_id` = :own
-                WHERE `id` = :id AND `version_id` = :live AND `shipping_order_address_id` = :referenced',
-                ['own' => $delivery['own_id'], 'id' => $delivery['id'], 'live' => $liveVersion, 'referenced' => $delivery['referenced_id']]
+            $lastId = $ids[\count($ids) - 1];
+
+            $references = $connection->fetchAllAssociative(
+                \sprintf(
+                    'SELECT `referencing`.`id`, `referencing`.`%1$s` AS `referenced_id`, (
+                        SELECT `own`.`id` FROM `order_address` `own`
+                        WHERE `own`.`order_id` = `referencing`.`%3$s`
+                            AND `own`.`order_version_id` = `referencing`.`%4$s`
+                            AND `own`.`version_id` = :live
+                            AND %5$s
+                        ORDER BY `own`.`id`
+                        LIMIT 1
+                    ) AS `own_id`
+                    FROM `%6$s` `referencing`
+                    INNER JOIN `order_address` `referenced`
+                        ON `referenced`.`id` = `referencing`.`%1$s`
+                        AND `referenced`.`version_id` = `referencing`.`%2$s`
+                    WHERE `referencing`.`id` IN (:ids)
+                        AND `referencing`.`version_id` = :live
+                        AND `referenced`.`order_id` <> `referencing`.`%3$s`',
+                    $addressColumn,
+                    $addressVersionColumn,
+                    $orderColumn,
+                    $orderVersionColumn,
+                    $sameContent,
+                    $table
+                ),
+                ['ids' => $ids, 'live' => $liveVersion],
+                ['ids' => ArrayParameterType::BINARY]
             );
-        }
 
-        $orders = $connection->fetchAllAssociative(
-            'SELECT `order`.`id`, `order`.`billing_address_id` AS `referenced_id`, (
-                SELECT `own`.`id` FROM `order_address` `own`
-                WHERE `own`.`order_id` = `order`.`id`
-                    AND `own`.`order_version_id` = `order`.`version_id`
-                    AND `own`.`version_id` = :live
-                    AND ' . $sameContent . '
-                ORDER BY `own`.`id`
-                LIMIT 1
-            ) AS `own_id`
-            FROM `order`
-            INNER JOIN `order_address` `referenced`
-                ON `referenced`.`id` = `order`.`billing_address_id`
-                AND `referenced`.`version_id` = `order`.`billing_address_version_id`
-            WHERE `order`.`version_id` = :live
-                AND `referenced`.`order_id` <> `order`.`id`',
-            ['live' => $liveVersion]
-        );
+            foreach ($references as $reference) {
+                if ($reference['own_id'] === null) {
+                    continue;
+                }
 
-        foreach ($orders as $order) {
-            if ($order['own_id'] === null) {
-                continue;
+                $connection->executeStatement(
+                    \sprintf('UPDATE `%1$s` SET `%2$s` = :own WHERE `id` = :id AND `version_id` = :live AND `%2$s` = :referenced', $table, $addressColumn),
+                    ['own' => $reference['own_id'], 'id' => $reference['id'], 'live' => $liveVersion, 'referenced' => $reference['referenced_id']]
+                );
             }
-
-            $connection->executeStatement(
-                'UPDATE `order` SET `billing_address_id` = :own
-                WHERE `id` = :id AND `version_id` = :live AND `billing_address_id` = :referenced',
-                ['own' => $order['own_id'], 'id' => $order['id'], 'live' => $liveVersion, 'referenced' => $order['referenced_id']]
-            );
-        }
+        } while (\count($ids) === self::BATCH_SIZE);
     }
 
     /**

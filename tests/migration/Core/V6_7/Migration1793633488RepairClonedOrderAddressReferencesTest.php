@@ -61,6 +61,24 @@ class Migration1793633488RepairClonedOrderAddressReferencesTest extends TestCase
         static::assertSame($sourceAddress, $this->fetchBillingAddress($source));
     }
 
+    public function testCopyBeyondTheFirstBatchIsRepaired(): void
+    {
+        $source = $this->insertOrder();
+        $sourceAddress = $this->insertAddress($source, 'Main Street 1');
+        for ($i = 0; $i < Migration1793633488RepairClonedOrderAddressReferences::BATCH_SIZE; ++$i) {
+            $this->insertDelivery($source, $sourceAddress);
+        }
+
+        $copy = $this->insertOrder();
+        $copyAddress = $this->insertAddress($copy, 'Main Street 1');
+        // the highest id puts the delivery into the second batch
+        $copyDelivery = $this->insertDelivery($copy, $sourceAddress, Uuid::fromHexToBytes(str_repeat('f', 32)));
+
+        $this->migrate();
+
+        static::assertSame($copyAddress, $this->fetchShippingAddress($copyDelivery));
+    }
+
     public function testCopyWithAnEditedAddressIsLeftAsItIs(): void
     {
         $source = $this->insertOrder();
@@ -161,9 +179,9 @@ class Migration1793633488RepairClonedOrderAddressReferencesTest extends TestCase
         $this->connection->update('`order`', ['billing_address_id' => $addressId], ['id' => $orderId]);
     }
 
-    private function insertDelivery(string $orderId, string $addressId): string
+    private function insertDelivery(string $orderId, string $addressId, ?string $id = null): string
     {
-        $id = Uuid::randomBytes();
+        $id ??= Uuid::randomBytes();
 
         $shippingMethodId = $this->connection->fetchOne('SELECT id FROM shipping_method LIMIT 1');
         static::assertIsString($shippingMethodId);

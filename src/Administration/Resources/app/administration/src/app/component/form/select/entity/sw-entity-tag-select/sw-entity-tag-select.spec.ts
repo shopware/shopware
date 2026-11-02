@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import type Criteria from 'src/core/data/criteria.data';
 import swEntityTagSelect from './index';
 
 type CheckTagExistsContext = {
@@ -10,12 +11,12 @@ type CheckTagExistsContext = {
     repository: { searchIds: jest.Mock };
 };
 
-function createContext(total: number): CheckTagExistsContext {
+function createContext(ids: string[]): CheckTagExistsContext {
     return {
         tagExists: true,
         context: {},
         repository: {
-            searchIds: jest.fn(() => Promise.resolve({ total, data: [] })),
+            searchIds: jest.fn(() => Promise.resolve({ total: 0, data: ids })),
         },
     };
 }
@@ -26,16 +27,18 @@ describe('src/app/component/form/select/entity/sw-entity-tag-select', () => {
     };
 
     it('should mark the tag as existing when an id is found', async () => {
-        const context = createContext(1);
+        const context = createContext(['tag-id']);
 
         await checkTagExists.call(context, 'summer');
 
-        expect(context.repository.searchIds).toHaveBeenCalledTimes(1);
+        const [criteria] = context.repository.searchIds.mock.calls[0] as [Criteria];
+        expect(criteria.getLimit()).toBe(1);
+        expect(criteria.totalCountMode).toBe(0);
         expect(context.tagExists).toBe(true);
     });
 
     it('should mark the tag as missing when no id is found', async () => {
-        const context = createContext(0);
+        const context = createContext([]);
 
         await checkTagExists.call(context, 'summer');
 
@@ -43,7 +46,7 @@ describe('src/app/component/form/select/entity/sw-entity-tag-select', () => {
     });
 
     it('should not search for an empty term', async () => {
-        const context = createContext(0);
+        const context = createContext([]);
 
         await checkTagExists.call(context, '   ');
 

@@ -153,6 +153,7 @@ describe('private-feature-declarations in mini-modules', () => {
         jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...options) =>
             /src\/core\/example-module\/index\.ts$/.test(file) ? exampleIndex : realReadFileSync(file, ...options),
         );
+        jest.spyOn(fs, 'readdirSync').mockReturnValue([]);
     });
 
     ruleTester.run('private-feature-declarations', rule, {
@@ -274,6 +275,58 @@ describe('private-feature-declarations in mini-modules', () => {
                     export const foo = 'foo';
                 `,
                 errors: 1,
+            },
+        ],
+    });
+});
+
+// The same made-up mini-module, seen from its `index.ts`: the rule reads `src/helper.ts` from disk.
+const helperSource = `/** @public */
+export function helper() {}
+/** @private */
+export function format() {}
+`;
+
+describe('private-feature-declarations checks src/ markers from index.ts', () => {
+    beforeEach(() => {
+        jest.spyOn(fs, 'existsSync').mockImplementation(
+            (file) => /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) || realExistsSync(file),
+        );
+        jest.spyOn(fs, 'readdirSync').mockImplementation(() => [{ name: 'helper.ts', isDirectory: () => false }]);
+        jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...options) =>
+            /src\/core\/example-module\/src\/helper\.ts$/.test(file) ? helperSource : realReadFileSync(file, ...options),
+        );
+    });
+
+    ruleTester.run('private-feature-declarations', rule, {
+        valid: [
+            {
+                name: 'index.ts exposes exactly the src exports marked @public',
+                filename: `${moduleRoot}/index.ts`,
+                code: `
+                    /** @public */
+                    export { helper } from './src/helper';
+                `,
+            },
+        ],
+        invalid: [
+            {
+                name: 'index.ts stops exposing a src export that is still marked @public',
+                filename: `${moduleRoot}/index.ts`,
+                code: `
+                    /** @public */
+                    export const unrelated = 1;
+                `,
+                errors: [{ message: 'src/helper.ts:2 `helper`: index.ts does not expose this export, so mark it @private.' }],
+            },
+            {
+                name: 'index.ts starts exposing a src export that is still marked @private',
+                filename: `${moduleRoot}/index.ts`,
+                code: `
+                    /** @public */
+                    export { helper, format } from './src/helper';
+                `,
+                errors: [{ message: 'src/helper.ts:4 `format`: index.ts exposes this export, so mark it @public.' }],
             },
         ],
     });

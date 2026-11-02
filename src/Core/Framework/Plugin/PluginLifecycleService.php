@@ -233,6 +233,8 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
+            $this->removeCustomEntities($plugin->getId());
+            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
         $pluginId = $plugin->getId();
@@ -246,11 +248,6 @@ class PluginLifecycleService
         );
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
-
-        if (!$uninstallContext->keepUserData()) {
-            $this->removeCustomEntities($plugin->getId());
-            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
-        }
 
         if ($pluginBaseClass->executeComposerCommands()) {
             $this->executeComposerRemoveCommand($plugin, $shopwareContext);

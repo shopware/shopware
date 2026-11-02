@@ -49,12 +49,7 @@ class UserMcpAllowlistController
     )]
     public function save(string $userId, Request $request, Context $context): Response
     {
-        $user = $this->userRepository
-            ->search(new Criteria([$userId]), $context)
-            ->getEntities()
-            ->first();
-
-        if ($user === null) {
+        if (!$this->userRepository->searchIds(new Criteria([$userId]), $context)->has($userId)) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 

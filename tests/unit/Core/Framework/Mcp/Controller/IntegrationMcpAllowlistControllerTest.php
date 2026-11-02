@@ -7,13 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Integration\IntegrationCollection;
-use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,8 +26,6 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testSaveStructuredAllowlist(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $allowlist = [
             'tools' => ['shopware-entity-read', 'shopware-entity-search'],
@@ -38,7 +34,7 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
         ];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $integrationId, 'mcpAllowlist' => $allowlist]]);
@@ -54,11 +50,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testSaveAllowlistNull(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $integrationId, 'mcpAllowlist' => null]]);
@@ -74,13 +68,11 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testSaveAllowlistWithAllNullTypes(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $allowlist = ['tools' => null, 'resources' => null, 'prompts' => null];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $integrationId, 'mcpAllowlist' => $allowlist]]);
@@ -96,13 +88,11 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testSaveAllowlistWithEmptyArraysDeniesAll(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $allowlist = ['tools' => [], 'resources' => [], 'prompts' => []];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $integrationId, 'mcpAllowlist' => $allowlist]]);
@@ -118,7 +108,7 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testIntegrationNotFound(): void
     {
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -132,11 +122,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testMissingAllowlistKeyReturnsBadRequest(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -150,11 +138,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testInvalidAllowlistTypeReturnsBadRequest(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -168,11 +154,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testInvalidAllowlistWithNonStringToolsReturnsBadRequest(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -186,11 +170,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testInvalidAllowlistWithNonStringResourcesReturnsBadRequest(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -214,11 +196,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testObjectShapedPerTypeValueIsRejected(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -234,13 +214,11 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testAllowlistWithSubsetOfKnownKeysIsAccepted(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $allowlist = ['tools' => null];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $integrationId, 'mcpAllowlist' => $allowlist]]);
@@ -256,11 +234,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testAllowlistWithUnknownKeyReturnsBadRequest(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -274,11 +250,9 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     public function testInvalidAllowlistWithNonArrayTypeValueReturnsBadRequest(): void
     {
         $integrationId = Uuid::randomHex();
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([$integrationId]));
         $repository->expects($this->never())->method('update');
 
         $controller = new IntegrationMcpAllowlistController($repository);
@@ -301,19 +275,13 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     }
 
     /**
-     * @param list<IntegrationEntity> $entities
-     *
-     * @return EntitySearchResult<IntegrationCollection>
+     * @param list<string> $ids
      */
-    private function makeSearchResult(array $entities): EntitySearchResult
+    private function makeIdSearchResult(array $ids): IdSearchResult
     {
-        $collection = new IntegrationCollection($entities);
-
-        return new EntitySearchResult(
-            'integration',
-            \count($entities),
-            $collection,
-            null,
+        return new IdSearchResult(
+            \count($ids),
+            array_map(static fn (string $id): array => ['primaryKey' => $id, 'data' => []], array_combine($ids, $ids)),
             new Criteria(),
             Context::createDefaultContext(),
         );

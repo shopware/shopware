@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber;
 use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
-use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\Locale\LocaleException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -43,7 +45,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
         );
 
         $localeRepository->expects($this->never())
-            ->method('search');
+            ->method('searchIds');
 
         $subscriber->onSystemLanguageChanged(new SystemLanguageChangeEvent(
             'previous-language-id',
@@ -69,10 +71,9 @@ class SystemLanguageChangedSubscriberTest extends TestCase
 
         $snippetRepository->method('search')->willReturn($snippetSearchResult);
 
-        $localeSearchResult = static::createStub(EntitySearchResult::class);
-        $localeSearchResult->method('first')->willReturn(null);
-
-        $localeRepository->method('search')->willReturn($localeSearchResult);
+        $localeRepository->method('searchIds')->willReturn(
+            new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext())
+        );
 
         $subscriber = new SystemLanguageChangedSubscriber(
             $localeRepository,
@@ -92,9 +93,12 @@ class SystemLanguageChangedSubscriberTest extends TestCase
 
     public function testDoesNotUpdateSnippetsIfSystemLanguageIsChangedFromEnGbToDeDe(): void
     {
+        $previousLocale = $this->createLocale('en-GB');
+        $newLocale = $this->createLocale('de-DE');
+
         $localeRepository = new StaticEntityRepository([
-            new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
-            new LocaleCollection([$newLocale = $this->createLocale('de-DE')]),
+            [$previousLocale->getId()],
+            [$newLocale->getId()],
         ]);
 
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
@@ -121,9 +125,12 @@ class SystemLanguageChangedSubscriberTest extends TestCase
     #[DataProvider('localeCodes')]
     public function testUpdatesSnippetsForPreviousLocaleWithPreviousLocaleId(string $locale): void
     {
+        $previousLocale = $this->createLocale('en-GB');
+        $newLocale = $this->createLocale($locale);
+
         $localeRepository = new StaticEntityRepository([
-            new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
-            new LocaleCollection([$newLocale = $this->createLocale($locale)]),
+            [$previousLocale->getId()],
+            [$newLocale->getId()],
         ]);
 
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
@@ -158,9 +165,12 @@ class SystemLanguageChangedSubscriberTest extends TestCase
     #[DataProvider('localeCodes')]
     public function testUpdatesSnippetsForNewLocaleWithNewLocaleId(string $locale): void
     {
+        $previousLocale = $this->createLocale('en-GB');
+        $newLocale = $this->createLocale($locale);
+
         $localeRepository = new StaticEntityRepository([
-            new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
-            new LocaleCollection([$newLocale = $this->createLocale($locale)]),
+            [$previousLocale->getId()],
+            [$newLocale->getId()],
         ]);
 
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([

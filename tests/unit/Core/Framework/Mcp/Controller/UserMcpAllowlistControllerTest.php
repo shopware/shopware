@@ -9,13 +9,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserCollection;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,8 +28,6 @@ class UserMcpAllowlistControllerTest extends TestCase
 {
     private string $userId;
 
-    private UserEntity $user;
-
     /**
      * @var EntityRepository<UserCollection>&MockObject
      */
@@ -43,11 +40,9 @@ class UserMcpAllowlistControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->userId = Uuid::randomHex();
-        $this->user = new UserEntity();
-        $this->user->setId($this->userId);
 
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->repository->method('search')->willReturn($this->makeSearchResult([$this->user]));
+        $this->repository->method('searchIds')->willReturn($this->makeIdSearchResult([$this->userId]));
 
         $this->controller = new UserMcpAllowlistController($this->repository);
         $this->context = Context::createDefaultContext();
@@ -159,7 +154,7 @@ class UserMcpAllowlistControllerTest extends TestCase
         $this->repository->expects($this->never())->method('update');
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([]));
+        $repository->method('searchIds')->willReturn($this->makeIdSearchResult([]));
         $repository->expects($this->never())->method('update');
 
         $controller = new UserMcpAllowlistController($repository);
@@ -251,19 +246,13 @@ class UserMcpAllowlistControllerTest extends TestCase
     }
 
     /**
-     * @param list<UserEntity> $entities
-     *
-     * @return EntitySearchResult<UserCollection>
+     * @param list<string> $ids
      */
-    private function makeSearchResult(array $entities): EntitySearchResult
+    private function makeIdSearchResult(array $ids): IdSearchResult
     {
-        $collection = new UserCollection($entities);
-
-        return new EntitySearchResult(
-            'user',
-            \count($entities),
-            $collection,
-            null,
+        return new IdSearchResult(
+            \count($ids),
+            array_map(static fn (string $id): array => ['primaryKey' => $id, 'data' => []], array_combine($ids, $ids)),
             new Criteria(),
             Context::createDefaultContext(),
         );

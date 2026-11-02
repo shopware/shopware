@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -55,15 +54,15 @@ class SalesChannelReplaceUrlCommand extends Command
             return self::FAILURE;
         }
 
-        $domain = $this->findDomainByUrl($previousUrl, $context);
-        if (!$domain instanceof SalesChannelDomainEntity) {
+        $domainId = $this->findDomainIdByUrl($previousUrl, $context);
+        if ($domainId === null) {
             $io->error('No sales channels found with URL ' . $previousUrl);
 
             return self::FAILURE;
         }
 
         $this->salesChannelDomainRepository->update([[
-            'id' => $domain->getId(),
+            'id' => $domainId,
             'url' => $newUrl,
         ]], $context);
 
@@ -92,12 +91,12 @@ class SalesChannelReplaceUrlCommand extends Command
         return false;
     }
 
-    private function findDomainByUrl(string $url, Context $context): ?SalesChannelDomainEntity
+    private function findDomainIdByUrl(string $url, Context $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('url', $url));
         $criteria->setLimit(1);
 
-        return $this->salesChannelDomainRepository->search($criteria, $context)->getEntities()->first();
+        return $this->salesChannelDomainRepository->searchIds($criteria, $context)->firstId();
     }
 }

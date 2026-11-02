@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\System\Locale\LocaleCollection;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\Locale\LocaleException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -60,27 +59,27 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
 
         $appsWithSnippets = array_values(array_unique($snippets->map(static fn (AppAdministrationSnippetEntity $snippet) => $snippet->getAppId())));
 
-        $previousLocale = $this->getLocale($event->previousLocaleCode, $context);
-        $newLocale = $this->getLocale($event->newLocaleCode, $context);
+        $previousLocaleId = $this->getLocaleId($event->previousLocaleCode, $context);
+        $newLocaleId = $this->getLocaleId($event->newLocaleCode, $context);
 
         foreach ($appsWithSnippets as $appId) {
             $updates = [];
 
             // Reassign the snippet that was previously associated with the new locale to the previous locale
-            $snippetForPreviousLocale = $this->snippetForLocale($snippets, $appId, $newLocale);
+            $snippetForPreviousLocale = $this->snippetForLocale($snippets, $appId, $newLocaleId);
             if ($snippetForPreviousLocale) {
                 $updates[] = [
                     'id' => $snippetForPreviousLocale->getId(),
-                    'localeId' => $previousLocale->getId(),
+                    'localeId' => $previousLocaleId,
                 ];
             }
 
             // Update the snippet that was previously associated with the previous locale to be associated with the new locale
-            $snippetForNewLocale = $this->snippetForLocale($snippets, $appId, $previousLocale);
+            $snippetForNewLocale = $this->snippetForLocale($snippets, $appId, $previousLocaleId);
             if ($snippetForNewLocale) {
                 $updates[] = [
                     'id' => $snippetForNewLocale->getId(),
-                    'localeId' => $newLocale->getId(),
+                    'localeId' => $newLocaleId,
                 ];
             }
 
@@ -88,17 +87,17 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
         }
     }
 
-    private function getLocale(string $code, Context $context): LocaleEntity
+    private function getLocaleId(string $code, Context $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', $code));
 
-        $locale = $this->localeRepository->search($criteria, $context)->getEntities()->first();
-        if (!$locale instanceof LocaleEntity) {
+        $localeId = $this->localeRepository->searchIds($criteria, $context)->firstId();
+        if ($localeId === null) {
             throw LocaleException::localeDoesNotExists($code);
         }
 
-        return $locale;
+        return $localeId;
     }
 
     private function getSnippets(Context $context): AppAdministrationSnippetCollection
@@ -109,10 +108,10 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
     private function snippetForLocale(
         AppAdministrationSnippetCollection $snippets,
         string $appId,
-        LocaleEntity $locale
+        string $localeId
     ): ?AppAdministrationSnippetEntity {
-        return $snippets->filter(static function (AppAdministrationSnippetEntity $snippet) use ($appId, $locale) {
-            return $appId === $snippet->getAppId() && $snippet->getLocaleId() === $locale->getId();
+        return $snippets->filter(static function (AppAdministrationSnippetEntity $snippet) use ($appId, $localeId) {
+            return $appId === $snippet->getAppId() && $snippet->getLocaleId() === $localeId;
         })->first();
     }
 }

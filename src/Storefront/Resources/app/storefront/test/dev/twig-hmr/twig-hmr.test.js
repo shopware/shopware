@@ -828,9 +828,44 @@ describe('dev/twig-hmr', () => {
 
         expect(notice().textContent).toContain('<head> changed');
         expect(updated.mock.calls[0][0].detail.reloadRequired).toEqual([
-            'The <head> changed. Meta and link elements are only applied by a reload.',
+            'The <head> changed. Meta, link, script and style elements in the head are only applied by a reload.',
         ]);
         document.removeEventListener('sw-twig-hmr:updated', updated);
+    });
+
+    it('asks for a reload when an inline script in the head changed', async () => {
+        document.head.innerHTML = '<script>window.validationMessages = { required: "Old" };</script>';
+        setup('<main>Page</main>');
+        pages['http://localhost/'] = {
+            html: page('<main>Page</main>', 'Shop', '<script>window.validationMessages = { required: "New" };</script>'),
+        };
+
+        await refresh(['form-validation-config.html.twig']);
+
+        expect(notice().textContent).toContain('<head> changed');
+    });
+
+    it('ignores head elements that scripts added and CSP nonces', async () => {
+        document.head.innerHTML = '<script nonce="first">window.a = 1;</script><style>.added-by-style-loader {}</style>';
+        setup('<main>Page</main>');
+        pages['http://localhost/'] = { html: page('<main>Page</main>', 'Shop', '<script nonce="second">window.a = 1;</script>') };
+
+        await refresh(['page.html.twig']);
+
+        expect(notice()).toBeNull();
+    });
+
+    it('asks for a reload when a later render removes a head element', async () => {
+        document.head.innerHTML = '<style>.a {}</style>';
+        setup('<main>Page</main>');
+        pages['http://localhost/'] = { html: page('<main>Page</main>', 'Shop', '<style>.a {}</style>') };
+        await refresh(['page.html.twig']);
+        expect(notice()).toBeNull();
+
+        pages['http://localhost/'] = { html: page('<main>Page</main>') };
+        await refresh(['page.html.twig']);
+
+        expect(notice().textContent).toContain('<head> changed');
     });
 
     it('shows a render error until the next update succeeds', async () => {

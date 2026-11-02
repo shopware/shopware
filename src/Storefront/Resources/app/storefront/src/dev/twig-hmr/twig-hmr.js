@@ -34,9 +34,15 @@ const RESET_HEADERS = { 'sw-twig-hmr-reset': '1' };
  * @property {ReturnType<typeof createOwnership>} ownership
  * @property {ReturnType<typeof createInteractionState>} interaction
  * @property {Element|null} pageBaseline - the server markup of the body that the page shows
- * @property {string} headSignature
+ * @property {HeadSnapshot} headBaseline - the head elements of the last render
  * @property {WeakMap<Element, {url: string, promise: Promise<string|null>}>} fragmentBaselines
  * @property {MutationObserver|null} sourceObserver
+ */
+
+/**
+ * @typedef {object} HeadSnapshot
+ * @property {string[]} elements - the markup of the meta, link, script, style and base elements
+ * @property {boolean} fromServer
  */
 
 /** @type {Session|null} */
@@ -45,8 +51,48 @@ let isRefreshing = false;
 let pendingFiles = null;
 let pendingStructural = false;
 
-function getHeadSignature(doc) {
-    return [...doc.head.querySelectorAll('meta, link')].map((element) => element.outerHTML).join('\n');
+const HEAD_ELEMENTS = new Set(['meta', 'link', 'script', 'style', 'base']);
+
+/**
+ * @param {Document} doc
+ * @param {boolean} fromServer - false for the live head, which can already hold elements that scripts added
+ * @returns {HeadSnapshot}
+ */
+function getHeadSnapshot(doc, fromServer) {
+    // Only direct children: without scripting, DOMParser parses the content of `<noscript>` as elements.
+    const elements = [...doc.head.children]
+        .filter((element) => HEAD_ELEMENTS.has(element.localName))
+        .map((element) => {
+            // A CSP nonce differs on every request, and browsers hide it in the live DOM.
+            const copy = element.cloneNode(true);
+            copy.removeAttribute('nonce');
+
+            return copy.outerHTML;
+        });
+
+    return { elements, fromServer };
+}
+
+/**
+ * @param {HeadSnapshot} previous
+ * @param {HeadSnapshot} next - always a server render
+ */
+function hasHeadChanged(previous, next) {
+    const remaining = [...previous.elements];
+
+    const added = next.elements.some((element) => {
+        const index = remaining.indexOf(element);
+        if (index === -1) {
+            return true;
+        }
+
+        remaining.splice(index, 1);
+
+        return false;
+    });
+
+    // Scripts add elements to the live head, for example styles or tracking scripts, so only a server render shows removals.
+    return added || (previous.fromServer && remaining.length > 0);
 }
 
 const shownSetupWarnings = new Set();
@@ -178,7 +224,7 @@ export function init({ withBaseline = true } = {}) {
         ownership: createOwnership(document.body),
         interaction: createInteractionState(document),
         pageBaseline: withBaseline ? removeServerPreserved(document.body.cloneNode(true)) : null,
-        headSignature: getHeadSignature(document),
+        headBaseline: getHeadSnapshot(document, false),
         fragmentBaselines: new WeakMap(),
         sourceObserver: null,
     };
@@ -654,12 +700,12 @@ function apply(targets) {
         document.title = page.document.title;
     }
 
-    const headSignature = getHeadSignature(page.document);
-    if (headSignature !== session.headSignature) {
-        reasons.push('The <head> changed. Meta and link elements are only applied by a reload.');
+    const headSnapshot = getHeadSnapshot(page.document, true);
+    if (hasHeadChanged(session.headBaseline, headSnapshot)) {
+        reasons.push('The <head> changed. Meta, link, script and style elements in the head are only applied by a reload.');
     }
 
-    session.headSignature = headSignature;
+    session.headBaseline = headSnapshot;
     session.pageBaseline = page.nextBaseline;
 
     return reasons;

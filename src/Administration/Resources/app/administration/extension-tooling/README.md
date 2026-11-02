@@ -23,6 +23,16 @@ The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:composabl
 source contract changes. Do not add these modules to this table. See
 [`shopware:*` Modules](../technical-docs/05-global-object/04-virtual-modules.md).
 
+The `index.ts` of a mini-module is public API for extensions, and `shopware:mini-modules/<directory name>` imports it:
+
+```ts
+import SwSettingsShippingPriceMatrix from 'shopware:mini-modules/sw-settings-shipping-price-matrix';
+```
+
+At runtime the module reads `Shopware.MiniModules`, where the `register.ts` of each mini-module puts exactly the exports of its `index.ts`.
+The types come from that `index.ts`, so `PublicOverride<typeof SwSettingsShippingPriceMatrix>` checks an override against the public API.
+Never import a mini-module's `src/`: it is private, and the import fails the lint.
+
 ## How extensions use it
 
 You normally do not reference this folder manually.

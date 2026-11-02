@@ -42,13 +42,13 @@ const isCi = (() => {
 })();
 
 // The extension-tooling e2e specs run the real ESLint/tsc toolchain against fixture projects and
-// take minutes, which unbalances sharded unit runs. They run separately via `npm run unit:e2e`.
+// take minutes, which unbalances sharded unit runs. They run separately via `npm run unit:extension-tooling-e2e`.
 const e2eSpecPattern = '<rootDir>/scripts/**/e2e.spec/**/*.spec.ts';
 const isDocker = existsSync('/.dockerenv');
 
 // The extension-tooling e2e specs scaffold a project and run the real vue-tsc/ESLint
 // toolchain, so they are slow and turn red on any unrelated type or lint breakage.
-// Support both the nightly job and the dedicated e2e job (see admin.yml).
+// Support the nightly job and the optional JEST_E2E alias.
 const runExtensionToolingE2e = process.env.EXTENSION_TOOLING_E2E === '1' || process.env.JEST_E2E === '1';
 
 if (isCi) {

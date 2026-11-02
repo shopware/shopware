@@ -7,16 +7,22 @@
  * the template, and its public setup bindings from `swDefinePublic()`.
  *
  * Type arguments (`defineProps<Props>()`) are resolved with Vue's own type resolver, so a local interface or
- * a type imported by a relative path gives the same names Vue compiles.
+ * an imported type gives the same names Vue compiles. Imports through a tsconfig path, like `src/...` or an
+ * extension's alias, resolve with the nearest tsconfig.json of the SFC.
  */
 
 import fs from 'node:fs';
 import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
-import { extractRuntimeEmits, resolveTypeElements, type SimpleTypeResolveContext } from '@vue/compiler-sfc';
+import type * as TypeScript from 'typescript';
+import { extractRuntimeEmits, registerTS, resolveTypeElements, type SimpleTypeResolveContext } from '@vue/compiler-sfc';
 import { collectMacroCallEntries } from '../script-analyzer/macro-registry';
 import { absoluteRange, unwrapTransparentMacroExpression } from '../script-analyzer/utils';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { PublicApiLists } from './declaration';
+
+// Vue resolves a non-relative type import only with TypeScript, which loads on the first such import.
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- a lazy load, so a build without such imports skips it
+registerTS(() => require('typescript') as typeof TypeScript);
 
 /**
  * Builds the context Vue's type resolver needs, with errors anchored in the SFC.
@@ -56,7 +62,7 @@ function createTypeContext(
 function unreadable(node: BabelNode, what: string, scriptOffset: number): ShopwareSetupTransformError {
     return new ShopwareSetupTransformError(
         `Cannot read the ${what} of this component for the index.ts check. ` +
-            'Declare them with an array, an object literal or a type the file defines or imports by a relative path.',
+            'Declare them with an array, an object literal or a type the file defines or imports.',
         absoluteRange(node, scriptOffset),
     );
 }

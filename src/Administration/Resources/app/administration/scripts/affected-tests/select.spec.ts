@@ -1,9 +1,11 @@
 import { selectAffectedSpecs, toAdministrationPath, type Repository } from './select';
 
 const MODULE = 'src/module/sw-shop/component/sw-price';
+const HELPER = 'src/core/shop/shop-delivery';
 
 /**
- * A small repository: one mini-module, a service, a component with an extension, and the specs around them.
+ * A small repository: a mini-module with a component and one without, a service, a component with an extension,
+ * and the specs around them.
  * The sources hold no import statements, because Jest would read them as imports of this spec.
  */
 const FILES: Record<string, string> = {
@@ -14,6 +16,11 @@ const FILES: Record<string, string> = {
     [`${MODULE}/src/sw-price.js`]: 'export default {};',
     [`${MODULE}/tests/requirements.spec.ts`]: 'mount(SwPrice);',
     [`${MODULE}/tests/pinned.spec.ts`]: "mount(SwPrice); wrapper.findComponent({ name: 'sw-price' });",
+    [`${HELPER}/index.ts`]: 'export function getShopDelivery() {}',
+    [`${HELPER}/register.ts`]: "Shopware._private.publishMiniModule('shop-delivery', ShopDelivery);",
+    [`${HELPER}/src/shop-delivery.ts`]: 'export function getShopDelivery() {}',
+    [`${HELPER}/tests/requirements.spec.ts`]: 'getShopDelivery(order);',
+    'src/module/sw-shop/page/sw-shop-list/sw-shop-list.spec.js': "await wrapTestComponent('sw-shop-list');",
     'src/module/sw-shop/page/sw-shop-detail/sw-shop-detail.spec.js':
         "stubs: { 'sw-price': await wrapTestComponent('sw-price') }",
     'src/module/sw-shop/index.js': 'Shopware.Module.register(shop);',
@@ -45,6 +52,11 @@ const IMPORTERS: Record<string, string[]> = {
     ],
     [`${MODULE}/global.d.ts`]: [],
     [`${MODULE}/register.ts`]: ['src/app/main.spec.js'],
+    [`${HELPER}/index.ts`]: [
+        `${HELPER}/tests/requirements.spec.ts`,
+        'src/module/sw-shop/page/sw-shop-list/sw-shop-list.spec.js',
+    ],
+    [`${HELPER}/register.ts`]: ['src/app/main.spec.js'],
     'src/app/service/price.service.ts': ['src/app/service/price.service.spec.ts'],
     'src/app/init/price.init.ts': [],
     'src/core/data/criteria.data.ts': ['src/core/data/criteria.data.spec.ts', 'test/_setup/prepare_environment.js'],
@@ -56,7 +68,7 @@ const COMPONENTS = [
 ];
 
 const repository: Repository = {
-    miniModuleOf: (file) => (file.startsWith(`${MODULE}/`) ? MODULE : null),
+    miniModuleOf: (file) => [MODULE, HELPER].find((miniModule) => file.startsWith(`${miniModule}/`)) ?? null,
     specsIn: (directory) => Object.keys(FILES).filter((file) => file.startsWith(`${directory}/`) && file.includes('.spec.')),
     read: (file) => FILES[file] ?? null,
     importersOf: (file) => {
@@ -154,6 +166,41 @@ describe('selectAffectedSpecs', () => {
                 'mentions component name sw-price',
             ]);
             expect(selection.specs['src/app/main.spec.js']).toEqual([`imports ${MODULE}/register.ts`]);
+        });
+    });
+
+    describe('inside a mini-module without a component', () => {
+        it('runs the module specs and the importers of index.ts when its src/ changes', async () => {
+            // ACT
+            const selection = await select(`${HELPER}/src/shop-delivery.ts`);
+
+            // ASSERT
+            expect(selection).toEqual({
+                specs: {
+                    [`${HELPER}/tests/requirements.spec.ts`]: [
+                        `imports ${HELPER}/index.ts`,
+                        `mini-module ${HELPER} changed in src/`,
+                    ],
+                    'src/module/sw-shop/page/sw-shop-list/sw-shop-list.spec.js': [`imports ${HELPER}/index.ts`],
+                },
+                uncertain: [],
+                skipped: [],
+            });
+        });
+
+        it('runs the importers of register.ts without a warning when register.ts changes', async () => {
+            // ACT
+            const selection = await select(`${HELPER}/register.ts`);
+
+            // ASSERT
+            expect(selection).toEqual({
+                specs: {
+                    [`${HELPER}/tests/requirements.spec.ts`]: [`mini-module ${HELPER} changed in register.ts`],
+                    'src/app/main.spec.js': [`imports ${HELPER}/register.ts`],
+                },
+                uncertain: [],
+                skipped: [],
+            });
         });
     });
 

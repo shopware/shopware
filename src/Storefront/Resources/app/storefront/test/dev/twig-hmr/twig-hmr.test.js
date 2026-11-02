@@ -1006,3 +1006,48 @@ describe('dev/twig-hmr', () => {
         expect(document.querySelector('main').textContent).toBe('Version 2');
     });
 });
+
+describe('dev/twig-hmr server setup warnings', () => {
+    let warnAboutServerSetup;
+
+    beforeEach(() => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        // The warnings are shown once per page load, so every test gets a fresh module.
+        jest.isolateModules(() => {
+            ({ warnAboutServerSetup } = require('src/dev/twig-hmr/twig-hmr'));
+        });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    function check(headers) {
+        warnAboutServerSetup({ headers: { get: (name) => headers[name] ?? null } });
+    }
+
+    it('does not warn for an uncached response in debug mode', () => {
+        check({ 'x-debug-token': 'abc123', 'x-symfony-cache': 'GET /: miss, store', age: '0' });
+
+        expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['an Age header', { 'x-debug-token': 'abc123', age: '12' }],
+        ['a fresh Symfony cache entry', { 'x-symfony-cache': 'GET /: miss; GET /_esi/global/header: fresh' }],
+    ])('warns once about the HTTP cache for %s', (name, headers) => {
+        check(headers);
+        check(headers);
+
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('SHOPWARE_HTTP_CACHE_ENABLED=0'));
+    });
+
+    it('warns once about a missing debug mode', () => {
+        check({});
+        check({});
+
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('APP_ENV=dev'));
+    });
+});

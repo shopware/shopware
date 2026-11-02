@@ -526,6 +526,8 @@ If a change cannot be applied, for example because the markup of a plugin elemen
 Requests of the Twig hot reload bypass the HTTP cache in debug mode.
 After a Twig file was added or removed, the next request of the Twig hot reload clears the compiled Twig templates in debug mode, so new and removed overrides apply as well.
 Inline scripts in changed markup do not run again, so initialize JavaScript through the PluginManager.
+The browser console warns once if the shop does not run in debug mode or a response came from an HTTP cache, for example Varnish.
+In every hot mode session, the browser console also lists extensions whose JavaScript is compiled but not loaded, because they have no production build yet.
 See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
 
 ## Hosting & Configuration

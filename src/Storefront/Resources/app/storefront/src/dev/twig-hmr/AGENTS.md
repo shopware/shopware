@@ -113,6 +113,10 @@ Pass `-H 'Accept: text/html'` for pages, and no Accept header for fragments.
 - Inside a container the watcher does not try to open a browser.
   It detects Docker by `/.dockerenv` and Podman by `/run/.containerenv`.
 - In a container, `theme:dump` and the watcher need `APP_ENV=dev` when the environment default is `prod`.
+- An extension script only loads in hot mode once its production build exists in `Resources/app/storefront/dist/storefront/js/<name>/<name>.js`.
+  The console warning `[sw-hot-mode] The JavaScript of these extensions is compiled, but the page does not load it` names them.
+  Build once with `composer build:js:storefront`, then run `cache:clear`.
+- A `[sw-twig-hmr]` console warning about the debug mode or the HTTP cache means the server answers with stale markup, fix the setup before testing.
 
 ## Resources
 

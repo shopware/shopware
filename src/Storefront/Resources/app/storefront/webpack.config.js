@@ -293,6 +293,9 @@ const coreConfig = {
             if (isHotMode) {
                 return [
                     new webpack.HotModuleReplacementPlugin(),
+                    new webpack.DefinePlugin({
+                        __SW_HOT_MODE_EXTENSION_ENTRIES__: JSON.stringify(pluginEntries.map((plugin) => plugin.technicalName)),
+                    }),
                 ];
             }
             return [];
@@ -495,9 +498,11 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry['hot-reloading'] = useTwigHmr
-        ? [scssEntryFilePath, path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js')]
-        : [scssEntryFilePath];
+    coreConfig.entry['hot-reloading'] = [
+        scssEntryFilePath,
+        path.resolve(__dirname, 'src/dev/hot-mode/missing-extension-scripts.js'),
+        ...(useTwigHmr ? [path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js')] : []),
+    ];
 }
 
 const mergedCoreConfig = merge([

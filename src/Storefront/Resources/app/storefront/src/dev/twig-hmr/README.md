@@ -205,6 +205,13 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - **Pages reached by POST** show the result of a GET request after a refresh.
 - **Fragment baselines** are fetched when a fragment opens.
   A template saved in the short time before that request finishes counts as the previous render.
+- **Server setup.**
+  Changes only show up in debug mode and without a cached response.
+  The client warns once in the browser console if a response has no debug headers or came from an HTTP cache, for example Varnish.
+- **Extensions without a production build** are not loaded in hot mode.
+  The Storefront only adds an extension script to `theme_scripts()` if `Resources/app/storefront/dist/storefront/js/<name>/<name>.js` exists.
+  Webpack still compiles the entry, but the page never requests it.
+  `src/dev/hot-mode/missing-extension-scripts.js` warns about these extensions in the browser console in every hot mode session, also without the Twig hot reload.
 
 ## Vite dev server
 

@@ -49,6 +49,41 @@ function getHeadSignature(doc) {
     return [...doc.head.querySelectorAll('meta, link')].map((element) => element.outerHTML).join('\n');
 }
 
+const shownSetupWarnings = new Set();
+
+function warnOnce(key, message) {
+    if (shownSetupWarnings.has(key)) {
+        return;
+    }
+
+    shownSetupWarnings.add(key);
+    console.warn(`${LOG_PREFIX} ${message}`);
+}
+
+/**
+ * Template changes only show up if the shop renders them again.
+ * That needs the debug mode, where Twig reloads changed templates, and a response that does not come from an HTTP cache.
+ * `TwigHmrCacheSubscriber` only bypasses the Symfony HTTP cache in debug mode, a reverse proxy such as Varnish can still answer.
+ */
+export function warnAboutServerSetup(response) {
+    const symfonyCache = response.headers.get('x-symfony-cache');
+
+    if (Number(response.headers.get('age')) > 0 || /\b(fresh|stale|valid)\b/.test(symfonyCache || '')) {
+        warnOnce('http-cache', [
+            'The page came from an HTTP cache, so template changes may not show up.',
+            'Disable the HTTP cache while developing, for example with SHOPWARE_HTTP_CACHE_ENABLED=0, and bypass reverse proxies such as Varnish.',
+        ].join('\n'));
+    }
+
+    // Symfony only sends these headers in debug mode, with the profiler or the HTTP cache enabled.
+    if (response.headers.get('x-debug-token') === null && symfonyCache === null) {
+        warnOnce('debug', [
+            'The shop does not seem to run in debug mode.',
+            'Twig only reloads changed templates in debug mode, so run the shop with APP_ENV=dev.',
+        ].join('\n'));
+    }
+}
+
 async function fetchHtml(url, headers = {}) {
     const response = await fetch(url, {
         credentials: 'same-origin',
@@ -78,6 +113,8 @@ async function fetchHtml(url, headers = {}) {
     if (!contentType.includes('text/html')) {
         throw new Error(`${LOG_PREFIX} ${url} answered with ${contentType || 'an unknown content type'} instead of HTML`);
     }
+
+    warnAboutServerSetup(response);
 
     return html;
 }

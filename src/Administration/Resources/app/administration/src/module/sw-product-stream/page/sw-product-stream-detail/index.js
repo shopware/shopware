@@ -103,8 +103,13 @@ export default {
             return this.repositoryFactory.create(this.productStream.filters.entity, this.productStream.filters.source);
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use customFieldRepository instead. */
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
         },
 
         tooltipSave() {
@@ -377,36 +382,20 @@ export default {
         getProductCustomFields() {
             this.customFieldsLoading = true;
             const customFieldsCriteria = new Criteria(1, null);
-            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'));
+            customFieldsCriteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
 
-            const loadingPromises = [];
-            return this.customFieldSetRepository
-                .searchIds(customFieldsCriteria, Context.api)
-                .then(({ data: customFieldSetIds }) => {
-                    const singleCriteria = new Criteria(1, null);
-                    singleCriteria.addAssociation('customFields').addAssociation('relations');
-
-                    customFieldSetIds.forEach((customFieldSetId) => {
-                        loadingPromises.push(
-                            this.customFieldSetRepository.get(customFieldSetId, Context.api, singleCriteria).then((set) => {
-                                const customFields = set.customFields.reduce((acc, customField) => {
-                                    acc[customField.name] = this.mapCustomFieldType({
-                                        type: customField.type,
-                                        value: `customFields.${customField.name}`,
-                                        label: this.getCustomFieldLabel(customField),
-                                        config: customField.config,
-                                    });
-                                    return acc;
-                                }, {});
-                                Object.assign(this.productCustomFields, customFields);
-                            }),
-                        );
-                    });
-
-                    Promise.all(loadingPromises).then(() => {
-                        this.customFieldsLoading = false;
+            return this.customFieldRepository.search(customFieldsCriteria, Context.api).then((customFields) => {
+                customFields.forEach((customField) => {
+                    this.productCustomFields[customField.name] = this.mapCustomFieldType({
+                        type: customField.type,
+                        value: `customFields.${customField.name}`,
+                        label: this.getCustomFieldLabel(customField),
+                        config: customField.config,
                     });
                 });
+
+                this.customFieldsLoading = false;
+            });
         },
 
         getCustomFieldLabel(customField) {

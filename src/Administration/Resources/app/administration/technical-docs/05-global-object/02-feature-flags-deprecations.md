@@ -170,11 +170,13 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-Templates wrap the old path in the renderless `sw-silence-deprecations` component. It silences what the template
-writes inside of it: the deprecation plugin's report of those components and their deprecated props, what they
-report while they are created or rendered, and what their own templates render. Slot content that another template
-passes through still reports, so a wrapper like `sw-popover` silences its deprecated implementation, but not what
-its users put into it:
+Templates wrap the deprecated components of the old path in the renderless `sw-silence-deprecations` component.
+It silences the components directly inside of it: the deprecation plugin's report of them and their deprecated
+props, what they report while Vue knows the running component (`setup`, `data`, lifecycle hooks, rendering), and
+what their own templates render. Plain elements in between do not count, another component does. Slot content passed
+into those components still reports, from the same template too. So a wrapper like `sw-popover` silences its
+deprecated implementation, but not what its users put into it, and a wrapped `sw-tabs` keeps reporting its tab
+content:
 
 ```twig
 <sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
@@ -183,14 +185,15 @@ its users put into it:
 <mt-floating-ui v-else v-bind="$attrs"><slot /></mt-floating-ui>
 ```
 
-An extension that overrides a block inside of the wrapper writes into the same template, so its content is
-silenced too.
+An extension that overrides a block directly inside of the wrapper writes into the same template, so the
+components it puts there are silenced too; in the slot content of a wrapped component they still report. The
+wrapper renders no element of its own, so attributes on it go nowhere.
 
 Both silence nothing once the major is active, so a use outside of its branch still throws, and an unknown flag
 silences nothing and logs an error. `Feature.silence()` only covers synchronous code: the silencing ends when the
 callback returns, so a returned promise throws. The component does not reach the bindings the template evaluates
-itself, like `:value="deprecatedComputed"`, nor event handlers and watchers, which run outside of creating and
-rendering. Wrap those in `Feature.silence()`.
+itself, like `:value="deprecatedComputed"`, nor event handlers, watchers that are not `immediate`, and code after an
+`await`, which run while Vue knows no running component. Wrap those in `Feature.silence()`.
 
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
 checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop

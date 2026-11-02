@@ -82,7 +82,7 @@ export default class ProductStorefrontUrlApiService extends ApiService {
             domains: domains.map(({ id, url, languageId }) => ({
                 id,
                 url,
-                productUrl: `${url.replace(/\/+$/, '')}${paths[languageId]}`,
+                productUrl: ProductStorefrontUrlApiService.buildProductUrl(url, paths[languageId]),
             })),
         };
     }
@@ -95,6 +95,20 @@ export default class ProductStorefrontUrlApiService extends ApiService {
         const context = response.data as { salesChannel?: { domains?: SalesChannelDomain[] } };
 
         return [...(context.salesChannel?.domains ?? [])].sort((a, b) => a.url.localeCompare(b.url));
+    }
+
+    private static buildProductUrl(domainUrl: string, path: string): string | null {
+        try {
+            const { protocol } = new URL(domainUrl);
+
+            if (protocol !== 'http:' && protocol !== 'https:') {
+                return null;
+            }
+        } catch {
+            return null;
+        }
+
+        return `${domainUrl.replace(/\/+$/, '')}${path}`;
     }
 
     private async fetchProductPath(productId: string, salesChannelId: string, languageId: string): Promise<string | null> {

@@ -98,6 +98,21 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         expect(result?.domains[0].productUrl).toBe('https://shop.test/detail/product-id');
     });
 
+    it.each([
+        'javascript:alert(document.domain)//',
+        'data:text/html,shop',
+        'not a url',
+    ])('links no product URL for the domain URL %s', async (url) => {
+        const { service } = createService({
+            domains: [{ id: 'domain-en', url, languageId: ENGLISH_LANGUAGE_ID }],
+        });
+
+        const result = await service.fetchSalesChannel('product-id', 'sales-channel-id');
+
+        expect(result?.reachable).toBe(true);
+        expect(result?.domains[0]).toEqual({ id: 'domain-en', url, productUrl: null });
+    });
+
     it('marks a sales channel whose product page responds with 404 as not reachable', async () => {
         const { service, httpClient } = createService({
             domains: [

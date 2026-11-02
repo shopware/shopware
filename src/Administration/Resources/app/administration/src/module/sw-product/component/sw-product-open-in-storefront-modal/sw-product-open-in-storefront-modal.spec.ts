@@ -319,6 +319,25 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
+    it('shows an error and stops loading when the product URLs cannot be loaded', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const { wrapper } = await createWrapper({
+            salesChannels: [salesChannel(), salesChannel({ id: 'other-sales-channel-id' })],
+        });
+        productStorefrontUrlApiService.fetchSalesChannel = jest.fn().mockRejectedValue(new Error('Server error'));
+
+        await select(wrapper, 'sales-channel-id');
+
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'error',
+                message: 'sw-product.openInStorefrontModal.notificationOpenInStorefrontError',
+            }),
+        );
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__result').exists()).toBe(false);
+    });
+
     it('shows the product number in the title', async () => {
         const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000.2' } });
 

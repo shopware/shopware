@@ -318,8 +318,7 @@
       "messageProductNotFound": "Das Produkt konnte nicht gefunden werden. Es wurde möglicherweise gelöscht.",
       "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme.",
       "buttonOpenInStorefront": "In der Storefront öffnen",
-      "tooltipOpenInStorefrontNewProduct": "Speichere das Produkt zuerst, um es in der Storefront zu öffnen.",
-      "notificationOpenInStorefrontError": "Die Storefront-URLs des Produkts konnten nicht geladen werden."
+      "tooltipOpenInStorefrontNewProduct": "Speichere das Produkt zuerst, um es in der Storefront zu öffnen."
     },
     "openInStorefrontModal": {
       "title": "„{name}“ ({productNumber}) in der Storefront öffnen",
@@ -336,7 +335,8 @@
         "inStockPossibly": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte möglicherweise aus",
         "storefrontShowsProduct": "Dieser Verkaufskanal zeigt das Produkt nicht an, zum Beispiel wegen Sichtbarkeit, Bestand oder einer installierten Erweiterung."
       },
-      "maintenanceHint": "Verkaufskanal ist im Wartungsmodus. Nur IP-Adressen auf seiner Allowlist können ihn öffnen."
+      "maintenanceHint": "Verkaufskanal ist im Wartungsmodus. Nur IP-Adressen auf seiner Allowlist können ihn öffnen.",
+      "notificationOpenInStorefrontError": "Die Storefront-URLs des Produkts konnten nicht geladen werden."
     },
     "mediaForm": {
       "errorNoImage": "\"{file}\" ist kein Bild.",

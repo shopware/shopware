@@ -192,7 +192,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             } catch {
                 this.createNotificationError({
-                    message: this.$t('sw-product.detail.notificationOpenInStorefrontError'),
+                    message: this.$t('sw-product.openInStorefrontModal.notificationOpenInStorefrontError'),
                 });
             } finally {
                 if (this.selectedSalesChannelId === salesChannel.id) {

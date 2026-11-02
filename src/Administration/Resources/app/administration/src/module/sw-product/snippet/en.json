@@ -318,8 +318,7 @@
       "messageProductNotFound": "The product could not be found. It may have been deleted.",
       "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity.",
       "buttonOpenInStorefront": "Open in Storefront",
-      "tooltipOpenInStorefrontNewProduct": "Save the product first to open it in the Storefront.",
-      "notificationOpenInStorefrontError": "The Storefront URLs of the product could not be loaded."
+      "tooltipOpenInStorefrontNewProduct": "Save the product first to open it in the Storefront."
     },
     "openInStorefrontModal": {
       "title": "Open \"{name}\" ({productNumber}) in the Storefront",
@@ -336,7 +335,8 @@
         "inStockPossibly": "Product is sold out, and this sales channel may hide sold-out clearance sale products",
         "storefrontShowsProduct": "This sales channel does not show the product, for example because of visibility, stock or an installed extension."
       },
-      "maintenanceHint": "Sales channel is in maintenance mode. Only IP addresses on its allowlist can open it."
+      "maintenanceHint": "Sales channel is in maintenance mode. Only IP addresses on its allowlist can open it.",
+      "notificationOpenInStorefrontError": "The Storefront URLs of the product could not be loaded."
     },
     "mediaForm": {
       "errorNoImage": "\"{file}\" is not an image.",

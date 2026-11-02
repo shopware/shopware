@@ -434,6 +434,57 @@ class PriceSerializerTest extends TestCase
         static::assertCount(2, $currencyRepository->searchedCriteria);
     }
 
+    public function testTheIdOfACurrencyIsLookedUpOnce(): void
+    {
+        $currencyRepository = $this->getCurrencyRepository([[Defaults::CURRENCY], [Defaults::CURRENCY], [Defaults::CURRENCY]]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $record = ['EUR' => ['net' => '1.0', 'gross' => '2.0', 'linked' => '0']];
+
+        foreach ([1, 2, 3] as $_) {
+            $priceSerializer->deserialize($config, $field, $record);
+        }
+
+        static::assertCount(1, $currencyRepository->searchedCriteria);
+    }
+
+    public function testTheIdOfAnUnknownCurrencyIsLookedUpOnce(): void
+    {
+        $currencyRepository = $this->getCurrencyRepository([[], [], []]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $record = ['XYZ' => ['net' => '1.0', 'gross' => '2.0', 'linked' => '0']];
+
+        foreach ([1, 2, 3] as $_) {
+            $priceSerializer->deserialize($config, $field, $record);
+        }
+
+        static::assertCount(1, $currencyRepository->searchedCriteria);
+    }
+
+    public function testTheIdOfACurrencyIsLookedUpAgainAfterAReset(): void
+    {
+        $currencyRepository = $this->getCurrencyRepository([[Defaults::CURRENCY], [Defaults::CURRENCY], [Defaults::CURRENCY]]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $record = ['EUR' => ['net' => '1.0', 'gross' => '2.0', 'linked' => '0']];
+
+        $priceSerializer->deserialize($config, $field, $record);
+        $priceSerializer->reset();
+        $priceSerializer->deserialize($config, $field, $record);
+
+        static::assertCount(2, $currencyRepository->searchedCriteria);
+    }
+
     /**
      * @param array<CurrencyCollection<CurrencyEntity>|array<string>> $results
      *

@@ -28,6 +28,11 @@ class PriceSerializer extends FieldSerializer implements ResetInterface
     private array $currencyIsoCache = [];
 
     /**
+     * @var array<string, string|null>
+     */
+    private array $currencyIdCache = [];
+
+    /**
      * @param EntityRepository<CurrencyCollection> $currencyRepository
      *
      * @internal
@@ -116,6 +121,7 @@ class PriceSerializer extends FieldSerializer implements ResetInterface
     public function reset(): void
     {
         $this->currencyIsoCache = [];
+        $this->currencyIdCache = [];
     }
 
     /**
@@ -147,12 +153,16 @@ class PriceSerializer extends FieldSerializer implements ResetInterface
             return Defaults::CURRENCY;
         }
 
+        if (\array_key_exists($iso, $this->currencyIdCache)) {
+            return $this->currencyIdCache[$iso];
+        }
+
         if (Uuid::isValid($iso)) {
             $criteria = new Criteria([$iso]);
         } else {
             $criteria = (new Criteria())->addFilter(new EqualsFilter('isoCode', $iso));
         }
 
-        return $this->currencyRepository->searchIds($criteria, $context)->firstId();
+        return $this->currencyIdCache[$iso] = $this->currencyRepository->searchIds($criteria, $context)->firstId();
     }
 }

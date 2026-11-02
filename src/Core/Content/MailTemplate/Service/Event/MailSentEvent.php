@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('after-sales')]
@@ -22,13 +24,18 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
     /**
      * @param array<string, mixed> $recipients
      * @param array<string, mixed> $contents
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $templateData
      */
     public function __construct(
         private readonly string $subject,
         private readonly array $recipients,
         private readonly array $contents,
         private readonly Context $context,
-        private readonly ?string $eventName = null
+        private readonly ?string $eventName = null,
+        private readonly array $data = [],
+        private readonly array $templateData = [],
+        private readonly ?Email $message = null,
     ) {
     }
 
@@ -85,12 +92,17 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
 
     public function getLogData(): array
     {
-        return [
+        $data = [
             'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
-            'contents' => $this->contents,
         ];
+
+        if (!MailLogData::isSensitive($this->data, $this->templateData) && ($this->message === null || !MailLogData::isSensitiveMessage($this->message))) {
+            $data['contents'] = $this->contents;
+        }
+
+        return $data;
     }
 
     public function getLogLevel(): Level

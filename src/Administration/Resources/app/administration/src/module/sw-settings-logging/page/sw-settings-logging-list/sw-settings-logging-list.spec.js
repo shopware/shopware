@@ -13,6 +13,10 @@ const logEntryMock = {
     context: {
         additionalData: {
             recipients: [],
+            contents: {
+                'text/html': '<p>Order confirmation</p>',
+                'text/plain': 'Order confirmation',
+            },
         },
     },
 };
@@ -38,7 +42,7 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-tabs-deprecated': {
-                    template: '<div><slot /></div>',
+                    template: '<div><slot /><slot name="content" /></div>',
                 },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
@@ -82,5 +86,27 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
 
         expect(wrapper.find('.sw-settings-logging-list__custom-content').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-logging-mail-sent-info__tab-item').exists()).toBe(true);
+    });
+
+    it('should show metadata without body tabs for sensitive mail', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            displayedLog: {
+                ...logEntryMock,
+                context: {
+                    additionalData: {
+                        subject: 'Password recovery',
+                        recipients: { 'customer@example.com': 'Customer' },
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-logging-list__custom-content').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-logging-mail-sent-info__tab-item').exists()).toBe(false);
+        expect(wrapper.html()).toContain('Password recovery');
     });
 });

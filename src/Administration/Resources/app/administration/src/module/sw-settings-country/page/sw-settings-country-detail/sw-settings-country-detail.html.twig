@@ -72,9 +72,11 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
-                    v-silence-deprecations="'V6_9_0_0'"
                     position-identifier="sw-settings-country-detail-header"
                 >
                     {% block sw_setting_country_tabs_setting %}
@@ -109,7 +111,7 @@
 
                     {% block sw_setting_country_tabs_extension %}{% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             <template v-if="isLoading">

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -85,6 +86,22 @@ class RefreshAppCommandTest extends TestCase
         $this->appPrinter->expects($this->once())->method('printIncompleteInstallations')->with(static::anything(), $fails);
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute(['--force' => true]));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the `--no-validate` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('The deprecated --no-validate option still refreshes the apps')]
+    public function testNoValidateStillRefreshesTheApps(): void
+    {
+        $this->appService->method('getRefreshableAppInfo')->willReturn($this->createDryRunWithInstallableApp());
+        $this->appService->expects($this->once())->method('doRefreshApps')->willReturn([]);
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
+            '--force' => true,
+            '--no-validate' => true,
+        ]));
     }
 
     #[TestDox('Declining the permission summary aborts the refresh')]

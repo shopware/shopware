@@ -73,7 +73,7 @@ type entityNames = keyof EntitySchema.Entities;
  * @private
  */
 export default class EntityHydrator {
-    cache: { [key: string]: Entity<entityNames> } = {};
+    cache: { [key: string]: Entity<entityNames> | null } = {};
 
     /**
      * Hydrates the repository response to a SearchResult class with all entities and aggregations
@@ -149,8 +149,9 @@ export default class EntityHydrator {
         const id = row.id;
         const cacheKey = `${entityName}-${id}`;
 
-        if (this.cache[cacheKey]) {
-            return this.cache[cacheKey] as unknown as Entity<EntityName>;
+        if (cacheKey in this.cache) {
+            // null while the entity is still being hydrated, so an association pointing back to it is left out
+            return this.cache[cacheKey] as unknown as Entity<EntityName> | null;
         }
 
         const schema = Shopware.EntityDefinition.get(entityName);
@@ -158,6 +159,8 @@ export default class EntityHydrator {
         if (!schema) {
             return null;
         }
+
+        this.cache[cacheKey] = null;
 
         const data = row.attributes;
         data.id = id;

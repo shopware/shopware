@@ -66,4 +66,67 @@ describe('entity-hydrator.data', () => {
 
         expect(entity?.customSearchKeywords).toEqual([]);
     });
+
+    it('hydrates included entities that point at each other', () => {
+        Shopware.EntityDefinition.add('webhook', {
+            entity: 'webhook',
+            properties: {
+                ownerIntegration: { type: 'association', relation: 'many_to_one', entity: 'integration' },
+            },
+            'read-protected': false,
+            'write-protected': false,
+        });
+        Shopware.EntityDefinition.add('integration', {
+            entity: 'integration',
+            properties: {
+                app: { type: 'association', relation: 'one_to_one', entity: 'app' },
+            },
+            'read-protected': false,
+            'write-protected': false,
+        });
+        Shopware.EntityDefinition.add('app', {
+            entity: 'app',
+            properties: {
+                integration: { type: 'association', relation: 'one_to_one', entity: 'integration' },
+            },
+            'read-protected': false,
+            'write-protected': false,
+        });
+
+        const webhook = new EntityHydrator().hydrateEntity(
+            'webhook',
+            {
+                id: 'webhook-id',
+                type: 'webhook',
+                attributes: {},
+                links: {},
+                relationships: { ownerIntegration: { data: { type: 'integration', id: 'integration-id' } } },
+            },
+            {
+                data: [],
+                included: [
+                    {
+                        id: 'integration-id',
+                        type: 'integration',
+                        attributes: {},
+                        links: {},
+                        relationships: { app: { data: { type: 'app', id: 'app-id' } } },
+                    },
+                    {
+                        id: 'app-id',
+                        type: 'app',
+                        attributes: {},
+                        links: {},
+                        relationships: { integration: { data: { type: 'integration', id: 'integration-id' } } },
+                    },
+                ],
+                links: {},
+                aggregations: {},
+            } as never,
+            Shopware.Context.api,
+            new Criteria(),
+        );
+
+        expect(webhook).toHaveProperty('ownerIntegration.app.id', 'app-id');
+    });
 });

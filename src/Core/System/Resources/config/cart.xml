@@ -86,7 +86,7 @@
 
         <input-field type="bool">
             <name>showLegalGuaranteeNotice</name>
-            <defaultValue>true</defaultValue>
+            <defaultValue>false</defaultValue>
             <label>Show legal guarantee notice on checkout page</label>
             <label lang="de-DE">Gewährleistungshinweis auf Bestellabschlussseite anzeigen</label>
             <helpText>Displays the EU-harmonised legal guarantee notice in the customer's storefront language.</helpText>

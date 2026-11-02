@@ -137,9 +137,11 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
-            v-silence-deprecations="'V6_9_0_0'"
             default-item="detail"
             position-identifier="sw-flow-rule-modal"
             :small="false"
@@ -288,7 +290,7 @@
             </template>
             {% endblock %}
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 
     <template #modal-footer>

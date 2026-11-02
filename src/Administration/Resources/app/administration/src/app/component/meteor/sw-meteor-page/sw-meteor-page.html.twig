@@ -114,9 +114,11 @@
                     />
                 </template>
 
-                <template v-else>
+                <sw-silence-deprecations
+                    v-else
+                    flag="V6_9_0_0"
+                >
                     <sw-tabs
-                        v-silence-deprecations="'V6_9_0_0'"
                         position-identifier="sw-meteor-page"
                         :small="false"
                         @new-item-active="emitNewTab"
@@ -125,7 +127,7 @@
                             <slot name="page-tabs"></slot>
                         </template>
                     </sw-tabs>
-                </template>
+                </sw-silence-deprecations>
                 {% endblock %}
             </div>
         </header>

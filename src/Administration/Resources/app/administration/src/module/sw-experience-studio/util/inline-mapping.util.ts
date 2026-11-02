@@ -16,6 +16,11 @@
 
 import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
+type InlineMappingEditorValue = {
+    html: string;
+    addedParagraph: boolean;
+};
+
 /**
  * @private
  */
@@ -65,7 +70,8 @@ const BLOCK_TAGS = new Set([
 ]);
 
 /**
- * Stored text to editor markup.
+ * Stored text to editor markup and the ownership of its paragraph wrapper. The caller retains that ownership
+ * while editing, rather than inferring it from the HTML emitted by the editor.
  *
  * Valid server-parsed tokens outside markup become nodes. Recognition comes from the PHP parser,
  * not from the selectable candidate catalogue: a token stays editable when its label is unavailable, and the node
@@ -74,7 +80,7 @@ const BLOCK_TAGS = new Set([
  *
  * @private
  */
-export function tokensToEditorHtml(text: string, tokens: ContentSystemInlineMappingToken[]): string {
+export function tokensToEditorHtml(text: string, tokens: ContentSystemInlineMappingToken[]): InlineMappingEditorValue {
     let substituted = '';
     let cursor = 0;
 
@@ -142,7 +148,7 @@ function utf8ByteOffsetToUtf16Index(text: string, byteOffset: number): number {
  *
  * This only normalises on the way *into* the editor. Storage is left alone until the author actually edits, because
  * rewriting a value on mere page load would mark the layout dirty for anyone who merely looked at it — and when they
- * do edit, {@link unwrapWholeTextToken} takes the wrapper back off, so the wrapper never reaches storage either.
+ * do edit, the recorded wrapper ownership lets `bareStoredValue()` remove only an editor-added token wrapper.
  *
  * A value that mixes bare text with block elements is left untouched. tiptap may still restructure it, but that is
  * true of any markup this editor is given and is not specific to mapping; guessing at a correct block split would
@@ -150,15 +156,15 @@ function utf8ByteOffsetToUtf16Index(text: string, byteOffset: number): number {
  *
  * @private
  */
-function ensureBlockLevel(html: string): string {
+function ensureBlockLevel(html: string): InlineMappingEditorValue {
     if (html.trim() === '') {
-        return '<p></p>';
+        return { html: '<p></p>', addedParagraph: true };
     }
 
     const document = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html');
     const hasBlock = Array.from(document.body.children).some((child) => BLOCK_TAGS.has(child.tagName));
 
-    return hasBlock ? html : `<p>${html}</p>`;
+    return { html: hasBlock ? html : `<p>${html}</p>`, addedParagraph: !hasBlock };
 }
 
 /**
@@ -173,7 +179,11 @@ function ensureBlockLevel(html: string): string {
  *
  * @private
  */
-export function editorHtmlToTokens(html: string, canonicalTokens: ReadonlyMap<string, string>): string {
+export function editorHtmlToTokens(
+    html: string,
+    canonicalTokens: ReadonlyMap<string, string>,
+    addedParagraph = false,
+): string {
     const document = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html');
     const nodes = Array.from(document.body.querySelectorAll(`span[${MAPPING_TOKEN_ATTRIBUTE}]`));
 
@@ -184,12 +194,11 @@ export function editorHtmlToTokens(html: string, canonicalTokens: ReadonlyMap<st
         node.replaceWith(document.createTextNode(replacement));
     }
 
-    return bareStoredValue(document.body, canonicalTokens) ?? document.body.innerHTML;
+    return bareStoredValue(document.body, canonicalTokens, addedParagraph) ?? document.body.innerHTML;
 }
 
 /**
- * Takes the paragraph back off the two texts whose paragraph belongs to the editor rather than to the author, undoing
- * what `ensureBlockLevel()` added on the way in.
+ * Removes an empty document's paragraph or a recorded editor-added wrapper around a single token.
  *
  * tiptap cannot represent either shape without a block, and storing the block it invents changes what renders:
  *
@@ -202,8 +211,9 @@ export function editorHtmlToTokens(html: string, canonicalTokens: ReadonlyMap<st
  *   rendered page that an author has no way to remove — erasing the text is the one gesture available, and it is
  *   already the gesture that produced this. Emptying the editor must empty the property.
  *
- * Both make the conversion symmetric again, since `ensureBlockLevel()` maps `''` and a bare token to exactly these
- * two documents.
+ * A token-only paragraph is unwrapped only when its caller recorded that `ensureBlockLevel()` added the wrapper
+ * on load. Without that information, preserve the paragraph. Emptying the editor still clears the value regardless
+ * of wrapper ownership.
  *
  * Deliberately narrow. Anything the author added — a second block (two empty paragraphs are spacing they typed),
  * text beside the token, a mark on the chip, an alignment on the paragraph — means the paragraph is theirs and is
@@ -211,7 +221,11 @@ export function editorHtmlToTokens(html: string, canonicalTokens: ReadonlyMap<st
  *
  * @private
  */
-function bareStoredValue(body: HTMLElement, canonicalTokens: ReadonlyMap<string, string>): string | null {
+function bareStoredValue(
+    body: HTMLElement,
+    canonicalTokens: ReadonlyMap<string, string>,
+    addedParagraph: boolean,
+): string | null {
     const paragraph = loneBareParagraph(body);
 
     if (paragraph === null) {
@@ -225,7 +239,7 @@ function bareStoredValue(body: HTMLElement, canonicalTokens: ReadonlyMap<string,
         return '';
     }
 
-    if (!Array.from(paragraph.childNodes).every((node) => node.nodeType === Node.TEXT_NODE)) {
+    if (!addedParagraph || !Array.from(paragraph.childNodes).every((node) => node.nodeType === Node.TEXT_NODE)) {
         return null;
     }
 

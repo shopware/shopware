@@ -35,6 +35,7 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         disabled: false,
         isEditorReady: true,
         editorHtml: '',
+        hasAddedParagraph: false,
         lastEmittedValue: null as string | null,
         parseRevision: 0,
         parseTimeoutId: null as number | null,

@@ -48,7 +48,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
 
     const mountEditor = async (storedValue: string) => {
         const tokens = parseFixture(storedValue);
-        const modelValue = tokensToEditorHtml(storedValue, tokens);
+        const { html: modelValue } = tokensToEditorHtml(storedValue, tokens);
 
         const wrapper = mount(await wrapTestComponent('mt-text-editor', { sync: true }), {
             props: {

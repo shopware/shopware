@@ -69,6 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
         tipTapConfig: object;
         customButtons: CustomButton[];
         editorHtml: string;
+        hasAddedParagraph: boolean;
         isEditorReady: boolean;
         isParsing: boolean;
         hasParseError: boolean;
@@ -83,6 +84,7 @@ export default Shopware.Component.wrapComponentConfig({
             tipTapConfig: {},
             customButtons: [],
             editorHtml: '',
+            hasAddedParagraph: false,
             isEditorReady: false,
             isParsing: false,
             hasParseError: false,
@@ -168,7 +170,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         toEditorHtml(value: string): string {
-            return tokensToEditorHtml(value, this.parsedTokens);
+            const editorValue = tokensToEditorHtml(value, this.parsedTokens);
+            // Ownership belongs to this loaded document; local echoes and background parses keep it.
+            this.hasAddedParagraph = editorValue.addedParagraph;
+
+            return editorValue.html;
         },
 
         async refreshEditorValue(value: string, updateEditorMarkup = true, requestRevision?: number): Promise<void> {
@@ -303,7 +309,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.editorHtml = html;
-            this.lastEmittedValue = editorHtmlToTokens(html, this.knownTokenTexts);
+            this.lastEmittedValue = editorHtmlToTokens(html, this.knownTokenTexts, this.hasAddedParagraph);
 
             this.$emit('update:value', this.lastEmittedValue);
             this.scheduleEditorValueParse(this.lastEmittedValue);

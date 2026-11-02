@@ -12,6 +12,9 @@ async function createWrapper() {
                 'sw-media-modal-v2': true,
             },
             provide: {
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('default-folder-id'),
+                },
                 repositoryFactory: {
                     create: () => {
                         return {

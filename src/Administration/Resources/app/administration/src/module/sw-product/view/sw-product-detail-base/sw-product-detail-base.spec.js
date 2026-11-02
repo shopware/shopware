@@ -85,6 +85,9 @@ async function createWrapper() {
                 },
             },
             provide: {
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('default-folder-id'),
+                },
                 repositoryFactory: {
                     create: () => ({
                         search: () =>

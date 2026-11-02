@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -51,11 +52,17 @@ final readonly class DefaultMappingSeeder
             ? $this->types->get($element->component)
             : null;
         $consumers = $element->contextDefinitions->getAllConsumers();
+        $baseKeyResolver = new ConsumerBaseKeyResolver();
+        $occupiedBaseKeys = [];
+        foreach ($consumers as $contextKey => $consumer) {
+            $occupiedBaseKeys[$baseKeyResolver->resolve($consumer->propertyAlias ?? (string) $contextKey)] = true;
+        }
         $changed = false;
 
         foreach ($specification?->properties() ?? [] as $propertyKey => $property) {
             $source = $property->defaultMapping();
-            if (!$property->mappable() || $source === null || isset($consumers[$propertyKey])) {
+            $baseKey = $baseKeyResolver->resolve($propertyKey);
+            if (!$property->mappable() || $source === null || isset($consumers[$propertyKey]) || isset($occupiedBaseKeys[$baseKey])) {
                 continue;
             }
 
@@ -70,6 +77,7 @@ final readonly class DefaultMappingSeeder
                 scope: ConsumerScope::Root,
                 source: $candidate->source,
             );
+            $occupiedBaseKeys[$baseKey] = true;
             $changed = true;
         }
 

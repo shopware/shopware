@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -50,14 +51,18 @@ final class MapProperty extends AbstractLayoutMutation
 
         $definitions = $node->contextDefinitions;
         $consumers = $definitions->getAllConsumers();
+        $baseKeyResolver = new ConsumerBaseKeyResolver();
+        $targetBaseKey = $baseKeyResolver->resolve($this->propertyKey);
 
         foreach ($consumers as $contextKey => $consumer) {
-            if (($consumer->propertyAlias ?? (string) $contextKey) !== $this->propertyKey) {
+            $contextKey = (string) $contextKey;
+            $baseKey = $baseKeyResolver->resolve($consumer->propertyAlias ?? $contextKey);
+            if ($contextKey !== $this->propertyKey && $baseKey !== $targetBaseKey) {
                 continue;
             }
 
-            if ((string) $contextKey !== $this->propertyKey || $consumer->source === null) {
-                throw ContentSystemException::propertyAliasCollision($this->propertyKey, (string) $contextKey, $this->propertyKey);
+            if ($contextKey !== $this->propertyKey || $consumer->source === null) {
+                throw ContentSystemException::propertyAliasCollision($targetBaseKey, $contextKey, $this->propertyKey);
             }
         }
 

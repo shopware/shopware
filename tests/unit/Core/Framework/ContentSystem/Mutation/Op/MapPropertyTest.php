@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -69,14 +70,56 @@ class MapPropertyTest extends TestCase
 
     public function testMappingTheSamePropertyAgainReplacesOnlyThatMapping(): void
     {
-        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')], 'product');
+        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withConsumer('selectedHeadline', ContextType::Single, propertyAlias: 'headline')
+            ->build();
+        $tree = new StoredTree([$element], 'product');
         $tree = $this->map('text', 'product.name')->apply($tree);
         $tree = $this->map('text', 'product.metaTitle')->apply($tree);
 
         $consumers = $tree->roots[0]->contextDefinitions->getAllConsumers();
 
-        static::assertCount(1, $consumers);
+        static::assertCount(2, $consumers);
         static::assertSame('product.metaTitle', $consumers['text']->source?->displayName());
+        static::assertSame($element->contextDefinitions->getAllConsumers()['selectedHeadline'], $consumers['selectedHeadline']);
+    }
+
+    #[DataProvider('conflictingConsumers')]
+    public function testRejectsMappingOverAnOrdinaryConsumer(string $contextKey, ?string $propertyAlias): void
+    {
+        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withConsumer($contextKey, ContextType::Single, propertyAlias: $propertyAlias)
+            ->build();
+        $tree = new StoredTree([$element], 'product');
+
+        $this->expectExceptionObject(ContentSystemException::propertyAliasCollision('text', $contextKey, 'text'));
+
+        $this->map('text', 'product.name')->apply($tree);
+    }
+
+    /**
+     * @return iterable<string, array{string, string|null}>
+     */
+    public static function conflictingConsumers(): iterable
+    {
+        yield 'same destination' => ['text', null];
+        yield 'alias writes the destination' => ['selectedText', 'text'];
+        yield 'dotted consumer holds the same base' => ['text.description', null];
+        yield 'same consumer key with a different destination' => ['text', 'headline'];
+    }
+
+    public function testDottedConsumerAliasedToAnotherDestinationDoesNotBlockMapping(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withConsumer('text.description', ContextType::Single, propertyAlias: 'headline')
+            ->build();
+
+        $mapped = $this->map('text', 'product.name')->apply(new StoredTree([$element], 'product'))->roots[0];
+
+        $consumers = $mapped->contextDefinitions->getAllConsumers();
+        static::assertCount(2, $consumers);
+        static::assertSame($element->contextDefinitions->getAllConsumers()['text.description'], $consumers['text.description']);
+        static::assertSame('product.name', $consumers['text']->source?->displayName());
     }
 
     public function testMappingPreservesExistingDataRequirements(): void

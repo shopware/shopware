@@ -597,6 +597,37 @@ class LayoutMutationControllerTest extends TestCase
         yield 'empty source' => [['rootSource' => '']];
     }
 
+    #[DataProvider('conflictingMappingConsumers')]
+    public function testMapPropertyRejectsConflictingOrdinaryWiring(string $contextKey, ?string $propertyAlias): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'layout' => [[
+                'id' => 'price', 'component' => 'Sw:Product:PriceDisplay',
+                'acceptsContext' => [$contextKey => [
+                    'type' => 'single', 'required' => false, 'propertyAlias' => $propertyAlias,
+                ]],
+            ]],
+            'elementId' => 'price', 'propertyKey' => 'product', 'rootSource' => 'product',
+            'source' => ['type' => 'root', 'id' => 'product'],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::PROPERTY_ALIAS_COLLISION, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string|null}>
+     */
+    public static function conflictingMappingConsumers(): iterable
+    {
+        yield 'same destination' => ['product', null];
+        yield 'alias writes the destination' => ['selectedProduct', 'product'];
+        yield 'dotted consumer holds the same base' => ['product.manufacturer', null];
+        yield 'same consumer key with a different destination' => ['product', 'otherProduct'];
+    }
+
     public function testMapPropertyRejectsAnUnknownRootSourceBeforeApplyingTheMutation(): void
     {
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [

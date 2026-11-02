@@ -4,6 +4,18 @@
 
 const fs = require('fs');
 const path = require('path');
+const { parse } = require('@typescript-eslint/parser');
+
+/**
+ * The spec files in a mini-module's `tests/` that test what other code sees, so they import only `../index`.
+ *
+ * @example
+ * CONTRACT_SPEC.test('src/core/order/primary-delivery/tests/pinned.spec.ts') // → true
+ */
+const CONTRACT_SPEC = /(^|\/)(requirements|pinned|regressions|public-api)\.spec\.[jt]s$/;
+
+/** The kinds of members a `public` list of `definePublicComponent()` names, that a component instance carries. */
+const INSTANCE_MEMBER_KINDS = ['props', 'computed', 'methods'];
 
 /**
  * Finds the mini-module a path belongs to and the part of it the path points at.
@@ -34,4 +46,72 @@ function findMiniModule(relativePath, cwd) {
     return null;
 }
 
-module.exports = { findMiniModule };
+/**
+ * Depth-first search for the first node in an AST that matches.
+ *
+ * @param {object} node
+ * @param {(node: object) => boolean} matches
+ * @returns {object|null}
+ */
+function findNode(node, matches) {
+    if (!node || typeof node.type !== 'string') {
+        return null;
+    }
+    if (matches(node)) {
+        return node;
+    }
+
+    for (const [key, value] of Object.entries(node)) {
+        if (key === 'parent') {
+            continue;
+        }
+
+        for (const child of Array.isArray(value) ? value : [value]) {
+            const found = child && typeof child === 'object' ? findNode(child, matches) : null;
+            if (found) {
+                return found;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Reads the instance members a mini-module's `index.ts` lists in `definePublicComponent({ public: { … } })`:
+ * the props, computed values and methods that other code and extensions may use on the component.
+ * Use it to check code against the public API without loading the component.
+ *
+ * @example
+ * // index.ts: definePublicComponent({ name: 'sw-x', load, public: { props: ['value'], blocks: ['sw_x'] } })
+ * readPublicMembers('src/module/sw-x', cwd) // → { props: ['value'], computed: [], methods: [] }
+ *
+ * @param {string} root - the module's root, relative to `cwd`
+ * @param {string} cwd - the Administration root
+ * @returns {{ props: string[], computed: string[], methods: string[] }} empty lists when index.ts declares none
+ */
+function readPublicMembers(root, cwd) {
+    const members = Object.fromEntries(INSTANCE_MEMBER_KINDS.map((kind) => [kind, []]));
+    const index = path.join(cwd, root, 'index.ts');
+    if (!fs.existsSync(index)) {
+        return members;
+    }
+
+    const declaration = findNode(
+        parse(fs.readFileSync(index, 'utf-8')),
+        (node) => node.type === 'CallExpression' && node.callee.name === 'definePublicComponent',
+    );
+    const publicApi = declaration?.arguments[0]?.properties?.find((property) => property.key?.name === 'public');
+
+    for (const property of publicApi?.value.properties ?? []) {
+        if (INSTANCE_MEMBER_KINDS.includes(property.key?.name) && property.value.type === 'ArrayExpression') {
+            members[property.key.name] = property.value.elements
+                .filter((element) => element?.type === 'Literal' && typeof element.value === 'string')
+                .map((element) => element.value);
+        }
+    }
+
+    return members;
+}
+
+module.exports = { CONTRACT_SPEC, findMiniModule, readPublicMembers };

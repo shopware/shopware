@@ -82,6 +82,12 @@ describe('mini-module-boundaries', () => {
                 errors: [{ messageId: 'privateImport' }],
             },
             {
+                name: 'public-api specs reach into src',
+                filename: `${moduleRoot}/tests/public-api.spec.ts`,
+                code: "import SwExample from '../src/sw-example';",
+                errors: [{ messageId: 'contractTestImport' }],
+            },
+            {
                 name: 'contract tests use the private API',
                 filename: `${moduleRoot}/tests/regressions.spec.ts`,
                 code: "import { helper } from '../private';",

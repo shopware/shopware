@@ -10,17 +10,30 @@ const mailHeaderFooterMock = {
     name: 'Order Header',
     salesChannels: [
         {
+            id: 'sales-channel-id',
             name: 'Storefront',
         },
     ],
     isNew: () => false,
 };
 
+const searchMock = jest.fn();
+const saveMock = jest.fn(() => Promise.resolve());
+
+const saveButtonStub = {
+    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+    emits: ['click'],
+};
+
 const repositoryMockFactory = () => {
     return {
-        search: () => Promise.resolve({}),
+        search: searchMock,
+        save: saveMock,
         get: () => {
-            return Promise.resolve(mailHeaderFooterMock);
+            return Promise.resolve({
+                ...mailHeaderFooterMock,
+                salesChannels: mailHeaderFooterMock.salesChannels.map((salesChannel) => ({ ...salesChannel })),
+            });
         },
         create: () => {
             return {
@@ -32,7 +45,7 @@ const repositoryMockFactory = () => {
     };
 };
 
-const createWrapper = async (privileges = []) => {
+const createWrapper = async (privileges = [], stubs = {}) => {
     return mount(await wrapTestComponent('sw-mail-header-footer-detail', { sync: true }), {
         global: {
             provide: {
@@ -79,6 +92,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-code-editor': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
+                ...stubs,
             },
         },
     });
@@ -86,6 +100,25 @@ const createWrapper = async (privileges = []) => {
 
 describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     let wrapper;
+
+    beforeEach(() => {
+        searchMock.mockReset().mockResolvedValue([]);
+        saveMock.mockClear();
+    });
+
+    const saveAndCaptureSearchCriteria = async () => {
+        wrapper = await createWrapper(['mail_templates.editor'], {
+            'sw-button-process': saveButtonStub,
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(searchMock).toHaveBeenCalled();
+
+        return searchMock.mock.calls.at(-1)[0];
+    };
 
     it('all fields should be disabled without edit permission', async () => {
         wrapper = await createWrapper();
@@ -138,5 +171,68 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should not limit the sales channels when looking for already assigned ones', async () => {
+        const criteria = await saveAndCaptureSearchCriteria();
+
+        expect(criteria.limit).toBeNull();
+    });
+
+    it('should let the server pick the sales channels assigned to another mail header and footer', async () => {
+        const criteria = await saveAndCaptureSearchCriteria();
+
+        expect(criteria.ids).toEqual(['sales-channel-id']);
+        expect(criteria.filters).toEqual([
+            {
+                type: 'not',
+                operator: 'OR',
+                queries: [
+                    { type: 'equals', field: 'mailHeaderFooterId', value: null },
+                    { type: 'equals', field: 'mailHeaderFooterId', value: expect.any(String) },
+                ],
+            },
+        ]);
+    });
+
+    it('should not warn about sales channels that are no longer assigned', async () => {
+        searchMock.mockImplementation((criteria) => {
+            if (!criteria.ids?.includes('sales-channel-id')) {
+                return Promise.resolve([]);
+            }
+
+            return Promise.resolve([
+                {
+                    id: 'sales-channel-id',
+                    translated: { name: 'Storefront' },
+                },
+            ]);
+        });
+
+        wrapper = await createWrapper(['mail_templates.editor'], {
+            'sw-button-process': saveButtonStub,
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal">
+                        <button class="sw-modal__close" @click="$emit('modal-close')"></button>
+                        <slot></slot>
+                    </div>`,
+            },
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-mail-header-footer-detail__sales-channel-list-entry')).toHaveLength(1);
+
+        await wrapper.find('.sw-modal__close').trigger('click');
+        await wrapper.findComponent('.sw-mail-header-footer-detail__sales-channel').vm.$emit('update:entityCollection', []);
+
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+        expect(saveMock).toHaveBeenCalledTimes(1);
     });
 });

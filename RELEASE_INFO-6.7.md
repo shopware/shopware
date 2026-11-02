@@ -413,6 +413,12 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
 
+### vue-i18n 11 in the Administration
+
+The Administration uses vue-i18n 11 instead of 10, which fixes the advisories GHSA-83rm-6c8r-g728 and GHSA-8rc2-428q-7ww3.
+In snippets, a backslash now escapes `{`, `}`, `@`, `|` and the backslash itself, so `\{name\}` renders as `{name}`.
+If a snippet of your extension needs to display such a backslash, escape it with a second backslash.
+
 ### Promotion code filter in the order list only matches promotion line items
 
 The "Promotion code" filter in the order list now only checks line items of type `promotion`.
@@ -423,6 +429,10 @@ Line items of other types that carry a `code` in their payload, for example from
 
 `mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
 The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
+
+### Bulk order status handler results
+
+`bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
 ## API
 

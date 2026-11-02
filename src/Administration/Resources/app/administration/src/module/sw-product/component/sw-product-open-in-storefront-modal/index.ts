@@ -151,6 +151,7 @@ export default Shopware.Component.wrapComponentConfig({
         async loadSelectedSalesChannel(): Promise<void> {
             const salesChannel = this.selectedSalesChannel;
             if (!salesChannel?.active) {
+                this.isLoading = false;
                 return;
             }
 

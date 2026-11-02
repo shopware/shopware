@@ -260,6 +260,24 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(wrapper.find('.sw-product-open-in-storefront-modal__sales-channel-select').exists()).toBe(false);
     });
 
+    it.each([
+        ['an inactive sales channel', 'inactive'],
+        ['no sales channel', null],
+    ])('stops loading when the selection changes to %s during a request', async (_, nextSalesChannelId) => {
+        const { wrapper } = await createWrapper({
+            salesChannels: [salesChannel({ id: 'active' }), salesChannel({ id: 'inactive', active: false })],
+        });
+        productStorefrontUrlApiService.fetchSalesChannel = jest.fn(() => new Promise(() => {}));
+
+        await select(wrapper, 'active');
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+
+        await wrapper.setData({ selectedSalesChannelId: nextSalesChannelId });
+        await flushPromises();
+
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+    });
+
     it('shows the product number in the title', async () => {
         const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000.2' } });
 

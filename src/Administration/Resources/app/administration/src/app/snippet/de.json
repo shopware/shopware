@@ -1645,6 +1645,11 @@
         "newValue": "Neuer Wert",
         "remindMeLater": "Später erinnern",
         "selectAnOption": "Lies die verfügbaren Optionen sorgfältig durch und wähle diejenige, die am besten zu Deinem Szenario passt:",
+        "moveShopPermanently": {
+          "title": "Shop-ID beibehalten?",
+          "text": "Tu das nur, wenn Du Deinen Live-Shop dauerhaft auf diese Installation umgezogen hast. Die Apps ziehen hierher um und funktionieren in der vorherigen Installation nicht mehr, auch wenn sie noch läuft. Wenn das eine Staging- oder Testkopie ist, brich ab und wähle stattdessen \"Neue Shop-ID generieren\".",
+          "confirm": "Shop-ID beibehalten"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL Umgebungsvariable",
@@ -1660,7 +1665,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "Das ist nur die richtige Option, wenn Du Deinen Live-Shop dauerhaft auf einen neuen Server oder in eine neue Umgebung umgezogen hast. Shopware registriert die Apps mit derselben Shop-ID neu, sodass sie ihre Daten behalten. In der vorherigen Installation funktionieren die Apps danach nicht mehr, auch wenn sie noch läuft. Wähle diese Option nie für eine Staging- oder Testkopie: Sonst funktionieren die Apps in Deinem Live-Shop nicht mehr.",
+            "description": "Das ist nur die richtige Option, wenn Du Deinen Live-Shop dauerhaft auf einen neuen Server oder in eine neue Umgebung umgezogen hast. Shopware registriert die Apps mit derselben Shop-ID neu, sodass sie ihre Daten behalten. In der vorherigen Installation funktionieren die Apps danach nicht mehr, auch wenn sie noch läuft.",
             "name": "Shop-ID beibehalten"
           },
           "reinstall-apps": {

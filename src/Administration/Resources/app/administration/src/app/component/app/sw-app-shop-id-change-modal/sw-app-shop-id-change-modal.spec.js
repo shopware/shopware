@@ -95,6 +95,10 @@ describe('sw-app-shop-id-change-modal', () => {
             'sw-loader': await wrapTestComponent('sw-loader'),
             'router-link': true,
             'sw-help-text': true,
+            'sw-confirm-modal': {
+                template: '<div class="sw-confirm-modal"></div>',
+                emits: ['confirm', 'cancel', 'close'],
+            },
         };
     });
 
@@ -159,11 +163,41 @@ describe('sw-app-shop-id-change-modal', () => {
         });
         wrapper.vm.createNotificationError = jest.fn();
 
+        await wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy').at(1).trigger('click');
         await wrapper.get('.mt-button--primary').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'APP_URL "https://shop.test" could not be verified right now, try again later',
         });
+    });
+
+    it('asks for confirmation before keeping the shop identifier', async () => {
+        const changeShopIdMock = wrapper.vm.shopIdChangeService.changeShopId;
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+        await wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy').at(0).trigger('click');
+        await wrapper.get('.mt-button--primary').trigger('click');
+
+        expect(changeShopIdMock).not.toHaveBeenCalled();
+
+        wrapper.findComponent(stubs['sw-confirm-modal']).vm.$emit('confirm');
+        await flushPromises();
+
+        expect(changeShopIdMock.mock.calls[0][0].name).toBe('move-shop-permanently');
+        expect(wrapper.find('.sw-confirm-modal').exists()).toBe(false);
+    });
+
+    it('keeps the shop identifier unchanged when the confirmation is cancelled', async () => {
+        const changeShopIdMock = wrapper.vm.shopIdChangeService.changeShopId;
+
+        await wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy').at(0).trigger('click');
+        await wrapper.get('.mt-button--primary').trigger('click');
+
+        wrapper.findComponent(stubs['sw-confirm-modal']).vm.$emit('cancel');
+        await flushPromises();
+
+        expect(changeShopIdMock).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-confirm-modal').exists()).toBe(false);
     });
 });

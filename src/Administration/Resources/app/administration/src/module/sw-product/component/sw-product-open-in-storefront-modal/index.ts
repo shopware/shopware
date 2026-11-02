@@ -33,6 +33,7 @@ export default Shopware.Component.wrapComponentConfig({
         'acl',
         'repositoryFactory',
         'systemConfigApiService',
+        'productStorefrontUrlApiService',
     ],
 
     emits: ['modal-close'],
@@ -158,7 +159,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const storefrontSalesChannel = await Shopware.Service('productStorefrontUrlApiService').fetchSalesChannel(
+                const storefrontSalesChannel = await this.productStorefrontUrlApiService.fetchSalesChannel(
                     this.product.id,
                     salesChannel.id,
                 );

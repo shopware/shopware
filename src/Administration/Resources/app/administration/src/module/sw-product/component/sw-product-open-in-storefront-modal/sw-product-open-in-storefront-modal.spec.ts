@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import type ProductStorefrontUrlApiService from '../../service/product-storefront-url.api.service';
 import type { ProductStorefrontSalesChannel } from '../../service/product-storefront-url.api.service';
 
 const productStorefrontUrlApiService = { fetchSalesChannel: jest.fn() };
@@ -74,6 +73,7 @@ async function createWrapper({
                 acl: { can: (privilege: string) => privilege !== 'system_config:read' || canReadConfig },
                 repositoryFactory: { create: () => repository },
                 systemConfigApiService,
+                productStorefrontUrlApiService,
             },
         },
     });
@@ -91,14 +91,6 @@ function failingReasons(wrapper: Awaited<ReturnType<typeof createWrapper>>['wrap
 }
 
 describe('module/sw-product/component/sw-product-open-in-storefront-modal', () => {
-    beforeAll(() => {
-        // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- registers a test double for the module service
-        Shopware.Service().register(
-            'productStorefrontUrlApiService',
-            () => productStorefrontUrlApiService as unknown as ProductStorefrontUrlApiService,
-        );
-    });
-
     it('loads nothing before a sales channel is selected', async () => {
         const { wrapper } = await createWrapper({
             salesChannels: [

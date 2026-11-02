@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -44,12 +46,14 @@ class PrimaryKeyResolver
 
         $context = Context::createDefaultContext();
 
-        return $this->resolvePrimaryKey(
+        $record = $this->resolvePrimaryKey(
             $config,
             $definition,
             $this->handleManyToManyAssociations($config, $definition, $record, $context),
             $context
         );
+
+        return $this->resolveReverseOneToOnePrimaryKeys($definition, $record, $context);
     }
 
     /**
@@ -119,6 +123,70 @@ class PrimaryKeyResolver
 
         if ($id) {
             $record[$primaryKeyProperty] = $id;
+        }
+
+        return $record;
+    }
+
+    /**
+     * A one-to-one association whose foreign key lives on the referenced entity (e.g. `order.orderCustomer`) can only
+     * be updated if the record carries the referenced entity's primary key. Without it, the DAL generates a new id and
+     * tries to insert a second referenced entity. Look the existing one up by its foreign key to the imported entity.
+     *
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
+    private function resolveReverseOneToOnePrimaryKeys(EntityDefinition $definition, iterable $record, Context $context): iterable
+    {
+        $record = \is_array($record) ? $record : iterator_to_array($record);
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
+            $association = $record[$field->getPropertyName()] ?? null;
+            if (!\is_array($association)) {
+                continue;
+            }
+
+            $localField = $definition->getFields()->getByStorageName($field->getStorageName());
+            if (!$localField instanceof IdField) {
+                continue;
+            }
+
+            $parentId = $record[$localField->getPropertyName()] ?? null;
+            if (!\is_string($parentId) || $parentId === '') {
+                continue;
+            }
+
+            $referenceDefinition = $field->getReferenceDefinition();
+            $referenceFkField = $referenceDefinition->getFields()->getByStorageName($field->getReferenceField());
+            $referenceIdFields = $referenceDefinition->getPrimaryKeys()->filter(static fn (Field $field) => $field instanceof IdField);
+            $referenceIdField = $referenceIdFields->first();
+
+            if (!$referenceFkField instanceof FkField || $referenceIdFields->count() !== 1 || !$referenceIdField) {
+                continue;
+            }
+
+            if (isset($association[$referenceIdField->getPropertyName()])) {
+                continue;
+            }
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter($referenceFkField->getPropertyName(), strtolower($parentId)));
+            $criteria->setLimit(1);
+
+            $id = $this->definitionInstanceRegistry
+                ->getRepository($referenceDefinition->getEntityName())
+                ->searchIds($criteria, $context)
+                ->firstId();
+
+            if ($id) {
+                $association[$referenceIdField->getPropertyName()] = $id;
+                $record[$field->getPropertyName()] = $association;
+            }
         }
 
         return $record;

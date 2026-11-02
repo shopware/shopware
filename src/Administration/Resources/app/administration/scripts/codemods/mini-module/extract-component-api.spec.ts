@@ -16,6 +16,7 @@ describe('extractComponentApi', () => {
             {% block sw_example %}
                 <slot name="header"></slot>
                 {%- block sw_example_content %}<slot />{% endblock %}
+                {% if alternative %}{% block sw_example_content %}{% endblock %}{% endif %}
             {% endblock %}
         `;
 

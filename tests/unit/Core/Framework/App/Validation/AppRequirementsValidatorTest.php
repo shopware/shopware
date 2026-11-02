@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[Package('framework')]
 #[CoversClass(AppRequirementsValidator::class)]
-#[CoversClass(UnmetRequirementError::class)]
 class AppRequirementsValidatorTest extends TestCase
 {
     public function testValidateWithSatisfiedRequirement(): void

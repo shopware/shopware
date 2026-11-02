@@ -198,8 +198,12 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - **Plugins with references outside their element** can still point to replaced nodes.
 - **Plugin options** of existing elements are not applied again.
   A changed plugin element asks for a reload instead.
-- **Inline scripts** in morphed markup do not run again, and no notice asks for a reload.
-  Plugins should use the PluginManager instead.
+- **Inline scripts** in the body do not run again after the morph.
+  An added, changed or removed inline script asks for a reload, the markup is still applied.
+  This includes data blocks such as `application/json`, because plugins read them only once.
+  CSP nonces, regions with `data-sw-twig-hmr-preserve` and scripts that other scripts added are ignored.
+  Until the first refresh, removed scripts are not detected, like in the head.
+  Plugins should use the PluginManager instead of inline scripts.
 - **Offcanvas content without a GET URL** keeps the old markup until it is opened again.
   This covers offcanvas content loaded with a POST request, except for the cart.
 - **Head changes** to `meta`, `link`, `script`, `style` and `base` elements ask for a reload, the title updates in place.

@@ -60,7 +60,7 @@ Keep the markers out of commits.
 | Override added | Create a plugin override of a core template | Page shows the override without reload, the watcher log marks the file as `(added or removed)` |
 | Override removed | Delete the override again | Page falls back to the core template without reload |
 | Unsafe change | Remove the `id` of an open modal, for example in `component/twig-hmr-demo/modal.html.twig` | The notice names the open element and offers a "Reload page" button, the page keeps its content until you reload |
-| Script change | Add `<script>console.log(1)</script>` to a body template | The markup is applied, the script does not run, no notice, as documented in the README limits |
+| Body script change | Add `<script>console.log(1)</script>` to a body template | The markup is applied, the script does not run, notice with "An inline script in the page changed" |
 | Head script change | Edit the inline script in `utilities/form-validation-config.html.twig` | Notice with "The <head> changed" and a "Reload page" button |
 | Symfony toolbar | Edit any template with the toolbar open | Toolbar stays, its `_wdt` request loads from the proxy origin |
 | Mini cart after POST | Add a product to the cart on a detail page, then edit `component/checkout/offcanvas-cart.html.twig` | Offcanvas stays open, line items stay, marker updates |

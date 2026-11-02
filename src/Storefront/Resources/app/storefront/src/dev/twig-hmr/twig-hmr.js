@@ -15,7 +15,7 @@
  * @private
  */
 import { Idiomorph } from 'idiomorph';
-import { createOwnership, removeServerPreserved, PRESERVE_ATTRIBUTE } from './ownership';
+import { createOwnership, removeServerPreserved, CLIENT_OWNED_SELECTOR, PRESERVE_ATTRIBUTE } from './ownership';
 import { planPluginElements, describeElement, TEMPORARY_ID_PREFIX } from './plugin-policy';
 import { createInteractionState, findInertBackground, OVERLAY_SELECTOR } from './interaction-state';
 import { addReloadReasons, setRenderError, resetNotice } from './notice';
@@ -34,14 +34,15 @@ const RESET_HEADERS = { 'sw-twig-hmr-reset': '1' };
  * @property {ReturnType<typeof createOwnership>} ownership
  * @property {ReturnType<typeof createInteractionState>} interaction
  * @property {Element|null} pageBaseline - the server markup of the body that the page shows
- * @property {HeadSnapshot} headBaseline - the head elements of the last render
+ * @property {MarkupSnapshot} headBaseline - the head elements of the last render
+ * @property {MarkupSnapshot} scriptBaseline - the inline scripts in the body of the last render
  * @property {WeakMap<Element, {url: string, promise: Promise<string|null>}>} fragmentBaselines
  * @property {MutationObserver|null} sourceObserver
  */
 
 /**
- * @typedef {object} HeadSnapshot
- * @property {string[]} elements - the markup of the meta, link, script, style and base elements
+ * @typedef {object} MarkupSnapshot
+ * @property {string[]} elements - the markup of the compared elements
  * @property {boolean} fromServer
  */
 
@@ -56,31 +57,40 @@ const HEAD_ELEMENTS = new Set(['meta', 'link', 'script', 'style', 'base']);
 /**
  * @param {Document} doc
  * @param {boolean} fromServer - false for the live head, which can already hold elements that scripts added
- * @returns {HeadSnapshot}
+ * @returns {MarkupSnapshot}
  */
 function getHeadSnapshot(doc, fromServer) {
     // Only direct children: without scripting, DOMParser parses the content of `<noscript>` as elements.
     const elements = [...doc.head.children]
         .filter((element) => HEAD_ELEMENTS.has(element.localName))
-        .map((element) => {
-            // A CSP nonce differs on every request, and browsers hide it in the live DOM.
-            const copy = element.cloneNode(true);
-            copy.removeAttribute('nonce');
-
-            return copy.outerHTML;
-        });
+        .map(serializeWithoutNonce);
 
     return { elements, fromServer };
 }
 
 /**
- * @param {HeadSnapshot} previous
- * @param {HeadSnapshot} next - always a server render
+ * @param {Element} element
+ * @returns {string}
  */
-function hasHeadChanged(previous, next) {
-    const remaining = [...previous.elements];
+function serializeWithoutNonce(element) {
+    // A CSP nonce differs on every request, and browsers hide it in the live DOM.
+    const copy = element.cloneNode(true);
+    copy.removeAttribute('nonce');
 
-    const added = next.elements.some((element) => {
+    return copy.outerHTML;
+}
+
+/**
+ * Compares two lists of markup as multisets.
+ *
+ * @param {string[]} previous
+ * @param {string[]} next
+ * @returns {{added: boolean, removed: boolean}}
+ */
+function compareMarkup(previous, next) {
+    const remaining = [...previous];
+
+    const added = next.some((element) => {
         const index = remaining.indexOf(element);
         if (index === -1) {
             return true;
@@ -91,8 +101,34 @@ function hasHeadChanged(previous, next) {
         return false;
     });
 
-    // Scripts add elements to the live head, for example styles or tracking scripts, so only a server render shows removals.
-    return added || (previous.fromServer && remaining.length > 0);
+    return { added, removed: remaining.length > 0 };
+}
+
+/**
+ * Elements from DOMParser never run, so the morph updates inline scripts in the body without executing them.
+ * Data blocks such as `application/json` count as well, plugins read them only once.
+ *
+ * The morph keeps client owned regions, so their scripts do not count.
+ *
+ * @param {Element} body - without the server preserved elements
+ * @param {boolean} fromServer - false for the live body
+ * @returns {MarkupSnapshot}
+ */
+function getInlineScriptSnapshot(body, fromServer) {
+    const scripts = [...body.querySelectorAll('script:not([src])')].filter((script) => !script.closest(CLIENT_OWNED_SELECTOR));
+
+    return { elements: scripts.map(serializeWithoutNonce), fromServer };
+}
+
+/**
+ * @param {MarkupSnapshot} previous
+ * @param {MarkupSnapshot} next - always a server render
+ */
+function hasSnapshotChanged(previous, next) {
+    const { added, removed } = compareMarkup(previous.elements, next.elements);
+
+    // Scripts add elements to the live page, for example styles or tracking scripts, so only a server render shows removals.
+    return added || (previous.fromServer && removed);
 }
 
 const shownSetupWarnings = new Set();
@@ -225,6 +261,7 @@ export function init({ withBaseline = true } = {}) {
         interaction: createInteractionState(document),
         pageBaseline: withBaseline ? removeServerPreserved(document.body.cloneNode(true)) : null,
         headBaseline: getHeadSnapshot(document, false),
+        scriptBaseline: getInlineScriptSnapshot(removeServerPreserved(document.body.cloneNode(true)), false),
         fragmentBaselines: new WeakMap(),
         sourceObserver: null,
     };
@@ -701,11 +738,17 @@ function apply(targets) {
     }
 
     const headSnapshot = getHeadSnapshot(page.document, true);
-    if (hasHeadChanged(session.headBaseline, headSnapshot)) {
+    if (hasSnapshotChanged(session.headBaseline, headSnapshot)) {
         reasons.push('The <head> changed. Meta, link, script and style elements in the head are only applied by a reload.');
     }
 
+    const scriptSnapshot = getInlineScriptSnapshot(page.nextBaseline, true);
+    if (hasSnapshotChanged(session.scriptBaseline, scriptSnapshot)) {
+        reasons.push('An inline script in the page changed. Scripts only run after a reload.');
+    }
+
     session.headBaseline = headSnapshot;
+    session.scriptBaseline = scriptSnapshot;
     session.pageBaseline = page.nextBaseline;
 
     return reasons;

@@ -868,6 +868,54 @@ describe('dev/twig-hmr', () => {
         expect(notice().textContent).toContain('<head> changed');
     });
 
+    describe('with inline scripts in the body', () => {
+        const scriptNotice = 'An inline script in the page changed. Scripts only run after a reload.';
+
+        it.each([
+            ['changed', '<script>window.a = 1;</script>', '<script>window.a = 2;</script>'],
+            ['added', '', '<script>window.a = 1;</script>'],
+            ['changed JSON data', '<script type="application/json">{"a":1}</script>', '<script type="application/json">{"a":2}</script>'],
+        ])('asks for a reload when a script was %s and still updates the markup', async (_, before, after) => {
+            setup(`<main><p>Version 1</p>${before}</main>`);
+            pages['http://localhost/'] = { html: page(`<main><p>Version 2</p>${after}</main>`) };
+
+            await refresh(['page.html.twig']);
+
+            expect(notice().textContent).toContain(scriptNotice);
+            expect(document.querySelector('main p').textContent).toBe('Version 2');
+        });
+
+        it('asks for a reload when a later render removes a script', async () => {
+            setup('<main><script>window.a = 1;</script></main>');
+            pages['http://localhost/'] = { html: page('<main><script>window.a = 1;</script></main>') };
+            await refresh(['page.html.twig']);
+            expect(notice()).toBeNull();
+
+            pages['http://localhost/'] = { html: page('<main></main>') };
+            await refresh(['page.html.twig']);
+
+            expect(notice().textContent).toContain(scriptNotice);
+        });
+
+        it('ignores CSP nonces, scripts that scripts added and preserved regions', async () => {
+            setup(`
+                <main><script nonce="first">window.a = 1;</script></main>
+                <div data-sw-twig-hmr-preserve><script>window.b = 1;</script></div>
+            `);
+            document.body.insertAdjacentHTML('beforeend', '<script>window.addedByPlugin = 1;</script>');
+            pages['http://localhost/'] = {
+                html: page(`
+                    <main><script nonce="second">window.a = 1;</script></main>
+                    <div data-sw-twig-hmr-preserve><script>window.b = 2;</script></div>
+                `),
+            };
+
+            await refresh(['page.html.twig']);
+
+            expect(notice()).toBeNull();
+        });
+    });
+
     it('shows a render error until the next update succeeds', async () => {
         setup('<main><p class="text">Version 1</p></main>');
         pages['http://localhost/'] = {

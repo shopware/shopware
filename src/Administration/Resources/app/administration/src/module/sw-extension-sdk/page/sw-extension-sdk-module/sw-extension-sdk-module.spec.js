@@ -65,8 +65,6 @@ async function createWrapper(back = null, push = jest.fn()) {
     });
 }
 
-jest.setTimeout(8000);
-
 describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     /** @type Wrapper */
     let wrapper;

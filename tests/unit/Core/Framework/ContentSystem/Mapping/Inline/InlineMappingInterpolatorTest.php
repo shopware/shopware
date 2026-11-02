@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
@@ -54,7 +55,7 @@ class InlineMappingInterpolatorTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setName('Raw variant name');
         $product->setTranslated(['name' => 'Inherited storefront name']);
-        $candidates = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]);
+        $candidates = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())], new NullLogger());
         $interpolator = new InlineMappingInterpolator(
             new MappingRuntimeResolver(
                 $candidates,
@@ -287,7 +288,7 @@ class InlineMappingInterpolatorTest extends TestCase
                 group: 'media',
                 valueType: MediaEntity::class,
             ),
-        ])]);
+        ])], new NullLogger());
 
         return new InlineMappingInterpolator(
             new MappingRuntimeResolver(

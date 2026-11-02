@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -106,7 +107,7 @@ class DefaultMappingSeederTest extends TestCase
             $types,
             new StoredMappingInspector(
                 $types,
-                new ContentSystemMappingCandidateRegistry([$provider]),
+                new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()),
                 new MappingTypeCompatibility(),
                 new MappingConsumers(),
                 new InlineMappingTokenParser(),

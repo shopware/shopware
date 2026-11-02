@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Registry;
 
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
@@ -38,7 +37,7 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
      */
     public function __construct(
         private readonly iterable $providers,
-        private readonly LoggerInterface $logger = new NullLogger(),
+        private readonly LoggerInterface $logger,
     ) {
     }
 

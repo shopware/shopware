@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -430,7 +431,7 @@ class ContentPipelineTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([new MappingCandidate('product.name', 'Product name', '', 'basic', 'string')]);
         $provider->method('resolveRootSource')->willThrowException($failure);
-        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider]));
+        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
         $layout = $this->createSingleRootLayout(
             StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'Hello {{map:product.name}}!')->build(),
         );
@@ -453,7 +454,7 @@ class ContentPipelineTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([new MappingCandidate('product.name', 'Product name', '', 'basic', 'string')]);
         $provider->method('resolveRootSource')->willReturn(MappingSourceResolution::resolved(str_repeat('x', 65536)));
-        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider]));
+        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
         $layout = $this->createSingleRootLayout(
             StoredElementBuilder::create('text', 'root-id')->withProperty('title', str_repeat('{{map:product.name}}', 17))->build(),
         );

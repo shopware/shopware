@@ -96,7 +96,7 @@ final readonly class RenderedElementFactory
         array $deliveredContext,
         array $distributionReferencedKeys,
         array $slots,
-        array $mappingFallbackKeys = [],
+        array $mappingFallbackKeys,
     ): ElementMintResult {
         $storedProperties = $stored->properties();
         $declaredProperties = $this->declaredProperties($stored->component);

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mapping;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
@@ -188,7 +189,7 @@ class MappingProviderExtensionTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             static::getContainer()->get(ProductMappingCandidateProvider::class),
             ...$additionalProviders,
-        ]);
+        ], new NullLogger());
         $result = $override ? new ProductNameOverrideRegistry($registry) : $registry;
         static::getContainer()->set(ContentSystemMappingCandidateRegistry::class, $result);
 

@@ -69,6 +69,8 @@ Inline expansion is additionally limited to 1 MiB per property and 4 MiB across 
 
 Internal rendering calls require their mapping inputs explicitly: lowering receives the parsed `InlineMappingMetadata` captured during preparation, and delivery/expansion callers provide root source, cache context, and loader values. An explicit null root source remains valid for unbound drafts. Every mapping receives the caller's non-null `RenderingCacheContext`, including uncached renders; providers add dependencies to that same instance rather than creating a fallback context. `InlineMappingExpander` creates one expansion budget for its complete forest and passes that same instance to every property's interpolator and token replacement, including descendants; neither lower-level method can omit or replace it with a fallback budget. A new expansion call starts with a fresh budget. `ReplaceElement` likewise requires its `StoredMappingInspector`; only an intentionally unbound tree skips source-specific inspection. These contracts prevent missing wiring from silently bypassing mapping checks, metadata, or output limits.
 
+The concrete mapping registry requires an explicit logger for catalogue warnings. `RenderedElementFactory::create()` requires the delivery's calculated mapping-fallback keys explicitly, including an empty list when no field permits fallback; `RenderedTreeFactory` forwards those keys from each element's delivery.
+
 ## Runtime error handling
 
 Provider faults and inline-output exhaustion abort the content pipeline rather than becoming missing values or successful partial content results. The outer request handling differs:

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
@@ -32,7 +33,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('supports')->willReturnCallback(static fn (string $rootSource): bool => $rootSource === 'product');
         $provider->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.customFields.withdrawn')->willReturn(['custom-metadata']);
         $provider->expects($this->never())->method('provide');
-        $decorator = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider]));
+        $decorator = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
 
         static::assertSame(['custom-metadata'], $decorator->cacheTagsForMapping('product', 'product.customFields.withdrawn'));
         static::assertSame([], $decorator->cacheTagsForMapping('category', 'category.name'));
@@ -45,7 +46,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('provide')->willReturn([]);
         $provider->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.customFields.withdrawn')->willReturn(['custom-metadata']);
         $provider->expects($this->never())->method('resolveRootSource');
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $cache = new RenderingCacheContext();
 
         $result = $registry->resolveSource(
@@ -112,7 +113,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['product'], [self::candidate($first->displayName(), source: $first)]),
             new StaticMappingCandidateProvider(['product'], [self::candidate($second->displayName(), source: $second)]),
-        ]);
+        ], new NullLogger());
 
         static::assertSame([], $registry->forRootSource('product'));
     }
@@ -121,7 +122,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
     {
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['product'], [self::candidate('product.name'), self::candidate('product.name')]),
-        ]);
+        ], new NullLogger());
 
         static::assertSame([], $registry->forRootSource('product'));
     }
@@ -131,7 +132,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $source = new MappingSourceReference('plugin', 'example');
         $candidate = self::candidate($source->displayName(), source: $source);
         $provider = new MutableMappingCandidateProvider([$candidate, $candidate]);
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         static::assertSame([], $registry->forRootSource('product'));
 
         $provider->candidates = [$candidate];
@@ -158,7 +159,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
             $provider->expects($this->once())->method('resolveSource')->with($source)->willReturn(MappingSourceResolution::resolved($bundleName));
             $providers[] = $provider;
         }
-        $registry = new ContentSystemMappingCandidateRegistry($providers);
+        $registry = new ContentSystemMappingCandidateRegistry($providers, new NullLogger());
         static::assertSame(['AcmePlugin:recommendations.title', 'OtherPlugin:recommendations.title'], array_keys($registry->forRootSource('product')));
 
         foreach ($sources as $source) {
@@ -175,7 +176,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['category'], [self::candidate('category.name')]),
             new StaticMappingCandidateProvider(['product'], [self::candidate('product.name')]),
-        ]);
+        ], new NullLogger());
 
         static::assertSame(['category.name'], array_keys($registry->forRootSource('category')));
     }
@@ -186,7 +187,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
 
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['category'], [$candidate]),
-        ]);
+        ], new NullLogger());
 
         static::assertSame($candidate, $registry->forRootSource('category')['category.name']);
     }
@@ -196,7 +197,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['category'], [self::candidate('category.name')]),
             new StaticMappingCandidateProvider(['category', 'product'], [self::candidate('category.customField')]),
-        ]);
+        ], new NullLogger());
 
         static::assertSame(
             ['category.name', 'category.customField'],
@@ -210,7 +211,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $original = self::candidate('plugin:example', label: 'original', source: $source);
         $updated = self::candidate('plugin:example', label: 'updated', source: $source);
         $provider = new MutableMappingCandidateProvider([$original]);
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(
             new StoredElement('element-id', 'test-element'),
             [],
@@ -235,7 +236,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
     {
         $source = new MappingSourceReference('plugin', 'example');
         $provider = new MutableMappingCandidateProvider([self::candidate($source->displayName(), source: $source)]);
-        $decorator = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider]));
+        $decorator = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
         $decorator->forRootSource('product');
         $provider->candidates = [];
 
@@ -259,7 +260,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
             new SourceResolvingProvider(['product'], [], 'broad provider'),
             new SourceResolvingProvider(['product'], [$candidate], 'candidate provider'),
             new SourceResolvingProvider(['category'], [$candidate], 'category provider'),
-        ]);
+        ], new NullLogger());
         $decorator = new ForwardingMappingCandidateRegistry($registry);
 
         static::assertSame('candidate provider', $decorator->resolveSource('product', $source, $context)->value);
@@ -281,7 +282,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             new SourceResolvingProvider(['product'], [$candidate], 'resolved'),
             new StaticMappingCandidateProvider(['product'], [self::candidate('product.name')]),
-        ]);
+        ], new NullLogger());
 
         $registry->resolveSource('product', $source, $context);
 
@@ -295,7 +296,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             new SourceResolvingProvider(['product'], [], 'wrong provider'),
             new SourceResolvingProvider(['product'], [$candidate], 'owning provider'),
-        ]);
+        ], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], new RenderingCacheContext());
 
         static::assertSame('owning provider', $registry->resolveSource('product', $source, $context)->value);
@@ -309,7 +310,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([self::candidate('plugin:example.value', source: $approved)]);
         $provider->expects($this->never())->method('resolveSource');
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], new RenderingCacheContext());
 
         static::assertTrue($registry->resolveSource('product', $unlisted, $context)->isNoValue());
@@ -323,7 +324,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([self::candidate('product.name', source: $approved)]);
         $provider->expects($this->never())->method('resolveRootSource');
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), ['product' => new ArrayStruct(['name' => 'Shirt'])], [], new RenderingCacheContext());
 
         static::assertTrue($registry->resolveSource('product', $unlisted, $context)->isNoValue());
@@ -338,7 +339,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('provide')->willReturn([self::candidate($source->displayName(), source: $source)]);
         $provider->expects($this->never())->method('resolveRootSource');
         $provider->expects($this->once())->method('resolveSource')->with($source, $context)->willReturn(MappingSourceResolution::resolved('Recommendation'));
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
 
         static::assertSame('Recommendation', $registry->resolveSource('product', $source, $context)->value);
     }
@@ -348,7 +349,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $source = MappingSourceReference::root('product', 'name');
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['product'], [self::candidate('product.name', source: $source)]),
-        ]);
+        ], new NullLogger());
         $element = new StoredElement('element-id', 'test-element');
         $present = new MappingSourceResolutionContext($element, ['product' => new ArrayStruct(['name' => null])], [], new RenderingCacheContext());
         $missing = new MappingSourceResolutionContext($element, [], [], new RenderingCacheContext());
@@ -384,7 +385,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
                 return MappingSourceResolution::resolved($forwarded->loaderValues['selectedName']);
             },
         );
-        $registry = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider]));
+        $registry = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
 
         static::assertSame('Shirt', $registry->resolveSource('product', $source, $context)->value);
         static::assertSame(['provider-data'], $cacheContext->getTags());
@@ -394,7 +395,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
     {
         $source = new MappingSourceReference('plugin', 'example');
         $provider = new SourceResolvingProvider(['product'], [self::candidate('plugin:example', source: $source)], null);
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], new RenderingCacheContext());
 
         $result = $registry->resolveSource('product', $source, $context);
@@ -411,7 +412,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider = new FailingMappingCandidateProvider(['product'], [$candidate]);
         $failure = new \RuntimeException('provider failure');
         $provider->failure = $failure;
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], new RenderingCacheContext());
 
         $this->expectExceptionObject($failure);
@@ -427,7 +428,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([self::candidate('plugin:example', source: $source)]);
         $provider->method('resolveSource')->willThrowException($failure);
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], new RenderingCacheContext());
 
         try {
@@ -446,7 +447,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([self::candidate('product.name', source: $source)]);
         $provider->method('resolveRootSource')->willThrowException($failure);
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], new RenderingCacheContext());
 
         $this->expectException(\TypeError::class);
@@ -460,7 +461,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider = static::createStub(AbstractMappingCandidateProvider::class);
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willThrowException($failure);
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], new NullLogger());
 
         $this->expectExceptionObject($failure);
 
@@ -471,14 +472,14 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
     {
         $registry = new ContentSystemMappingCandidateRegistry([
             new StaticMappingCandidateProvider(['category'], [self::candidate('category.name')]),
-        ]);
+        ], new NullLogger());
 
         static::assertSame([], $registry->forRootSource('none'));
     }
 
     public function testGetDecoratedThrowsOnTheLeaf(): void
     {
-        $registry = new ContentSystemMappingCandidateRegistry([]);
+        $registry = new ContentSystemMappingCandidateRegistry([], new NullLogger());
 
         $this->expectExceptionObject(new DecorationPatternException(ContentSystemMappingCandidateRegistry::class));
 

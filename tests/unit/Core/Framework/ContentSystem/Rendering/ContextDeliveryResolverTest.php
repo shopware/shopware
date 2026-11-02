@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
@@ -67,7 +68,7 @@ class ContextDeliveryResolverTest extends TestCase
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
             new MappingRuntimeResolver(
-                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())], new NullLogger()),
                 $this->mappingInspector($registry, MediaEntity::class),
             ),
         );
@@ -668,7 +669,7 @@ class ContextDeliveryResolverTest extends TestCase
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
             new MappingRuntimeResolver(
-                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())], new NullLogger()),
                 $this->mappingInspector($registry),
             ),
         );

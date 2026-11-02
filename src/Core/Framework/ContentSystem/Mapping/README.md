@@ -91,6 +91,8 @@ For a mapping in fallback mode, a null loader result does not replace an authore
 
 Static diagnostics recognize an admitted reference mapping as backing for context provided to children. They use the candidate's effective output type and validate its stored cardinality, without reading source values. The known layout source is supplied explicitly, including at the write gate, which leaves mapping error codes to `StoredMappingValidator`. This checks capability rather than whether a particular preview entity has a value.
 
+If the editor's latest diagnosis request fails, it clears outdated findings and shows a localized error notification indicating that diagnostic results are unavailable. A successful empty report stays quiet. Older responses and failures cannot replace current findings or issue stale error notifications. This applies to static layout checks, including the follow-up after a refused save; runtime rendering and missing-value rules are unchanged.
+
 Diagnostic resolutions report an applied mapping for both primitive and reference properties as the selected `root` source, with the typed source display name in `contextKey`. Here `root` describes mapping delivery scope, including non-root plugin providers. For references this selection wins over saved picker wiring and suggested sources; admission errors remain separate `invalid_mapping` findings. It does not inspect values or change the required-primitive rule.
 
 ## Runtime error handling

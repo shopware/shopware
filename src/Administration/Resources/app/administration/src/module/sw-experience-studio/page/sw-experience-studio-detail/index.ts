@@ -1128,6 +1128,9 @@ export default Shopware.Component.wrapComponentConfig({
             } catch {
                 if (requestId === this.latestDiagnoseRequestId) {
                     this.diagnostics = [];
+                    this.createNotificationError({
+                        message: this.$t('sw-experience-studio.detail.messageDiagnoseError'),
+                    });
                 }
             }
         },

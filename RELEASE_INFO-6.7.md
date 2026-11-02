@@ -450,6 +450,13 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### New shipping method blocks added
+
+The following new blocks have been added to the shipping method template in `storefront/component/shipping/shipping-method.html.twig` to match the payment method template structure:
+
+- `component_shipping_method_name`
+- `component_shipping_method_description_text`
+
 ### CMS buy boxes select the configured variant
 
 Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.

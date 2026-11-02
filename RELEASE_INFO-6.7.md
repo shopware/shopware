@@ -217,7 +217,7 @@ shopware:
 
 ## Administration
 
-### Experimental: `Feature.silence()` and `v-silence-deprecations` keep the pre-major path of an extension quiet
+### Experimental: `Feature.silence()` and `sw-silence-deprecations` keep the pre-major path of an extension quiet
 
 `Shopware.Feature.silence()` runs a callback with the deprecations of a major silenced, like the PHP `Feature::silent()`.
 Use it on the pre-major side of a feature-flag branch to stay compatible with both sides of a major without reporting the deprecated APIs the old path still needs:
@@ -230,15 +230,19 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-In templates, the `v-silence-deprecations` directive does the same for the component it sits on, but not for the components it renders or its slot content:
+In templates, the renderless `sw-silence-deprecations` component does the same for what the template writes inside of it, and for what those components render in turn.
+Slot content that another template passes through, like the `<slot />` of a wrapper component, still reports:
 
 ```html
-<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-deprecations="'V6_8_0_0'" />
-<mt-loader v-else />
+<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
+    <sw-popover-deprecated v-bind="$attrs"><slot /></sw-popover-deprecated>
+</sw-silence-deprecations>
+<mt-floating-ui v-else v-bind="$attrs"><slot /></mt-floating-ui>
 ```
 
-Both silence nothing once the major is active.
-The callback of `Feature.silence()` has to be synchronous, and the directive has no effect on a `<template>`.
+Both silence nothing once the major is active, and an unknown flag silences nothing and logs an error.
+The callback of `Feature.silence()` has to be synchronous.
+The component covers creating and rendering, so event handlers and watchers wrap their deprecated calls in `Feature.silence()`.
 
 ### Extension tooling reports redundant code
 

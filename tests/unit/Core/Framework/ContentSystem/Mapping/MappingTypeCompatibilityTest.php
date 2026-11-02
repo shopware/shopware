@@ -94,19 +94,30 @@ class MappingTypeCompatibilityTest extends TestCase
         yield 'string takes a string' => ['string', 'a value', true];
 
         yield 'string rejects an integer, with no coercion' => ['string', 42, false];
+        yield 'string takes an empty string' => ['string', '', true];
 
         yield 'integer takes an integer' => ['integer', 42, true];
 
         yield 'integer rejects a float' => ['integer', 4.2, false];
+        yield 'integer takes zero' => ['integer', 0, true];
+        yield 'integer rejects a numeric string' => ['integer', '42', false];
 
         // As in the property specification: JSON has one numeric type, so `number` covers both.
         yield 'number takes a float' => ['number', 4.2, true];
 
         yield 'number takes an integer' => ['number', 42, true];
+        yield 'number rejects a numeric string' => ['number', '4.2', false];
+        yield 'number rejects a boolean' => ['number', false, false];
 
         yield 'boolean takes false, which is a value rather than an absence' => ['boolean', false, true];
 
         yield 'boolean rejects a falsy non-boolean' => ['boolean', 0, false];
+
+        // The inspector admits resolved null before invoking this strict value check.
+        yield 'string rejects null' => ['string', null, false];
+        yield 'integer rejects null' => ['integer', null, false];
+        yield 'number rejects null' => ['number', null, false];
+        yield 'boolean rejects null' => ['boolean', null, false];
 
         yield 'an FQCN takes an instance' => [MediaEntity::class, new MediaEntity(), true];
 

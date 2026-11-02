@@ -67,9 +67,18 @@ class PropertyTypeTest extends TestCase
         yield 'true for a float under number' => ['number', 4.2, true];
         yield 'false for a string under number' => ['number', '3.5', false];
         yield 'true for a bool under boolean' => ['boolean', true, true];
+        yield 'true for false under boolean' => ['boolean', false, true];
+        yield 'false for zero under boolean' => ['boolean', 0, false];
+        yield 'false for a boolean under number' => ['number', false, false];
+        yield 'false for a numeric string under integer' => ['integer', '42', false];
+        yield 'true for zero under integer' => ['integer', 0, true];
+        yield 'true for an empty string under string' => ['string', '', true];
         yield 'false for an array under a primitive' => ['string', ['a'], false];
 
         yield 'true for a null under a primitive' => ['string', null, true];
+        yield 'true for a null under integer' => ['integer', null, true];
+        yield 'true for a null under number' => ['number', null, true];
+        yield 'true for a null under boolean' => ['boolean', null, true];
         yield 'true for a null under a union' => [['string', 'integer'], null, true];
 
         yield 'true for a member match in a union' => [['string', 'integer'], 42, true];

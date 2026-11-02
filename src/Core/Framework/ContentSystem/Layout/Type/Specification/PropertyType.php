@@ -133,7 +133,7 @@ final readonly class PropertyType
         }
 
         foreach ($types as $type) {
-            if (self::matchesPrimitive($value, $type)) {
+            if (PrimitiveTypeMatcher::matches($value, $type)) {
                 return true;
             }
         }
@@ -164,20 +164,6 @@ final readonly class PropertyType
         }
 
         return $accepted;
-    }
-
-    /**
-     * `number` admits an integer as well as a float: JSON carries no distinction a client can be held to.
-     */
-    private static function matchesPrimitive(mixed $value, string $type): bool
-    {
-        return match ($type) {
-            'string' => \is_string($value),
-            'integer' => \is_int($value),
-            'number' => \is_int($value) || \is_float($value),
-            'boolean' => \is_bool($value),
-            default => false,
-        };
     }
 
     /**

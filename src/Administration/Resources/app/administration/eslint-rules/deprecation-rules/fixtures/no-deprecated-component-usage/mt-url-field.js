@@ -350,6 +350,6 @@ const mtUrlFieldInvalidTests = [
 ];
 
 module.exports = {
-    mtUrlFieldValidTests,
-    mtUrlFieldInvalidTests
+    valid: mtUrlFieldValidTests,
+    invalid: mtUrlFieldInvalidTests,
 };

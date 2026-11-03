@@ -372,6 +372,6 @@ const mtEmailFieldInvalidTests = [
 ];
 
 module.exports = {
-    mtEmailFieldValidTests,
-    mtEmailFieldInvalidTests
+    valid: mtEmailFieldValidTests,
+    invalid: mtEmailFieldInvalidTests,
 };

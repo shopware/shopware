@@ -141,6 +141,6 @@ const mtCardInvalidTests = [
 ];
 
 module.exports = {
-    mtCardValidTests,
-    mtCardInvalidTests
+    valid: mtCardValidTests,
+    invalid: mtCardInvalidTests,
 };

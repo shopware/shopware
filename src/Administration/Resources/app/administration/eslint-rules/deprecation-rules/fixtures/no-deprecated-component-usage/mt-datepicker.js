@@ -203,6 +203,6 @@ const mtDatepickerInvalidTests = [
 ];
 
 module.exports = {
-    mtDatepickerValidTests,
-    mtDatepickerInvalidTests
+    valid: mtDatepickerValidTests,
+    invalid: mtDatepickerInvalidTests,
 };

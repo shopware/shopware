@@ -195,6 +195,6 @@ const mtTextareaInvalidTests = [
 ]
 
 module.exports = {
-    mtTextareaValidTests,
-    mtTextareaInvalidTests
+    valid: mtTextareaValidTests,
+    invalid: mtTextareaInvalidTests,
 };

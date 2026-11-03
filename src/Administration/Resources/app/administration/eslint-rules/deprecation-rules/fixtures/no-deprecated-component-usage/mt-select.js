@@ -451,6 +451,6 @@ const mtSelectInvalidTests = [
 ]
 
 module.exports = {
-    mtSelectValidTests,
-    mtSelectInvalidTests
+    valid: mtSelectValidTests,
+    invalid: mtSelectInvalidTests,
 };

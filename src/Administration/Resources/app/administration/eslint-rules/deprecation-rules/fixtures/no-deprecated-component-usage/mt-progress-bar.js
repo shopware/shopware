@@ -129,6 +129,6 @@ const mtProgressBarInvalidTests = [
 ];
 
 module.exports = {
-    mtProgressBarValidTests,
-    mtProgressBarInvalidTests
+    valid: mtProgressBarValidTests,
+    invalid: mtProgressBarInvalidTests,
 };

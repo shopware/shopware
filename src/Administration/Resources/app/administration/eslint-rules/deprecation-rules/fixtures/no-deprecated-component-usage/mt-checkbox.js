@@ -343,6 +343,6 @@ const mtCheckboxInvalidTests = [
 ]
 
 module.exports = {
-    mtCheckboxValidTests,
-    mtCheckboxInvalidTests
+    valid: mtCheckboxValidTests,
+    invalid: mtCheckboxInvalidTests,
 };

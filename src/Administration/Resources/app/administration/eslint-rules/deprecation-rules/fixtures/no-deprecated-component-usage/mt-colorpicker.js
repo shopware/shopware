@@ -195,6 +195,6 @@ const mtColorpickerInvalidTests = [
 ];
 
 module.exports = {
-    mtColorpickerValidTests,
-    mtColorpickerInvalidTests
+    valid: mtColorpickerValidTests,
+    invalid: mtColorpickerInvalidTests,
 };

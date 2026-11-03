@@ -452,6 +452,6 @@ const mtIconInvalidTests = [
 ];
 
 module.exports = {
-    mtIconValidTests,
-    mtIconInvalidTests,
+    valid: mtIconValidTests,
+    invalid: mtIconInvalidTests,
 };

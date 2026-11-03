@@ -446,6 +446,6 @@ const mtButtonInvalidChecks = [
 ];
 
 module.exports = {
-    mtButtonValidChecks,
-    mtButtonInvalidChecks
+    valid: mtButtonValidChecks,
+    invalid: mtButtonInvalidChecks,
 };

@@ -357,6 +357,6 @@ const mtTextFieldInvalidTests = [
 ];
 
 module.exports = {
-    mtTextFieldValidTests,
-    mtTextFieldInvalidTests
+    valid: mtTextFieldValidTests,
+    invalid: mtTextFieldInvalidTests,
 };

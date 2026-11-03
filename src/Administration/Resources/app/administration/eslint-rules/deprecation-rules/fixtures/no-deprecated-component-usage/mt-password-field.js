@@ -311,6 +311,6 @@ const mtPasswordFieldInvalidTests = [
 ];
 
 module.exports = {
-    mtPasswordFieldValidTests,
-    mtPasswordFieldInvalidTests
+    valid: mtPasswordFieldValidTests,
+    invalid: mtPasswordFieldInvalidTests,
 };

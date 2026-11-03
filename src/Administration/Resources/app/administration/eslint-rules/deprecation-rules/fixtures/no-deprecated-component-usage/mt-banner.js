@@ -187,6 +187,6 @@ const mtBannerInvalidTests = [
 ];
 
 module.exports = {
-    mtBannerValidTests,
-    mtBannerInvalidTests
+    valid: mtBannerValidTests,
+    invalid: mtBannerInvalidTests,
 };

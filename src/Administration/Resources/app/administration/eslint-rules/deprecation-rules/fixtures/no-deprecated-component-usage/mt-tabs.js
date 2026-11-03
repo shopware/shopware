@@ -433,6 +433,6 @@ const mtTabsInvalidTests = [
 ];
 
 module.exports = {
-    mtTabsValidTests,
-    mtTabsInvalidTests
+    valid: mtTabsValidTests,
+    invalid: mtTabsInvalidTests,
 };

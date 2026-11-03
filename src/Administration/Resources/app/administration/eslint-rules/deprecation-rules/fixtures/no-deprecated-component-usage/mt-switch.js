@@ -731,6 +731,6 @@ const mtSwitchInvalidChecks = [
 ];
 
 module.exports = {
-    mtSwitchValidChecks,
-    mtSwitchInvalidChecks
+    valid: mtSwitchValidChecks,
+    invalid: mtSwitchInvalidChecks,
 };

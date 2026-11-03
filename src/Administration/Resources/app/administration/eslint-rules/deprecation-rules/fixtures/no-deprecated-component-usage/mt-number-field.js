@@ -195,6 +195,6 @@ const mtNumberFieldInvalidTests = [
 ];
 
 module.exports = {
-    mtNumberFieldValidTests,
-    mtNumberFieldInvalidTests
+    valid: mtNumberFieldValidTests,
+    invalid: mtNumberFieldInvalidTests,
 };

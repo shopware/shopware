@@ -4,7 +4,7 @@ const rule = require('./no-deprecated-component-option-usage');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
 const { describeWithSelectedDeprecationIds } = require('./test-utils/selected-deprecation-ids');
 
-const componentSources = path.join(__dirname, 'no-deprecated-component-option-usage-fixtures');
+const componentSources = path.join(__dirname, 'fixtures/no-deprecated-component-option-usage');
 
 const tester = new RuleTester({
     languageOptions: {

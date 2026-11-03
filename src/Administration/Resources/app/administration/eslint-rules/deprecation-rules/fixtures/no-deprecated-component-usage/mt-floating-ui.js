@@ -168,6 +168,6 @@ const mtFloatingUiInvalidTests = [
 ];
 
 module.exports = {
-    mtFloatingUiValidTests,
-    mtFloatingUiInvalidTests
+    valid: mtFloatingUiValidTests,
+    invalid: mtFloatingUiInvalidTests,
 };

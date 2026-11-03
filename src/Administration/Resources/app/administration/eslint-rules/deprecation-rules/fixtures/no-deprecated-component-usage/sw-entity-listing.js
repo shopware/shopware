@@ -115,6 +115,6 @@ const swEntityListingInvalidTests = [
 ];
 
 module.exports = {
-    swEntityListingValidTests,
-    swEntityListingInvalidTests
+    valid: swEntityListingValidTests,
+    invalid: swEntityListingInvalidTests,
 };

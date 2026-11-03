@@ -109,7 +109,14 @@ declare global {
 }
 ```
 
-`npm run codemod:mini-module -- <component directory>` does the mechanical part of moving a registered Options API component into a mini-module.
+A component that extends another one names it with `extends: 'sw-base'`, and its `register.ts` calls `Shopware.Component.extend(SwExample)`.
+Its `public` lists include what it inherits, because an override reaches that too; the meta test checks those names against the base.
+
+A component that its parent imports and lists in `components` has no global name and stays that way.
+Its `private.ts` exports the loaded component for the parent, its `register.ts` only publishes the module, and it has no `global.d.ts`.
+
+`npm run codemod:mini-module -- <component directory>` does the mechanical part of moving an Options API component into a mini-module,
+whether it is registered, extends another component, or is imported by its parent.
 It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, code owners.
 
 `src/` stays free of side effects apart from importing its template and styles.

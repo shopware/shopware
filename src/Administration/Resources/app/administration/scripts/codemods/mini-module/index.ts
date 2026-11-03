@@ -14,90 +14,95 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { extractComponentApi, type ComponentApi } from './extract-component-api';
+import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
+import { findImports, findRegistration } from './find-registration';
+import { renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
 
 const adminRoot = path.resolve(__dirname, '../../..');
 const relative = (file: string) => path.relative(adminRoot, file).split(path.sep).join('/');
 const git = (...args: string[]) => execFileSync('git', args, { cwd: adminRoot, encoding: 'utf8' });
 
-const formatList = (names: string[]) =>
-    names.length === 0 ? '[]' : `[\n${names.map((name) => `            '${name}',`).join('\n')}\n        ]`;
+/** Where an import path leads, from the directory of the file that holds it; `src/…` is the Administration alias. */
+const resolveSpecifier = (fromDirectory: string, specifier: string) =>
+    specifier.startsWith('src/') ? path.join(adminRoot, specifier) : path.resolve(fromDirectory, specifier);
 
-const renderIndex = (name: string, packageName: string, api: ComponentApi) => {
-    const lists = (
-        [
-            'props',
-            'emits',
-            'slots',
-            'blocks',
-            'computed',
-            'methods',
-        ] as const
-    )
-        .filter((list) => api[list].length > 0)
-        .map((list) => `        ${list}: ${formatList(api[list])},`)
-        .join('\n');
-
-    return `import { definePublicComponent } from 'src/core/public-component';
-
-/**
- * @sw-package ${packageName}
- *
- * This file is the public API, also for extensions. The files in \`./src\` are private.
- * The lists hold everything the component offered before it became a mini-module,
- * because Component.override could reach all of it. Shrink them only through the deprecation process.
- */
-/** @public */
-export default definePublicComponent({
-    name: '${name}',
-    load: () => import('./src/${name}'),
-    public: {
-${lists}
-    },
-});
-`;
+/** The path from one file to another, as an import writes it. */
+const importPath = (fromFile: string, to: string) => {
+    const relativePath = path.relative(path.dirname(fromFile), to).split(path.sep).join('/');
+    return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
 };
 
-const renderRegister = (name: string, packageName: string) => `import Component, * as Module from './index';
+/** The script files below src/ that contain the text, or none: `git grep` exits with 1 when nothing matches. */
+const sourceFiles = (text: string) => {
+    try {
+        return git('grep', '-lF', text, '--', 'src/**/*.js', 'src/**/*.ts').split('\n').filter(Boolean);
+    } catch (error) {
+        if ((error as { status?: number }).status === 1) {
+            return [];
+        }
 
-/**
- * @sw-package ${packageName}
- */
-
-Shopware.Component.register(Component);
-Shopware._private.publish('components', '${name}', Module);
-`;
-
-const renderGlobalTypes = (name: string, packageName: string) => `import type Component from './index';
-
-/**
- * @sw-package ${packageName}
- */
-
-declare global {
-    interface PublicComponents {
-        '${name}': typeof Component;
+        throw error;
     }
-}
-`;
+};
 
-/** Finds the `Shopware.Component.register('<name>', () => import('...'))` call and the file that holds it. */
-const findRegistration = (name: string) => {
-    const pattern = new RegExp(
-        `^[ \\t]*Shopware\\.Component\\.register\\(\\s*'${name}',\\s*\\(\\) => import\\('([^']+)'\\),?\\s*\\);\\n`,
-        'm',
-    );
-    const candidates = git('grep', '-l', `'${name}'`, '--', 'src/**/*.js', 'src/**/*.ts').split('\n').filter(Boolean);
-
-    for (const file of candidates) {
-        const source = fs.readFileSync(path.join(adminRoot, file), 'utf8');
-        const match = pattern.exec(source);
-        if (match) {
-            return { file, statement: match[0], specifier: match[1] };
+/** Finds the statement that registers or extends the component by its name, and the file that holds it. */
+const locateRegistration = (name: string) => {
+    for (const file of sourceFiles(`'${name}'`)) {
+        const registration = findRegistration(fs.readFileSync(path.join(adminRoot, file), 'utf8'), name);
+        if (registration) {
+            return { file, registration };
         }
     }
 
-    throw new Error(`No plain Shopware.Component.register('${name}', () => import()) found.`);
+    return null;
+};
+
+/** The directory of a component that is already a mini-module, found by the name its index.ts declares. */
+const locateMiniModule = (name: string) =>
+    sourceFiles(`name: '${name}'`)
+        .filter((file) => file.endsWith('/index.ts'))
+        .find((file) => fs.readFileSync(path.join(adminRoot, file), 'utf8').includes('definePublicComponent('));
+
+const readComponentSource = (componentDirectory: string, name: string) => {
+    const entry = ['index.js', 'index.ts'].find((file) => fs.existsSync(path.join(componentDirectory, file)));
+    if (!entry) {
+        throw new Error(`${relative(componentDirectory)} has no index.js or index.ts.`);
+    }
+
+    const templateFile = path.join(componentDirectory, `${name}.html.twig`);
+    return {
+        entry,
+        componentSource: fs.readFileSync(path.join(componentDirectory, entry), 'utf8'),
+        templateSource: fs.existsSync(templateFile) ? fs.readFileSync(templateFile, 'utf8') : '',
+    };
+};
+
+/**
+ * Reads what the named component offers, including what it inherits from the components it extends.
+ * A component that is a mini-module already offers the lists of its index.ts.
+ */
+const readInheritedApi = (name: string): ComponentApi => {
+    const miniModule = locateMiniModule(name);
+    if (miniModule) {
+        return readDeclaredApi(fs.readFileSync(path.join(adminRoot, miniModule), 'utf8'));
+    }
+
+    const located = locateRegistration(name);
+    if (!located) {
+        throw new Error(`Found no registration of ${name}, so the codemod cannot read what it offers.`);
+    }
+
+    const directory = resolveSpecifier(
+        path.dirname(path.join(adminRoot, located.file)),
+        located.registration.specifier.replace(/\/index(\.[jt]s)?$/, ''),
+    );
+    const { componentSource, templateSource } = readComponentSource(directory, name);
+    const api = extractComponentApi(componentSource, templateSource);
+    api.unresolved = api.unresolved.map((item) => `${item} (inherited from ${name})`);
+
+    return located.registration.kind === 'extend'
+        ? mergeComponentApi(api, readInheritedApi(located.registration.base))
+        : api;
 };
 
 const addImport = (source: string, specifier: string) => {
@@ -107,40 +112,135 @@ const addImport = (source: string, specifier: string) => {
     return `${source.slice(0, at)}import '${specifier}';\n${source.slice(at)}`;
 };
 
-const markPublic = (source: string) =>
-    source
-        .replace(
-            /^\/\/ eslint-disable-next-line sw-deprecation-rules\/private-feature-declarations\n(?=export default)/m,
-            '',
-        )
-        .replace(/^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(export default)/m, '$1\n *\n * @public\n */\n$2');
+/**
+ * Marks the component's export `@public`, because index.ts exposes it through `load`.
+ * A `@private` tag it had before becomes `@public`, so the export never carries both.
+ */
+const markPublic = (source: string) => {
+    const withoutSuppression = source.replace(
+        /^\/\/ eslint-disable-next-line sw-deprecation-rules\/private-feature-declarations\n(?=export default)/m,
+        '',
+    );
+    const docComment = /^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(?=export default)/m.exec(withoutSuppression);
+    if (docComment && /^ \* @private$/m.test(docComment[1])) {
+        const marked = docComment[0].replace(/^ \* @private$/m, ' * @public');
+        return withoutSuppression.replace(docComment[0], marked);
+    }
+
+    return withoutSuppression.replace(
+        /^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(export default)/m,
+        '$1\n *\n * @public\n */\n$2',
+    );
+};
+
+const SCRIPT_EXTENSION = /\.[jt]s$/;
 
 /**
- * Rewrites the relative imports of a moved file that lead out of the component directory,
- * so they still reach their target from the file's new place. Imports between moved files stay as they are.
+ * Where a path relative to the Administration root ends up after the moves, or itself when it did not move.
+ * It tries the extensions and `index` files an import may leave out.
+ */
+const movedPath = (moves: Map<string, string>, target: string) => {
+    const candidates = [
+        target,
+        ...[
+            '.js',
+            '.ts',
+            '/index.js',
+            '/index.ts',
+        ].map((suffix) => `${target}${suffix}`),
+    ];
+
+    for (const candidate of candidates) {
+        for (const [from, to] of moves) {
+            if (candidate === from || candidate.startsWith(`${from}/`)) {
+                return `${to}${candidate.slice(from.length)}`;
+            }
+        }
+    }
+
+    return target;
+};
+
+/**
+ * Rewrites the relative imports of a moved file, so they still reach their target from the file's new place,
+ * also when the target moved: a spec in tests/ that imported './index' now imports '../src/<name>'.
  *
  * @example
  * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
  */
-const rewriteOutsideImports = (componentDirectory: string, from: string, to: string) => {
+const rewriteMovedImports = (moves: Map<string, string>, from: string, to: string) => {
     const file = path.join(adminRoot, to);
     const source = fs.readFileSync(file, 'utf8');
     const rewritten = source.replace(
         /((?:from|import\(|require\(|jest\.mock\()\s*')(\.\.?\/[^']+)'/g,
         (statement, prefix: string, specifier: string) => {
-            const target = path.resolve(path.dirname(path.join(adminRoot, from)), specifier);
-            if (target.startsWith(`${componentDirectory}${path.sep}`)) {
-                return statement;
-            }
+            const target = relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
+            const moved = movedPath(moves, target);
+            const written = SCRIPT_EXTENSION.test(specifier) ? moved : moved.replace(SCRIPT_EXTENSION, '');
 
-            const moved = path.relative(path.dirname(file), target).split(path.sep).join('/');
-            return `${prefix}${moved.startsWith('.') ? moved : `./${moved}`}'`;
+            return `${prefix}${importPath(file, path.join(adminRoot, written))}'`;
         },
     );
 
     if (rewritten !== source) {
         fs.writeFileSync(file, rewritten);
     }
+};
+
+/** Whether an import path leads to the component's entry file, from the directory of the importing file. */
+const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifier: string) => {
+    const target = resolveSpecifier(fromDirectory, specifier).replace(/\/index(\.[jt]s)?$/, '');
+    return target === componentDirectory;
+};
+
+const BOUNDARY_REASON = 'has no global name, so its parent mounts the loaded component';
+
+/**
+ * Points the files that import a local component at its private.ts, with the line that allows that.
+ * Returns the files it changed.
+ */
+const importThroughPrivate = (componentDirectory: string, name: string) =>
+    sourceFiles(name)
+        .filter((file) => !path.join(adminRoot, file).startsWith(`${componentDirectory}${path.sep}`))
+        .filter((file) => {
+            const absolute = path.join(adminRoot, file);
+            const source = fs.readFileSync(absolute, 'utf8');
+            const imports = findImports(source, (specifier) =>
+                leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
+            );
+
+            const rewritten = [...imports].reverse().reduce((code, { specifier, start, end, lineStart }) => {
+                const privatePath = `${specifier.replace(/\/index(\.[jt]s)?$/, '')}/private`;
+                const indent = /^[ \t]*/.exec(code.slice(lineStart))?.[0] ?? '';
+                const allowance = `${indent}// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- ${name} ${BOUNDARY_REASON}\n`;
+
+                return `${code.slice(0, lineStart)}${allowance}${code.slice(lineStart, start)}${privatePath}${code.slice(end)}`;
+            }, source);
+
+            if (imports.length > 0) {
+                fs.writeFileSync(absolute, rewritten);
+            }
+
+            return imports.length > 0;
+        });
+
+/**
+ * The entry file of the Administration module around a component, which loads its other components,
+ * so a local component's register.ts is imported where the registrations of its siblings are.
+ */
+const findModuleEntry = (componentDirectory: string) => {
+    for (let directory = path.dirname(componentDirectory); directory.startsWith(path.join(adminRoot, 'src')); ) {
+        const entry = ['index.js', 'index.ts']
+            .map((file) => path.join(directory, file))
+            .find((file) => fs.existsSync(file) && /\b(Component|Module)\.register\(/.test(fs.readFileSync(file, 'utf8')));
+        if (entry) {
+            return relative(entry);
+        }
+
+        directory = path.dirname(directory);
+    }
+
+    throw new Error(`Found no module entry above ${relative(componentDirectory)} to import its register.ts.`);
 };
 
 const moveSuppressions = (moves: Map<string, string>) => {
@@ -156,6 +256,24 @@ const moveSuppressions = (moves: Map<string, string>) => {
     fs.writeFileSync(file, JSON.stringify(sorted, null, 2));
 };
 
+/**
+ * How the component reaches the page today: the statement that registers or extends it, or, without one,
+ * the parent that imports it.
+ */
+const readShape = (name: string): { shape: Shape; registration: ReturnType<typeof locateRegistration> } => {
+    const registration = locateRegistration(name);
+    if (!registration) {
+        return { shape: { kind: 'local' }, registration };
+    }
+
+    const shape: Shape =
+        registration.registration.kind === 'extend'
+            ? { kind: 'extend', base: registration.registration.base }
+            : { kind: 'register' };
+
+    return { shape, registration };
+};
+
 function run(directory: string) {
     const componentDirectory = path.resolve(adminRoot, directory);
     const name = path.basename(componentDirectory);
@@ -165,17 +283,12 @@ function run(directory: string) {
         throw new Error(`${root} has uncommitted changes. Commit them first, so git can undo this run.`);
     }
 
-    const entry = ['index.js', 'index.ts'].find((file) => fs.existsSync(path.join(componentDirectory, file)));
-    if (!entry) {
-        throw new Error(`${root} has no index.js or index.ts.`);
-    }
-
-    const componentSource = fs.readFileSync(path.join(componentDirectory, entry), 'utf8');
-    const templateFile = path.join(componentDirectory, `${name}.html.twig`);
-    const templateSource = fs.existsSync(templateFile) ? fs.readFileSync(templateFile, 'utf8') : '';
-    const api = extractComponentApi(componentSource, templateSource);
+    const { entry, componentSource, templateSource } = readComponentSource(componentDirectory, name);
     const packageName = /@sw-package (\S+)/.exec(componentSource)?.[1] ?? 'framework';
-    const registration = findRegistration(name);
+    const { shape, registration } = readShape(name);
+    const ownApi = extractComponentApi(componentSource, templateSource);
+    const api = shape.kind === 'extend' ? mergeComponentApi(ownApi, readInheritedApi(shape.base)) : ownApi;
+    const target = { name, packageName, shape };
 
     const moves = new Map<string, string>();
     const move = (from: string, to: string) => {
@@ -196,36 +309,70 @@ function run(directory: string) {
     }
 
     for (const [from, to] of moves) {
-        if (/\.[jt]s$/.test(to)) {
-            rewriteOutsideImports(componentDirectory, from, to);
+        if (SCRIPT_EXTENSION.test(to)) {
+            rewriteMovedImports(moves, from, to);
         }
     }
 
     const sourceFile = path.join(adminRoot, root, 'src', `${name}${path.extname(entry)}`);
     fs.writeFileSync(sourceFile, markPublic(fs.readFileSync(sourceFile, 'utf8')));
     fs.mkdirSync(path.join(componentDirectory, 'tests'), { recursive: true });
-    fs.writeFileSync(path.join(componentDirectory, 'index.ts'), renderIndex(name, packageName, api));
-    fs.writeFileSync(path.join(componentDirectory, 'register.ts'), renderRegister(name, packageName));
-    fs.writeFileSync(path.join(componentDirectory, 'global.d.ts'), renderGlobalTypes(name, packageName));
 
-    const registrationFile = path.join(adminRoot, registration.file);
-    const registrationSource = fs.readFileSync(registrationFile, 'utf8').replace(registration.statement, '');
-    fs.writeFileSync(registrationFile, addImport(registrationSource, `${registration.specifier}/register`));
+    const entryFiles = {
+        'index.ts': renderIndex(target, api),
+        'register.ts': renderRegister(target),
+        'global.d.ts': renderGlobalTypes(target),
+        'private.ts': renderPrivate(target),
+    };
+    const written = Object.entries(entryFiles).flatMap(([file, content]) => {
+        if (content === null) {
+            return [];
+        }
 
-    const miniModuleTypes = path.join(adminRoot, 'extension-tooling', 'mini-modules.d.ts');
-    fs.writeFileSync(
-        miniModuleTypes,
-        `${fs.readFileSync(miniModuleTypes, 'utf8').replace(/^export \{\};\n/m, '')}import '../${root}/global';\n`,
-    );
+        fs.writeFileSync(path.join(componentDirectory, file), content);
+        return [`${root}/${file}`];
+    });
+
+    const changed = registration
+        ? [replaceRegistration(registration)]
+        : [...importThroughPrivate(componentDirectory, name), importRegisterInModule(componentDirectory)];
+
+    if (entryFiles['global.d.ts'] !== null) {
+        const miniModuleTypes = path.join(adminRoot, 'extension-tooling', 'mini-modules.d.ts');
+        fs.writeFileSync(
+            miniModuleTypes,
+            `${fs.readFileSync(miniModuleTypes, 'utf8').replace(/^export \{\};\n/m, '')}import '../${root}/global';\n`,
+        );
+    }
 
     moveSuppressions(moves);
-    execFileSync(
-        path.join(adminRoot, 'node_modules', '.bin', 'prettier'),
-        ['--write', ...['index.ts', 'register.ts', 'global.d.ts'].map((file) => `${root}/${file}`), registration.file],
-        { cwd: adminRoot },
-    );
-    printSweepChecklist(root, name, packageName, api);
+    execFileSync(path.join(adminRoot, 'node_modules', '.bin', 'prettier'), ['--write', ...written, ...changed], {
+        cwd: adminRoot,
+    });
+    printSweepChecklist(root, name, packageName, api, shape);
 }
+
+/** Replaces the registration statement with an import of the module's register.ts, and returns the file. */
+const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<typeof locateRegistration>>) => {
+    const absolute = path.join(adminRoot, file);
+    const source = fs.readFileSync(absolute, 'utf8');
+    const withoutRegistration = `${source.slice(0, registration.start)}${source.slice(registration.end)}`;
+    fs.writeFileSync(absolute, addImport(withoutRegistration, `${registration.specifier}/register`));
+
+    return file;
+};
+
+/** Imports a local component's register.ts in the module entry, so the module is published, and returns the file. */
+const importRegisterInModule = (componentDirectory: string) => {
+    const file = findModuleEntry(componentDirectory);
+    const absolute = path.join(adminRoot, file);
+    fs.writeFileSync(
+        absolute,
+        addImport(fs.readFileSync(absolute, 'utf8'), importPath(absolute, path.join(componentDirectory, 'register'))),
+    );
+
+    return file;
+};
 
 const findLines = (directory: string, pattern: RegExp) =>
     fs
@@ -238,7 +385,26 @@ const findLines = (directory: string, pattern: RegExp) =>
                 .flatMap((line, index) => (pattern.test(line) ? [`src/${file}:${index + 1}: ${line.trim()}`] : [])),
         );
 
-function printSweepChecklist(root: string, name: string, packageName: string, api: ComponentApi) {
+/** What the sweep must know about how the component reaches the page, for the checklist. */
+const describeShape = (name: string, shape: Shape) => {
+    if (shape.kind === 'extend') {
+        return `
+${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the public lists include what it inherits.
+TypeScript cannot check inherited names; the meta test src/meta/public-components.spec.js checks them against the base.
+`;
+    }
+
+    if (shape.kind === 'local') {
+        return `
+${name} is no global component: its parent mounts it locally and now imports it through private.ts.
+register.ts only publishes the module, so there is no global.d.ts, and the public lists hold only what a parent uses.
+`;
+    }
+
+    return '';
+};
+
+function printSweepChecklist(root: string, name: string, packageName: string, api: ComponentApi, shape: Shape) {
     const outside = findLines(path.join(adminRoot, root, 'src'), /Shopware\.|= Shopware;|inject:|getByName\(|from 'src\//);
 
     console.log(`# Sweep ${root}
@@ -246,7 +412,7 @@ function printSweepChecklist(root: string, name: string, packageName: string, ap
 The codemod moved ${name} into the mini-module layout. Finish it by hand, following src/module/AGENTS.md "Mini-Modules".
 A finished example is src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix: copy its patterns.
 This is a refactor: behaviour must not change, so keep odd code, unused injects and the mixin order.
-
+${describeShape(name, shape)}
 1. Write dependencies.ts and route every outside access of src/ through it:
 ${outside.map((line) => `   - ${line}`).join('\n') || '   - nothing found'}
    - A service name in inject becomes a constant from src/app/service-names; add a missing one there.
@@ -262,7 +428,7 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
    The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
    Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.
    A contract spec over 500 lines splits into a directory, e.g. tests/pinned.spec/search.spec.ts.
-4. Add .codeowners entries for index.ts, global.d.ts, tests/requirements.spec.ts and tests/public-api.spec.ts.
+4. Add .codeowners entries for index.ts, ${shape.kind === 'local' ? '' : 'global.d.ts, '}tests/requirements.spec.ts and tests/public-api.spec.ts.
    The team is the one that owns other code of @sw-package ${packageName} there.
 5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
    Run npm run unit-setup, so Jest finds the moved component by its name.

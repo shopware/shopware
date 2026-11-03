@@ -37,14 +37,14 @@ class ResponseFactoryRegistry
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
 
         $contentTypes = $request->getAcceptableContentTypes();
-        if (Feature::isActive('v6.8.0.0')) {
-            if ($contentTypes === [] || \in_array('*/*', $contentTypes, true)) {
+        if ($contentTypes === [] || \in_array('*/*', $contentTypes, true)) {
+            if (Feature::isActive('v6.8.0.0')) {
                 $contentTypes[] = self::DEFAULT_RESPONSE_TYPE;
+            } else {
+                $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
+                    ? self::DEFAULT_RESPONSE_TYPE
+                    : self::LEGACY_DEFAULT_RESPONSE_TYPE;
             }
-        } elseif ($contentTypes === [] || \in_array('*/*', $contentTypes, true)) {
-            $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
-                ? self::DEFAULT_RESPONSE_TYPE
-                : self::LEGACY_DEFAULT_RESPONSE_TYPE;
         }
 
         foreach ($contentTypes as $contentType) {

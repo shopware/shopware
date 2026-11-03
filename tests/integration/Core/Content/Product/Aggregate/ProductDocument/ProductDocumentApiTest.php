@@ -2,12 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -25,12 +28,26 @@ class ProductDocumentApiTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        static::getContainer()->get('media.repository')->create([[
-            'id' => $this->ids->create('manual'),
-            'fileName' => 'manual',
-            'fileExtension' => 'pdf',
-            'mimeType' => 'application/pdf',
-        ]], Context::createDefaultContext());
+        static::getContainer()->get('media.repository')->create([$this->file('manual')], Context::createDefaultContext());
+    }
+
+    public function testLanguageVersionsWithoutTheirOwnFileFollowTheFileOfTheDefaultLanguage(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+        static::getContainer()->get('media.repository')->create([$this->file('datasheet'), $this->file('handbuch')], Context::createDefaultContext());
+        $this->createDrillWithBlueVariant();
+        $documents = static::getContainer()->get('product_document.repository');
+        $document = ['id' => $this->ids->create('document'), 'productId' => $this->ids->get('drill'), ...$this->manual(), 'translations' => [$germanId => ['title' => 'Handbuch']]];
+
+        $documents->create([$document], Context::createDefaultContext());
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('manual'), $germanId => $this->ids->get('manual')], $this->getFiles());
+
+        $documents->update([['id' => $this->ids->get('document'), 'mediaId' => $this->ids->get('datasheet')]], Context::createDefaultContext());
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('datasheet'), $germanId => $this->ids->get('datasheet')], $this->getFiles());
+
+        $documents->update([['id' => $this->ids->get('document'), 'translations' => [$germanId => ['mediaId' => $this->ids->get('handbuch')]]]], Context::createDefaultContext());
+        $documents->update([['id' => $this->ids->get('document'), 'mediaId' => $this->ids->get('manual')]], Context::createDefaultContext());
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('manual'), $germanId => $this->ids->get('handbuch')], $this->getFiles());
     }
 
     public function testDocumentRoutesOfTheAdminApiInvalidateTheProductAndItsVariants(): void
@@ -58,6 +75,26 @@ class ProductDocumentApiTest extends TestCase
         $deleted = $this->collectInvalidatedProductIds('DELETE', '/api/product-document/' . $this->ids->get('document'));
         static::assertContains($this->ids->get('drill'), $deleted);
         static::assertContains($this->ids->get('drill.blue'), $deleted);
+    }
+
+    /**
+     * @return array{id: string, fileName: string, fileExtension: string, mimeType: string}
+     */
+    private function file(string $name): array
+    {
+        return ['id' => $this->ids->create($name), 'fileName' => $name, 'fileExtension' => 'pdf', 'mimeType' => 'application/pdf'];
+    }
+
+    /**
+     * @return array<string, string> file id per language id of the document
+     */
+    private function getFiles(): array
+    {
+        /** @var array<string, string> */
+        return static::getContainer()->get(Connection::class)->fetchAllKeyValue(
+            'SELECT LOWER(HEX(`language_id`)), LOWER(HEX(`media_id`)) FROM `product_document_translation` WHERE `product_document_id` = :id',
+            ['id' => Uuid::fromHexToBytes($this->ids->get('document'))]
+        );
     }
 
     /**

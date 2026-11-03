@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/base/sw-label';
+import 'src/app/component/base/sw-label/src/sw-label';
 
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-select-selection-list', { sync: true }), {

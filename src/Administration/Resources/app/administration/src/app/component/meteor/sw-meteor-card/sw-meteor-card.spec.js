@@ -4,8 +4,8 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-card';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
+import 'src/app/component/base/sw-tabs/src/sw-tabs';
+import 'src/app/component/base/sw-tabs-item/src/sw-tabs-item';
 
 function createFeatureMock(featureActive = false) {
     return {

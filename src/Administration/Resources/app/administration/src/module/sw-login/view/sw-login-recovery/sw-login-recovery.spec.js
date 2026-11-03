@@ -6,8 +6,8 @@ import { config, mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-recovery';
 import 'src/app/component/form/sw-text-field';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-alert';
+import 'src/app/component/base/sw-button/src/sw-button';
+import 'src/app/component/base/sw-alert/src/sw-alert';
 
 async function createWrapper(validateEmailAddress = null) {
     // delete global $router and $routes mocks

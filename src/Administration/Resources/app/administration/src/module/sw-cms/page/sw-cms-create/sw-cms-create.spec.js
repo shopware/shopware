@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
+import CmsPageTypeService from '../../service/cms-page-type.service';
 
 const { EntityCollection } = Shopware.Data;
 

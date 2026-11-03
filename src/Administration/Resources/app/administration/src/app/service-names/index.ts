@@ -36,6 +36,7 @@ export {
     serviceRegistryClient,
     shopIdChangeService,
     shopwareServicesService,
+    shortcutService,
     snippetService,
     snippetSetService,
     syncService,

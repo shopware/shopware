@@ -4,6 +4,44 @@ import 'src/app/component/app/sw-app-shop-id-change-modal/register';
 import 'src/app/component/app/sw-app-topbar-button/register';
 import 'src/app/component/app/sw-app-topbar-sidebar/register';
 import 'src/app/component/app/sw-app-wrong-app-url-modal/register';
+import 'src/app/component/base/sw-address/register';
+import 'src/app/component/base/sw-alert/register';
+import 'src/app/component/base/sw-alert-deprecated/register';
+import 'src/app/component/base/sw-avatar/register';
+import 'src/app/component/base/sw-button/register';
+import 'src/app/component/base/sw-button-deprecated/register';
+import 'src/app/component/base/sw-button-group/register';
+import 'src/app/component/base/sw-button-process/register';
+import 'src/app/component/base/sw-card/register';
+import 'src/app/component/base/sw-card-deprecated/register';
+import 'src/app/component/base/sw-card-filter/register';
+import 'src/app/component/base/sw-card-section/register';
+import 'src/app/component/base/sw-chart/register';
+import 'src/app/component/base/sw-chart-card/register';
+import 'src/app/component/base/sw-circle-icon/register';
+import 'src/app/component/base/sw-collapse/register';
+import 'src/app/component/base/sw-container/register';
+import 'src/app/component/base/sw-description-list/register';
+import 'src/app/component/base/sw-empty-state/register';
+import 'src/app/component/base/sw-error-summary/register';
+import 'src/app/component/base/sw-help-text/register';
+import 'src/app/component/base/sw-icon/register';
+import 'src/app/component/base/sw-icon-deprecated/register';
+import 'src/app/component/base/sw-inheritance-switch/register';
+import 'src/app/component/base/sw-label/register';
+import 'src/app/component/base/sw-modal/register';
+import 'src/app/component/base/sw-product-image/register';
+import 'src/app/component/base/sw-product-variant-info/register';
+import 'src/app/component/base/sw-property-search/register';
+import 'src/app/component/base/sw-radio-panel/register';
+import 'src/app/component/base/sw-rating-stars/register';
+import 'src/app/component/base/sw-simple-search-field/register';
+import 'src/app/component/base/sw-sorting-select/register';
+import 'src/app/component/base/sw-tabs/register';
+import 'src/app/component/base/sw-tabs-deprecated/register';
+import 'src/app/component/base/sw-tabs-item/register';
+import 'src/app/component/base/sw-user-card/register';
+import 'src/app/component/base/sw-version/register';
 /**
  * @sw-package framework
  * @private
@@ -416,54 +454,10 @@ export default () => {
     );
     Shopware.Component.register('sw-context-menu', () => import('src/app/component/context-menu/sw-context-menu/index'));
     Shopware.Component.register('sw-context-button', () => import('src/app/component/context-menu/sw-context-button/index'));
-    Shopware.Component.register('sw-version', () => import('src/app/component/base/sw-version/index'));
-    Shopware.Component.register('sw-user-card', () => import('src/app/component/base/sw-user-card/index'));
-    Shopware.Component.register('sw-tabs-item', () => import('src/app/component/base/sw-tabs-item/index'));
-    Shopware.Component.register('sw-tabs-deprecated', () => import('src/app/component/base/sw-tabs-deprecated/index'));
-    Shopware.Component.register('sw-tabs', () => import('src/app/component/base/sw-tabs/index'));
-    Shopware.Component.register('sw-sorting-select', () => import('src/app/component/base/sw-sorting-select/index'));
-    Shopware.Component.register(
-        'sw-simple-search-field',
-        () => import('src/app/component/base/sw-simple-search-field/index'),
-    );
-    Shopware.Component.register('sw-rating-stars', () => import('src/app/component/base/sw-rating-stars/index'));
-    Shopware.Component.register('sw-radio-panel', () => import('src/app/component/base/sw-radio-panel/index'));
-    Shopware.Component.register('sw-property-search', () => import('src/app/component/base/sw-property-search/index'));
-    Shopware.Component.register(
-        'sw-product-variant-info',
-        () => import('src/app/component/base/sw-product-variant-info/index'),
-    );
-    Shopware.Component.register('sw-product-image', () => import('src/app/component/base/sw-product-image/index'));
-    Shopware.Component.register('sw-modal', () => import('src/app/component/base/sw-modal/index'));
-    Shopware.Component.register('sw-label', () => import('src/app/component/base/sw-label/index'));
-    Shopware.Component.register('sw-inheritance-switch', () => import('src/app/component/base/sw-inheritance-switch/index'));
-    Shopware.Component.register('sw-icon-deprecated', () => import('src/app/component/base/sw-icon-deprecated/index'));
-    Shopware.Component.register('sw-icon', () => import('src/app/component/base/sw-icon/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
-    Shopware.Component.register('sw-help-text', () => import('src/app/component/base/sw-help-text/index'));
-    Shopware.Component.register('sw-error-summary', () => import('src/app/component/base/sw-error-summary/index'));
-    Shopware.Component.register('sw-empty-state', () => import('src/app/component/base/sw-empty-state/index'));
-    Shopware.Component.register('sw-description-list', () => import('src/app/component/base/sw-description-list/index'));
-    Shopware.Component.register('sw-container', () => import('src/app/component/base/sw-container/index'));
-    Shopware.Component.register('sw-collapse', () => import('src/app/component/base/sw-collapse/index'));
-    Shopware.Component.register('sw-circle-icon', () => import('src/app/component/base/sw-circle-icon/index'));
-    Shopware.Component.register('sw-chart-card', () => import('src/app/component/base/sw-chart-card/index'));
-    Shopware.Component.register('sw-card-section', () => import('src/app/component/base/sw-card-section/index'));
-    Shopware.Component.register('sw-card-filter', () => import('src/app/component/base/sw-card-filter/index'));
-    Shopware.Component.register('sw-card-deprecated', () => import('src/app/component/base/sw-card-deprecated/index'));
-    Shopware.Component.register('sw-card', () => import('src/app/component/base/sw-card/index'));
-    Shopware.Component.register('sw-button-process', () => import('src/app/component/base/sw-button-process/index'));
-    Shopware.Component.register('sw-button-group', () => import('src/app/component/base/sw-button-group/index'));
-    Shopware.Component.register('sw-button-deprecated', () => import('src/app/component/base/sw-button-deprecated/index'));
-    Shopware.Component.register('sw-button', () => import('src/app/component/base/sw-button/index'));
-    Shopware.Component.register('sw-avatar', () => import('src/app/component/base/sw-avatar/index'));
-    Shopware.Component.register('sw-alert-deprecated', () => import('src/app/component/base/sw-alert-deprecated/index'));
-    Shopware.Component.register('sw-alert', () => import('src/app/component/base/sw-alert/index'));
-    Shopware.Component.register('sw-address', () => import('src/app/component/base/sw-address/index'));
     Shopware.Component.register('sw-code-editor', () => import('src/app/component/form/sw-code-editor'));
     Shopware.Component.register('sw-datepicker', () => import('src/app/component/form/sw-datepicker'));
     Shopware.Component.register('sw-datepicker-deprecated', () => import('src/app/component/form/sw-datepicker-deprecated'));
-    Shopware.Component.register('sw-chart', () => import('src/app/component/base/sw-chart'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
     Shopware.Component.register('sw-image-slider', () => import('src/app/component/media/sw-image-slider'));

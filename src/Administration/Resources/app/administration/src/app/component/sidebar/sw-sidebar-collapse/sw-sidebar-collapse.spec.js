@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/base/sw-collapse';
+import 'src/app/component/base/sw-collapse/src/sw-collapse';
 import 'src/app/component/sidebar/sw-sidebar-collapse';
 
 async function createWrapper() {

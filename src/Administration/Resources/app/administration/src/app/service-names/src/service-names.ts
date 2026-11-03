@@ -263,6 +263,16 @@ export const acl = 'acl';
 export const serviceRegistryClient = 'serviceRegistryClient';
 
 /**
+ * The name the shortcutService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [shortcutService] };
+ *
+ * @public
+ */
+export const shortcutService = 'shortcutService';
+
+/**
  * The name the snippetService service is registered and injected under.
  *
  * @example

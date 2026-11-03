@@ -10,8 +10,14 @@ type SalutationType = {
     displayName: string;
 };
 
+/**
+ * @private
+ * The name the salutation filter is registered under, for code that looks it up with `Shopware.Filter.getByName()`.
+ */
+export const salutationFilterName = 'salutation';
+
 Filter.register(
-    'salutation',
+    salutationFilterName,
     (
         entity: {
             salutation: SalutationType;

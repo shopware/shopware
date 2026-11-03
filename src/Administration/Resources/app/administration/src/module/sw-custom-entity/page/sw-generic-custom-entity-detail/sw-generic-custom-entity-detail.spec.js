@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
-import 'src/app/component/base/sw-button-process';
+import 'src/app/component/base/sw-button-process/src/sw-button-process';
 
 /**
  * @sw-package framework

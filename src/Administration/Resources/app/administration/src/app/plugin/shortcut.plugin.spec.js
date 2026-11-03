@@ -18,8 +18,8 @@ import 'src/app/component/form/sw-colorpicker-deprecated';
 import 'src/app/component/form/sw-compact-colorpicker';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-container/src/sw-container';
+import 'src/app/component/base/sw-button/src/sw-button';
 
 Shopware.Utils.debounce = function debounce(callback, delay) {
     let timeout = null;

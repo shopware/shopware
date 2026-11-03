@@ -14,8 +14,14 @@ interface TabsState {
     };
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const tabsStoreId = 'tabs';
+
 const tabsStore = Shopware.Store.register({
-    id: 'tabs',
+    id: tabsStoreId,
 
     state: (): TabsState => ({
         tabItems: {},

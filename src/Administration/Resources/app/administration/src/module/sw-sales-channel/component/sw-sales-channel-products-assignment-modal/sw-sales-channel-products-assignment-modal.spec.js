@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-button/src/sw-button';
 
 async function createWrapper(activeTab = 'singleProducts', featureActive = false) {
     return mount(

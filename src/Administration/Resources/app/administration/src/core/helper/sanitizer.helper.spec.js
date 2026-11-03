@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 
 import Sanitizer from 'src/core/helper/sanitizer.helper';
-import 'src/app/component/base/sw-empty-state';
+import 'src/app/component/base/sw-empty-state/src/sw-empty-state';
 import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
 import { deprecations } from 'test/_helper_/deprecations';
 

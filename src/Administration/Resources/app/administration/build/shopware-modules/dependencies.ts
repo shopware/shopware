@@ -16,6 +16,9 @@ export type { Plugin } from 'vite';
 /** @private Type only: the Vite config cannot load Administration source. */
 export type { ShopwareClass } from 'src/core/shopware';
 
+/** @private The one Administration file the Vite config loads: it has no imports, and it owns the list of kinds. */
+export { PUBLIC_KINDS, type PublicKind } from '../../src/core/mini-module-registry';
+
 /**
  * @private
  *

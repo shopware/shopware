@@ -5,7 +5,7 @@
  * decides which specifiers exist; the branch definitions below decide how each one reads `Shopware`.
  */
 
-import type { ShopwareClass } from '../dependencies';
+import { PUBLIC_KINDS, type PublicKind, type ShopwareClass } from '../dependencies';
 
 /**
  * @private
@@ -13,7 +13,7 @@ import type { ShopwareClass } from '../dependencies';
  * `Utils`, `Data` and `Composables` keep their exact `ShopwareClass` types. The registry methods accept
  * strings because their keys come from `shopware-modules.json`.
  */
-export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Composables' | 'MiniModules'> & {
+export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Composables' | 'Public'> & {
     Mixin: { getByName: (name: string) => unknown };
     Store: { get: (id: string) => unknown };
 };
@@ -49,6 +49,8 @@ type Branch = {
      * an older Administration that has the branch.
      */
     readonly since?: string;
+    /** The expression that is truthy when the branch exists, if reading the root could already throw. */
+    readonly present?: () => string;
     /**
      * Each subpath holds the exports of an ES module, like `import * as` does: its default export is the
      * `default` member, which exists only when the registry lists it, instead of the subpath object itself.
@@ -70,6 +72,28 @@ function readOwn(branch: Record<string, unknown>, subpath: string, globalPath: s
     }
 
     return branch[subpath];
+}
+
+/**
+ * A `shopware:<kind>` family: one mini-module per subpath, read from `Shopware.Public[kind]`.
+ *
+ * @example
+ * publicKindBranch('components'); // serves shopware:components/sw-settings-shipping-price-matrix
+ */
+function publicKindBranch(kind: PublicKind): Branch {
+    return {
+        since: '6.7.17.0',
+        present: () => `shopware.Public?.[${JSON.stringify(kind)}]`,
+        esModuleSubpaths: true,
+        root: {
+            emit: () => `shopware.Public[${JSON.stringify(kind)}]`,
+            read: (shopware) => shopware.Public[kind],
+        },
+        subpath: {
+            emit: (subpath) => `shopware.Public[${JSON.stringify(kind)}][${JSON.stringify(subpath)}]`,
+            read: (shopware, subpath) => readOwn(shopware.Public[kind], subpath, `Shopware.Public.${kind}`),
+        },
+    };
 }
 
 const BRANCHES: Record<string, Branch> = {
@@ -115,18 +139,6 @@ const BRANCHES: Record<string, Branch> = {
             read: (shopware, subpath) => shopware.Mixin.getByName(subpath),
         },
     },
-    'shopware:mini-modules': {
-        since: '6.7.17.0',
-        esModuleSubpaths: true,
-        root: {
-            emit: () => 'shopware.MiniModules',
-            read: (shopware) => shopware.MiniModules,
-        },
-        subpath: {
-            emit: (subpath) => `shopware.MiniModules[${JSON.stringify(subpath)}]`,
-            read: (shopware, subpath) => readOwn(shopware.MiniModules, subpath, 'Shopware.MiniModules'),
-        },
-    },
     'shopware:stores': {
         root: {
             emit: () => 'shopware.Store',
@@ -138,6 +150,12 @@ const BRANCHES: Record<string, Branch> = {
             read: (shopware, subpath) => () => shopware.Store.get(subpath),
         },
     },
+    ...Object.fromEntries(
+        PUBLIC_KINDS.map((kind) => [
+            `shopware:${kind}`,
+            publicKindBranch(kind),
+        ]),
+    ),
 };
 
 /** @private The module families, e.g. `shopware:utils`. */
@@ -221,9 +239,10 @@ export function allSpecifiers(registry: ModuleRegistry): string[] {
  * are loaded from the same config response.
  */
 export function branchGuard(parsed: ParsedSpecifier): string[] {
-    const since = Object.hasOwn(BRANCHES, parsed.family) ? BRANCHES[parsed.family].since : undefined;
+    const branch = Object.hasOwn(BRANCHES, parsed.family) ? BRANCHES[parsed.family] : undefined;
+    const since = branch?.since;
 
-    if (since === undefined) {
+    if (branch === undefined || since === undefined) {
         return [];
     }
 
@@ -231,7 +250,7 @@ export function branchGuard(parsed: ParsedSpecifier): string[] {
     const fix = `. Require shopware/administration >=${since} in the composer.json of the extension.`;
 
     return [
-        `if (!${BRANCHES[parsed.family].root.emit()}) {`,
+        `if (!${branch.present?.() ?? branch.root.emit()}) {`,
         `    throw new Error(${JSON.stringify(required)} + shopware.Context?.app?.config?.version + ${JSON.stringify(fix)});`,
         '}',
     ];

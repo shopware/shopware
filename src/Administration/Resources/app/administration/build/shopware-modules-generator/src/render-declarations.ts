@@ -10,7 +10,7 @@
  * Types come from the same global branches and registry interfaces as the runtime values.
  */
 
-import type { ModuleRegistry } from '../dependencies';
+import { PUBLIC_KINDS, type ModuleRegistry } from '../dependencies';
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
@@ -118,7 +118,7 @@ function namedReExport(names: string[], source: string): string[] {
 }
 
 /**
- * A mini-module, e.g. `shopware:mini-modules/public-component`, which re-exports its `index.ts`: the
+ * A mini-module, e.g. `shopware:framework/public-component`, which re-exports its `index.ts`: the
  * values the registry lists, and every type.
  */
 function miniModule(specifier: string, source: string, exports: string[]): string {
@@ -176,13 +176,15 @@ export function renderDeclarations(registry: ModuleRegistry): string {
         blocks.push(defaultOnlyModule(`shopware:stores/${key}`, 'useStore', `() => PiniaRootState['${key}']`)),
     );
 
-    const miniModules = registry['shopware:mini-modules'];
-    Object.entries(miniModules.subpaths).forEach(
-        ([
-            key,
-            exports,
-        ]) => blocks.push(miniModule(`shopware:mini-modules/${key}`, miniModules.sources?.[key] ?? '', exports)),
-    );
+    PUBLIC_KINDS.forEach((kind) => {
+        const family = registry[`shopware:${kind}`];
+        Object.entries(family.subpaths).forEach(
+            ([
+                key,
+                exports,
+            ]) => blocks.push(miniModule(`shopware:${kind}/${key}`, family.sources?.[key] ?? '', exports)),
+        );
+    });
 
     return [
         FILE_HEADER,

@@ -18,7 +18,7 @@ import composables, { useListing } from 'shopware:composables';
 import useListingDefault from 'shopware:composables/useListing';
 import directUseListing from 'src/app/composables/use-listing';
 import 'src/core/public-component/register';
-import { definePublicComponent } from 'shopware:mini-modules/public-component';
+import { definePublicComponent } from 'shopware:framework/public-component';
 import { definePublicComponent as directDefinePublicComponent } from 'src/core/public-component';
 
 // `Shopware` is declared `const` on the global, which puts it outside the keys `replaceProperty` accepts.

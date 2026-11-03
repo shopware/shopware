@@ -40,5 +40,6 @@ class CompatibilityValidatorTest extends TestCase
         static::assertSame('App test is not compatible with this Shopware version', $error->getMessage());
         static::assertSame(AppException::NOT_COMPATIBLE, $error->getErrorCode());
         static::assertSame(['name' => 'test'], $error->getParameters());
+        static::assertTrue($error->isBlocking());
     }
 }

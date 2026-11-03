@@ -1,11 +1,7 @@
 import './service';
 import { grantPermissionsFromSdk, isPermissionGrantedFromSdk } from './composables/permissions';
 import './component/sw-settings-services-service-card/register';
-
-/**
- * @private
- */
-Shopware.Component.register('sw-settings-services-index', () => import('./page/sw-settings-services-index'));
+import './page/sw-settings-services-index/register';
 
 /**
  * @private

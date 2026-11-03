@@ -9,16 +9,16 @@ import {
     MtButton,
     MtBanner,
 } from '@shopware-ag/meteor-component-library';
-import SwSettingsServicesIndex from './index';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
-import SwSettingsServicesHero from '../../component/sw-settings-services-hero';
-import SwSettingsServicesGrantPermissionsCard from '../../component/sw-settings-services-grant-permissions-card';
-import SwSettingsServicesRevokePermissionsModal from '../../component/sw-settings-services-revoke-permissions-modal';
-import SwSettingsServicesDeactivateModal from '../../component/sw-settings-services-deactivate-modal';
-import * as permissionsComposable from '../../composables/permissions';
+import SwSettingsServicesIndex from '../src/sw-settings-services-index';
+import { useShopwareServicesStore } from '../../../store/shopware-services.store';
+import SwSettingsServicesHero from '../../../component/sw-settings-services-hero';
+import SwSettingsServicesGrantPermissionsCard from '../../../component/sw-settings-services-grant-permissions-card';
+import SwSettingsServicesRevokePermissionsModal from '../../../component/sw-settings-services-revoke-permissions-modal';
+import SwSettingsServicesDeactivateModal from '../../../component/sw-settings-services-deactivate-modal';
+import * as permissionsComposable from '../../../composables/permissions';
 
-jest.mock('../../composables/permissions', () => {
-    const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+jest.mock('../../../composables/permissions', () => {
+    const useShopwareServicesStore = require('../../../store/shopware-services.store').useShopwareServicesStore;
     const _reloadPageMock = jest.fn();
     return {
         async grantPermissions() {

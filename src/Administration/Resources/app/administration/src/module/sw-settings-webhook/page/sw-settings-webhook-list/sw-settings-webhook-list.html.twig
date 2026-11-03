@@ -40,6 +40,7 @@
             :full-page="true"
             :show-selection="false"
             :allow-inline-edit="acl.can('webhook.editor')"
+            :is-record-editable="canChange"
             :allow-delete="acl.can('webhook.deleter')"
             :disable-data-fetching="true"
             :sort-by="sortBy"

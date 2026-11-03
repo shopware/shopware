@@ -293,15 +293,33 @@ export default Component.wrapComponentConfig({
             return { name: 'sw.users.permissions.role.detail', params: { id: roleId } };
         },
 
+        isOwnedByCurrentUser(webhook: Entity<'webhook'>): boolean {
+            return !!webhook.ownerUserId && webhook.ownerUserId === Shopware.Store.get('session').currentUser?.id;
+        },
+
+        canChange(webhook: Entity<'webhook'>): boolean {
+            return this.acl.isAdmin() || (!webhook.appId && this.isOwnedByCurrentUser(webhook));
+        },
+
         canDelete(webhook: Entity<'webhook'>, allowDelete: boolean): boolean {
-            return allowDelete && !webhook.appId;
+            return allowDelete && !webhook.appId && this.canChange(webhook);
+        },
+
+        deleteTooltipMessage(webhook: Entity<'webhook'>): string {
+            if (webhook.appId) {
+                return this.$t('sw-settings-webhook.list.tooltipAppWebhookNotDeletable');
+            }
+
+            if (!this.canChange(webhook)) {
+                return this.$t('sw-settings-webhook.list.tooltipWebhookNotOwned');
+            }
+
+            return this.$t('sw-privileges.tooltip.warning');
         },
 
         deleteTooltip(webhook: Entity<'webhook'>, allowDelete: boolean) {
             return {
-                message: webhook.appId
-                    ? this.$t('sw-settings-webhook.list.tooltipAppWebhookNotDeletable')
-                    : this.$t('sw-privileges.tooltip.warning'),
+                message: this.deleteTooltipMessage(webhook),
                 disabled: this.canDelete(webhook, allowDelete),
                 showOnDisabledElements: true,
             };

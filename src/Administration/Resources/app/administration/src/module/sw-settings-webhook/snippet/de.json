@@ -27,7 +27,8 @@
       "actionShowDeliveries": "Zustellungen anzeigen",
       "messageSaveSuccess": "Webhook \"{name}\" wurde gespeichert.",
       "placeholderSearchBar": "Webhooks durchsuchen ...",
-      "deletedRole": "Gelöschte Rolle"
+      "deletedRole": "Gelöschte Rolle",
+      "tooltipWebhookNotOwned": "Nur der Besitzer dieses Webhooks oder ein Administrator kann ihn löschen."
     },
     "deliveries": {
       "title": "Zustellungen von \"{name}\"",
@@ -51,7 +52,9 @@
       "columnPayload": "Payload",
       "buttonBack": "Zurück zu den Zustellungen",
       "tabPayload": "Payload",
-      "tabResponse": "Antwort"
+      "tabResponse": "Antwort",
+      "noResponse": "Es kam keine Antwort.",
+      "noBody": "Die Antwort hat keinen Body."
     }
   },
   "sw-privileges": {

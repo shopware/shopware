@@ -217,6 +217,19 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-deliverie
         expect(wrapper.find('pre').text()).toBe('Bad Request');
     });
 
+    it('shows a note when the response has no body', async () => {
+        const { wrapper } = await createWrapper();
+
+        await wrapper.find('.row-failed .payload a').trigger('click');
+        child(wrapper, 'mt-tabs').vm.$emit('new-item-active', 'response');
+        await flushPromises();
+
+        expect(wrapper.find('pre').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-webhook-deliveries-modal__no-content').text()).toBe(
+            'sw-settings-webhook.deliveries.noBody',
+        );
+    });
+
     it('shows neither payload nor response on a tab added by an extension', async () => {
         const { wrapper } = await createWrapper();
 

@@ -245,13 +245,13 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
         });
 
         it('re-exports the index.ts of a mini-module, without a default export when it has none', () => {
-            const source = generateModuleSource('shopware:mini-modules/public-component', registry, 'extension') as string;
+            const source = generateModuleSource('shopware:framework/public-component', registry, 'extension') as string;
 
             expect(source).toContain(
-                'export const definePublicComponent = shopware.MiniModules["public-component"]["definePublicComponent"];',
+                'export const definePublicComponent = shopware.Public["framework"]["public-component"]["definePublicComponent"];',
             );
             expect(source).not.toContain('export default');
-            expect(source).toMatch(/if \(!shopware\.MiniModules\) \{[\s\S]*requires Shopware 6\.7\.17\.0/);
+            expect(source).toMatch(/if \(!shopware\.Public\?\.\["framework"\]\) \{[\s\S]*requires Shopware 6\.7\.17\.0/);
         });
 
         it('returns nothing for a specifier the registry does not list', () => {

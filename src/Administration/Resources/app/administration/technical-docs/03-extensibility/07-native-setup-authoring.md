@@ -196,7 +196,7 @@ The public API in index.ts does not match "sw-example":
 `index.ts` must write the lists as literal arrays, so the transform can read them without running the file.
 ESLint skips this check, because its cache does not see a change to `index.ts`.
 
-An extension declares its own mini-modules the same way, with `definePublicComponent` from `shopware:mini-modules/public-component`, and its build runs the same check.
+An extension declares its own mini-modules the same way, with `definePublicComponent` from `shopware:framework/public-component`, and its build runs the same check.
 A props type imported through a tsconfig path, like `src/...` or an alias from `tsconfig.aliases.json`, resolves with the nearest `tsconfig.json` of the SFC.
 vue-tsc reads `swDefinePublic()` like `defineExpose()`, so `PublicInstance<typeof SwExample>` types the public setup bindings next to the props.
 

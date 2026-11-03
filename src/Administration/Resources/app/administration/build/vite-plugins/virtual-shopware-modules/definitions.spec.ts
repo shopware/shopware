@@ -7,6 +7,7 @@
 
 import path from 'node:path';
 import vm from 'node:vm';
+import { PUBLIC_KINDS } from 'src/core/mini-module-registry';
 import {
     MODULE_FAMILIES,
     allSpecifiers,
@@ -43,7 +44,7 @@ function createProbeGlobal(): VirtualModuleGlobal {
                     members,
                 ]) => [
                     key,
-                    members.length > 0 || family === 'shopware:mini-modules'
+                    members.length > 0 || isEsModuleSubpath({ family, subpath: key })
                         ? Object.fromEntries(
                               members.map((member) => [
                                   member,
@@ -59,7 +60,12 @@ function createProbeGlobal(): VirtualModuleGlobal {
         Utils: branchOf('shopware:utils', 'Utils') as unknown as VirtualModuleGlobal['Utils'],
         Data: branchOf('shopware:data', 'Data') as unknown as VirtualModuleGlobal['Data'],
         Composables: branchOf('shopware:composables', 'Composables') as unknown as VirtualModuleGlobal['Composables'],
-        MiniModules: branchOf('shopware:mini-modules', 'MiniModules') as VirtualModuleGlobal['MiniModules'],
+        Public: Object.fromEntries(
+            PUBLIC_KINDS.map((kind) => [
+                kind,
+                branchOf(`shopware:${kind}`, `Public:${kind}`),
+            ]),
+        ) as VirtualModuleGlobal['Public'],
         Mixin: { getByName: (key) => `Mixin:${key}` },
         Store: { get: (id) => `Store:${id}` },
     };
@@ -98,7 +104,8 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             expect(parseSpecifier('shopware:composables')).toEqual({ family: 'shopware:composables' });
             expect(parseSpecifier('shopware:mixins')).toEqual({ family: 'shopware:mixins' });
             expect(parseSpecifier('shopware:stores')).toEqual({ family: 'shopware:stores' });
-            expect(parseSpecifier('shopware:mini-modules')).toEqual({ family: 'shopware:mini-modules' });
+            expect(parseSpecifier('shopware:components')).toEqual({ family: 'shopware:components' });
+            expect(parseSpecifier('shopware:framework')).toEqual({ family: 'shopware:framework' });
         });
 
         it('leaves every other import alone', () => {
@@ -124,7 +131,7 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it.each([
             'shopware:mixins',
             'shopware:stores',
-            'shopware:mini-modules',
+            ...PUBLIC_KINDS.map((kind) => `shopware:${kind}`),
         ])('refuses %s, because it publishes none', (family) => {
             expect(registry[family].exports).toEqual([]);
             expect(exportNames(registry, parseSpecifier(family)!)).toBeUndefined();
@@ -201,51 +208,56 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             );
         });
 
-        it('publishes exactly the index.ts exports of every mini-module, through its register.ts', async () => {
-            const { subpaths, sources = {} } = registry['shopware:mini-modules'];
+        it('publishes exactly the index.ts exports of every mini-module, under its kind, through its register.ts', async () => {
+            // Every mini-module as `<kind>/<name>`, so a module published under the wrong kind shows up.
+            const modules = PUBLIC_KINDS.flatMap((kind) =>
+                Object.entries(registry[`shopware:${kind}`].sources ?? {}).map(
+                    ([
+                        name,
+                        source,
+                    ]) => ({ key: `${kind}/${name}`, source, members: registry[`shopware:${kind}`].subpaths[name] }),
+                ),
+            );
             const indexExports: Record<string, string[]> = {};
-            let published: Record<string, object> = {};
+            const published: Record<string, object> = {};
 
             // A fresh registry, so the check sees what the register.ts files publish and nothing else.
             await jest.isolateModulesAsync(async () => {
                 const isolated = await import('src/core/mini-module-registry');
-                const publish = jest
-                    .spyOn(Shopware._private, 'publishMiniModule')
-                    .mockImplementation(isolated.publishMiniModule);
+                const publish = jest.spyOn(Shopware._private, 'publish').mockImplementation(isolated.publish);
 
                 await Promise.all(
-                    Object.entries(sources).map(
-                        async ([
-                            name,
-                            source,
-                        ]) => {
-                            await import(path.join(administrationRoot, source, 'register'));
-                            indexExports[name] = Object.keys(
-                                (await import(path.join(administrationRoot, source, 'index'))) as object,
-                            );
-                        },
-                    ),
+                    modules.map(async ({ key, source }) => {
+                        await import(path.join(administrationRoot, source, 'register'));
+                        indexExports[key] = Object.keys(
+                            (await import(path.join(administrationRoot, source, 'index'))) as object,
+                        );
+                    }),
                 );
 
                 publish.mockRestore();
-                published = isolated.miniModules;
+                PUBLIC_KINDS.forEach((kind) =>
+                    Object.entries(isolated.publicModules[kind]).forEach(
+                        ([
+                            name,
+                            exports,
+                        ]) => {
+                            published[`${kind}/${name}`] = exports;
+                        },
+                    ),
+                );
             });
 
-            expect(Object.keys(published).sort()).toEqual(Object.keys(subpaths).sort());
+            expect(Object.keys(published).sort()).toEqual(modules.map(({ key }) => key).sort());
 
-            Object.entries(published).forEach(
-                ([
-                    name,
-                    exports,
-                ]) => {
-                    expect(Object.keys(exports).sort(), `${name} publishes more or less than its index.ts`).toEqual(
-                        [...indexExports[name]].sort(),
-                    );
-                    expect(Object.keys(exports).sort(), `${name} is stale in shopware-modules.json`).toEqual(
-                        [...subpaths[name]].sort(),
-                    );
-                },
-            );
+            modules.forEach(({ key, members }) => {
+                expect(Object.keys(published[key]).sort(), `${key} publishes more or less than its index.ts`).toEqual(
+                    [...indexExports[key]].sort(),
+                );
+                expect(Object.keys(published[key]).sort(), `${key} is stale in shopware-modules.json`).toEqual(
+                    [...members].sort(),
+                );
+            });
         });
 
         it('publishes no named exports for a mixin or a store, which must not be destructured', () => {
@@ -260,15 +272,15 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
 
     describe('mini-modules', () => {
         it('serve the default export of an index.ts as the default export of the module', () => {
-            const parsed = parseSpecifier('shopware:mini-modules/sw-example')!;
+            const parsed = parseSpecifier('shopware:components/sw-example')!;
 
             expect(isEsModuleSubpath(parsed)).toBe(true);
-            expect(defaultExpression(parsed)).toBe('shopware.MiniModules["sw-example"]["default"]');
+            expect(defaultExpression(parsed)).toBe('shopware.Public["components"]["sw-example"]["default"]');
             expect(hasDefaultExport(['default', 'helper'], parsed)).toBe(true);
         });
 
         it('have no default export when their index.ts has none', () => {
-            expect(hasDefaultExport(['helper'], parseSpecifier('shopware:mini-modules/sw-example')!)).toBe(false);
+            expect(hasDefaultExport(['helper'], parseSpecifier('shopware:helpers/sw-example')!)).toBe(false);
         });
     });
 
@@ -287,9 +299,13 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         });
 
         it('guards the mini-modules, which are newer than the shopware:* modules', () => {
-            expect(() =>
-                runGuard('shopware:mini-modules', { Context: { app: { config: { version: '6.7.16.0' } } } }),
-            ).toThrow('"shopware:mini-modules" requires Shopware 6.7.17.0 or later, but the installed version is 6.7.16.0.');
+            expect(() => runGuard('shopware:components', { Context: { app: { config: { version: '6.7.16.0' } } } })).toThrow(
+                '"shopware:components" requires Shopware 6.7.17.0 or later, but the installed version is 6.7.16.0.',
+            );
+        });
+
+        it('passes for a mini-module kind when the Administration publishes it', () => {
+            expect(() => runGuard('shopware:components', { Public: { components: {} } })).not.toThrow();
         });
 
         it('passes when the Administration has the branch', () => {

@@ -982,25 +982,39 @@ declare module 'shopware:stores/mediaModal' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mini-modules/public-component' {
-    export { definePublicComponent } from 'src/core/public-component';
-    export type * from 'src/core/public-component';
+declare module 'shopware:components/sw-order-document-card' {
+    export { default } from 'src/module/sw-order/component/sw-order-document-card';
+    export type * from 'src/module/sw-order/component/sw-order-document-card';
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mini-modules/service-names' {
-    export { repositoryFactory, ruleConditionDataProviderService } from 'src/app/service-names';
-    export type * from 'src/app/service-names';
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mini-modules/sw-settings-shipping-price-matrices' {
+declare module 'shopware:components/sw-settings-shipping-price-matrices' {
     export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
     export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mini-modules/sw-settings-shipping-price-matrix' {
+declare module 'shopware:components/sw-settings-shipping-price-matrix' {
     export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
     export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:framework/public-component' {
+    export { definePublicComponent } from 'src/core/public-component';
+    export type * from 'src/core/public-component';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:framework/service-names' {
+    export {
+        acl,
+        documentService,
+        documentV2ApiService,
+        documentV2Service,
+        numberRangeService,
+        repositoryFactory,
+        ruleConditionDataProviderService,
+    } from 'src/app/service-names';
+    export type * from 'src/app/service-names';
 }

@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  *
  * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\ManifestValidatorTest
  */
 #[Package('framework')]
 class AppNameError implements Error

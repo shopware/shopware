@@ -26,6 +26,7 @@ import { findSpecifiers, importedName, rewriteMovedImports, type MovedEntry } fr
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
 import { moveSuppressionKeys } from './move-suppressions';
+import { isTestFixture } from './test-fixtures';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -329,6 +330,16 @@ const planNestingThroughDependencies = (
     return planned;
 };
 
+/** The text of a file, or of every file below a directory, to search them for the names they mention. */
+const readSources = (fileOrDirectory: string): string[] =>
+    fs.statSync(fileOrDirectory).isDirectory()
+        ? fs
+              .readdirSync(fileOrDirectory, { recursive: true, encoding: 'utf8' })
+              .map((file) => path.join(fileOrDirectory, file))
+              .filter((file) => fs.statSync(file).isFile())
+              .map((file) => fs.readFileSync(file, 'utf8'))
+        : [fs.readFileSync(fileOrDirectory, 'utf8')];
+
 /** The script files below a directory, as absolute paths. */
 const scriptFilesBelow = (directory: string) =>
     fs
@@ -493,11 +504,29 @@ function run(directory: string) {
         moves.set(from, to);
     };
 
-    for (const file of fs.readdirSync(componentDirectory)) {
+    const isSpec = (file: string) => /\.spec(\.[jt]s)?$/.test(file);
+    const entries = fs.readdirSync(componentDirectory);
+    const sources = new Map(entries.map((file) => [file, readSources(path.join(componentDirectory, file))]));
+    const specSources = entries.filter(isSpec).flatMap((file) => sources.get(file) ?? []);
+    const fixtures = new Set(
+        entries.filter((file) => {
+            const others = entries.filter((other) => other !== file && !isSpec(other));
+            return (
+                !isSpec(file) &&
+                isTestFixture(
+                    file,
+                    specSources,
+                    others.flatMap((other) => sources.get(other) ?? []),
+                )
+            );
+        }),
+    );
+
+    for (const file of entries) {
         const from = `${origin}/${file}`;
         if (file === entry) {
             move(from, `${root}/src/${name}${path.extname(entry)}`);
-        } else if (/\.spec(\.[jt]s)?$/.test(file)) {
+        } else if (isSpec(file) || fixtures.has(file)) {
             move(from, `${root}/tests/${file}`);
         } else {
             move(from, `${root}/src/${file}`);

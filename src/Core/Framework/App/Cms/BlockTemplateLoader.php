@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Cms;
 
-use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -29,7 +29,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
         } catch (\Exception) {
         }
 
-        throw new AppCmsExtensionException(\sprintf('Preview file for block "%s" is missing', $blockName));
+        throw AppException::cmsBlockFileMissing($blockName, 'preview.html');
     }
 
     public function getStylesForBlock(CmsExtensions $cmsExtensions, string $blockName): string
@@ -48,7 +48,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
         } catch (\Exception) {
         }
 
-        throw new AppCmsExtensionException(\sprintf('Style file for block "%s" is missing', $blockName));
+        throw AppException::cmsBlockFileMissing($blockName, 'styles.css');
     }
 
     private function getBlockDirectory(CmsExtensions $cmsExtensions, string $blockName): string
@@ -58,7 +58,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
 
         // the block name comes from the cms.xml of the app
         if (!Path::isBasePath($blocksDirectory, $blockDirectory)) {
-            throw new AppCmsExtensionException(\sprintf('Block "%s" is outside of the cms/blocks directory', $blockName));
+            throw AppException::cmsBlockOutsideOfBlocksDirectory($blockName);
         }
 
         return $blockDirectory;

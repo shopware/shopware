@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Cms\BlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
-use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem as Io;
 use Symfony\Component\Filesystem\Path;
@@ -54,7 +54,7 @@ class BlockTemplateLoaderTest extends TestCase
     {
         $this->io->dumpFile($this->root . '/outside/preview.html', 'secret');
 
-        static::expectExceptionObject(new AppCmsExtensionException('Block "../../../outside" is outside of the cms/blocks directory'));
+        static::expectExceptionObject(AppException::cmsBlockOutsideOfBlocksDirectory('../../../outside'));
 
         (new BlockTemplateLoader())->getTemplateForBlock($this->cmsExtensions, '../../../outside');
     }
@@ -63,7 +63,7 @@ class BlockTemplateLoaderTest extends TestCase
     {
         $this->io->dumpFile($this->root . '/outside/styles.css', 'secret');
 
-        static::expectExceptionObject(new AppCmsExtensionException('Block "../../../outside" is outside of the cms/blocks directory'));
+        static::expectExceptionObject(AppException::cmsBlockOutsideOfBlocksDirectory('../../../outside'));
 
         (new BlockTemplateLoader())->getStylesForBlock($this->cmsExtensions, '../../../outside');
     }

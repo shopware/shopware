@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
@@ -16,6 +17,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[CoversClass(CustomerDoubleOptInRegistrationEvent::class)]
+#[Package('checkout')]
 class CustomerDoubleOptInRegistrationEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
@@ -36,6 +38,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
         static::assertEquals('my-confirm-url', $flow->data()['confirmUrl']);
+        static::assertTrue($flow->getData('sensitive'));
     }
 
     public function testCrud(): void

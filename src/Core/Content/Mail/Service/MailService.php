@@ -66,6 +66,10 @@ class MailService extends AbstractMailService
      */
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
+        if (MailLogData::isSensitive($data, $templateData)) {
+            $data['sensitive'] = true;
+        }
+
         $event = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($event);
         $data = $event->getData();
@@ -105,13 +109,14 @@ class MailService extends AbstractMailService
                 null,
                 'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
                 null,
-                $templateData
+                $templateData,
+                $data,
             );
 
             $this->eventDispatcher->dispatch($event);
             $this->logger->error(
                 'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
-                $templateData
+                MailLogData::isSensitive($data, $templateData) ? MailLogData::create($data) : $templateData
             );
         }
 
@@ -141,12 +146,13 @@ class MailService extends AbstractMailService
                 $e,
                 'Could not render Mail-Template with error message: ' . $e->getMessage(),
                 $template,
-                $templateData
+                $templateData,
+                $data,
             );
             $this->eventDispatcher->dispatch($event);
             $this->logger->warning(
-                'Could not render Mail-Template with error message: ' . $e->getMessage(),
-                array_merge([
+                MailLogData::isSensitive($data, $templateData) ? 'Could not render Mail-Template.' : 'Could not render Mail-Template with error message: ' . $e->getMessage(),
+                MailLogData::isSensitive($data, $templateData) ? MailLogData::create($data, $e) : array_merge([
                     'template' => $template,
                     'exception' => (string) $e,
                 ], $templateData)
@@ -177,6 +183,10 @@ class MailService extends AbstractMailService
             $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId())
         );
 
+        if ($mail instanceof Mail && MailLogData::isSensitive($data, $templateData)) {
+            $mail->setSensitive(true);
+        }
+
         if (trim($mail->getBody()->toString()) === '') {
             $event = new MailErrorEvent(
                 $context,
@@ -184,13 +194,15 @@ class MailService extends AbstractMailService
                 null,
                 'mail body is null',
                 null,
-                $templateData
+                $templateData,
+                $data,
+                $mail,
             );
 
             $this->eventDispatcher->dispatch($event);
             $this->logger->error(
                 'mail body is null',
-                $templateData
+                MailLogData::isSensitive($data, $templateData) || MailLogData::isSensitiveMessage($mail) ? MailLogData::create($data) : $templateData
             );
 
             return null;
@@ -222,7 +234,7 @@ class MailService extends AbstractMailService
 
         $this->mailSender->send($mail);
 
-        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context, $templateData['eventName'] ?? null);
+        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context, $templateData['eventName'] ?? null, $data, $templateData, $mail);
         $this->eventDispatcher->dispatch($event);
 
         return $mail;

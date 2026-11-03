@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use Monolog\Level;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
+use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -36,6 +39,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @internal
  */
 #[CoversClass(MailService::class)]
+#[Package('after-sales')]
 class MailServiceTest extends TestCase
 {
     /**
@@ -102,7 +106,8 @@ class MailServiceTest extends TestCase
         $this->mailService->send($data, Context::createDefaultContext());
     }
 
-    public function testSendMailSuccess(): void
+    #[DataProvider('mailSensitivityProvider')]
+    public function testSendMailSuccess(bool $sensitive, bool $factorySensitive, bool $shopwareMail): void
     {
         $salesChannelId = Uuid::randomHex();
 
@@ -131,25 +136,53 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $email = (new Email())->subject($data['subject'])
+        $email = ($shopwareMail ? new Mail() : new Email())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('me@shopware.com')
             ->from(new Address($data['senderEmail']));
 
+        if ($email instanceof Mail) {
+            $email->setSensitive($factorySensitive);
+        }
+
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
         $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
-        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch')->willReturnOnConsecutiveCalls(
-            static::isInstanceOf(MailBeforeValidateEvent::class),
-            static::isInstanceOf(MailBeforeSentEvent::class),
-            static::isInstanceOf(MailSentEvent::class)
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch')->willReturnCallback(
+            static function (Event $event) use ($sensitive, $factorySensitive, $shopwareMail): Event {
+                if ($event instanceof MailBeforeValidateEvent) {
+                    static::assertSame($sensitive, !isset($event->getLogData()['templateData']));
+                } elseif ($event instanceof MailBeforeSentEvent) {
+                    static::assertSame($sensitive || $factorySensitive || !$shopwareMail, !isset($event->getLogData()['message']));
+                } elseif ($event instanceof MailSentEvent) {
+                    static::assertSame($sensitive || $factorySensitive || !$shopwareMail, !isset($event->getLogData()['contents']));
+                }
+
+                return $event;
+            }
         );
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->mailService->send($data, Context::createDefaultContext(), ['sensitive' => $sensitive, 'resetUrl' => 'BODY-SECRET']);
 
         static::assertInstanceOf(Email::class, $email);
+        if ($email instanceof Mail) {
+            static::assertSame($sensitive || $factorySensitive, $email->isSensitive());
+        }
+        static::assertFalse($email->getHeaders()->has('X-Shopware-Sensitive'));
     }
 
-    public function testSendMailWithRenderingError(): void
+    /**
+     * @return \Generator<string, array{bool, bool, bool}>
+     */
+    public static function mailSensitivityProvider(): \Generator
+    {
+        yield 'ordinary mail retains full logs' => [false, false, true];
+        yield 'sensitive flow uses metadata logs' => [true, false, true];
+        yield 'factory classification is retained' => [false, true, true];
+        yield 'unknown mail uses metadata logs' => [false, false, false];
+    }
+
+    #[DataProvider('renderingErrorSensitivity')]
+    public function testSendMailWithRenderingError(bool $sensitive): void
     {
         $salesChannelId = Uuid::randomHex();
 
@@ -178,7 +211,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to($data['senderEmail'])
@@ -188,7 +221,19 @@ class MailServiceTest extends TestCase
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
 
-        $this->logger->expects($this->once())->method('warning');
+        $this->logger->expects($this->once())->method('warning')->with(
+            $sensitive ? 'Could not render Mail-Template.' : 'Could not render Mail-Template with error message: cannot render BODY-SECRET',
+            static::callback(static function (array $data) use ($sensitive): bool {
+                if ($sensitive) {
+                    static::assertSame(\Exception::class, $data['exceptionClass']);
+                    static::assertStringNotContainsString('BODY-SECRET', json_encode($data, \JSON_THROW_ON_ERROR));
+                } else {
+                    static::assertStringContainsString('BODY-SECRET', $data['exception']);
+                }
+
+                return true;
+            }),
+        );
         $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
@@ -203,9 +248,9 @@ class MailServiceTest extends TestCase
                 return $event;
             });
 
-        $this->templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
+        $this->templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render BODY-SECRET'));
 
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->mailService->send($data, Context::createDefaultContext(), ['sensitive' => $sensitive]);
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -213,13 +258,23 @@ class MailServiceTest extends TestCase
         static::assertEquals(Level::Warning, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
-        $message = 'Could not render Mail-Template with error message: cannot render';
+        $message = 'Could not render Mail-Template with error message: cannot render BODY-SECRET';
 
         static::assertSame($message, $mailErrorEvent->getMessage());
         static::assertSame('Test email', $mailErrorEvent->getTemplate());
         static::assertSame([
+            'sensitive' => $sensitive,
             'salesChannel' => $salesChannel,
         ], $mailErrorEvent->getTemplateData());
+    }
+
+    /**
+     * @return \Generator<string, array{bool}>
+     */
+    public static function renderingErrorSensitivity(): \Generator
+    {
+        yield 'sensitive mail omits exception content' => [true];
+        yield 'ordinary mail retains exception content' => [false];
     }
 
     public function testSendMailWithoutSenderName(): void
@@ -258,7 +313,7 @@ class MailServiceTest extends TestCase
             static::isInstanceOf(MailSentEvent::class)
         );
 
-        $email = (new Email())->subject($data['subject'])
+        $email = (new Mail())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
             ->to('test@shopware.com')

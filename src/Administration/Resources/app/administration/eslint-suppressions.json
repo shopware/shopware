@@ -2278,12 +2278,12 @@
       "count": 1
     }
   },
-  "src/app/component/tree/sw-tree-input-field/index.js": {
+  "src/app/component/tree/sw-tree-input-field/src/sw-tree-input-field.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/tree/sw-tree-item/index.js": {
+  "src/app/component/tree/sw-tree-item/src/sw-tree-item.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -2291,7 +2291,7 @@
       "count": 1
     }
   },
-  "src/app/component/tree/sw-tree-item/sw-tree-item.spec.js": {
+  "src/app/component/tree/sw-tree-item/tests/sw-tree-item.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }

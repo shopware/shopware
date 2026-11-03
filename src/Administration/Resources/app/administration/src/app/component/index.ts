@@ -210,6 +210,8 @@ import 'src/app/component/structure/sw-search-more-results/register';
 import 'src/app/component/structure/sw-sidebar-renderer/register';
 import 'src/app/component/structure/sw-skip-link/register';
 import './structure/sw-ui-shell-update-2026-modal/register';
+import 'src/app/component/tree/sw-tree-input-field/register';
+import 'src/app/component/tree/sw-tree-item/register';
 /**
  * @sw-package framework
  * @private
@@ -276,8 +278,6 @@ export default () => {
     );
     Shopware.Component.register('sw-color-badge', () => import('src/app/component/utils/sw-color-badge/index'));
     Shopware.Component.register('sw-upload-status', () => import('src/app/component/utils/sw-upload-status'));
-    Shopware.Component.register('sw-tree-item', () => import('src/app/component/tree/sw-tree-item/index'));
-    Shopware.Component.register('sw-tree-input-field', () => import('src/app/component/tree/sw-tree-input-field/index'));
     Shopware.Component.register('sw-tree', () => import('src/app/component/tree/sw-tree/index'));
     Shopware.Component.register(
         'sw-block-parent',

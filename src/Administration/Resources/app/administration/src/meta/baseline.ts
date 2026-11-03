@@ -27,7 +27,6 @@ const missingTests = [
     'src/app/component/rule/condition-type/sw-condition-not-found/index.js',
     'src/app/component/rule/sw-condition-is-net-select/index.js',
     'src/app/component/tree/sw-tree/fixtures/treeItems.js',
-    'src/app/component/tree/sw-tree-input-field/index.js',
     'src/app/component/utils/sw-color-badge/index.js',
     'src/app/component/utils/sw-ignore-class/index.js',
     'src/app/component/utils/sw-overlay/index.js',

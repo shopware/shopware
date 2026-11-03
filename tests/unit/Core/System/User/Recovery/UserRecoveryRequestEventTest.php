@@ -39,6 +39,7 @@ class UserRecoveryRequestEventTest extends TestCase
 
         static::assertArrayHasKey('resetUrl', $flow->data());
         static::assertSame('my-reset-url', $flow->data()['resetUrl']);
+        static::assertTrue($flow->getData('sensitive'));
     }
 
     public function testGettersReturnTheConstructorArguments(): void

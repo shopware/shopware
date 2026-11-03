@@ -622,7 +622,8 @@
   },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",
-    "metaTitle": "Search results"
+    "metaTitle": "Search results",
+    "analyticsListName": "Search results"
   },
   "detail": {
     "garanLabelShowLink": "Show GARAN label",
@@ -746,7 +747,8 @@
     "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist.",
     "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|[0,Inf[ Available in %restockTime% days, delivery time %name%",
     "deliveryShipping": "This product will be released on",
-    "remove": "Remove %product_name% from wishlist"
+    "remove": "Remove %product_name% from wishlist",
+    "analyticsListName": "Wishlist"
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

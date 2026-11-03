@@ -537,6 +537,99 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
+    public function testSearchableCustomFieldIsIndexedWhenSetIsAssignedLater(): void
+    {
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldsForSets')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => [
+                ['id' => $customFieldId, 'name' => 'searchableField', 'type' => 'text'],
+            ]]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(static function (array $fields) {
+                return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
+            }));
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        // includeInSearch was already true before, only the set is assigned now
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['customFieldSetId' => $customFieldSetId], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldIsNotIndexedWhenSetIsRemoved(): void
+    {
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway->expects($this->never())->method('fetchFieldSetIds');
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $writeResults = [
+            new EntityWriteResult(Uuid::randomHex(), ['customFieldSetId' => null], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
     public function testAppOwnedCustomFieldsAreIndexedWhenCreated(): void
     {
         $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
@@ -748,15 +841,8 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldId])
             ->willReturn([]); // No set ID found
 
-        $gateway->expects($this->once())
-            ->method('fetchFieldSetEntityMappings')
-            ->with([])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchAppOwnedFieldSetIds')
-            ->with([])
-            ->willReturn([]);
+        $gateway->expects($this->never())->method('fetchFieldSetEntityMappings');
+        $gateway->expects($this->never())->method('fetchAppOwnedFieldSetIds');
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');

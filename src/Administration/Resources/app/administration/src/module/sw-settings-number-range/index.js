@@ -2,15 +2,11 @@
  * @sw-package inventory
  */
 import './acl';
+import './page/sw-settings-number-range-detail/register';
+import './page/sw-settings-number-range-create/register';
+import './page/sw-settings-number-range-list/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-number-range-list', () => import('./page/sw-settings-number-range-list'));
-Shopware.Component.register('sw-settings-number-range-detail', () => import('./page/sw-settings-number-range-detail'));
-Shopware.Component.extend(
-    'sw-settings-number-range-create',
-    'sw-settings-number-range-detail',
-    () => import('./page/sw-settings-number-range-create'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

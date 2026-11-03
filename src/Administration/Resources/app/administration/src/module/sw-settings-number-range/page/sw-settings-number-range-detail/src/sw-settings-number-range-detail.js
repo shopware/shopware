@@ -3,6 +3,16 @@
  */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
+import {
+    aclService,
+    customFieldDataProviderService,
+    debug,
+    documentV2ApiService,
+    getApiContext,
+    getCacheService,
+    numberRangeService,
+    repositoryFactoryService,
+} from '../dependencies';
 
 const {
     Component,
@@ -11,16 +21,18 @@ const {
 } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'numberRangeService',
-        'documentV2ApiService',
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
+        numberRangeService,
+        documentV2ApiService,
+        repositoryFactoryService,
+        aclService,
+        customFieldDataProviderService,
     ],
 
     mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
@@ -233,7 +245,7 @@ export default {
         async loadEntityData() {
             this.numberRange = await this.numberRangeRepository.get(
                 this.numberRangeId,
-                Shopware.Context.api,
+                getApiContext(),
                 this.numberRangeCriteria,
             );
 
@@ -242,7 +254,7 @@ export default {
             await Promise.all([
                 this.loadSalesChannels(),
                 this.checkPatternCollision().catch((error) => {
-                    Shopware.Utils.debug.error(error);
+                    debug.error(error);
                 }),
             ]);
         },
@@ -324,12 +336,7 @@ export default {
         },
 
         buildSelectedSalesChannelsCollection() {
-            const collection = new EntityCollection(
-                '/sales-channel',
-                'sales_channel',
-                Shopware.Context.api,
-                new Criteria(1, 25),
-            );
+            const collection = new EntityCollection('/sales-channel', 'sales_channel', getApiContext(), new Criteria(1, 25));
 
             if (this.numberRange.numberRangeSalesChannels) {
                 this.numberRange.numberRangeSalesChannels.forEach((junction) => {
@@ -398,7 +405,7 @@ export default {
         },
 
         invalidateNumberRangeCaches() {
-            Shopware.Service('cacheService').invalidateCaches({
+            getCacheService().invalidateCaches({
                 cacheKey: ['shared-data', 'number-range-ids'],
             });
         },

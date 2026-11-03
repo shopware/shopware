@@ -9,6 +9,7 @@ import SwSettingsShippingPriceMatrix from '../index';
  */
 
 describe('sw-settings-shipping-price-matrix public API types', () => {
+    /** @public-api onDeleteShippingPrice, disabled */
     it('types an override of the price matrix by its public API', () => {
         // ARRANGE
         const override = jest.fn();
@@ -32,6 +33,7 @@ describe('sw-settings-shipping-price-matrix public API types', () => {
         expect(override).toHaveBeenCalledTimes(1);
     });
 
+    /** @public-api priceGroup, disabled */
     it('types the public instance from the declaration', () => {
         // ARRANGE
         const declaration = SwSettingsShippingPriceMatrix;

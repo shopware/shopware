@@ -67,7 +67,8 @@ async function createWrapper({
                         'isLoading',
                         'error',
                     ],
-                    template: '<div class="sw-single-select" :data-value="value" :data-loading="isLoading"></div>',
+                    template:
+                        '<div class="sw-single-select" :data-value="value" :data-loading="isLoading"><span v-for="option in options" :key="option.value" class="sw-single-select__option">{{ option.label }}</span></div>',
                 },
                 'sw-button-process': true,
                 'sw-language-switch': true,
@@ -83,6 +84,10 @@ async function createWrapper({
     return wrapper;
 }
 
+function getOptionLabels(wrapper: Awaited<ReturnType<typeof createWrapper>>): string[] {
+    return wrapper.findAll('.sw-settings-units__unece-code .sw-single-select__option').map((option) => option.text());
+}
+
 describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
     it('should offer the unit codes as code and name', async () => {
         const wrapper = await createWrapper();
@@ -90,10 +95,7 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
 
         expect(select.attributes('data-value')).toBe('KGM');
         expect(select.attributes('data-loading')).toBe('false');
-        expect(wrapper.vm.uneceCodeOptions).toEqual([
-            { value: 'H87', label: 'H87 - piece' },
-            { value: 'KGM', label: 'KGM - kilogram' },
-        ]);
+        expect(getOptionLabels(wrapper)).toEqual(['H87 - piece', 'KGM - kilogram']);
     });
 
     it('should use the translated name of a common unit code', async () => {
@@ -101,10 +103,7 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
             snippets: { 'sw-settings-units.uneceCodes.KGM': 'Kilogramm' },
         });
 
-        expect(wrapper.vm.uneceCodeOptions).toEqual([
-            { value: 'H87', label: 'H87 - piece' },
-            { value: 'KGM', label: 'KGM - Kilogramm' },
-        ]);
+        expect(getOptionLabels(wrapper)).toEqual(['H87 - piece', 'KGM - Kilogramm']);
     });
 
     it('should show an error when the unit codes cannot be loaded', async () => {
@@ -118,7 +117,7 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
                 message: 'sw-settings-units.notification.errorLoadingUneceCodes',
             }),
         );
-        expect(wrapper.vm.uneceCodeOptions).toEqual([]);
+        expect(getOptionLabels(wrapper)).toEqual([]);
         expect(wrapper.find('.sw-settings-units__unece-code').attributes('data-loading')).toBe('false');
 
         createNotification.mockRestore();

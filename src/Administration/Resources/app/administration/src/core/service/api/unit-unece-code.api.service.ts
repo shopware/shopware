@@ -34,5 +34,5 @@ class UnitUneceCodeApiService extends ApiService {
     }
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Registered automatically as an API service, not a public API.
 export default UnitUneceCodeApiService;

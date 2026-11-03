@@ -74,14 +74,20 @@ export type Rewrite = {
 export type Registered = { module: string; file: string; exportName: string | null };
 
 /**
- * Where a part of the `Shopware` global comes from: the module and export that hold the same value,
- * how many segments of the path that export covers, and the name dependencies.ts gives it.
+ * Where a part of the `Shopware` global comes from: `import` names the module and export that hold the same
+ * value, `function` a function that dependencies.ts must reach through the global when it is called, because
+ * code may replace or spy on it there. `consumed` counts the segments of the path it covers, `name` is the
+ * name dependencies.ts gives it.
  *
  * @example
+ * // Shopware.Data.Criteria
+ * { kind: 'import', module: 'src/core/data/criteria.data', imported: 'default', name: 'Criteria', consumed: 2 }
  * // Shopware.Utils.format.fileSize
- * { module: 'src/core/service/utils/format.utils', imported: 'fileSize', name: 'fileSize', consumed: 3 }
+ * { kind: 'function', name: 'fileSize', consumed: 3 }
  */
-export type GlobalSource = { module: string; imported: string; name: string; consumed: number };
+export type GlobalSource =
+    | { kind: 'import'; module: string; imported: string; name: string; consumed: number }
+    | { kind: 'function'; name: string; consumed: number };
 
 /**
  * How the global types know a name: `typed`, `any` when they type it as `$TSFixMe` or `any`,
@@ -104,7 +110,7 @@ export type AdminIndex = {
     findStore: (id: string) => Registered | null;
     findFilter: (name: string) => Registered | null;
     findComponentHelper: (name: string) => { module: string; imported: string } | null;
-    resolveGlobal: (path: string[], isCallee: boolean) => GlobalSource | null;
+    resolveGlobal: (path: string[]) => GlobalSource | null;
 };
 
 /**

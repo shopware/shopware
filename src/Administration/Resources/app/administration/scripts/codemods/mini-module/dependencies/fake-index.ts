@@ -8,14 +8,15 @@ import { renderDependencies } from './render-dependencies';
 import { DependencyRegistry, routeFile } from './route-file';
 
 const GLOBALS: Record<string, GlobalSource> = {
-    'Data.Criteria': { module: 'src/core/data/criteria.data', imported: 'default', name: 'Criteria', consumed: 2 },
-    'Utils.format.fileSize': {
-        module: 'src/core/service/utils/format.utils',
-        imported: 'fileSize',
-        name: 'fileSize',
-        consumed: 3,
+    'Data.Criteria': {
+        kind: 'import',
+        module: 'src/core/data/criteria.data',
+        imported: 'default',
+        name: 'Criteria',
+        consumed: 2,
     },
-    Utils: { module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
+    'Utils.format.fileSize': { kind: 'function', name: 'fileSize', consumed: 3 },
+    Utils: { kind: 'import', module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
 };
 
 /**

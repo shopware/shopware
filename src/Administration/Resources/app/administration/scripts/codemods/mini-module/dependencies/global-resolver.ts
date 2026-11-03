@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
+import type { GlobalSource } from './model';
 
 /** A module and export that hold a value, as an import names them; `module` is a package or a file path. */
 type Export = { module: string; imported: string; file: string | null };
@@ -33,32 +34,13 @@ const SCRIPT_FILES = [
     '/index.js',
 ];
 
-/** Whether a function never reads `this`, so calling it without its object behaves the same. */
-const ignoresThis = (declaration: ts.Node): boolean => {
-    if (ts.isArrowFunction(declaration)) {
-        return true;
-    }
-
-    if (
-        !ts.isFunctionDeclaration(declaration) &&
-        !ts.isFunctionExpression(declaration) &&
-        !ts.isMethodDeclaration(declaration)
-    ) {
-        return false;
-    }
-
-    let readsThis = false;
-    const visit = (node: ts.Node) => {
-        if (node.kind === ts.SyntaxKind.ThisKeyword) {
-            readsThis = true;
-        } else if (!(ts.isFunctionLike(node) && !ts.isArrowFunction(node)) && !ts.isClassLike(node)) {
-            node.forEachChild(visit);
-        }
-    };
-    declaration.body?.forEachChild(visit);
-
-    return !readsThis;
-};
+/** Whether a declaration is a function, which code may replace or spy on through the global at runtime. */
+const isFunction = (declaration: ts.Node | undefined) =>
+    !!declaration &&
+    (ts.isFunctionDeclaration(declaration) ||
+        ts.isFunctionExpression(declaration) ||
+        ts.isArrowFunction(declaration) ||
+        ts.isMethodDeclaration(declaration));
 
 const unwrap = (expression: ts.Expression): ts.Expression =>
     ts.isParenthesizedExpression(expression) ||
@@ -75,13 +57,16 @@ const hasExportModifier = (node: ts.Node) => hasModifier(node, ts.SyntaxKind.Exp
 
 /**
  * Follows a path of the `Shopware` global from `src/core/shopware.ts` through the imports and object literals
- * of the files behind it, to the deepest export that holds the same value.
+ * of the files behind it. A function is reported as such, because code may replace or spy on it through the
+ * global; anything else as the deepest export that holds the same value.
  * It reads the files with the TypeScript parser only; anything it cannot follow statically ends the path.
  *
  * @example
  * const resolve = createGlobalResolver(adminRoot);
- * resolve(['Utils', 'format', 'fileSize'], true);
- * // → { module: 'src/core/service/utils/format.utils', imported: 'fileSize', name: 'fileSize', consumed: 3 }
+ * resolve(['Data', 'Criteria']);
+ * // → { kind: 'import', module: 'src/core/data/criteria.data', imported: 'default', name: 'Criteria', consumed: 2 }
+ * resolve(['Utils', 'format', 'fileSize']);
+ * // → { kind: 'function', name: 'fileSize', consumed: 3 }
  */
 export function createGlobalResolver(adminRoot: string) {
     const sources = new Map<string, ts.SourceFile>();
@@ -322,34 +307,32 @@ export function createGlobalResolver(adminRoot: string) {
         return field?.initializer ? evaluate(shopware, field.initializer, 0) : OPAQUE;
     };
 
-    return (globalPath: string[], isCallee: boolean) => {
-        const checkpoints: { export: Export; consumed: number; name: string; value: Value }[] = [];
+    return (globalPath: string[]): GlobalSource | null => {
+        const checkpoints: { export: Export; consumed: number; name: string }[] = [];
         let value = rootValue(globalPath[0]);
+        let consumed = 1;
 
-        for (let index = 0; ; index += 1) {
+        for (; ; consumed += 1) {
             if (value.export) {
-                checkpoints.push({ export: value.export, consumed: index + 1, name: globalPath[index], value });
+                checkpoints.push({ export: value.export, consumed, name: globalPath[consumed - 1] });
             }
 
-            if (index + 1 >= globalPath.length || (!value.object && !value.namespace)) {
+            if (consumed >= globalPath.length || (!value.object && !value.namespace)) {
                 break;
             }
 
-            value = member(value, globalPath[index + 1], 0);
+            value = member(value, globalPath[consumed], 0);
         }
 
-        const usable = checkpoints.filter(({ consumed, value: { declaration, isPackage } }) => {
-            if (!isCallee || consumed < globalPath.length) {
-                return true;
-            }
+        // Everything the global takes from packages is a function, from lodash or the Meteor SDK.
+        if (isFunction(value.declaration) || (value.isPackage && !value.object && !value.namespace)) {
+            return { kind: 'function', name: globalPath[consumed - 1], consumed };
+        }
 
-            // A function from a package is a plain module function; one of ours must not read `this`.
-            return isPackage || (declaration !== undefined && ignoresThis(declaration));
-        });
-        const deepest = usable[usable.length - 1];
-
+        const deepest = checkpoints[checkpoints.length - 1];
         return deepest
             ? {
+                  kind: 'import',
                   module: deepest.export.module,
                   imported: deepest.export.imported,
                   name: deepest.name,

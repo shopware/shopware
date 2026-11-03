@@ -304,10 +304,10 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
             helpers ??= readComponentHelpers(adminRoot, moduleOf);
             return helpers.get(name) ?? null;
         },
-        resolveGlobal: (globalPath, isCallee) => {
-            const source = resolver(globalPath, isCallee);
-            if (!source) {
-                return null;
+        resolveGlobal: (globalPath) => {
+            const source = resolver(globalPath);
+            if (source?.kind !== 'import') {
+                return source;
             }
 
             const isFile = source.module.startsWith('src/');

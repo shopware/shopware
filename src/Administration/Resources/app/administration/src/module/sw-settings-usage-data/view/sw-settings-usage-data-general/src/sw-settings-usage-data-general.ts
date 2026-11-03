@@ -1,5 +1,6 @@
 import template from './sw-settings-usage-data-general.html.twig';
-import { SwSettingsUsageDataStoreDataConsent, wrapComponentConfig } from '../dependencies';
+import { defineAsyncComponent, wrapComponentConfig } from '../dependencies';
+import SwSettingsUsageDataStoreDataConsent from './sw-settings-usage-data-store-data-consent/private';
 
 /**
  * @sw-package data-services
@@ -12,6 +13,6 @@ export default wrapComponentConfig({
     template,
 
     components: {
-        SwSettingsUsageDataStoreDataConsent,
+        SwSettingsUsageDataStoreDataConsent: defineAsyncComponent(SwSettingsUsageDataStoreDataConsent.load),
     },
 });

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import useConsentStore from 'src/core/consent/consent.store';
 import { MtModal, MtModalAction, MtModalClose, MtModalRoot, MtModalTrigger } from '@shopware-ag/meteor-component-library';
 import SwSettingsUsageDataConsentModalDataProvider from '../src/sw-settings-usage-data-consent-modal-data-provider';
-import SwSettingsUsageDataConsentModal from '../../sw-settings-usage-data-consent-modal';
+import SwSettingsUsageDataConsentModal from '../src/sw-settings-usage-data-consent-modal/src/sw-settings-usage-data-consent-modal';
 
 const WRONG_APP_URL_MODAL_STORAGE_KEY = 'sw-app-wrong-app-url-modal-shown';
 const SHOP_ID_CHANGE_MODAL_CLASS = 'sw-app-shop-id-change-modal';

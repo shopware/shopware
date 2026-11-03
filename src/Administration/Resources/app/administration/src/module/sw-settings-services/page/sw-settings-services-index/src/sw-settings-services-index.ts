@@ -9,10 +9,6 @@ import {
     getServicesWithShopwareAccountRequirement,
     getShopwareServicesService,
     mapState,
-    SwSettingsServicesDeactivateModal,
-    SwSettingsServicesGrantPermissionsCard,
-    SwSettingsServicesHero,
-    SwSettingsServicesRevokePermissionsModal,
     useNotificationStore,
     useSession,
     useShopwareServicesStore,
@@ -20,6 +16,10 @@ import {
     type ServiceDescription,
     type ServiceWithShopwareAccountRequirement,
 } from '../dependencies';
+import SwSettingsServicesRevokePermissionsModal from './sw-settings-services-revoke-permissions-modal/private';
+import SwSettingsServicesGrantPermissionsCard from './sw-settings-services-grant-permissions-card/private';
+import SwSettingsServicesDeactivateModal from './sw-settings-services-deactivate-modal/private';
+import SwSettingsServicesHero from './sw-settings-services-hero/private';
 import SwSettingsServicesServiceCard from './sw-settings-services-service-card/private';
 
 type SwSettingsPageData = {
@@ -41,10 +41,10 @@ export default wrapComponentConfig({
     inject: [aclService],
 
     components: {
-        SwSettingsServicesHero,
-        SwSettingsServicesGrantPermissionsCard,
-        SwSettingsServicesRevokePermissionsModal,
-        SwSettingsServicesDeactivateModal,
+        SwSettingsServicesHero: defineAsyncComponent(SwSettingsServicesHero.load),
+        SwSettingsServicesGrantPermissionsCard: defineAsyncComponent(SwSettingsServicesGrantPermissionsCard.load),
+        SwSettingsServicesRevokePermissionsModal: defineAsyncComponent(SwSettingsServicesRevokePermissionsModal.load),
+        SwSettingsServicesDeactivateModal: defineAsyncComponent(SwSettingsServicesDeactivateModal.load),
         SwSettingsServicesServiceCard: defineAsyncComponent(SwSettingsServicesServiceCard.load),
     },
 

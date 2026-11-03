@@ -3,13 +3,14 @@
  */
 import template from './sw-settings-usage-data-consent-modal-data-provider.html.twig';
 import {
+    defineAsyncComponent,
     aclService,
-    SwSettingsUsageDataConsentModal,
     useConsentStore,
     useContextStore,
     useSessionStore,
     wrapComponentConfig,
 } from '../dependencies';
+import SwSettingsUsageDataConsentModal from './sw-settings-usage-data-consent-modal/private';
 
 const ADMIN_USER_MIN_AGE_DAYS = 15;
 const SHOP_MIN_AGE_DAYS = 60;
@@ -95,7 +96,7 @@ export default wrapComponentConfig({
     name: 'sw-settings-usage-data-consent-modal-data-provider',
 
     components: {
-        SwSettingsUsageDataConsentModal,
+        SwSettingsUsageDataConsentModal: defineAsyncComponent(SwSettingsUsageDataConsentModal.load),
     },
 
     inject: [aclService],

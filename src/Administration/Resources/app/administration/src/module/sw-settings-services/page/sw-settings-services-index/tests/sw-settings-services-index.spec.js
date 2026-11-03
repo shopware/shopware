@@ -11,10 +11,10 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesIndex from '../src/sw-settings-services-index';
 import { useShopwareServicesStore } from '../../../store/shopware-services.store';
-import SwSettingsServicesHero from '../../../component/sw-settings-services-hero';
-import SwSettingsServicesGrantPermissionsCard from '../../../component/sw-settings-services-grant-permissions-card';
-import SwSettingsServicesRevokePermissionsModal from '../../../component/sw-settings-services-revoke-permissions-modal';
-import SwSettingsServicesDeactivateModal from '../../../component/sw-settings-services-deactivate-modal';
+import SwSettingsServicesHero from '../src/sw-settings-services-hero/src/sw-settings-services-hero';
+import SwSettingsServicesGrantPermissionsCard from '../src/sw-settings-services-grant-permissions-card/src/sw-settings-services-grant-permissions-card';
+import SwSettingsServicesRevokePermissionsModal from '../src/sw-settings-services-revoke-permissions-modal/src/sw-settings-services-revoke-permissions-modal';
+import SwSettingsServicesDeactivateModal from '../src/sw-settings-services-deactivate-modal/src/sw-settings-services-deactivate-modal';
 import * as permissionsComposable from '../../../composables/permissions';
 
 jest.mock('../../../composables/permissions', () => {

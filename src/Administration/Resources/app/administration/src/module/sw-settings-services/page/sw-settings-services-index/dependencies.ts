@@ -26,14 +26,6 @@ export {
     getServicesWithShopwareAccountRequirement,
     type ServiceWithShopwareAccountRequirement,
 } from '../../requirements/index';
-/** @private */
-export { default as SwSettingsServicesHero } from '../../component/sw-settings-services-hero';
-/** @private */
-export { default as SwSettingsServicesGrantPermissionsCard } from '../../component/sw-settings-services-grant-permissions-card';
-/** @private */
-export { default as SwSettingsServicesRevokePermissionsModal } from '../../component/sw-settings-services-revoke-permissions-modal';
-/** @private */
-export { default as SwSettingsServicesDeactivateModal } from '../../component/sw-settings-services-deactivate-modal';
 
 /** Lists, enables and reads the context of the Shopware services. @private */
 export const getShopwareServicesService = () => Shopware.Service(shopwareServicesService);

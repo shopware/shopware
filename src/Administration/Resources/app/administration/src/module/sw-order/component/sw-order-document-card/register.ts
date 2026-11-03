@@ -1,7 +1,8 @@
-import Component from './index';
+import Component, * as Module from './index';
 
 /**
  * @sw-package after-sales
  */
 
 Shopware.Component.register(Component);
+Shopware._private.publish('components', 'sw-order-document-card', Module);

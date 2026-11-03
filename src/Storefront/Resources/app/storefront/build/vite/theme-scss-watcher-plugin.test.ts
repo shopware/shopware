@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import * as SassEmbedded from 'sass-embedded';
 import type { ViteDevServer } from 'vite';
 import { themeScssWatcherPlugin } from './theme-scss-watcher-plugin';
+import type { StorefrontDevUpdate } from './storefront-dev-update';
 
 // The sync Sass API corrupts its protobuf stream on Node >= 24.22 (sync-child-process
 // ignores the byte offset of pooled stdout chunks), so the plugin must never use it.
@@ -105,8 +106,8 @@ function resolveHook<T extends (...args: never[]) => unknown>(
     return hook?.handler;
 }
 
-function startPlugin(projectRoot: string): MockServer {
-    const plugin = themeScssWatcherPlugin(projectRoot);
+function startPlugin(projectRoot: string, devUpdate?: StorefrontDevUpdate): MockServer {
+    const plugin = themeScssWatcherPlugin(projectRoot, { devUpdate });
     const server = createMockServer();
     (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
 
@@ -334,12 +335,63 @@ describe('themeScssWatcherPlugin', () => {
         );
     });
 
-    it('swaps the css in place when a watched SCSS file changes and ignores other files', async () => {
-        const projectRoot = path.join(fixtureRoot, 'change-project');
+    it('reloads the page with the compiled css when a watched SCSS file changes by default', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-reload-project');
         const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
         writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
 
         const server = startPlugin(projectRoot);
+
+        writeFile(entry, '.a { color: green; }');
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        expect(server.config.logger.info).toHaveBeenCalledWith(
+            '[sw-theme-scss] SCSS changed: entry.scss → page reload',
+            { timestamp: true },
+        );
+
+        const compileCalls = vi.mocked(SassEmbedded.compileStringAsync).mock.calls.length;
+        const reloaded = await requestCss(server);
+
+        expect(reloaded.body).toContain('color: green');
+        expect(vi.mocked(SassEmbedded.compileStringAsync).mock.calls).toHaveLength(compileCalls);
+    });
+
+    it('only logs a changed SCSS file in manual mode', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-manual-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        const themeFilesPath = writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot, 'manual');
+
+        writeFile(entry, '.a { color: green; }');
+        server.watcher.emit('change', entry);
+        server.watcher.emit('change', themeFilesPath);
+
+        await vi.waitFor(() => {
+            expect(server.config.logger.info).toHaveBeenCalledWith(
+                expect.stringContaining('theme-files.json reloaded'),
+                { timestamp: true },
+            );
+        });
+        expect(server.ws.send).not.toHaveBeenCalled();
+        expect(server.config.logger.info).toHaveBeenCalledWith(
+            '[sw-theme-scss] SCSS changed: entry.scss, reload the page to see it',
+            { timestamp: true },
+        );
+        expect((await requestCss(server)).body).toContain('color: green');
+    });
+
+    it('swaps the css in place when a watched SCSS file changes in hmr mode and ignores other files', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot, 'hmr');
 
         server.watcher.emit('change', path.join(projectRoot, 'unrelated.scss'));
         expect(server.ws.send).not.toHaveBeenCalled();

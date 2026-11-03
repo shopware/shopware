@@ -1,9 +1,19 @@
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
-
-const { Component, Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    documentV2Service,
+    EntityCollection,
+    featureService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    useErrorStore,
+} from '../dependencies';
 
 /**
  * @private
@@ -352,20 +362,21 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-        'customFieldDataProviderService',
-        'documentV2Service',
+        repositoryFactoryService,
+        aclService,
+        featureService,
+        customFieldDataProviderService,
+        documentV2Service,
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -592,7 +603,7 @@ export default {
             const documentConfigId = this.documentConfigId || this.$route.params?.id;
 
             const documentConfig = await this.documentBaseConfigRepository
-                .get(documentConfigId, Shopware.Context.api, this.documentBaseConfigCriteria)
+                .get(documentConfigId, getApiContext(), this.documentBaseConfigCriteria)
                 .catch((error) => {
                     this.createNotificationError({
                         message: error.message,
@@ -764,7 +775,7 @@ export default {
                 return null;
             }
 
-            const error = Shopware.Store.get('error').getApiErrorFromPath('document_base_config', this.documentConfig.id, [
+            const error = useErrorStore().getApiErrorFromPath('document_base_config', this.documentConfig.id, [
                 'filenameInfixes',
                 format,
             ]);
@@ -812,7 +823,7 @@ export default {
             this.documentConfigSalesChannelOptionsCollection = new EntityCollection(
                 this.documentConfig.salesChannels.source,
                 'document_base_config_sales_channel',
-                Shopware.Context.api,
+                getApiContext(),
             );
 
             if (!this.documentConfig.documentType || !this.salesChannels) {

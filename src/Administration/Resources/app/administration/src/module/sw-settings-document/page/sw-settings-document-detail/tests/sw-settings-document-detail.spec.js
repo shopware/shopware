@@ -1,6 +1,6 @@
 import { config, mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
+import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from '../src/sw-settings-document-detail';
 
 /**
  * @sw-package after-sales

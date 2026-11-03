@@ -11691,9 +11691,6 @@
     }
   },
   "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/src/sw-settings-logging-entry-info.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }

@@ -74,3 +74,8 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/public-api.spec.ts @shopware/product-cc-checkout
+
+# framework: Administration mini-modules (same rules as above)
+src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/global.d.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/tests/requirements.spec.ts @shopware/product-cc-framework

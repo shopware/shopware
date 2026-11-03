@@ -296,6 +296,7 @@
                 "definePublicComponent"
             ],
             "service-names": [
+                "feature",
                 "repositoryFactory",
                 "ruleConditionDataProviderService"
             ]

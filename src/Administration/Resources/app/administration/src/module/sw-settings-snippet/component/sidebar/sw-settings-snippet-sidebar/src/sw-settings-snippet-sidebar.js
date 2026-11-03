@@ -4,7 +4,9 @@
 import template from './sw-settings-snippet-sidebar.html.twig';
 import './sw-settings-snippet-sidebar.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

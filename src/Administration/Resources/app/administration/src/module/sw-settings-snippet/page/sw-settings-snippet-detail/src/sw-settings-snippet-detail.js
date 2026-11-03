@@ -3,19 +3,22 @@
  */
 import template from './sw-settings-snippet-detail.html.twig';
 import './sw-settings-snippet-detail.scss';
+import { aclService, repositoryFactoryService, snippetSetService, useSessionStore, Utils } from '../dependencies';
 
 const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
-const utils = Shopware.Utils;
+const utils = Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['snippetSetService', 'repositoryFactory', 'acl'],
+    inject: [snippetSetService, repositoryFactoryService, aclService],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -93,7 +96,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${useSessionStore().currentUser.username}`;
             },
         },
 

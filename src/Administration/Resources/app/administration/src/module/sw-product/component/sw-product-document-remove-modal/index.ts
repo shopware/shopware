@@ -20,7 +20,15 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             default: false,
         },
+        hasVariants: {
+            type: Boolean,
+            default: false,
+        },
+        removeFromVariants: {
+            type: Boolean,
+            default: false,
+        },
     },
 
-    emits: ['close', 'remove'],
+    emits: ['close', 'remove', 'update:removeFromVariants'],
 });

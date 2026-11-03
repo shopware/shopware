@@ -3,7 +3,7 @@
  */
 
 const path = require('path');
-const { CONTRACT_SPEC, findMiniModule } = require('./mini-module');
+const { CONTRACT_SPEC, findEnclosingModule, findMiniModule } = require('./mini-module');
 
 module.exports = {
     meta: {
@@ -15,6 +15,8 @@ module.exports = {
             srcImport: "'{{source}}' reaches into the src/ of the mini-module '{{root}}'. Import '{{root}}' instead.",
             privateImport:
                 "'{{source}}' uses the private API of '{{root}}'. Import '{{root}}' instead, or disable this line and say why.",
+            nestedPrivateImport:
+                "'{{source}}' is the private module of '{{enclosing}}'. Only the src/ of '{{enclosing}}' may import it.",
             contractTestImport:
                 "Requirements, pinned, regressions and public-api specs import their module only through '../index'.",
         },
@@ -45,6 +47,18 @@ module.exports = {
             const targetModule = findMiniModule(target, cwd);
             if (!targetModule || !['src', 'private', 'dependencies'].includes(targetModule.part)) {
                 return;
+            }
+
+            if (importerModule?.root !== targetModule.root && targetModule.part === 'private') {
+                const enclosing = findEnclosingModule(targetModule.root, cwd);
+                if (enclosing !== null && importerModule?.root === enclosing && importerModule.part === 'src') {
+                    return;
+                }
+
+                if (enclosing !== null) {
+                    context.report({ node: node.source, messageId: 'nestedPrivateImport', data: { source, enclosing } });
+                    return;
+                }
             }
 
             if (importerModule?.root !== targetModule.root) {

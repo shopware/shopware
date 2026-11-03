@@ -53,8 +53,10 @@ export class FileSystemRepository implements Repository {
             /\/src\//.test(`/${directory}`);
             directory = path.posix.dirname(directory)
         ) {
+            // A nested private module has only a private.ts.
             const isMiniModule =
-                fs.existsSync(this.absolute(`${directory}/index.ts`)) && this.isDirectory(`${directory}/src`);
+                ['index.ts', 'private.ts'].some((entry) => fs.existsSync(this.absolute(`${directory}/${entry}`))) &&
+                this.isDirectory(`${directory}/src`);
 
             if (isMiniModule) {
                 return directory;

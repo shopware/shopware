@@ -11,7 +11,7 @@ import { findPublicComponentName, findRegistrations, type RegisteredName } from 
  * The real one asks the file system and Jest; a spec passes a fake graph.
  */
 export interface Repository {
-    /** The innermost mini-module directory (with `index.ts` and `src/`) that contains the file, or null. */
+    /** The innermost mini-module directory (with `index.ts` or `private.ts`, and `src/`) that contains the file, or null. */
     miniModuleOf(file: string): string | null;
     /** The spec files inside a directory. */
     specsIn(directory: string): string[];

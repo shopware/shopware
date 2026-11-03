@@ -8,6 +8,7 @@ const { isTestDeclaration } = require('./test-declaration');
  * The doc tag a test needs in each kind of spec file.
  * Pinned specs need none: they freeze today's behaviour, which nobody decided.
  * A public-api test names the member it pins, because changing that behaviour can break extensions.
+ * A private-api test names the member it pins too, so a reader of the nested module sees what its parent relies on.
  */
 const REQUIRED_TAGS = [
     {
@@ -19,6 +20,12 @@ const REQUIRED_TAGS = [
         tag: '@public-api',
         pattern: /@public-api\s+\S/,
         hint: 'the public member it pins; a change to it can break extensions',
+    },
+    {
+        file: /(^|\/)private-api\.spec(\/[^/]+\.spec)?\.[jt]s$/,
+        tag: '@private-api',
+        pattern: /@private-api\s+\S/,
+        hint: 'the member of private.ts it pins',
     },
     {
         file: /(^|\/)requirements\.spec(\/[^/]+\.spec)?\.[jt]s$/,

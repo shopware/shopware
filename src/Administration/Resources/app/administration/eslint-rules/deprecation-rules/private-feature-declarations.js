@@ -6,11 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const { parse } = require('@typescript-eslint/parser');
 
-const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entry) => fs.existsSync(path.join(directory, entry)));
+const isMiniModuleRoot = (directory) =>
+    ['index.ts', 'private.ts'].some((entry) => fs.existsSync(path.join(directory, entry))) &&
+    ['src', 'tests'].every((entry) => fs.existsSync(path.join(directory, entry)));
 
 /**
  * Tells which part of a mini-module a file is, for the markers its exports need.
- * A mini-module is a directory with an `index.ts`, a `src/` and a `tests/` folder.
+ * A mini-module is a directory with an `index.ts`, or only a `private.ts` when it is nested, a `src/` and a `tests/` folder.
  * Its `index.ts` is public API, also for extensions, and every export there is marked `@public`.
  * Its `private.ts` is for Administration code only, and every export there is marked `@private`.
  * Its `register.ts` registers what `index.ts` declares, so it needs no marker either.
@@ -39,6 +41,13 @@ const getMiniModulePart = (filename) => {
 
 const withoutExtension = (file) => file.replace(/\.[jt]s$/, '');
 
+/** The source of a mini-module's `index.ts`, or nothing for a nested private module, which exposes nothing. */
+const readIndex = (root) => {
+    const index = path.join(root, 'index.ts');
+
+    return fs.existsSync(index) ? fs.readFileSync(index, 'utf-8') : '';
+};
+
 /**
  * Returns the names each file of a mini-module's `src/` exposes through its `index.ts`, keyed by the file without
  * its extension: re-exported names, `*` for `export *`, and `default` for a component that `load: () => import()` loads.
@@ -48,10 +57,10 @@ const withoutExtension = (file) => file.replace(/\.[jt]s$/, '');
  * getExposedNames(root).get(`${root}/src/primary-delivery`); // → Set { 'getPrimaryDelivery' }
  *
  * @param {string} root
- * @param {string} [index] - the source of `index.ts`, read from disk when not given
+ * @param {string} [index] - the source of `index.ts`, read from disk when not given; a nested module has none
  * @returns {Map<string, Set<string>>}
  */
-const getExposedNames = (root, index = fs.readFileSync(path.join(root, 'index.ts'), 'utf-8')) => {
+const getExposedNames = (root, index = readIndex(root)) => {
     const exposed = new Map();
     const expose = (specifier, names) => {
         const file = withoutExtension(path.resolve(root, specifier));

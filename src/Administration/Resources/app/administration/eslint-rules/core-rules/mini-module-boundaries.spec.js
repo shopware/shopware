@@ -13,14 +13,19 @@ const ruleTester = new RuleTester({
     },
 });
 
-// A made-up mini-module, so the rule finds the `index.ts`, `src/` and `tests/` it looks for on disk.
+// A made-up mini-module, so the rule finds the `index.ts`, `src/` and `tests/` it looks for on disk,
+// with a nested private module in its src/ that has only a `private.ts`.
 const moduleRoot = 'src/core/example-module';
+const nestedRoot = `${moduleRoot}/src/example-card`;
 const realExistsSync = fs.existsSync;
 
 describe('mini-module-boundaries', () => {
     beforeEach(() => {
         jest.spyOn(fs, 'existsSync').mockImplementation(
-            (file) => /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) || realExistsSync(file),
+            (file) =>
+                /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) ||
+                /(^|\/)src\/core\/example-module\/src\/example-card\/(private\.ts|src|tests)$/.test(file) ||
+                realExistsSync(file),
         );
     });
 
@@ -57,6 +62,16 @@ describe('mini-module-boundaries', () => {
                 code: "import { helper } from '../index';",
             },
             {
+                name: 'the enclosing module imports the private.ts of its nested module',
+                filename: `${moduleRoot}/src/example.ts`,
+                code: "import SwExampleCard from './example-card/private';",
+            },
+            {
+                name: 'the files inside a nested module import each other',
+                filename: `${nestedRoot}/private.ts`,
+                code: "export { default } from './src/example-card';",
+            },
+            {
                 name: 'a private.ts outside a mini-module is ordinary code',
                 filename: 'src/app/main.ts',
                 code: "import { x } from 'src/app/private';",
@@ -80,6 +95,24 @@ describe('mini-module-boundaries', () => {
                 filename: 'src/core/consumer.ts',
                 code: `import { helper } from '${moduleRoot}/private';`,
                 errors: [{ messageId: 'privateImport' }],
+            },
+            {
+                name: 'other code uses the private.ts of a nested module',
+                filename: 'src/core/consumer.ts',
+                code: `import SwExampleCard from '${nestedRoot}/private';`,
+                errors: [{ messageId: 'nestedPrivateImport' }],
+            },
+            {
+                name: 'the tests of the enclosing module use the private.ts of a nested module',
+                filename: `${moduleRoot}/tests/example.harness.ts`,
+                code: "import SwExampleCard from '../src/example-card/private';",
+                errors: [{ messageId: 'nestedPrivateImport' }],
+            },
+            {
+                name: 'other code reaches into the src of a nested module',
+                filename: `${moduleRoot}/src/example.ts`,
+                code: "import SwExampleCard from './example-card/src/example-card';",
+                errors: [{ messageId: 'srcImport' }],
             },
             {
                 name: 'public-api specs reach into src',

@@ -53,6 +53,13 @@ it.deprecated('v6.8.0.0')('falls back to the first delivery', () => {});`,
 it('lists the used rules', () => {});`,
         },
         {
+            name: 'a private-api test that names its member',
+            filename: 'src/x/src/y/tests/private-api.spec.ts',
+            code: `
+/** @private-api readableVersion */
+it('shows the version without its build', () => {});`,
+        },
+        {
             name: 'other specs are not checked',
             filename: 'src/x/x.spec.ts',
             code: "it('works', () => {});",
@@ -64,6 +71,12 @@ it('lists the used rules', () => {});`,
             filename: 'src/x/tests/pinned.spec.ts',
             code: "it.deprecated('v6.8.0.0')('falls back to the first delivery', () => {});",
             errors: [{ messageId: 'missingDeprecation' }],
+        },
+        {
+            name: 'a private-api test without its member',
+            filename: 'src/x/src/y/tests/private-api.spec.ts',
+            code: "it('shows the version without its build', () => {});",
+            errors: [{ messageId: 'missingOrigin' }],
         },
         {
             name: 'a public-api test without its member',

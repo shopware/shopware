@@ -37,14 +37,34 @@ export default definePublicComponent({
 });`;
 const allowed = 'disabled, usedRules, onSave, count';
 
+// A nested private module in the src/ of the made-up one, whose private.ts lists what its parent may use.
+const nestedRoot = `${moduleRoot}/src/example-card`;
+const privateApiSpec = `${nestedRoot}/tests/private-api.spec.ts`;
+const privateFile = path.join(process.cwd(), nestedRoot, 'private.ts');
+const privateSource = `
+/** @private */
+export default definePrivateComponent({
+    load: () => import('./src/example-card'),
+    public: { props: ['service'], computed: ['readableVersion'] },
+});`;
+const moduleFolders = [
+    path.join(process.cwd(), moduleRoot, 'src'),
+    path.join(process.cwd(), moduleRoot, 'tests'),
+    path.join(process.cwd(), nestedRoot, 'src'),
+    path.join(process.cwd(), nestedRoot, 'tests'),
+];
+const sources = { [indexFile]: indexSource, [privateFile]: privateSource };
+
 const realExistsSync = fs.existsSync;
 const realReadFileSync = fs.readFileSync;
 
 describe('no-vm-access', () => {
     beforeEach(() => {
-        jest.spyOn(fs, 'existsSync').mockImplementation((file) => file === indexFile || realExistsSync(file));
+        jest.spyOn(fs, 'existsSync').mockImplementation(
+            (file) => Object.hasOwn(sources, file) || moduleFolders.includes(file) || realExistsSync(file),
+        );
         jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...rest) =>
-            file === indexFile ? indexSource : realReadFileSync(file, ...rest),
+            Object.hasOwn(sources, file) ? sources[file] : realReadFileSync(file, ...rest),
         );
     });
 
@@ -84,6 +104,11 @@ describe('no-vm-access', () => {
                 name: 'allows a public-api spec to read a public prop',
                 filename: publicApiSpec,
                 code: 'expect(wrapper.vm.disabled).toBe(false);',
+            },
+            {
+                name: 'allows a private-api spec to read a member its private.ts lists',
+                filename: privateApiSpec,
+                code: "expect(wrapper.vm.readableVersion).toBe('1.0.0');",
             },
             {
                 name: 'allows a public-api spec to read a native-setup binding',
@@ -129,7 +154,18 @@ describe('no-vm-access', () => {
                 code: 'expect(wrapper.vm.isLoading).toBe(true);',
                 errors: [
                     {
-                        message: `\`isLoading\` is not public. A public-api spec reads only the members index.ts lists: ${allowed}.`,
+                        message: `\`isLoading\` is not listed. A public-api spec reads only the members index.ts lists: ${allowed}.`,
+                    },
+                ],
+            },
+            {
+                name: 'reports a member that the private.ts of a nested module does not list',
+                filename: privateApiSpec,
+                code: 'expect(wrapper.vm.isLoading).toBe(true);',
+                errors: [
+                    {
+                        message:
+                            '`isLoading` is not listed. A private-api spec reads only the members private.ts lists: service, readableVersion.',
                     },
                 ],
             },
@@ -174,7 +210,7 @@ describe('no-vm-access', () => {
                 filename: 'src/app/tests/public-api.spec.ts',
                 code: 'expect(wrapper.vm.usedRules).toEqual([]);',
                 errors: [
-                    { message: '`usedRules` is not public. A public-api spec reads only the members index.ts lists: none.' },
+                    { message: '`usedRules` is not listed. A public-api spec reads only the members index.ts lists: none.' },
                 ],
             },
         ],

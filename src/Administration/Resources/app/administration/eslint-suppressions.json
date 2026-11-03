@@ -10463,7 +10463,12 @@
       "count": 1
     }
   },
-  "src/module/sw-review/page/sw-review-detail/index.js": {
+  "src/module/sw-review/page/sw-review-detail/src/sw-review-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 27
+    }
+  },
+  "src/module/sw-review/page/sw-review-detail/src/sw-review-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10471,12 +10476,7 @@
       "count": 1
     }
   },
-  "src/module/sw-review/page/sw-review-detail/sw-review-detail.html.twig": {
-    "vue/max-template-depth": {
-      "count": 27
-    }
-  },
-  "src/module/sw-review/page/sw-review-detail/sw-review-detail.spec.js": {
+  "src/module/sw-review/page/sw-review-detail/tests/sw-review-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10484,7 +10484,7 @@
       "count": 1
     }
   },
-  "src/module/sw-review/page/sw-review-list/index.js": {
+  "src/module/sw-review/page/sw-review-list/src/sw-review-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10492,7 +10492,7 @@
       "count": 1
     }
   },
-  "src/module/sw-review/page/sw-review-list/sw-review-list.spec.js": {
+  "src/module/sw-review/page/sw-review-list/tests/sw-review-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }

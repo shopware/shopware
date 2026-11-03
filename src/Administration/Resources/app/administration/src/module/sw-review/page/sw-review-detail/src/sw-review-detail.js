@@ -1,16 +1,25 @@
 import template from './sw-review-detail.html.twig';
 import './sw-review-detail.scss';
-
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    getApiContext,
+    getDateFilter,
+    getDecodeIdnEmailFilter,
+    publishData,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [repositoryFactoryService, aclService, customFieldDataProviderService],
 
     mixins: ['placeholder', 'notification', 'salutation'],
 
@@ -93,11 +102,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
 
         emailIdnFilter() {
-            return Shopware.Filter.getByName('decode-idn-email');
+            return getDecodeIdnEmailFilter();
         },
     },
 
@@ -113,7 +122,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-review-detail__review',
                 path: 'review',
                 scope: this,
@@ -136,7 +145,7 @@ export default {
                 .addAssociation('product');
 
             const context = {
-                ...Shopware.Context.api,
+                ...getApiContext(),
                 inheritance: true,
             };
 

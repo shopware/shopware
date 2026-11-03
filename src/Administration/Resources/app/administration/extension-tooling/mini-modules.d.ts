@@ -383,3 +383,5 @@ import '../src/module/sw-property/component/sw-property-option-list/global';
 import '../src/module/sw-property/page/sw-property-detail/global';
 import '../src/module/sw-property/page/sw-property-create/global';
 import '../src/module/sw-property/page/sw-property-list/global';
+import '../src/module/sw-review/page/sw-review-detail/global';
+import '../src/module/sw-review/page/sw-review-list/global';

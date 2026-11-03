@@ -1,8 +1,15 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    filterFactoryService,
+    getApiContext,
+    getDateFilter,
+    getFilterService,
+    listingMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
 const DEFAULT_FILTERS = Object.freeze([
     'sales-channel-filter',
@@ -15,14 +22,15 @@ const DEFAULT_FILTERS = Object.freeze([
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'filterFactory'],
+    inject: [repositoryFactoryService, aclService, filterFactoryService],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     data() {
         return {
@@ -184,7 +192,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 
@@ -200,12 +208,12 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await Shopware.Service('filterService').mergeWithStoredFilters(this.storeKey, this.criteria);
+            const criteria = await getFilterService().mergeWithStoredFilters(this.storeKey, this.criteria);
 
             this.activeFilterNumber = criteria.filters.length;
 
             const context = {
-                ...Shopware.Context.api,
+                ...getApiContext(),
                 inheritance: true,
             };
 
@@ -231,7 +239,7 @@ export default {
 
             this.repository
                 .search(this.criteria, {
-                    ...Shopware.Context.api,
+                    ...getApiContext(),
                     inheritance: true,
                 })
                 .then((result) => {

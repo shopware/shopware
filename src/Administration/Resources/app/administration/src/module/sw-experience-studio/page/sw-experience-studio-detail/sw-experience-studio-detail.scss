@@ -8,10 +8,11 @@
 
     &__workspace {
         display: grid;
-        grid-template-columns: 280px minmax(0, 1fr) 8px var(--element-settings-width, 320px);
+        grid-template-columns: 280px minmax(320px, 1fr) 8px var(--element-settings-width, 320px);
         flex: 1;
         min-height: 0;
         overflow: hidden;
+        overflow-x: auto;
         transition: grid-template-columns 200ms ease;
 
         &.is-resizing {

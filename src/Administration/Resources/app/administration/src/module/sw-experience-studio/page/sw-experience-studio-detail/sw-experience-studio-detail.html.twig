@@ -78,10 +78,11 @@
                         role="separator"
                         aria-orientation="vertical"
                         :aria-valuenow="elementSettingsWidth"
-                        aria-valuemin="280"
-                        aria-valuemax="800"
+                        aria-valuemin="320"
+                        :aria-valuemax="getElementSettingsMaxWidth()"
                         tabindex="0"
                         @pointerdown="onElementSettingsResizeStart"
+                        @keydown="onElementSettingsResizeKeydown"
                     ></div>
                 {% endblock %}
 

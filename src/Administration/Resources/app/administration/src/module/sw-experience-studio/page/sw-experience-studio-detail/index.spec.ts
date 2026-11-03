@@ -31,6 +31,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             resizeStartX: 500,
             resizeStartWidth: 320,
             elementSettingsWidth: 320,
+            getElementSettingsMaxWidth: methods.getElementSettingsMaxWidth,
+            setElementSettingsWidth: methods.setElementSettingsWidth,
             $refs: {
                 workspace: {
                     getBoundingClientRect: () => ({ width: 1200 }),
@@ -39,10 +41,10 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
 
         methods.onElementSettingsResizeMove.call(vm, { clientX: 200 } as PointerEvent);
-        expect(vm.elementSettingsWidth).toBe(600);
+        expect(vm.elementSettingsWidth).toBe(592);
 
         methods.onElementSettingsResizeMove.call(vm, { clientX: -500 } as PointerEvent);
-        expect(vm.elementSettingsWidth).toBe(600);
+        expect(vm.elementSettingsWidth).toBe(592);
 
         methods.onElementSettingsResizeMove.call(vm, { clientX: 1000 } as PointerEvent);
         expect(vm.elementSettingsWidth).toBe(320);
@@ -90,6 +92,9 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         const vm = {
             selectedElementHasRichText: true,
             elementSettingsWidth: 320,
+            getElementSettingsMaxWidth: methods.getElementSettingsMaxWidth,
+            setElementSettingsWidth: methods.setElementSettingsWidth,
+            $refs: {},
         };
 
         methods.adjustElementSettingsWidth.call(vm);

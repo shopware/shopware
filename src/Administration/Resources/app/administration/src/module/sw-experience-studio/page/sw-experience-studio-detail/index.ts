@@ -131,6 +131,7 @@ const DEFAULT_ELEMENT_SETTINGS_WIDTH = 320;
 const MIN_ELEMENT_SETTINGS_WIDTH = 320;
 const MAX_ELEMENT_SETTINGS_WIDTH = 800;
 const RICH_TEXT_ELEMENT_SETTINGS_WIDTH = 640;
+const ELEMENT_SETTINGS_RESIZE_STEP = 20;
 const MIN_PREVIEW_WIDTH = 320;
 
 /**
@@ -478,9 +479,37 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         adjustElementSettingsWidth(): void {
-            if (this.selectedElementHasRichText) {
-                this.elementSettingsWidth = RICH_TEXT_ELEMENT_SETTINGS_WIDTH;
+            this.setElementSettingsWidth(
+                this.selectedElementHasRichText ? RICH_TEXT_ELEMENT_SETTINGS_WIDTH : this.elementSettingsWidth,
+            );
+        },
+
+        getElementSettingsMaxWidth(): number {
+            const workspace = this.$refs.workspace as HTMLElement | undefined;
+            const workspaceWidth = workspace?.getBoundingClientRect().width ?? Number.POSITIVE_INFINITY;
+
+            // Reserve the sidebar, separator and preview columns of the workspace grid.
+            return Math.max(
+                MIN_ELEMENT_SETTINGS_WIDTH,
+                Math.min(MAX_ELEMENT_SETTINGS_WIDTH, workspaceWidth - 280 - 8 - MIN_PREVIEW_WIDTH),
+            );
+        },
+
+        setElementSettingsWidth(width: number): void {
+            this.elementSettingsWidth = Math.max(
+                MIN_ELEMENT_SETTINGS_WIDTH,
+                Math.min(this.getElementSettingsMaxWidth(), width),
+            );
+        },
+
+        onElementSettingsResizeKeydown(event: KeyboardEvent): void {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+                return;
             }
+
+            event.preventDefault();
+            const delta = event.key === 'ArrowLeft' ? ELEMENT_SETTINGS_RESIZE_STEP : -ELEMENT_SETTINGS_RESIZE_STEP;
+            this.setElementSettingsWidth(this.elementSettingsWidth + delta);
         },
 
         onViewportChange(viewport: Viewport): void {
@@ -525,12 +554,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const workspace = this.$refs.workspace as HTMLElement | undefined;
-            const workspaceWidth = workspace?.getBoundingClientRect().width ?? Number.POSITIVE_INFINITY;
-            const maxWidth = Math.min(MAX_ELEMENT_SETTINGS_WIDTH, workspaceWidth - 280 - MIN_PREVIEW_WIDTH);
             const width = this.resizeStartWidth - (event.clientX - this.resizeStartX);
 
-            this.elementSettingsWidth = Math.max(MIN_ELEMENT_SETTINGS_WIDTH, Math.min(maxWidth, width));
+            this.setElementSettingsWidth(width);
         },
 
         stopElementSettingsResize(): void {

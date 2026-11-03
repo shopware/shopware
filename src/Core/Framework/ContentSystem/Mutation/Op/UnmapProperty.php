@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -34,7 +35,7 @@ final class UnmapProperty extends AbstractLayoutMutation
         $consumers = $definitions->getAllConsumers();
         $consumer = $consumers[$this->propertyKey] ?? null;
 
-        if ($consumer === null || $consumer->source === null) {
+        if ($consumer === null || !(new MappingConsumers())->isMapping($consumer)) {
             return $tree;
         }
 

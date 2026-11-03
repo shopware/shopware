@@ -60,6 +60,48 @@ class StoredTreePreparerTest extends TestCase
         $this->typeRegistry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
     }
 
+    public function testDoesNotReadTypeMetadataForPropertiesWithoutStrings(): void
+    {
+        $types = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $types->expects($this->never())->method('has');
+        $types->expects($this->never())->method('get');
+        $types->expects($this->never())->method('all');
+        $this->typeRegistry = $types;
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('count', 0)
+            ->withProperty('enabled', false)
+            ->withProperty('settings', ['name' => '{{ordinary}}'])
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification([]), RenderingMode::FULL);
+
+        static::assertSame(0, $result->tree[0]->property('count')?->jsonSerialize());
+        static::assertFalse($result->tree[0]->property('enabled')?->jsonSerialize());
+        static::assertSame(['name' => '{{ordinary}}'], $result->tree[0]->property('settings')?->jsonSerialize());
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
+    public function testReadsTypeMetadataOnceWhenSeveralPropertiesAreStrings(): void
+    {
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('text')
+            ->primitive('text', 'string', inlineMappable: true)
+            ->primitive('title', 'string')
+            ->build();
+        $types = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $types->expects($this->once())->method('has')->with('text')->willReturn(true);
+        $types->expects($this->once())->method('get')->with('text')->willReturn($specification);
+        $this->typeRegistry = $types;
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Hello {{name}}')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['name' => 'World']), RenderingMode::FULL);
+
+        static::assertSame('Hello World', $result->tree[0]->property('title')?->asString());
+        static::assertSame('product.name', $result->inlineMappings->tokensFor('root-id', 'text')[0]->path);
+    }
+
     #[TestDox('substitutes a declared token in a string property')]
     public function testPrepareResolvesStringProperties(): void
     {

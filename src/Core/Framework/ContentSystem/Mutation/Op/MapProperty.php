@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
@@ -52,6 +53,7 @@ final class MapProperty extends AbstractLayoutMutation
         $definitions = $node->contextDefinitions;
         $consumers = $definitions->getAllConsumers();
         $baseKeyResolver = new ConsumerBaseKeyResolver();
+        $mappingConsumers = new MappingConsumers();
         $targetBaseKey = $baseKeyResolver->resolve($this->propertyKey);
 
         foreach ($consumers as $contextKey => $consumer) {
@@ -61,7 +63,7 @@ final class MapProperty extends AbstractLayoutMutation
                 continue;
             }
 
-            if ($contextKey !== $this->propertyKey || $consumer->source === null) {
+            if ($contextKey !== $this->propertyKey || !$mappingConsumers->isMapping($consumer)) {
                 throw ContentSystemException::propertyAliasCollision($targetBaseKey, $contextKey, $this->propertyKey);
             }
         }

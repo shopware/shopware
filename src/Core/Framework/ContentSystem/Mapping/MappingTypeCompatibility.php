@@ -82,11 +82,6 @@ final class MappingTypeCompatibility
         return array_values(array_unique($types));
     }
 
-    public static function isPrimitiveType(string $type): bool
-    {
-        return \in_array($type, PropertyType::PRIMITIVE_TYPES, true);
-    }
-
     /**
      * Whether a RUNTIME VALUE is of `$type`, in the same type vocabulary {@see permits()} speaks.
      *
@@ -105,5 +100,10 @@ final class MappingTypeCompatibility
             self::UNCONSTRAINED_OBJECT_TYPE => \is_object($value),
             default => $value instanceof $type,
         };
+    }
+
+    private static function isPrimitiveType(string $type): bool
+    {
+        return \in_array($type, PropertyType::PRIMITIVE_TYPES, true);
     }
 }

@@ -158,12 +158,13 @@ final class StoredTreePreparer
      */
     private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values, array &$inlineTokens): StoredElement
     {
-        $declaredProperties = $this->typeRegistry->has($element->component)
-            ? $this->typeRegistry->get($element->component)->properties()
-            : [];
+        $declaredProperties = null;
         $properties = [];
         foreach ($element->properties() as $key => $value) {
             if ($value->isString()) {
+                $declaredProperties ??= $this->typeRegistry->has($element->component)
+                    ? $this->typeRegistry->get($element->component)->properties()
+                    : [];
                 $authored = $value->asString();
                 $tokens = ($declaredProperties[(string) $key] ?? null)?->inlineMappable()
                     ? $this->inlineMappingTokenParser->parse($authored)

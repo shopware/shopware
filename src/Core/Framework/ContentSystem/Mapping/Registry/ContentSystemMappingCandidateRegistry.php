@@ -87,11 +87,11 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
         $tags = [];
         foreach ($this->providers as $provider) {
             if ($provider->supports($rootSource)) {
-                $tags = array_merge($tags, $provider->cacheTagsForMapping($rootSource, $path));
+                $tags[] = $provider->cacheTagsForMapping($rootSource, $path);
             }
         }
 
-        return array_values(array_unique($tags));
+        return array_values(array_unique(array_merge(...$tags)));
     }
 
     /**

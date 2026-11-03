@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -39,31 +38,5 @@ final readonly class ContextDelivery
         public array $distributionReferencedKeys = [],
         public array $mappingFallbackKeys = [],
     ) {
-    }
-
-    /**
-     * The same delivery under a different context map, keeping its element id and mapping metadata.
-     *
-     * {@see ContextDeliveryResolver} overlays an element's root-scoped consumers onto what its parent
-     * delivered, and both preserved fields say something the overlay cannot know: the element the delivery
-     * belongs to, and which stored keys a parent's distribution config dereferenced by name to produce it.
-     *
-     * @param array<string, mixed> $context keyed by the key the value was delivered under
-     *
-     * @codeCoverageIgnore
-     */
-    public function withContext(array $context): self
-    {
-        return new self($this->elementId, $context, $this->distributionReferencedKeys, $this->mappingFallbackKeys);
-    }
-
-    /**
-     * True when this child received nothing at all, which is the ordinary case for a child that consumes no
-     * context or matched no provider. {@see StoredElement}s that deliver nothing still get a delivery, so
-     * the result stays positionally aligned with the children that produced it.
-     */
-    public function isEmpty(): bool
-    {
-        return $this->context === [] && $this->distributionReferencedKeys === [] && $this->mappingFallbackKeys === [];
     }
 }

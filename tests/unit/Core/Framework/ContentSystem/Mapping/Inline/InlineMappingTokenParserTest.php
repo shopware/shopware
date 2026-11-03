@@ -413,6 +413,21 @@ class InlineMappingTokenParserTest extends TestCase
         }
     }
 
+    public function testEmptyTokenListPreservesLiteralTextWithoutCallingTheResolver(): void
+    {
+        $text = '🙂 Literal {{ordinary}} text';
+        $budget = new InlineMappingExpansionBudget();
+        $resolve = static function (): never {
+            static::fail('No source should be resolved without token spans.');
+        };
+
+        static::assertSame($text, $this->parser()->replaceTokens($text, [], $resolve, $budget));
+        $budget->consume(InlineMappingExpansionBudget::MAX_PROPERTY_BYTES - \strlen($text));
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(InlineMappingExpansionBudget::MAX_PROPERTY_BYTES, 'property'));
+
+        $budget->consume(1);
+    }
+
     private function parser(): InlineMappingTokenParser
     {
         return new InlineMappingTokenParser();

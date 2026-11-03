@@ -168,7 +168,7 @@ final class StoredMappingInspector
             return ContentSystemException::propertyNotMappable($component, $propertyKey);
         }
 
-        return $this->propertyCandidate($component, $propertyKey, $property, $source, $rootSource);
+        return $this->propertyCandidate($propertyKey, $property, $source, $rootSource);
     }
 
     /**
@@ -251,18 +251,14 @@ final class StoredMappingInspector
                 continue;
             }
 
+            $source = $consumer->source;
             $propertyKey = (string) $consumerKey;
             $property = $declared[$propertyKey] ?? null;
 
             if ($property === null) {
                 $exception = ContentSystemException::propertyNotMappable($element->component, $propertyKey);
-                $problems[] = new MappingProblem($element->id, $propertyKey, $consumer->source?->displayName() ?? (string) $consumerKey, $exception);
+                $problems[] = new MappingProblem($element->id, $propertyKey, $source->displayName(), $exception);
 
-                continue;
-            }
-
-            $source = $consumer->source;
-            if ($source === null) {
                 continue;
             }
 
@@ -278,7 +274,7 @@ final class StoredMappingInspector
                 continue;
             }
 
-            $problems[] = new MappingProblem($element->id, $propertyKey, $consumer->source?->displayName() ?? (string) $consumerKey, $exception);
+            $problems[] = new MappingProblem($element->id, $propertyKey, $source->displayName(), $exception);
         }
 
         return $problems;
@@ -362,16 +358,11 @@ final class StoredMappingInspector
     }
 
     private function propertyCandidate(
-        string $component,
         string $propertyKey,
-        ?PropertySpecification $property,
+        PropertySpecification $property,
         MappingSourceReference $source,
         string $rootSource,
     ): MappingCandidate|ContentSystemException {
-        if ($property === null || !$property->mappable()) {
-            return ContentSystemException::propertyNotMappable($component, $propertyKey);
-        }
-
         $sourceName = $source->displayName();
         $candidate = $this->candidateForSource($source, $rootSource, $this->candidateRegistry->forRootSource($rootSource));
         if ($candidate instanceof ContentSystemException) {

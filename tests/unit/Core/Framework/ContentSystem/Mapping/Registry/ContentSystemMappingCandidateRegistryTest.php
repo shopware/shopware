@@ -27,6 +27,29 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 #[CoversClass(ContentSystemMappingCandidateRegistry::class)]
 class ContentSystemMappingCandidateRegistryTest extends TestCase
 {
+    public function testCombinesProviderMetadataTagsInOrderWithoutDuplicates(): void
+    {
+        $first = $this->createMock(AbstractMappingCandidateProvider::class);
+        $first->method('supports')->willReturn(true);
+        $first->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.name')->willReturn(['first', 'shared']);
+        $second = $this->createMock(AbstractMappingCandidateProvider::class);
+        $second->method('supports')->willReturn(true);
+        $second->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.name')->willReturn(['shared', 'second']);
+        $unrelated = $this->createMock(AbstractMappingCandidateProvider::class);
+        $unrelated->method('supports')->willReturn(false);
+        $unrelated->expects($this->never())->method('cacheTagsForMapping');
+        $registry = new ContentSystemMappingCandidateRegistry([$first, $unrelated, $second], new NullLogger());
+
+        static::assertSame(['first', 'shared', 'second'], $registry->cacheTagsForMapping('product', 'product.name'));
+    }
+
+    public function testMetadataTagsAreEmptyWithoutProviders(): void
+    {
+        $registry = new ContentSystemMappingCandidateRegistry([], new NullLogger());
+
+        static::assertSame([], $registry->cacheTagsForMapping('product', 'product.name'));
+    }
+
     public function testAttemptDependenciesAreScopedAndForwardedByDecoratorsEvenWithoutACandidate(): void
     {
         $provider = $this->createMock(AbstractMappingCandidateProvider::class);

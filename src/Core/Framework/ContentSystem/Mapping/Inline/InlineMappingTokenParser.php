@@ -132,12 +132,6 @@ final class InlineMappingTokenParser
      */
     public function replaceTokens(string $text, array $tokens, callable $resolve, InlineMappingExpansionBudget $budget): string
     {
-        if ($tokens === []) {
-            $budget->consume(\strlen($text));
-
-            return $text;
-        }
-
         $result = '';
         $cursor = 0;
 

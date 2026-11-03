@@ -105,8 +105,12 @@ class ContextDeliveryResolverTest extends TestCase
         $index = $this->resolver()->resolve([$root], [], [], cacheContext: new RenderingCacheContext(), rootSource: null);
 
         static::assertSame(['root-1', 'child-1', 'child-2'], array_keys($index->all()));
-        static::assertTrue($index->all()['root-1']->isEmpty());
-        static::assertTrue($index->all()['child-2']->isEmpty());
+        static::assertSame([], $index->all()['root-1']->context);
+        static::assertSame([], $index->all()['root-1']->distributionReferencedKeys);
+        static::assertSame([], $index->all()['root-1']->mappingFallbackKeys);
+        static::assertSame([], $index->all()['child-2']->context);
+        static::assertSame([], $index->all()['child-2']->distributionReferencedKeys);
+        static::assertSame([], $index->all()['child-2']->mappingFallbackKeys);
     }
 
     #[TestDox('covers every root of a multi-root forest')]

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
@@ -220,12 +221,14 @@ final class ReplaceElement extends AbstractLayoutMutation
     private function carryConsumers(array $consumers, array $newTypeProperties, ?string $rootSource): array
     {
         $kept = [];
+        $mappingConsumers = new MappingConsumers();
 
         foreach ($consumers as $key => $consumer) {
-            $propertyKey = $consumer->propertyAlias ?? $key;
+            $mapped = $mappingConsumers->isMapping($consumer);
+            $propertyKey = $mapped ? $key : ($consumer->propertyAlias ?? $key);
 
             if (
-                $consumer->source !== null
+                $mapped
                 && $rootSource !== null
                 && isset($newTypeProperties[$propertyKey])
             ) {
@@ -235,7 +238,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             }
 
             if (
-                $consumer->source === null
+                !$mapped
                 && isset($newTypeProperties[$propertyKey])
                 && $newTypeProperties[$propertyKey]->type()->enforceableTypes() === null
             ) {

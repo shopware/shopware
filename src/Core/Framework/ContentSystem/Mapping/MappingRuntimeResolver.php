@@ -67,7 +67,7 @@ final readonly class MappingRuntimeResolver
         MappingSourceResolutionContext $context,
     ): MappingSourceResolution|MappingRejection {
         $resolved = $this->candidateRegistry->resolveSource($rootSource, $source, $context);
-        if (!$resolved->hasValue) {
+        if ($resolved->isNoValue()) {
             return $resolved;
         }
 

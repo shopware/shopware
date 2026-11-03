@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingRejection;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
@@ -172,18 +173,19 @@ final readonly class ContextDeliveryResolver
         $mappingFallbackKeys = $delivery->mappingFallbackKeys;
         $overlaid = false;
 
+        $mappingConsumers = new MappingConsumers();
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
             if ($consumer->scope !== ConsumerScope::Root) {
                 continue;
             }
 
-            $mappingSource = $consumer->source;
-            if ($mappingSource !== null) {
+            if ($mappingConsumers->isMapping($consumer)) {
+                $mappingSource = $consumer->source;
                 if ($rootSource === null) {
                     continue;
                 }
 
-                $destinationKey = $consumer->propertyAlias ?? (string) $consumerKey;
+                $destinationKey = (string) $consumerKey;
                 $resolved = $this->mappingResolver->resolveProperty(
                     $rootSource,
                     (string) $consumerKey,
@@ -200,7 +202,7 @@ final readonly class ContextDeliveryResolver
                     continue;
                 }
 
-                if (!$resolved->hasValue) {
+                if ($resolved->isNoValue()) {
                     unset($context[$destinationKey]);
                     $mappingFallbackKeys[] = $destinationKey;
 
@@ -331,12 +333,13 @@ final readonly class ContextDeliveryResolver
             $values[$key] = $value;
         }
 
+        $mappingConsumers = new MappingConsumers();
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if ($consumer->source === null) {
+            if (!$mappingConsumers->isMapping($consumer)) {
                 continue;
             }
 
-            $key = $consumer->propertyAlias ?? (string) $consumerKey;
+            $key = (string) $consumerKey;
             if (!\array_key_exists($key, $delivery->context) && !\in_array($key, $delivery->mappingFallbackKeys, true)) {
                 unset($values[$key]);
             }

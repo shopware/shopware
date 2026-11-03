@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -103,14 +104,15 @@ final readonly class RenderedElementFactory
         $properties = [];
         $provenance = [];
 
+        $mappingConsumers = new MappingConsumers();
         $mappedPropertyKeys = [];
         $omittedMappingKeys = [];
         foreach ($stored->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if ($consumer->source === null) {
+            if (!$mappingConsumers->isMapping($consumer)) {
                 continue;
             }
 
-            $key = $consumer->propertyAlias ?? (string) $consumerKey;
+            $key = (string) $consumerKey;
             $mappedPropertyKeys[] = $key;
             if (!\array_key_exists($key, $deliveredContext) && !\in_array($key, $mappingFallbackKeys, true)) {
                 $omittedMappingKeys[$key] = true;

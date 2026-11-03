@@ -74,7 +74,7 @@ final class InlineMappingInterpolator
             $path,
             new MappingSourceResolutionContext($element, $ambient, $loaderValues, $cacheContext),
         );
-        if ($resolved instanceof MappingRejection || !$resolved->hasValue) {
+        if ($resolved instanceof MappingRejection || $resolved->isNoValue()) {
             return null;
         }
 

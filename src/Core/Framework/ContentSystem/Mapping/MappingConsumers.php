@@ -10,19 +10,16 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Tells an author's data mapping apart from the root-scoped context wiring that predates it.
  *
- * The two shapes very nearly coincide on the wire: both are root-scoped `acceptsContext` entries carrying a
- * `propertyAlias`. {@see ContextConsumerMirror} writes exactly that for a reference property it resolved
- * against the root-ambient set — `Sw:Product:Listing` receives the page's listing as a root-scoped consumer
+ * Ordinary root-scoped wiring can carry a `propertyAlias`. {@see ContextConsumerMirror} writes that for a
+ * reference property it resolved against the root-ambient set — `Sw:Product:Listing` receives the page's listing as a root-scoped consumer
  * keyed `productListing` aliased onto its declared `listing` property.
  *
- * A mapping carries a typed source reference in {@see ContextConsumer::$source}; ordinary wiring never does. Its consumer-map key names the destination property, so one path may feed several properties.
+ * A mapping carries a typed source reference in {@see ContextConsumer::$source}; ordinary wiring never does.
+ * Its consumer-map key names the destination property, so one path may feed several properties.
  *
- * This lives in one place because three layers ask the question and must answer it identically:
- * {@see StoredMappingInspector} decides admissibility for the write gate and the diagnose routes,
- * `Diagnostics/LayoutDiagnostics` has to know a mapped property needs no loader input, and
- * `Resolution/ElementResolver` reports a mapped property as filled from root context. A disagreement is
- * silently wrong in every direction — a mapping a reader skips goes unvalidated, and wiring a reader takes
- * for a mapping stops demanding the input it needs or claims to fill a property nothing fills.
+ * Validation, diagnostics, resolution, rendering and mutations share this predicate so they agree on which
+ * consumers are mappings. At the decode boundary, a mapping must be optional, root-scoped, unaliased and
+ * non-redistributing.
  * The Administration keeps its own copy of the rule in `util/element-mapping.util.ts`.
  *
  * @internal
@@ -30,6 +27,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class MappingConsumers
 {
+    /**
+     * @phpstan-assert-if-true MappingSourceReference $consumer->source
+     *
+     * @phpstan-assert-if-false null $consumer->source
+     */
     public function isMapping(ContextConsumer $consumer): bool
     {
         return $consumer->source !== null;
@@ -49,12 +51,11 @@ final class MappingConsumers
         $paths = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            $source = $consumer->source;
-            if ($source === null) {
+            if (!$this->isMapping($consumer)) {
                 continue;
             }
 
-            $paths[(string) $consumerKey] = $source->displayName();
+            $paths[(string) $consumerKey] = $consumer->source->displayName();
         }
 
         return $paths;

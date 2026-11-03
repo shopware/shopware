@@ -57,7 +57,7 @@ describe('extension-tooling type surface', () => {
         expect(notImported).toEqual([]);
     });
 
-    it('declares a shopware:mini-modules module for every mini-module so extensions can import its index.ts', () => {
+    it('declares a shopware:<kind> module for every mini-module so extensions can import its index.ts', () => {
         const declarations = fs.readFileSync(path.join(srcDir, 'shopware-virtual-modules.d.ts'), 'utf8');
 
         const miniModules = (fs.readdirSync(srcDir, { recursive: true }) as string[])
@@ -68,7 +68,7 @@ describe('extension-tooling type surface', () => {
         expect(miniModules.length).toBeGreaterThan(0);
 
         const notDeclared = miniModules.filter(
-            (dir) => !declarations.includes(`declare module 'shopware:mini-modules/${path.basename(dir)}'`),
+            (dir) => !new RegExp(`declare module 'shopware:[a-z]+/${path.basename(dir)}'`).test(declarations),
         );
 
         expect(notDeclared).toEqual([]);

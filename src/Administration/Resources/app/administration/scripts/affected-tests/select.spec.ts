@@ -17,7 +17,7 @@ const FILES: Record<string, string> = {
     [`${MODULE}/tests/requirements.spec.ts`]: 'mount(SwPrice);',
     [`${MODULE}/tests/pinned.spec.ts`]: "mount(SwPrice); wrapper.findComponent({ name: 'sw-price' });",
     [`${HELPER}/index.ts`]: 'export function getShopDelivery() {}',
-    [`${HELPER}/register.ts`]: "Shopware._private.publishMiniModule('shop-delivery', ShopDelivery);",
+    [`${HELPER}/register.ts`]: "Shopware._private.publish('helpers', 'shop-delivery', ShopDelivery);",
     [`${HELPER}/src/shop-delivery.ts`]: 'export function getShopDelivery() {}',
     [`${HELPER}/tests/requirements.spec.ts`]: 'getShopDelivery(order);',
     'src/module/sw-shop/page/sw-shop-list/sw-shop-list.spec.js': "await wrapTestComponent('sw-shop-list');",

@@ -3,7 +3,7 @@
  *
  * Extracts the `shopware:*` registry from the sources that define each global branch.
  *
- * The five branches are written down in three different shapes, so each needs its own matcher.
+ * The branches are written down in four different shapes, so each needs its own matcher.
  *
  * `Shopware.Utils` — src/core/service/util.service.ts
  * Every namespace is a top-level exported const, and a default-export literal re-lists them by shorthand:
@@ -62,13 +62,19 @@
  * Neither registry family publishes a root import: resolving one would have to resolve every entry. And
  * both are only as honest as the interface — a key nobody registers passes here and throws on import.
  *
- * `Shopware.MiniModules` — the `index.ts` of every mini-module below `src/`
- * Each `index.ts` is the public contract of its module, so its value exports are the subpath's exports:
+ * `Shopware.Public` — the `index.ts` of every mini-module below `src/`
+ * Each `index.ts` is the public contract of its module, so its value exports are the subpath's exports.
+ * A component module is of the kind `components`; any other module names its kind with `@shopware-kind`:
  *
  *     // src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.ts
  *     export default definePublicComponent({ name: 'sw-settings-shipping-price-matrix', … });
  *
- *     → shopware:mini-modules/sw-settings-shipping-price-matrix  named exports { default }
+ *     → shopware:components/sw-settings-shipping-price-matrix  named exports { default }
+ *
+ *     // src/app/service-names/index.ts, with `@shopware-kind framework` in the doc comment of the export
+ *     export { repositoryFactory } from './src/service-names';
+ *
+ *     → shopware:framework/service-names  named exports { repositoryFactory }
  *
  * The subpath is the name of the module directory. A component module's directory carries the component
  * name already, and a helper module such as `order-delivery` has no other name.
@@ -80,6 +86,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
+import { PUBLIC_KINDS, type PublicKind } from '../../src/core/mini-module-registry';
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
 const DATA_SOURCE = 'src/core/data/index.js';
@@ -431,17 +438,73 @@ function declaredComponentName(sourceFile: ts.SourceFile): string | undefined {
     return name && ts.isStringLiteral(name) ? name.text : undefined;
 }
 
+const KIND_TAG = 'shopware-kind';
+
+/**
+ * The kinds the `@shopware-kind` tags in the doc comments of an `index.ts` name, e.g. `["framework"]`.
+ */
+function taggedKinds(sourceFile: ts.SourceFile): string[] {
+    return sourceFile.statements.flatMap((statement) =>
+        ts
+            .getJSDocTags(statement)
+            .filter((tag) => tag.tagName.text === KIND_TAG)
+            .map((tag) => ts.getTextOfJSDocComment(tag.comment)?.trim() ?? ''),
+    );
+}
+
+/**
+ * The kind a mini-module is published under: `components` for a component module, otherwise the one kind
+ * its `@shopware-kind` tags name.
+ *
+ * Throws when a module names no kind, an unknown one or more than one, because its specifier would be
+ * unclear.
+ */
+function moduleKind(sourceFile: ts.SourceFile, moduleDir: string, isComponent: boolean): PublicKind {
+    const kinds = [...new Set(taggedKinds(sourceFile))];
+    const allowed = PUBLIC_KINDS.join(', ');
+
+    if (isComponent) {
+        if (kinds.some((kind) => kind !== 'components')) {
+            throw new Error(
+                `"${moduleDir}" declares a component, so its kind is "components". Remove the @${KIND_TAG} tag.`,
+            );
+        }
+
+        return 'components';
+    }
+
+    if (kinds.length !== 1) {
+        throw new Error(
+            `"${moduleDir}/index.ts" needs exactly one kind. Add "@${KIND_TAG} <kind>" to the doc comment of its exports, with one of: ${allowed}.`,
+        );
+    }
+
+    const [kind] = kinds;
+
+    if (!(PUBLIC_KINDS as readonly string[]).includes(kind)) {
+        throw new Error(`"${moduleDir}/index.ts" names the unknown kind "${kind}". Use one of: ${allowed}.`);
+    }
+
+    return kind as PublicKind;
+}
+
 /**
  * @private
  *
- * The `shopware:mini-modules` family: one subpath per mini-module, named after its directory.
+ * The `shopware:<kind>` families: one family per kind, with one subpath per mini-module, named after its
+ * directory. Every kind has a family, even one no module uses yet.
  *
- * Throws when two modules share a directory name, because they would share a specifier, and when a
+ * Throws when two modules share a directory name, because they would be easy to confuse, and when a
  * component module's directory is not named after its component, because the specifier would mislead.
  */
-export function extractMiniModules(administrationRoot: string): ModuleRegistry[string] {
-    const subpaths: Record<string, string[]> = {};
-    const sources: Record<string, string> = {};
+export function extractPublicModules(administrationRoot: string): ModuleRegistry {
+    const families = Object.fromEntries(
+        PUBLIC_KINDS.map((kind) => [
+            kind,
+            { exports: [] as string[], subpaths: {} as Record<string, string[]>, sources: {} as Record<string, string> },
+        ]),
+    ) as Record<PublicKind, Required<ModuleRegistry[string]>>;
+    const seen: Record<string, string> = {};
 
     findMiniModules(administrationRoot).forEach((moduleDir) => {
         const name = path.posix.basename(moduleDir);
@@ -449,19 +512,26 @@ export function extractMiniModules(administrationRoot: string): ModuleRegistry[s
         const sourceFile = parse(administrationRoot, indexFile);
         const componentName = declaredComponentName(sourceFile);
 
-        if (Object.hasOwn(sources, name)) {
-            throw new Error(`The mini-modules "${sources[name]}" and "${moduleDir}" share the name "${name}".`);
+        if (Object.hasOwn(seen, name)) {
+            throw new Error(`The mini-modules "${seen[name]}" and "${moduleDir}" share the name "${name}".`);
         }
 
         if (componentName !== undefined && componentName !== name) {
             throw new Error(`"${moduleDir}" declares the component "${componentName}". Name the directory after it.`);
         }
 
-        subpaths[name] = indexExports(sourceFile, indexFile);
-        sources[name] = moduleDir;
+        const family = families[moduleKind(sourceFile, moduleDir, componentName !== undefined)];
+        family.subpaths[name] = indexExports(sourceFile, indexFile);
+        family.sources[name] = moduleDir;
+        seen[name] = moduleDir;
     });
 
-    return { exports: [], subpaths, sources };
+    return Object.fromEntries(
+        PUBLIC_KINDS.map((kind) => [
+            `shopware:${kind}`,
+            families[kind],
+        ]),
+    );
 }
 
 function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
@@ -529,6 +599,6 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
             exports: [],
             subpaths: defaultOnlySubpaths(interfaceKeys(globalTypes, 'PiniaRootState')),
         },
-        'shopware:mini-modules': extractMiniModules(administrationRoot),
+        ...extractPublicModules(administrationRoot),
     };
 }

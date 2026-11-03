@@ -21,6 +21,7 @@ import { extractComponentApi, mergeComponentApi, readDeclaredApi, type Component
 import { findImports, findRegistration, findRegistrationByPath } from './find-registration';
 import { isDocumentedPrivate, markExport } from './mark-export';
 import { dropBaseImport } from './drop-base-import';
+import { dropUntestedFiles } from './drop-untested-baseline';
 import {
     CODEOWNERS_FILE,
     expectedCodeowners,
@@ -370,8 +371,16 @@ function run(directory: string) {
     for (const [from, to] of moves) {
         if (SCRIPT_EXTENSION.test(to)) {
             rewriteMovedImports(moves, from, to);
+        } else if (fs.statSync(path.join(adminRoot, to)).isDirectory()) {
+            // A spec split into a directory, such as `sw-x.spec/`, moved with every file in it.
+            fs.readdirSync(path.join(adminRoot, to), { recursive: true, encoding: 'utf8' })
+                .filter((file) => SCRIPT_EXTENSION.test(file))
+                .forEach((file) => rewriteMovedImports(moves, `${from}/${file}`, `${to}/${file}`));
         }
     }
+
+    const baseline = path.join(adminRoot, 'src/meta/baseline.ts');
+    fs.writeFileSync(baseline, dropUntestedFiles(fs.readFileSync(baseline, 'utf8'), [...moves.keys()]));
 
     const sourceFile = path.join(adminRoot, root, 'src', `${name}${path.extname(entry)}`);
     const source = markExport(fs.readFileSync(sourceFile, 'utf8'), isPrivateShape(shape) ? '@private' : '@public');

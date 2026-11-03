@@ -9,7 +9,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 const { format } = Shopware.Utils;
 
 /**
- * @private
+ * @public
  */
 export default {
     template,

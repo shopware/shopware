@@ -7948,12 +7948,12 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-activity/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-activity/src/sw-import-export-activity.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-activity/sw-import-export-activity.spec.js": {
+  "src/module/sw-import-export/component/sw-import-export-activity/tests/sw-import-export-activity.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

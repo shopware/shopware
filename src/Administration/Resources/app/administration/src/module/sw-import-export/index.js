@@ -5,6 +5,7 @@ import ImportExportService from './service/importExport.service';
 import ImportExportProfileMappingService from './service/importExportProfileMapping.service';
 import ImportExportProfileUpdateByService from './service/importExportUpdateByMapping.service';
 import './acl';
+import './component/sw-import-export-activity/register';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExport', () => {
@@ -25,7 +26,6 @@ Shopware.Service().register('importExportUpdateByMapping', () => {
 Shopware.Component.register('sw-import-export', () => import('./page/sw-import-export'));
 Shopware.Component.register('sw-import-export-exporter', () => import('./component/sw-import-export-exporter'));
 Shopware.Component.register('sw-import-export-importer', () => import('./component/sw-import-export-importer'));
-Shopware.Component.register('sw-import-export-activity', () => import('./component/sw-import-export-activity'));
 Shopware.Component.register(
     'sw-import-export-activity-log-info-modal',
     () => import('./component/sw-import-export-activity-log-info-modal'),

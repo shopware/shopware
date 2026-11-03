@@ -9,7 +9,7 @@ tags: [order, checkout, http-cache, storefront, store-api, sales-channel]
 
 Merchants want to run through their checkout without producing real orders.
 Self-hosted shops have no way to do that today.
-Every test run consumes a real order number, reduces stock, shows up in the dashboard and, once an invoice is generated, burns a real invoice number.
+Every test run reduces stock, shows up in the dashboard and, once an invoice is generated, burns a real invoice number.
 
 The SaaS platform (Rufus) has had test orders for years, built around the platform's shop status:
 
@@ -24,7 +24,7 @@ The SaaS platform (Rufus) has had test orders for years, built around the platfo
 Everything else treats test orders as real: flows, mails, documents, stock, statistics.
 The admin cannot filter them, and the token is part of the HTTP cache key, so every admin login gets a private cache namespace and never warms the shared one.
 
-The core already has the pieces a cleaner version needs: states on the sales channel context, maintenance mode with an event that can allow a client, number range types, the shared JWT configuration, and Flow Builder rules on orders.
+The core already has the pieces a cleaner version needs: states on the sales channel context and its persisted payload, the shared JWT configuration, and Flow Builder rules on orders.
 
 ## Decision
 
@@ -35,34 +35,32 @@ No custom field, no second write.
 The converter does not look at the request.
 It reads a `test-mode` state on the sales channel context.
 Cart, order, payment and templates read the same state.
-There are three ways to get it:
+There are two ways to get it:
 
-* **Sales channel test mode.** A sales channel setting that marks every order placed in it as a test order.
-  This replaces the "shop is not live" branch.
 * **Test session in a live shop.** An admin action issues a short-lived signed token and a link per sales channel domain.
-  A storefront route verifies the token, sets a first-party `HttpOnly` cookie that lives a few hours, and redirects home.
-  No iframe, no third-party cookie, works on custom domains.
-  The Store API accepts the same token in a header, like the context token.
+  A storefront route verifies the token, stores the test flag with the visitor's sales channel context, the same place a customer login lives, and redirects home.
+  The flag ends with the session: browser closed, session expired, customer logout, or "end test mode" in the bar.
+  No iframe, no third-party cookie, no cookie of its own, works on custom domains.
+  A Store API route takes the same token and flags the context token, so headless frontends get the same behaviour.
 * **Admin order creation.** The create order screen gets a "test order" toggle that the proxy order route turns into the state.
   No route name sniffing.
 
-The token is verified once per request and lands in a request attribute.
-The context creation listener turns the attribute, or the sales channel setting, into the state.
+Both need a dedicated ACL permission.
+The context factory turns the persisted flag into the state once per request.
 
 The HTTP cache never sees the test session.
-The cookie is not part of the cache key or the cache cookie, because cached pages do not depend on it.
+Nothing about it is part of the cache key or the cache cookie, because cached pages do not depend on it.
 Checkout, account and finish are not cached anyway.
-The "test mode" bar on cached pages is rendered client-side from a plain marker cookie that is set next to the real one.
-In maintenance mode the test session counts as an allowed client, through the existing `MaintenanceModeRequestEvent`.
-The resolver already keeps responses for allowed clients out of the cache while maintenance is on, so this replaces the SaaS construction mode for free and leaves the live cache alone.
+The "test mode" bar on cached pages is rendered client-side from a plain, session-scoped marker cookie that the exchange route sets next to the session.
 
 What a test order changes, all keyed on `order.isTest`:
 
-* **Order number.** A new number range type `order_test` with the default pattern `TEST-{n}`, selected in the converter.
+* **Order number.** A normal number from the regular range.
+  The flag, the badge and the admin marking are the only distinction.
 * **Documents.** Allowed, because merchants need to test them.
   The number is derived from the order number, `TEST-{orderNumber}`, with a suffix when the order gets a second document of the same type.
   Document number ranges stay untouched and the unique index on number and type still holds.
-  The document config carries the flag so templates print a watermark.
+  Core prints no other marker; the number is the hint.
 * **Stock.** Stock and sales counters are not touched.
 * **Payment.** Core only exposes the flag.
   Plugin handlers reach it through the transaction's order, apps through the order in the payment payload.
@@ -71,66 +69,61 @@ What a test order changes, all keyed on `order.isTest`:
 * **Flows and mails.** A new rule "order is a test order".
   Default flows stay as they are, so test mails go out and merchants can test them.
   Mail templates get the flag and print a test marker.
-* **Admin.** Badge and filter in the order list, a banner in the detail, the dashboard statistics exclude test orders, and sales channels get an "open storefront in test mode" button.
-* **Analytics and GMV.** Usage data collection skips test orders.
-  Commercial's licensing turnover report, the GMV collection, filters on the column instead of the SaaS custom field it checks today.
+* **Admin.** A badge in the order list, shown by default, with a filter to hide them.
+  A banner in the detail, the dashboard statistics exclude test orders, and sales channels get an "open storefront in test mode" button.
+* **Analytics and GMV.** Usage data collection, Shopware Analytics and Commercial's licensing turnover report, the GMV collection, skip test orders.
+  The GMV collectors filter on the column instead of the SaaS custom field they check today.
 
-Deferred to a follow-up: a cleanup action that deletes all test orders before go-live, and the Rufus switch-over.
+Deferred to later iterations: a sales channel setting that marks every order in the channel as a test order and lets a test session pass maintenance mode, a cleanup action that deletes all test orders before go-live, and the Rufus switch-over.
 
 ## Consequences
 
 * Downstream code has one source of truth and gets it at the same time as the order.
   Flow listeners no longer race a second write, apps and webhooks get the flag with the order entity for free.
-* A new column and a migration, a new number range type, a new sales channel setting, and a new store-api header.
-  The converter decides the number range type, so Commercial needs a companion change if a constructor changes.
-* A test cookie on a shared browser marks orders as test orders until it expires.
-  The short TTL and the visible bar limit that.
-  The token cannot be revoked before it expires, which is why it lives hours, not a week.
+* A new column and a migration, a new ACL permission, a storefront route and a Store API route for the exchange, and a new key in the persisted sales channel context.
+  Commercial needs a companion change if a converter or persister constructor changes.
+* The epic's acceptance criteria change in one point: test orders consume normal order numbers, only document numbers stay out of the productive ranges.
+* A test session on a shared browser marks orders as test orders until the session ends.
+  The visible bar and "end test mode" limit that.
 * Test document numbers cannot collide with real ones unless a merchant uses a `TEST-` pattern themselves.
   No store extension uses that prefix for number ranges or documents.
   The generator refuses an existing number, so a collision fails loudly instead of overwriting.
-* Rufus drops the detector, the persister decorator, the number range migration and the cookie iframe.
+* Rufus drops the detector, the persister decorator, the test number range and the cookie iframe.
+  Its construction mode stays SaaS-specific until the sales channel setting lands.
   It keeps the revenue share exclusion and the BI field, both reading `order.isTest`, and backfills the custom field into the column.
   The PayPal sandbox override stays in Rufus until the plugin reads the flag.
 
 ## Example
 
-Turning the request into the state, once per request:
+The exchange route stores the flag with the visitor's context:
 
 ```php
-public function __invoke(SalesChannelContextCreatedEvent $event): void
+#[Route(path: '/test-session/{token}', name: 'frontend.test-session.start', methods: ['GET'])]
+public function start(string $token, SalesChannelContext $context): RedirectResponse
 {
-    $request = $this->requestStack->getMainRequest();
+    $this->tokens->verify($token);
+    $this->contextPersister->save(
+        $context->getToken(),
+        [SalesChannelContextService::TEST_MODE => true],
+        $context->getSalesChannelId()
+    );
 
-    if ($request?->attributes->getBoolean(PlatformRequest::ATTRIBUTE_TEST_SESSION)
-        || $event->getSalesChannelContext()->getSalesChannel()->isTestMode()) {
-        $event->getSalesChannelContext()->addState(CheckoutTestMode::STATE);
-    }
+    return $this->redirectToRoute('frontend.home.page');
 }
 ```
 
-The converter writes the flag and picks the number range:
+The context factory turns the persisted flag into the state, once per request:
 
 ```php
-$isTest = $context->hasState(CheckoutTestMode::STATE);
-
-$data['isTest'] = $isTest;
-$data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-    $isTest ? 'order_test' : OrderDefinition::ENTITY_NAME,
-    $context->getContext(),
-    $context->getSalesChannelId()
-);
+if ($options[SalesChannelContextService::TEST_MODE] ?? false) {
+    $context->addState(CheckoutTestMode::STATE);
+}
 ```
 
-Passing maintenance mode with a test session:
+The converter writes the flag:
 
 ```php
-public function __invoke(MaintenanceModeRequestEvent $event): void
-{
-    if ($event->getRequest()->attributes->getBoolean(PlatformRequest::ATTRIBUTE_TEST_SESSION)) {
-        $event->allowClient();
-    }
-}
+$data['isTest'] = $context->hasState(CheckoutTestMode::STATE);
 ```
 
 Document numbers for test orders never touch a number range:

@@ -204,16 +204,8 @@
                         "example": "root"
                     },
                     "source": {
-                        "type": "object",
+                        "allOf": [{ "$ref": "#/components/schemas/ContentSystemMappingSourceReference" }],
                         "description": "Typed catalogued source reference for a data mapping. When present, the consumer map key is the destination property. Mapping consumers are optional, root-scoped, unaliased and non-redistributing.",
-                        "required": ["type", "id"],
-                        "additionalProperties": false,
-                        "properties": {
-                            "type": { "type": "string" },
-                            "id": { "type": "string" },
-                            "config": { "type": "object" },
-                            "path": { "type": "string" }
-                        },
                         "example": { "type": "root", "id": "product", "path": "name" }
                     }
                 }

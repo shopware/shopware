@@ -19,7 +19,7 @@
                     },
                     "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
+                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it absent or empty, intrinsic well-formedness is evaluated and inline tokens in opted-in properties that require a source report `invalid_mapping`; whole-field mappings and other binding checks remain unjudged.",
                         "default": null,
                         "example": "product"
                     }
@@ -609,7 +609,7 @@
                     "type": { "type": "string", "minLength": 1, "example": "root" },
                     "id": { "type": "string", "minLength": 1, "example": "product" },
                     "path": { "type": "string", "minLength": 1, "example": "name" },
-                    "config": { "type": "object", "additionalProperties": true }
+                    "config": { "type": "object", "description": "Optional provider configuration. Omitted from responses when empty.", "additionalProperties": true }
                 },
                 "additionalProperties": false
             },

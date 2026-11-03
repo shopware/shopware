@@ -30,7 +30,7 @@
                         "$ref": "#/components/responses/404"
                     },
                     "500": {
-                        "description": "Rendering exceeded the inline mapping output limit (CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE). The request fails without returning partial or blanked content."
+                        "$ref": "#/components/responses/ContentSystemRenderingError"
                     }
                 },
                 "security": [{ "ApiKey": [] }]
@@ -64,7 +64,7 @@
                         "$ref": "#/components/responses/404"
                     },
                     "500": {
-                        "description": "Rendering exceeded the inline mapping output limit (CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE). The request fails without returning partial or blanked content."
+                        "$ref": "#/components/responses/ContentSystemRenderingError"
                     }
                 },
                 "security": [{ "ApiKey": [] }]
@@ -129,7 +129,7 @@
                         "$ref": "#/components/responses/404"
                     },
                     "500": {
-                        "description": "Rendering exceeded the inline mapping output limit (CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE). The request fails without returning partial or blanked content."
+                        "$ref": "#/components/responses/ContentSystemRenderingError"
                     }
                 },
                 "security": [{ "ApiKey": [] }]

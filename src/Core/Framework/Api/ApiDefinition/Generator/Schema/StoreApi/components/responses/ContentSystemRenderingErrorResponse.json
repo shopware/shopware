@@ -1,0 +1,12 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "ContentSystemRenderingError": {
+                "description": "Rendering exceeded the inline mapping output limit (CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE). The request fails without returning partial or blanked content."
+            }
+        }
+    }
+}

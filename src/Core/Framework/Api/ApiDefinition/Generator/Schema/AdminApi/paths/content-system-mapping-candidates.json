@@ -36,15 +36,8 @@
                                                             "description": "Stable candidate display path. For root candidates this includes the context key (\"product.name\"); the typed `source` field is the persisted mapping reference."
                                                         },
                                                         "source": {
-                                                            "type": "object",
-                                                            "required": ["type", "id"],
-                                                            "description": "Typed source reference, with an optional safe member path and provider configuration.",
-                                                            "properties": {
-                                                                "type": { "type": "string", "example": "root" },
-                                                                "id": { "type": "string", "example": "product" },
-                                                                "path": { "type": "string", "example": "name" },
-                                                                "config": { "type": "object", "additionalProperties": true }
-                                                            }
+                                                            "allOf": [{ "$ref": "#/components/schemas/ContentSystemMappingSourceReference" }],
+                                                            "description": "Typed source reference, with an optional safe member path and provider configuration."
                                                         },
                                                         "label": {
                                                             "type": "string",

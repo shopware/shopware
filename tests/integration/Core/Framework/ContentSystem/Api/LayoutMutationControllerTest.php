@@ -618,6 +618,46 @@ class LayoutMutationControllerTest extends TestCase
         static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
+    #[DataProvider('nonArrayMappingInputProvider')]
+    public function testMappingMutationsRejectNonArrayInputsBeforeApplyingTheMutation(string $operation, string $field, mixed $value): void
+    {
+        $payload = [
+            'elementId' => 'missing-element',
+            'propertyKey' => 'text',
+            'layout' => [],
+            'rootSource' => 'product',
+        ];
+
+        if ($operation === 'map-property') {
+            $payload['source'] = ['type' => 'root', 'id' => 'product', 'path' => 'name'];
+        }
+
+        $payload[$field] = $value;
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $operation, $payload);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotEmpty($body['errors']);
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, mixed}>
+     */
+    public static function nonArrayMappingInputProvider(): iterable
+    {
+        yield 'map source rejects a string' => ['map-property', 'source', 'not-an-array'];
+        yield 'map source rejects null' => ['map-property', 'source', null];
+        yield 'map source rejects a number' => ['map-property', 'source', 42];
+        yield 'map layout rejects a string' => ['map-property', 'layout', 'not-an-array'];
+        yield 'map layout rejects null' => ['map-property', 'layout', null];
+        yield 'map layout rejects a number' => ['map-property', 'layout', 42];
+        yield 'unmap layout rejects a string' => ['unmap-property', 'layout', 'not-an-array'];
+        yield 'unmap layout rejects null' => ['unmap-property', 'layout', null];
+        yield 'unmap layout rejects a number' => ['unmap-property', 'layout', 42];
+    }
+
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */

@@ -18,11 +18,9 @@ final class MapPropertyRequest
     public function __construct(
         public readonly string $elementId,
         public readonly string $propertyKey,
-        #[Assert\Type('array')]
         public readonly array $source,
         #[Assert\NotBlank]
         public readonly string $rootSource,
-        #[Assert\Type('array')]
         public readonly array $layout = [],
     ) {
     }

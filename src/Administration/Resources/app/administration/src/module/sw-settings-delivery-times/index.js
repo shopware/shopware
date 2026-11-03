@@ -1,12 +1,7 @@
 import './acl';
+import './page/sw-settings-delivery-time-detail/register';
+import './page/sw-settings-delivery-time-list/register';
 
-/**
- * @sw-package discovery
- */
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-delivery-time-list', () => import('./page/sw-settings-delivery-time-list'));
-Shopware.Component.register('sw-settings-delivery-time-detail', () => import('./page/sw-settings-delivery-time-detail'));
 Shopware.Component.extend(
     'sw-settings-delivery-time-create',
     'sw-settings-delivery-time-detail',

@@ -1,20 +1,20 @@
 import template from './sw-settings-delivery-time-list.html.twig';
 import './sw-settings-delivery-time-list.scss';
+import { aclService, Criteria, listingMixin, placeholderMixin, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package discovery
  */
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder')],
+    mixins: [listingMixin, placeholderMixin],
 
     data() {
         return {

@@ -1,20 +1,28 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
+import {
+    aclService,
+    customFieldDataProviderService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package discovery
  */
 
-const { Component, Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
-const { mapPropertyErrors } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [repositoryFactoryService, aclService, customFieldDataProviderService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -174,7 +182,7 @@ export default {
             this.isSaveSuccessful = false;
 
             return this.deliveryTimeRepository
-                .save(this.deliveryTime, Shopware.Context.api)
+                .save(this.deliveryTime, getApiContext())
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

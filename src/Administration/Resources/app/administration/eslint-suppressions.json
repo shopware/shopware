@@ -1834,7 +1834,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-time-range/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-time-range/src/sw-condition-time-range.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -13205,7 +13205,7 @@
       "count": 1
     }
   },
-  "src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/index.js": {
+  "src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/src/sw-users-permissions-detailed-permissions-grid.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

@@ -276,6 +276,7 @@ import 'src/app/component/structure/sw-admin/register';
 import 'src/app/component/utils/sw-help-center/register';
 import 'src/app/component/wizard/sw-wizard-dot-navigation/register';
 import 'src/app/component/form/sw-text-editor/register';
+import 'src/app/component/rule/condition-type/sw-condition-time-range/register';
 /**
  * @sw-package framework
  * @private
@@ -309,11 +310,6 @@ export default () => {
         'sw-condition-generic',
         'sw-condition-base',
         () => import('./rule/condition-type/sw-condition-generic/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-time-range',
-        'sw-condition-base',
-        () => import('src/app/component/rule/condition-type/sw-condition-time-range/index'),
     );
     // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
     Shopware.Component.extend(

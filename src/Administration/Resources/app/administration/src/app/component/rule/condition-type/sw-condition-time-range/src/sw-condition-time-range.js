@@ -1,10 +1,12 @@
 import template from './sw-condition-time-range.html.twig';
 import './sw-condition-time-range.scss';
+import { getTimezoneService } from '../dependencies';
 
 /**
  * @sw-package fundamentals@after-sales
+ *
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -67,7 +69,7 @@ export default {
         },
 
         timezoneOptions() {
-            return Shopware.Service('timezoneService').getTimezoneOptions();
+            return getTimezoneService().getTimezoneOptions();
         },
     },
 };

@@ -3,12 +3,15 @@
  */
 import template from './sw-users-permissions-detailed-permissions-grid.html.twig';
 import './sw-users-permissions-detailed-permissions-grid.scss';
+import { privilegesService } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['privileges'],
+    inject: [privilegesService],
 
     props: {
         role: {

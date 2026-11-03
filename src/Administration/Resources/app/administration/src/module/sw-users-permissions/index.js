@@ -19,14 +19,7 @@ import './page/sw-users-permissions-user-detail/register';
 import './page/sw-users-permissions-user-create/register';
 import './view/sw-users-permissions-role-view-detailed/register';
 import './view/sw-users-permissions-role-view-general/register';
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register(
-    'sw-users-permissions-detailed-permissions-grid',
-    () => import('./components/sw-users-permissions-detailed-permissions-grid'),
-);
-
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
+import './components/sw-users-permissions-detailed-permissions-grid/register';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-users-permissions', {

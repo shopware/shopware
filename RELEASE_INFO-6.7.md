@@ -2,6 +2,12 @@
 
 ## Security Fixes
 
+### Store API criteria field paths are resolved per path segment
+
+Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.
+A path that uses `extensions` as a whole segment keeps working;
+a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
+Integrations that use valid field paths are unaffected.
 ### Content Security Policy for Storefront documents
 
 Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.

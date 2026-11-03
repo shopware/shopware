@@ -143,6 +143,22 @@ class EntityAggregatorTest extends TestCase
         static::assertFalse($agg->has($ids->get('foo')));
     }
 
+    /**
+     * A segment that only contains `extensions` as a substring stays intact,
+     * so the accessor is unmapped and the query is rejected while it is built.
+     */
+    public function testAggregationFieldIsResolvedPerSegment(): void
+    {
+        $accessor = 'product.mediextensions.a.media';
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('media', $accessor));
+
+        $this->expectExceptionObject(DataAbstractionLayerException::unmappedField($accessor, $this->definition));
+
+        $this->aggregator->aggregate($this->definition, $criteria, Context::createDefaultContext());
+    }
+
     public function testSingleTermsAggregation(): void
     {
         $context = Context::createDefaultContext();

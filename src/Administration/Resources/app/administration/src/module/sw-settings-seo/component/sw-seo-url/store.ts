@@ -1,8 +1,14 @@
 /**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swSeoUrlStoreId = 'swSeoUrl';
+
+/**
  * @sw-package inventory
  */
 const swSeoUrlStore = Shopware.Store.register({
-    id: 'swSeoUrl',
+    id: swSeoUrlStoreId,
 
     state() {
         return {

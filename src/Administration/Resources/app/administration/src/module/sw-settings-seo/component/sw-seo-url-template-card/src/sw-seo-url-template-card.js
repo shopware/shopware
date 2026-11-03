@@ -4,22 +4,31 @@
 
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
+import {
+    getApiContext,
+    mapCollectionPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+    seoUrlTemplateService,
+    Utils,
+} from '../dependencies';
 
-const { Mixin, Defaults } = Shopware;
-const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
+const { Defaults } = Shopware;
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
-const utils = Shopware.Utils;
+const utils = Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['seoUrlTemplateService', 'repositoryFactory'],
+    inject: [seoUrlTemplateService, repositoryFactoryService],
 
     emits: ['sales-channel-changed'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -93,14 +102,14 @@ export default {
             this.seoUrlTemplates = new EntityCollection(
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
-                Shopware.Context.api,
+                getApiContext(),
                 new Criteria(1, 25),
             );
 
             this.defaultSeoUrlTemplates = new EntityCollection(
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
-                Shopware.Context.api,
+                getApiContext(),
                 new Criteria(1, 25),
             );
 
@@ -260,7 +269,7 @@ export default {
                     this.seoUrlTemplates = new EntityCollection(
                         this.seoUrlTemplateRepository.route,
                         this.seoUrlTemplateRepository.schema.entity,
-                        Shopware.Context.api,
+                        getApiContext(),
                         new Criteria(1, 25),
                     );
                     this.fetchSeoUrlTemplates(this.salesChannelId);

@@ -3,12 +3,15 @@
  */
 
 import template from './sw-seo-main-category.html.twig';
+import { repositoryFactoryService, useSeoUrlStore } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['main-category-add', 'main-category-remove'],
 
@@ -55,11 +58,11 @@ export default {
         },
 
         isHeadlessSalesChannel() {
-            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
+            if (useSeoUrlStore().salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
+            const salesChannel = useSeoUrlStore().salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 

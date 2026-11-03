@@ -699,6 +699,38 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
     });
 
+    it('should request every default sales channel by id', async () => {
+        await flushPromises();
+        await wrapper.unmount();
+
+        const searchedCriteria = [];
+
+        wrapper = await createWrapper(
+            (criteria) => {
+                searchedCriteria.push(criteria);
+
+                return Promise.resolve([
+                    {
+                        id: '98432def39fc4624b33213a56b8c944d',
+                        name: 'Headless',
+                    },
+                ]);
+            },
+            undefined,
+            null,
+        );
+
+        await flushPromises();
+        await flushPromises();
+
+        const salesChannelCriteria = searchedCriteria.find((criteria) =>
+            criteria.ids.includes('98432def39fc4624b33213a56b8c944d'),
+        );
+
+        expect(salesChannelCriteria).toBeDefined();
+        expect(salesChannelCriteria.limit).toBeNull();
+    });
+
     it('should run custom validation service and handle errors', async () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => {
             return null;

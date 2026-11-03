@@ -3,7 +3,13 @@
  */
 import useContext from '../composables/use-context';
 
-const contextStore = Shopware.Store.register('context', useContext);
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const contextStoreId = 'context';
+
+const contextStore = Shopware.Store.register(contextStoreId, useContext);
 
 /**
  * @private

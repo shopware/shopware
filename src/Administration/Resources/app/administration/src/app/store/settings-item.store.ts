@@ -21,11 +21,17 @@ export interface SettingsItem {
 }
 
 /**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const settingsItemsStoreId = 'settingsItems';
+
+/**
  * @sw-package framework
  * @private
  */
 const settingsItems = Shopware.Store.register({
-    id: 'settingsItems',
+    id: settingsItemsStoreId,
 
     state: (): {
         settingsGroups: Record<string, SettingsItem[]>;

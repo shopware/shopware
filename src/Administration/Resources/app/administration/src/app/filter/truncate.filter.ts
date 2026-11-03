@@ -1,11 +1,17 @@
 /**
+ * @private
+ * The name the truncate filter is registered under, for code that looks it up with `Shopware.Filter.getByName()`.
+ */
+export const truncateFilterName = 'truncate';
+
+/**
  * @sw-package framework
  *
  * @private
  * Filter which allows you to truncate a string.
  */
 Shopware.Filter.register(
-    'truncate',
+    truncateFilterName,
     (value: string = '', length: number = 75, stripHtml: boolean = true, ellipsis: string = '...') => {
         if (!value || !value.length) {
             return '';

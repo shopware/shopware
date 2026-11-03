@@ -82,10 +82,16 @@ interface GivenEntity {
 
 /**
  * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const errorStoreId = 'error';
+
+/**
+ * @private
  * @description Store for global api error handling
  */
 const errorStore = Shopware.Store.register({
-    id: 'error',
+    id: errorStoreId,
 
     state: () =>
         ({

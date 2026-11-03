@@ -3,7 +3,13 @@
  */
 import useSession from '../composables/use-session';
 
-const sessionStore = Shopware.Store.register('session', useSession);
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const sessionStoreId = 'session';
+
+const sessionStore = Shopware.Store.register(sessionStoreId, useSession);
 
 /**
  * @private

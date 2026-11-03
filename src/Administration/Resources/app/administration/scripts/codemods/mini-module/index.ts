@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
 import { findImports, findRegistration } from './find-registration';
-import { markExport } from './mark-export';
+import { isDocumentedPrivate, markExport } from './mark-export';
 import { dropBaseImport } from './drop-base-import';
 import {
     CODEOWNERS_FILE,
@@ -266,14 +266,16 @@ type Reading = {
 /**
  * How the component reaches the page today: the statement that registers or extends it, or, without one,
  * the parent that imports it. A string says why the component cannot move yet.
+ * A component is private when its registration or the doc comment of its own default export says `@private`.
  */
-const readShape = (componentDirectory: string, name: string): Reading | string => {
+const readShape = (componentDirectory: string, name: string, componentSource: string): Reading | string => {
     const registration = locateRegistration(name);
     if (registration) {
+        const isPrivate = registration.registration.isPrivate || isDocumentedPrivate(componentSource);
         const shape: Shape =
             registration.registration.kind === 'extend'
-                ? { kind: 'extend', base: registration.registration.base, isPrivate: registration.registration.isPrivate }
-                : { kind: 'register', isPrivate: registration.registration.isPrivate };
+                ? { kind: 'extend', base: registration.registration.base, isPrivate }
+                : { kind: 'register', isPrivate };
 
         return { shape, registration, importers: [] };
     }
@@ -304,7 +306,7 @@ function run(directory: string) {
 
     const { entry, componentSource, templateSource } = readComponentSource(componentDirectory, name);
     const packageName = /@sw-package (\S+)/.exec(componentSource)?.[1] ?? 'framework';
-    const reading = readShape(componentDirectory, name);
+    const reading = readShape(componentDirectory, name, componentSource);
     if (typeof reading === 'string') {
         console.log(reading);
         return;
@@ -457,7 +459,7 @@ const describeOutsideEdits = ({ outside }: RoutedModule) => {
 const describeShape = (name: string, shape: Shape) => {
     const privateNote =
         shape.kind !== 'nested' && shape.isPrivate
-            ? `${name} is registered @private, so it is a private module: private.ts declares it with definePrivateComponent(),
+            ? `${name} is marked @private, so it is a private module: private.ts declares it with definePrivateComponent(),
 and global.d.ts adds it to PrivateComponents, which types Component.override() inside the Administration only.
 It is not published to extensions and has no code owner entry.
 `

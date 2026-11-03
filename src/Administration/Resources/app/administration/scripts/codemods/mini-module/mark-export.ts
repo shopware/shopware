@@ -3,6 +3,8 @@
  * @private
  */
 
+import ts from 'typescript';
+
 const SUPPRESSION = /^\/\/ eslint-disable-next-line sw-deprecation-rules\/private-feature-declarations\n(?=export default)/m;
 const DOC_COMMENT = /^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(?=export default)/m;
 
@@ -33,4 +35,27 @@ export function markExport(source: string, marker: '@public' | '@private'): stri
         : `${docComment[1]}\n *\n * ${marker}\n */\n`;
 
     return unsuppressed.replace(docComment[0], marked);
+}
+
+/**
+ * Whether a doc comment directly above the component's `export default` marks it `@private`,
+ * also with a reason after the tag, so the component becomes a private module whatever its registration says.
+ *
+ * @example
+ * isDocumentedPrivate('/**\n * @private might get removed\n *\/\nexport default {};');
+ * // → true
+ */
+export function isDocumentedPrivate(source: string): boolean {
+    const file = ts.createSourceFile('component.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const exported = file.statements.find(ts.isExportAssignment);
+    if (!exported) {
+        return false;
+    }
+
+    return (ts.getLeadingCommentRanges(source, exported.getFullStart()) ?? []).some(
+        ({ pos, end, kind }) =>
+            kind === ts.SyntaxKind.MultiLineCommentTrivia &&
+            source.startsWith('/**', pos) &&
+            /^\s*\*\s*@private\b/m.test(source.slice(pos, end)),
+    );
 }

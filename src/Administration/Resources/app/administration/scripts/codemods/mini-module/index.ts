@@ -65,7 +65,7 @@ const renderRegister = (name: string, packageName: string) => `import Component,
  */
 
 Shopware.Component.register(Component);
-Shopware._private.publishMiniModule('${name}', Module);
+Shopware._private.publish('components', '${name}', Module);
 `;
 
 const renderGlobalTypes = (name: string, packageName: string) => `import type Component from './index';
@@ -264,7 +264,7 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
    A contract spec over 500 lines splits into a directory, e.g. tests/pinned.spec/search.spec.ts.
 4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts.
    The team is the one that owns other code of @sw-package ${packageName} there.
-5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:mini-modules/${name}.
+5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
    Run npm run unit-setup, so Jest finds the moved component by its name.
    Then run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
    Lines the contract tests leave uncovered are code no contract protects: pin them, or name them in the PR.

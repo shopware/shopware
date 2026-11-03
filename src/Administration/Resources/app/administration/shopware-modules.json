@@ -255,7 +255,12 @@
             "mediaModal": []
         }
     },
-    "shopware:mini-modules": {
+    "shopware:components": {
+        "exports": [],
+        "subpaths": {},
+        "sources": {}
+    },
+    "shopware:framework": {
         "exports": [],
         "subpaths": {
             "public-component": [
@@ -269,5 +274,15 @@
             "public-component": "src/core/public-component",
             "service-names": "src/app/service-names"
         }
+    },
+    "shopware:handlers": {
+        "exports": [],
+        "subpaths": {},
+        "sources": {}
+    },
+    "shopware:helpers": {
+        "exports": [],
+        "subpaths": {},
+        "sources": {}
     }
 }

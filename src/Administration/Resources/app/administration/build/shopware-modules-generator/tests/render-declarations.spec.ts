@@ -16,7 +16,7 @@ describe('build/shopware-modules-generator/src/render-declarations', () => {
         const names = Array.from({ length: 12 }, (_, index) => `exportNumber${index}`);
         const rendered = renderDeclarations({
             ...registry,
-            'shopware:mini-modules': {
+            'shopware:components': {
                 exports: [],
                 subpaths: { 'sw-wide': names },
                 sources: { 'sw-wide': 'src/module/sw-wide' },
@@ -25,7 +25,7 @@ describe('build/shopware-modules-generator/src/render-declarations', () => {
 
         expect(rendered).toContain(
             [
-                "declare module 'shopware:mini-modules/sw-wide' {",
+                "declare module 'shopware:components/sw-wide' {",
                 '    export {',
                 ...names.map((name) => `        ${name},`),
                 "    } from 'src/module/sw-wide';",

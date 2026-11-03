@@ -34,7 +34,7 @@ describe('mini-module-shopware-imports', () => {
             {
                 name: 'dependencies.ts imports a mini-module of another team',
                 filename: `${moduleRoot}/dependencies.ts`,
-                code: "import { definePublicComponent } from 'shopware:mini-modules/public-component';",
+                code: "import { definePublicComponent } from 'shopware:framework/public-component';",
             },
             {
                 name: 'other code imports the Administration source',
@@ -81,7 +81,7 @@ describe('mini-module-shopware-imports', () => {
             {
                 name: 'code re-exports all of a shopware:* module',
                 filename: 'src/app/main.ts',
-                code: "export * from 'shopware:mini-modules/public-component';",
+                code: "export * from 'shopware:framework/public-component';",
                 errors: [{ messageId: 'outsideDependencies' }],
             },
         ],

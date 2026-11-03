@@ -982,13 +982,13 @@ declare module 'shopware:stores/mediaModal' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mini-modules/public-component' {
+declare module 'shopware:framework/public-component' {
     export { definePublicComponent } from 'src/core/public-component';
     export type * from 'src/core/public-component';
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mini-modules/service-names' {
+declare module 'shopware:framework/service-names' {
     export { repositoryFactory } from 'src/app/service-names';
     export type * from 'src/app/service-names';
 }

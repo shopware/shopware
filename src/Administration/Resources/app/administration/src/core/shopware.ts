@@ -62,7 +62,7 @@ import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
 import * as composables from '../app/composables';
-import { miniModules, publishMiniModule } from './mini-module-registry';
+import { publicModules, publish } from './mini-module-registry';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -288,12 +288,12 @@ class ShopwareClass implements CustomShopwareProperties {
     public Composables = composables;
 
     /**
-     * The exports of every mini-module's index.ts, by module name. Extensions import them as
-     * `shopware:mini-modules/<name>`.
+     * The exports of every mini-module's index.ts, by kind and module name. Extensions import them as
+     * `shopware:<kind>/<name>`.
      *
      * @experimental stableVersion:v6.8.0
      */
-    public MiniModules = miniModules;
+    public Public = publicModules;
 
     public get Snippet() {
         // @ts-expect-error - type is currently not available
@@ -354,7 +354,7 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public _private = {
         ApiServices: ApiServices,
-        publishMiniModule: publishMiniModule,
+        publish: publish,
     };
 
     public Telemetry = Telemetry;

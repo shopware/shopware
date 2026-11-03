@@ -36,7 +36,7 @@ function writeMiniModulePlugins(projectRoot: string): void {
     write(`${BASE_ADMIN}/tsconfig.aliases.json`, ['{ "MmBase/*": ["src/*"] }']);
     write(`${BASE_ADMIN}/src/main.ts`, ["import './mini-modules/mm-greeting/register';"]);
     write(`${MODULE}/index.ts`, [
-        "import { definePublicComponent } from 'shopware:mini-modules/public-component';",
+        "import { definePublicComponent } from 'shopware:framework/public-component';",
         '',
         '/** @public */',
         'export default definePublicComponent({',
@@ -94,7 +94,7 @@ function writeMiniModulePlugins(projectRoot: string): void {
         '</script>',
     ]);
     write(`${THEME_ADMIN}/src/mm-greeting.types.ts`, [
-        "import type { PublicInstance } from 'shopware:mini-modules/public-component';",
+        "import type { PublicInstance } from 'shopware:framework/public-component';",
         "import type MmGreeting from 'MmBase/mini-modules/mm-greeting';",
         '',
         'type Greeting = PublicInstance<typeof MmGreeting>;',

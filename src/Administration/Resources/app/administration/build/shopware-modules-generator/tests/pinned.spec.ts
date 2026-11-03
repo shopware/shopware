@@ -81,13 +81,13 @@ describe('build/shopware-modules-generator: the registry', () => {
         expect(Object.keys(registry['shopware:stores'].subpaths)).toContain('notification');
     });
 
-    it('publishes each mini-module under its directory name, with the value exports of its index.ts', () => {
+    it('publishes each mini-module under its kind and directory name, with the value exports of its index.ts', () => {
         // ACT
-        const miniModules = renderedRegistry()['shopware:mini-modules'];
+        const frameworkModules = renderedRegistry()['shopware:framework'];
 
         // ASSERT
-        expect(miniModules.subpaths['public-component']).toEqual(['definePublicComponent']);
-        expect(miniModules.sources?.['public-component']).toBe('src/core/public-component');
+        expect(frameworkModules.subpaths['public-component']).toEqual(['definePublicComponent']);
+        expect(frameworkModules.sources?.['public-component']).toBe('src/core/public-component');
     });
 });
 
@@ -99,7 +99,7 @@ describe('build/shopware-modules-generator: the declarations', () => {
         // ASSERT
         expect(declarations).toContain(
             [
-                "declare module 'shopware:mini-modules/public-component' {",
+                "declare module 'shopware:framework/public-component' {",
                 "    export { definePublicComponent } from 'src/core/public-component';",
                 "    export type * from 'src/core/public-component';",
                 '}',

@@ -300,14 +300,14 @@ describe('build/shopware-modules: the Vite plugin', () => {
 
         it('re-exports the index.ts of a mini-module, without a default export when it has none', () => {
             // ACT
-            const source = sourceOf('shopware:mini-modules/public-component', 'extension');
+            const source = sourceOf('shopware:framework/public-component', 'extension');
 
             // ASSERT
             expect(source).toContain(
-                'export const definePublicComponent = shopware.MiniModules["public-component"]["definePublicComponent"];',
+                'export const definePublicComponent = shopware.Public["framework"]["public-component"]["definePublicComponent"];',
             );
             expect(source).not.toContain('export default');
-            expect(source).toMatch(/if \(!shopware\.MiniModules\) \{[\s\S]*requires Shopware 6\.7\.17\.0/);
+            expect(source).toMatch(/if \(!shopware\.Public\?\.\["framework"\]\) \{[\s\S]*requires Shopware 6\.7\.17\.0/);
         });
 
         it.each([

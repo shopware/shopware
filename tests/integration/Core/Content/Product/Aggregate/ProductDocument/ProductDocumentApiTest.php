@@ -77,7 +77,9 @@ class ProductDocumentApiTest extends TestCase
 
         $browser->request('GET', '/store-api/product/' . $this->ids->get('drill'));
 
-        $documents = json_decode((string) $browser->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR)['product']['documents'];
+        $response = $browser->getResponse();
+        static::assertTrue($response->isSuccessful(), (string) $response->getContent());
+        $documents = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR)['product']['documents'];
         static::assertSame(['Datasheet', 'Handbuch'], array_column(array_column($documents, 'translated'), 'title'));
         static::assertSame([$this->ids->get('datasheet'), $this->ids->get('handbuch')], array_column(array_column($documents, 'media'), 'id'));
         static::assertSame([Defaults::LANGUAGE_SYSTEM, $germanId], array_column($documents, 'mediaLanguageId'));

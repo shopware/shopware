@@ -8513,9 +8513,6 @@
     }
   },
   "src/module/sw-media/component/sw-media-collapse/src/sw-media-collapse.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }

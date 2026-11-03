@@ -74,3 +74,10 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/public-api.spec.ts @shopware/product-cc-checkout
+
+# discovery: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
+# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
+# Changes to `src/` and to pinned tests do not.
+src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/index.ts @shopware/product-cc-discovery
+src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/global.d.ts @shopware/product-cc-discovery
+src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/tests/requirements.spec.ts @shopware/product-cc-discovery

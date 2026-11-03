@@ -54,7 +54,7 @@ In code:
 
 A stored or sent empty object decodes as the empty list. Removing the last entry of a map drops the key. The module does not emit a map-valued element member with no entries.
 
-Why: The wire cannot tell an empty map from an empty list, so a stored empty map comes back as a list.
+Why: PHP decodes an empty map and an empty list to the same array, so a stored empty map comes back as a list.
 
 Exceptions: The module emits an element's `properties` even when that map is empty. The module emits the `slots` of a [skeleton](README.md#glossary) or decomposed node even when the node has no slots.
 

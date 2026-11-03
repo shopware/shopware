@@ -6,8 +6,8 @@ PHP uses one array type for a JSON object and for a JSON array. An empty PHP arr
 
 - Keep an empty map as an empty PHP array on every write, validation, storage and decode path.
 - Never let a `\stdClass` instance or an `(object)` cast reach a value that the DAL validates or stores.
-- Return arrays from a value object's `jsonSerialize()` and from a field serializer. The write path uses the output of both too. An empty map in that output is `[]`.
-- Keep the object type in the OpenAPI schema of a map field. Document `[]` as the empty shape of that field.
+- Return arrays from a field serializer and from a value object's `jsonSerialize()` when its output can reach a DAL write. The write path uses that output. An empty map in that output is `[]`.
+- Document the empty shape the server sends in the OpenAPI schema. For a map sent as `[]` when empty, use `oneOf` with an object branch and an array branch limited to zero items. For a map sent as `{}`, a request-only map or a map omitted when empty, use an object schema.
 
 ## Why
 
@@ -38,6 +38,6 @@ public function jsonSerialize(): array
 
 ## What this rule does not cover
 
-- This rule excludes the top-level `customFields` field. `JsonEntityEncoder` and `StructEncoder` replace an empty `customFields` value with a `\stdClass` instance in the response encoder only. `CustomFieldsSerializer` stores the string `'{}'` for an empty value after it has validated an array. Do not copy this swap to another field.
-- This rule excludes a response body that no code path writes back or stores. The encoder of such a body may cast an empty map with `(object)`. That permission holds if a test pins the cast and a docblock states that the body is output only. In the Content System, `MutationResponse::jsonSerialize()` casts two map fields this way. `MutationResponseTest` pins the output `"resolutions":{}`.
+- This rule excludes `customFields` and `translated.customFields`. `JsonEntityEncoder`, `Record` and `StructEncoder` replace their empty values with a `\stdClass` instance in response encoders only. `CustomFieldsSerializer` stores the string `'{}'` for an empty value after it has validated an array. Do not copy this swap to another field.
+- This rule excludes a response body the server only emits and never reads back or stores. Its encoder may cast an empty map with `(object)` if a test pins the cast and a docblock states that the body is output only. In the Content System, `MutationResponse::jsonSerialize()` casts two map fields this way. `MutationResponseTest` pins the output `"resolutions":{}`.
 - This rule excludes the question whether a module omits a field when the field is empty. The module that owns the field defines that behavior.

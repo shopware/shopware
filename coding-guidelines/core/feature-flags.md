@@ -357,24 +357,42 @@ Before the removal flag is active, the helper preserves the old behavior and war
 With the removal flag active, it throws regardless of debug mode.
 Use the registered four-part flag name, even when the annotation uses the three-part release version.
 
-Conditional deprecations are supported.
-The guard does not have to be the first statement in the method:
+If the entire method is deprecated, call `triggerDeprecationOrThrow` before its existing logic.
+Include the removal version and replacement in the message:
 
 ```js
-/** @deprecated tag:v6.8.0 - Use the replacement behavior. */
-oldMethod(options) {
-    const normalized = this.normalize(options);
+/** @deprecated tag:v6.8.0 - Use replacementMethod() instead. */
+oldMethod() {
+    window.Feature.triggerDeprecationOrThrow(
+        'v6.8.0.0',
+        'oldMethod() will be removed in v6.8.0.0. Use replacementMethod() instead.',
+    );
 
-    if (normalized.legacy) {
+    // Existing method logic.
+}
+```
+
+If only one behavior inside a method is deprecated, put the guard inside that branch, before the deprecated behavior.
+Shared setup may run before the guard; it does not have to be the first statement in the method.
+Supported branches must remain usable with the removal flag enabled.
+The condition below is an example; use the condition that selects your deprecated behavior:
+
+```js
+/** @deprecated tag:v6.8.0 - Legacy submission will be removed. */
+submit(options) {
+    // Shared setup for both paths.
+
+    if (options.legacy) {
         window.Feature.triggerDeprecationOrThrow(
             'v6.8.0.0',
-            'The legacy behavior of oldMethod() will be removed in v6.8.0.0. Use the replacement behavior.',
+            'Legacy submission will be removed in v6.8.0.0. Use the default submission behavior instead.',
         );
 
-        return this.runLegacy(normalized);
+        // Existing legacy submission logic.
+        return;
     }
 
-    return this.runSupported(normalized);
+    // Supported submission logic.
 }
 ```
 

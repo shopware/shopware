@@ -13,10 +13,16 @@ interface LoadPayload<EntityName extends keyof EntitySchema.EntityKeys> {
 }
 
 /**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swCategoryDetailStoreId = 'swCategoryDetail';
+
+/**
  * @sw-package inventory
  */
 const swCategoryDetailStore = Shopware.Store.register({
-    id: 'swCategoryDetail',
+    id: swCategoryDetailStoreId,
 
     state: () => ({
         landingPage: null as Entity<'landing_page'> | null,

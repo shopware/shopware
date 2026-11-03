@@ -17,6 +17,7 @@ export {
     cacheApiService,
     cacheService,
     captchaService,
+    cmsPageTypeService,
     cmsService,
     configService,
     customEntityDefinitionService,

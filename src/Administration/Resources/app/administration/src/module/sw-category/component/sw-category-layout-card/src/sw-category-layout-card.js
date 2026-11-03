@@ -1,0 +1,118 @@
+import template from './sw-category-layout-card.html.twig';
+import './sw-category-layout-card.scss';
+import { aclService, cmsPageTypeService } from '../dependencies';
+
+/**
+ * @sw-package discovery
+ *
+ * @public
+ */
+export default {
+    template,
+
+    inject: [aclService, cmsPageTypeService],
+
+    props: {
+        category: {
+            type: Object,
+            required: true,
+        },
+
+        cmsPage: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        pageTypes: {
+            type: Array,
+            required: false,
+            default() {
+                return ['page', 'landingpage', 'product_list'];
+            },
+        },
+
+        headline: {
+            type: String,
+            required: false,
+            default: '',
+        },
+    },
+
+    data() {
+        return {
+            showLayoutSelectionModal: false,
+        };
+    },
+
+    computed: {
+        pageTypeTitle() {
+            const fallback = this.$t('sw-category.base.cms.defaultDesc');
+            if (!this.cmsPage) {
+                return fallback;
+            }
+
+            const pageType = this.cmsPageTypeService.getType(this.cmsPage.type);
+            return pageType ? this.$t(this.cmsPageTypeService.getType(this.cmsPage.type).title) : fallback;
+        },
+
+        pageName() {
+            if (!this.cmsPage) {
+                return this.$t('sw-category.base.cms.defaultTitle');
+            }
+
+            return this.cmsPage.translated?.name ?? this.cmsPage.name;
+        },
+    },
+
+    methods: {
+        onLayoutSelect(selectedLayout) {
+            this.category.cmsPageId = selectedLayout;
+            this.resetSlotConfig();
+        },
+
+        onLayoutReset() {
+            this.onLayoutSelect(null);
+        },
+
+        openInPagebuilder() {
+            if (!this.cmsPage) {
+                this.$router.push({
+                    name: 'sw.cms.create',
+                    params: { type: 'category', id: this.category.id },
+                });
+            } else {
+                this.$router.push({
+                    name: 'sw.cms.detail',
+                    params: { id: this.category.cmsPageId },
+                });
+            }
+        },
+
+        openLayoutModal() {
+            if (!this.acl.can('category.editor')) {
+                return;
+            }
+
+            this.showLayoutSelectionModal = true;
+        },
+
+        closeLayoutModal() {
+            this.showLayoutSelectionModal = false;
+        },
+
+        resetSlotConfig() {
+            this.category.slotConfig = null;
+
+            this.category.translations?.forEach((translation) => {
+                translation.slotConfig = null;
+            });
+        },
+    },
+};

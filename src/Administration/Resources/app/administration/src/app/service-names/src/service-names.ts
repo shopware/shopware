@@ -59,6 +59,16 @@ export const cacheService = 'cacheService';
 export const captchaService = 'captchaService';
 
 /**
+ * The name the cmsPageTypeService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [cmsPageTypeService] };
+ *
+ * @public
+ */
+export const cmsPageTypeService = 'cmsPageTypeService';
+
+/**
  * The name the cmsService service is registered and injected under.
  *
  * @example

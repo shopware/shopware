@@ -1,28 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Webhook\Authorization\Ownership;
+namespace Shopware\Core\Framework\Webhook\Subscriber;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Service\WebhookStore;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * When an app gets a new integration, for example on secret rotation, moves the webhooks owned by its
- * old integration to the new one. Otherwise they would be deleted together with the old integration.
- *
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Authorization\Ownership\AppIntegrationChangeSubscriberTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber\WebhookSubscriberTest
  */
 #[Package('framework')]
-class AppIntegrationChangeSubscriber implements EventSubscriberInterface
+class WebhookSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private readonly WebhookStore $webhookStore)
     {
     }
 
@@ -30,6 +29,7 @@ class AppIntegrationChangeSubscriber implements EventSubscriberInterface
     {
         return [
             EntityWriteEvent::class => 'onAppWrite',
+            AclRoleDefinition::ENTITY_NAME . '.deleted' => 'removeDeletedRoles',
         ];
     }
 
@@ -54,11 +54,13 @@ class AppIntegrationChangeSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
-                $this->connection->executeStatement(
-                    'UPDATE `webhook` SET `owner_integration_id` = :new WHERE `owner_integration_id` = :old',
-                    ['old' => $changeSet->getBefore('integration_id'), 'new' => $changeSet->getAfter('integration_id')],
-                );
+                $this->webhookStore->switchIntegration($changeSet->getBefore('integration_id'), $changeSet->getAfter('integration_id'));
             }
         });
+    }
+
+    public function removeDeletedRoles(EntityDeletedEvent $event): void
+    {
+        $this->webhookStore->removeDeletedRoles($event->getIds());
     }
 }

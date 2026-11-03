@@ -125,7 +125,7 @@ class OrderRoute extends AbstractOrderRoute
         // Handle guest authentication if deeplink is set
         if ($deepLinkFilter !== null && !$context->getCustomer()) {
             try {
-                $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
+                $cacheKey = mb_strtolower(mb_trim((string) $deepLinkFilter->getValue())) . '-' . $request->getClientIp();
 
                 $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
             } catch (RateLimitExceededException $exception) {
@@ -276,6 +276,8 @@ class OrderRoute extends AbstractOrderRoute
         if ($email && $zipcode) {
             $billingZipCode = $order->getBillingAddress()?->getZipcode();
             if ($billingZipCode === null
+                || !\is_string($email)
+                || !\is_string($zipcode)
                 || strtolower($email) !== strtolower($orderCustomer->getEmail())
                 || strtoupper($zipcode) !== strtoupper($billingZipCode)) {
                 throw OrderException::wrongGuestCredentials();

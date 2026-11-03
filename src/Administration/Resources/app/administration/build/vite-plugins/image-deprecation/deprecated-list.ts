@@ -1,16 +1,11 @@
-import assets from '../../../src/app/deprecation-registry/definitions/assets';
-import type { DeprecationMigration } from '../../../src/app/deprecation-registry/definitions/helpers/types';
-
-// To add an image to the list use the asset migration registry.
-
-/**
- * @private
- * The asset migrations of the deprecation registry, one per group of deprecated files.
- */
-export const assetMigrations: DeprecationMigration[] = assets;
+import assetMigrations from '../../../src/app/deprecation-registry/definitions/assets';
 
 /**
  * @sw-package framework
  * @private
+ *
+ * Every file of the asset migrations in the deprecation registry, relative to the Administration root
+ * and starting with `/`. To deprecate an image, add it to an asset migration in
+ * `src/app/deprecation-registry/definitions/assets.ts`.
  */
 export default assetMigrations.flatMap((migration) => migration.files ?? []);

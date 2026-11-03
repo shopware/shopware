@@ -5,7 +5,7 @@
 import { loadRegistry } from '../../eslint-rules/deprecation-rules/registry/load-registry';
 import {
     getFixLevel,
-    getHighestFixLevel,
+    getLeastAutomaticFixLevel,
     getRunnableMigrations,
     getUsageFixLevel,
     parseArgs,
@@ -32,7 +32,6 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                     '--all',
                     '--fix',
                     '--list',
-                    '--report',
                     '-h',
                 ]),
             ).toEqual({
@@ -41,7 +40,6 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                 help: true,
                 ids: [],
                 list: true,
-                report: true,
             });
         });
 
@@ -64,6 +62,7 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
 
         it('rejects an unknown option', () => {
             expect(() => parseArgs(['--dry-run'])).toThrow('Unknown option "--dry-run"');
+            expect(() => parseArgs(['--report'])).toThrow('Unknown option "--report"');
         });
     });
 
@@ -77,12 +76,6 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
         it('rejects a run without a selection', () => {
             expect(() => validateSelection(parseArgs(['--fix']), migrations)).toThrow(
                 'Choose --all, --id <id>, --list, or --help.',
-            );
-        });
-
-        it('rejects --fix together with --report', () => {
-            expect(() => validateSelection(parseArgs(['--all', '--fix', '--report']), migrations)).toThrow(
-                'Use either --fix or --report, not both.',
             );
         });
 
@@ -119,9 +112,9 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
 
     describe('fix levels', () => {
         it('ranks manual over unsafe-auto over auto', () => {
-            expect(getHighestFixLevel(['auto', 'unsafe-auto', 'manual'])).toBe('manual');
-            expect(getHighestFixLevel(['auto', 'unsafe-auto'])).toBe('unsafe-auto');
-            expect(getHighestFixLevel(['auto'])).toBe('auto');
+            expect(getLeastAutomaticFixLevel(['auto', 'unsafe-auto', 'manual'])).toBe('manual');
+            expect(getLeastAutomaticFixLevel(['auto', 'unsafe-auto'])).toBe('unsafe-auto');
+            expect(getLeastAutomaticFixLevel(['auto'])).toBe('auto');
         });
 
         it('counts a usage without a fix level as manual', () => {
@@ -147,15 +140,25 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
     });
 
     describe('getRunnableMigrations', () => {
+        it('offers every migration list of the registry', () => {
+            const registry = {
+                componentApiMigrations: [migration('component.sw-button')],
+                futureMigrations: [migration('future.example')],
+                assetMigrations: [migration('asset.example')],
+            };
+
+            expect(getRunnableMigrations(registry).map((entry: { id: string }) => entry.id)).toEqual([
+                'component.sw-button',
+                'future.example',
+            ]);
+        });
+
         it('does not offer asset migrations, which no lint rule can fix', () => {
             const runnableMigrations = getRunnableMigrations(loadRegistry());
 
-            expect(runnableMigrations.filter((entry) => entry.id.startsWith('asset.'))).toEqual([]);
+            expect(runnableMigrations.filter((entry: { id: string }) => entry.id.startsWith('asset.'))).toEqual([]);
             expect(() =>
-                validateSelection(
-                    { all: false, ids: ['asset.admin-png-jpg-to-webp'], fix: true, report: false },
-                    runnableMigrations,
-                ),
+                validateSelection({ all: false, ids: ['asset.admin-png-jpg-to-webp'], fix: true }, runnableMigrations),
             ).toThrow('Unknown migration id(s): asset.admin-png-jpg-to-webp');
         });
     });

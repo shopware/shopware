@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
 const {
+    getContextFreeTransformResult,
     getFixLevel,
     getRunnableMigrations,
-    getTransformResult,
     parseArgs,
     selectMigrations,
     validateSelection,
@@ -23,9 +23,9 @@ function printHelp() {
 
 Usage:
   npm run deprecation:migrate -- --list
-  npm run deprecation:migrate -- --id component.sw-button --report
+  npm run deprecation:migrate -- --id component.sw-button
   npm run deprecation:migrate -- --id component.sw-button --fix
-  npm run deprecation:migrate -- --all --report
+  npm run deprecation:migrate -- --all
   npm run deprecation:migrate -- --all --fix
 
 Options:
@@ -33,8 +33,8 @@ Options:
   --list          List registry ids and fix levels.
   --id <id>       Run one migration id. Can be passed multiple times.
   --all           Run all registry-backed deprecation migrations.
-  --report        Report matching deprecations without changing files.
   --fix           Apply available ESLint fixes and report remaining work.
+                  Without --fix, matching deprecations are only reported.
 
 Asset deprecations (for example PNG/JPG to WebP) are reported by the admin build, not by this command.
 
@@ -48,7 +48,7 @@ function getMigrations() {
 }
 
 function getUsageMessage(usage) {
-    return usage.message ?? getTransformResult(usage)?.message ?? null;
+    return usage.message ?? getContextFreeTransformResult(usage)?.message ?? null;
 }
 
 function printMigrationList(migrations) {
@@ -79,6 +79,7 @@ function runEslint(args) {
     const eslintArgs = [
         '--config',
         eslintConfig,
+        // Inline disables name rules this minimal config does not load, which ESLint reports as errors.
         '--no-inline-config',
         'src',
         'test',
@@ -103,12 +104,13 @@ function runEslint(args) {
 
 try {
     const args = parseArgs(process.argv.slice(2));
-    const migrations = getMigrations();
 
     if (args.help) {
         printHelp();
         process.exit(0);
     }
+
+    const migrations = getMigrations();
 
     if (args.list) {
         printMigrationList(migrations);
@@ -122,6 +124,10 @@ try {
     printMigrationSummary(selectedMigrations);
 
     const result = runEslint(args);
+
+    if (result.error) {
+        console.error(`Could not run ESLint: ${result.error.message}`);
+    }
 
     process.exit(result.status ?? 1);
 } catch (error) {

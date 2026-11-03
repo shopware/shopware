@@ -2,10 +2,14 @@
  * @sw-package framework
  */
 
-const FIX_LEVELS_BY_SEVERITY = [
+const FIX_LEVELS_LEAST_AUTOMATIC_FIRST = [
     'manual',
     'unsafe-auto',
+    'auto',
 ];
+
+// The vite image-deprecation plugin warns about asset migrations at build time; no ESLint rule reports them.
+const MIGRATIONS_WITHOUT_LINT_RULE = new Set(['assetMigrations']);
 
 /**
  * Parses the `deprecation:migrate` command line. Throws on unknown options and on an `--id`
@@ -13,7 +17,7 @@ const FIX_LEVELS_BY_SEVERITY = [
  *
  * @example
  * parseArgs(['--id', 'component.sw-button', '--fix']);
- * // { all: false, fix: true, help: false, ids: ['component.sw-button'], list: false, report: false }
+ * // { all: false, fix: true, help: false, ids: ['component.sw-button'], list: false }
  */
 function parseArgs(argv) {
     const args = {
@@ -22,7 +26,6 @@ function parseArgs(argv) {
         help: false,
         ids: [],
         list: false,
-        report: false,
     };
 
     for (let index = 0; index < argv.length; index += 1) {
@@ -65,12 +68,7 @@ function parseArgs(argv) {
             continue;
         }
 
-        if (arg === '--report') {
-            args.report = true;
-            continue;
-        }
-
-        throw new Error(`Unknown option "${arg}". Run with --help for usage.`);
+        throw new Error(`Unknown option "${arg}".`);
     }
 
     return args;
@@ -78,7 +76,6 @@ function parseArgs(argv) {
 
 /**
  * Rejects contradicting or empty selections and ids the registry does not know.
- * Without `--fix` the run only reports, so `--report` is optional.
  *
  * @example
  * validateSelection(parseArgs(['--all', '--id', 'x']), migrations); // throws 'Use either --all or --id, not both.'
@@ -90,10 +87,6 @@ function validateSelection(args, migrations) {
 
     if (!args.all && args.ids.length === 0) {
         throw new Error('Choose --all, --id <id>, --list, or --help.');
-    }
-
-    if (args.fix && args.report) {
-        throw new Error('Use either --fix or --report, not both.');
     }
 
     const knownIds = new Set(migrations.map((migration) => migration.id));
@@ -115,27 +108,28 @@ function selectMigrations(args, migrations) {
 }
 
 /**
- * Evaluates a usage's dynamic transform without template context, as the listing has no usage site.
+ * Evaluates a usage's dynamic transform with an empty context, because the listing and the summary
+ * describe a migration without a concrete usage site.
  *
  * @example
- * getTransformResult({ transform: () => ({ kind: 'x', fix: 'manual' }) }); // { kind: 'x', fix: 'manual' }
+ * getContextFreeTransformResult({ transform: () => ({ kind: 'x', fix: 'manual' }) }); // { kind: 'x', fix: 'manual' }
  */
-function getTransformResult(usage, context = {}) {
+function getContextFreeTransformResult(usage) {
     if (typeof usage.transform !== 'function') {
         return null;
     }
 
-    return usage.transform(context);
+    return usage.transform({});
 }
 
 /**
- * Picks the least automatic fix level: manual beats unsafe-auto beats auto.
+ * Picks the least automatic of the given fix levels, so a migration is only as automatic as its weakest step.
  *
  * @example
- * getHighestFixLevel(['auto', 'unsafe-auto']); // 'unsafe-auto'
+ * getLeastAutomaticFixLevel(['auto', 'unsafe-auto']); // 'unsafe-auto'
  */
-function getHighestFixLevel(fixLevels) {
-    return FIX_LEVELS_BY_SEVERITY.find((fixLevel) => fixLevels.includes(fixLevel)) ?? 'auto';
+function getLeastAutomaticFixLevel(fixLevels) {
+    return FIX_LEVELS_LEAST_AUTOMATIC_FIRST.find((fixLevel) => fixLevels.includes(fixLevel));
 }
 
 /**
@@ -148,10 +142,10 @@ function getHighestFixLevel(fixLevels) {
 function getUsageFixLevel(usage) {
     const fixLevels = [
         usage.fix,
-        getTransformResult(usage)?.fix,
+        getContextFreeTransformResult(usage)?.fix,
     ].filter(Boolean);
 
-    return getHighestFixLevel(fixLevels.length > 0 ? fixLevels : ['manual']);
+    return getLeastAutomaticFixLevel(fixLevels.length > 0 ? fixLevels : ['manual']);
 }
 
 /**
@@ -161,35 +155,29 @@ function getUsageFixLevel(usage) {
  * getFixLevel({ usage: [{ fix: 'auto' }, { fix: 'unsafe-auto' }] }); // 'unsafe-auto'
  */
 function getFixLevel(migration) {
-    return getHighestFixLevel(migration.usage.map(getUsageFixLevel));
+    return getLeastAutomaticFixLevel(migration.usage.map(getUsageFixLevel));
 }
 
 /**
- * Lists the registry migrations `deprecation:migrate` can run, sorted by id. Asset migrations are
- * left out: no ESLint rule reports them, the vite image-deprecation plugin warns about them at
- * build time instead.
+ * Lists the registry migrations `deprecation:migrate` can run, sorted by id: every migration list the
+ * registry exports, except the ones no ESLint rule reports.
  *
  * @example
  * getRunnableMigrations(loadRegistry()).map((migration) => migration.id);
  * // ['component.sw-alert', …, 'template-event.vue3-v-model-events']
  */
 function getRunnableMigrations(registry) {
-    return [
-        ...registry.componentApiMigrations,
-        ...registry.globalApiMigrations,
-        ...registry.jsApiMigrations,
-        ...registry.templateBlockMigrations,
-        ...registry.templateEventMigrations,
-        ...registry.snippetKeyMigrations,
-        ...registry.packageMigrations,
-    ].sort((left, right) => left.id.localeCompare(right.id));
+    return Object.entries(registry)
+        .filter(([name, migrations]) => Array.isArray(migrations) && !MIGRATIONS_WITHOUT_LINT_RULE.has(name))
+        .flatMap(([, migrations]) => migrations)
+        .sort((left, right) => left.id.localeCompare(right.id));
 }
 
 module.exports = {
+    getContextFreeTransformResult,
     getFixLevel,
-    getHighestFixLevel,
+    getLeastAutomaticFixLevel,
     getRunnableMigrations,
-    getTransformResult,
     getUsageFixLevel,
     parseArgs,
     selectMigrations,

@@ -283,6 +283,10 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
+            '!scripts/deprecation-migrate/',
+            '!scripts/deprecation-migrate/**/*',
+            '!scripts/lint-deprecations/',
+            '!scripts/lint-deprecations/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
@@ -958,6 +962,7 @@ export default [
         ignores: [
             '**/*.spec.js',
             '**/*.spec.ts',
+            '**/*.spec/**',
         ],
         rules: {
             'sw-deprecation-rules/require-deprecation-codemod': 'error',
@@ -986,6 +991,8 @@ export default [
             'extension-tooling/**/*.mjs',
             'scripts/extensionTooling/**/*.ts',
             'scripts/codemods/sfc-migration/**/*.ts',
+            'scripts/deprecation-migrate/**/*',
+            'scripts/lint-deprecations/**/*',
         ],
         rules: {
             'filename-rules/match': 'off',

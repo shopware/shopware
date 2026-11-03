@@ -49,6 +49,39 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
 
+### Adding a deprecation codemod
+
+Every deprecated component or prop needs a codemod, so extensions can migrate with `eslint --fix` instead of reading the upgrade notes.
+Add a migration to the deprecation registry in `src/Administration/Resources/app/administration/src/app/deprecation-registry/definitions`, and add it to the list of its category, for example `definitions/components/index.ts`.
+Build it with the helpers from `definitions/helpers`, for example `componentMigration()`, `renameComponent()` and `removeProp()`.
+
+Give every usage step the most automatic fix level that is still correct:
+
+- `auto`: the fix keeps the behavior, for example renaming a component or prop.
+- `unsafe-auto`: the fix is usually right but needs a human check, so the codemod marks it with a `TODO Codemod` comment.
+- `manual`: no safe rewrite exists, so the usage is only reported with the step's `message` as the hint.
+
+A migration is only as automatic as its least automatic step.
+
+The `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on a component or prop without a matching migration.
+If no codemod is possible, disable the rule for that line and give the reason:
+
+```js
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-codemod -- removed without replacement
+deprecated: 'v6.8.0.0',
+```
+
+To try a codemod on the Administration, run these commands in `src/Administration/Resources/app/administration`:
+
+```bash
+# List every migration id with its fix level
+npm run deprecation:migrate -- --list
+# Report the usages of one migration without changing files
+npm run deprecation:migrate -- --id component.sw-card
+# Apply its fixes
+npm run deprecation:migrate -- --id component.sw-card --fix
+```
+
 ### Deprecation baseline
 
 Jest lets known usages of deprecated APIs pass when they are listed in the deprecation baseline.

@@ -2,13 +2,13 @@
  * @sw-package framework
  */
 
-import { getLintableFiles } from './lint-deprecations-files';
+import { getLintableFiles } from './changed-files';
 
 function statusOutput(...entries: string[]): string {
     return `${entries.join('\0')}\0`;
 }
 
-describe('scripts/lint-deprecations-files', () => {
+describe('scripts/lint-deprecations/changed-files', () => {
     it('keeps changed script, component and template files', () => {
         expect(
             getLintableFiles(

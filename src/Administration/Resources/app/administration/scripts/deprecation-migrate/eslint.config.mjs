@@ -4,45 +4,45 @@ import vueParser from 'vue-eslint-parser';
 import swCoreRules from 'eslint-plugin-sw-core-rules';
 import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import twigVue from 'eslint-plugin-twig-vue';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
 
 const plugins = {
     'sw-core-rules': swCoreRules,
     'sw-deprecation-rules': swDeprecationRules,
 };
 
-const templateDeprecationRules = {
-    'sw-core-rules/no-tc-translation': 'error',
-    'sw-deprecation-rules/no-deprecated-components': [
-        'error',
-        { fix: true },
-    ],
-    'sw-deprecation-rules/no-deprecated-component-usage': [
-        'error',
-        'enableFix',
-    ],
-    'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
-    'sw-deprecation-rules/no-deprecated-template-events': [
-        'error',
-        'enableFix',
-    ],
-    'sw-deprecation-rules/no-deprecated-template-blocks': [
-        'error',
-        'enableFix',
-    ],
-    'sw-deprecation-rules/no-deprecated-snippet-keys': 'error',
-    'sw-deprecation-rules/no-deprecated-js-api': [
-        'error',
-        'enableFix',
-    ],
-};
-
 const scriptDeprecationRules = {
     'sw-core-rules/no-tc-translation': 'error',
     'sw-deprecation-rules/no-deprecated-snippet-keys': 'error',
-    'sw-deprecation-rules/no-deprecated-js-api': [
-        'error',
-        'enableFix',
-    ],
+    'sw-deprecation-rules/no-deprecated-js-api': 'error',
+};
+
+/**
+ * Enables the dedicated rules that `codemod-rule` usages of the registry delegate their migration to.
+ *
+ * @example
+ * getCodemodRules(); // { 'sw-deprecation-rules/no-sw-empty-state-usage': 'error' }
+ */
+function getCodemodRules() {
+    const rules = loadRegistry()
+        .componentApiMigrations.flatMap((migration) => migration.usage)
+        .filter((usage) => usage.kind === 'codemod-rule')
+        .map((usage) => [usage.rule, 'error']);
+
+    return Object.fromEntries(rules);
+}
+
+const templateDeprecationRules = {
+    ...scriptDeprecationRules,
+    ...getCodemodRules(),
+    'sw-deprecation-rules/no-deprecated-components': 'error',
+    'sw-deprecation-rules/no-deprecated-component-usage': 'error',
+    'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
+    'sw-deprecation-rules/no-deprecated-template-events': 'error',
+    'sw-deprecation-rules/no-deprecated-template-blocks': 'error',
 };
 
 const languageOptions = {
@@ -57,19 +57,22 @@ const languageOptions = {
     },
 };
 
+const vueLanguageOptions = {
+    ...languageOptions,
+    parser: vueParser,
+    parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        parser: tseslint.parser,
+    },
+};
+
 export default [
     {
         ignores: [
-            'build/*.js',
-            'config/*.js',
-            'test/e2e/**/*',
-            'scripts/**/*',
             // The registry defines the deprecated keys and APIs it migrates.
             'src/app/deprecation-registry/**',
-            'test/eslint/error-reference.html.twig',
-            '**/*.spec.vue2.js',
             '**/*.fixtures.js',
-            'src/app/adapter/_mocks_/example-extendable-script-setup-component.vue',
         ],
     },
     {
@@ -78,32 +81,13 @@ export default [
             '**/*.vue',
         ],
         plugins,
-        languageOptions: {
-            ...languageOptions,
-            parser: vueParser,
-            parserOptions: {
-                ecmaVersion: 'latest',
-                sourceType: 'module',
-                parser: tseslint.parser,
-            },
-        },
+        languageOptions: vueLanguageOptions,
         rules: templateDeprecationRules,
     },
     {
-        files: [
-            'src/**/*.html.twig',
-            'test/eslint/**/*.html.twig',
-        ],
+        files: ['src/**/*.html.twig'],
         plugins,
-        languageOptions: {
-            ...languageOptions,
-            parser: vueParser,
-            parserOptions: {
-                ecmaVersion: 'latest',
-                sourceType: 'module',
-                parser: tseslint.parser,
-            },
-        },
+        languageOptions: vueLanguageOptions,
         processor: {
             meta: { name: 'twig-vue', version: '1.0.0' },
             ...twigVue.processors['twig-vue'],

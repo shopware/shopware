@@ -1,9 +1,7 @@
 import type { Plugin } from 'vite';
 import path from 'path';
-import deprecatedList, { assetMigrations } from './deprecated-list';
-
-// @deprecated tag:v6.8.0
-// After v6.8.0 all these images in `./deprecated-list` should be removed. Maybe consider leaving this plugin in here for a bit and adjust the warning.
+import assetMigrations from '../../../src/app/deprecation-registry/definitions/assets';
+import deprecatedList from './deprecated-list';
 
 /**
  * @sw-package framework
@@ -41,7 +39,8 @@ export default function viteImageDeprecationPlugin(adminDir: string, deprecatedI
             if (deprecatedFilesSet.has(relativePath)) {
                 console.warn(
                     `DEPRECATION: In file "${importer}", the image import "${source}" is deprecated. ` +
-                        (findAssetMigration(relativePath)?.description ?? ''),
+                        (findAssetMigration(relativePath)?.description ??
+                            'Replace it before it is removed in the next major version.'),
                 );
             }
             return null;

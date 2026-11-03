@@ -49,6 +49,8 @@ describe('build/vite-plugins/image-deprecation', () => {
 
         // with including "DEPRECATION" in the warning
         expect(console.warn.mock.calls[0][0]).toMatch(/DEPRECATION:/);
+        // an image without a registry migration still gets guidance
+        expect(console.warn.mock.calls[0][0]).toContain('Replace it before it is removed');
     });
 
     it("shouldn't warn with a deprecation", () => {

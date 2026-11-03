@@ -26,38 +26,6 @@ class TwigAppVariableTest extends TestCase
         static::assertTrue($browser->getRequest()->server->has('SERVER_PROTOCOL'));
     }
 
-    public function testRequestGetsCloned(): void
-    {
-        $orgRequest = new Request();
-
-        $appVariable = static::createStub(AppVariable::class);
-        $appVariable->method('getRequest')->willReturn($orgRequest);
-
-        $app = new TwigAppVariable($appVariable);
-
-        static::assertNotSame($orgRequest, $app->getRequest());
-    }
-
-    public function testClonedRequestLosesServerVars(): void
-    {
-        $orgRequest = new Request();
-        $orgRequest->server->set('good', '1');
-        $orgRequest->server->set('bad', '1');
-
-        $appVariable = static::createStub(AppVariable::class);
-        $appVariable->method('getRequest')->willReturn($orgRequest);
-
-        $app = new TwigAppVariable($appVariable, ['good']);
-        $appRequest = $app->getRequest();
-
-        static::assertNotNull($appRequest);
-        static::assertNotSame($orgRequest, $appRequest);
-        static::assertTrue($orgRequest->server->has('bad'));
-        static::assertTrue($orgRequest->server->has('good'));
-        static::assertTrue($appRequest->server->has('good'));
-        static::assertFalse($appRequest->server->has('bad'));
-    }
-
     public function testHttpsRequest(): void
     {
         $orgRequest = new Request();

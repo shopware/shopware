@@ -1,0 +1,59 @@
+.sw-product-document-form {
+    &__empty-state {
+        display: flex;
+        justify-content: center;
+        padding: var(--scale-size-24);
+    }
+
+    &__upload-hint {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-4);
+        margin-top: var(--scale-size-4);
+    }
+
+    &__upload-footer {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        gap: var(--scale-size-8);
+    }
+
+    .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+        height: var(--scale-size-48);
+    }
+
+    .sw-data-grid__table {
+        table-layout: fixed;
+        min-width: 60rem;
+    }
+
+    .sw-data-grid .sw-data-grid__cell--selection,
+    .sw-data-grid .sw-data-grid__cell--actions,
+    .sw-data-grid .sw-data-grid__cell-settings {
+        width: var(--scale-size-48);
+        min-width: var(--scale-size-48);
+        max-width: var(--scale-size-48);
+    }
+
+    &.is--disabled {
+        .mt-card__content {
+            &::after {
+                content: "";
+                position: absolute;
+                z-index: 10;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background: var(--color-background-tertiary-default);
+                mix-blend-mode: multiply;
+            }
+
+            .sw-data-grid {
+                border-bottom-left-radius: var(--border-radius-card);
+                border-bottom-right-radius: var(--border-radius-card);
+            }
+        }
+    }
+}

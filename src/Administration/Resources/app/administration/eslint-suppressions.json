@@ -2164,11 +2164,6 @@
       "count": 2
     }
   },
-  "src/app/component/structure/sw-media-modal-renderer/sw-media-modal-renderer.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
   "src/app/component/structure/sw-modals-renderer/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -8552,11 +8547,6 @@
     },
     "filename-rules/not-match": {
       "count": 1
-    }
-  },
-  "src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 4
     }
   },
   "src/module/sw-media/component/sw-media-save-modal/index.js": {

@@ -8,12 +8,19 @@ Twig templates can no longer call methods that change the request context or the
 Reading them stays possible, for example `context.languageId`.
 Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
 
+### Aggregation identifiers and JSON paths reject comment and quote characters
+
+Aggregation names and range aggregation keys containing a single or double quote, the `--`, `/*`, or `*/` SQL comment markers, a backslash, or a semicolon are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400), in addition to the previously rejected backtick, question mark, colon, and control characters.
+JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters. From 6.8.0.0 this fails as a `FRAMEWORK__INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500). Either way the request is blocked and no data is returned.
+These characters could desynchronise PDO placeholder parsing from the database server under emulated prepares on PHP 8.2 and 8.3 leading to SQL Injection.
+
 ### Store API criteria field paths are resolved per path segment
 
 Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.
 A path that uses `extensions` as a whole segment keeps working;
 a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
 Integrations that use valid field paths are unaffected.
+
 ### Content Security Policy for Storefront documents
 
 Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.

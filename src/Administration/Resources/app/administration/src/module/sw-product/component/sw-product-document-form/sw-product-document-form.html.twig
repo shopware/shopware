@@ -80,7 +80,6 @@
                 v-if="documents.length"
                 :data-source="documents"
                 :columns="documentColumns"
-                :show-actions="false"
                 :show-selection="true"
                 :show-settings="true"
                 :allow-inline-edit="false"
@@ -93,7 +92,34 @@
                     {{ itemIndex + 1 }}
                 </template>
             {% endblock %}
-
+            {% block sw_product_document_form_position %}
+                <template #column-position="{ item, itemIndex }">
+                    <sw-button-group class="sw-product-document-form__position">
+                        <mt-button
+                            square
+                            size="x-small"
+                            :aria-label="$t('sw-product.documentForm.contextMoveDown')"
+                            :disabled="!canEdit || isInherited || itemIndex === documents.length - 1"
+                            variant="secondary"
+                            @click="moveDocument(item, 1)"
+                        ><mt-icon
+                            name="regular-chevron-down-xs"
+                            size="var(--scale-size-12)"
+                        /></mt-button>
+                        <mt-button
+                            square
+                            size="x-small"
+                            :aria-label="$t('sw-product.documentForm.contextMoveUp')"
+                            :disabled="!canEdit || isInherited || itemIndex === 0"
+                            variant="secondary"
+                            @click="moveDocument(item, -1)"
+                        ><mt-icon
+                            name="regular-chevron-up-xs"
+                            size="var(--scale-size-12)"
+                        /></mt-button>
+                    </sw-button-group>
+                </template>
+            {% endblock %}
             {% block sw_product_document_form_name %}
                 <template #column-title="{ item }">
                     <span
@@ -118,6 +144,19 @@
             {% block sw_product_document_form_size %}
                 <template #column-fileSize="{ item }">
                     {{ getFileSize(item) }}
+                </template>
+            {% endblock %}
+            {% block sw_product_document_form_actions %}
+                <template #actions="{ item }">
+                    {% block sw_product_document_form_action_download %}
+                    <sw-context-menu-item
+                        class="sw-product-document-form__download"
+                        :disabled="!acl.can('media.viewer') || !getMedia(item)"
+                        @click="downloadDocument(item)"
+                    >
+                        {{ $t('sw-product.documentForm.contextDownload') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
                 </template>
             {% endblock %}
             </sw-data-grid>

@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -20,6 +22,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -38,7 +41,12 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection as TaxRuleEntityCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
+use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -89,6 +97,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $billingAddress->setCountry($country);
         $shippingAddress = new CustomerAddressEntity();
         $shippingAddress->setId($customer->getDefaultShippingAddressId());
         $shippingAddress->setCountry($country);
@@ -220,6 +229,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $billingAddress->setCountry($country);
         $shippingAddress = new CustomerAddressEntity();
         $shippingAddress->setId($customer->getDefaultShippingAddressId());
         $shippingAddress->setCountry($country);
@@ -328,6 +338,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $billingAddress->setCountry($country);
         $shippingAddress = new CustomerAddressEntity();
         $shippingAddress->setId($customer->getDefaultShippingAddressId());
         $shippingAddress->setCountry($country);
@@ -657,6 +668,74 @@ class SalesChannelContextFactoryTest extends TestCase
         static::assertSame($injectedAddress->getCountry(), $context->getShippingLocation()->getCountry());
     }
 
+    public function testDigitalProductsAreTaxedByTheBillingAddress(): void
+    {
+        $shippingAddress = $this->createInjectedAddress();
+        $billingAddress = $this->createInjectedAddress();
+        $taxes = $this->createTaxes([
+            $shippingAddress->getCountryId() => 20.0,
+            $billingAddress->getCountryId() => 21.0,
+        ]);
+
+        $context = $this->createContext([
+            SalesChannelContextService::SHIPPING_ADDRESS => $shippingAddress,
+            SalesChannelContextService::BILLING_ADDRESS => $billingAddress,
+        ], taxes: $taxes);
+
+        static::assertSame($billingAddress, $context->getBillingLocation()->getAddress());
+        static::assertEquals(new TaxRuleCollection([new TaxRule(20.0)]), $context->buildTaxRules(Generator::TAX));
+        static::assertEquals(new TaxRuleCollection([new TaxRule(21.0)]), $context->buildProductTaxRules(Generator::TAX, ProductDefinition::TYPE_DIGITAL));
+        static::assertCount(2, $taxes->get(Generator::TAX)?->getRules() ?? [], 'filtering must not change the base context taxes');
+    }
+
+    public function testInjectedBillingAddressDefinesTheBillingLocationWithoutCustomer(): void
+    {
+        $billingAddress = $this->createInjectedAddress();
+
+        $context = $this->createContext([
+            SalesChannelContextService::SHIPPING_ADDRESS => $this->createInjectedAddress(),
+            SalesChannelContextService::BILLING_ADDRESS => $billingAddress,
+        ], withCustomer: false);
+
+        static::assertSame($billingAddress, $context->getBillingLocation()->getAddress());
+    }
+
+    public function testShippingLocationIsTheBillingLocationWithoutBillingAddress(): void
+    {
+        $context = $this->createContext([SalesChannelContextService::SHIPPING_ADDRESS => $this->createInjectedAddress()], withCustomer: false);
+
+        static::assertSame($context->getShippingLocation(), $context->getBillingLocation());
+        static::assertSame($context->getTaxRules(), $context->getDigitalTaxRules());
+    }
+
+    /**
+     * @param array<string, float> $taxRates country id => tax rate
+     */
+    private function createTaxes(array $taxRates): TaxCollection
+    {
+        $type = new TaxRuleTypeEntity();
+        $type->setId(Uuid::randomHex());
+        $type->setTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME);
+        $type->setPosition(4);
+
+        $rules = new TaxRuleEntityCollection();
+        foreach ($taxRates as $countryId => $taxRate) {
+            $rule = new TaxRuleEntity();
+            $rule->setId(Uuid::randomHex());
+            $rule->setCountryId($countryId);
+            $rule->setTaxRate($taxRate);
+            $rule->setType($type);
+            $rules->add($rule);
+        }
+
+        $tax = new TaxEntity();
+        $tax->setId(Generator::TAX);
+        $tax->setTaxRate(Generator::TAX_RATE);
+        $tax->setRules($rules);
+
+        return new TaxCollection([$tax]);
+    }
+
     private function createInjectedAddress(): CustomerAddressEntity
     {
         $country = new CountryEntity();
@@ -674,7 +753,7 @@ class SalesChannelContextFactoryTest extends TestCase
     /**
      * @param array<string, mixed> $options
      */
-    private function createContext(array $options, bool $withCustomer = true): SalesChannelContext
+    private function createContext(array $options, bool $withCustomer = true, TaxCollection $taxes = new TaxCollection()): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
@@ -709,7 +788,7 @@ class SalesChannelContextFactoryTest extends TestCase
             $salesChannel,
             $currency,
             new CustomerGroupEntity(),
-            new TaxCollection(),
+            $taxes,
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
             new ShippingLocation($salesChannelCountry, null, null),
@@ -728,7 +807,7 @@ class SalesChannelContextFactoryTest extends TestCase
             new StaticEntityRepository([new CustomerAddressCollection([$billingAddress, $shippingAddress])], new CustomerAddressDefinition()),
             static::createStub(EntityRepository::class),
             static::createStub(TaxDetector::class),
-            [],
+            [new EntireCountryRuleTypeFilter()],
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,

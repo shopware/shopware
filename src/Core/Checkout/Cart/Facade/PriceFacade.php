@@ -223,11 +223,18 @@ class PriceFacade
             throw CartException::invalidPriceDefinition();
         }
 
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+        if ($context->getProductTaxState($this->getProductType()) === CartPrice::TAX_STATE_GROSS) {
             return $currency->getGross();
         }
 
         return $currency->getNet();
+    }
+
+    private function getProductType(): ?string
+    {
+        return $this->item instanceof LineItem
+            ? $this->item->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)
+            : ($this->item->has('type') ? $this->item->get('type') : null);
     }
 
     private function overwrite(QuantityPriceDefinition $definition): void

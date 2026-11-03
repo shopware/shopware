@@ -70,7 +70,7 @@ The command always exits with `0`, which makes it suitable for install hooks in 
 ### Company tax exemption accepts VAT IDs from other EU member states
 
 The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel, defaults to the sales channel's default country) sets the shop's own EU member state for *Tax-free (B2B)*; for a non-EU country nothing changes.
-A VAT ID of any other EU member state is exempt, one of the shop's own member state is not, and a delivery within the shop's own member state is never exempt; tax rules are still resolved from the delivery country.
+A VAT ID of any other EU member state is exempt, one of the shop's own member state is not, and a delivery within the shop's own member state is never exempt; tax rules of physical goods are still resolved from the delivery country.
 Documents print the intra-community delivery note for exactly the orders the cart exempts.
 A customer counts as a business based on `accountType` instead of a non-empty `company`; with *Check VAT ID pattern* enabled, Store API, Storefront and Administration accept a VAT ID of any EU member state for an EU billing country and reject a missing or malformed one.
 The new `customer.vatIdCountryId` field (association `vatIdCountry`, not in the Store API) holds the country of the first VAT ID and stays `null` for existing customers until their `vatIds` are written again.
@@ -78,8 +78,10 @@ The cart hash also covers the checkout addresses and the customer's account type
 
 - A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
 - A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
-- Digital products follow the same rules as goods. The separate EU rules for them are not implemented yet.
-Extensions: `CustomerVatIdentification` takes an optional `salesChannelId`, document renderers call the new `AbstractDocumentRenderer::isDomesticSupply()`, `TaxDetector` has a new constructor argument (decorate `AbstractTaxDetector` instead), and the `document_recipient` block reads `customer.vatIds` instead of `customer.customer.vatIds`.
+- Digital products (`product.type` is `digital`) follow the same rules, decided by the billing address instead of the delivery address.
+  A business with a valid VAT ID of another member state, or a billing country with *Tax-free (B2C)* or *Tax-free (B2B)*, is exempt; otherwise the tax rules of the billing country apply.
+- A cart with physical and digital products is decided per item: the cart is tax-free only when all its items are exempt, otherwise the exempt items are charged their net price at 0 %.
+- Invoices, cancellation invoices and credit notes print the new "Reverse charge" note for exempt digital products sold to a business in the EU, under the same document setting as the intra-community delivery note.
 Themes overriding `address-personal-vat-id.html.twig` use `data-form-validation-pattern-message` and the new `data-eu-vat-id-patterns` attribute, filled by the new Twig function `sw_eu_vat_id_patterns()`; `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and removed in 6.8.0.
 
 Invoices, cancellation invoices and credit notes print the intra-community delivery note for exactly the orders the cart exempts.
@@ -93,7 +95,11 @@ Independently of the setting:
 For extension developers:
 
 - `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.
-  Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` for tax-free orders.
+  Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` when the order's physical goods are untaxed.
+- `IntraCommunityTaxResolver::isReverseCharge($order)` decides the "Reverse charge" note, which document templates read as `config.reverseCharge` in the new `document_reverse_charge` block.
+- `SalesChannelContext::buildProductTaxRules($taxId, $productType)` and `getProductTaxState($productType)` return the tax rules and tax state of a product type; `buildTaxRules()` keeps returning those of physical goods.
+  Custom product price calculations should use them instead of `buildTaxRules()` and `getTaxState()`.
+- The Store API context has the new properties `billingLocation`, `digitalTaxRules` and `taxFreeProductTypes`.
 - `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
 - Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
 - The Storefront form validation reads `data-form-validation-<rule>-message` before `data-form-validation-error-message`. Themes overriding `address-personal-vat-id.html.twig` should switch to `data-form-validation-pattern-message` and keep the new `data-eu-vat-id-patterns` attribute.

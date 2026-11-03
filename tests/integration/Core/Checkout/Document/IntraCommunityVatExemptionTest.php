@@ -26,10 +26,13 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -64,6 +67,8 @@ class IntraCommunityVatExemptionTest extends TestCase
     private const SWISS_VAT_ID = 'CHE116281838';
 
     private const INTRA_COMMUNITY_NOTE = 'Intra-community delivery (EU)';
+
+    private const REVERSE_CHARGE_NOTE = 'Reverse charge';
 
     private Context $context;
 
@@ -428,7 +433,85 @@ class IntraCommunityVatExemptionTest extends TestCase
         );
     }
 
+    public function testDigitalProductsOfABusinessInAnotherMemberStateAreReverseCharged(): void
+    {
+        $cart = $this->generateDemoCartWithTaxes([19], [ProductDefinition::TYPE_DIGITAL]);
+        static::assertSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+
+        $orderId = $this->persistCart($cart);
+        $invoiceId = $this->generateInvoice($orderId);
+
+        $invoice = $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId);
+        static::assertStringContainsString(self::REVERSE_CHARGE_NOTE, $invoice);
+        static::assertStringContainsString(self::DUTCH_VAT_ID, $invoice, 'A reverse-charge invoice names the VAT ID of the buyer.');
+        static::assertStringNotContainsString(self::INTRA_COMMUNITY_NOTE, $invoice, 'Nothing was delivered.');
+
+        static::assertStringContainsString(
+            self::REVERSE_CHARGE_NOTE,
+            $this->render(static::getContainer()->get(StornoRenderer::class), $orderId, $invoiceId),
+        );
+
+        $this->addCreditItemToOrder($orderId);
+
+        static::assertStringContainsString(
+            self::REVERSE_CHARGE_NOTE,
+            $this->render(static::getContainer()->get(CreditNoteRenderer::class), $orderId, $invoiceId),
+        );
+
+        $v2Invoice = $this->getV2InvoiceRenderData($orderId);
+        static::assertTrue($v2Invoice->reverseCharge);
+        static::assertFalse($v2Invoice->intraCommunityDelivery);
+    }
+
+    #[DataProvider('taxedMixedOrderProvider')]
+    public function testATaxedOrderNotesOnlyItsExemptItems(bool $shippingCountryExempts, bool $billingCountryExempts, string $note, string $absentNote): void
+    {
+        // Physical goods are shipped to BE, digital products are billed to NL
+        static::getContainer()->get('country.repository')->update([
+            ['id' => $this->getCountryId('BE'), 'companyTax' => ['enabled' => $shippingCountryExempts, 'amount' => 0, 'currencyId' => Defaults::CURRENCY]],
+            ['id' => $this->getCountryId('NL'), 'companyTax' => ['enabled' => $billingCountryExempts, 'amount' => 0, 'currencyId' => Defaults::CURRENCY]],
+        ], $this->context);
+        $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $cart = $this->generateDemoCartWithTaxes([19, 7], [1 => ProductDefinition::TYPE_DIGITAL]);
+        static::assertSame(CartPrice::TAX_STATE_GROSS, $cart->getPrice()->getTaxStatus());
+
+        $orderId = $this->persistCart($cart);
+
+        $invoice = $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId);
+        static::assertStringContainsString($note, $invoice);
+        static::assertStringNotContainsString($absentNote, $invoice);
+
+        $v2Invoice = $this->getV2InvoiceRenderData($orderId);
+        static::assertSame($note === self::INTRA_COMMUNITY_NOTE, $v2Invoice->intraCommunityDelivery);
+        static::assertSame($note === self::REVERSE_CHARGE_NOTE, $v2Invoice->reverseCharge);
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, string, string}>
+     */
+    public static function taxedMixedOrderProvider(): iterable
+    {
+        yield 'exempt digital products next to taxed goods' => [false, true, self::REVERSE_CHARGE_NOTE, self::INTRA_COMMUNITY_NOTE];
+        yield 'exempt goods next to taxed digital products' => [true, false, self::INTRA_COMMUNITY_NOTE, self::REVERSE_CHARGE_NOTE];
+    }
+
+    private function getCountryId(string $iso): string
+    {
+        $countryId = static::getContainer()->get('country.repository')
+            ->searchIds((new Criteria())->addFilter(new EqualsFilter('iso', $iso)), $this->context)
+            ->firstId();
+        static::assertIsString($countryId);
+
+        return $countryId;
+    }
+
     private function getV2InvoiceNote(string $orderId): bool
+    {
+        return $this->getV2InvoiceRenderData($orderId)->intraCommunityDelivery;
+    }
+
+    private function getV2InvoiceRenderData(string $orderId): InvoiceRenderData
     {
         $documentConfig = $this->getBaseConfig('invoice');
         static::assertNotNull($documentConfig);
@@ -456,7 +539,7 @@ class IntraCommunityVatExemptionTest extends TestCase
             [DocumentFormat::PDF],
             Uuid::randomHex(),
             documentDate: '2026-05-05T12:00:00+00:00',
-        )), $this->context)->intraCommunityDelivery;
+        )), $this->context);
     }
 
     private function sellFrom(?string $iso): void

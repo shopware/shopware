@@ -82,7 +82,7 @@
       "labelPlaceOfJurisdiction": "Gerichtsstand / Handelsregister-Nr.",
       "labelPlaceOfFulfillment": "Erfüllungsort",
       "labelExecutiveDirector": "Geschäftsführer",
-      "labelDisplayAdditionalNoteDelivery": "Hinweis \"innergemeinschaftliche Lieferung\"",
+      "labelDisplayAdditionalNoteDelivery": "Hinweise \"innergemeinschaftliche Lieferung\" und \"Steuerschuldnerschaft des Leistungsempfängers\"",
       "labelDisplayCustomerVatId": "Kunden-USt-ID",
       "placeholderName": "Namen eingeben ...",
       "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Verkaufskanal.",

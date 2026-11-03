@@ -60,6 +60,29 @@
                             }
                         }
                     },
+                    "digitalTaxRules": {
+                        "type": "array",
+                        "description": "Currently active tax rules and/or rates of digital products, which depend on the billing address",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "taxRate": {
+                                    "type": "number",
+                                    "format": "float"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "taxFreeProductTypes": {
+                        "type": "array",
+                        "description": "Product types that are taxed at 0 % although the cart is taxed",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
                     "customer": {
                         "oneOf": [
                             {
@@ -87,6 +110,22 @@
                                 "$ref": "#/components/schemas/CustomerAddress"
                             }
                         }
+                    },
+                    "billingLocation": {
+                        "type": "object",
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "const": "cart_delivery_shipping_location"
+                            },
+                            "country": {
+                                "$ref": "#/components/schemas/Country"
+                            },
+                            "address": {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            }
+                        },
+                        "description": "Location of the billing address, which decides the taxes of digital products"
                     },
                     "shippingMethod": {
                         "$ref": "#/components/schemas/ShippingMethod"

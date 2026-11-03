@@ -18,8 +18,8 @@ final class CreditOrderReducer
      * Reduces the order to the positions a credit note bills. Credit prices are stored negative
      * because they deduct from an invoice total, a credit note states the amount owed back, so they
      * are flipped to positive and the document type carries the credit semantics.
-     * Shipping is zeroed, it is never recredited. Deliveries are left intact: they still feed the
-     * intra-community-delivery flag and the delivery date the rendered document needs.
+     * Shipping is zeroed, it is never recredited. Deliveries are left intact. The tax notes depend on
+     * the order's products, so they have to be decided before the order is reduced.
      */
     public static function reduce(OrderEntity $order, OrderLineItemCollection $creditItems): void
     {

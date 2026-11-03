@@ -42,17 +42,20 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
          * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
          */
         public array $custom = [],
+        public bool $reverseCharge = false,
     ) {
     }
 
     /**
      * @param list<LineItemView> $lineItems
+     * @param list<TaxBreakdownView> $taxBreakdown
      */
     public static function fromInvoice(
         InvoiceRenderData $invoice,
         ?string $creditNoteNumber,
         string $referencedInvoiceNumber,
         array $lineItems,
+        array $taxBreakdown,
         MonetarySummationView $monetarySummation,
     ): self {
         return new self(
@@ -62,7 +65,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
             deliveryDate: $invoice->deliveryDate,
             lineItems: $lineItems,
             allowanceCharges: [],
-            taxBreakdown: $invoice->taxBreakdown,
+            taxBreakdown: $taxBreakdown,
             monetarySummation: $monetarySummation,
             paymentMeans: $invoice->paymentMeans,
             paymentDueDate: null,
@@ -71,6 +74,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
                 'creditNoteNumber' => $creditNoteNumber,
                 'invoiceNumber' => $referencedInvoiceNumber,
             ],
+            reverseCharge: $invoice->reverseCharge,
         );
     }
 }

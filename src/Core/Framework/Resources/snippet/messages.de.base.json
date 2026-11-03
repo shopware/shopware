@@ -65,6 +65,7 @@
         "serviceDateNotice": "Leistungsdatum entspricht Rechnungsdatum",
         "placeOfFulfillment": "<strong>Erfüllungsort:</strong> %placeOfFulfillment%",
         "intraCommunity": "Innergemeinschaftliche Lieferung (EU)",
+        "reverseCharge": "Steuerschuldnerschaft des Leistungsempfängers",
         "shippingAddress": "Lieferadresse",
         "phoneNumber": "Telefon %phoneNumber%",
         "email": "E-Mail-Adresse: %email%",

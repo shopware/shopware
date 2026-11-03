@@ -148,6 +148,7 @@ class CheapestPriceFacadeTest extends TestCase
 
         // we also want to test different tax states (gross/net)
         $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getProductTaxState')->willReturn($taxState);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         return new CheapestPriceFacade($entity, $original, $stubs, $context);

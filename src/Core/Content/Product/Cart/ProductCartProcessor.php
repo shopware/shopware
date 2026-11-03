@@ -624,14 +624,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     {
         $contextHash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
 
-        $activeTaxRules = array_map(static function (TaxEntity $taxRule) {
+        $getRuleIds = static function (TaxEntity $taxRule) {
             return $taxRule->getRules()?->getIds() ?: $taxRule->getId();
-        }, $context->getTaxRules()->getElements());
+        };
+        $activeTaxRules = array_map($getRuleIds, $context->getTaxRules()->getElements());
+        $digitalTaxRules = array_map($getRuleIds, $context->getDigitalTaxRules()->getElements());
 
         $event = new ProductCartDataContextHashEvent($data, $original, $context, $behavior);
         $this->eventDispatcher->dispatch($event);
 
-        $hashData = [$contextHash, $activeTaxRules];
+        $hashData = [$contextHash, $activeTaxRules, $digitalTaxRules, $context->getTaxFreeProductTypes()];
 
         $parts = $event->getParts();
         if ($parts !== []) {

@@ -30,7 +30,7 @@ All blocks of this template are available in the template which renders this tem
                 } %}<br/>
 
                 {% set customerVatId = customer.vatIds|first -%}
-                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.intraCommunityDelivery) -%}
+                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.intraCommunityDelivery or config.reverseCharge) -%}
 
                 {%- if not feature('v6.8.0.0') -%}
                     {%- set customerVatId = customer.vatIds|first -%}

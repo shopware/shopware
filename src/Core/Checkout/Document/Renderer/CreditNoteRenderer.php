@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -92,6 +91,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         }
 
         $referenceInvoiceNumbers = [];
+        $intraCommunityDeliveries = [];
+        $reverseCharges = [];
 
         $orders = new OrderCollection();
 
@@ -108,6 +109,11 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
                 $order = $this->getOrder($operation, Defaults::LIVE_VERSION, $context, $rendererConfig);
+
+                // The notes depend on the order's products, the credit note itself only lists the credit items
+                $intraCommunityDeliveries[$orderId] = $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order);
+                $reverseCharges[$orderId] = $this->intraCommunityTaxResolver->isReverseCharge($order);
+                $order->setLineItems(($order->getLineItems() ?? new OrderLineItemCollection())->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE));
 
                 $orders->add($order);
                 $operation->setReferencedDocumentId($invoice['id']);
@@ -165,6 +171,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
                 $referenceDocumentNumber = $referenceInvoiceNumbers[$operation->getOrderId()];
 
+                $displayNote = ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false;
+
                 $config->merge([
                     'documentDate' => $operation->getConfig()['documentDate'] ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'documentNumber' => $number,
@@ -172,8 +180,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         'creditNoteNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
-                    'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
-                        && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
+                    'intraCommunityDelivery' => $displayNote && $intraCommunityDeliveries[$orderId],
+                    'reverseCharge' => $displayNote && $reverseCharges[$orderId],
                 ]);
 
                 // create version of order to ensure the document stays the same even if the order changes
@@ -267,9 +275,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()], $rendererConfig->deepLinkCode, self::TYPE);
-        $criteria->getAssociation('lineItems')->addFilter(
-            new EqualsFilter('type', LineItem::CREDIT_LINE_ITEM_TYPE)
-        );
 
         $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
             $criteria,

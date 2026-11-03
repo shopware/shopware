@@ -82,7 +82,7 @@
       "labelPlaceOfJurisdiction": "Commercial register (incl. court & number)",
       "labelPlaceOfFulfillment": "Place of fulfillment",
       "labelExecutiveDirector": "Business executive",
-      "labelDisplayAdditionalNoteDelivery": "\"intra-Community delivery\" label",
+      "labelDisplayAdditionalNoteDelivery": "\"intra-Community delivery\" and \"Reverse charge\" labels",
       "labelDisplayCustomerVatId": "Customer VAT-ID",
       "placeholderName": "Enter name...",
       "disabledSalesChannel": "There is already another document of the same type in this Sales Channel.",

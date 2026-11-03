@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Type\CreditNoteDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -140,18 +141,46 @@ class CreditNoteDataProviderTest extends TestCase
         $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
     }
 
-    private function createProvider(): CreditNoteDataProvider
+    public function testProvideRenderingDataDecidesTheTaxNotesByTheWholeOrder(): void
+    {
+        $order = self::createOrder(withCredit: true);
+        $order->getLineItems()?->add(self::createProductItem());
+        $input = new ProviderInput(
+            $order,
+            $this->buildRequest($order),
+            new ReferencedDocument(
+                id: Uuid::randomHex(),
+                documentNumber: '1000',
+                orderVersionId: Uuid::randomHex(),
+            ),
+        );
+
+        // the notes depend on the order's products, which the credit note does not bill
+        $hasProducts = static fn (OrderEntity $order): bool => $order->getLineItems()?->filterByType(LineItem::PRODUCT_LINE_ITEM_TYPE)->count() > 0;
+        $intraCommunityTaxResolver = static::createStub(IntraCommunityTaxResolver::class);
+        $intraCommunityTaxResolver->method('isIntraCommunityDelivery')->willReturnCallback($hasProducts);
+        $intraCommunityTaxResolver->method('isReverseCharge')->willReturnCallback($hasProducts);
+
+        $data = $this->createProvider($intraCommunityTaxResolver)->provideRenderingData($input, Context::createDefaultContext());
+
+        static::assertTrue($data->intraCommunityDelivery);
+        static::assertTrue($data->reverseCharge);
+        static::assertCount(1, $data->lineItems);
+        static::assertSame([5.7], array_map(static fn (TaxBreakdownView $tax) => $tax->calculatedAmount, $data->taxBreakdown));
+    }
+
+    private function createProvider(?IntraCommunityTaxResolver $intraCommunityTaxResolver = null): CreditNoteDataProvider
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([]);
 
         return new CreditNoteDataProvider(
-            $this->createInvoiceDataProvider(),
+            $this->createInvoiceDataProvider($intraCommunityTaxResolver),
             new CreditItemResolver($connection),
         );
     }
 
-    private function createInvoiceDataProvider(): InvoiceDataProvider
+    private function createInvoiceDataProvider(?IntraCommunityTaxResolver $intraCommunityTaxResolver = null): InvoiceDataProvider
     {
         $companyCountry = new CountryEntity();
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
@@ -184,7 +213,7 @@ class CreditNoteDataProviderTest extends TestCase
         return new InvoiceDataProvider(
             $configLoader,
             $documentTypeRegistry,
-            static::createStub(IntraCommunityTaxResolver::class),
+            $intraCommunityTaxResolver ?? static::createStub(IntraCommunityTaxResolver::class),
         );
     }
 
@@ -214,6 +243,7 @@ class CreditNoteDataProviderTest extends TestCase
             'companyZipcode' => '12345',
             'companyCity' => 'Example City',
             'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            'displayAdditionalNoteDelivery' => true,
         ]);
 
         return $entity;

@@ -1416,6 +1416,7 @@ class DeliveryCalculatorTest extends TestCase
         $context->expects($this->atLeastOnce())->method('getContext')->willReturn($baseContext);
 
         $context->expects($this->atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getProductTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
 
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
@@ -1472,6 +1473,7 @@ class DeliveryCalculatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $context->expects($this->atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
+        $context->method('getProductTaxState')->willReturn(CartPrice::TAX_STATE_NET);
 
         $baseContext = Context::createDefaultContext();
 

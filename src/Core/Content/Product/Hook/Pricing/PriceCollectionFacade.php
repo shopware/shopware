@@ -73,10 +73,11 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
 
         $this->prices->clear();
 
-        $rules = $this->context->buildTaxRules($this->product->get('taxId'));
+        $productType = $this->product->get('type');
+        $rules = $this->context->buildProductTaxRules($this->product->get('taxId'), $productType);
 
         foreach ($mapped as $quantity => $price) {
-            $value = $this->getPriceForTaxState($price, $this->context);
+            $value = $this->getPriceForTaxState($price, $this->context, $productType);
 
             $definition = new QuantityPriceDefinition($value, $rules, $quantity);
 
@@ -108,7 +109,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
         return $this->prices->count();
     }
 
-    private function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
+    private function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context, ?string $productType): float
     {
         $currency = $price->getCurrencyPrice($this->context->getCurrencyId());
 
@@ -116,7 +117,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
             throw ProductException::invalidPriceDefinition();
         }
 
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+        if ($context->getProductTaxState($productType) === CartPrice::TAX_STATE_GROSS) {
             return $currency->getGross();
         }
 

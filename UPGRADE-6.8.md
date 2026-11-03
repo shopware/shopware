@@ -2901,13 +2901,6 @@ The following variables were removed:
 The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
 Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
-## Refactor of providing cookies
-
-The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
-Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
-The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
-Use `name` and `description` instead.
-
 ## Deprecated theme.json translations
 
 The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager reads its labels from administration snippets with a constructed key.

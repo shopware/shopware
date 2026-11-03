@@ -2,6 +2,38 @@
 
 # Core
 
+## Legacy cookie providers removed
+
+The `Shopware\Storefront\Framework\Cookie\CookieProviderInterface`, `CookieProvider` and `AppCookieProvider` were removed.
+Register a listener for `Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead of implementing or decorating the legacy provider:
+
+```php
+public function onCookieGroupCollect(CookieGroupCollectEvent $event): void
+{
+    $entry = new CookieEntry('my-extension-cookie');
+    $entry->name = 'myExtension.cookieName';
+    $entry->value = '1';
+    $entry->expiration = 30;
+
+    $group = new CookieGroup('myExtension.cookieGroup');
+    $group->description = 'myExtension.cookieDescription';
+    $group->setEntries(new CookieEntryCollection([$entry]));
+    $event->cookieGroupCollection->add($group);
+}
+```
+
+Import `CookieEntry`, `CookieEntryCollection` and `CookieGroup` from `Shopware\Core\Content\Cookie\Struct`.
+The group and entry names and descriptions can contain snippet keys; the cookie provider translates them.
+Move custom additions and modifications of existing groups into the event listener.
+
+The legacy `CookieException::invalidLegacyCookieGroupProvided()` and `invalidLegacyCookieEntryProvided()` factories were removed with the array conversion.
+
+### Cookie template fields
+
+The `snippet_name` and `snippet_description` cookie template fields were removed.
+Use `name` and `description` instead in cookie groups and entries.
+
+
 ## Document generation v1 removed
 
 The legacy document generation implementation was removed together with the `DOCUMENT_GENERATION_REWORK` feature flag. Document generation v2 is now the only implementation. The full strategy is described in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).

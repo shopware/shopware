@@ -450,6 +450,11 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Cookie provider removal postponed to 6.9
+
+The deprecated cookie-provider API and the `snippet_name` and `snippet_description` cookie template fields remain available throughout 6.8. Their removal was postponed to 6.9. Extension and theme developers should migrate to `CookieGroupCollectEvent` and the `name` and `description` fields before 6.9; see [the migration guidance](UPGRADE-6.9.md#legacy-cookie-providers-removed).
+
+
 ### CMS sliders and image galleries respect vertical alignment
 
 Image gallery, image slider, and product slider CMS elements now apply their configured vertical alignment in the Storefront.

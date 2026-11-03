@@ -185,11 +185,6 @@
       "count": 10
     }
   },
-  "src/app/component/app/sw-app-shop-id-change-modal/sw-app-shop-id-change-modal.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 9
-    }
-  },
   "src/app/component/app/sw-app-topbar-button/index.js": {
     "filename-rules/not-match": {
       "count": 1

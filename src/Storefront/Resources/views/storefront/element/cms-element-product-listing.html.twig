@@ -20,6 +20,9 @@
     {% set sidebar = sectionType == 'sidebar' %}
     {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
 
+    {# only a category page lists the products of a category, a landing page is identified by its shopping experience element #}
+    {% set listCategory = page.category|default(null) %}
+
     {% block element_product_listing_wrapper %}
         {% sw_include '@Storefront/storefront/component/product/listing.html.twig' with {
             searchResult: searchResult,
@@ -30,7 +33,9 @@
             boxLayout: element.translated.config.boxLayout.value,
             displayMode: element.translated.config.displayMode.value,
             listingColumns: listingColumns,
-            ariaLiveUpdates: true
+            ariaLiveUpdates: true,
+            listId: listCategory ? 'category:' ~ listCategory.id : 'cms:' ~ slot.id,
+            listName: listCategory ? (listCategory.translated.name ?: listCategory.name) : null
         } %}
     {% endblock %}
 {% endblock %}

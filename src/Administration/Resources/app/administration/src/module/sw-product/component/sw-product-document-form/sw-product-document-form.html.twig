@@ -148,6 +148,12 @@
             {% endblock %}
             {% block sw_product_document_form_actions %}
                 <template #actions="{ item }">
+                    <sw-context-menu-item
+                        :disabled="!canEdit || isInherited"
+                        @click="editDocument(item)"
+                    >
+                        {{ $t('global.default.edit') }}
+                    </sw-context-menu-item>
                     {% block sw_product_document_form_action_download %}
                     <sw-context-menu-item
                         class="sw-product-document-form__download"
@@ -231,6 +237,28 @@
         :file-accept="fileAccept"
         @media-modal-selection-change="addDocuments($event, editingDocument)"
         @modal-close="showMediaModal = false"
+    />
+{% endblock %}
+
+{% block sw_product_document_form_edit_modal %}
+    <sw-product-document-edit-modal
+        v-if="editingDocument"
+        v-model:document-title="documentTitle"
+        :document-id="editingDocument.id"
+        :editing-media="editingMedia"
+        :document-name-error="documentNameError"
+        :document-file-error="documentFileError"
+        :upload-tag="`${uploadTag}-replace-${editingDocument.id}-${documentEditSession}`"
+        :upload-hint="uploadHint"
+        :allowed-extensions="allowedExtensions"
+        :max-file-size="maxFileSize"
+        :can-edit="canEdit"
+        :is-saving-document="isSavingDocument"
+        @close="closeDocumentEditor"
+        @save="saveDocument"
+        @upload="successfulUpload($event, editingDocument)"
+        @remove-file="removeEditingFile"
+        @select-media="showMediaModal = true"
     />
 {% endblock %}
 

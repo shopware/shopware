@@ -1,3 +1,6 @@
+/**
+ * @sw-package discovery
+ */
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 import './page/sw-settings-customer-group-detail/register';
@@ -8,7 +11,6 @@ Shopware.Component.extend(
     'sw-settings-customer-group-detail',
     () => import('./page/sw-settings-customer-group-create'),
 );
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

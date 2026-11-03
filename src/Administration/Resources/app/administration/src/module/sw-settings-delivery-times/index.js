@@ -1,3 +1,6 @@
+/**
+ * @sw-package discovery
+ */
 import './acl';
 import './page/sw-settings-delivery-time-detail/register';
 import './page/sw-settings-delivery-time-list/register';
@@ -7,7 +10,6 @@ Shopware.Component.extend(
     'sw-settings-delivery-time-detail',
     () => import('./page/sw-settings-delivery-time-create'),
 );
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

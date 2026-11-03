@@ -9,9 +9,6 @@ import './page/sw-product-stream-list/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 /**
  * @sw-package inventory
  * @private

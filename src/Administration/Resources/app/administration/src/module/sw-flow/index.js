@@ -32,9 +32,6 @@ import './view/listing/sw-flow-list-flow-templates/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 /**
  * @private
  * @sw-package after-sales

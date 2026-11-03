@@ -1,3 +1,6 @@
+/**
+ * @sw-package discovery
+ */
 import CmsPageTypeService from './service/cms-page-type.service';
 import defaultSearchConfiguration from './default-search-configuration';
 import initCmsPageTypes from './init/cmsPageTypes.init';
@@ -24,8 +27,6 @@ Shopware.Service().register('cmsPageTypeService', () => {
 });
 
 initCmsPageTypes();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-cms', {

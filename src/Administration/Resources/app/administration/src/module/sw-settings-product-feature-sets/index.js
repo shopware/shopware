@@ -8,9 +8,6 @@ import './component/sw-settings-product-feature-sets-values-card/register';
 import './page/sw-settings-product-feature-sets-detail/register';
 import './page/sw-settings-product-feature-sets-list/register';
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

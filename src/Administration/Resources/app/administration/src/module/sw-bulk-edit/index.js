@@ -24,7 +24,6 @@ import './page/sw-bulk-edit-customer/register';
 import './page/sw-bulk-edit-order/register';
 import './page/sw-bulk-edit-product/register';
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.extend(
     'sw-bulk-edit-order-documents-generate-cancellation-invoice',
     'sw-bulk-edit-order-documents-generate-invoice',
@@ -40,7 +39,6 @@ Shopware.Component.extend(
     'sw-text-editor',
     () => import('./component/product/sw-bulk-edit-product-description'),
 );
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

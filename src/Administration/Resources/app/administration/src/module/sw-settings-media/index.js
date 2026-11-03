@@ -1,3 +1,6 @@
+/**
+ * @sw-package innovation
+ */
 import './page/sw-settings-media/register';
 
 const { Module } = Shopware;

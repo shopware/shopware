@@ -28,35 +28,5 @@ import './sw-cms-sidebar/register';
 /*
  * @sw-package discovery
  */
-/*
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @sw-package discovery
- */
-/*
- * @sw-package discovery
- */
-/*
- * @sw-package discovery
- */
-/*
- * @sw-package discovery
- */
-/*
- * @sw-package discovery
- */
 /* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-cms-form-sync', () => import('./sw-cms-form-sync'));

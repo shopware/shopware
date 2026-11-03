@@ -1,6 +1,8 @@
+/**
+ * @sw-package after-sales
+ */
 import './component/sw-settings-mailer-smtp/register';
 import './page/sw-settings-mailer/register';
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-mailer', {

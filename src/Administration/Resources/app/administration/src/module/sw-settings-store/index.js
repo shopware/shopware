@@ -1,5 +1,4 @@
 import './page/sw-settings-store/register';
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 
 const { Module } = Shopware;
 

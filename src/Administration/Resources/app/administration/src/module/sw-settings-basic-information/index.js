@@ -7,9 +7,6 @@ import './page/sw-settings-basic-information/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('captchaService', () => {
     return new CaptchaService(Shopware.Application.getContainer('init').httpClient, Shopware.Service().get('loginService'));

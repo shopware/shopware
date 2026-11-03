@@ -1,3 +1,6 @@
+/**
+ * @sw-package checkout
+ */
 import './acl';
 import './component/sw-settings-tax-provider-sorting-modal/register';
 import './component/sw-settings-tax-rule-modal/register';
@@ -11,8 +14,6 @@ import './component/sw-tax-rule-card/register';
 import './page/sw-settings-tax-detail/register';
 import './page/sw-settings-tax-list/register';
 import './page/sw-settings-tax-provider-detail/register';
-
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

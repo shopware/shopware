@@ -1,5 +1,7 @@
+/**
+ * @sw-package after-sales
+ */
 import './page/sw-settings-newsletter/register';
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

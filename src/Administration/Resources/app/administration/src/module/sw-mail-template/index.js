@@ -12,10 +12,6 @@ import './view/sw-mail-template-view-templates/register';
 
 const { Module, Feature } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 /**
  * @sw-package after-sales
  */

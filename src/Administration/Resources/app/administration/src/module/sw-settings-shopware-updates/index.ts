@@ -6,7 +6,7 @@ import './acl';
 import './page/sw-settings-shopware-updates-wizard/register';
 import './view/sw-settings-shopware-updates-extensions/register';
 
-const { Component, Module } = Shopware;
+const { Module } = Shopware;
 
 /**
  * @private

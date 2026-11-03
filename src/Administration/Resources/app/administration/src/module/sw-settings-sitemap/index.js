@@ -1,3 +1,6 @@
+/**
+ * @sw-package discovery
+ */
 import './page/sw-settings-sitemap/register';
 
 const { Module } = Shopware;

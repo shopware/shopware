@@ -13,9 +13,6 @@ import './page/sw-property-list/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-property', {
     type: 'core',

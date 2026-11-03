@@ -12,9 +12,7 @@ import './view/sw-settings-rule-detail-base/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.extend('sw-settings-rule-tree', 'sw-tree', () => import('./component/sw-settings-rule-tree'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private

@@ -8,9 +8,6 @@ import './page/sw-settings-payment-detail/register';
 import './page/sw-settings-payment-create/register';
 import './page/sw-settings-payment-overview/register';
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 const { Module } = Shopware;
 
 /**

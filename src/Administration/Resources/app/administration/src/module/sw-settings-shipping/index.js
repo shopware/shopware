@@ -1,3 +1,6 @@
+/**
+ * @sw-package checkout
+ */
 import './acl';
 import './component/sw-settings-shipping-price-matrix/register';
 import defaultSearchConfiguration from './default-search-configuration';

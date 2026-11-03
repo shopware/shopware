@@ -1,3 +1,6 @@
+/**
+ * @sw-package inventory
+ */
 import './component/sw-seo-main-category/register';
 import './component/sw-seo-url-template-card/register';
 import './page/sw-settings-seo/register';

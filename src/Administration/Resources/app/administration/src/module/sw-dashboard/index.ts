@@ -1,8 +1,5 @@
 import './component/sw-dashboard-statistics/register';
 import './page/sw-dashboard-index/register';
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @sw-package after-sales

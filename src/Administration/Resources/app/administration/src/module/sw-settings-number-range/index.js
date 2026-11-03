@@ -6,9 +6,6 @@ import './page/sw-settings-number-range-detail/register';
 import './page/sw-settings-number-range-create/register';
 import './page/sw-settings-number-range-list/register';
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

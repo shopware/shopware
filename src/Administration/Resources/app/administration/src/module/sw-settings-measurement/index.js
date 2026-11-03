@@ -5,9 +5,6 @@ import './acl';
 import './component/sw-settings-measurement-default-units/register';
 import './page/sw-settings-measurement/register';
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-measurement', {
     type: 'core',

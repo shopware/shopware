@@ -42,9 +42,6 @@ Shopware.Service().register('importExportUpdateByMapping', () => {
     return new ImportExportProfileUpdateByService(Shopware.EntityDefinition);
 });
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-import-export', {
     type: 'core',

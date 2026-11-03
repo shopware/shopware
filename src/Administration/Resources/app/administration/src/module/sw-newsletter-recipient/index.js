@@ -9,9 +9,6 @@ import './page/sw-newsletter-recipient-list/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-newsletter-recipient', {
     type: 'core',

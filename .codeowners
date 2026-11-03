@@ -86,3 +86,10 @@ src/Administration/Resources/app/administration/src/module/sw-media/component/sw
 src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.ts @shopware/product-cc-framework
 src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/global.d.ts @shopware/product-cc-framework
 src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/tests/requirements.spec.ts @shopware/product-cc-framework
+
+# inventory: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
+# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
+# Changes to `src/` and to pinned tests do not.
+src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.ts @shopware/product-cc-inventory
+src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/global.d.ts @shopware/product-cc-inventory
+src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/tests/requirements.spec.ts @shopware/product-cc-inventory

@@ -4889,9 +4889,6 @@
     }
   },
   "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/src/sw-bulk-edit-product-visibility.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }

@@ -3,7 +3,7 @@
  */
 import template from './sw-bulk-edit-product-visibility.html.twig';
 
-const { Context } = Shopware;
+import { getApiContext, repositoryFactoryService, useProductDetailStore } from '../dependencies';
 
 /**
  * @public
@@ -11,7 +11,7 @@ const { Context } = Shopware;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     props: {
         bulkEditProduct: {
@@ -33,7 +33,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useProductDetailStore().product;
         },
 
         productVisibilityRepository() {
@@ -44,7 +44,7 @@ export default {
     methods: {
         visibilitiesRemoveInheritanceFunction(newValue) {
             newValue.forEach(({ productVersionId, salesChannelId, salesChannel, visibility }) => {
-                const visibilities = this.productVisibilityRepository.create(Context.api);
+                const visibilities = this.productVisibilityRepository.create(getApiContext());
 
                 Object.assign(visibilities, {
                     productId: this.product.id,

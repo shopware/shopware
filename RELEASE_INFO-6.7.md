@@ -2,6 +2,12 @@
 
 ## Security Fixes
 
+### Twig templates only read the request context
+
+Twig templates can no longer call methods that change the request context or the request, such as setters.
+Reading them stays possible, for example `context.languageId`.
+Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
+
 ### Store API criteria field paths are resolved per path segment
 
 Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.

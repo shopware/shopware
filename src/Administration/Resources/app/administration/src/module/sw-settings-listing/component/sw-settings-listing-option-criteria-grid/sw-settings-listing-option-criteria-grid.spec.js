@@ -238,7 +238,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         expect(customFieldSetRelationSearch).not.toHaveBeenCalled();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with fetchCustomFieldSetIds().
+    // @deprecated tag:v6.8.0 - The test will be removed with fetchCustomFieldSetIds().
     it.deprecated('v6.8.0.0')('should still load the product custom field set ids on demand', async () => {
         customFieldSetRelationSearch.mockResolvedValueOnce([{ customFieldSetId: 'set-1' }]);
         const vm = wrapper.vm;

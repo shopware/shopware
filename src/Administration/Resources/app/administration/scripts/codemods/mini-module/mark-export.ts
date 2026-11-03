@@ -37,15 +37,8 @@ export function markExport(source: string, marker: '@public' | '@private'): stri
     return unsuppressed.replace(docComment[0], marked);
 }
 
-/**
- * Whether a doc comment directly above the component's `export default` marks it `@private`,
- * also with a reason after the tag, so the component becomes a private module whatever its registration says.
- *
- * @example
- * isDocumentedPrivate('/**\n * @private might get removed\n *\/\nexport default {};');
- * // → true
- */
-export function isDocumentedPrivate(source: string): boolean {
+/** Whether a doc comment directly above the component's `export default` holds the marker, also with text after it. */
+const isDocumented = (source: string, marker: '@public' | '@private') => {
     const file = ts.createSourceFile('component.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     const exported = file.statements.find(ts.isExportAssignment);
     if (!exported) {
@@ -56,6 +49,30 @@ export function isDocumentedPrivate(source: string): boolean {
         ({ pos, end, kind }) =>
             kind === ts.SyntaxKind.MultiLineCommentTrivia &&
             source.startsWith('/**', pos) &&
-            /^\s*\*\s*@private\b/m.test(source.slice(pos, end)),
+            new RegExp(`^\\s*\\*\\s*${marker}\\b`, 'm').test(source.slice(pos, end)),
     );
+};
+
+/**
+ * Whether a doc comment directly above the component's `export default` marks it `@private`,
+ * also with a reason after the tag, so the component becomes a private module whatever its registration says.
+ *
+ * @example
+ * isDocumentedPrivate('/**\n * @private might get removed\n *\/\nexport default {};');
+ * // → true
+ */
+export function isDocumentedPrivate(source: string): boolean {
+    return isDocumented(source, '@private');
+}
+
+/**
+ * Whether a doc comment directly above the component's `export default` marks it `@public`, which keeps
+ * a component public although it extends a private one.
+ *
+ * @example
+ * isDocumentedPublic('/**\n * @public\n *\/\nexport default {};');
+ * // → true
+ */
+export function isDocumentedPublic(source: string): boolean {
+    return isDocumented(source, '@public');
 }

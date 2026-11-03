@@ -20,6 +20,7 @@ import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
 import { findImports, findRegistration, findRegistrationByPath } from './find-registration';
 import { isDocumentedPrivate, markExport } from './mark-export';
+import { readDeclarationKind, readExtendShape } from './inherit-privacy';
 import { dropBaseImport } from './drop-base-import';
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
@@ -99,11 +100,25 @@ const readComponentName = (componentDirectory: string) => {
     return directoryName;
 };
 
-/** The directory of a component that is already a mini-module, found by the name its index.ts declares. */
-const locateMiniModule = (name: string) =>
-    sourceFiles(`name: '${name}'`)
-        .filter((file) => file.endsWith('/index.ts'))
-        .find((file) => fs.readFileSync(path.join(adminRoot, file), 'utf8').includes('definePublicComponent('));
+/**
+ * The declaration of a registered component that is already a mini-module, found by its name:
+ * the index.ts of a public module, or the private.ts next to the register.ts of a private one.
+ */
+const locateMiniModule = (name: string) => {
+    for (const file of sourceFiles(`name: '${name}'`)) {
+        const absolute = path.join(adminRoot, file);
+        const kind = readDeclarationKind(
+            file,
+            fs.readFileSync(absolute, 'utf8'),
+            fs.existsSync(path.join(path.dirname(absolute), 'register.ts')),
+        );
+        if (kind) {
+            return { file, isPrivate: kind === 'private' };
+        }
+    }
+
+    return null;
+};
 
 /** The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`. */
 const withoutIndex = (specifier: string) => specifier.replace(/\/index(\.[jt]s)?$/, '');
@@ -123,13 +138,16 @@ const readComponentSource = (componentDirectory: string, name: string) => {
 };
 
 /**
- * Reads what the named component offers, including what it inherits from the components it extends.
- * A component that is a mini-module already offers the lists of its index.ts.
+ * What the named component offers, including what it inherits from the components it extends,
+ * and the first private component on that chain, or null. A mini-module already offers the lists of its declaration.
  */
-const readInheritedApi = (name: string): ComponentApi => {
+const readInheritedApi = (name: string): { api: ComponentApi; privateBase: string | null } => {
     const miniModule = locateMiniModule(name);
     if (miniModule) {
-        return readDeclaredApi(fs.readFileSync(path.join(adminRoot, miniModule), 'utf8'));
+        return {
+            api: readDeclaredApi(fs.readFileSync(path.join(adminRoot, miniModule.file), 'utf8')),
+            privateBase: miniModule.isPrivate ? name : null,
+        };
     }
 
     const located = locateRegistration(name);
@@ -144,10 +162,17 @@ const readInheritedApi = (name: string): ComponentApi => {
     const { componentSource, templateSource } = readComponentSource(directory, name);
     const api = extractComponentApi(componentSource, templateSource);
     api.unresolved = api.unresolved.map((item) => `${item} (inherited from ${name})`);
+    const isPrivate = located.registration.isPrivate || isDocumentedPrivate(componentSource);
 
-    return located.registration.kind === 'extend'
-        ? mergeComponentApi(api, readInheritedApi(located.registration.base))
-        : api;
+    if (located.registration.kind !== 'extend') {
+        return { api, privateBase: isPrivate ? name : null };
+    }
+
+    const inherited = readInheritedApi(located.registration.base);
+    return {
+        api: mergeComponentApi(api, inherited.api),
+        privateBase: isPrivate ? name : inherited.privateBase,
+    };
 };
 
 const addImport = (source: string, specifier: string) => {
@@ -426,24 +451,33 @@ type Reading = {
     shape: Shape;
     registration: ReturnType<typeof locateRegistration>;
     importers: ReturnType<typeof findImporters>;
+    inheritedApi?: ComponentApi;
     nesting?: Map<string, string>;
 };
 
 /**
  * How the component reaches the page today: the statement that registers or extends it, or, without one,
  * the parent that imports it. A string says why the component cannot move yet.
- * A component is private when its registration or the doc comment of its own default export says `@private`.
+ * A component is private when its registration or the doc comment of its own default export says `@private`,
+ * and an extending one also when it inherits from a private component, see `readExtendShape()`.
  */
 const readShape = (componentDirectory: string, name: string, componentSource: string): Reading | string => {
     const registration = locateRegistration(name);
+    if (registration?.registration.kind === 'extend') {
+        const { base, isPrivate: isRegistrationPrivate } = registration.registration;
+        const inherited = readInheritedApi(base);
+
+        return {
+            shape: readExtendShape({ base, isRegistrationPrivate, componentSource, privateBase: inherited.privateBase }),
+            registration,
+            importers: [],
+            inheritedApi: inherited.api,
+        };
+    }
+
     if (registration) {
         const isPrivate = registration.registration.isPrivate || isDocumentedPrivate(componentSource);
-        const shape: Shape =
-            registration.registration.kind === 'extend'
-                ? { kind: 'extend', base: registration.registration.base, isPrivate }
-                : { kind: 'register', isPrivate };
-
-        return { shape, registration, importers: [] };
+        return { shape: { kind: 'register', isPrivate }, registration, importers: [] };
     }
 
     const importers = findImporters(componentDirectory, name);
@@ -483,7 +517,7 @@ function run(directory: string) {
         return;
     }
 
-    const { shape, registration, importers, nesting } = reading;
+    const { shape, registration, importers, inheritedApi, nesting } = reading;
     const root = shape.kind === 'nested' ? `${shape.parent}/src/${name}` : origin;
     const moduleDirectory = path.join(adminRoot, root);
     const adminIndex = createAdminIndex(adminRoot, moduleDirectory);
@@ -494,7 +528,7 @@ function run(directory: string) {
     }
 
     const ownApi = extractComponentApi(componentSource, templateSource);
-    const api = shape.kind === 'extend' ? mergeComponentApi(ownApi, readInheritedApi(shape.base)) : ownApi;
+    const api = inheritedApi ? mergeComponentApi(ownApi, inheritedApi) : ownApi;
     const target = { name, packageName, shape };
 
     const moves = new Map<string, string>();
@@ -651,11 +685,23 @@ const describeOutsideEdits = ({ outside }: RoutedModule) => {
         : '';
 };
 
+/** Why an extending component is private, or what its public lists publish, when it inherits from a private one. */
+const describePrivateBase = (name: string, shape: Extract<Shape, { kind: 'extend' }>) => {
+    if (!shape.privateBase) {
+        return '';
+    }
+
+    return shape.isPrivate
+        ? `${name} inherits from the private ${shape.privateBase}, so it is private too: an override of it reaches what it inherits.\n`
+        : `${name} is marked @public but inherits from the private ${shape.privateBase}, so its lists publish what it inherits.
+   Ask the owning team whether that is intended; if not, undo the run, mark ${name} @private and run the codemod again.\n`;
+};
+
 /** What the sweep must know about how the component reaches the page, for the checklist. */
 const describeShape = (name: string, shape: Shape) => {
     const privateNote =
         shape.kind !== 'nested' && shape.isPrivate
-            ? `${name} is marked @private, so it is a private module: private.ts declares it with definePrivateComponent(),
+            ? `${name} is private, so it is a private module: private.ts declares it with definePrivateComponent(),
 and global.d.ts adds it to PrivateComponents, which types Component.override() inside the Administration only.
 It is not published to extensions and has no code owner entry.
 `
@@ -663,7 +709,7 @@ It is not published to extensions and has no code owner entry.
 
     if (shape.kind === 'extend') {
         return `
-${privateNote}${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the lists include what it inherits.
+${privateNote}${describePrivateBase(name, shape)}${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the lists include what it inherits.
 TypeScript cannot check inherited names; the meta test src/meta/public-components.spec.js checks them against the base.
 `;
     }

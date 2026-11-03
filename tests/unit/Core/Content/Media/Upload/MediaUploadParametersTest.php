@@ -25,6 +25,8 @@ class MediaUploadParametersTest extends TestCase
         $fileName = 'test-file.jpg';
         $mimeType = 'image/jpeg';
         $deduplicate = false;
+        $title = 'Shopware logo';
+        $alt = 'Blue Shopware logo';
 
         $parameters = new MediaUploadParameters(
             id: $id,
@@ -32,7 +34,9 @@ class MediaUploadParametersTest extends TestCase
             private: $private,
             fileName: $fileName,
             mimeType: $mimeType,
-            deduplicate: $deduplicate
+            deduplicate: $deduplicate,
+            title: $title,
+            alt: $alt,
         );
 
         static::assertSame($id, $parameters->id);
@@ -41,6 +45,8 @@ class MediaUploadParametersTest extends TestCase
         static::assertSame($fileName, $parameters->fileName);
         static::assertSame($mimeType, $parameters->mimeType);
         static::assertSame($deduplicate, $parameters->deduplicate);
+        static::assertSame($title, $parameters->title);
+        static::assertSame($alt, $parameters->alt);
     }
 
     public function testConstructWithDefaults(): void
@@ -53,6 +59,8 @@ class MediaUploadParametersTest extends TestCase
         static::assertNull($parameters->fileName);
         static::assertNull($parameters->mimeType);
         static::assertNull($parameters->deduplicate);
+        static::assertNull($parameters->title);
+        static::assertNull($parameters->alt);
     }
 
     public function testFillDefaultFileNameWithExistingFileName(): void

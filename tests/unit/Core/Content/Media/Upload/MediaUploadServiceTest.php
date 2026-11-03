@@ -120,6 +120,8 @@ class MediaUploadServiceTest extends TestCase
         static::assertCount(1, $this->mediaRepository->creates);
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['id']));
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['private']));
+        static::assertArrayNotHasKey('title', $this->mediaRepository->creates[0][0]);
+        static::assertArrayNotHasKey('alt', $this->mediaRepository->creates[0][0]);
     }
 
     public function testUploadFromLocalPathFileNotFound(): void
@@ -249,6 +251,28 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('test', $createdMedia['fileName']);
         static::assertSame('jpg', $createdMedia['fileExtension']);
         static::assertSame('image/jpeg', $createdMedia['mimeType']);
+        static::assertArrayNotHasKey('title', $createdMedia);
+        static::assertArrayNotHasKey('alt', $createdMedia);
+    }
+
+    public function testLinkURLWithTitleAndAlt(): void
+    {
+        $params = new MediaUploadParameters(
+            fileName: 'test.jpg',
+            mimeType: 'image/jpeg',
+            title: 'Shopware logo',
+            alt: 'Blue Shopware logo',
+        );
+
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
+
+        $this->buildService(httpClient: $httpClient)->linkURL('https://example.com/image.jpg', $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+
+        $createdMedia = $this->mediaRepository->creates[0][0];
+        static::assertSame('Shopware logo', $createdMedia['title']);
+        static::assertSame('Blue Shopware logo', $createdMedia['alt']);
     }
 
     public function testLinkURLAppliesConfiguredMaximumDuration(): void
@@ -402,7 +426,9 @@ class MediaUploadServiceTest extends TestCase
             id: $customId,
             mediaFolderId: $mediaFolderId,
             private: true,
-            fileName: 'custom-name.jpg'
+            fileName: 'custom-name.jpg',
+            title: 'Shopware logo',
+            alt: 'Blue Shopware logo',
         );
 
         $fileSaver = $this->createMock(FileSaver::class);
@@ -431,6 +457,8 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($customId, $createdMedia['id']);
         static::assertTrue($createdMedia['private']);
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
+        static::assertSame('Shopware logo', $createdMedia['title']);
+        static::assertSame('Blue Shopware logo', $createdMedia['alt']);
     }
 
     public function testAddExternalThumbnailsToMedia(): void

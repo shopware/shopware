@@ -179,6 +179,14 @@ readonly class MediaUploadService
             $payload['mediaFolderId'] = $params->mediaFolderId;
         }
 
+        if ($params->title !== null) {
+            $payload['title'] = $params->title;
+        }
+
+        if ($params->alt !== null) {
+            $payload['alt'] = $params->alt;
+        }
+
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($payload): void {
             $this->mediaRepository->create([$payload], $context);
         });
@@ -308,6 +316,14 @@ readonly class MediaUploadService
 
         if ($params->mediaFolderId) {
             $payload['mediaFolderId'] = $params->mediaFolderId;
+        }
+
+        if ($params->title !== null) {
+            $payload['title'] = $params->title;
+        }
+
+        if ($params->alt !== null) {
+            $payload['alt'] = $params->alt;
         }
 
         $this->mediaRepository->create([$payload], $context);

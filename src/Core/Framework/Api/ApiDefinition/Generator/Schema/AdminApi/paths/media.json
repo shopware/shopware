@@ -216,6 +216,14 @@
                                     "deduplicate": {
                                         "type": "boolean",
                                         "description": "Whether to deduplicate based on file hash"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Title of the media"
+                                    },
+                                    "alt": {
+                                        "type": "string",
+                                        "description": "Alternative text of the media"
                                     }
                                 },
                                 "required": ["file"]
@@ -287,6 +295,14 @@
                                     "deduplicate": {
                                         "type": "boolean",
                                         "description": "Whether to deduplicate based on file hash"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Title of the media"
+                                    },
+                                    "alt": {
+                                        "type": "string",
+                                        "description": "Alternative text of the media"
                                     }
                                 },
                                 "required": ["url"]
@@ -358,6 +374,14 @@
                                     "deduplicate": {
                                         "type": "boolean",
                                         "description": "Whether to deduplicate based on path"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Title of the media"
+                                    },
+                                    "alt": {
+                                        "type": "string",
+                                        "description": "Alternative text of the media"
                                     },
                                     "thumbnails": {
                                         "type": "array",

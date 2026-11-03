@@ -154,6 +154,31 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(['media:create'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
+    public function testUploadStoresTitleAndAltWithTheMedia(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_action/media/upload',
+            [
+                'fileName' => Uuid::randomHex() . '.png',
+                'title' => 'Shopware logo',
+                'alt' => 'Blue Shopware logo',
+            ],
+            ['file' => new UploadedFile(self::TEST_IMAGE, self::TEST_IMAGE_NAME, 'image/png', null, true)],
+        );
+
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $content);
+
+        $mediaId = json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['id'];
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), Context::createDefaultContext())->getEntities()->first();
+
+        static::assertNotNull($media);
+        static::assertSame('Shopware logo', $media->getTitle());
+        static::assertSame('Blue Shopware logo', $media->getAlt());
+    }
+
     public function testUploadRequiresMediaCreatePrivilege(): void
     {
         $browser = $this->getBrowser(true, [], ['media:read']);

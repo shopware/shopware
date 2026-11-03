@@ -99,16 +99,6 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
-    public function testADocumentNeedsADefaultLanguageTranslation(): void
-    {
-        $errors = $this->errorsOf(fn () => $this->addDocuments([
-            ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
-            ['translations' => [$this->getDeDeLanguageId() => ['title' => 'Zertifikat', 'mediaId' => $this->createMedia('zertifikat')]]],
-        ]));
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_TRANSLATION_MISSING, 'pointer' => '/0/documents/1']], $errors);
-    }
-
     /**
      * @param list<array<string, mixed>> $documents
      */

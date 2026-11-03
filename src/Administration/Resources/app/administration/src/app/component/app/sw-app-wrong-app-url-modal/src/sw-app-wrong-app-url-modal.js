@@ -4,6 +4,13 @@
 
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
+import {
+    copyStringToClipboard,
+    getAssetFilter,
+    notificationMixin,
+    useContextStore,
+    useNotificationStore,
+} from '../dependencies';
 
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 
@@ -15,7 +22,7 @@ export default {
 
     emits: ['modal-close'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -38,19 +45,19 @@ export default {
 
     computed: {
         isAppUrlReachable() {
-            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+            return useContextStore().app.config.settings?.appUrlReachable;
         },
 
         appUrl() {
-            return Shopware.Store.get('context').app.config.appUrl;
+            return useContextStore().app.config.appUrl;
         },
 
         appUrlStatusCode() {
-            return Shopware.Store.get('context').app.config.settings?.appUrlStatusCode;
+            return useContextStore().app.config.settings?.appUrlStatusCode;
         },
 
         hasAppsThatRequireAppUrl() {
-            return Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl;
+            return useContextStore().app.config.settings?.appsRequireAppUrl;
         },
 
         display() {
@@ -58,7 +65,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
@@ -75,7 +82,7 @@ export default {
 
     methods: {
         async copyVerifyCommand() {
-            await Shopware.Utils.dom.copyStringToClipboard(this.verifyCommand);
+            await copyStringToClipboard(this.verifyCommand);
             this.commandCopied = true;
         },
 
@@ -92,7 +99,7 @@ export default {
         },
 
         removeAlertNotification() {
-            Shopware.Store.get('notification').removeNotification(this.notification);
+            useNotificationStore().removeNotification(this.notification);
         },
     },
 };

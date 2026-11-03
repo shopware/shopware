@@ -11,6 +11,7 @@
  */
 export {
     acl,
+    appActionButtonService,
     cacheApiService,
     cacheService,
     captchaService,
@@ -19,6 +20,7 @@ export {
     documentV2ApiService,
     documentV2Service,
     excludedSearchTermService,
+    extensionSdkService,
     feature,
     filterFactory,
     filterService,
@@ -32,6 +34,7 @@ export {
     ruleConditionsConfigApiService,
     seoUrlTemplateService,
     serviceRegistryClient,
+    shopIdChangeService,
     shopwareServicesService,
     snippetService,
     snippetSetService,

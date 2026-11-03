@@ -1,4 +1,14 @@
 /**
+ * The name the appActionButtonService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [appActionButtonService] };
+ *
+ * @public
+ */
+export const appActionButtonService = 'appActionButtonService';
+
+/**
  * The name the cacheApiService service is registered and injected under.
  *
  * @example
@@ -77,6 +87,16 @@ export const documentV2Service = 'documentV2Service';
  * @public
  */
 export const excludedSearchTermService = 'excludedSearchTermService';
+
+/**
+ * The name the extensionSdkService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [extensionSdkService] };
+ *
+ * @public
+ */
+export const extensionSdkService = 'extensionSdkService';
 
 /**
  * @sw-package framework
@@ -191,6 +211,16 @@ export const ruleConditionsConfigApiService = 'ruleConditionsConfigApiService';
  * @public
  */
 export const seoUrlTemplateService = 'seoUrlTemplateService';
+
+/**
+ * The name the shopIdChangeService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [shopIdChangeService] };
+ *
+ * @public
+ */
+export const shopIdChangeService = 'shopIdChangeService';
 
 /**
  * Activates and deactivates Shopware services and reads the permissions they ask for.

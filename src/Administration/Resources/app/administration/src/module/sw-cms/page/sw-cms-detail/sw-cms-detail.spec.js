@@ -9,7 +9,7 @@ import { reactive } from 'vue';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
+import CmsPageTypeService from '../../service/cms-page-type.service';
 
 const { CMS } = Shopware.Constants;
 

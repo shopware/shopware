@@ -2,21 +2,27 @@
  * @sw-package framework
  */
 
-import type { ShopIdCheck, Strategy } from 'src/core/service/api/shop-id-change.service';
 import template from './sw-app-shop-id-change-modal.html.twig';
 import './sw-app-shop-id-change-modal.scss';
+import {
+    notificationMixin,
+    shopIdChangeService,
+    type ShopIdCheck,
+    type Strategy,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['shopIdChangeService'],
+    inject: [shopIdChangeService],
 
     emits: ['modal-close'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         shopIdCheck: {

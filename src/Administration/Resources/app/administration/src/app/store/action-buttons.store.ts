@@ -7,10 +7,16 @@ type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>;
 
 /**
  * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const actionButtonsStoreId = 'actionButtons';
+
+/**
+ * @private
  * @description Store for action buttons
  */
 const actionButtonsStore = Shopware.Store.register({
-    id: 'actionButtons',
+    id: actionButtonsStoreId,
 
     state: () => ({
         /**

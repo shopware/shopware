@@ -4,8 +4,7 @@
 
 import template from './sw-app-action-button.html.twig';
 import './sw-app-action-button.scss';
-
-const { Context } = Shopware;
+import { aclService, getAppContext, useSessionStore } from '../dependencies';
 
 /**
  * @private
@@ -13,7 +12,7 @@ const { Context } = Shopware;
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     emits: ['run-app-action'],
 
@@ -26,8 +25,8 @@ export default {
 
     computed: {
         buttonLabel() {
-            const currentLocale = Shopware.Store.get('session').currentLocale;
-            const fallbackLocale = Context.app.fallbackLocale;
+            const currentLocale = useSessionStore().currentLocale;
+            const fallbackLocale = getAppContext().fallbackLocale;
 
             if (typeof this.action.label === 'string') {
                 return this.action.label;

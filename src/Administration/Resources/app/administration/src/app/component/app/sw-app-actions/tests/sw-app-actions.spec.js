@@ -4,11 +4,11 @@
 
 import { config, mount } from '@vue/test-utils';
 import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon';
-import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
-import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action.fixtures';
-import 'src/app/component/app/sw-app-actions';
+import InvalidActionButtonParameterError from '../../../../../core/service/api/errors/InvalidActionButtonParameterError';
+import { createRouter, actionButtonData, actionResultData } from '../src/_fixtures/app-action.fixtures';
+import 'src/app/component/app/sw-app-actions/src/sw-app-actions';
 import 'src/app/component/base/sw-button';
-import 'src/app/component/app/sw-app-action-button';
+import 'src/app/component/app/sw-app-action-button/src/sw-app-action-button';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';

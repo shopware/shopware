@@ -1,3 +1,9 @@
+import 'src/app/component/app/sw-app-action-button/register';
+import 'src/app/component/app/sw-app-actions/register';
+import 'src/app/component/app/sw-app-shop-id-change-modal/register';
+import 'src/app/component/app/sw-app-topbar-button/register';
+import 'src/app/component/app/sw-app-topbar-sidebar/register';
+import 'src/app/component/app/sw-app-wrong-app-url-modal/register';
 /**
  * @sw-package framework
  * @private
@@ -454,18 +460,6 @@ export default () => {
     Shopware.Component.register('sw-alert-deprecated', () => import('src/app/component/base/sw-alert-deprecated/index'));
     Shopware.Component.register('sw-alert', () => import('src/app/component/base/sw-alert/index'));
     Shopware.Component.register('sw-address', () => import('src/app/component/base/sw-address/index'));
-    Shopware.Component.register(
-        'sw-app-wrong-app-url-modal',
-        () => import('src/app/component/app/sw-app-wrong-app-url-modal/index'),
-    );
-    Shopware.Component.register('sw-app-topbar-button', () => import('src/app/component/app/sw-app-topbar-button/index'));
-    Shopware.Component.register('sw-app-topbar-sidebar', () => import('src/app/component/app/sw-app-topbar-sidebar/index'));
-    Shopware.Component.register(
-        'sw-app-shop-id-change-modal',
-        () => import('src/app/component/app/sw-app-shop-id-change-modal/index'),
-    );
-    Shopware.Component.register('sw-app-actions', () => import('src/app/component/app/sw-app-actions/index'));
-    Shopware.Component.register('sw-app-action-button', () => import('src/app/component/app/sw-app-action-button/index'));
     Shopware.Component.register('sw-code-editor', () => import('src/app/component/form/sw-code-editor'));
     Shopware.Component.register('sw-datepicker', () => import('src/app/component/form/sw-datepicker'));
     Shopware.Component.register('sw-datepicker-deprecated', () => import('src/app/component/form/sw-datepicker-deprecated'));

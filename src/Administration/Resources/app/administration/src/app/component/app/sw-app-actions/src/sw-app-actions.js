@@ -4,9 +4,16 @@
 
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
-
-const { Mixin } = Shopware;
-const { hasOwnProperty } = Shopware.Utils.object;
+import {
+    appActionButtonService,
+    extensionSdkService,
+    featureService,
+    getUserConfigService,
+    hasOwnProperty,
+    notificationMixin,
+    useActionButtonsStore,
+    useShopwareAppsStore,
+} from '../dependencies';
 
 const actionTypeConstants = Object.freeze({
     ACTION_SHOW_NOTIFICATION: 'notification',
@@ -46,9 +53,9 @@ export default {
         view: (currentComponent) => `${currentComponent.view}`,
     },
 
-    inject: ['feature', 'appActionButtonService', 'extensionSdkService'],
+    inject: [featureService, appActionButtonService, extensionSdkService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -80,11 +87,11 @@ export default {
         },
 
         params() {
-            return Shopware.Store.get('shopwareApps').selectedIds;
+            return useShopwareAppsStore().selectedIds;
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },
@@ -208,7 +215,7 @@ export default {
         async getUserConfig() {
             this.iframeUserConfig = {
                 key: IFRAME_KEY,
-                value: (await Shopware.Service('userConfigService').search([IFRAME_KEY]))?.data?.[IFRAME_KEY] || {
+                value: (await getUserConfigService().search([IFRAME_KEY]))?.data?.[IFRAME_KEY] || {
                     isShowModalConfirm: true,
                 },
             };
@@ -224,7 +231,7 @@ export default {
                 isShowModalConfirm: value,
             };
 
-            Shopware.Service('userConfigService')
+            getUserConfigService()
                 .upsert({
                     [IFRAME_KEY]: this.iframeUserConfig.value,
                 })

@@ -165,42 +165,42 @@
       "count": 2
     }
   },
-  "src/app/component/app/sw-app-action-button/index.js": {
+  "src/app/component/app/sw-app-action-button/src/sw-app-action-button.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/app/sw-app-action-button/sw-app-action-button.spec.js": {
+  "src/app/component/app/sw-app-action-button/tests/sw-app-action-button.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/app/component/app/sw-app-actions/index.js": {
+  "src/app/component/app/sw-app-actions/src/sw-app-actions.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/app/sw-app-actions/sw-app-actions.spec.js": {
+  "src/app/component/app/sw-app-actions/tests/sw-app-actions.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 10
     }
   },
-  "src/app/component/app/sw-app-shop-id-change-modal/sw-app-shop-id-change-modal.spec.js": {
+  "src/app/component/app/sw-app-shop-id-change-modal/tests/sw-app-shop-id-change-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }
   },
-  "src/app/component/app/sw-app-topbar-button/index.js": {
+  "src/app/component/app/sw-app-topbar-button/src/sw-app-topbar-button.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/app/sw-app-wrong-app-url-modal/index.js": {
+  "src/app/component/app/sw-app-wrong-app-url-modal/src/sw-app-wrong-app-url-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/app/sw-app-wrong-app-url-modal/sw-app-wrong-app-url-modal.spec.js": {
+  "src/app/component/app/sw-app-wrong-app-url-modal/tests/sw-app-wrong-app-url-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }

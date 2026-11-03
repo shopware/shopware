@@ -23,8 +23,14 @@ function clearPendingClose(): void {
     }
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const sidebarStoreId = 'sidebar';
+
 const sidebarsStore = Shopware.Store.register({
-    id: 'sidebar',
+    id: sidebarStoreId,
 
     state: () => ({
         sidebars: [] as SidebarItemEntry[],

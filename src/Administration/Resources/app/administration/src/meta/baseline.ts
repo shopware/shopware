@@ -19,8 +19,6 @@ const missingTests = [
     'src/app/component/form/sw-boolean-radio-group/index.js',
     'src/app/component/form/sw-compact-colorpicker/index.js',
     'src/app/component/form/sw-email-field-deprecated/index.js',
-    'src/app/component/grid/sw-grid/index.js',
-    'src/app/component/grid/sw-grid-row/index.js',
     'src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js',
     'src/app/component/rule/condition-type/sw-condition-goods-count/index.js',
     'src/app/component/rule/condition-type/sw-condition-goods-price/index.js',

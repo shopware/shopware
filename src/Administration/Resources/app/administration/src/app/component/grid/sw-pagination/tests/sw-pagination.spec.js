@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/grid/sw-pagination';
+import 'src/app/component/grid/sw-pagination/src/sw-pagination';
 
 describe('src/component/grid/sw-pagination', () => {
     let wrapper;

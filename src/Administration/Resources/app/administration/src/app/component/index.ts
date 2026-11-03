@@ -131,6 +131,10 @@ import 'src/app/component/filter/sw-number-filter/register';
 import 'src/app/component/filter/sw-range-filter/register';
 import 'src/app/component/filter/sw-sidebar-filter-panel/register';
 import 'src/app/component/filter/sw-string-filter/register';
+import 'src/app/component/grid/sw-grid/register';
+import 'src/app/component/grid/sw-grid-column/register';
+import 'src/app/component/grid/sw-grid-row/register';
+import 'src/app/component/grid/sw-pagination/register';
 /**
  * @sw-package framework
  * @private
@@ -320,10 +324,6 @@ export default () => {
     Shopware.Component.register('sw-meteor-navigation', () => import('src/app/component/meteor/sw-meteor-navigation/index'));
     Shopware.Component.register('sw-meteor-card', () => import('src/app/component/meteor/sw-meteor-card/index'));
     Shopware.Component.register('sw-sortable-list', () => import('src/app/component/list/sw-sortable-list/index'));
-    Shopware.Component.register('sw-pagination', () => import('src/app/component/grid/sw-pagination/index'));
-    Shopware.Component.register('sw-grid-row', () => import('src/app/component/grid/sw-grid-row/index'));
-    Shopware.Component.register('sw-grid-column', () => import('src/app/component/grid/sw-grid-column/index'));
-    Shopware.Component.register('sw-grid', () => import('src/app/component/grid/sw-grid/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
     Shopware.Component.register(
         'sw-boolean-radio-group',

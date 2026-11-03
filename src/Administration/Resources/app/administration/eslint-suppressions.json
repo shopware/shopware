@@ -1239,17 +1239,17 @@
       "count": 23
     }
   },
-  "src/app/component/grid/sw-grid-column/index.js": {
+  "src/app/component/grid/sw-grid-column/src/sw-grid-column.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/grid/sw-grid-row/index.js": {
+  "src/app/component/grid/sw-grid-row/src/sw-grid-row.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/grid/sw-grid/index.js": {
+  "src/app/component/grid/sw-grid/src/sw-grid.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1257,7 +1257,7 @@
       "count": 1
     }
   },
-  "src/app/component/grid/sw-pagination/index.js": {
+  "src/app/component/grid/sw-pagination/src/sw-pagination.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1265,7 +1265,7 @@
       "count": 1
     }
   },
-  "src/app/component/grid/sw-pagination/sw-pagination.spec.js": {
+  "src/app/component/grid/sw-pagination/tests/sw-pagination.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 25
     }

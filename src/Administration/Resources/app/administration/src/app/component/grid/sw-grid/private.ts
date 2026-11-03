@@ -1,0 +1,95 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package framework
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-grid',
+    load: () => import('./src/sw-grid'),
+    public: {
+        props: [
+            'items',
+            'selectable',
+            'variant',
+            'header',
+            'sortBy',
+            'sortDirection',
+            'isFullpage',
+            'table',
+            'allowInlineEdit',
+        ],
+        emits: [
+            'inline-edit-finish',
+            'inline-edit-start',
+            'sw-grid-disable-inline-editing',
+            'inline-edit-cancel',
+            'sw-grid-select-all',
+            'sw-grid-select-item',
+            'sort-column',
+        ],
+        slots: [
+            'content',
+            'header',
+            'body',
+            'items',
+            'columns',
+            'empty',
+            'pagination',
+        ],
+        blocks: [
+            'sw_grid',
+            'sw_grid_slot_content',
+            'sw_grid_slot_header',
+            'sw_grid_slot_header_cell_selectable',
+            'sw_grid_slot_header_cell',
+            'sw_grid_slot_header_cell_content',
+            'sw_grid_slot_header_cell_icon_label',
+            'sw_grid_slot_header_cell_label',
+            'sw_grid_slot_header_cell_sortable',
+            'sw_grid_slot_body',
+            'sw_grid_body_slot_items',
+            'sw_grid_body_item_selectable',
+            'sw_grid_slot_columns',
+            'sw_grid_slot_empty_columns',
+            'sw_grid_slot_empty_columns_content',
+            'sw_grid_pagination',
+            'sw_grid_slot_pagination',
+        ],
+        computed: [
+            'sort',
+            'sortDir',
+            'sizeClass',
+            'hasPaginationSlot',
+            'gridClasses',
+            'gridContentClasses',
+            'columnFlex',
+        ],
+        methods: [
+            'createdComponent',
+            'updatedComponent',
+            'registerGridDisableInlineEditListener',
+            'unregisterGridDisableInlineEditListener',
+            'onInlineEditFinish',
+            'onInlineEditStart',
+            'registerInlineEditingEvents',
+            'inlineEditingStart',
+            'disableActiveInlineEditing',
+            'selectAll',
+            'getSelection',
+            'selectItem',
+            'isSelected',
+            'checkSelection',
+            'getScrollBarWidth',
+            'onGridCellClick',
+            'setScrollbarOffset',
+            'setColumns',
+            'getKey',
+            'startInlineEditing',
+        ],
+    },
+});

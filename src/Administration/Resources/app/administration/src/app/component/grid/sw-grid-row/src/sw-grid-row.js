@@ -1,7 +1,8 @@
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.scss';
+import { Utils } from '../dependencies';
 
-const utils = Shopware.Utils;
+const utils = Utils;
 
 /**
  * @sw-package framework

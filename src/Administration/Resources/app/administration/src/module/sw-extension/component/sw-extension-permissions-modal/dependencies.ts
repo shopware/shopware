@@ -1,0 +1,9 @@
+/**
+ * @sw-package checkout
+ *
+ * Everything sw-extension-permissions-modal needs from outside its mini-module.
+ */
+import { assetFilterName } from 'src/app/filter/asset.filter';
+
+/** @private */
+export const getAssetFilter = () => Shopware.Filter.getByName(assetFilterName);

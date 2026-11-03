@@ -23,8 +23,14 @@ interface ExtensionSdkModuleState {
     hiddenSmartBars: string[];
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const extensionSdkModulesStoreId = 'extensionSdkModules';
+
 const extensionSdkModules = Shopware.Store.register({
-    id: 'extensionSdkModules',
+    id: extensionSdkModulesStoreId,
 
     state: (): ExtensionSdkModuleState => ({
         modules: [],

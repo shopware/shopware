@@ -13,8 +13,14 @@ interface MainModuleState {
     mainModules: MainModule[];
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const extensionMainModulesStoreId = 'extensionMainModules';
+
 const extensionMainModules = Shopware.Store.register({
-    id: 'extensionMainModules',
+    id: extensionMainModulesStoreId,
 
     state: (): MainModuleState => ({
         mainModules: [],

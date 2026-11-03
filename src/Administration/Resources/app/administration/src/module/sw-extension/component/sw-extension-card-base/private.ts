@@ -1,0 +1,92 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package checkout
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-extension-card-base',
+    load: () => import('./src/sw-extension-card-base'),
+    public: {
+        props: [
+            'extension',
+            'selected',
+            'bulkLoading',
+        ],
+        emits: [
+            'update-list',
+            'select-change',
+        ],
+        blocks: [
+            'sw_extension_card_base_activation_switch_switch',
+            'sw_extension_card_base_activation_switch',
+            'sw_extension_card_base_info_inactive_label',
+            'sw_extension_card_base_info_content',
+            'sw_extension_card_base_context_menu_actions',
+            'sw_extension_card_base_context_menu_actions_additional',
+            'sw_extension_card_base_modals',
+        ],
+        computed: [
+            'showLoader',
+            'dateFilter',
+            'defaultThemeAsset',
+            'extensionCardClasses',
+            'licensedExtension',
+            'image',
+            'isActive',
+            'allowDisable',
+            'isInstalled',
+            'privacyPolicyLink',
+            'permissions',
+            'assetFilter',
+            'isRemovable',
+            'isUninstallable',
+            'hasActiveSubscription',
+            'isUpdateable',
+            'openLinkExists',
+            'extensionMainModule',
+            'configLink',
+            'link',
+            'consentAffirmationModalActionLabel',
+            'consentAffirmationModalCloseLabel',
+            'consentAffirmationModalTitle',
+            'consentAffirmationModalDescription',
+            'extensionManagementDisabled',
+            'showContextMenu',
+        ],
+        methods: [
+            'createdComponent',
+            'emitUpdateList',
+            'getHelp',
+            'openPrivacyAndSafety',
+            'openRemovalModal',
+            'openUninstallModal',
+            'closeRemovalModal',
+            'closeUninstallModal',
+            'closeModalAndUninstallExtension',
+            'updateExtension',
+            'closeModalAndRemoveExtension',
+            'openExtension',
+            'openPermissionsModalForInstall',
+            'openPermissionsModal',
+            'closePermissionsModal',
+            'closePermissionsModalAndInstallExtension',
+            'changeExtensionStatus',
+            'installExtension',
+            'installAndActivateExtension',
+            'removeExtension',
+            'cancelAndRemoveExtension',
+            'openPrivacyModal',
+            'closePrivacyModal',
+            '_reloadPage',
+            'clearCacheAndReloadPage',
+            'openConsentAffirmationModal',
+            'closeConsentAffirmationModal',
+            'closeConsentAffirmationModalAndUpdateExtension',
+        ],
+    },
+});

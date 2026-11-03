@@ -7087,42 +7087,42 @@
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-adding-failed/index.js": {
+  "src/module/sw-extension/component/sw-extension-adding-failed/src/sw-extension-adding-failed.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-adding-success/index.js": {
+  "src/module/sw-extension/component/sw-extension-adding-success/src/sw-extension-adding-success.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-bulk-actions-bar/index.js": {
+  "src/module/sw-extension/component/sw-extension-bulk-actions-bar/src/sw-extension-bulk-actions-bar.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/src/sw-extension-bulk-deactivation-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/sw-extension-bulk-deactivation-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/tests/sw-extension-bulk-deactivation-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-extension/component/sw-extension-bulk-uninstall-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-bulk-uninstall-modal/src/sw-extension-bulk-uninstall-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-bulk-uninstall-modal/sw-extension-bulk-uninstall-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-bulk-uninstall-modal/tests/sw-extension-bulk-uninstall-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-extension/component/sw-extension-card-base/index.js": {
+  "src/module/sw-extension/component/sw-extension-card-base/src/sw-extension-card-base.js": {
     "complexity": {
       "count": 1
     },
@@ -7130,17 +7130,17 @@
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-card-base/sw-extension-card-base.spec.js": {
+  "src/module/sw-extension/component/sw-extension-card-base/tests/sw-extension-card-base.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-extension/component/sw-extension-card-bought/index.js": {
+  "src/module/sw-extension/component/sw-extension-card-bought/src/sw-extension-card-bought.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-card-bought/sw-extension-card-bought.spec.js": {
+  "src/module/sw-extension/component/sw-extension-card-bought/tests/sw-extension-card-bought.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
@@ -7148,132 +7148,132 @@
       "count": 6
     }
   },
-  "src/module/sw-extension/component/sw-extension-deactivation-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-deactivation-modal/src/sw-extension-deactivation-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-deactivation-modal/sw-extension-deactivation-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-deactivation-modal/tests/sw-extension-deactivation-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-extension/component/sw-extension-domains-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-domains-modal/src/sw-extension-domains-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-file-upload/index.js": {
+  "src/module/sw-extension/component/sw-extension-file-upload/src/sw-extension-file-upload.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-file-upload/sw-extension-file-upload.spec.js": {
+  "src/module/sw-extension/component/sw-extension-file-upload/tests/sw-extension-file-upload.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-extension/component/sw-extension-my-extensions-listing-controls/index.js": {
+  "src/module/sw-extension/component/sw-extension-my-extensions-listing-controls/src/sw-extension-my-extensions-listing-controls.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-my-extensions-listing-controls/sw-extension-my-extensions-listing-controls.spec.js": {
+  "src/module/sw-extension/component/sw-extension-my-extensions-listing-controls/tests/sw-extension-my-extensions-listing-controls.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-extension/component/sw-extension-permissions-details-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-permissions-details-modal/src/sw-extension-permissions-details-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-permissions-details-modal/tests/sw-extension-permissions-details-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-extension/component/sw-extension-permissions-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-permissions-modal/src/sw-extension-permissions-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-permissions-modal/sw-extension-permissions-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-permissions-modal/tests/sw-extension-permissions-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal/src/sw-extension-privacy-policy-extensions-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-removal-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-removal-modal/src/sw-extension-removal-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-removal-modal/sw-extension-removal-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-removal-modal/tests/sw-extension-removal-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }
   },
-  "src/module/sw-extension/component/sw-extension-uninstall-modal/index.js": {
+  "src/module/sw-extension/component/sw-extension-uninstall-modal/src/sw-extension-uninstall-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-uninstall-modal/sw-extension-uninstall-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-uninstall-modal/tests/sw-extension-uninstall-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/src/sw-extension-rating-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars/src/sw-extension-rating-stars.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card/src/sw-extension-ratings-card.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary/src/sw-extension-ratings-summary.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs/src/sw-extension-review-creation-inputs.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation/src/sw-extension-review-creation.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation/sw-extension-review-creation.spec.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation/tests/sw-extension-review-creation.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-review-reply/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-reply/src/sw-extension-review-reply.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-review/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review/src/sw-extension-review.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-ratings/sw-extension-select-rating/index.js": {
+  "src/module/sw-extension/component/sw-ratings/sw-extension-select-rating/src/sw-extension-select-rating.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -7304,7 +7304,7 @@
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-app-module-page/index.ts": {
+  "src/module/sw-extension/page/sw-extension-app-module-page/src/sw-extension-app-module-page.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -7312,7 +7312,7 @@
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-config/index.ts": {
+  "src/module/sw-extension/page/sw-extension-config/src/sw-extension-config.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7320,12 +7320,12 @@
       "count": 2
     }
   },
-  "src/module/sw-extension/page/sw-extension-config/sw-extension-config.spec.js": {
+  "src/module/sw-extension/page/sw-extension-config/tests/sw-extension-config.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 13
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-account/index.ts": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-account/src/sw-extension-my-extensions-account.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
     },
@@ -7333,17 +7333,17 @@
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-index/index.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-index/src/sw-extension-my-extensions-index.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-index/sw-extension-my-extensions-index.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-index/tests/sw-extension-my-extensions-index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/index.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/src/sw-extension-my-extensions-listing.js": {
     "complexity": {
       "count": 1
     },
@@ -7384,17 +7384,17 @@
       "count": 44
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-recommendation/index.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-recommendation/src/sw-extension-my-extensions-recommendation.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-store-landing-page/index.js": {
+  "src/module/sw-extension/page/sw-extension-store-landing-page/src/sw-extension-store-landing-page.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-store-landing-page/sw-extension-store-landing-page.spec.js": {
+  "src/module/sw-extension/page/sw-extension-store-landing-page/tests/sw-extension-store-landing-page.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }

@@ -1,4 +1,4 @@
-import template from '../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
+import template from '../sw-extension-permissions-details-modal/src/sw-extension-permissions-details-modal.html.twig';
 
 /**
  * @sw-package checkout

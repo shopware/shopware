@@ -229,6 +229,16 @@ export const entityHydrator = 'entityHydrator';
 export const excludedSearchTermService = 'excludedSearchTermService';
 
 /**
+ * The name the extensionHelperService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [extensionHelperService] };
+ *
+ * @public
+ */
+export const extensionHelperService = 'extensionHelperService';
+
+/**
  * The name the extensionSdkService service is registered and injected under.
  *
  * @example
@@ -543,6 +553,16 @@ export const seoUrlTemplateService = 'seoUrlTemplateService';
 export const shopIdChangeService = 'shopIdChangeService';
 
 /**
+ * The name the shopwareExtensionService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [shopwareExtensionService] };
+ *
+ * @public
+ */
+export const shopwareExtensionService = 'shopwareExtensionService';
+
+/**
  * Activates and deactivates Shopware services and reads the permissions they ask for.
  *
  * @example
@@ -631,6 +651,16 @@ export const snippetSetService = 'snippetSetService';
  * @public
  */
 export const stateStyleDataProviderService = 'stateStyleDataProviderService';
+
+/**
+ * The name the storeService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [storeService] };
+ *
+ * @public
+ */
+export const storeService = 'storeService';
 
 /**
  * The name the syncService service is registered and injected under.

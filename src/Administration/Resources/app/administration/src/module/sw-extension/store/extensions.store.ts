@@ -32,8 +32,14 @@ type SearchValue<T, K extends keyof T> = {
     value: T[K];
 };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const shopwareExtensionsStoreId = 'shopwareExtensions';
+
 const shopwareExtensionsStore = Shopware.Store.register({
-    id: 'shopwareExtensions',
+    id: shopwareExtensionsStoreId,
 
     state: () =>
         ({

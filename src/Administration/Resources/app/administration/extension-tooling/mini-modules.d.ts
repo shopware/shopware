@@ -365,3 +365,4 @@ import '../src/module/sw-media/page/sw-media-index/global';
 import '../src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/global';
 import '../src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/global';
 import '../src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/global';
+import '../src/module/sw-privilege-error/page/sw-privilege-error/global';

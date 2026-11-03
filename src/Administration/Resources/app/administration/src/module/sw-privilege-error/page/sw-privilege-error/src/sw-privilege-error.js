@@ -4,8 +4,11 @@
 
 import template from './sw-privilege-error.html.twig';
 import './sw-privilege-error.scss';
+import { getAssetFilter } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -17,7 +20,7 @@ export default {
 
     computed: {
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 

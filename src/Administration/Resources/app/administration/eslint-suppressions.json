@@ -9394,7 +9394,7 @@
       "count": 1
     }
   },
-  "src/module/sw-privilege-error/page/sw-privilege-error/index.js": {
+  "src/module/sw-privilege-error/page/sw-privilege-error/src/sw-privilege-error.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9402,7 +9402,7 @@
       "count": 1
     }
   },
-  "src/module/sw-privilege-error/page/sw-privilege-error/sw-privilege-error.spec.js": {
+  "src/module/sw-privilege-error/page/sw-privilege-error/tests/sw-privilege-error.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }

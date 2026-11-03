@@ -2,18 +2,14 @@ import './acl';
 import './component/sw-settings-shipping-price-matrix/register';
 import defaultSearchConfiguration from './default-search-configuration';
 import './component/sw-settings-shipping-price-matrices/register';
+import './component/sw-price-rule-modal/register';
+import './component/sw-settings-shipping-tax-cost/register';
+import './page/sw-settings-shipping-list/register';
 
 const { Module } = Shopware;
 
-/**
- * @sw-package checkout
- */
-
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-shipping-list', () => import('./page/sw-settings-shipping-list'));
 Shopware.Component.register('sw-settings-shipping-detail', () => import('./page/sw-settings-shipping-detail'));
-Shopware.Component.extend('sw-price-rule-modal', 'sw-rule-modal', () => import('./component/sw-price-rule-modal'));
-Shopware.Component.register('sw-settings-shipping-tax-cost', () => import('./component/sw-settings-shipping-tax-cost'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

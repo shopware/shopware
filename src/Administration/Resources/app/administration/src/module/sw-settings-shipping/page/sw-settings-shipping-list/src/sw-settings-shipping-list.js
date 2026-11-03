@@ -1,5 +1,6 @@
 import template from './sw-settings-shipping-list.html.twig';
 import './sw-settings-shipping-list.scss';
+import { aclService, repositoryFactoryService, useContextStore } from '../dependencies';
 
 const {
     Mixin,
@@ -8,12 +9,13 @@ const {
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
@@ -190,7 +192,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 

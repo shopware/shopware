@@ -40,12 +40,16 @@ process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache'
 const isCi = (() => {
     return process.argv.some((arg) => arg === '--ci');
 })();
+
+// The extension-tooling e2e specs run the real ESLint/tsc toolchain against fixture projects and
+// take minutes, which unbalances sharded unit runs. They run separately via `npm run unit:extension-tooling-e2e`.
+const e2eSpecPattern = '<rootDir>/scripts/**/e2e.spec/**/*.spec.ts';
 const isDocker = existsSync('/.dockerenv');
 
 // The extension-tooling e2e specs scaffold a project and run the real vue-tsc/ESLint
 // toolchain, so they are slow and turn red on any unrelated type or lint breakage.
-// Gated to a dedicated nightly job (see admin.yml) instead of every pull request.
-const runExtensionToolingE2e = process.env.EXTENSION_TOOLING_E2E === '1';
+// Support the nightly job and the optional JEST_E2E alias.
+const runExtensionToolingE2e = process.env.EXTENSION_TOOLING_E2E === '1' || process.env.JEST_E2E === '1';
 
 if (isCi) {
     // eslint-disable-next-line no-console
@@ -75,20 +79,21 @@ const config: Config = {
         projectRoot: process.env.PROJECT_ROOT,
     },
 
-    globalTeardown: '<rootDir>test/globalTeardown.js',
-
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
     testEnvironment: '<rootDir>/test/_setup/feature-flag-test-environment.js',
 
     // Worker configuration - prevent OOM kills while maximizing parallelism
-    // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
-    workerIdleMemoryLimit: '1GB',
+    // Memory limit per worker to prevent SIGSEGV crashes from memory pressure.
+    // Keep the default conservative for constrained Docker setups; CI raises it via env.
+    workerIdleMemoryLimit: process.env.JEST_WORKER_IDLE_MEMORY_LIMIT || '1GB',
     // Full CPU parallelism can cause worker OOM kills in constrained CI/Docker runners.
     maxWorkers: process.env.JEST_MAX_WORKERS || (isDocker ? '100%' : '50%'),
     testTimeout: process.env.JEST_TEST_TIMEOUT ? Number(process.env.JEST_TEST_TIMEOUT) : isCi || isDocker ? 10000 : 5000,
     collectCoverage: isCi,
+    // V8 coverage is much cheaper than babel-plugin-istanbul instrumentation on top of @swc/jest
+    coverageProvider: 'v8',
     clearMocks: true,
     restoreMocks: true,
     moduleFileExtensions: [
@@ -236,29 +241,35 @@ const config: Config = {
               deprecationBaselineReporter,
           ],
 
-    testMatch: [
-        '<rootDir>/src/**/*.spec.js',
-        '<rootDir>/src/**/*.spec.ts',
-        '<rootDir>/src/**/*.spec/*.spec.js',
-        '<rootDir>/src/**/*.spec/*.spec.ts',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
-        '<rootDir>/eslint-rules/**/*.spec.js',
-        '<rootDir>/build/vite-plugins/**/*.spec.ts',
-        '<rootDir>/build/vite-plugins/**/*.spec.js',
-        '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
-        '<rootDir>/test/_helper_/**/*.spec.ts',
-        '<rootDir>/test/_setup/**/*.spec.ts',
-        '!<rootDir>/src/**/*.spec.vue2.js',
-        '<rootDir>/scripts/**/*.spec.ts',
-    ],
+    testMatch: runExtensionToolingE2e
+        ? [e2eSpecPattern]
+        : [
+              '<rootDir>/src/**/*.spec.js',
+              '<rootDir>/src/**/*.spec.ts',
+              '<rootDir>/src/**/*.spec/*.spec.js',
+              '<rootDir>/src/**/*.spec/*.spec.ts',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
+              '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
+              '<rootDir>/eslint-rules/**/*.spec.js',
+              '<rootDir>/build/vite-plugins/**/*.spec.ts',
+              '<rootDir>/build/vite-plugins/**/*.spec.js',
+              '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
+              '<rootDir>/test/_helper_/**/*.spec.ts',
+              '<rootDir>/test/_setup/**/*.spec.ts',
+              '!<rootDir>/src/**/*.spec.vue2.js',
+              '<rootDir>/scripts/**/*.spec.ts',
+          ],
 
-    testPathIgnorePatterns: [
-        '/node_modules/',
-        ...(runExtensionToolingE2e ? [] : ['<rootDir>/scripts/extensionTooling/e2e\\.spec/']),
-    ],
+    // Jest does not expand <rootDir> in negated testMatch globs, so the e2e exclusion
+    // lives here as a regex against absolute paths instead.
+    testPathIgnorePatterns: runExtensionToolingE2e
+        ? ['/node_modules/']
+        : [
+              '/node_modules/',
+              '/e2e\\.spec/',
+          ],
 
     testEnvironmentOptions: {
         customExportConditions: [

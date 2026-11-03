@@ -5,16 +5,19 @@ let repositoryFactoryMock;
 /**
  * @sw-package inventory
  */
-async function createWrapper(privileges = []) {
+async function createWrapper(
+    privileges = [],
+    units = [
+        {
+            id: '1a2b3c',
+            name: 'Gramm',
+            shortCode: 'g',
+        },
+    ],
+) {
     repositoryFactoryMock = {
         search() {
-            return Promise.resolve([
-                {
-                    id: '1a2b3c',
-                    name: 'Gramm',
-                    shortCode: 'g',
-                },
-            ]);
+            return Promise.resolve(units);
         },
         save(unit) {
             if (unit.id !== 'success') {
@@ -88,6 +91,7 @@ async function createWrapper(privileges = []) {
                         template: `
                     <div>
                         <template v-for="item in dataSource">
+                            <span class="sw-settings-units-list-test__unece-code"><slot name="column-uneceCode" v-bind="{ item }"></slot></span>
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>`,
@@ -244,22 +248,30 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
     });
 
     it('should show the translated name next to a common unit code', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([], [{ id: 'kg', name: 'Kilogram', shortCode: 'kg', uneceCode: 'KGM' }]);
+        await flushPromises();
 
-        expect(wrapper.vm.getUneceCodeLabel('KGM')).toBe('KGM - trans');
+        expect(wrapper.find('.sw-settings-units-list-test__unece-code').text()).toBe('KGM - trans');
     });
 
     it('should fall back to the English name when no translated name exists', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([], [{ id: 'box', name: 'Box', shortCode: 'bx', uneceCode: 'XBX' }]);
         await flushPromises();
 
-        expect(wrapper.vm.getUneceCodeLabel('XBX')).toBe('XBX - box');
+        expect(wrapper.find('.sw-settings-units-list-test__unece-code').text()).toBe('XBX - box');
     });
 
     it('should show only the unit code when the code is unknown', async () => {
+        const wrapper = await createWrapper([], [{ id: 'other', name: 'Other', shortCode: 'o', uneceCode: 'ZZZ' }]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-units-list-test__unece-code').text()).toBe('ZZZ');
+    });
+
+    it('should show nothing when the unit has no code', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.getUneceCodeLabel('ZZZ')).toBe('ZZZ');
+        expect(wrapper.find('.sw-settings-units-list-test__unece-code').text()).toBe('');
     });
 });

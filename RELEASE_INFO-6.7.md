@@ -8,6 +8,12 @@ Twig templates can no longer call methods that change the request context or the
 Reading them stays possible, for example `context.languageId`.
 Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
 
+### Store API criteria field paths are resolved per path segment
+
+Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.
+A path that uses `extensions` as a whole segment keeps working;
+a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
+Integrations that use valid field paths are unaffected.
 ### Content Security Policy for Storefront documents
 
 Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
@@ -63,6 +69,15 @@ A non-admin may no longer update or delete an admin integration; these writes ar
 Administrators are unaffected.
 The user of an access key can no longer be changed after the key was created, also not by administrators.
 
+### Presigned media upload endpoints now require ACL privileges
+
+`POST /api/_action/media/presign-upload` and `POST /api/_action/media/{mediaId}/finalize-upload` now require the `media:update` privilege.
+Preparing an upload without a `mediaId`, which creates a new media entity, additionally requires `media:create`.
+Requests with tokens lacking a privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+Administration users are not affected: the "Media creator" permission already includes `media:update`.
+Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+When `finalize-upload` fails for a new media, the media and the uploaded file are only removed if the caller also holds `media:delete`.
+Otherwise the media stays without a file.
 ### Integrations no longer act as the user named in `sw-app-user-id`
 
 A standard integration that sends the `sw-app-user-id` header keeps its own identity.

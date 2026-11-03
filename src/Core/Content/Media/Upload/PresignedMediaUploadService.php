@@ -128,7 +128,9 @@ readonly class PresignedMediaUploadService
             $this->persistMediaData($mediaId, $payload, $s3Metadata, $mimeType, $media, $context);
             $this->dispatchFinalizeEvents($mediaId, $payload->path, $mimeType, $context);
         } catch (\Throwable $e) {
-            if (!$isReplace) {
+            // The rollback deletes the media in SYSTEM_SCOPE. Any caller with media:update can trigger it on any
+            // media without a file, so it must not turn finalize into a delete for callers lacking media:delete.
+            if (!$isReplace && $context->isAllowed('media:delete')) {
                 $this->presignedUrlGenerator->deleteFromStorage($payload->path, $isPrivate);
                 $this->deleteMediaEntity($mediaId, $context);
             }

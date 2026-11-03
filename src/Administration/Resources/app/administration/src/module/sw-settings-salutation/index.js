@@ -2,10 +2,10 @@
  * @sw-package checkout
  */
 import './acl';
+import './page/sw-settings-salutation-detail/register';
+import './page/sw-settings-salutation-list/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-salutation-list', () => import('./page/sw-settings-salutation-list'));
-Shopware.Component.register('sw-settings-salutation-detail', () => import('./page/sw-settings-salutation-detail'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

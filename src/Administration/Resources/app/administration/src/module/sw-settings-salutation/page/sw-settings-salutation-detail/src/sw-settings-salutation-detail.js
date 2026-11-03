@@ -2,23 +2,34 @@
  * @sw-package checkout
  */
 import template from './sw-settings-salutation-detail.html.twig';
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    discardDetailPageChangesMixin,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    useContextStore,
+    Utils,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const utils = Shopware.Utils;
+const utils = Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [repositoryFactoryService, aclService, customFieldDataProviderService],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('salutation'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('salutation'),
     ],
 
     props: {
@@ -148,7 +159,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.salutation = this.salutationRepository.create();
             this.isLoading = false;
         },

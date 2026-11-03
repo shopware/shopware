@@ -107,6 +107,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the list view selects layouts with radio buttons
          */
         gridPreSelection() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-layout-modal.gridPreSelection is deprecated. Will be removed, because the list view selects layouts with radio buttons.',
+            );
+
             if (!this.selectedPageObject?.id) {
                 return {};
             }
@@ -170,6 +175,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the list view selects layouts with radio buttons
          */
         selectInGrid(column) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-layout-modal.selectInGrid() is deprecated. Will be removed, because the list view selects layouts with radio buttons.',
+            );
+
             const columnEntries = Object.values(column);
             if (columnEntries.length === 0) {
                 this.selectedPageObject = null;

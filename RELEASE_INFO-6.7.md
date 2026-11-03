@@ -233,10 +233,12 @@ bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --
 
 `--target` defaults to the newest major the installed Administration ships codemods for, and `--list` shows them.
 `--write` refuses extensions that are not committed to git.
+`--only` also finds plugins in `custom/plugins` that are not installed or activated.
 `--with=sfc-migration` additionally converts Options API components into native setup SFCs.
 
 `composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
 It now prints a deprecation warning.
+
 ### CMS layout overview places the page type navigation in a grid
 
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.

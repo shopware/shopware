@@ -141,11 +141,14 @@ With shopware-cli use `shopware-cli project console administration:upgrade-exten
   It writes a `.vue` draft next to each component and keeps the original files registered.
   Switch the registration to the draft once you have reviewed it.
   It only converts components whose `index.js`/`index.ts` exports the options with `export default`.
-- `--write` refuses an extension that is not committed to git, so `git checkout` always undoes a run.
-  `--skip-git-check` writes anyway.
+- `--write` refuses an extension that has uncommitted or untracked changes.
+  Run `git checkout . && git clean -f` in the extension folder to undo a run.
+  `--skip-git-check` writes anyway, and then `git clean -f` can also delete files that existed before the run.
 - Vendor-installed extensions are only rewritten when you name them via `--only`.
 - The command finds extensions through `var/plugins.json`, which lists active plugins only.
-  Activate the plugin and run `bin/console bundle:dump` before you upgrade it.
+  An `--only` name that is not listed there is looked up as a folder in `custom/plugins`,
+  so you can upgrade a plugin before it is installed or activated.
+  `administration:check-extensions` has no such fallback, so activate the plugin and run `bin/console bundle:dump` before you check it.
 - Spec files are not rewritten.
 
 The report lists every spot a codemod found but could not rewrite safely.

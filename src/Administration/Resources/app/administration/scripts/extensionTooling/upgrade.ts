@@ -7,7 +7,7 @@
  * so the extension's own lint setup never changes what gets rewritten.
  *
  * A run is a dry run unless `--write` is set. Writing refuses extensions with
- * uncommitted changes, so every run can be undone with `git checkout`.
+ * uncommitted or untracked changes, so `git checkout . && git clean -f` undoes every run.
  */
 
 import fs from 'fs';
@@ -15,8 +15,10 @@ import os from 'os';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { pathToFileURL } from 'url';
+import { globSync } from 'glob';
 import { runMigration } from '../codemods/sfc-migration/run-sfc-migration';
 import { discoverProjects } from './setup';
+import { discoverProjectsFromBundles } from './setup-discovery';
 import { resolveCliSelection } from './select';
 import {
     filterSelectedProjects,
@@ -24,10 +26,11 @@ import {
     matchesProjectName,
     normalizeSelection,
     pluginsConfigPath,
+    readBundleConfig,
     resolveToolingCommands,
     toPosix,
 } from './shared';
-import type { ExtensionToolingProject } from './shared';
+import type { BundleConfig, ExtensionToolingProject } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { CODEMODS, CodemodSelectionError, availableTargets, selectCodemods } from './upgrade-codemods';
@@ -395,6 +398,39 @@ async function upgradeExtension(
     return upgrade;
 }
 
+/**
+ * The codemods only need the source, so an --only name that var/plugins.json does not list
+ * (an inactive or uninstalled plugin) is looked up as a folder in custom/plugins, like admin:code-mods did.
+ */
+function customPluginBundles(projectRoot: string, names: string[]): BundleConfig[] {
+    return names
+        .filter((name) => name === path.basename(name) && name !== '.' && name !== '..')
+        .flatMap((name) => {
+            const pluginRoot = path.join(projectRoot, 'custom', 'plugins', name);
+
+            return globSync('src/**/Resources/app/administration/src/', {
+                cwd: pluginRoot,
+                ignore: '**/node_modules/**',
+            }).map((sourcePath) => ({ technicalName: name, basePath: pluginRoot, administration: { path: sourcePath } }));
+        });
+}
+
+function discoverUpgradeProjects(
+    projectRoot: string,
+    administrationRoot: string,
+    only: string[],
+): ExtensionToolingProject[] {
+    const configPath = pluginsConfigPath(projectRoot);
+    const listed = only.length > 0 && !fs.existsSync(configPath) ? [] : readBundleConfig(configPath);
+    const projects = discoverProjectsFromBundles(projectRoot, administrationRoot, listed);
+    const unlisted = only.filter((name) => !projects.some((project) => matchesProjectName(project, name)));
+
+    return [
+        ...projects,
+        ...discoverProjectsFromBundles(projectRoot, administrationRoot, customPluginBundles(projectRoot, unlisted)),
+    ];
+}
+
 export async function upgradeExtensions(options: UpgradeExtensionsOptions): Promise<UpgradeExtensionsResult> {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
@@ -405,7 +441,7 @@ export async function upgradeExtensions(options: UpgradeExtensionsOptions): Prom
     const codemods = selectCodemods(target, optIns);
     const explicitOnly = options.explicitOnly ?? [];
     const result: UpgradeExtensionsResult = { target, write, optIns, extensions: [], fatalDiagnostics: [], exitCode: 0 };
-    const discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath(projectRoot));
+    const discovered = discoverUpgradeProjects(projectRoot, administrationRoot, options.only ?? []);
     const selection = filterSelectedProjects(discovered, options.only ?? []);
 
     if (selection.fatalDiagnostic) {
@@ -429,7 +465,7 @@ export async function upgradeExtensions(options: UpgradeExtensionsOptions): Prom
             if (state === 'dirty') {
                 return [
                     `${project.basePath} has uncommitted changes. ` +
-                        'Commit or stash them first, so you can undo the codemods with git checkout.',
+                        'Commit or stash them first, so you can undo the codemods with git checkout . && git clean -f.',
                 ];
             }
 

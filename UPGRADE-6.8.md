@@ -2636,7 +2636,8 @@ bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 
 bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write  # apply
 ```
 
-The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
+The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `-r`/`--shopware-root` becomes `--project-root`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
+`-s`/`--src` has no replacement, because the command finds the Administration source folders of an extension itself.
 
 # Storefront
 

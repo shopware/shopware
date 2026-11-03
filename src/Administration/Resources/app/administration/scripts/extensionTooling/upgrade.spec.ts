@@ -308,6 +308,63 @@ describe('scripts/extensionTooling/upgrade', () => {
         expect(fs.readFileSync(vendorTemplate, 'utf8')).toContain('<mt-button');
     });
 
+    describe('plugins that var/plugins.json does not list', () => {
+        const INACTIVE = 'custom/plugins/AcmeInactive';
+        const inactiveTemplate = () =>
+            fs.readFileSync(
+                path.join(projectRoot, INACTIVE, 'src/Resources/app/administration/src/page/acme-list/acme-list.html.twig'),
+                'utf8',
+            );
+
+        beforeEach(() => {
+            writePlugin(projectRoot, INACTIVE);
+            commitAll(path.join(projectRoot, INACTIVE));
+        });
+
+        it('upgrades them from custom/plugins only when they are named via --only', async () => {
+            const implicit = await upgradeExtensions({ projectRoot, administrationRoot, write: true });
+
+            expect(implicit.extensions.map((extension) => extension.name)).toEqual(['AcmeUpgrade']);
+            expect(inactiveTemplate()).toContain('<sw-button');
+
+            const named = await upgradeExtensions({
+                projectRoot,
+                administrationRoot,
+                only: ['AcmeInactive'],
+                explicitOnly: ['AcmeInactive'],
+                write: true,
+            });
+
+            expect(named.exitCode).toBe(0);
+            expect(named.extensions.map((extension) => extension.name)).toEqual(['AcmeInactive']);
+            expect(inactiveTemplate()).toContain('<mt-button');
+        });
+
+        it('finds them without var/plugins.json', async () => {
+            fs.rmSync(path.join(projectRoot, 'var/plugins.json'));
+
+            const result = await upgradeExtensions({ projectRoot, administrationRoot, only: ['AcmeInactive'] });
+
+            expect(result.exitCode).toBe(0);
+            expect(result.extensions[0].codemods.find((report) => report.codemod.id === 'mt-components')).toMatchObject({
+                changes: 1,
+            });
+        });
+
+        it('still rejects names that are not a folder in custom/plugins', async () => {
+            const result = await upgradeExtensions({
+                projectRoot,
+                administrationRoot,
+                only: ['AcmeMissing', '../plugins/AcmeInactive'],
+            });
+
+            expect(result.exitCode).toBe(1);
+            expect(result.fatalDiagnostics.join('\n')).toContain(
+                '--only names unknown extension(s): AcmeMissing, ../plugins/AcmeInactive.',
+            );
+        });
+    });
+
     it('rejects targets and opt-in codemods this Administration does not ship', async () => {
         await expect(upgradeExtensions({ projectRoot, administrationRoot, target: '6.9' })).rejects.toThrow(
             new CodemodSelectionError(

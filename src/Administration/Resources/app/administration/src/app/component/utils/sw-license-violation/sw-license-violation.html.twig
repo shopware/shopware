@@ -49,12 +49,16 @@
                 <td>{{ violation.extensions.licenseViolation.text }}</td>
 
                 <td class="sw-license-violation__table-actions">
+                    <p v-if="getPluginForViolation(violation) && !getPluginForViolation(violation).allowUpdate">
+                        {{ $t('sw-license-violation.removeExternally') }}
+                    </p>
                     <div
                         v-for="action in violation.extensions.licenseViolation.actions"
                         :key="action.externalLink"
                         class="sw-license-violation__table-actions-wrap"
                     >
                         <mt-button
+                            v-if="getPluginForViolation(violation)?.allowUpdate"
                             class="sw-license-violation__table-action-remove"
                             variant="critical"
                             ghost

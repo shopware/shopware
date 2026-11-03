@@ -4,6 +4,7 @@
 
 import template from './sw-filter-panel.html.twig';
 import './sw-filter-panel.scss';
+import { featureService, getFilterService, repositoryFactoryService } from '../dependencies';
 
 /**
  * @private
@@ -11,7 +12,7 @@ import './sw-filter-panel.scss';
 export default {
     template,
 
-    inject: ['feature', 'repositoryFactory'],
+    inject: [featureService, repositoryFactoryService],
 
     emits: ['criteria-changed'],
 
@@ -81,7 +82,7 @@ export default {
         criteria: {
             handler() {
                 if (this.filterChanged) {
-                    Shopware.Service('filterService')
+                    getFilterService()
                         .saveFilters(this.storeKey, this.storedFilters)
                         .then((response) => {
                             this.storedFilters = response;
@@ -107,7 +108,7 @@ export default {
             const requestId = this.storedFiltersRequestId + 1;
             this.storedFiltersRequestId = requestId;
 
-            Shopware.Service('filterService')
+            getFilterService()
                 .getStoredFilters(this.storeKey)
                 .then((filters) => {
                     if (requestId !== this.storedFiltersRequestId || this.filterChanged) {

@@ -3,8 +3,7 @@
  */
 
 import template from './sw-multi-select-filter.html.twig';
-
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, EntityCollection, getApiContext, repositoryFactoryService } from '../dependencies';
 
 /**
  * @private
@@ -12,7 +11,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['filter-update', 'filter-reset'],
 
@@ -41,7 +40,7 @@ export default {
                 return this.filter.value || [];
             }
 
-            const entities = new EntityCollection('', this.filter.schema.entity, Shopware.Context.api);
+            const entities = new EntityCollection('', this.filter.schema.entity, getApiContext());
 
             if (Array.isArray(this.filter.value)) {
                 this.filter.value.forEach((value) => {

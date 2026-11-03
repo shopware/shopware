@@ -3,13 +3,14 @@
  */
 
 import template from './sw-string-filter.html.twig';
+import { Data, wrapComponentConfig } from '../dependencies';
 
-const { Criteria } = Shopware.Data;
+const { Criteria } = Data;
 
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     emits: ['filter-update', 'filter-reset'],

@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import 'src/app/component/filter/sw-range-filter';
-import 'src/app/component/filter/sw-base-filter';
+import 'src/app/component/filter/sw-range-filter/src/sw-range-filter';
+import 'src/app/component/filter/sw-base-filter/src/sw-base-filter';
 import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;

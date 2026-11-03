@@ -121,6 +121,16 @@ import 'src/app/component/extension-api/sw-iframe-renderer/register';
 import 'src/app/component/extension/sw-extension-icon/register';
 import 'src/app/component/feedback/sw-ai-copilot-badge/register';
 import 'src/app/component/feedback/sw-ai-copilot-warning/register';
+import 'src/app/component/filter/sw-base-filter/register';
+import 'src/app/component/filter/sw-boolean-filter/register';
+import 'src/app/component/filter/sw-date-filter/register';
+import 'src/app/component/filter/sw-existence-filter/register';
+import 'src/app/component/filter/sw-filter-panel/register';
+import 'src/app/component/filter/sw-multi-select-filter/register';
+import 'src/app/component/filter/sw-number-filter/register';
+import 'src/app/component/filter/sw-range-filter/register';
+import 'src/app/component/filter/sw-sidebar-filter-panel/register';
+import 'src/app/component/filter/sw-string-filter/register';
 /**
  * @sw-package framework
  * @private
@@ -319,17 +329,6 @@ export default () => {
         'sw-boolean-radio-group',
         () => import('src/app/component/form/sw-boolean-radio-group/index'),
     );
-        'sw-sidebar-filter-panel',
-        () => import('src/app/component/filter/sw-sidebar-filter-panel/index'),
-    Shopware.Component.register('sw-range-filter', () => import('src/app/component/filter/sw-range-filter/index'));
-    Shopware.Component.register('sw-number-filter', () => import('src/app/component/filter/sw-number-filter/index'));
-        'sw-multi-select-filter',
-        () => import('src/app/component/filter/sw-multi-select-filter/index'),
-    Shopware.Component.register('sw-filter-panel', () => import('src/app/component/filter/sw-filter-panel/index'));
-    Shopware.Component.register('sw-existence-filter', () => import('src/app/component/filter/sw-existence-filter/index'));
-    Shopware.Component.register('sw-date-filter', () => import('src/app/component/filter/sw-date-filter/index'));
-    Shopware.Component.register('sw-boolean-filter', () => import('src/app/component/filter/sw-boolean-filter/index'));
-    Shopware.Component.register('sw-base-filter', () => import('src/app/component/filter/sw-base-filter/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
@@ -385,7 +384,6 @@ export default () => {
     Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
     Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));
     Shopware.Component.register('sw-sidebar-media-item', () => import('src/app/component/media/sw-sidebar-media-item'));
-    Shopware.Component.register('sw-string-filter', () => import('src/app/component/filter/sw-string-filter'));
     Shopware.Component.register(
         'sw-media-modal-renderer',
         () => import('src/app/component/structure/sw-media-modal-renderer/index'),

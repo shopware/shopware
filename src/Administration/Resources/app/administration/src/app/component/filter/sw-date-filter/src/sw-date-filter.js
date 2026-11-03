@@ -2,11 +2,9 @@
  * @sw-package framework
  */
 
-import { zonedTimeToUtc } from 'date-fns-tz';
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria, featureService, useSessionStore, zonedTimeToUtc } from '../dependencies';
 
 /**
  * @private
@@ -14,7 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['filter-reset', 'filter-update'],
 
@@ -132,7 +130,7 @@ export default {
         },
 
         userTimeZone() {
-            return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+            return useSessionStore().currentUser?.timeZone ?? 'UTC';
         },
     },
 

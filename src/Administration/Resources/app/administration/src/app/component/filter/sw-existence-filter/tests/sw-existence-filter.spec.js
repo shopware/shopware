@@ -2,13 +2,13 @@
  * @sw-package framework
  */
 
-import 'src/app/component/filter/sw-existence-filter';
-import 'src/app/component/filter/sw-base-filter';
-import 'src/app/component/form/sw-select-field';
+import 'src/app/component/filter/sw-existence-filter/src/sw-existence-filter';
+import 'src/app/component/filter/sw-base-filter/src/sw-base-filter';
+import 'src/app/component/form/sw-select-field/src/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
 import { mount } from '@vue/test-utils';
-import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
+import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
 const { Criteria } = Shopware.Data;
 

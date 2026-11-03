@@ -4,8 +4,7 @@
 
 import template from './sw-range-filter.html.twig';
 import './sw-range-filter.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria, featureService } from '../dependencies';
 
 /**
  * @private
@@ -13,7 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['filter-update'],
 

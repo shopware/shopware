@@ -94,23 +94,26 @@ describe('build/vite-plugins/vite-toolchain', () => {
     });
 
     it.each([
-        { isDev: false, bundledDev: '1', vite8: true, expected: false },
-        { isDev: true, bundledDev: undefined, vite8: true, expected: false },
-        { isDev: true, bundledDev: '0', vite8: true, expected: false },
-        { isDev: true, bundledDev: '1', vite8: false, expected: false },
-        { isDev: true, bundledDev: '1', vite8: true, expected: true },
-    ])(
-        'activates the bundled dev mode only in dev with SHOPWARE_ADMIN_BUNDLED_DEV=1 and Vite 8: %o',
-        ({ isDev, bundledDev, vite8, expected }) => {
-            dumpFeatureFlags({ ADMIN_VITE_8: vite8 });
+        { isDev: false, bundledDev: '1', vite8: true, core: false, extensions: false },
+        { isDev: false, bundledDev: 'core', vite8: true, core: false, extensions: false },
+        { isDev: true, bundledDev: undefined, vite8: true, core: false, extensions: false },
+        { isDev: true, bundledDev: '0', vite8: true, core: false, extensions: false },
+        { isDev: true, bundledDev: 'true', vite8: true, core: false, extensions: false },
+        { isDev: true, bundledDev: '1', vite8: false, core: false, extensions: false },
+        { isDev: true, bundledDev: 'core', vite8: false, core: false, extensions: false },
+        { isDev: true, bundledDev: '1', vite8: true, core: true, extensions: true },
+        { isDev: true, bundledDev: 'core', vite8: true, core: true, extensions: false },
+    ])('selects bundled delivery for the host and extensions: %o', ({ isDev, bundledDev, vite8, core, extensions }) => {
+        dumpFeatureFlags({ ADMIN_VITE_8: vite8 });
 
-            if (bundledDev === undefined) {
-                delete process.env.SHOPWARE_ADMIN_BUNDLED_DEV;
-            } else {
-                process.env.SHOPWARE_ADMIN_BUNDLED_DEV = bundledDev;
-            }
+        if (bundledDev === undefined) {
+            delete process.env.SHOPWARE_ADMIN_BUNDLED_DEV;
+        } else {
+            process.env.SHOPWARE_ADMIN_BUNDLED_DEV = bundledDev;
+        }
 
-            expect(isBundledDevActive(isDev)).toBe(expected);
-        },
-    );
+        expect(isBundledDevActive(isDev)).toBe(core);
+        expect(isBundledDevActive(isDev, 'core')).toBe(core);
+        expect(isBundledDevActive(isDev, 'extensions')).toBe(extensions);
+    });
 });

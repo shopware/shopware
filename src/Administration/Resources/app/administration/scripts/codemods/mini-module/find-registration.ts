@@ -116,7 +116,8 @@ export function findRegistrationByPath(
 }
 
 /**
- * Finds the static imports of a file whose path `matches` accepts, so a caller can point them somewhere else.
+ * Finds the static imports and `export … from` re-exports of a file whose path `matches` accepts,
+ * so a caller can point them somewhere else.
  * `start` and `end` span the path inside its quotes, `lineStart` is where the import's line begins.
  *
  * @example
@@ -130,7 +131,8 @@ export function findImports(
     const source = ts.createSourceFile('importer.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 
     return source.statements.flatMap((statement) => {
-        if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+        const isImportOrReexport = ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement);
+        if (!isImportOrReexport || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) {
             return [];
         }
 

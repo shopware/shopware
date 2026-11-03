@@ -22,6 +22,7 @@ import { findImports, findRegistration, findRegistrationByPath } from './find-re
 import { isDocumentedPrivate, markExport } from './mark-export';
 import { dropBaseImport } from './drop-base-import';
 import { dropUntestedFiles } from './drop-untested-baseline';
+import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
     expectedCodeowners,
@@ -223,7 +224,7 @@ const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifi
 };
 
 /**
- * The mini-module whose `src/` holds a file, or null: the directory with an `index.ts` or a `private.ts`,
+ * The mini-module whose `src/` or dependencies.ts holds a file, or null: the directory with an `index.ts` or a `private.ts`,
  * a `src/` and a `tests/`, as `eslint-rules/core-rules/mini-module.js` defines it.
  */
 const findEnclosingModule = (file: string) => {
@@ -234,7 +235,7 @@ const findEnclosingModule = (file: string) => {
             ['src', 'tests'].every((folder) => fs.existsSync(path.join(absolute, folder)));
 
         if (isMiniModule) {
-            return file.startsWith(`${directory}/src/`) ? directory : null;
+            return file.startsWith(`${directory}/src/`) || file === `${directory}/dependencies.ts` ? directory : null;
         }
     }
 
@@ -288,10 +289,68 @@ const moveSuppressions = (moves: Map<string, string>) => {
     fs.writeFileSync(file, JSON.stringify(sorted, null, 2));
 };
 
+/** The script files of a module's own `src/`, without specs and without the nested modules in it. */
+const moduleSourceFiles = (moduleRoot: string): string[] => {
+    const walk = (directory: string): string[] =>
+        fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+            const file = path.join(directory, entry.name);
+            if (entry.isDirectory()) {
+                return fs.existsSync(path.join(file, 'private.ts')) || fs.existsSync(path.join(file, 'index.ts'))
+                    ? []
+                    : walk(file);
+            }
+
+            return /\.[jt]s$/.test(entry.name) && !/\.(spec|d)\.[jt]s$/.test(entry.name) ? [file] : [];
+        });
+
+    return walk(path.join(adminRoot, moduleRoot, 'src'));
+};
+
+/**
+ * The new content of each file of the parent module that reaches a nested component through its dependencies.ts:
+ * dependencies.ts no longer re-exports it, and `src/` mounts it from its private.ts with `defineAsyncComponent`.
+ * Returns a string that says why when that is not safe, so the codemod moves nothing.
+ */
+const planNestingThroughDependencies = (
+    importers: ReturnType<typeof findImporters>,
+    componentDirectory: string,
+    parent: string,
+    name: string,
+): Map<string, string> | string => {
+    const planned = new Map<string, string>();
+    const dependencies = importers.filter(({ file }) => file === `${parent}/dependencies.ts`);
+    for (const { file } of dependencies) {
+        const absolute = path.join(adminRoot, file);
+        const dropped = dropComponentReexport(fs.readFileSync(absolute, 'utf8'), (specifier) =>
+            leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
+        );
+        if (!dropped) {
+            return `${file} re-exports more of ${name} than its component, so the codemod cannot nest it: move it by hand.`;
+        }
+
+        planned.set(absolute, exportDefineAsyncComponent(dropped.code));
+        for (const source of moduleSourceFiles(parent)) {
+            const privatePath = importPath(source, path.join(adminRoot, parent, 'src', name, 'private'));
+            const code = dropped.names.reduce<string | null>(
+                (current, local) => (current === null ? null : mountNested(current, local, privatePath)),
+                planned.get(source) ?? fs.readFileSync(source, 'utf8'),
+            );
+            if (code === null) {
+                return `${relative(source)} uses ${name} outside its components, so the codemod cannot mount it lazily: move it by hand.`;
+            }
+
+            planned.set(source, code);
+        }
+    }
+
+    return planned;
+};
+
 type Reading = {
     shape: Shape;
     registration: ReturnType<typeof locateRegistration>;
     importers: ReturnType<typeof findImporters>;
+    nesting?: Map<string, string>;
 };
 
 /**
@@ -323,7 +382,12 @@ const readShape = (componentDirectory: string, name: string, componentSource: st
 It moves with ${files} when the parent is migrated: run the codemod on the parent first, then on ${name} again.`;
     }
 
-    return { shape: { kind: 'nested', parent: parents[0] }, registration, importers };
+    const nesting = planNestingThroughDependencies(importers, componentDirectory, parents[0], name);
+    if (typeof nesting === 'string') {
+        return nesting;
+    }
+
+    return { shape: { kind: 'nested', parent: parents[0] }, registration, importers, nesting };
 };
 
 function run(directory: string) {
@@ -343,7 +407,7 @@ function run(directory: string) {
         return;
     }
 
-    const { shape, registration, importers } = reading;
+    const { shape, registration, importers, nesting } = reading;
     const root = shape.kind === 'nested' ? `${shape.parent}/src/${name}` : origin;
     const moduleDirectory = path.join(adminRoot, root);
     const ownApi = extractComponentApi(componentSource, templateSource);
@@ -402,7 +466,11 @@ function run(directory: string) {
         return [`${root}/${file}`];
     });
 
-    const changed = registration ? [replaceRegistration(registration)] : importThroughPrivate(importers, root);
+    nesting?.forEach((code, file) => fs.writeFileSync(file, code));
+    const sourceImporters = importers.filter(({ file }) => !file.endsWith('/dependencies.ts'));
+    const changed = registration
+        ? [replaceRegistration(registration)]
+        : [...importThroughPrivate(sourceImporters, root), ...[...(nesting?.keys() ?? [])].map(relative)];
 
     if (entryFiles['global.d.ts'] !== null && !isPrivateShape(shape)) {
         const miniModuleTypes = path.join(adminRoot, 'extension-tooling', 'mini-modules.d.ts');
@@ -520,8 +588,9 @@ TypeScript cannot check inherited names; the meta test src/meta/public-component
 ${name} is no global component, so it is now a private module in the src/ of ${shape.parent}, the module that mounts it.
 private.ts declares it with definePrivateComponent(), and its lists hold only what the parent uses.
 It has no index.ts, register.ts or global.d.ts, and needs no code owner: changes to it go through the parent's module.
-The parent now imports the declaration, so mount it lazily in its components until the page works again:
+Where the parent reached it through its dependencies.ts, the codemod mounts it already:
    SwExample: defineAsyncComponent(SwExample.load), with defineAsyncComponent from the parent's dependencies.ts.
+Where the parent imported it directly, it now imports the declaration: mount it the same way until the page works again.
    A template ref of the parent is typed with PrivateInstance<typeof SwExample>.
 `;
     }

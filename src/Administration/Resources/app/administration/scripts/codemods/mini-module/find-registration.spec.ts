@@ -134,3 +134,16 @@ Shopware.Component.register('sw-cms-el-text', () => import('./component'));
         expect(found?.registration).toMatchObject({ kind: 'register', specifier: './component', isPrivate: false });
     });
 });
+
+describe('findImports', () => {
+    it('finds a re-export in the dependencies.ts of a migrated parent', () => {
+        // ARRANGE
+        const source = "/** @private */\nexport { default as SwHero } from '../../component/sw-hero';\n";
+
+        // ACT
+        const imports = findImports(source, (specifier) => specifier.endsWith('sw-hero'));
+
+        // ASSERT
+        expect(imports.map(({ specifier }) => specifier)).toEqual(['../../component/sw-hero']);
+    });
+});

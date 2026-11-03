@@ -231,13 +231,14 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
+        $pluginId = $plugin->getId();
+
         if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
-            $this->removeCustomEntities($plugin->getId());
+            $this->removeCustomEntities($pluginId);
             $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
-        $pluginId = $plugin->getId();
         $this->updatePluginData(
             [
                 'id' => $pluginId,

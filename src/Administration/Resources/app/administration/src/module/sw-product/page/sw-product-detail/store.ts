@@ -30,8 +30,14 @@ type ProductDetailProduct = Entity<'product'> & {
     states?: string[];
 };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swProductDetailStoreId = 'swProductDetail';
+
 const swProductDetail = Shopware.Store.register({
-    id: 'swProductDetail',
+    id: swProductDetailStoreId,
 
     state() {
         return {

@@ -49,14 +49,15 @@ export const removalRange = (source: ts.SourceFile, statement: ts.Node) => {
 };
 
 /**
- * Why an accessor may return `any`, when the global types type the looked up name as `$TSFixMe`, or undefined.
+ * The parameter list of an accessor: it names the return type when the global types type the name as `$TSFixMe`,
+ * so the lint sees that returning `any` is what the global types say.
  *
  * @example
- * untypedNote('any', 'ServiceContainer', 'filterService');
- * // → 'ServiceContainer types filterService as $TSFixMe'
+ * accessorHead('any', 'ServiceContainer', 'filterService');
+ * // → "(): ServiceContainer['filterService']"
  */
-export const untypedNote = (typing: Typing, container: string, name: string) =>
-    typing === 'any' ? `${container} types ${name} as $TSFixMe` : undefined;
+export const accessorHead = (typing: Typing, container: string, name: string) =>
+    typing === 'any' ? `(): ${container}['${name}']` : '()';
 
 /** The text of the only argument of a call when it is a plain string, or null. */
 export const literalArgument = (call: ts.CallExpression | undefined): string | null => {

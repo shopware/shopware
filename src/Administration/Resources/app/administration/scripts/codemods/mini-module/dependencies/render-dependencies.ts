@@ -78,12 +78,7 @@ const renderAccessorImports = (imports: AccessorImport[]) => {
 const renderAccessors = (accessors: Accessor[]) =>
     [...accessors]
         .sort((a, b) => a.order - b.order || byName(a.name, b.name))
-        .map(({ name, body, untyped }) => {
-            const exception = untyped
-                ? `// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- ${untyped}\n`
-                : '';
-            return `/** @private */\n${exception}export const ${name} = ${body};`;
-        });
+        .map(({ name, body }) => `/** @private */\nexport const ${name} = ${body};`);
 
 /**
  * Writes the dependencies.ts of a module: the names `src/` needs from outside, re-exported and grouped like the

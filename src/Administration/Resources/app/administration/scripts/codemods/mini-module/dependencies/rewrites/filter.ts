@@ -5,7 +5,7 @@
 
 import type { OutsideEdit, UseRewrite } from '../model';
 import { camelCase, upperFirst } from '../model';
-import { isPath, literalArgument, replaceNode, untypedNote } from './helpers';
+import { isPath, literalArgument, replaceNode, accessorHead } from './helpers';
 
 /**
  * `Shopware.Filter.getByName('x')` becomes a function in dependencies.ts that looks the filter up by the name its
@@ -43,9 +43,8 @@ export const rewriteFilter: UseRewrite = (use, context) => {
                 kind: 'accessor',
                 name,
                 order: 2,
-                body: `() => Shopware.Filter.getByName(${exportName})`,
+                body: `${accessorHead(typing, 'FilterTypes', filterName)} => Shopware.Filter.getByName(${exportName})`,
                 imports: [{ module: filter.module, imported: exportName }],
-                untyped: untypedNote(typing, 'FilterTypes', filterName),
             },
         ],
         outsideEdits,

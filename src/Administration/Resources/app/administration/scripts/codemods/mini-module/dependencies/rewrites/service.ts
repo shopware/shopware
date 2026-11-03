@@ -5,7 +5,7 @@
 
 import type { OutsideEdit, UseRewrite } from '../model';
 import { isIdentifierName, upperFirst } from '../model';
-import { isPath, literalArgument, replaceNode, untypedNote } from './helpers';
+import { isPath, literalArgument, replaceNode, accessorHead } from './helpers';
 
 /** Where the constants of the service names live. */
 export const SERVICE_NAMES = 'src/app/service-names';
@@ -45,9 +45,8 @@ export const rewriteService: UseRewrite = (use, context) => {
                 kind: 'accessor',
                 name: accessor,
                 order: 0,
-                body: `() => Shopware.Service(${name})`,
+                body: `${accessorHead(typing, 'ServiceContainer', name)} => Shopware.Service(${name})`,
                 imports: [{ module: SERVICE_NAMES, imported: name }],
-                untyped: untypedNote(typing, 'ServiceContainer', name),
             },
         ],
         serviceNameEdits(name, context.index.hasServiceName(name)),

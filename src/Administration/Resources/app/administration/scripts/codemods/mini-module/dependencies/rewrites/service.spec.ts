@@ -29,7 +29,7 @@ export const getShopwareServicesService = () => Shopware.Service(shopwareService
         expect(outsideEdits).toEqual([{ kind: 'service-name', name: 'shopwareServicesService' }]);
     });
 
-    it('lets a service the global types leave untyped return any, and says why', () => {
+    it('names the return type of a service the global types leave untyped', () => {
         // ARRANGE
         const source = "const filters = Shopware.Service('filterService').getStoredFilters();\n";
 
@@ -37,9 +37,9 @@ export const getShopwareServicesService = () => Shopware.Service(shopwareService
         const { dependencies } = routeForSpec(source, { use: [rewriteService] });
 
         // ASSERT
-        expect(dependencies).toContain(`/** @private */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- ServiceContainer types filterService as $TSFixMe
-export const getFilterService = () => Shopware.Service(filterService);`);
+        expect(dependencies).toContain(
+            "export const getFilterService = (): ServiceContainer['filterService'] => Shopware.Service(filterService);",
+        );
     });
 
     it('leaves the service container and a service looked up by a variable', () => {

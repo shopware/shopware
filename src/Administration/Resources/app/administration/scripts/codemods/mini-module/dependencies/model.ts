@@ -39,8 +39,6 @@ export type Accessor = {
     order: number;
     body: string;
     imports: AccessorImport[];
-    /** Why the global types give what it returns no type, so the lint may let it return `any`. */
-    untyped?: string;
 };
 
 /** What dependencies.ts exports. */

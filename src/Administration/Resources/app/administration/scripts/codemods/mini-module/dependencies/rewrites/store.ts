@@ -5,7 +5,7 @@
 
 import type { OutsideEdit, UseRewrite } from '../model';
 import { camelCase, upperFirst } from '../model';
-import { isPath, literalArgument, replaceNode, untypedNote } from './helpers';
+import { isPath, literalArgument, replaceNode, accessorHead } from './helpers';
 
 /**
  * `Shopware.Store.get('x')` becomes a function in dependencies.ts that looks the store up by the id its file
@@ -42,9 +42,8 @@ export const rewriteStore: UseRewrite = (use, context) => {
                 kind: 'accessor',
                 name,
                 order: 1,
-                body: `() => Shopware.Store.get(${exportName})`,
+                body: `${accessorHead(typing, 'PiniaRootState', id)} => Shopware.Store.get(${exportName})`,
                 imports: [{ module: store.module, imported: exportName }],
-                untyped: untypedNote(typing, 'PiniaRootState', id),
             },
         ],
         outsideEdits,

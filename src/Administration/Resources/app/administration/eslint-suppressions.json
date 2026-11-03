@@ -4841,11 +4841,6 @@
       "count": 1
     }
   },
-  "src/meta/baseline.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "src/meta/meta.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2

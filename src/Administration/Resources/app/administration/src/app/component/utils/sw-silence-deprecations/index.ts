@@ -25,8 +25,8 @@ function authorOf(instance: ComponentInternalInstance): ComponentInternalInstanc
 }
 
 /**
- * Whether the running component sits directly in a `sw-silence-deprecations` for `majorFlag` that the same template
- * wrote, or is rendered by a component that does. Slot content keeps reporting, as its parent is the component it is
+ * Whether the running component is on the first level of a `sw-silence-deprecations` for `majorFlag` in the same
+ * template, or is rendered by a component that is. Slot content keeps reporting, as its parent is the component it is
  * passed into, not the wrapper.
  *
  * @example
@@ -47,10 +47,10 @@ function isSilencedByScope(majorFlag: string): boolean {
 Shopware.Feature.setSilenceCheck('sw-silence-deprecations', isSilencedByScope);
 
 /**
- * Silences the deprecations of a major for the components directly inside of it, the template counterpart of
- * `Feature.silence()`: those components, the deprecated props passed to them, and what their own templates render.
- * Plain elements in between do not count, another component does. Slot content passed into those components still
- * reports, from the same template too, like the tab content of a `sw-tabs` or the `<slot />` of a wrapper component.
+ * Silences the deprecations of a major for the first level of components inside of it, the template counterpart of
+ * `Feature.silence()`, ignoring plain HTML elements and `<template>`. Those components are silenced with the
+ * deprecated props passed to them and everything they render themselves. Everything below them in the same template
+ * reports, like the tab content of a `sw-tabs` or the `<slot />` of a wrapper component.
  *
  * It covers what runs while Vue knows the running component: `setup`, `data`, lifecycle hooks and rendering. Event
  * handlers, watchers that are not `immediate`, and code after an `await` wrap their deprecated calls in

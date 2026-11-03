@@ -53,7 +53,7 @@ class InstallerRedirectHelper
             return;
         }
 
-        // Preserve parse_str's truncation at raw null bytes before PHP 8.6.
+        // Truncate everything after a null byte, which mimics the behaviour of `parse_str` before PHP 8.6
         \parse_str(explode("\0", $queryString, 2)[0], $params);
 
         foreach ($params as $key => $value) {

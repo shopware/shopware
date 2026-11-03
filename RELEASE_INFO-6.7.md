@@ -2,6 +2,12 @@
 
 ## Security Fixes
 
+### Twig templates only read the request context
+
+Twig templates can no longer call methods that change the request context or the request, such as setters.
+Reading them stays possible, for example `context.languageId`.
+Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
+
 ### Aggregation identifiers and JSON paths reject comment and quote characters
 
 Aggregation names and range aggregation keys containing a single or double quote, the `--`, `/*`, or `*/` SQL comment markers, a backslash, or a semicolon are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400), in addition to the previously rejected backtick, question mark, colon, and control characters.

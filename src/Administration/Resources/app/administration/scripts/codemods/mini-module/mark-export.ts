@@ -34,7 +34,8 @@ export function markExport(source: string, marker: '@public' | '@private'): stri
         ? docComment[0].replace(opposite, ` * ${marker}`)
         : `${docComment[1]}\n *\n * ${marker}\n */\n`;
 
-    return unsuppressed.replace(docComment[0], marked);
+    // Splice at the match: a file header with the same text as the export's doc comment must stay as it is.
+    return `${unsuppressed.slice(0, docComment.index)}${marked}${unsuppressed.slice(docComment.index + docComment[0].length)}`;
 }
 
 /** Whether a doc comment directly above the component's `export default` holds the marker, also with text after it. */

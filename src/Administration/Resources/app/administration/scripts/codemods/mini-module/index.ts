@@ -351,19 +351,22 @@ const readSources = (fileOrDirectory: string): string[] =>
               .map((file) => fs.readFileSync(file, 'utf8'))
         : [fs.readFileSync(fileOrDirectory, 'utf8')];
 
-/** The script files of a component directory, as absolute paths, without the mini-modules inside it. */
-const scriptFilesBelow = (directory: string) =>
+/** The files of a component directory, as absolute paths, without the mini-modules inside it. */
+const ownFilesBelow = (directory: string) =>
     ownEntries(directory).flatMap((entry) => {
         const file = path.join(directory, entry);
         if (!fs.statSync(file).isDirectory()) {
-            return SCRIPT_EXTENSION.test(entry) ? [file] : [];
+            return [file];
         }
 
         return fs
             .readdirSync(file, { recursive: true, encoding: 'utf8' })
-            .filter((inner) => SCRIPT_EXTENSION.test(inner))
-            .map((inner) => path.join(file, inner));
+            .map((inner) => path.join(file, inner))
+            .filter((inner) => fs.statSync(inner).isFile());
     });
+
+/** The script files of a component directory, as absolute paths, without the mini-modules inside it. */
+const scriptFilesBelow = (directory: string) => ownFilesBelow(directory).filter((file) => SCRIPT_EXTENSION.test(file));
 
 /** Whether an import path, written in a file of the given directory, leads to the file. */
 const leadsToFile = (fromDirectory: string, specifier: string, file: string) => {
@@ -392,18 +395,19 @@ const filesMentioning = (text: string) => {
 };
 
 /**
- * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store,
- * that code outside the directory imports would break, also when only another module's dependencies.ts or spec
- * imports it, and a mixin only the registry reaches cannot be imported.
+ * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store or
+ * a template another component shares, that code outside the directory imports would break, also when only another
+ * module's dependencies.ts or spec imports it, and a mixin only the registry reaches cannot be imported.
  */
 const findBlocker = (componentDirectory: string, entry: string, index: AdminIndex): string | null => {
-    const files = scriptFilesBelow(componentDirectory).filter(
+    const ownFiles = new Set(ownFilesBelow(componentDirectory));
+    const files = [...ownFiles].filter(
         (file) => file !== path.join(componentDirectory, entry) && !/\.spec\.[jt]s$|\.spec\//.test(file),
     );
 
     for (const file of files) {
         const importers = filesMentioning(importedName(file))
-            .filter((importer) => !path.join(adminRoot, importer).startsWith(`${componentDirectory}${path.sep}`))
+            .filter((importer) => !ownFiles.has(path.join(adminRoot, importer)))
             .filter((importer) => {
                 const absolute = path.join(adminRoot, importer);
                 return findSpecifiers(fs.readFileSync(absolute, 'utf8')).some((specifier) =>

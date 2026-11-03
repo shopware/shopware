@@ -115,3 +115,19 @@ describe('isDocumentedPublic', () => {
         ]);
     });
 });
+
+describe('markExport next to a file header', () => {
+    it('marks the doc comment of the export, also when the file header has the same text', () => {
+        // ARRANGE
+        const doc = '/**\n * @sw-package after-sales\n */\n';
+        const source = `${doc}\nimport template from './x.html.twig';\n\n${doc}// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations\nexport default {};\n`;
+
+        // ACT
+        const marked = markExport(source, '@public');
+
+        // ASSERT
+        expect(marked).toBe(
+            `${doc}\nimport template from './x.html.twig';\n\n/**\n * @sw-package after-sales\n *\n * @public\n */\nexport default {};\n`,
+        );
+    });
+});

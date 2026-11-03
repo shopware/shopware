@@ -306,6 +306,11 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Native setup stays experimental until 6.9
+
+The experimental phase of native setup and the Composition API extension system now ends with 6.9 instead of 6.8, like the composables in `shopware:composables`.
+Until then, they can change in any release without a deprecation.
+
 ### CMS layout overview places the page type navigation in a grid
 
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.

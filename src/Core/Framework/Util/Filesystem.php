@@ -14,22 +14,67 @@ use Symfony\Component\Finder\SplFileInfo;
 #[Package('framework')]
 class Filesystem
 {
+    /**
+     * Image types a browser renders from a `data:image/png;base64` URL, which is how the Administration shows stored icons
+     */
+    public const RASTER_IMAGE_MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+    public const MAX_IMAGE_SIZE = 1024 * 1024;
+
     public function __construct(
         public readonly string $location,
         public readonly Io $io = new Io(),
     ) {
     }
 
+    /**
+     * Only paths inside the location exist, also after resolving symlinks.
+     * The location itself is resolved as well, so a symlinked location keeps working.
+     */
     public function has(string ...$path): bool
     {
         $path = Path::join($this->location, ...$path);
 
-        return Path::isBasePath($this->location, $path) && $this->io->exists($path);
+        if (!Path::isBasePath($this->location, $path) || !$this->io->exists($path)) {
+            return false;
+        }
+
+        $realLocation = realpath($this->location);
+        $realPath = realpath($path);
+
+        return $realLocation !== false && $realPath !== false && Path::isBasePath($realLocation, $realPath);
     }
 
     public function hasFile(string ...$path): bool
     {
-        return $this->has(...$path) && !is_dir($this->path(...$path));
+        return $this->has(...$path) && is_file($this->path(...$path));
+    }
+
+    /**
+     * Returns null when the path is not a regular file inside the location, is larger than `$maxSize` bytes,
+     * or its content is not one of `$mimeTypes`.
+     *
+     * @param list<string> $mimeTypes
+     */
+    public function readImage(string $path, array $mimeTypes = self::RASTER_IMAGE_MIME_TYPES, int $maxSize = self::MAX_IMAGE_SIZE): ?string
+    {
+        if (!$this->hasFile($path) || $this->fileSize($path) > $maxSize) {
+            return null;
+        }
+
+        $content = $this->read($path);
+        $mimeType = (new \finfo(\FILEINFO_MIME_TYPE))->buffer($content);
+
+        return \in_array($mimeType, $mimeTypes, true) ? $content : null;
+    }
+
+    public function fileSize(string ...$path): int
+    {
+        if (!$this->hasFile(...$path)) {
+            throw UtilException::cannotFindFileInFilesystem(Path::join(...$path), $this->location);
+        }
+
+        return (int) filesize(Path::join($this->location, ...$path));
     }
 
     public function path(string ...$path): string

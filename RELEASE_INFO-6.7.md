@@ -81,10 +81,10 @@ That route requires an admin integration or a directly authenticated user, becau
 
 ### App files must be inside the App directory
 
-Shopware now only reads App files that are located inside the App directory.
-This applies to the App icon, the icons of payment methods, shipping methods and flow actions, and every other file an App references.
-A path that leaves the App directory, such as `../../.env`, is treated like a missing file, so the icon is skipped.
-Apps that keep their files inside their own directory are not affected.
+Shopware now only reads App files that are located inside the App directory, also after resolving symlinks.
+App, payment method, shipping method and flow action icons must be images of at most 1 MB, other files are skipped.
+A migration removes stored App icons that are not images.
+Run `bin/console media:delete-unused` afterwards to delete unlinked payment and shipping method icon media.
 
 # 6.7.16.0 (upcoming)
 

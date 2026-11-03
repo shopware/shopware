@@ -219,12 +219,13 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
             return null;
         }
 
-        if (!$fs->has($iconPath)) {
+        // payment icons are stored as public media, which renders SVG as well
+        $icon = $fs->readImage($iconPath, [...Filesystem::RASTER_IMAGE_MIME_TYPES, 'image/svg+xml']);
+        if ($icon === null) {
             return null;
         }
 
         $fileName = \sprintf('payment_app_%s_%s', $appName, $paymentMethod->getIdentifier());
-        $icon = $fs->read($iconPath);
         $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
         $mediaId = $existing?->getOriginalMediaId() ?? $this->checkFileExists($fileName, $context);

@@ -235,12 +235,15 @@ class ExtensionLoaderTest extends TestCase
             (new Filesystem())->readFile(__DIR__ . '/_fixtures/LocalApp/manifest.xml')
         );
 
+        $icon = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', true);
+        static::assertIsString($icon);
+
         $appLoader = static::createStub(AppLoader::class);
         $appLoader->method('load')->willReturn(['LocalApp' => $manifest]);
 
         $extensions = $this->createLoader(
             appLoader: $appLoader,
-            sourceResolver: new StaticSourceResolver(['LocalApp' => new StaticFilesystem(['icon.png' => 'icon-binary'])]),
+            sourceResolver: new StaticSourceResolver(['LocalApp' => new StaticFilesystem(['icon.png' => $icon])]),
             locale: 'de-DE',
         )->loadFromAppCollection(Context::createDefaultContext(), new AppCollection());
 
@@ -252,7 +255,7 @@ class ExtensionLoaderTest extends TestCase
         static::assertSame('LocalApp description', $extension->getDescription());
         // no translation at all
         static::assertNull($extension->getPrivacyPolicyExtension());
-        static::assertSame(base64_encode('icon-binary'), $extension->getIconRaw());
+        static::assertSame(base64_encode($icon), $extension->getIconRaw());
         static::assertSame('shopware AG', $extension->getProducerName());
         static::assertSame('MIT', $extension->getLicense());
         static::assertSame('https://test.com/privacy', $extension->getPrivacyPolicyLink());

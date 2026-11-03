@@ -2,12 +2,12 @@
  * @sw-package fundamentals@framework
  */
 import CaptchaService from './service/captcha.service';
+import './component/sw-settings-captcha-select-v2/register';
+import './page/sw-settings-basic-information/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-basic-information', () => import('./page/sw-settings-basic-information'));
-Shopware.Component.register('sw-settings-captcha-select-v2', () => import('./component/sw-settings-captcha-select-v2'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

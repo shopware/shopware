@@ -5,7 +5,7 @@
 
 import type { OutsideEdit, UseRewrite } from '../model';
 import { camelCase, upperFirst } from '../model';
-import { isPath, literalArgument, replaceNode } from './helpers';
+import { isPath, literalArgument, replaceNode, untypedNote } from './helpers';
 
 /**
  * `Shopware.Filter.getByName('x')` becomes a function in dependencies.ts that looks the filter up by the name its
@@ -25,7 +25,8 @@ export const rewriteFilter: UseRewrite = (use, context) => {
 
     const exportName = filter.exportName ?? `${camelCase(filterName)}FilterName`;
     const name = `get${upperFirst(camelCase(filterName))}Filter`;
-    if (!context.isFree(name)) {
+    const typing = context.index.typing('FilterTypes', filterName);
+    if (!typing || !context.isFree(name)) {
         return null;
     }
 
@@ -44,6 +45,7 @@ export const rewriteFilter: UseRewrite = (use, context) => {
                 order: 2,
                 body: `() => Shopware.Filter.getByName(${exportName})`,
                 imports: [{ module: filter.module, imported: exportName }],
+                untyped: untypedNote(typing, 'FilterTypes', filterName),
             },
         ],
         outsideEdits,

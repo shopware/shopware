@@ -5,11 +5,12 @@
 
 import type { OutsideEdit, UseRewrite } from '../model';
 import { camelCase, upperFirst } from '../model';
-import { isPath, literalArgument, replaceNode } from './helpers';
+import { isPath, literalArgument, replaceNode, untypedNote } from './helpers';
 
 /**
  * `Shopware.Store.get('x')` becomes a function in dependencies.ts that looks the store up by the id its file
  * exports, because a store is only there once it is registered. A store file without an exported id gets one.
+ * A store the global `PiniaRootState` type does not list stays, because TypeScript would reject the lookup.
  *
  * @example
  * // Shopware.Store.get('swProductDetail').product
@@ -25,7 +26,8 @@ export const rewriteStore: UseRewrite = (use, context) => {
 
     const exportName = store.exportName ?? `${camelCase(id)}StoreId`;
     const name = `use${upperFirst(camelCase(id).replace(/^sw(?=[A-Z])/, ''))}Store`;
-    if (!context.isFree(name)) {
+    const typing = context.index.typing('PiniaRootState', id);
+    if (!typing || !context.isFree(name)) {
         return null;
     }
 
@@ -42,6 +44,7 @@ export const rewriteStore: UseRewrite = (use, context) => {
                 order: 1,
                 body: `() => Shopware.Store.get(${exportName})`,
                 imports: [{ module: store.module, imported: exportName }],
+                untyped: untypedNote(typing, 'PiniaRootState', id),
             },
         ],
         outsideEdits,

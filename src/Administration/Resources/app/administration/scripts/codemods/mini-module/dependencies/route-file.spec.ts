@@ -34,6 +34,20 @@ export default {
 `);
     });
 
+    it('reads the names a destructure keeps from an import of the same object', () => {
+        // ARRANGE
+        const source = 'const { createId, debug } = Shopware.Utils;\nexport const id = () => [createId(), debug];\n';
+
+        // ACT
+        const { code, dependencies } = routeForSpec(source, { use: USE_REWRITES });
+
+        // ASSERT
+        expect(code).toBe(
+            "import { Utils } from '../dependencies';\n\nconst { createId, debug } = Utils;\nexport const id = () => [createId(), debug];\n",
+        );
+        expect(dependencies).toBe("/** @private */\nexport { default as Utils } from 'src/core/service/util.service';\n");
+    });
+
     it('keeps the key of a shorthand property whose value it replaces', () => {
         // ARRANGE
         const source = 'const { Criteria: C } = Shopware.Data;\nexport default { data() { return { C }; } };\n';

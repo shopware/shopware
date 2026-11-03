@@ -8,8 +8,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import { createGlobalResolver } from './global-resolver';
-import type { AdminIndex, Registered } from './model';
-import { findRegisterCall, type RegistryKind } from './registrations';
+import type { AdminIndex, Registered, Typing } from './model';
+import { findRegisterCall, REGISTER_CALLEES, type RegistryKind } from './registrations';
 
 const parse = (file: string) => ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
 
@@ -81,14 +81,23 @@ const apiServiceNames = (source: ts.SourceFile) => {
     return names;
 };
 
-/** The member names of `interface ServiceContainer` in the global types. */
-const containerServiceNames = (source: ts.SourceFile) => {
-    const names: string[] = [];
+const UNTYPED = new Set(['$TSFixMe', 'any']);
+
+/**
+ * How the members of a global interface, such as `ServiceContainer`, are typed, by name: `typed` or `any`.
+ * An index signature counts for every other name, under the key `[index]`.
+ */
+const interfaceTypings = (source: ts.SourceFile, name: string) => {
+    const typings = new Map<string, Typing>();
     const visit = (node: ts.Node) => {
-        if (ts.isInterfaceDeclaration(node) && node.name.text === 'ServiceContainer') {
+        if (ts.isInterfaceDeclaration(node) && node.name.text === name) {
             node.members.forEach((member) => {
-                if (member.name && (ts.isIdentifier(member.name) || ts.isStringLiteral(member.name))) {
-                    names.push(member.name.text);
+                const type = (member as { type?: ts.TypeNode }).type;
+                const typing: Typing = type && UNTYPED.has(type.getText(source)) ? 'any' : 'typed';
+                if (ts.isIndexSignatureDeclaration(member)) {
+                    typings.set('[index]', typing);
+                } else if (member.name && (ts.isIdentifier(member.name) || ts.isStringLiteral(member.name))) {
+                    typings.set(member.name.text, typing);
                 }
             });
         }
@@ -97,7 +106,7 @@ const containerServiceNames = (source: ts.SourceFile) => {
     };
     visit(source);
 
-    return names;
+    return typings;
 };
 
 /** The names src/app/service-names exports through its index.ts. */
@@ -232,7 +241,9 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
 
         return (name: string) => {
             if (!cache.has(name)) {
-                const files = grepFiles(adminRoot, `${kind}.register(`);
+                const files = [
+                    ...new Set(REGISTER_CALLEES[kind].flatMap((callee) => grepFiles(adminRoot, `${callee}(`))),
+                ];
                 const found = files
                     .map((file) => ({ file, call: findRegisterCall(parse(file), kind, name) }))
                     .filter(
@@ -252,12 +263,24 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
     const toRegistered = (found: ReturnType<typeof registeredStore>): Registered | null =>
         found ? { module: modulePath(found.file), file: found.file, exportName: found.call.exportName } : null;
 
+    const globalTypes = parse(path.join(adminRoot, 'src/global.types.ts'));
+    const typings = new Map<string, Map<string, Typing>>();
+    const typing = (container: string, name: string): Typing => {
+        if (!typings.has(container)) {
+            typings.set(container, interfaceTypings(globalTypes, container));
+        }
+
+        const members = typings.get(container)!;
+        return members.get(name) ?? members.get('[index]') ?? null;
+    };
+
     let services: Set<string> | null = null;
     const serviceNames = () => {
         services ??= new Set([
-            ...containerServiceNames(parse(path.join(adminRoot, 'src/global.types.ts'))),
+            ...interfaceTypings(globalTypes, 'ServiceContainer').keys(),
             ...grepFiles(adminRoot, 'this.name = ').flatMap((file) => apiServiceNames(parse(file))),
             ...grepFiles(adminRoot, 'addServiceProvider(').flatMap((file) => calledWith(parse(file), 'addServiceProvider')),
+            ...grepFiles(adminRoot, 'Service().register(').flatMap((file) => calledWith(parse(file), 'Service().register')),
         ]);
 
         return services;
@@ -270,6 +293,7 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
     return {
         isService: (name) => serviceNames().has(name),
         hasServiceName: (name) => exported.has(name),
+        typing,
         findMixin: (name) => {
             const found = registeredMixin(name);
             return found?.call.isDefaultExport ? modulePath(found.file) : null;

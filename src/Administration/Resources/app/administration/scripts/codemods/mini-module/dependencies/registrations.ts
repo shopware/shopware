@@ -21,15 +21,28 @@ export type RegisterCall = {
     isDefaultExport: boolean;
 };
 
+/** The ways the Administration writes the register call of each registry. */
+export const REGISTER_CALLEES: Record<RegistryKind, string[]> = {
+    Store: ['Shopware.Store.register', 'Store.register', 'Store.instance.register'],
+    Filter: ['Shopware.Filter.register', 'Filter.register'],
+    Mixin: ['Shopware.Mixin.register', 'Mixin.register'],
+};
+
+const calleeText = (callee: ts.Expression): string | null => {
+    if (ts.isIdentifier(callee)) {
+        return callee.text;
+    }
+
+    if (ts.isPropertyAccessExpression(callee)) {
+        const object = calleeText(callee.expression);
+        return object === null ? null : `${object}.${callee.name.text}`;
+    }
+
+    return null;
+};
+
 const isRegisterCallee = (callee: ts.Expression, kind: RegistryKind) =>
-    ts.isPropertyAccessExpression(callee) &&
-    callee.name.text === 'register' &&
-    (ts.isIdentifier(callee.expression)
-        ? callee.expression.text === kind
-        : ts.isPropertyAccessExpression(callee.expression) &&
-          callee.expression.name.text === kind &&
-          ts.isIdentifier(callee.expression.expression) &&
-          callee.expression.expression.text === 'Shopware');
+    REGISTER_CALLEES[kind].includes(calleeText(callee) ?? '');
 
 /** The string constants the file exports at the top level, by name. */
 const exportedStrings = (source: ts.SourceFile) =>
@@ -78,7 +91,7 @@ const isInsideFunction = (node: ts.Node) => {
 
 /**
  * Finds the call in a file that registers the store, filter or mixin with the given name at load time,
- * written as `Shopware.Store.register(…)` or through a destructured `Store.register(…)`.
+ * written as one of the `REGISTER_CALLEES`, such as `Shopware.Store.register(…)` or a destructured `Store.register(…)`.
  *
  * @example
  * findRegisterCall(parse("Shopware.Filter.register('date', (value) => value);"), 'Filter', 'date');

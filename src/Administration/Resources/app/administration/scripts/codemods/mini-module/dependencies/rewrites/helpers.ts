@@ -4,7 +4,7 @@
  */
 
 import ts from 'typescript';
-import type { Dependency, GlobalUse, OutsideEdit, Rewrite, RewriteContext } from '../model';
+import type { Dependency, GlobalUse, OutsideEdit, Rewrite, RewriteContext, Typing } from '../model';
 
 /** A rewrite that puts `text` in place of a node and needs the given names from `../dependencies`. */
 export const replaceNode = (
@@ -47,6 +47,16 @@ export const removalRange = (source: ts.SourceFile, statement: ts.Node) => {
 
     return { start, end: blankBefore && text[end] === '\n' ? end + 1 : end };
 };
+
+/**
+ * Why an accessor may return `any`, when the global types type the looked up name as `$TSFixMe`, or undefined.
+ *
+ * @example
+ * untypedNote('any', 'ServiceContainer', 'filterService');
+ * // → 'ServiceContainer types filterService as $TSFixMe'
+ */
+export const untypedNote = (typing: Typing, container: string, name: string) =>
+    typing === 'any' ? `${container} types ${name} as $TSFixMe` : undefined;
 
 /** The text of the only argument of a call when it is a plain string, or null. */
 export const literalArgument = (call: ts.CallExpression | undefined): string | null => {

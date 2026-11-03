@@ -138,6 +138,9 @@ const readChain = (expression: ts.Expression, aliases: Map<string, Alias>): stri
     return null;
 };
 
+/** The path of a static chain rooted at `Shopware` itself, such as `['Utils', 'debug']`, or null. */
+export const readGlobalChain = (expression: ts.Expression) => readChain(expression, new Map());
+
 /** The aliases a `const { A, B: c } = <chain>;` statement declares, or none when any part of it is not plain. */
 const readDestructure = (
     statement: ts.VariableStatement,

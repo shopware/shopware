@@ -5,7 +5,7 @@
 
 import type { OutsideEdit, UseRewrite } from '../model';
 import { isIdentifierName, upperFirst } from '../model';
-import { isPath, literalArgument, replaceNode } from './helpers';
+import { isPath, literalArgument, replaceNode, untypedNote } from './helpers';
 
 /** Where the constants of the service names live. */
 export const SERVICE_NAMES = 'src/app/service-names';
@@ -17,6 +17,7 @@ export const serviceNameEdits = (name: string, hasServiceName: boolean): Outside
 /**
  * `Shopware.Service('x')` becomes a function in dependencies.ts that looks the service up by the constant from
  * src/app/service-names, because services are registered, and may be decorated, at runtime.
+ * A service the global `ServiceContainer` type does not list stays, because TypeScript would reject the lookup.
  *
  * @example
  * // const service = Shopware.Service('shopwareServicesService');
@@ -30,7 +31,8 @@ export const rewriteService: UseRewrite = (use, context) => {
     }
 
     const accessor = `get${upperFirst(name)}`;
-    if (!context.isFree(accessor)) {
+    const typing = context.index.typing('ServiceContainer', name);
+    if (!typing || !context.isFree(accessor)) {
         return null;
     }
 
@@ -45,6 +47,7 @@ export const rewriteService: UseRewrite = (use, context) => {
                 order: 0,
                 body: `() => Shopware.Service(${name})`,
                 imports: [{ module: SERVICE_NAMES, imported: name }],
+                untyped: untypedNote(typing, 'ServiceContainer', name),
             },
         ],
         serviceNameEdits(name, context.index.hasServiceName(name)),

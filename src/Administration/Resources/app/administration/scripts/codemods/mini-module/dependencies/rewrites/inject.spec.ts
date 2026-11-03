@@ -25,6 +25,27 @@ export { acl as aclService, repositoryFactory as repositoryFactoryService } from
         expect(outsideEdits).toEqual([{ kind: 'service-name', name: 'acl' }]);
     });
 
+    it('imports a service name under <name>Name when the file declares the name already', () => {
+        // ARRANGE
+        const source = `export default {
+    inject: ['shopwareServicesService'],
+    methods: {
+        load() {
+            const shopwareServicesService = this.shopwareServicesService;
+            return shopwareServicesService;
+        },
+    },
+};
+`;
+
+        // ACT
+        const { code } = routeForSpec(source, { file: [rewriteInject] });
+
+        // ASSERT
+        expect(code).toContain("import { shopwareServicesService as shopwareServicesServiceName } from '../dependencies';");
+        expect(code).toContain('inject: [shopwareServicesServiceName],');
+    });
+
     it('keeps a name that already ends with Service, and leaves the object form of inject', () => {
         // ARRANGE
         const source = `export default {

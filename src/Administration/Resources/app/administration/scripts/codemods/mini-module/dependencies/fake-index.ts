@@ -15,7 +15,7 @@ const GLOBALS: Record<string, GlobalSource> = {
         name: 'fileSize',
         consumed: 3,
     },
-    'Utils.createId': { module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
+    Utils: { module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
 };
 
 /**
@@ -31,6 +31,7 @@ export const fakeIndex: AdminIndex = {
             'shopwareServicesService',
         ].includes(name),
     hasServiceName: (name) => name === 'repositoryFactory',
+    typing: (container, name) => (container === 'ServiceContainer' && name === 'filterService' ? 'any' : 'typed'),
     findMixin: (name) =>
         ({ notification: 'src/app/mixin/notification.mixin', placeholder: 'src/app/mixin/placeholder.mixin' })[name] ?? null,
     findStore: (id) =>

@@ -39,6 +39,8 @@ export type Accessor = {
     order: number;
     body: string;
     imports: AccessorImport[];
+    /** Why the global types give what it returns no type, so the lint may let it return `any`. */
+    untyped?: string;
 };
 
 /** What dependencies.ts exports. */
@@ -84,6 +86,12 @@ export type Registered = { module: string; file: string; exportName: string | nu
 export type GlobalSource = { module: string; imported: string; name: string; consumed: number };
 
 /**
+ * How the global types know a name: `typed`, `any` when they type it as `$TSFixMe` or `any`,
+ * or null when they do not list it, so TypeScript would reject a lookup of it in dependencies.ts.
+ */
+export type Typing = 'typed' | 'any' | null;
+
+/**
  * What the rewrites know about the Administration outside the module: which names are services,
  * which file registers a mixin, store or filter, and where parts of the `Shopware` global come from.
  * `index.ts` builds it from the files; specs pass a small fake.
@@ -91,6 +99,8 @@ export type GlobalSource = { module: string; imported: string; name: string; con
 export type AdminIndex = {
     isService: (name: string) => boolean;
     hasServiceName: (name: string) => boolean;
+    /** How `ServiceContainer`, `PiniaRootState` or `FilterTypes` in the global types know a name. */
+    typing: (container: 'ServiceContainer' | 'PiniaRootState' | 'FilterTypes', name: string) => Typing;
     /** The module, as dependencies.ts imports it, whose default export is the registered mixin. */
     findMixin: (name: string) => string | null;
     findStore: (id: string) => Registered | null;

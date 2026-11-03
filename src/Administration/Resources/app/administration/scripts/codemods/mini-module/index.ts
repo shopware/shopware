@@ -161,6 +161,7 @@ const movedPath = (moves: Map<string, string>, target: string) => {
 /**
  * Rewrites the relative imports of a moved file, so they still reach their target from the file's new place,
  * also when the target moved: a spec in tests/ that imported './index' now imports '../src/<name>'.
+ * It covers `from`, bare side-effect imports, `import()`, `require()` and `jest.mock()`.
  *
  * @example
  * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
@@ -169,7 +170,7 @@ const rewriteMovedImports = (moves: Map<string, string>, from: string, to: strin
     const file = path.join(adminRoot, to);
     const source = fs.readFileSync(file, 'utf8');
     const rewritten = source.replace(
-        /((?:from|import\(|require\(|jest\.mock\()\s*')(\.\.?\/[^']+)'/g,
+        /((?:from|import\(|import|require\(|jest\.mock\()\s*')(\.\.?\/[^']+)'/g,
         (statement, prefix: string, specifier: string) => {
             const target = relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
             const moved = movedPath(moves, target);

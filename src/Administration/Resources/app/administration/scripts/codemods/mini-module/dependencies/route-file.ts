@@ -5,7 +5,7 @@
 
 import path from 'node:path';
 import ts from 'typescript';
-import { scanGlobalUses, type Alias } from './global-uses';
+import { readGlobalChain, scanGlobalUses, type Alias } from './global-uses';
 import type { AdminIndex, Dependency, FileRewrite, OutsideEdit, Rewrite, RewriteContext, UseRewrite } from './model';
 import { removalRange, statementRange } from './rewrites/helpers';
 
@@ -209,6 +209,15 @@ export function routeFile(code: string, options: RouteOptions, banned = new Set<
     const isHandled = (node: ts.Node) =>
         accepted.some((rewrite) => node.getStart(source) >= rewrite.start && node.getEnd() <= rewrite.end);
     const { rewrites: aliasRewrites, removed } = removeUnusedAliases(source, scan.aliases, isHandled);
+
+    // A destructure that keeps names reads them from an import of the same object: `const { warn } = debug;`.
+    new Set(scan.aliases.filter((alias) => !removed.has(alias)).map((alias) => alias.statement)).forEach((statement) => {
+        const initializer = statement.declarationList.declarations[0].initializer!;
+        const path = readGlobalChain(initializer);
+        if (path && path.length > 0) {
+            options.useRewrites.some((rewrite) => take(rewrite({ node: initializer, path }, context)));
+        }
+    });
 
     const clash = scan.aliases.find((alias) => !removed.has(alias) && imports.has(alias.name));
     if (clash) {

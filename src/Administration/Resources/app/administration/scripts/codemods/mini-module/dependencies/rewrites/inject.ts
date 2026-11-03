@@ -15,6 +15,7 @@ export const serviceExportName = (name: string) => (name.endsWith('Service') ? n
 /**
  * The service names in `inject: ['a', 'b']` become constants from src/app/service-names, in the same order.
  * A name that is not a registered service, such as one a parent provides, stays for the sweep.
+ * When the file declares the name already, `src/` imports it as `<name>Name`.
  *
  * @example
  * // inject: ['repositoryFactory', 'swProductDetailLoadAll']
@@ -38,19 +39,19 @@ export const rewriteInject: FileRewrite = (context) => {
                 }
 
                 const exported = serviceExportName(name);
-                if (!context.isFree(exported)) {
+                const local = [exported, `${exported}Name`].find((candidate) => context.isFree(candidate));
+                if (!local) {
                     return;
                 }
 
-                rewrites.push(
-                    replaceNode(
-                        element,
-                        context,
-                        exported,
-                        [{ kind: 'reexport', module: SERVICE_NAMES, imported: name, exported }],
-                        serviceNameEdits(name, context.index.hasServiceName(name)),
-                    ),
+                const rewrite = replaceNode(
+                    element,
+                    context,
+                    local,
+                    [{ kind: 'reexport', module: SERVICE_NAMES, imported: name, exported }],
+                    serviceNameEdits(name, context.index.hasServiceName(name)),
                 );
+                rewrites.push({ ...rewrite, imports: { [local]: exported } });
             });
         }
 

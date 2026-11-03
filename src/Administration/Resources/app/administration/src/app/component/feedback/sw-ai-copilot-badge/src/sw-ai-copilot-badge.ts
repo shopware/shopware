@@ -1,11 +1,12 @@
 import template from './sw-ai-copilot-badge.html.twig';
 import './sw-ai-copilot-badge.scss';
+import { wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package framework
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     props: {

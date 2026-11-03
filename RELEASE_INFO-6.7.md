@@ -452,15 +452,16 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
-### Meteor Component Library updated to 5.9.0
+### Meteor Component Library updated to 5.10.0
 
-The Administration now uses Meteor Component Library `5.9.0`, Meteor Admin SDK `6.16.0` and Meteor Icon Kit `5.12.0`.
+The Administration now uses Meteor Component Library `5.10.0`, Meteor Admin SDK `6.17.0` and Meteor Icon Kit `5.12.0`.
 
 Check your Administration extensions for these changes:
 
 - Clicks on links, buttons and form controls inside `mt-radio-group-custom-item` no longer select it.
 - `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
+- New component `mt-extension-icon`.
 
 ## API
 

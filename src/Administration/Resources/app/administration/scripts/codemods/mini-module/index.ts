@@ -93,7 +93,9 @@ const readComponentName = (componentDirectory: string) => {
         return directoryName;
     }
 
-    for (const file of sourceFiles(`${directoryName}'`)) {
+    // A registration may name the directory or its index file: `import('./preview')` or `import('./page/index')`.
+    const mentions = [...new Set([...sourceFiles(`${directoryName}'`), ...sourceFiles(`${directoryName}/index'`)])];
+    for (const file of mentions) {
         const absolute = path.join(adminRoot, file);
         const found = findRegistrationByPath(fs.readFileSync(absolute, 'utf8'), (specifier) =>
             leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
@@ -126,8 +128,16 @@ const locateMiniModule = (name: string) => {
     return null;
 };
 
-/** The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`. */
-const withoutIndex = (specifier: string) => specifier.replace(/\/index(\.[jt]s)?$/, '');
+/**
+ * The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`.
+ * A path to a directory that is itself named `index`, as in `./page/index/index.ts`, stays.
+ */
+const withoutIndex = (specifier: string, fromDirectory: string) => {
+    const target = resolveSpecifier(fromDirectory, specifier);
+    return fs.existsSync(target) && fs.statSync(target).isDirectory()
+        ? specifier
+        : specifier.replace(/\/index(\.[jt]s)?$/, '');
+};
 
 const readComponentSource = (componentDirectory: string, name: string) => {
     const entry = ['index.js', 'index.ts'].find((file) => fs.existsSync(path.join(componentDirectory, file)));
@@ -164,9 +174,10 @@ const readInheritedApi = (name: string): { api: ComponentApi; privateBase: strin
         throw new Error(`Found no registration of ${name}, so the codemod cannot read what it offers.`);
     }
 
+    const registrationDirectory = path.dirname(path.join(adminRoot, located.file));
     const directory = resolveSpecifier(
-        path.dirname(path.join(adminRoot, located.file)),
-        withoutIndex(located.registration.specifier),
+        registrationDirectory,
+        withoutIndex(located.registration.specifier, registrationDirectory),
     );
     const { componentSource, templateSource } = readComponentSource(directory, name);
     const api = extractComponentApi(componentSource, templateSource);
@@ -212,8 +223,8 @@ const rewriteFileImports = (moves: Map<string, string>, from: string, to: string
 
 /** Whether an import path leads to the component's entry file, from the directory of the importing file. */
 const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifier: string) => {
-    const target = resolveSpecifier(fromDirectory, specifier).replace(/\/index(\.[jt]s)?$/, '');
-    return target === componentDirectory;
+    const target = resolveSpecifier(fromDirectory, specifier);
+    return [target, target.replace(/\/index(\.[jt]s)?$/, '')].includes(componentDirectory);
 };
 
 /**
@@ -455,7 +466,8 @@ const readShape = (componentDirectory: string, name: string, componentSource: st
 
     const importers = findImporters(componentDirectory, name);
     if (importers.length === 0) {
-        throw new Error(`Found no registration of ${name} and no file that imports it.`);
+        return `${name} is not moved: nothing registers it and no file but its own specs imports it, so no page can show it.
+Delete it if it is dead code, or register it first.`;
     }
 
     const parents = [...new Set(importers.map(({ file }) => findEnclosingModule(file)))];
@@ -665,7 +677,8 @@ const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<type
     const absolute = path.join(adminRoot, file);
     const source = fs.readFileSync(absolute, 'utf8');
     const withoutRegistration = removeRegistration(source, registration);
-    fs.writeFileSync(absolute, addImport(withoutRegistration, `${withoutIndex(registration.specifier)}/register`));
+    const moduleDirectory = withoutIndex(registration.specifier, path.dirname(absolute));
+    fs.writeFileSync(absolute, addImport(withoutRegistration, `${moduleDirectory}/register`));
 
     return file;
 };

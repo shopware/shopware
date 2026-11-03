@@ -107,7 +107,8 @@ const load = (variant, name) => import(\`../../../../../../node_modules/kit/icon
 
     it('leaves the paths of a file that stays in place as written, unless their target moved', () => {
         // ARRANGE
-        const source = "import a from './../../core/a';\nimport template from './../../app/component/base/sw-icon/sw-icon.html.twig';\n";
+        const source =
+            "import a from './../../core/a';\nimport template from './../../app/component/base/sw-icon/sw-icon.html.twig';\n";
         const file = 'src/module/sw-x/sw-x.spec.js';
 
         // ACT
@@ -142,6 +143,28 @@ import 'src/app/component/base/sw-icon/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
 import '../../../app/component/base/sw-icon/private';
 import 'src/app/component/base/sw-icon-other';
+`);
+    });
+
+    it('takes the component from src/ of a module whose directory is named index, and keeps a bare import', () => {
+        // ARRANGE
+        const loginOrigin = 'src/module/sw-login/page/index';
+        const source = "import SwLogin from 'src/module/sw-login/page/index';\nimport '../page/index/index';\n";
+        const file = 'src/module/sw-login/view/sw-login.spec.js';
+
+        // ACT
+        const rewritten = rewriteMovedImports(source, {
+            moves: new Map([[`${loginOrigin}/index.ts`, `${loginOrigin}/src/sw-login.ts`]]),
+            from: file,
+            to: file,
+            entry: { directory: loginOrigin, name: 'sw-login', isPrivate: false },
+        });
+
+        // ASSERT
+        expect(rewritten)
+            .toBe(`// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
+import SwLogin from 'src/module/sw-login/page/index/src/sw-login';
+import '../page/index/index';
 `);
     });
 

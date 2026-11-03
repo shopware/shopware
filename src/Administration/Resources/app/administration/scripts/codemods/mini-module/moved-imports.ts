@@ -135,9 +135,10 @@ export function rewriteMovedImports(
 
             const [pathPart, query = ''] = specifier.split(/(?=\?)/);
             const target = resolve(from, pathPart);
-            const entryDirectory = entry && target.replace(/\/index(\.[jt]s)?$/, '');
-            if (entry && entryDirectory === entry.directory) {
-                const written = pathPart.replace(/\/index(\.[jt]s)?$/, '');
+            // An import names the module's directory or its old index file; a directory may itself be named `index`.
+            const namesDirectory = entry && target === entry.directory;
+            if (entry && (namesDirectory || target.replace(/\/index(\.[jt]s)?$/, '') === entry.directory)) {
+                const written = namesDirectory ? pathPart : pathPart.replace(/\/index(\.[jt]s)?$/, '');
                 const lineStart = source.lastIndexOf('\n', offset) + 1;
                 const isBare = /^import\s*$/.test(source.slice(lineStart, offset + prefix.length));
 

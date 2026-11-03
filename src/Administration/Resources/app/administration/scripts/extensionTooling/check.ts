@@ -77,11 +77,15 @@ function matches(project: ExtensionToolingProject, name: string): boolean {
 
 /**
  * Setup runs over every installed extension, so its per-extension warnings
- * would report extensions this run does not check. Project-global warnings
+ * would report extensions outside the selection. Project-global warnings
  * (a missing entity schema, a missing host module) carry no extension and
  * always stay — they affect the selected run too.
  */
-function selectedSetupWarnings(warnings: SetupWarning[], projects: ExtensionToolingProject[], selected: string[]): string[] {
+export function selectedSetupWarnings(
+    warnings: SetupWarning[],
+    projects: ExtensionToolingProject[],
+    selected: string[],
+): string[] {
     return warnings
         .filter(
             (warning) =>
@@ -95,7 +99,7 @@ function selectedSetupWarnings(warnings: SetupWarning[], projects: ExtensionTool
 }
 
 /** Restricts the discovered projects to a --only selection; an unknown name is a fatal, run-blocking diagnostic. */
-function filterSelectedProjects(
+export function filterSelectedProjects(
     projects: ExtensionToolingProject[],
     selected: string[],
 ): { projects: ExtensionToolingProject[]; fatalDiagnostic?: string } {

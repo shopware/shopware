@@ -256,7 +256,6 @@ import 'src/app/component/media/sw-model-editor-collapse/register';
 import './rule/condition-type/sw-condition-billing-zip-code/register';
 import './rule/condition-type/sw-condition-customer-custom-field/register';
 import './rule/condition-type/sw-condition-date-range/register';
-import './rule/condition-type/sw-condition-generic/register';
 import './rule/condition-type/sw-condition-goods-count/register';
 import './rule/condition-type/sw-condition-goods-price/register';
 import './rule/condition-type/sw-condition-is-always-valid/register';
@@ -306,6 +305,11 @@ export default () => {
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
     Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
+    Shopware.Component.extend(
+        'sw-condition-generic',
+        'sw-condition-base',
+        () => import('./rule/condition-type/sw-condition-generic/index'),
+    );
     Shopware.Component.extend(
         'sw-condition-time-range',
         'sw-condition-base',

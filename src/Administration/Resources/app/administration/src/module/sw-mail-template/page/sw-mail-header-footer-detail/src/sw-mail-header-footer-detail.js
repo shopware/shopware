@@ -1,7 +1,5 @@
 /**
  * @sw-package after-sales
- *
- * @public
  */
 
 import template from './sw-mail-header-footer-detail.html.twig';
@@ -20,6 +18,8 @@ import {
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
 export default {
     template,

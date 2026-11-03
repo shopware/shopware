@@ -140,7 +140,6 @@ import '../src/app/component/form/sw-datepicker-deprecated/global';
 import '../src/app/component/rule/condition-type/sw-condition-billing-zip-code/global';
 import '../src/app/component/rule/condition-type/sw-condition-customer-custom-field/global';
 import '../src/app/component/rule/condition-type/sw-condition-date-range/global';
-import '../src/app/component/rule/condition-type/sw-condition-generic/global';
 import '../src/app/component/rule/condition-type/sw-condition-goods-count/global';
 import '../src/app/component/rule/condition-type/sw-condition-goods-price/global';
 import '../src/app/component/rule/condition-type/sw-condition-is-always-valid/global';

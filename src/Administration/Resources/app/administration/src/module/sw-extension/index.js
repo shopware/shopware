@@ -14,7 +14,6 @@ import './component/sw-extension-deactivation-modal/register';
 import './component/sw-extension-domains-modal/register';
 import './component/sw-extension-file-upload/register';
 import './component/sw-extension-my-extensions-listing-controls/register';
-import './component/sw-extension-permissions-details-modal/register';
 import './component/sw-extension-permissions-modal/register';
 import './component/sw-extension-privacy-policy-extensions-modal/register';
 import './component/sw-extension-removal-modal/register';
@@ -39,6 +38,10 @@ import './page/sw-extension-store-landing-page/register';
 initState(Shopware);
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register(
+    'sw-extension-permissions-details-modal',
+    () => import('./component/sw-extension-permissions-details-modal'),
+);
 Shopware.Component.extend(
     'sw-self-maintained-extension-card',
     'sw-extension-card-base',

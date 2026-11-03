@@ -1,7 +1,5 @@
 /**
  * @sw-package after-sales
- *
- * @public
  */
 
 import template from './sw-mail-header-footer-create.html.twig';
@@ -9,6 +7,8 @@ import { getApiContext, useContextStore } from '../dependencies';
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
 export default {
     template,

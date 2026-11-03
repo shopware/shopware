@@ -1,10 +1,10 @@
+import { DiscountTypes } from '../dependencies';
+
 /**
  * @sw-package checkout
  *
  * @private
  */
-import { DiscountTypes } from '../dependencies';
-
 export default class PromotionDiscountHandler {
     // Gets the suffix of the value text field depending
     // on the currently selected type.

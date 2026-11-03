@@ -450,6 +450,22 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Choose how the Storefront Vite dev server updates the page
+
+The Vite dev server of the Storefront (`composer storefront:dev-server`) now loads the Vite client, so style changes reach the open page without a manual reload.
+`SHOPWARE_STOREFRONT_DEV_UPDATE` selects how a change is applied:
+
+- `reload` is the default and reloads the page.
+- `hmr` applies the change to the open page in place, for example with a CSS swap that keeps the page state.
+- `manual` sends nothing to the page, as before.
+
+The variable is read from the shell, `.env.local`, or `.env` of the project root.
+The webpack hot proxy (`composer watch:storefront`) does not use it.
+
+```bash
+SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
+```
+
 ### CMS buy boxes select the configured variant
 
 Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.
@@ -607,7 +623,9 @@ See `UPGRADE-6.8.md` for the full variable mapping.
 
 ### Twig changes apply without a reload in the Storefront dev servers
 
-`composer watch:storefront` and the Vite dev server `composer storefront:dev-server` apply Twig changes to the open page without a reload.
+`composer watch:storefront` applies Twig changes to the open page without a reload.
+The Vite dev server `composer storefront:dev-server` reloads the page on a Twig change by default and applies it in place with `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`.
+With `SHOPWARE_STOREFRONT_DEV_UPDATE=manual` it does not watch the Twig files.
 Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are, and open AJAX modals, the cart and the navigation offcanvas are rendered again as well.
 Elements with a Storefront plugin keep their markup.
 If a change cannot be applied, for example because the markup of a plugin element changed, a notice on the page asks for a reload.
@@ -619,6 +637,7 @@ In every hot mode session, the browser console also lists extensions whose JavaS
 The Vite dev server also swaps a changed script of a Twig component without a reload.
 The new `window.Shopware.replaceComponent()` method destroys the instances of the component and starts them again with the new class on the same elements, so their state starts fresh.
 See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
+
 ### Legal guarantee notice on the registration form
 
 Disabling the new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the legal guarantee notice on the registration form while the checkout keeps it.

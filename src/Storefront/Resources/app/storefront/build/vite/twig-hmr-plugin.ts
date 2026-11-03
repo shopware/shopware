@@ -26,8 +26,11 @@ export const TWIG_UPDATE_EVENT = 'sw:twig-update';
  *
  * Watches the Storefront templates of every bundle in var/plugins.json with the
  * Vite watcher and sends the changed files as `sw:twig-update` event.
- * `src/dev/twig-hmr/twig-hmr.vite.js` receives it, renders the page again and
- * morphs the DOM, the same as the webpack transport in `build/webpack/twig-hmr-watcher.js`.
+ * With `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`, `src/dev/twig-hmr/twig-hmr.vite.js`
+ * receives it, renders the page again and morphs the DOM, the same as the
+ * webpack transport in `build/webpack/twig-hmr-watcher.js`.
+ * In the default reload mode, `src/dev/twig-hmr/twig-reload.vite.js` reloads the page.
+ * In manual mode the config does not register this plugin.
  *
  * @param projectRoot  Absolute path to the Shopware project root.
  */
@@ -66,7 +69,7 @@ export function twigHmrPlugin(projectRoot: string): Plugin {
             logger.info(`[sw-twig-hmr] watching ${viewDirectories.length} view directories`, { timestamp: true });
         },
 
-        // The client applies Twig changes, so Vite must not turn them into a reload of its own.
+        // The Twig client handles the change, so Vite must not turn it into a reload of its own.
         hotUpdate({ file }) {
             if (file.endsWith('.twig')) {
                 return [];

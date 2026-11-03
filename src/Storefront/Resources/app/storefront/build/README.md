@@ -52,6 +52,13 @@ Environment overrides:
 - `STOREFRONT_VITE_HOST` - bind host for Vite (default `localhost`)
 - `STOREFRONT_VITE_ORIGIN` - absolute URL used in `storefront_components.dev.json`
   (useful in Docker/WSL/remote setups, e.g. `http://host.docker.internal:5175`)
+- `SHOPWARE_STOREFRONT_DEV_UPDATE` - how a source change reaches the open page
+  - `reload` (default) - the page reloads
+  - `hmr` - the change is applied to the open page in place, Twig changes included
+  - `manual` - nothing is sent to the page, you reload it yourself
+
+`SHOPWARE_STOREFRONT_DEV_UPDATE` is read from the shell first, then from the `.env.local` and `.env` of the project root.
+Put it into `.env.local` to keep your choice for every session.
 
 When the dev server stops, Shopware falls back to production assets/import map.
 
@@ -115,16 +122,29 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - writes `var/cache/storefront_components.dev.json`
   - provides dev import map + styles/scripts URLs
   - puts the Vite client (`/@vite/client`) first in `scripts`, because no Storefront module uses `import.meta.hot`
+  - lists the Twig client after it: `twig-reload.vite.js` in `reload` mode, `twig-hmr.vite.js` in `hmr` mode
+  - leaves the Vite client and the Twig client out in `manual` mode
   - serves component styles via `/__sw-comp-css/...`
-  - swaps component styles in place on change, and reloads the page when a style file is added or removed
+  - reloads the page on a style change, or swaps component styles in place in `hmr` mode
+  - reloads the page when a style file is added or removed
 
 - `vite/theme-scss-watcher-plugin.ts`
   - dev-only plugin for theme SCSS
   - reads `var/theme-files.json`, compiles all theme style entries together
   - serves result at `/theme-scss/all.css`
   - watches SCSS graph and `theme-files.json`
-  - swaps `/theme-scss/all.css` in place on a SCSS change, and shows the Vite error overlay when it does not compile
+  - compiles once on a SCSS change, then reloads the page, or swaps `/theme-scss/all.css` in place in `hmr` mode
+  - shows the Vite error overlay when the SCSS does not compile
   - reloads the page when `theme-files.json` changes
+  - only logs changes in `manual` mode
+
+- `vite/twig-hmr-plugin.ts`
+  - dev-only plugin for Twig templates, not registered in `manual` mode
+  - watches the Storefront view directories of every bundle and sends `sw:twig-update`
+  - see `src/dev/twig-hmr/README.md`
+
+- `vite/storefront-dev-update.ts`
+  - reads `SHOPWARE_STOREFRONT_DEV_UPDATE` and falls back to `reload` for an unset or unknown value
 
 - `vite/dev-server-notice-plugin.ts`
   - dev-only UX plugin

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
 import { compileStringAsync as sassCompileStringAsync, Logger } from 'sass-embedded';
+import type { StorefrontDevUpdate } from './storefront-dev-update';
 
 type ThemeStyleEntry = {
     filepath: string;
@@ -168,15 +169,22 @@ async function compileAll(entries: ThemeStyleEntry[], themeId: string, domainUrl
  *   that occur when skin partials are compiled in isolation.
  * - The CSS URL is registered in storefront_components.dev.json by
  *   dev-import-map-plugin — a single flag file covers both JS and CSS.
- * - Watches all registered SCSS files. A change compiles the CSS once and
- *   asks the Vite client to swap the <link> in place (`css-update`), so the
- *   page keeps its state. A compile error shows the Vite error overlay and
+ * - Watches all registered SCSS files. What a change does depends on
+ *   `SHOPWARE_STOREFRONT_DEV_UPDATE`:
+ *     reload: compiles the CSS once and reloads the page (default).
+ *     hmr:    compiles the CSS once and asks the Vite client to swap the
+ *             <link> in place (`css-update`), so the page keeps its state.
+ *     manual: only logs the change. The next page load compiles the CSS.
+ *   In reload and hmr mode a compile error shows the Vite error overlay and
  *   keeps the current styles on the page.
  * - Watches var/theme-files.json itself so that re-running theme:dump (e.g.
  *   after installing a new plugin) picks up new entries without a dev server
  *   restart.
  */
-export function themeScssWatcherPlugin(projectRoot: string): Plugin {
+export function themeScssWatcherPlugin(
+    projectRoot: string,
+    { devUpdate = 'reload' }: { devUpdate?: StorefrontDevUpdate } = {},
+): Plugin {
     const themeFilesPath = path.join(projectRoot, 'var/theme-files.json');
 
     let styleEntries: ThemeStyleEntry[] = [];
@@ -185,8 +193,9 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
     let themeVariablesFile: string | null = null;
     // All files involved in the last compilation (entries + every transitive import).
     const watchedScssFiles = new Set<string>();
-    // CSS compiled by the change handler, served to the `?t=` request of the
-    // matching css-update so the swap does not compile a second time.
+    // CSS compiled by the change handler. In hmr mode it serves the `?t=` request
+    // of the matching css-update, in reload mode every request until the next
+    // change, so the swap or the reload does not compile a second time.
     let preparedUpdate: { timestamp: number; css: string } | null = null;
     // Increased on every change, so an older compile that finishes late is dropped.
     let changeGeneration = 0;
@@ -223,7 +232,10 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                 const [requestPath, query = ''] = req.url?.split('?') ?? [];
                 if (requestPath !== '/theme-scss/all.css') return next();
 
-                if (preparedUpdate && new URLSearchParams(query).get('t') === String(preparedUpdate.timestamp)) {
+                const servesPrepared = devUpdate === 'reload'
+                    || new URLSearchParams(query).get('t') === String(preparedUpdate?.timestamp);
+
+                if (preparedUpdate && servesPrepared) {
                     res.setHeader('Content-Type', 'text/css; charset=utf-8');
                     res.setHeader('Cache-Control', 'no-cache');
                     res.end(preparedUpdate.css);
@@ -331,7 +343,9 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                         registerLoadedFiles(server, loadedFiles);
                     }, () => { /* surfaced by middleware */ }).finally(() => {
                         logger.info('[sw-theme-scss] theme-files.json reloaded — entry list updated.', { timestamp: true });
-                        server.ws.send({ type: 'full-reload' });
+                        if (devUpdate !== 'manual') {
+                            server.ws.send({ type: 'full-reload' });
+                        }
                     });
                     return;
                 }
@@ -343,12 +357,23 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                 const generation = ++changeGeneration;
                 preparedUpdate = null;
 
+                if (devUpdate === 'manual') {
+                    logger.info(`[sw-theme-scss] SCSS changed: ${relativeFile}, reload the page to see it`, { timestamp: true });
+                    return;
+                }
+
                 compileAll(styleEntries, themeId, domainUrl, projectRoot).then(({ css, loadedFiles }) => {
                     if (generation !== changeGeneration) return;
 
                     registerLoadedFiles(server, loadedFiles);
                     const timestamp = Date.now();
                     preparedUpdate = { timestamp, css };
+
+                    if (devUpdate === 'reload') {
+                        logger.info(`[sw-theme-scss] SCSS changed: ${relativeFile} → page reload`, { timestamp: true });
+                        server.ws.send({ type: 'full-reload' });
+                        return;
+                    }
 
                     logger.info(`[sw-theme-scss] SCSS changed: ${relativeFile} → css update`, { timestamp: true });
                     server.ws.send({
@@ -366,7 +391,7 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                     const message = err instanceof Error ? err.message : String(err);
                     logger.error(`[sw-theme-scss] Compile error: ${message}`, { timestamp: true });
                     // The overlay keeps the current styles on the page. The next
-                    // successful compile sends an update, which closes it again.
+                    // successful compile sends an update or a reload, which closes it.
                     server.ws.send({
                         type: 'error',
                         err: { message, stack: '', id: changedFile, plugin: 'sw-theme-scss' },

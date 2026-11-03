@@ -32,7 +32,8 @@ The browser matrix below is for the parts that unit tests cannot cover: real tem
    Create the directory before `cache:clear` and before the watcher starts, otherwise neither Twig nor the watcher knows it.
    An app needs `app:install --activate`, `bundle:dump` and `cache:clear`, a manifest with only a `meta` block is enough.
 
-For the Vite dev server, run `APP_ENV=dev` for the web server, `theme:dump` for the default theme and `composer storefront:dev-server`.
+For the Vite dev server, run `APP_ENV=dev` for the web server, `theme:dump` for the default theme and `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server`.
+Without `hmr`, the Vite dev server reloads the page on a Twig change, and the in-place scenarios below do not apply.
 Open the shop URL, not the Vite port.
 The dev flag file `var/cache/storefront_components.dev.json` is only used for the theme in its `themeId`.
 Run the scenarios below once with each dev server.

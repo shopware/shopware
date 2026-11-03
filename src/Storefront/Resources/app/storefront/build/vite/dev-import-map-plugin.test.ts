@@ -140,7 +140,7 @@ describe('devImportMapPlugin', () => {
         expect(fs.existsSync(flagFile)).toBe(false);
     });
 
-    it('serves component css files via middleware and rewrites map before add-triggered reload', async () => {
+    it('serves component css files via middleware, rewrites map before add-triggered reload, and swaps changed css in hmr mode', async () => {
         const pluginRoot = path.join(fixtureRoot, 'second-project');
         const viteRoot = path.join(pluginRoot, 'src/Storefront/Resources/app/storefront');
         const namespacedCompRoot = path.join(pluginRoot, 'custom/plugins/TestPlugin/Resources/views/components/Foo');
@@ -158,7 +158,7 @@ describe('devImportMapPlugin', () => {
             },
         }));
 
-        const plugin = devImportMapPlugin(pluginRoot);
+        const plugin = devImportMapPlugin(pluginRoot, [], { devUpdate: 'hmr' });
         const server = createMockServer(5181);
         (resolveHook(plugin.configResolved) as ((...args: unknown[]) => unknown) | undefined)?.call({}, { root: viteRoot } as never);
         (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
@@ -237,6 +237,61 @@ describe('devImportMapPlugin', () => {
 
         expect(swappedRes.body).toContain('color: blue');
         expect(next).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        {
+            devUpdate: 'reload' as const,
+            clients: ['http://localhost:5182/@vite/client', 'http://localhost:5182/src/dev/twig-hmr/twig-reload.vite.js'],
+            sent: [{ type: 'full-reload' }],
+        },
+        { devUpdate: 'manual' as const, clients: [], sent: [] },
+    ])('lists the clients and sends $sent.length message(s) on a style change in $devUpdate mode', async ({ devUpdate, clients, sent }) => {
+        const pluginRoot = path.join(fixtureRoot, `${devUpdate}-project`);
+        const viteRoot = path.join(pluginRoot, 'src/Storefront/Resources/app/storefront');
+        const compRoot = path.join(pluginRoot, 'custom/plugins/TestPlugin/Resources/views/components/Foo');
+        fs.mkdirSync(path.join(viteRoot, 'src'), { recursive: true });
+        fs.mkdirSync(compRoot, { recursive: true });
+        fs.mkdirSync(path.join(pluginRoot, 'var'), { recursive: true });
+
+        fs.writeFileSync(path.join(viteRoot, 'src/shopware.ts'), 'export const test = true;');
+        fs.writeFileSync(path.join(compRoot, 'Bar.css'), '.bar { color: blue; }');
+        fs.writeFileSync(path.join(pluginRoot, 'var/plugins.json'), JSON.stringify({
+            TestPlugin: {
+                basePath: 'custom/plugins/TestPlugin',
+                technicalName: 'test-plugin',
+            },
+        }));
+
+        const plugin = devImportMapPlugin(pluginRoot, [], { devUpdate });
+        const server = createMockServer(5182);
+        (resolveHook(plugin.configResolved) as ((...args: unknown[]) => unknown) | undefined)?.call({}, { root: viteRoot } as never);
+        (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
+        server.httpServer.emit('listening');
+
+        const flagFile = path.join(pluginRoot, 'var/cache/storefront_components.dev.json');
+        await waitUntil(() => {
+            expect(fs.existsSync(flagFile)).toBe(true);
+        });
+
+        const { scripts } = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { scripts: string[] };
+        expect(scripts.slice(0, scripts.indexOf('http://localhost:5182/src/main.js'))).toEqual(clients);
+
+        server.watcher.emit('change', path.join(compRoot, 'Bar.css'));
+        expect(server.ws.send.mock.calls.map(call => call[0] as unknown)).toEqual(sent);
+
+        server.ws.send.mockClear();
+        const newStylePath = path.join(compRoot, 'Baz.css');
+        fs.writeFileSync(newStylePath, '.baz { color: green; }');
+        server.watcher.emit('add', newStylePath);
+
+        await waitUntil(() => {
+            const map = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { styles: string[] };
+            expect(map.styles).toContain('http://localhost:5182/__sw-comp-css/TestPlugin/Foo/Baz.css');
+        });
+        expect(server.ws.send.mock.calls.map(call => call[0] as unknown)).toEqual(sent);
+
+        server.httpServer.emit('close');
     });
 
     it('rejects path traversal attempts in component css middleware', () => {

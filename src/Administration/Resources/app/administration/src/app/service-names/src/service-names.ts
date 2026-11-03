@@ -393,6 +393,26 @@ export const flowBuilderService = 'flowBuilderService';
 export const guestCustomerConvertService = 'guestCustomerConvertService';
 
 /**
+ * The name the importExportProfileMapping service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [importExportProfileMapping] };
+ *
+ * @public
+ */
+export const importExportProfileMapping = 'importExportProfileMapping';
+
+/**
+ * The name the importExportUpdateByMapping service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [importExportUpdateByMapping] };
+ *
+ * @public
+ */
+export const importExportUpdateByMapping = 'importExportUpdateByMapping';
+
+/**
  * The name the licenseViolationService service is registered and injected under.
  *
  * @example

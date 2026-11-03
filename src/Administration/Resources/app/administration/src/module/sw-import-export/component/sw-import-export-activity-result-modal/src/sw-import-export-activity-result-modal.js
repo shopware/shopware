@@ -1,0 +1,78 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+import template from './sw-import-export-activity-result-modal.html.twig';
+import './sw-import-export-activity-result-modal.scss';
+import { fileSize, getDateFilter, importExportService } from '../dependencies';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: [importExportService],
+
+    emits: ['result-close'],
+
+    props: {
+        logEntity: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
+    },
+
+    computed: {
+        mainEntity() {
+            return this.logEntity.profile.sourceEntity;
+        },
+
+        mainEntityResult() {
+            return this.logEntity.result[this.mainEntity];
+        },
+
+        result() {
+            return Object.keys(this.logEntity.result).reduce((items, entityName) => {
+                if (entityName !== this.mainEntity) {
+                    items.push({
+                        id: entityName, // sw-grid items should always have a unique id
+                        entityName,
+                        ...this.logEntity.result[entityName],
+                    });
+                }
+
+                return items;
+            }, []);
+        },
+
+        logTypeText() {
+            return this.$t(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
+        dateFilter() {
+            return getDateFilter();
+        },
+    },
+
+    methods: {
+        calculateFileSize(size) {
+            return fileSize(size);
+        },
+
+        async openDownload(id) {
+            return window.open(await this.importExport.getDownloadUrl(id), '_blank');
+        },
+
+        getStateLabel(state) {
+            const translationKey = `sw-import-export.activity.status.${state}`;
+
+            return this.$te(translationKey) ? this.$t(translationKey) : state;
+        },
+    },
+};

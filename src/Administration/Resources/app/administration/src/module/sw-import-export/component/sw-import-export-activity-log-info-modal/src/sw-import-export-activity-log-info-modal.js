@@ -1,0 +1,64 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+import template from './sw-import-export-activity-log-info-modal.html.twig';
+import './sw-import-export-activity-log-info-modal.scss';
+import { fileSize, getDateFilter, importExportService, notificationMixin } from '../dependencies';
+
+/**
+ * @private
+ */
+export default {
+    template,
+
+    inject: [importExportService],
+
+    emits: ['log-close'],
+
+    mixins: [notificationMixin],
+
+    props: {
+        logEntity: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
+    },
+
+    computed: {
+        typeText() {
+            return this.$t(`sw-import-export.activity.logInfo.${this.logEntity.activity}Label`);
+        },
+
+        stateClass() {
+            return {
+                'sw-import-export-activity-log-info-modal__item-state--processing': this.logEntity.state === 'progress',
+            };
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
+        dateFilter() {
+            return getDateFilter();
+        },
+    },
+
+    methods: {
+        calculateFileSize(size) {
+            return fileSize(size);
+        },
+
+        async openDownload(id) {
+            return window.open(await this.importExport.getDownloadUrl(id), '_blank');
+        },
+
+        getStateLabel(state) {
+            const translationKey = `sw-import-export.activity.status.${state}`;
+
+            return this.$te(translationKey) ? this.$t(translationKey) : state;
+        },
+    },
+};

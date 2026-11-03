@@ -1,0 +1,236 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+import template from './sw-import-export-view-profiles.html.twig';
+import './sw-import-export-view-profiles.scss';
+import {
+    Criteria,
+    featureService,
+    getApiContext,
+    importExportService,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
+
+/**
+ * @private
+ */
+export default {
+    template,
+
+    inject: [repositoryFactoryService, importExportService, featureService],
+
+    mixins: [notificationMixin],
+
+    data() {
+        return {
+            isLoading: false,
+            selectedProfile: null,
+            profiles: null,
+            searchTerm: null,
+            sortBy: 'technicalName',
+            sortDirection: 'ASC',
+            showProfileEditModal: false,
+            showNewProfileWizard: false,
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
+    computed: {
+        profileRepository() {
+            return this.repositoryFactory.create('import_export_profile');
+        },
+
+        profileCriteria() {
+            return new Criteria(1, 25)
+                .setTerm(this.searchTerm)
+                .addAssociation('importExportLogs')
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+        },
+
+        profilesColumns() {
+            return [
+                {
+                    property: 'technicalName',
+                    dataIndex: 'technicalName',
+                    label: 'sw-import-export.profile.technicalNameColumn',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'systemDefault',
+                    dataIndex: 'systemDefault',
+                    label: 'sw-import-export.profile.typeColumn',
+                    allowResize: true,
+                },
+            ];
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.loadProfiles();
+        },
+
+        async loadProfiles() {
+            this.isLoading = true;
+
+            this.profiles = await this.profileRepository.search(this.profileCriteria);
+
+            this.isLoading = false;
+        },
+
+        reloadContent() {
+            this.loadProfiles();
+        },
+
+        onSearch() {
+            this.loadProfiles();
+        },
+
+        onAddNewProfile() {
+            const profile = this.profileRepository.create();
+            profile.type = 'import-export';
+            profile.fileType = 'text/csv';
+            profile.delimiter = ';';
+            profile.enclosure = '"';
+            profile.mapping = [];
+            profile.config = {
+                createEntities: true,
+                updateEntities: true,
+            };
+
+            this.selectedProfile = profile;
+            this.showNewProfileWizard = true;
+        },
+
+        async onEditProfile(id) {
+            const profile = await this.profileRepository.get(id);
+
+            if (Array.isArray(profile.config) && profile.config.length <= 0) {
+                this.profile.config = {};
+            }
+
+            if (profile.config?.createEntities === undefined) {
+                profile.config.createEntities = true;
+            }
+
+            if (profile.config?.updateEntities === undefined) {
+                profile.config.updateEntities = true;
+            }
+
+            this.selectedProfile = profile;
+            this.showProfileEditModal = true;
+        },
+
+        onDuplicateProfile(item) {
+            const behavior = {
+                cloneChildren: false,
+                overwrites: {
+                    technicalName: `${item.technicalName}-copy-${Date.now()}`,
+                    systemDefault: false,
+                },
+            };
+
+            return this.profileRepository
+                .clone(item.id, behavior, getApiContext())
+                .then((clone) => {
+                    const criteria = new Criteria(1, 25).setIds([clone.id]);
+
+                    return this.profileRepository.search(criteria);
+                })
+                .then((profiles) => {
+                    const profile = profiles[0];
+
+                    if (profile.config?.createEntities === undefined) {
+                        profile.config.createEntities = true;
+                    }
+
+                    if (profile.config?.updateEntities === undefined) {
+                        profile.config.updateEntities = true;
+                    }
+
+                    this.selectedProfile = profile;
+                    this.showProfileEditModal = true;
+
+                    // refresh the list in any case (even if the modal is canceled)
+                    // because the duplicate already exists.
+                    return this.loadProfiles();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                    });
+                });
+        },
+
+        async onDownloadTemplate(profile) {
+            return window.open(await this.importExport.getTemplateFileDownloadUrl(profile.id), '_blank');
+        },
+
+        onDeleteProfile(id) {
+            this.$refs.listing.showDelete(id);
+        },
+
+        closeSelectedProfile() {
+            this.showProfileEditModal = false;
+            this.selectedProfile = null;
+        },
+
+        saveSelectedProfile() {
+            this.isLoading = true;
+
+            return this.profileRepository
+                .save(this.selectedProfile, getApiContext())
+                .then(() => {
+                    this.showProfileEditModal = false;
+                    this.selectedProfile = null;
+                    this.onCloseNewProfileWizard();
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-import-export.profile.messageSaveSuccess', 0),
+                    });
+
+                    return this.loadProfiles();
+                })
+                .catch((exception) => {
+                    this.onError(exception);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        onError(error) {
+            const errorCode = error?.response?.data?.errors?.[0]?.code ?? null;
+            let errorDetails = '';
+
+            if (errorCode !== null && this.$te(`sw-import-export.errors.${errorCode}`)) {
+                errorDetails = this.$t(`sw-import-export.errors.${errorCode}`);
+            }
+
+            this.createNotificationError({
+                message: `${this.$t('sw-import-export.profile.messageSaveError', 0)} ${errorDetails}`,
+            });
+        },
+
+        getTypeLabel(isSystemDefault) {
+            return isSystemDefault
+                ? this.$t('sw-import-export.profile.defaultTypeLabel')
+                : this.$t('sw-import-export.profile.customTypeLabel');
+        },
+
+        onCloseNewProfileWizard() {
+            this.showNewProfileWizard = false;
+            this.selectedProfile = null;
+        },
+    },
+};

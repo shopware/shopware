@@ -7895,7 +7895,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/index.js": {
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/src/sw-import-export-new-profile-wizard-csv-page.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7903,12 +7903,12 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/sw-import-export-new-profile-wizard-csv-page.spec.js": {
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/tests/sw-import-export-new-profile-wizard-csv-page.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/index.js": {
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/src/sw-import-export-new-profile-wizard-general-page.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7916,7 +7916,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/index.js": {
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/src/sw-import-export-new-profile-wizard-mapping-page.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7924,7 +7924,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/index.js": {
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/src/sw-import-export-new-profile-wizard.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7932,12 +7932,12 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-activity-log-info-modal/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-activity-log-info-modal/src/sw-import-export-activity-log-info-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-activity-result-modal/src/sw-import-export-activity-result-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7958,7 +7958,7 @@
       "count": 45
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/src/sw-import-export-edit-profile-field-indicators.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7966,7 +7966,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-general/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-general/src/sw-import-export-edit-profile-general.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7974,7 +7974,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/src/sw-import-export-edit-profile-import-settings.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7982,32 +7982,32 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/sw-import-export-edit-profile-import-settings.spec.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/tests/sw-import-export-edit-profile-import-settings.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/src/sw-import-export-edit-profile-modal-identifiers.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping/src/sw-import-export-edit-profile-modal-mapping.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal/src/sw-import-export-edit-profile-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal/sw-import-export-edit-profile-modal.spec.js": {
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal/tests/sw-import-export-edit-profile-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-entity-path-select/src/sw-import-export-entity-path-select.js": {
     "complexity": {
       "count": 1
     },
@@ -8018,7 +8018,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-entity-path-select/sw-import-export-entity-path-select.spec.js": {
+  "src/module/sw-import-export/component/sw-import-export-entity-path-select/tests/sw-import-export-entity-path-select.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8026,27 +8026,27 @@
       "count": 18
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-exporter/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-exporter/src/sw-import-export-exporter.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-exporter/sw-import-export-exporter.spec.js": {
+  "src/module/sw-import-export/component/sw-import-export-exporter/tests/sw-import-export-exporter.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-importer/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-importer/src/sw-import-export-importer.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-importer/sw-import-export-importer.spec.js": {
+  "src/module/sw-import-export/component/sw-import-export-importer/tests/sw-import-export-importer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-import-export/component/sw-import-export-progress/index.js": {
+  "src/module/sw-import-export/component/sw-import-export-progress/src/sw-import-export-progress.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8059,7 +8059,7 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/page/sw-import-export/index.js": {
+  "src/module/sw-import-export/page/sw-import-export/src/sw-import-export.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8099,22 +8099,22 @@
       "count": 1
     }
   },
-  "src/module/sw-import-export/view/sw-import-export-view-export/index.js": {
+  "src/module/sw-import-export/view/sw-import-export-view-export/src/sw-import-export-view-export.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/view/sw-import-export-view-import/index.js": {
+  "src/module/sw-import-export/view/sw-import-export-view-import/src/sw-import-export-view-import.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/view/sw-import-export-view-profiles/index.js": {
+  "src/module/sw-import-export/view/sw-import-export-view-profiles/src/sw-import-export-view-profiles.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-import-export/view/sw-import-export-view-profiles/sw-import-export-view-profiles.spec.js": {
+  "src/module/sw-import-export/view/sw-import-export-view-profiles/tests/sw-import-export-view-profiles.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }

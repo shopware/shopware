@@ -51,6 +51,8 @@ export {
     flowBuilderService,
     guestCustomerConvertService,
     importExport,
+    importExportProfileMapping,
+    importExportUpdateByMapping,
     licenseViolationService,
     liveSearchService,
     localeHelper,

@@ -1,0 +1,201 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+import template from './sw-import-export-edit-profile-modal.html.twig';
+import './sw-import-export-edit-profile-modal.scss';
+import {
+    Criteria,
+    featureService,
+    importExportProfileMappingService,
+    importExportUpdateByMappingService,
+    mapPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
+
+/**
+ * @private
+ */
+export default {
+    template,
+
+    inject: [
+        repositoryFactoryService,
+        featureService,
+        importExportProfileMappingService,
+        importExportUpdateByMappingService,
+    ],
+
+    emits: ['profile-close', 'profile-save'],
+
+    mixins: [notificationMixin],
+
+    props: {
+        profile: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
+        show: {
+            type: Boolean,
+            required: false,
+            default() {
+                return true;
+            },
+        },
+    },
+
+    data() {
+        return {
+            duplicateMappings: [],
+            systemRequiredFields: {},
+            missingRequiredFields: [],
+            activeTab: 'general',
+        };
+    },
+
+    computed: {
+        ...mapPropertyErrors('profile', [
+            'name',
+            'sourceEntity',
+            'delimiter',
+            'enclosure',
+            'type',
+        ]),
+
+        isNew() {
+            if (!this.profile || !this.profile.isNew) {
+                return false;
+            }
+
+            return this.profile.isNew();
+        },
+
+        modalTitle() {
+            return this.isNew
+                ? this.$t('sw-import-export.profile.newProfileLabel')
+                : this.$t('sw-import-export.profile.editProfileLabel');
+        },
+
+        saveLabelSnippet() {
+            return this.isNew
+                ? this.$t('sw-import-export.profile.addProfileLabel')
+                : this.$t('sw-import-export.profile.saveProfileLabel');
+        },
+
+        showValidationError() {
+            return this.missingRequiredFields.length > 0 || this.duplicateMappings.length > 0;
+        },
+
+        profileRepository() {
+            return this.repositoryFactory.create('import_export_profile');
+        },
+
+        profileTabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-import-export.profile.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-import-export.profile.mappingsTab'),
+                    name: 'mappings',
+                },
+            ];
+
+            if (this.profile.type !== 'export' && this.profile.config.updateEntities !== false) {
+                tabs.push({
+                    label: this.$t('sw-import-export.profile.advancedTab'),
+                    name: 'advanced',
+                });
+            }
+
+            return tabs;
+        },
+    },
+
+    watch: {
+        'profile.sourceEntity': {
+            handler(value) {
+                if (value) {
+                    this.loadSystemRequiredFieldsForEntity(value);
+                }
+            },
+        },
+        'profile.mapping': {
+            handler() {
+                this.importExportUpdateByMapping.removeUnusedMappings(this.profile);
+            },
+        },
+    },
+
+    methods: {
+        saveProfile() {
+            this.getParentProfileSelected().then((parentProfile) => {
+                this.checkValidation(parentProfile);
+
+                if (!this.showValidationError) {
+                    this.$emit('profile-save');
+                }
+            });
+        },
+
+        updateMapping(newProfile) {
+            this.profile.mapping = newProfile;
+        },
+
+        getParentProfileSelected() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
+            criteria.addFilter(Criteria.equals('systemDefault', true));
+
+            return this.profileRepository
+                .search(criteria)
+                .then((results) => {
+                    if (results.total > 0) {
+                        return results[0];
+                    }
+
+                    return null;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-import-export.profile.messageSearchParentProfileError'),
+                    });
+                });
+        },
+
+        checkValidation(parentProfile) {
+            // Skip validation for only export profiles
+            if (this.profile.type === 'export') {
+                return;
+            }
+
+            const parentMapping = parentProfile ? parentProfile.mapping : [];
+
+            const isOnlyUpdateProfile =
+                this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
+
+            const validationErrors = this.importExportProfileMapping.validate(
+                this.profile.sourceEntity,
+                this.profile.mapping,
+                parentMapping,
+                isOnlyUpdateProfile,
+            );
+
+            this.missingRequiredFields = validationErrors.missingRequiredFields;
+            this.duplicateMappings = validationErrors.duplicateMappings;
+        },
+
+        resetViolations() {
+            this.missingRequiredFields = [];
+            this.duplicateMappings = [];
+        },
+
+        loadSystemRequiredFieldsForEntity(entityName) {
+            this.systemRequiredFields = this.importExportProfileMapping.getSystemRequiredFields(entityName);
+        },
+    },
+};

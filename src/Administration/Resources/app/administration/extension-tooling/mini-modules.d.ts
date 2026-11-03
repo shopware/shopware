@@ -335,3 +335,11 @@ import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-acco
 import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/global';
 import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/global';
 import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/global';
+import '../src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/global';
+import '../src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/global';
+import '../src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/global';
+import '../src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/global';
+import '../src/module/sw-import-export/component/sw-import-export-activity-result-modal/global';
+import '../src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/global';
+import '../src/module/sw-import-export/component/sw-import-export-edit-profile-general/global';
+import '../src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/global';

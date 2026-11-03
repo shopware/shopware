@@ -6,6 +6,26 @@ import ImportExportProfileMappingService from './service/importExportProfileMapp
 import ImportExportProfileUpdateByService from './service/importExportUpdateByMapping.service';
 import './acl';
 import './component/sw-import-export-activity/register';
+import './component/profile-wizard/sw-import-export-new-profile-wizard/register';
+import './component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/register';
+import './component/profile-wizard/sw-import-export-new-profile-wizard-general-page/register';
+import './component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/register';
+import './component/sw-import-export-activity-log-info-modal/register';
+import './component/sw-import-export-activity-result-modal/register';
+import './component/sw-import-export-edit-profile-field-indicators/register';
+import './component/sw-import-export-edit-profile-general/register';
+import './component/sw-import-export-edit-profile-import-settings/register';
+import './component/sw-import-export-edit-profile-modal/register';
+import './component/sw-import-export-edit-profile-modal-identifiers/register';
+import './component/sw-import-export-edit-profile-modal-mapping/register';
+import './component/sw-import-export-entity-path-select/register';
+import './component/sw-import-export-exporter/register';
+import './component/sw-import-export-importer/register';
+import './component/sw-import-export-progress/register';
+import './page/sw-import-export/register';
+import './view/sw-import-export-view-export/register';
+import './view/sw-import-export-view-import/register';
+import './view/sw-import-export-view-profiles/register';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExport', () => {
@@ -23,65 +43,6 @@ Shopware.Service().register('importExportUpdateByMapping', () => {
 });
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-import-export', () => import('./page/sw-import-export'));
-Shopware.Component.register('sw-import-export-exporter', () => import('./component/sw-import-export-exporter'));
-Shopware.Component.register('sw-import-export-importer', () => import('./component/sw-import-export-importer'));
-Shopware.Component.register(
-    'sw-import-export-activity-log-info-modal',
-    () => import('./component/sw-import-export-activity-log-info-modal'),
-);
-Shopware.Component.register(
-    'sw-import-export-activity-result-modal',
-    () => import('./component/sw-import-export-activity-result-modal'),
-);
-Shopware.Component.register(
-    'sw-import-export-edit-profile-modal',
-    () => import('./component/sw-import-export-edit-profile-modal'),
-);
-Shopware.Component.register(
-    'sw-import-export-edit-profile-modal-mapping',
-    () => import('./component/sw-import-export-edit-profile-modal-mapping'),
-);
-Shopware.Component.register(
-    'sw-import-export-edit-profile-modal-identifiers',
-    () => import('./component/sw-import-export-edit-profile-modal-identifiers'),
-);
-Shopware.Component.register(
-    'sw-import-export-entity-path-select',
-    () => import('./component/sw-import-export-entity-path-select'),
-);
-Shopware.Component.register(
-    'sw-import-export-edit-profile-field-indicators',
-    () => import('./component/sw-import-export-edit-profile-field-indicators'),
-);
-Shopware.Component.register(
-    'sw-import-export-edit-profile-import-settings',
-    () => import('./component/sw-import-export-edit-profile-import-settings'),
-);
-Shopware.Component.register(
-    'sw-import-export-edit-profile-general',
-    () => import('./component/sw-import-export-edit-profile-general'),
-);
-Shopware.Component.register(
-    'sw-import-export-new-profile-wizard',
-    () => import('./component/profile-wizard/sw-import-export-new-profile-wizard'),
-);
-Shopware.Component.register(
-    'sw-import-export-new-profile-wizard-general-page',
-    () => import('./component/profile-wizard/sw-import-export-new-profile-wizard-general-page'),
-);
-Shopware.Component.register(
-    'sw-import-export-new-profile-wizard-csv-page',
-    () => import('./component/profile-wizard/sw-import-export-new-profile-wizard-csv-page'),
-);
-Shopware.Component.register(
-    'sw-import-export-new-profile-wizard-mapping-page',
-    () => import('./component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page'),
-);
-Shopware.Component.register('sw-import-export-view-import', () => import('./view/sw-import-export-view-import'));
-Shopware.Component.register('sw-import-export-view-export', () => import('./view/sw-import-export-view-export'));
-Shopware.Component.register('sw-import-export-view-profiles', () => import('./view/sw-import-export-view-profiles'));
-Shopware.Component.register('sw-import-export-progress', () => import('./component/sw-import-export-progress'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

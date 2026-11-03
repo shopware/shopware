@@ -81,3 +81,8 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/index.ts @shopware/product-cc-discovery
 src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/global.d.ts @shopware/product-cc-discovery
 src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/tests/requirements.spec.ts @shopware/product-cc-discovery
+
+# framework: Administration mini-modules (same rules as above)
+src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/global.d.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/tests/requirements.spec.ts @shopware/product-cc-framework

@@ -3,6 +3,16 @@
  */
 
 /**
+ * Tells whether a feature flag is active.
+ *
+ * @example
+ * export default { inject: [feature] };
+ *
+ * @public
+ */
+export const feature = 'feature';
+
+/**
  * Creates the repositories for entities.
  *
  * @example

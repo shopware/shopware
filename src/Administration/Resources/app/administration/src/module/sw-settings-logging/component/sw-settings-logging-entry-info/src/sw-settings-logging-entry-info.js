@@ -3,6 +3,7 @@
  */
 
 import template from './sw-settings-logging-entry-info.html.twig';
+import { featureService } from '../dependencies';
 
 /**
  * @public
@@ -10,7 +11,7 @@ import template from './sw-settings-logging-entry-info.html.twig';
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['close'],
 

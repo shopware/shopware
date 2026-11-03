@@ -254,16 +254,9 @@
             "mediaModal": []
         }
     },
-    "shopware:mini-modules": {
+    "shopware:components": {
         "exports": [],
         "subpaths": {
-            "public-component": [
-                "definePublicComponent"
-            ],
-            "service-names": [
-                "repositoryFactory",
-                "ruleConditionDataProviderService"
-            ],
             "sw-settings-shipping-price-matrices": [
                 "default"
             ],
@@ -272,10 +265,34 @@
             ]
         },
         "sources": {
-            "public-component": "src/core/public-component",
-            "service-names": "src/app/service-names",
             "sw-settings-shipping-price-matrices": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices",
             "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix"
         }
+    },
+    "shopware:framework": {
+        "exports": [],
+        "subpaths": {
+            "public-component": [
+                "definePublicComponent"
+            ],
+            "service-names": [
+                "repositoryFactory",
+                "ruleConditionDataProviderService"
+            ]
+        },
+        "sources": {
+            "public-component": "src/core/public-component",
+            "service-names": "src/app/service-names"
+        }
+    },
+    "shopware:handlers": {
+        "exports": [],
+        "subpaths": {},
+        "sources": {}
+    },
+    "shopware:helpers": {
+        "exports": [],
+        "subpaths": {},
+        "sources": {}
     }
 }

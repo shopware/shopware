@@ -5,4 +5,4 @@ import Component, * as Module from './index';
  */
 
 Shopware.Component.register(Component);
-Shopware._private.publishMiniModule('sw-settings-shipping-price-matrices', Module);
+Shopware._private.publish('components', 'sw-settings-shipping-price-matrices', Module);

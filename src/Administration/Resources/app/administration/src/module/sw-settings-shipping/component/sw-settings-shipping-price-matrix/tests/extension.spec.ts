@@ -1,5 +1,5 @@
-import SwSettingsShippingPriceMatrix from 'shopware:mini-modules/sw-settings-shipping-price-matrix';
-import type { PublicOverride } from 'shopware:mini-modules/public-component';
+import SwSettingsShippingPriceMatrix from 'shopware:components/sw-settings-shipping-price-matrix';
+import type { PublicOverride } from 'shopware:framework/public-component';
 import '../register';
 import Declaration from '../index';
 import {

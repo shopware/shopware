@@ -23,13 +23,15 @@ The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:composabl
 source contract changes. Do not add these modules to this table. See
 [`shopware:*` Modules](../technical-docs/05-global-object/04-virtual-modules.md).
 
-The `index.ts` of a mini-module is public API for extensions, and `shopware:mini-modules/<directory name>` imports it:
+The `index.ts` of a mini-module is public API for extensions, and `shopware:<kind>/<directory name>` imports it:
 
 ```ts
-import SwSettingsShippingPriceMatrix from 'shopware:mini-modules/sw-settings-shipping-price-matrix';
+import SwSettingsShippingPriceMatrix from 'shopware:components/sw-settings-shipping-price-matrix';
+import { definePublicComponent } from 'shopware:framework/public-component';
 ```
 
-At runtime the module reads `Shopware.MiniModules`, where the `register.ts` of each mini-module puts exactly the exports of its `index.ts`.
+The kind groups the modules: `components`, `framework`, `handlers` and `helpers`.
+At runtime the module reads `Shopware.Public.<kind>`, where the `register.ts` of each mini-module puts exactly the exports of its `index.ts`.
 The types come from that `index.ts`, so `PublicOverride<typeof SwSettingsShippingPriceMatrix>` checks an override against the public API.
 Never import a mini-module's `src/`: it is private, and the import fails the lint.
 
@@ -140,7 +142,7 @@ carries the macro declarations so they type-check. Both flow through the same
 package resolution as the rest of the preset, so a dependency bump can never leave
 a stale hand-copied path behind.
 
-A native-setup base component can live in a mini-module of the extension, declared in its `index.ts` with `definePublicComponent()` from `shopware:mini-modules/public-component`.
+A native-setup base component can live in a mini-module of the extension, declared in its `index.ts` with `definePublicComponent()` from `shopware:framework/public-component`.
 The extension build compares the `public` lists of `index.ts` with the SFC and fails on any drift, like the Administration's own build.
 The preset tells vue-tsc that `swDefinePublic()` exposes its bindings, so `PublicInstance<typeof MyComponent>` types them for a parent or another extension.
 See [Native Setup Authoring](../technical-docs/03-extensibility/07-native-setup-authoring.md#in-a-mini-module-indexts-lists-the-same-api).

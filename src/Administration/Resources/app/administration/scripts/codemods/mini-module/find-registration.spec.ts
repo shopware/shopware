@@ -14,6 +14,7 @@ describe('findRegistration', () => {
             kind: 'register',
             specifier: './component/sw-a',
             isPrivate: false,
+            isConditional: false,
             start: 16,
             end: 87,
         });
@@ -84,6 +85,26 @@ Shopware.Component.register('sw-b', () => import('./sw-b'));
         ]);
     });
 
+    it('tells a registration that runs only under a feature flag', () => {
+        // ARRANGE
+        const source = `if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    Shopware.Component.register('sw-a', () => import('./sw-a'));
+}
+export default () => {
+    Shopware.Component.register('sw-b', () => import('./sw-b'));
+};
+`;
+
+        // ACT
+        const registrations = ['sw-a', 'sw-b'].map((name) => findRegistration(source, name)?.isConditional);
+
+        // ASSERT
+        expect(registrations).toEqual([
+            true,
+            false,
+        ]);
+    });
+
     it('finds an extension and the component it extends', () => {
         // ARRANGE
         const source = `Component.extend(
@@ -102,6 +123,7 @@ Shopware.Component.register('sw-b', () => import('./sw-b'));
             base: 'sw-settings-logging-entry-info',
             specifier: './component/sw-settings-logging-mail-sent-info',
             isPrivate: false,
+            isConditional: false,
             start: 0,
             end: source.length,
         });

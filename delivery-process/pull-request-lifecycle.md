@@ -49,17 +49,22 @@ A daily job at 12:00 UTC retires inactive pull requests across all repositories 
 It only handles our own pull requests: the author and the first assignee both need a verified Shopware email address.
 Community contributions and pull requests without an assignee are never warned or closed.
 
-1. **Warning:** after 28 days without activity, the pull request gets a comment. If it is not a draft yet, it is also converted to one.
-2. **Closing:** with no activity in the 28 days after the warning, it is closed, labeled `lifecycle/ClosedDueToNoActivity`, and gets a comment.
+1. **Warning:** after 28 days without activity, the pull request gets the `lifecycle/AboutToClose` label and a comment.
+   If it is not a draft yet, it is also converted to one.
+2. **Closing:** with no activity in the 28 days after the label was added, it is closed and gets a comment.
+   `lifecycle/AboutToClose` is replaced by `lifecycle/ClosedDueToNoActivity`.
 
 Drafts are handled the same way, whoever created them.
 For a draft, the 28 days start at its latest conversion to draft at the earliest.
-Any activity after the warning starts over, and the pull request is warned again before it can be closed.
 
-To keep a pull request open:
+The warning is withdrawn, and `lifecycle/AboutToClose` removed, as soon as one of these happens:
 
-- add the `lifecycle/DoNotClose` label to exclude it from both steps, or
-- continue working on it and mark it as ready for review again.
+- someone is active on the pull request,
+- it is marked as ready for review,
+- it gets the `lifecycle/DoNotClose` label, which also excludes it from both steps for good, or
+- someone removes `lifecycle/AboutToClose` by hand.
+
+If the pull request stays inactive, it is warned again before it can be closed.
 
 A closed pull request can be reopened at any time.
 The job lives in [shopware/gh-project-automation](https://github.com/shopware/gh-project-automation) (`manageOldPullRequests`) and runs from [`manage-stale-prs.yml`](../.github/workflows/manage-stale-prs.yml).
@@ -70,4 +75,5 @@ The job lives in [shopware/gh-project-automation](https://github.com/shopware/gh
 |---|---|---|
 | `waiting-on/author`, `waiting-on/shopware`, `waiting-on/nobody` | Automation | Who has to act next, see [Waiting-on labels](#waiting-on-labels). |
 | `lifecycle/DoNotClose` | People | Excludes the issue or pull request from automatic warning and closing. |
+| `lifecycle/AboutToClose` | Automation | Warned; will be closed unless there is activity within 28 days. |
 | `lifecycle/ClosedDueToNoActivity` | Automation | Closed after a warning and another 28 days without activity. |

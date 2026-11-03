@@ -19,9 +19,17 @@
                 />
 
                 <pre
-                    v-if="activeContent !== null"
+                    v-if="activeContent"
                     class="sw-settings-webhook-deliveries-modal__content"
                 >{{ activeContent }}</pre>
+
+                <mt-banner
+                    v-else-if="activeContent !== null"
+                    class="sw-settings-webhook-deliveries-modal__no-content"
+                    variant="info"
+                >
+                    {{ noContentMessage }}
+                </mt-banner>
             </template>
 
             <mt-empty-state

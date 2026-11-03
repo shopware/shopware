@@ -27,7 +27,8 @@
       "actionShowDeliveries": "Show deliveries",
       "messageSaveSuccess": "Webhook \"{name}\" has been saved.",
       "placeholderSearchBar": "Search webhooks...",
-      "deletedRole": "Deleted role"
+      "deletedRole": "Deleted role",
+      "tooltipWebhookNotOwned": "Only the owner of this webhook or an administrator can delete it."
     },
     "deliveries": {
       "title": "Deliveries of \"{name}\"",
@@ -51,7 +52,9 @@
       "columnPayload": "Payload",
       "buttonBack": "Back to deliveries",
       "tabPayload": "Payload",
-      "tabResponse": "Response"
+      "tabResponse": "Response",
+      "noResponse": "No response was received.",
+      "noBody": "The response has no body."
     }
   },
   "sw-privileges": {

@@ -14,6 +14,7 @@ type Webhook = {
     app?: { name: string; label: string | null; translated: { label: string }; active: boolean };
     ownerUser?: { id: string; username: string };
     ownerIntegrationId?: string;
+    ownerUserId?: string;
     ownerIntegration?: { label: string };
 };
 
@@ -25,6 +26,7 @@ const userWebhook: Webhook = {
         'role-1',
         'role-2',
     ],
+    ownerUserId: 'user-id',
     ownerUser: { id: 'user-id', username: 'admin' },
 };
 
@@ -91,6 +93,7 @@ function criteriaOf(search: jest.Mock): CriteriaType {
 
 async function createWrapper({
     privileges = [] as string[],
+    isAdmin = false,
     webhooks = [
         userWebhook,
         integrationWebhook,
@@ -113,6 +116,8 @@ async function createWrapper({
         ),
     );
 
+    Shopware.Store.get('session').setCurrentUser({ id: 'current-user-id' } as Entity<'user'>);
+
     const wrapper = mount(await wrapTestComponent('sw-settings-webhook-list', { sync: true }), {
         global: {
             provide: {
@@ -130,7 +135,8 @@ async function createWrapper({
                     },
                 },
                 acl: {
-                    can: (privilege: string) => privileges.includes(privilege),
+                    can: (privilege: string) => isAdmin || privileges.includes(privilege),
+                    isAdmin: () => isAdmin,
                 },
                 searchRankingService: {
                     isValidTerm: (searchTerm?: string) => (searchTerm ?? '').trim().length > 0,
@@ -150,6 +156,7 @@ async function createWrapper({
                         dataSource: { type: Array, required: true },
                         allowInlineEdit: { type: Boolean, default: true },
                         allowDelete: { type: Boolean, default: true },
+                        isRecordEditable: { type: Function, default: () => true },
                     },
                     template: `
                         <div class="sw-entity-listing">
@@ -367,12 +374,37 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         expect(wrapper.find('.deliveries-modal').exists()).toBe(false);
     });
 
-    it('allows deleting webhooks, except those of apps', async () => {
-        const { wrapper } = await createWrapper({ privileges: ['webhook.deleter'] });
+    it('lets an admin delete webhooks, except those of apps', async () => {
+        const { wrapper } = await createWrapper({ isAdmin: true });
 
         expect(wrapper.find('.row-user-webhook .delete button').attributes('disabled')).toBeUndefined();
         expect(wrapper.find('.row-integration-webhook .delete button').attributes('disabled')).toBeUndefined();
         expect(wrapper.find('.row-app-webhook .delete button').attributes('disabled')).toBeDefined();
+    });
+
+    it('lets a user who is not an admin delete only their own webhooks', async () => {
+        const ownWebhook = { ...userWebhook, id: 'own-webhook', ownerUserId: 'current-user-id' };
+        const { wrapper } = await createWrapper({
+            privileges: ['webhook.deleter'],
+            webhooks: [ownWebhook, userWebhook, integrationWebhook],
+        });
+
+        expect(wrapper.find('.row-own-webhook .delete button').attributes('disabled')).toBeUndefined();
+        expect(wrapper.find('.row-user-webhook .delete button').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.row-integration-webhook .delete button').attributes('disabled')).toBeDefined();
+    });
+
+    it('lets a user who is not an admin switch only their own webhooks on and off', async () => {
+        const ownWebhook = { ...userWebhook, ownerUserId: 'current-user-id' };
+        const { wrapper } = await createWrapper({ privileges: ['webhook.editor'] });
+        const isRecordEditable = wrapper.findComponent({ name: 'sw-entity-listing' }).props('isRecordEditable') as (
+            webhook: Webhook,
+        ) => boolean;
+
+        expect(isRecordEditable(ownWebhook)).toBe(true);
+        expect(isRecordEditable(userWebhook)).toBe(false);
+        expect(isRecordEditable(integrationWebhook)).toBe(false);
+        expect(isRecordEditable(appWebhook)).toBe(false);
     });
 
     it('does not allow deleting without the deleter role', async () => {

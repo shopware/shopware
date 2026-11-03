@@ -114,7 +114,7 @@ in {
     };
   };
 
-  services.redis.enable = lib.mkDefault false;
+  services.redis.enable = lib.mkDefault true;
   # WSL2 fix locale
   services.redis.extraConfig = "locale-collate C";
   services.adminer.enable = lib.mkDefault true;

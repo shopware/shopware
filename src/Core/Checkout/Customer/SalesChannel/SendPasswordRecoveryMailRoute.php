@@ -68,7 +68,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));
+            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, mb_strtolower(mb_trim((string) $data->get('email'))) . '-' . $request->getClientIp());
         }
 
         try {

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -69,6 +70,10 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function testSendRecoveryMail(): void
     {
+        $this->requestStack->method('getMainRequest')->willReturn(new Request(server: ['REMOTE_ADDR' => '10.0.0.1']));
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::RESET_PASSWORD, 'test@test.dev-10.0.0.1');
+
         $customer = new CustomerEntity();
         $customer->setId('foo');
 
@@ -155,7 +160,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             }), static::anything());
 
         $data = new RequestDataBag();
-        $data->set('email', 'test@test.dev');
+        $data->set('email', " \u{00A0}Test@Test.DEV\u{3000}  ");
         $data->set('storefrontUrl', 'https://test.example.dev');
 
         $MailRoute->sendRecoveryMail($data, $this->context);

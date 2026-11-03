@@ -40,6 +40,50 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(OrderRoute::class)]
 class OrderRouteTest extends TestCase
 {
+    #[DataProvider('limiterCredentialsProvider')]
+    public function testNormalizesGuestLimiterKey(bool $validCredentials): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setGuest(true);
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setEmail('guest@example.com');
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setZipcode('12345');
+        $order = new OrderEntity();
+        $order->setId('order');
+        $order->setCreatedAt(new \DateTimeImmutable());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context->getContext()));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-10.0.0.1');
+        $rateLimiter->expects($validCredentials ? $this->once() : $this->never())->method('reset')->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-10.0.0.1');
+        $route = new OrderRoute($repository, $this->createMock(EntityRepository::class), $rateLimiter, $this->createMock(EventDispatcherInterface::class));
+
+        if (!$validCredentials) {
+            $this->expectException(WrongGuestCredentialsException::class);
+        }
+
+        $route->load(
+            new Request(request: ['email' => 'guest@example.com', 'zipcode' => $validCredentials ? '12345' : 'wrong'], server: ['REMOTE_ADDR' => '10.0.0.1']),
+            $context,
+            (new Criteria())->addFilter(new EqualsFilter('deepLinkCode', "DEEPLINKCODE \u{00A0}\u{3000}")),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function limiterCredentialsProvider(): iterable
+    {
+        yield 'successful authentication resets counter' => [true];
+        yield 'failed authentication retains counter' => [false];
+    }
+
     #[DataProvider('deeplinkFilterProvider')]
     public function testWronglyDeeplinkFilter(Filter $filter): void
     {

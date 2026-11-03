@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -41,12 +40,10 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
     /**
      * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
-     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $seoUrlRepository,
-        private readonly EntityRepository $languageRepository,
         private readonly SeoUrlPersister $persister,
         private readonly SlugifyInterface $slugify
     ) {
@@ -167,15 +164,8 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
                     continue;
                 }
 
-                $languageIds = $registrationSalesChannel->getLanguages()->getIds();
-                $languageCriteria = new Criteria($languageIds);
-                $languageCriteria->addFilter(new EqualsFilter('active', true));
-
-                $languageCollection = $this->languageRepository->search($languageCriteria, $context)->getEntities();
-
-                foreach ($languageIds as $languageId) {
-                    $language = $languageCollection->get($languageId);
-                    if (!$language) {
+                foreach ($registrationSalesChannel->getLanguages() as $languageId => $language) {
+                    if (!$language->isActive()) {
                         continue;
                     }
 

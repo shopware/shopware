@@ -29,7 +29,7 @@ use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
 #[CoversClass(CustomerGroupSubscriber::class)]
 class CustomerGroupSubscriberTest extends TestCase
 {
-    public function testGeneratedUrlsAreActive(): void
+    public function testGeneratedUrlsAreActiveAndSkipInactiveLanguages(): void
     {
         $context = Context::createDefaultContext();
         $customerGroupId = Uuid::randomHex();
@@ -39,31 +39,39 @@ class CustomerGroupSubscriberTest extends TestCase
         $language->setId($languageId);
         $language->setActive(true);
 
+        $inactiveLanguageId = Uuid::randomHex();
+        $inactiveLanguage = new LanguageEntity();
+        $inactiveLanguage->setId($inactiveLanguageId);
+        $inactiveLanguage->setActive(false);
+
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
         $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        $salesChannel->setLanguages(new LanguageCollection([$language]));
+        $salesChannel->setLanguages(new LanguageCollection([$language, $inactiveLanguage]));
 
         $translation = new CustomerGroupTranslationEntity();
         $translation->setId(Uuid::randomHex());
         $translation->setLanguageId($languageId);
         $translation->setRegistrationTitle('Registration');
 
+        $inactiveTranslation = new CustomerGroupTranslationEntity();
+        $inactiveTranslation->setId(Uuid::randomHex());
+        $inactiveTranslation->setLanguageId($inactiveLanguageId);
+        $inactiveTranslation->setRegistrationTitle('Registrierung');
+
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setId($customerGroupId);
         $customerGroup->setRegistrationActive(true);
         $customerGroup->setRegistrationSalesChannels(new SalesChannelCollection([$salesChannel]));
-        $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation]));
+        $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation, $inactiveTranslation]));
 
         $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection([$customerGroup])]);
-
-        $languageRepository = new StaticEntityRepository([new LanguageCollection([$language])]);
 
         $persister = $this->createMock(SeoUrlPersister::class);
         $persister->expects($this->once())
             ->method('updateSeoUrls')
             ->with(
-                static::isInstanceOf(Context::class),
+                static::callback(static fn (Context $context): bool => $context->getLanguageId() === $languageId),
                 'frontend.account.customer-group-registration.page',
                 [$customerGroupId],
                 static::callback(static function (iterable $seoUrls): bool {
@@ -84,7 +92,6 @@ class CustomerGroupSubscriberTest extends TestCase
         $subscriber = new CustomerGroupSubscriber(
             $customerGroupRepository,
             static::createStub(EntityRepository::class),
-            $languageRepository,
             $persister,
             $slugify
         );

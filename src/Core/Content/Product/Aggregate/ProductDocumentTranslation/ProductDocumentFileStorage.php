@@ -54,17 +54,6 @@ class ProductDocumentFileStorage
     }
 
     /**
-     * @return array<string, string> parent language id per language id, for the languages that have a parent
-     */
-    public function getParentLanguages(): array
-    {
-        /** @var array<string, string> */
-        return $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(`id`)), LOWER(HEX(`parent_id`)) FROM `language` WHERE `parent_id` IS NOT NULL'
-        );
-    }
-
-    /**
      * Gives each language version its new file, unless its file changed in the meantime.
      *
      * @param list<array{documentId: string, versionId: string, languageId: string, oldFileId: string, newFileId: string}> $moves

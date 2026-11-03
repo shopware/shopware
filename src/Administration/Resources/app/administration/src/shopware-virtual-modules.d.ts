@@ -1048,15 +1048,117 @@ declare module 'shopware:components/sw-custom-field-type-select' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-duplicated-media-v2' {
+    export { default } from 'src/app/component/utils/sw-duplicated-media-v2';
+    export type * from 'src/app/component/utils/sw-duplicated-media-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-image-slider' {
+    export { default } from 'src/app/component/media/sw-image-slider';
+    export type * from 'src/app/component/media/sw-image-slider';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-import-export-activity' {
     export { default } from 'src/module/sw-import-export/component/sw-import-export-activity';
     export type * from 'src/module/sw-import-export/component/sw-import-export-activity';
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-base-item' {
+    export { default } from 'src/app/component/media/sw-media-base-item';
+    export type * from 'src/app/component/media/sw-media-base-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-media-collapse' {
     export { default } from 'src/module/sw-media/component/sw-media-collapse';
     export type * from 'src/module/sw-media/component/sw-media-collapse';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-compact-upload-v2' {
+    export { default } from 'src/app/component/media/sw-media-compact-upload-v2';
+    export type * from 'src/app/component/media/sw-media-compact-upload-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-field' {
+    export { default } from 'src/app/component/media/sw-media-field';
+    export type * from 'src/app/component/media/sw-media-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-folder-content' {
+    export { default } from 'src/app/component/media/sw-media-folder-content';
+    export type * from 'src/app/component/media/sw-media-folder-content';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-folder-item' {
+    export { default } from 'src/app/component/media/sw-media-folder-item';
+    export type * from 'src/app/component/media/sw-media-folder-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-list-selection-v2' {
+    export { default } from 'src/app/component/media/sw-media-list-selection-v2';
+    export type * from 'src/app/component/media/sw-media-list-selection-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-modal-delete' {
+    export { default } from 'src/app/component/media/sw-media-modal-delete';
+    export type * from 'src/app/component/media/sw-media-modal-delete';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-modal-folder-dissolve' {
+    export { default } from 'src/app/component/media/sw-media-modal-folder-dissolve';
+    export type * from 'src/app/component/media/sw-media-modal-folder-dissolve';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-modal-move' {
+    export { default } from 'src/app/component/media/sw-media-modal-move';
+    export type * from 'src/app/component/media/sw-media-modal-move';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-modal-replace' {
+    export { default } from 'src/app/component/media/sw-media-modal-replace';
+    export type * from 'src/app/component/media/sw-media-modal-replace';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-preview-v2' {
+    export { default } from 'src/app/component/media/sw-media-preview-v2';
+    export type * from 'src/app/component/media/sw-media-preview-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-upload-v2' {
+    export { default } from 'src/app/component/media/sw-media-upload-v2';
+    export type * from 'src/app/component/media/sw-media-upload-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-url-form' {
+    export { default } from 'src/app/component/media/sw-media-url-form';
+    export type * from 'src/app/component/media/sw-media-url-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-model-editor' {
+    export { default } from 'src/app/component/media/sw-model-editor';
+    export type * from 'src/app/component/media/sw-model-editor';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-model-viewer' {
+    export { default } from 'src/app/component/media/sw-model-viewer';
+    export type * from 'src/app/component/media/sw-model-viewer';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1403,9 +1505,7 @@ declare module 'shopware:components/sw-settings-product-feature-sets-modal' {
 
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-product-feature-sets-values-card' {
-    export {
-        default,
-    } from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';
+    export { default } from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';
     export type * from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';
 }
 
@@ -1638,6 +1738,12 @@ declare module 'shopware:components/sw-settings-tax-rule-type-zip-code-range-cel
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sidebar-media-item' {
+    export { default } from 'src/app/component/media/sw-sidebar-media-item';
+    export type * from 'src/app/component/media/sw-sidebar-media-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-system-config' {
     export { default } from 'src/module/sw-settings/component/sw-system-config';
     export type * from 'src/module/sw-settings/component/sw-system-config';
@@ -1650,6 +1756,18 @@ declare module 'shopware:components/sw-tax-rule-card' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-text-preview' {
+    export { default } from 'src/app/component/utils/sw-text-preview';
+    export type * from 'src/app/component/utils/sw-text-preview';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-vector-field' {
+    export { default } from 'src/app/component/media/sw-vector-field';
+    export type * from 'src/app/component/media/sw-vector-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:framework/public-component' {
     export { definePrivateComponent, definePublicComponent } from 'src/core/public-component';
     export type * from 'src/core/public-component';
@@ -1659,28 +1777,49 @@ declare module 'shopware:framework/public-component' {
 declare module 'shopware:framework/service-names' {
     export {
         acl,
+        appActionButtonService,
+        appModulesService,
         cacheApiService,
         cacheService,
         captchaService,
+        customEntityDefinitionService,
         customFieldDataProviderService,
         customSnippetApiService,
         documentV2ApiService,
         documentV2Service,
         excludedSearchTermService,
+        extensionSdkService,
+        extensionStoreActionService,
         feature,
+        fileValidationService,
         filterFactory,
         filterService,
         importExport,
+        licenseViolationService,
         liveSearchService,
+        loginService,
+        mediaFolderService,
+        mediaPresignedUploadService,
+        mediaService,
+        menuService,
         messageStatsService,
         numberRangeService,
         productIndexService,
+        productStreamPreviewService,
+        recentlySearchService,
         repositoryFactory,
         ruleConditionDataProviderService,
         ruleConditionsConfigApiService,
+        searchPreferencesService,
+        searchRankingService,
+        searchService,
+        searchTypeService,
         seoUrlTemplateService,
         serviceRegistryClient,
+        shopIdChangeService,
         shopwareServicesService,
+        shortcutService,
+        snackbarService,
         snippetService,
         snippetSetService,
         syncService,
@@ -1688,7 +1827,10 @@ declare module 'shopware:framework/service-names' {
         tagApiService,
         translationService,
         updateService,
+        userActivityApiService,
+        userActivityService,
         userConfigService,
+        userInputSanitizeService,
         userService,
     } from 'src/app/service-names';
     export type * from 'src/app/service-names';

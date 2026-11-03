@@ -290,10 +290,61 @@
             "sw-custom-field-type-select": [
                 "default"
             ],
+            "sw-duplicated-media-v2": [
+                "default"
+            ],
+            "sw-image-slider": [
+                "default"
+            ],
             "sw-import-export-activity": [
                 "default"
             ],
+            "sw-media-base-item": [
+                "default"
+            ],
             "sw-media-collapse": [
+                "default"
+            ],
+            "sw-media-compact-upload-v2": [
+                "default"
+            ],
+            "sw-media-field": [
+                "default"
+            ],
+            "sw-media-folder-content": [
+                "default"
+            ],
+            "sw-media-folder-item": [
+                "default"
+            ],
+            "sw-media-list-selection-v2": [
+                "default"
+            ],
+            "sw-media-modal-delete": [
+                "default"
+            ],
+            "sw-media-modal-folder-dissolve": [
+                "default"
+            ],
+            "sw-media-modal-move": [
+                "default"
+            ],
+            "sw-media-modal-replace": [
+                "default"
+            ],
+            "sw-media-preview-v2": [
+                "default"
+            ],
+            "sw-media-upload-v2": [
+                "default"
+            ],
+            "sw-media-url-form": [
+                "default"
+            ],
+            "sw-model-editor": [
+                "default"
+            ],
+            "sw-model-viewer": [
                 "default"
             ],
             "sw-payment-card": [
@@ -584,10 +635,19 @@
             "sw-settings-tax-rule-type-zip-code-range-cell": [
                 "default"
             ],
+            "sw-sidebar-media-item": [
+                "default"
+            ],
             "sw-system-config": [
                 "default"
             ],
             "sw-tax-rule-card": [
+                "default"
+            ],
+            "sw-text-preview": [
+                "default"
+            ],
+            "sw-vector-field": [
                 "default"
             ]
         },
@@ -603,8 +663,25 @@
             "sw-custom-field-type-entity": "src/module/sw-settings-custom-field/component/sw-custom-field-type-entity",
             "sw-custom-field-type-number": "src/module/sw-settings-custom-field/component/sw-custom-field-type-number",
             "sw-custom-field-type-select": "src/module/sw-settings-custom-field/component/sw-custom-field-type-select",
+            "sw-duplicated-media-v2": "src/app/component/utils/sw-duplicated-media-v2",
+            "sw-image-slider": "src/app/component/media/sw-image-slider",
             "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
+            "sw-media-base-item": "src/app/component/media/sw-media-base-item",
             "sw-media-collapse": "src/module/sw-media/component/sw-media-collapse",
+            "sw-media-compact-upload-v2": "src/app/component/media/sw-media-compact-upload-v2",
+            "sw-media-field": "src/app/component/media/sw-media-field",
+            "sw-media-folder-content": "src/app/component/media/sw-media-folder-content",
+            "sw-media-folder-item": "src/app/component/media/sw-media-folder-item",
+            "sw-media-list-selection-v2": "src/app/component/media/sw-media-list-selection-v2",
+            "sw-media-modal-delete": "src/app/component/media/sw-media-modal-delete",
+            "sw-media-modal-folder-dissolve": "src/app/component/media/sw-media-modal-folder-dissolve",
+            "sw-media-modal-move": "src/app/component/media/sw-media-modal-move",
+            "sw-media-modal-replace": "src/app/component/media/sw-media-modal-replace",
+            "sw-media-preview-v2": "src/app/component/media/sw-media-preview-v2",
+            "sw-media-upload-v2": "src/app/component/media/sw-media-upload-v2",
+            "sw-media-url-form": "src/app/component/media/sw-media-url-form",
+            "sw-model-editor": "src/app/component/media/sw-model-editor",
+            "sw-model-viewer": "src/app/component/media/sw-model-viewer",
             "sw-payment-card": "src/module/sw-settings-payment/component/sw-payment-card",
             "sw-plugin-box": "src/module/sw-settings-payment/component/sw-plugin-box",
             "sw-price-rule-modal": "src/module/sw-settings-shipping/component/sw-price-rule-modal",
@@ -701,8 +778,11 @@
             "sw-settings-tax-rule-type-zip-code-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-cell",
             "sw-settings-tax-rule-type-zip-code-range": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range",
             "sw-settings-tax-rule-type-zip-code-range-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell",
+            "sw-sidebar-media-item": "src/app/component/media/sw-sidebar-media-item",
             "sw-system-config": "src/module/sw-settings/component/sw-system-config",
-            "sw-tax-rule-card": "src/module/sw-settings-tax/component/sw-tax-rule-card"
+            "sw-tax-rule-card": "src/module/sw-settings-tax/component/sw-tax-rule-card",
+            "sw-text-preview": "src/app/component/utils/sw-text-preview",
+            "sw-vector-field": "src/app/component/media/sw-vector-field"
         }
     },
     "shopware:framework": {
@@ -714,28 +794,49 @@
             ],
             "service-names": [
                 "acl",
+                "appActionButtonService",
+                "appModulesService",
                 "cacheApiService",
                 "cacheService",
                 "captchaService",
+                "customEntityDefinitionService",
                 "customFieldDataProviderService",
                 "customSnippetApiService",
                 "documentV2ApiService",
                 "documentV2Service",
                 "excludedSearchTermService",
+                "extensionSdkService",
+                "extensionStoreActionService",
                 "feature",
+                "fileValidationService",
                 "filterFactory",
                 "filterService",
                 "importExport",
+                "licenseViolationService",
                 "liveSearchService",
+                "loginService",
+                "mediaFolderService",
+                "mediaPresignedUploadService",
+                "mediaService",
+                "menuService",
                 "messageStatsService",
                 "numberRangeService",
                 "productIndexService",
+                "productStreamPreviewService",
+                "recentlySearchService",
                 "repositoryFactory",
                 "ruleConditionDataProviderService",
                 "ruleConditionsConfigApiService",
+                "searchPreferencesService",
+                "searchRankingService",
+                "searchService",
+                "searchTypeService",
                 "seoUrlTemplateService",
                 "serviceRegistryClient",
+                "shopIdChangeService",
                 "shopwareServicesService",
+                "shortcutService",
+                "snackbarService",
                 "snippetService",
                 "snippetSetService",
                 "syncService",
@@ -743,7 +844,10 @@
                 "tagApiService",
                 "translationService",
                 "updateService",
+                "userActivityApiService",
+                "userActivityService",
                 "userConfigService",
+                "userInputSanitizeService",
                 "userService"
             ]
         },

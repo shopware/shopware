@@ -1,17 +1,18 @@
 import template from './sw-media-save-modal.html.twig';
 import './sw-media-save-modal.scss';
+import { getApiContext, repositoryFactoryService } from '../dependencies';
 
-const { Context } = Shopware;
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['save-media', 'modal-close'],
 
@@ -107,7 +108,7 @@ export default {
                 return;
             }
 
-            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
+            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, getApiContext());
         },
 
         getMediaEntityForUpload() {
@@ -123,7 +124,7 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.mediaRepository.save(targetEntity, Context.api);
+                await this.mediaRepository.save(targetEntity, getApiContext());
 
                 this.$emit('save-media', {
                     fileName: this.fileName,

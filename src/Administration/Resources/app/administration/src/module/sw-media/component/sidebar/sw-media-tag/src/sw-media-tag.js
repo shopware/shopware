@@ -4,12 +4,15 @@
 
 import template from './sw-media-tag.html.twig';
 import './sw-media-tag.scss';
+import { repositoryFactoryService } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     props: {
         media: {

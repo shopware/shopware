@@ -1,18 +1,19 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
+import { Criteria, repositoryFactoryService } from '../dependencies';
 
 const { Application } = Shopware;
 const types = Shopware.Utils.types;
-const { Criteria } = Shopware.Data;
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     props: {
         item: {

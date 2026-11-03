@@ -1,20 +1,26 @@
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
-
-const { Filter, Context } = Shopware;
+import {
+    getApiContext,
+    getAssetFilter,
+    getMediaNameFilter,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['media-sidebar-folder-renamed'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         items: {
@@ -57,7 +63,7 @@ export default {
         },
 
         mediaNameFilter() {
-            return Filter.getByName('mediaName');
+            return getMediaNameFilter();
         },
 
         mediaSidebarClasses() {
@@ -102,7 +108,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         filteredAttributes() {
@@ -139,7 +145,7 @@ export default {
                 return;
             }
 
-            this.currentFolder = await this.mediaFolderRepository.get(this.currentFolderId, Context.api);
+            this.currentFolder = await this.mediaFolderRepository.get(this.currentFolderId, getApiContext());
         },
 
         onMediaFolderRenamed() {
@@ -155,7 +161,7 @@ export default {
             try {
                 firstItem.isLoading = true;
                 Object.assign(this.items[0], newItem);
-                await this.mediaRepository.save(firstItem, Context.api);
+                await this.mediaRepository.save(firstItem, getApiContext());
                 this.createNotificationSuccess({
                     message: this.$t('global.sw-media-media-item.notification.settingsSuccess.message'),
                 });

@@ -1,16 +1,16 @@
 import template from './sw-media-breadcrumbs.html.twig';
 import './sw-media-breadcrumbs.scss';
-
-const { Context, Filter } = Shopware;
+import { featureService, getApiContext, getAssetFilter, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [repositoryFactoryService, featureService],
 
     emits: ['update:currentFolderId'],
 
@@ -46,7 +46,7 @@ export default {
             return this.repositoryFactory.create('media_folder');
         },
         rootFolder() {
-            const root = this.mediaFolderRepository.create(Context.api);
+            const root = this.mediaFolderRepository.create(getApiContext());
             root.name = this.$t('sw-media.index.rootFolderName');
             root.id = null;
             return root;
@@ -59,7 +59,7 @@ export default {
         },
 
         assetFilter() {
-            return Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
@@ -83,10 +83,10 @@ export default {
                 this.currentFolder = this.rootFolder;
                 this.parentFolder = null;
             } else {
-                this.currentFolder = await this.mediaFolderRepository.get(this.currentFolderId, Context.api);
+                this.currentFolder = await this.mediaFolderRepository.get(this.currentFolderId, getApiContext());
 
                 if (this.currentFolder && this.currentFolder.parentId) {
-                    this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, Context.api);
+                    this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, getApiContext());
                 } else {
                     this.parentFolder = this.rootFolder;
                 }

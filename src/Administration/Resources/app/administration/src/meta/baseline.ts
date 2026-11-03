@@ -155,8 +155,6 @@ const missingTests = [
     'src/module/sw-manufacturer/default-search-configuration.js',
     'src/module/sw-manufacturer/index.js',
     'src/module/sw-media/component/sidebar/sw-media-quickinfo-metadata-item/index.js',
-    'src/module/sw-media/component/sidebar/sw-media-tag/index.js',
-    'src/module/sw-media/component/sw-media-breadcrumbs/index.js',
     'src/module/sw-media/default-search-configuration.js',
     'src/module/sw-media/index.js',
     'src/module/sw-media/mixin/media-grid-listener.mixin.js',

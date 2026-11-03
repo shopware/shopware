@@ -1,18 +1,18 @@
 import template from './sw-media-modal-v2.html.twig';
 import './sw-media-modal-v2.scss';
-
-const { Context, Utils } = Shopware;
+import { createId, featureService, getApiContext, mediaService, repositoryFactoryService } from '../dependencies';
 
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['feature', 'repositoryFactory', 'mediaService'],
+    inject: [featureService, repositoryFactoryService, mediaService],
 
     emits: ['modal-close', 'media-modal-selection-change'],
 
@@ -66,7 +66,7 @@ export default {
             currentFolder: null,
             compact: false,
             term: '',
-            id: Utils.createId(),
+            id: createId(),
             selectedMediaItem: {},
             activeTab: this.defaultTab,
         };
@@ -155,7 +155,7 @@ export default {
                 return;
             }
 
-            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
+            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, getApiContext());
         },
 
         addResizeListener() {
@@ -272,7 +272,7 @@ export default {
         },
 
         async onUploadFinished({ targetId }) {
-            const updatedMedia = await this.mediaRepository.get(targetId, Context.api);
+            const updatedMedia = await this.mediaRepository.get(targetId, getApiContext());
             this.selectedMediaItem = updatedMedia;
 
             if (

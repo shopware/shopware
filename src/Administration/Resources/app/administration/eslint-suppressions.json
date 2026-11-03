@@ -8456,7 +8456,7 @@
       "count": 2
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/index.js": {
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/src/sw-media-quickinfo-usage.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8464,7 +8464,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/sw-media-quickinfo-usage.spec.js": {
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/tests/sw-media-quickinfo-usage.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
@@ -8485,7 +8485,7 @@
       "count": 26
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-sidebar/index.js": {
+  "src/module/sw-media/component/sidebar/sw-media-sidebar/src/sw-media-sidebar.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8493,7 +8493,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-tag/index.js": {
+  "src/module/sw-media/component/sidebar/sw-media-tag/src/sw-media-tag.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8501,7 +8501,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-breadcrumbs/index.js": {
+  "src/module/sw-media/component/sw-media-breadcrumbs/src/sw-media-breadcrumbs.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8514,7 +8514,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-display-options/index.js": {
+  "src/module/sw-media/component/sw-media-display-options/src/sw-media-display-options.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8522,12 +8522,12 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-display-options/sw-media-display-options.spec.js": {
+  "src/module/sw-media/component/sw-media-display-options/tests/sw-media-display-options.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-media/component/sw-media-grid/index.js": {
+  "src/module/sw-media/component/sw-media-grid/src/sw-media-grid.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8545,7 +8545,7 @@
       "count": 63
     }
   },
-  "src/module/sw-media/component/sw-media-modal-v2/index.js": {
+  "src/module/sw-media/component/sw-media-modal-v2/src/sw-media-modal-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8553,12 +8553,12 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.spec.js": {
+  "src/module/sw-media/component/sw-media-modal-v2/tests/sw-media-modal-v2.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-media/component/sw-media-save-modal/index.js": {
+  "src/module/sw-media/component/sw-media-save-modal/src/sw-media-save-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8566,7 +8566,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-save-modal/sw-media-save-modal.spec.js": {
+  "src/module/sw-media/component/sw-media-save-modal/tests/sw-media-save-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
@@ -8616,7 +8616,7 @@
       "count": 29
     }
   },
-  "src/module/sw-media/page/sw-media-index/index.js": {
+  "src/module/sw-media/page/sw-media-index/src/sw-media-index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8624,7 +8624,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/page/sw-media-index/sw-media-index.spec.js": {
+  "src/module/sw-media/page/sw-media-index/tests/sw-media-index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 30
     }

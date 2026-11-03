@@ -1,9 +1,8 @@
 import template from './sw-media-display-options.html.twig';
-
-const { Feature } = Shopware;
+import { isFeatureActive } from '../dependencies';
 
 const getDefaultSorting = () => {
-    if (Feature.isActive('v6.8.0.0')) {
+    if (isFeatureActive('v6.8.0.0')) {
         return {
             sortBy: 'createdAt',
             sortDirection: 'desc',
@@ -18,8 +17,9 @@ const getDefaultSorting = () => {
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

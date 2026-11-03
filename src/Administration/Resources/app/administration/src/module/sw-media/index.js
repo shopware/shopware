@@ -7,28 +7,28 @@ import './mixin/video-cover.mixin';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 import './component/sw-media-collapse/register';
+import './component/sidebar/sw-media-quickinfo-usage/register';
+import './component/sidebar/sw-media-sidebar/register';
+import './component/sidebar/sw-media-tag/register';
+import './component/sw-media-breadcrumbs/register';
+import './component/sw-media-display-options/register';
+import './component/sw-media-grid/register';
+import './component/sw-media-modal-v2/register';
+import './component/sw-media-save-modal/register';
+import './page/sw-media-index/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-media-index', () => import('./page/sw-media-index'));
-Shopware.Component.register('sw-media-grid', () => import('./component/sw-media-grid'));
-Shopware.Component.register('sw-media-sidebar', () => import('./component/sidebar/sw-media-sidebar'));
 Shopware.Component.register(
     'sw-media-quickinfo-metadata-item',
     () => import('./component/sidebar/sw-media-quickinfo-metadata-item'),
 );
-Shopware.Component.register('sw-media-quickinfo-usage', () => import('./component/sidebar/sw-media-quickinfo-usage'));
 Shopware.Component.register('sw-media-folder-info', () => import('./component/sidebar/sw-media-folder-info'));
 Shopware.Component.register('sw-media-quickinfo', () => import('./component/sidebar/sw-media-quickinfo'));
 Shopware.Component.register('sw-media-quickinfo-multiple', () => import('./component/sidebar/sw-media-quickinfo-multiple'));
-Shopware.Component.register('sw-media-tag', () => import('./component/sidebar/sw-media-tag'));
-Shopware.Component.register('sw-media-display-options', () => import('./component/sw-media-display-options'));
-Shopware.Component.register('sw-media-breadcrumbs', () => import('./component/sw-media-breadcrumbs'));
 Shopware.Component.register('sw-media-library', () => import('./component/sw-media-library'));
-Shopware.Component.register('sw-media-modal-v2', () => import('./component/sw-media-modal-v2'));
 
-Shopware.Component.register('sw-media-save-modal', () => import('./component/sw-media-save-modal'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

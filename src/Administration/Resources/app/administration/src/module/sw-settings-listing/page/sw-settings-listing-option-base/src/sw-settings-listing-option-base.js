@@ -3,18 +3,23 @@
  */
 import template from './sw-settings-listing-option-base.html.twig';
 import './sw-settings-listing-option-base.scss';
+import {
+    Criteria,
+    notificationMixin,
+    repositoryFactoryService,
+    ShopwareError,
+    systemConfigApiService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { ShopwareError } = Shopware.Classes;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService'],
+    inject: [repositoryFactoryService, systemConfigApiService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

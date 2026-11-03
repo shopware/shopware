@@ -3,8 +3,9 @@ import './sw-settings-listing-delete-modal.scss';
 
 /**
  * @sw-package inventory
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

@@ -1,18 +1,24 @@
 import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
+import {
+    Criteria,
+    getAssetFilter,
+    notificationMixin,
+    repositoryFactoryService,
+    swInlineSnippetMixin,
+} from '../dependencies';
 
 /**
  * @sw-package inventory
  */
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: [
         'criteria-add',
@@ -21,7 +27,7 @@ export default {
         'inline-edit-cancel',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
+    mixins: [notificationMixin, swInlineSnippetMixin],
 
     props: {
         productSortingEntity: {
@@ -195,7 +201,7 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 

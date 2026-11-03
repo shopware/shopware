@@ -1,11 +1,12 @@
 /**
  * @sw-package inventory
  */
-import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
+import { Criteria, useContextStore } from '../dependencies';
 
-const { Criteria } = Shopware.Data;
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -35,7 +36,7 @@ export default {
         createdComponent() {
             this.fetchCustomFields().then(() => {
                 this.productSortingEntity = this.createProductSortingEntity();
-                Shopware.Store.get('context').resetLanguageToDefault();
+                useContextStore().resetLanguageToDefault();
             });
         },
 

@@ -1,19 +1,25 @@
 import template from './sw-settings-listing-default-sales-channel.html.twig';
 import './sw-settings-listing-default-sales-channel.scss';
+import {
+    cloneDeep,
+    EntityCollection,
+    getApiContext,
+    isEmpty,
+    repositoryFactoryService,
+    systemConfigApiService,
+} from '../dependencies';
 
 /**
  * @sw-package inventory
  */
 
-const { EntityCollection } = Shopware.Data;
-const { isEmpty } = Shopware.Utils.types;
-const { cloneDeep } = Shopware.Utils.object;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService'],
+    inject: [repositoryFactoryService, systemConfigApiService],
 
     props: {
         isLoading: {
@@ -97,7 +103,7 @@ export default {
             const salesChannelEntity = new EntityCollection(
                 this.salesChannelRepository.route,
                 this.salesChannelRepository.entityName,
-                Shopware.Context.api,
+                getApiContext(),
             );
 
             this.systemConfigApiService.getValues('core.defaultSalesChannel').then((configData) => {

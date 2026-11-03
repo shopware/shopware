@@ -3,15 +3,15 @@
  */
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
+import { Criteria, getAssetFilter, repositoryFactoryService, ShopwareError, systemConfigApiService } from '../dependencies';
 
-const { Criteria } = Shopware.Data;
-const { ShopwareError } = Shopware.Classes;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService'],
+    inject: [repositoryFactoryService, systemConfigApiService],
 
     mixins: ['notification', 'sw-inline-snippet'],
 
@@ -107,7 +107,7 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         salesChannelDefaultSortingError() {

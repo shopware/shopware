@@ -78,6 +78,9 @@ const locateMiniModule = (name: string) =>
         .filter((file) => file.endsWith('/index.ts'))
         .find((file) => fs.readFileSync(path.join(adminRoot, file), 'utf8').includes('definePublicComponent('));
 
+/** The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`. */
+const withoutIndex = (specifier: string) => specifier.replace(/\/index(\.[jt]s)?$/, '');
+
 const readComponentSource = (componentDirectory: string, name: string) => {
     const entry = ['index.js', 'index.ts'].find((file) => fs.existsSync(path.join(componentDirectory, file)));
     if (!entry) {
@@ -109,7 +112,7 @@ const readInheritedApi = (name: string): ComponentApi => {
 
     const directory = resolveSpecifier(
         path.dirname(path.join(adminRoot, located.file)),
-        located.registration.specifier.replace(/\/index(\.[jt]s)?$/, ''),
+        withoutIndex(located.registration.specifier),
     );
     const { componentSource, templateSource } = readComponentSource(directory, name);
     const api = extractComponentApi(componentSource, templateSource);
@@ -424,7 +427,7 @@ const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<type
     const absolute = path.join(adminRoot, file);
     const source = fs.readFileSync(absolute, 'utf8');
     const withoutRegistration = `${source.slice(0, registration.start)}${source.slice(registration.end)}`;
-    fs.writeFileSync(absolute, addImport(withoutRegistration, `${registration.specifier}/register`));
+    fs.writeFileSync(absolute, addImport(withoutRegistration, `${withoutIndex(registration.specifier)}/register`));
 
     return file;
 };

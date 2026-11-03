@@ -42,10 +42,10 @@ class CachedSalesChannelContextFactoryTest extends TestCase
     }
 
     #[DataProvider('injectedAddressOptionProvider')]
-    public function testContextWithInjectedAddressIsNotCached(string $option): void
+    public function testContextWithInjectedAddressIsNotCached(string $option, mixed $value): void
     {
         $context = Generator::generateSalesChannelContext();
-        $options = [$option => new CustomerAddressEntity()];
+        $options = [$option => $value];
 
         $inner = $this->createMock(SalesChannelContextFactory::class);
         $inner->expects($this->exactly(2))
@@ -64,9 +64,34 @@ class CachedSalesChannelContextFactoryTest extends TestCase
 
     public static function injectedAddressOptionProvider(): \Generator
     {
-        yield 'injected billing address' => [SalesChannelContextService::BILLING_ADDRESS];
-        yield 'injected shipping address' => [SalesChannelContextService::SHIPPING_ADDRESS];
-        yield 'address of a visitor without a customer' => [SalesChannelContextService::PROSPECTIVE_CUSTOMER];
+        yield 'injected billing address' => [SalesChannelContextService::BILLING_ADDRESS, new CustomerAddressEntity()];
+        yield 'injected shipping address' => [SalesChannelContextService::SHIPPING_ADDRESS, new CustomerAddressEntity()];
+        yield 'address of a visitor without a customer' => [SalesChannelContextService::PROSPECTIVE_CUSTOMER, ['shippingAddress' => ['countryId' => 'country-id']]];
+    }
+
+    #[DataProvider('prospectiveCustomerWithoutShippingAddressProvider')]
+    public function testProspectiveCustomerWithoutShippingAddressIsCached(mixed $prospectiveCustomer): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $options = [SalesChannelContextService::PROSPECTIVE_CUSTOMER => $prospectiveCustomer];
+
+        $inner = $this->createMock(SalesChannelContextFactory::class);
+        $inner->expects($this->once())
+            ->method('create')
+            ->willReturn($context);
+
+        $factory = new CachedSalesChannelContextFactory(
+            $inner,
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+        );
+
+        $factory->create('token', 'sales-channel-id', $options);
+        $factory->create('token', 'sales-channel-id', $options);
+    }
+
+    public static function prospectiveCustomerWithoutShippingAddressProvider(): \Generator
+    {
+        yield 'billing address removed before a shipping address was sent' => [['billingAddress' => null]];
     }
 
     public function testFreshlyBuiltContextIsReturnedDirectly(): void

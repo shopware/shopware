@@ -1,22 +1,8 @@
 import './service';
 import { grantPermissionsFromSdk, isPermissionGrantedFromSdk } from './composables/permissions';
 import './page/sw-settings-services-index/register';
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-dashboard-banner',
-    () => import('./component/sw-settings-services-dashboard-banner'),
-);
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-grant-permissions-modal',
-    () => import('./component/sw-settings-services-grant-permissions-modal'),
-);
+import './component/sw-settings-services-dashboard-banner/register';
+import './component/sw-settings-services-grant-permissions-modal/register';
 
 /**
  * @sw-package framework

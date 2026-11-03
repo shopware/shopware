@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import SwSettingsServicesDashboardBanner from './index';
+import SwSettingsServicesDashboardBanner from '../src/sw-settings-services-dashboard-banner';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-dashboard-banner', () => {
     beforeEach(() => {

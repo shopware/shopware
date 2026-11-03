@@ -1,22 +1,27 @@
 /**
  * @sw-package framework
  */
-import useSession from 'src/app/composables/use-session';
 import template from './sw-settings-services-grant-permissions-modal.html.twig';
 import './sw-settings-services-grant-permissions-modal.scss';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
-import extractErrorMessage from '../../composables/extract-error';
-import { grantPermissions } from '../../composables/permissions';
+import {
+    extractErrorMessage,
+    getAssetFilter,
+    grantPermissions,
+    useNotificationStore,
+    useSession,
+    useShopwareServicesStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     name: 'sw-settings-services-grant-permissions-modal',
     template,
 
     data() {
-        const assetFilter = Shopware.Filter.getByName('asset');
+        const assetFilter = getAssetFilter();
 
         return {
             grantPermissionsBackground: assetFilter(
@@ -61,7 +66,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await grantPermissions();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: extractErrorMessage(exception),

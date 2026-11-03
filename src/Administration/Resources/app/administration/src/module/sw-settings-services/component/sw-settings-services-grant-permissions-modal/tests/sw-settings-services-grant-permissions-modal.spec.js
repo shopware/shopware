@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
 import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
-import SwSettingsServicesGrantPermissionsModal from './index';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
-import * as permissionsComposable from '../../composables/permissions';
+import SwSettingsServicesGrantPermissionsModal from '../src/sw-settings-services-grant-permissions-modal';
+import { useShopwareServicesStore } from '../../../store/shopware-services.store';
+import * as permissionsComposable from '../../../composables/permissions';
 
-jest.mock('../../composables/permissions', () => {
-    const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+jest.mock('../../../composables/permissions', () => {
+    const useShopwareServicesStore = require('../../../store/shopware-services.store').useShopwareServicesStore;
     const _reloadPageMock = jest.fn();
     return {
         async grantPermissions() {

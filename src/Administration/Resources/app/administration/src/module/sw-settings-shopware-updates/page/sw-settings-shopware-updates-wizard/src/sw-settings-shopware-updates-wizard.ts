@@ -1,22 +1,28 @@
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
-import useSession from 'src/app/composables/use-session';
-import useSnackbar from 'src/app/composables/use-snackbar';
-
-const { Component, Mixin } = Shopware;
+import {
+    dom,
+    getApiContext,
+    getAppContext,
+    notificationMixin,
+    updateService,
+    useSession,
+    useSnackbar,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @sw-package framework
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['updateService'],
+    inject: [updateService],
 
     emits: ['update-started', 'update-stopped'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data(): {
         updateInfo: {
@@ -125,7 +131,7 @@ export default Component.wrapComponentConfig({
         },
 
         currentVersion(): string {
-            return Shopware.Context.app.config.version ?? '';
+            return getAppContext().config.version ?? '';
         },
 
         isUpdateAvailable(): boolean {
@@ -187,7 +193,7 @@ export default Component.wrapComponentConfig({
 
         async copyCliCommand() {
             try {
-                await Shopware.Utils.dom.copyStringToClipboard(this.cliUpgradeCommand);
+                await dom.copyStringToClipboard(this.cliUpgradeCommand);
                 this.cliCommandCopied = true;
 
                 if (this.cliCommandCopiedTimeout !== null) {
@@ -329,7 +335,7 @@ export default Component.wrapComponentConfig({
         },
 
         buildRecoveryUrl(): string {
-            const url = `${Shopware.Context.api.basePath}/shopware-installer.phar.php`;
+            const url = `${getApiContext().basePath}/shopware-installer.phar.php`;
             const locale = useSession().currentLocale.value ?? '';
 
             return locale === '' ? url : `${url}?language=${encodeURIComponent(locale)}`;

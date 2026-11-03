@@ -1,13 +1,14 @@
 import template from './sw-shopware-updates-extensions.html.twig';
+import { featureService, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package framework
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     props: {
         isLoading: {

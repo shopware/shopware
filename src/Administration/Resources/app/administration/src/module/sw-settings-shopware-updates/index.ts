@@ -3,16 +3,10 @@
  */
 
 import './acl';
+import './page/sw-settings-shopware-updates-wizard/register';
+import './view/sw-settings-shopware-updates-extensions/register';
 
 const { Component, Module } = Shopware;
-
-/** @private */
-Component.register(
-    'sw-settings-shopware-updates-extensions',
-    () => import('./view/sw-settings-shopware-updates-extensions'),
-);
-/** @private */
-Component.register('sw-settings-shopware-updates-wizard', () => import('./page/sw-settings-shopware-updates-wizard'));
 
 /**
  * @private

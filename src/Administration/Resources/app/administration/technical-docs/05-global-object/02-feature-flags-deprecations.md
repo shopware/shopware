@@ -171,12 +171,23 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 ```
 
 Templates wrap the deprecated components of the old path in the renderless `sw-silence-deprecations` component.
-It silences the components directly inside of it: the deprecation plugin's report of them and their deprecated
-props, what they report while Vue knows the running component (`setup`, `data`, lifecycle hooks, rendering), and
-what their own templates render. Plain elements in between do not count, another component does. Slot content passed
-into those components still reports, from the same template too. So a wrapper like `sw-popover` silences its
-deprecated implementation, but not what its users put into it, and a wrapped `sw-tabs` keeps reporting its tab
-content:
+It silences only the first level of components inside of it, ignoring plain HTML elements and `<template>`.
+Those components are silenced with everything they render themselves: the deprecation plugin's report of them and
+their deprecated props, and what they report while Vue knows the running component (`setup`, `data`, lifecycle
+hooks, rendering). Everything below them in the same template, their slot content, reports:
+
+```twig
+<sw-silence-deprecations flag="V6_9_0_0">
+    <div>
+        <sw-tabs>          {# level 1: silenced, including all of sw-tabs' own insides #}
+            <sw-card />    {# level 2: reports #}
+        </sw-tabs>
+    </div>
+</sw-silence-deprecations>
+```
+
+So a wrapper like `sw-popover` silences its deprecated implementation, but not what its users put into its
+`<slot />`:
 
 ```twig
 <sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
@@ -185,8 +196,8 @@ content:
 <mt-floating-ui v-else v-bind="$attrs"><slot /></mt-floating-ui>
 ```
 
-An extension that overrides a block directly inside of the wrapper writes into the same template, so the
-components it puts there are silenced too; in the slot content of a wrapped component they still report. The
+A component that an extension's block override puts on the first level is silenced too; one on a deeper level
+reports. The
 wrapper renders no element of its own, so attributes on it go nowhere.
 
 Both silence nothing once the major is active, so a use outside of its branch still throws, and an unknown flag

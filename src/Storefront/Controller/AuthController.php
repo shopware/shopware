@@ -88,7 +88,10 @@ class AuthController extends StorefrontController
 
         $customer = $context->getCustomer();
 
-        $redirect = (string) $request->query->get('redirectTo', $customer?->getGuest() ? 'frontend.account.logout.page' : 'frontend.account.home.page');
+        // A failed login forwards to this page with the submitted form data in the request body
+        $redirect = (string) ($request->query->get('redirectTo')
+            ?? $request->request->get('redirectTo')
+            ?? ($customer?->getGuest() ? 'frontend.account.logout.page' : 'frontend.account.home.page'));
 
         if ($customer !== null) {
             $request->request->set('redirectTo', $redirect);
@@ -102,7 +105,7 @@ class AuthController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([]),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? $request->request->all()['redirectParameters'] ?? json_encode([]),
             'errorRoute' => $request->attributes->get('_route'),
             'page' => $page,
             'loginError' => $request->attributes->getBoolean('loginError'),

@@ -90,6 +90,23 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(AccountLoginPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
+    public function testLoginPageKeepsRedirectTargetOfForwardedRequest(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        // A failed login forwards with the submitted form data in the request body
+        $request = new Request(request: [
+            'redirectTo' => 'frontend.account.order.single.page',
+            'redirectParameters' => '{"deepLinkCode":"abc"}',
+        ]);
+
+        $this->controller->loginPage($request, new RequestDataBag(), $context);
+
+        static::assertSame('frontend.account.order.single.page', $this->controller->recorder()->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertSame('{"deepLinkCode":"abc"}', $this->controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
+    }
+
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
     {
         $context = Generator::generateSalesChannelContext();

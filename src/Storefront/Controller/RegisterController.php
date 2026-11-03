@@ -102,7 +102,7 @@ class RegisterController extends StorefrontController
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
 
-        $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
+        $redirect = $this->getRedirectTo($request, 'frontend.account.home.page');
         $errorRoute = $request->attributes->get('_route');
 
         $page = $this->loginPageLoader->load($request, $context);
@@ -111,7 +111,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
+            'redirectParameters' => $this->getRedirectParameters($request),
             'errorRoute' => $errorRoute,
             'page' => $page,
             'data' => $data,
@@ -140,7 +140,7 @@ class RegisterController extends StorefrontController
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
 
-        $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
+        $redirect = $this->getRedirectTo($request, 'frontend.account.home.page');
 
         $page = $this->customerGroupRegistrationPageLoader->load($request, $context);
 
@@ -152,7 +152,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
+            'redirectParameters' => $this->getRedirectParameters($request),
             'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,
@@ -169,12 +169,11 @@ class RegisterController extends StorefrontController
     )]
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $redirect = $request->query->get('redirectTo', 'frontend.checkout.confirm.page');
-        \assert(\is_string($redirect));
+        $redirect = $this->getRedirectTo($request, 'frontend.checkout.confirm.page');
         $errorRoute = $request->attributes->get('_route');
 
         if ($context->getCustomer()) {
-            return $this->redirectToRoute($redirect);
+            return $this->redirectToRoute($redirect, $this->decodeParam($request, 'redirectParameters'));
         }
 
         if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
@@ -192,6 +191,7 @@ class RegisterController extends StorefrontController
             '@Storefront/storefront/page/checkout/address/index.html.twig',
             [
                 'redirectTo' => $redirect,
+                'redirectParameters' => $this->getRedirectParameters($request),
                 'errorRoute' => $errorRoute,
                 'loginError' => $request->attributes->getBoolean('loginError'),
                 'errorSnippet' => $request->attributes->get('errorSnippet'),
@@ -383,5 +383,18 @@ class RegisterController extends StorefrontController
         }
 
         return $domain->getUrl();
+    }
+
+    /**
+     * A failed login or registration forwards to the page with the submitted form data in the request body
+     */
+    private function getRedirectTo(Request $request, string $default): string
+    {
+        return (string) ($request->query->get('redirectTo') ?? $request->request->get('redirectTo') ?? $default);
+    }
+
+    private function getRedirectParameters(Request $request): mixed
+    {
+        return $request->query->all()['redirectParameters'] ?? $request->request->all()['redirectParameters'] ?? '[]';
     }
 }

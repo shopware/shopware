@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -71,8 +72,7 @@ class ImportExportTest extends TestCase
         $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository([], new OrderDefinition());
+        $repository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -162,8 +162,7 @@ class ImportExportTest extends TestCase
         $importStrategyService->method('import')->willReturn(new ImportResult([], []));
         $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
 
-        /** @var StaticEntityRepository<CustomerCollection> */
-        $repository = new StaticEntityRepository([], new CustomerDefinition());
+        $repository = StaticEntityRepository::of(CustomerCollection::class, [], new CustomerDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -220,8 +219,7 @@ class ImportExportTest extends TestCase
         $writer = $this->createMock(AbstractWriter::class);
         $writer->expects($this->never())->method('append');
 
-        /** @var StaticEntityRepository<CustomerCollection> */
-        $repository = new StaticEntityRepository([], new CustomerDefinition());
+        $repository = StaticEntityRepository::of(CustomerCollection::class, [], new CustomerDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -291,8 +289,8 @@ class ImportExportTest extends TestCase
 
         $orderId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            OrderCollection::class,
             [new EntitySearchResult(
                 OrderDefinition::ENTITY_NAME,
                 1,
@@ -402,8 +400,8 @@ class ImportExportTest extends TestCase
 
         $dictId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            OrderCollection::class,
             [
                 static function (Criteria $criteria, Context $ctx) use ($dictId): EntitySearchResult {
                     $sortings = $criteria->getSorting();
@@ -554,8 +552,8 @@ class ImportExportTest extends TestCase
             }
         );
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            OrderCollection::class,
             [new EntitySearchResult(
                 OrderDefinition::ENTITY_NAME,
                 1,
@@ -707,8 +705,7 @@ class ImportExportTest extends TestCase
         $writer->expects($this->exactly(1))->method('flush');
         $writer->expects($this->exactly(1))->method('finish');
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository([], new OrderDefinition());
+        $repository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -737,5 +734,106 @@ class ImportExportTest extends TestCase
         );
 
         static::assertSame(1, $importExportBeforeExportRecordEventCount);
+    }
+
+    /**
+     * @param array<string, string> $row
+     */
+    #[DataProvider('userDefaultProvider')]
+    public function testImportAddsUserDefaultOnlyForMissingValues(array $row, string $expected): void
+    {
+        $mapping = ['key' => 'active', 'mappedKey' => 'active', 'useDefaultValue' => true, 'defaultValue' => '1'];
+
+        $pipedRows = [];
+        $pipe = static::createStub(AbstractPipe::class);
+        $pipe->method('out')->willReturnCallback(static function (Config $config, array $row) use (&$pipedRows): iterable {
+            $pipedRows[] = $row;
+
+            yield 'id' => 'id1';
+        });
+
+        $importStrategyService = static::createStub(ImportStrategyService::class);
+        $importStrategyService->method('import')->willReturn(new ImportResult([], []));
+        $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
+
+        $this->createImportExport([$row], $mapping, $pipe, $importStrategyService)->import(Context::createDefaultContext());
+
+        static::assertCount(1, $pipedRows);
+        static::assertSame($expected, $pipedRows[0]['active']);
+    }
+
+    public static function userDefaultProvider(): \Generator
+    {
+        yield 'zero is a value' => [['id' => 'id1', 'active' => '0'], '0'];
+        yield 'empty cell gets default' => [['id' => 'id1', 'active' => ''], '1'];
+        yield 'missing column gets default' => [['id' => 'id1'], '1'];
+    }
+
+    public function testImportAcceptsZeroForUserRequiredField(): void
+    {
+        $mapping = ['key' => 'active', 'mappedKey' => 'active', 'requiredByUser' => true];
+
+        $pipe = static::createStub(AbstractPipe::class);
+        $pipe->method('out')->willReturn(['id' => 'id1', 'active' => false]);
+
+        $importStrategyService = $this->createMock(ImportStrategyService::class);
+        $importStrategyService->expects($this->once())
+            ->method('import')
+            ->with(static::anything(), ['id' => 'id1', 'active' => '0'])
+            ->willReturn(new ImportResult([], []));
+        $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
+
+        $this->createImportExport([['id' => 'id1', 'active' => '0']], $mapping, $pipe, $importStrategyService)
+            ->import(Context::createDefaultContext());
+    }
+
+    /**
+     * @param list<array<string, string>> $rows
+     * @param array<string, mixed> $mapping
+     */
+    private function createImportExport(
+        array $rows,
+        array $mapping,
+        AbstractPipe $pipe,
+        ImportStrategyService $importStrategyService
+    ): ImportExport {
+        $reader = static::createStub(AbstractReader::class);
+        $reader->method('read')->willReturn($rows);
+
+        $logEntity = new ImportExportLogEntity();
+        $logEntity->assign([
+            'id' => Uuid::randomHex(),
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'state' => Progress::STATE_PROGRESS,
+            'config' => ['mapping' => [$mapping]],
+            'file' => (new ImportExportFileEntity())->assign([
+                'originalName' => 'product.csv',
+                'expireDate' => new \DateTimeImmutable(),
+                'path' => 'foobar',
+                'size' => 1337,
+            ]),
+        ]);
+
+        $importExportService = static::createStub(ImportExportService::class);
+        $importExportService->method('findLog')->willReturn($logEntity);
+        $importExportService->method('getProgress')
+            ->willReturnCallback(static fn () => new Progress($logEntity->getId(), $logEntity->getState()));
+
+        /** @var StaticEntityRepository<CustomerCollection> $repository */
+        $repository = new StaticEntityRepository([], new CustomerDefinition());
+
+        return new ImportExport(
+            $importExportService,
+            $logEntity,
+            static::createStub(FilesystemOperator::class),
+            new EventDispatcher(),
+            static::createStub(Connection::class),
+            $repository,
+            $pipe,
+            $reader,
+            static::createStub(AbstractWriter::class),
+            static::createStub(FileService::class),
+            $importStrategyService
+        );
     }
 }

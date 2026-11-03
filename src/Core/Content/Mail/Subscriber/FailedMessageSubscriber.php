@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Mail\Subscriber;
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,10 +33,14 @@ class FailedMessageSubscriber implements EventSubscriberInterface
 
     public function logEvent(FailedMessageEvent $event): void
     {
+        $sensitive = MailLogData::isSensitiveMessage($event->getMessage());
         $context = null;
 
         try {
-            $context = json_encode([
+            $context = json_encode($sensitive ? MailLogData::create(
+                MailLogData::fromMessage($event->getMessage()),
+                $event->getError(),
+            ) : [
                 'error' => $event->getError()->getMessage(),
                 'rawMessage' => $event->getMessage()->toString(),
             ], \JSON_THROW_ON_ERROR);
@@ -43,13 +48,14 @@ class FailedMessageSubscriber implements EventSubscriberInterface
         }
 
         $extra = null;
-
-        try {
-            $extra = json_encode([
-                'exception' => $event->getError()->__toString(),
-                'trace' => $event->getError()->getTraceAsString(),
-            ], \JSON_THROW_ON_ERROR);
-        } catch (\Throwable) {
+        if (!$sensitive) {
+            try {
+                $extra = json_encode([
+                    'exception' => (string) $event->getError(),
+                    'trace' => $event->getError()->getTraceAsString(),
+                ], \JSON_THROW_ON_ERROR);
+            } catch (\Throwable) {
+            }
         }
 
         $this->connection->insert('log_entry', [

@@ -34,8 +34,7 @@ class IncrementRedisStorageTest extends TestCase
         $this->lockFactoryMock = $this->createMock(LockFactory::class);
         $this->redisMock = $this->createMock('Redis');
 
-        /** @var StaticEntityRepository<NumberRangeCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(NumberRangeCollection::class, []);
 
         $this->storage = new IncrementRedisStorage(
             $this->redisMock,
@@ -242,8 +241,7 @@ class IncrementRedisStorageTest extends TestCase
             ->method('get')
             ->willReturnOnConsecutiveCalls('10', '5', false);
 
-        /** @var StaticEntityRepository<NumberRangeCollection> */
-        $repository = new StaticEntityRepository([$idSearchResult]);
+        $repository = StaticEntityRepository::of(NumberRangeCollection::class, [$idSearchResult]);
 
         $this->storage = new IncrementRedisStorage(
             $this->redisMock,

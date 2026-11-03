@@ -92,7 +92,16 @@ test('major markers in Administration source or tests enable the major-js arm', 
     assert.equal(hasMajorJsMarkers(testDiff, parseMajorFlags(REGISTRY)), true);
 });
 
-test('major markers outside Administration source and tests do not enable the major-js arm', () => {
+test('major markers in Storefront source and tests enable the major-js arm', () => {
+    for (const path of [
+        'src/Storefront/Resources/app/storefront/src/helper/feature.helper.js',
+        'src/Storefront/Resources/app/storefront/test/helper/feature.helper.test.js',
+    ]) {
+        assert.equal(hasMajorJsMarkers(diffFor(path, "+ window.Feature.isActive('v6.8.0.0');"), parseMajorFlags(REGISTRY)), true);
+    }
+});
+
+test('major markers outside Administration and Storefront source and tests do not enable the major-js arm', () => {
     const phpDiff = diffFor('src/Core/Framework/Feature.php', "+        Feature::isActive('v6.8.0.0');");
     const documentationDiff = diffFor(
         'src/Administration/Resources/app/administration/technical-docs/guide.md',
@@ -107,6 +116,17 @@ test('feature registry edits enable the major-js arm', () => {
     const diff = diffFor(FEATURE_REGISTRY_PATH, '+            - name: NEW_FLAG');
 
     assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
+test('Markdown inside JavaScript source and test directories does not enable the major-js arm', () => {
+    for (const path of [
+        'src/Administration/Resources/app/administration/src/README.md',
+        'src/Administration/Resources/app/administration/test/README.md',
+        'src/Storefront/Resources/app/storefront/src/README.md',
+        'src/Storefront/Resources/app/storefront/test/README.md',
+    ]) {
+        assert.equal(hasMajorJsMarkers(diffFor(path, '+ v6.8.0.0'), parseMajorFlags(REGISTRY)), false, path);
+    }
 });
 
 test('deprecation baseline edits enable the major-js arm', () => {

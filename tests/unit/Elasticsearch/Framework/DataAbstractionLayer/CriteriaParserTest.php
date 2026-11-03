@@ -1335,6 +1335,30 @@ EOT,
         return $instanceRegistry->getByEntityName($entityName);
     }
 
+    public function testPriceSortingFallsBackForUnmappedCurrency(): void
+    {
+        $sorting = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            static::createStub(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
+        ))->parseSorting(new FieldSorting('product.price', FieldSorting::DESCENDING), $this->getDefinition(), Context::createDefaultContext());
+
+        static::assertSame('price.c_' . Defaults::CURRENCY . '.gross', $sorting->getField());
+        static::assertSame(['unmapped_type' => 'double'], $sorting->getParameters());
+    }
+
+    public function testPriceSortingOnNotIndexedPathKeepsFailing(): void
+    {
+        $sorting = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            static::createStub(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
+        ))->parseSorting(new FieldSorting('product.price.listPrice', FieldSorting::DESCENDING), $this->getDefinition(), Context::createDefaultContext());
+
+        static::assertSame('price.listPrice.c_' . Defaults::CURRENCY . '.gross', $sorting->getField());
+        static::assertSame([], $sorting->getParameters());
+    }
+
     /**
      * @param array<mixed> $expectedQuery
      */

@@ -233,8 +233,12 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(PartialEntity::class, $partialOrder);
         static::assertSame('order1', $partialOrder->get('orderNumber'));
 
-        static::assertInstanceOf(PartialEntity::class, $partialOrder->get('orderCustomer'));
-        static::assertSame('First Name Test', $partialOrder->get('orderCustomer')->get('firstName'));
+        $partialOrderCustomer = $partialOrder->get('orderCustomer');
+        static::assertInstanceOf(PartialEntity::class, $partialOrderCustomer);
+        static::assertSame('First Name Test', $partialOrderCustomer->get('firstName'));
+        static::assertSame($ids->get('order1'), $partialOrderCustomer->get('orderId'));
+        static::assertSame($ids->get('orderCustomer'), $partialOrderCustomer->getId());
+        static::assertSame($ids->get('orderCustomer'), $partialOrderCustomer->getUniqueIdentifier());
     }
 
     public function testPartialLoadingOneToMany(): void

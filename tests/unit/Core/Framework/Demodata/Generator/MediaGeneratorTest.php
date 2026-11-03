@@ -33,8 +33,7 @@ class MediaGeneratorTest extends TestCase
 {
     public function testGenerateWithoutDefaultFoldersCreatesNoMediaFolder(): void
     {
-        /** @var StaticEntityRepository<MediaFolderCollection> $folderRepository */
-        $folderRepository = new StaticEntityRepository([]);
+        $folderRepository = StaticEntityRepository::of(MediaFolderCollection::class, []);
 
         $generator = $this->createGenerator(
             [$this->searchResult([]), $this->searchResult([])],
@@ -51,8 +50,7 @@ class MediaGeneratorTest extends TestCase
         $defaultFolder = new MediaDefaultFolderEntity();
         $defaultFolder->setId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<MediaFolderCollection> $folderRepository */
-        $folderRepository = new StaticEntityRepository([]);
+        $folderRepository = StaticEntityRepository::of(MediaFolderCollection::class, []);
 
         $generator = $this->createGenerator(
             [$this->searchResult([$defaultFolder]), $this->searchResult([])],
@@ -77,8 +75,7 @@ class MediaGeneratorTest extends TestCase
         $defaultFolder->setId(Uuid::randomHex());
         $defaultFolder->setFolder($folder);
 
-        /** @var StaticEntityRepository<MediaFolderCollection> $folderRepository */
-        $folderRepository = new StaticEntityRepository([]);
+        $folderRepository = StaticEntityRepository::of(MediaFolderCollection::class, []);
 
         $generator = $this->createGenerator(
             [$this->searchResult([$defaultFolder]), $this->searchResult([])],
@@ -99,7 +96,6 @@ class MediaGeneratorTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([]);
 
-        /** @var StaticEntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository */
         $defaultFolderRepository = new StaticEntityRepository($defaultFolderResults);
 
         return new MediaGenerator(

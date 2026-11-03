@@ -83,6 +83,69 @@ class PluginCreateCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $status);
     }
 
+    #[DataProvider('nestedNamespaceProvider')]
+    public function testCreatesPluginWithNestedNamespace(string $namespace, bool $interactive): void
+    {
+        $directory = $this->projectDir . '/custom/plugins/TestPlugin';
+        $tester = $this->commandTester(writer: $this->writerExpectingPlugin($directory, $namespace));
+        $arguments = ['plugin-name' => 'TestPlugin'];
+
+        if ($interactive) {
+            $tester->setInputs([$namespace, 'y']);
+            $arguments['--no-scaffold'] = true;
+        } else {
+            $arguments['plugin-namespace'] = $namespace;
+        }
+
+        $status = $tester->execute($arguments, $this->consoleOptions(interactive: $interactive));
+
+        static::assertSame(Command::SUCCESS, $status);
+    }
+
+    public static function nestedNamespaceProvider(): \Generator
+    {
+        yield 'vendor and plugin namespace from arguments' => ['Swkweb\\Events', false];
+        yield 'vendor and plugin namespace from prompt' => ['Swkweb\\Events', true];
+        yield 'multiple namespace segments from arguments' => ['Vendor2\\Plugin\\Events', false];
+        yield 'multiple namespace segments from prompt' => ['Vendor2\\Plugin\\Events', true];
+    }
+
+    #[DataProvider('invalidNestedNamespaceProvider')]
+    public function testRejectsInvalidNestedNamespace(string $namespace): void
+    {
+        $tester = $this->commandTester();
+
+        $status = $tester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => $namespace,
+        ], $this->consoleOptions(interactive: false));
+
+        static::assertSame(Command::FAILURE, $status);
+        static::assertStringContainsString('Invalid plugin namespace provided.', $this->display($tester));
+    }
+
+    #[DataProvider('invalidNestedNamespaceProvider')]
+    public function testRejectsInvalidNestedNamespaceFromPrompt(string $namespace): void
+    {
+        $tester = $this->commandTester();
+        $tester->setInputs(['TestPlugin', $namespace]);
+
+        $status = $tester->execute([], $this->consoleOptions());
+
+        static::assertSame(Command::FAILURE, $status);
+        static::assertStringContainsString('The plugin namespace must be in PascalCase.', $this->display($tester));
+    }
+
+    public static function invalidNestedNamespaceProvider(): \Generator
+    {
+        yield 'leading separator' => ['\\Vendor\\Events'];
+        yield 'trailing separator' => ['Vendor\\Events\\'];
+        yield 'empty segment' => ['Vendor\\\\Events'];
+        yield 'lowercase segment' => ['Vendor\\events'];
+        yield 'segment starting with a digit' => ['Vendor\\2Events'];
+        yield 'invalid character in segment' => ['Vendor\\My-Events'];
+    }
+
     public function testNoScaffoldSkipsOptionalGenerators(): void
     {
         $optionalGenerator = $this->generatorWithOption();
@@ -428,16 +491,16 @@ class PluginCreateCommandTest extends TestCase
         return $filesystem;
     }
 
-    private function writerExpectingPlugin(string $directory): ScaffoldingWriter&MockObject
+    private function writerExpectingPlugin(string $directory, string $namespace = 'Test'): ScaffoldingWriter&MockObject
     {
         $writer = $this->createMock(ScaffoldingWriter::class);
         $writer->expects($this->once())
             ->method('write')
             ->with(
                 static::anything(),
-                static::callback(static function (PluginScaffoldConfiguration $configuration) use ($directory): bool {
+                static::callback(static function (PluginScaffoldConfiguration $configuration) use ($directory, $namespace): bool {
                     return $configuration->name === 'TestPlugin'
-                        && $configuration->namespace === 'Test'
+                        && $configuration->namespace === $namespace
                         && $configuration->directory === $directory;
                 }),
             );

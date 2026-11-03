@@ -148,7 +148,7 @@
                     <input
                         type="hidden"
                         name="redirectParameters"
-                        value="{{ redirectParameters }}"
+                        value="{{ redirectParameters is iterable ? redirectParameters|json_encode : redirectParameters }}"
                     >
 
                     {% block address_manager_modal_footer_form_submit_button %}

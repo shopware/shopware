@@ -120,10 +120,10 @@ module.exports = {
                 return true;
             }
 
-            // defineComponent()
+            // defineComponent(), or wrapComponentConfig() as a mini-module imports it from its dependencies.ts
             if (parent.type === 'CallExpression' &&
                 parent.callee.type === 'Identifier' &&
-                parent.callee.name === 'defineComponent') {
+                ['defineComponent', 'wrapComponentConfig'].includes(parent.callee.name)) {
                 return true;
             }
 

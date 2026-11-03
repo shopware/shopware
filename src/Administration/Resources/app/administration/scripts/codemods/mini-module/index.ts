@@ -607,7 +607,7 @@ function run(directory: string) {
     nesting?.forEach((code, file) => fs.writeFileSync(file, code));
     const sourceImporters = importers.filter(({ file }) => !file.endsWith('/dependencies.ts'));
     const changed = registration
-        ? [replaceRegistration(registration)]
+        ? [replaceRegistration(registration, moves, movedEntry)]
         : [...importThroughPrivate(sourceImporters, root), ...[...(nesting?.keys() ?? [])].map(relative)];
 
     if (entryFiles['global.d.ts'] !== null && !isPrivateShape(shape)) {
@@ -672,13 +672,21 @@ const addOwner = (root: string): Owner | null => {
     return owner;
 };
 
-/** Replaces the registration statement with an import of the module's register.ts, and returns the file. */
-const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<typeof locateRegistration>>) => {
+/**
+ * Replaces the registration statement with an import of the module's register.ts, points the file's other imports
+ * of the moved files at their new places, see `rewriteMovedImports()`, and returns the file.
+ */
+const replaceRegistration = (
+    { file, registration }: NonNullable<ReturnType<typeof locateRegistration>>,
+    moves: Map<string, string>,
+    entry: MovedEntry | undefined,
+) => {
     const absolute = path.join(adminRoot, file);
     const source = fs.readFileSync(absolute, 'utf8');
     const withoutRegistration = removeRegistration(source, registration);
     const moduleDirectory = withoutIndex(registration.specifier, path.dirname(absolute));
-    fs.writeFileSync(absolute, addImport(withoutRegistration, `${moduleDirectory}/register`));
+    const rewritten = rewriteMovedImports(withoutRegistration, { moves, from: file, to: file, entry });
+    fs.writeFileSync(absolute, addImport(rewritten, `${moduleDirectory}/register`));
 
     return file;
 };

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\ProspectiveAddress;
 use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -36,9 +37,6 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @phpstan-import-type ProspectiveAddress from ProspectiveCustomer
- */
 #[Package('discovery')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
@@ -332,18 +330,18 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             return null;
         }
 
-        $shipping = ProspectiveCustomer::normalizeAddress($payload['shippingAddress'] ?? null);
+        $shipping = ProspectiveAddress::fromPayload($payload['shippingAddress'] ?? null);
         if ($shipping === null) {
             return null;
         }
 
         // the route that stores the address also stores its country as the context country, so a mismatch means the country was changed afterwards
         $location = $base->getShippingLocation();
-        if ($shipping['countryId'] !== $location->getCountry()->getId() || $shipping['countryStateId'] !== $location->getState()?->getId()) {
+        if ($shipping->countryId !== $location->getCountry()->getId() || $shipping->countryStateId !== $location->getState()?->getId()) {
             return null;
         }
 
-        $billing = ProspectiveCustomer::normalizeAddress($payload['billingAddress'] ?? null);
+        $billing = ProspectiveAddress::fromPayload($payload['billingAddress'] ?? null);
 
         $customer = new CustomerEntity();
         $customer->assign([
@@ -383,23 +381,20 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return new ProspectiveCustomer($shipping, $billing, $customer);
     }
 
-    /**
-     * @param ProspectiveAddress $billing
-     */
-    private function createProspectiveBillingAddress(array $billing, string $customerId, CustomerAddressEntity $shippingAddress, Context $context): CustomerAddressEntity
+    private function createProspectiveBillingAddress(ProspectiveAddress $billing, string $customerId, CustomerAddressEntity $shippingAddress, Context $context): CustomerAddressEntity
     {
         $country = $shippingAddress->getCountry();
-        $state = $billing['countryStateId'] === $shippingAddress->getCountryStateId() ? $shippingAddress->getCountryState() : null;
+        $state = $billing->countryStateId === $shippingAddress->getCountryStateId() ? $shippingAddress->getCountryState() : null;
 
-        if ($billing['countryId'] !== $shippingAddress->getCountryId() || ($state === null && $billing['countryStateId'] !== null)) {
-            $criteria = new Criteria([$billing['countryId']]);
+        if ($billing->countryId !== $shippingAddress->getCountryId() || ($state === null && $billing->countryStateId !== null)) {
+            $criteria = new Criteria([$billing->countryId]);
             $criteria->setTitle('context-factory::prospective-billing-country');
-            if ($billing['countryStateId'] !== null) {
-                $criteria->getAssociation('states')->addFilter(new EqualsFilter('id', $billing['countryStateId']));
+            if ($billing->countryStateId !== null) {
+                $criteria->getAssociation('states')->addFilter(new EqualsFilter('id', $billing->countryStateId));
             }
 
-            $country = $this->countryRepository->search($criteria, $context)->getEntities()->get($billing['countryId']);
-            $state = $country?->getStates()?->get($billing['countryStateId'] ?? '');
+            $country = $this->countryRepository->search($criteria, $context)->getEntities()->get($billing->countryId);
+            $state = $country?->getStates()?->get($billing->countryStateId ?? '');
         }
 
         // the country can be deleted after the address was stored, the billing address then falls back to the shipping address
@@ -410,10 +405,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $this->createProspectiveAddress($billing, Uuid::fromStringToHex($customerId . '-billing-address'), $customerId, $country, $state);
     }
 
-    /**
-     * @param ProspectiveAddress $address
-     */
-    private function createProspectiveAddress(array $address, string $id, string $customerId, CountryEntity $country, ?CountryStateEntity $state): CustomerAddressEntity
+    private function createProspectiveAddress(ProspectiveAddress $address, string $id, string $customerId, CountryEntity $country, ?CountryStateEntity $state): CustomerAddressEntity
     {
         $entity = new CustomerAddressEntity();
         $entity->assign([
@@ -421,9 +413,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             'customerId' => $customerId,
             'countryId' => $country->getId(),
             'countryStateId' => $state?->getId(),
-            'zipcode' => $address['zipcode'],
-            'city' => $address['city'] ?? '',
-            'street' => $address['street'] ?? '',
+            'zipcode' => $address->zipcode,
+            'city' => $address->city ?? '',
+            'street' => $address->street ?? '',
             'firstName' => '',
             'lastName' => '',
             'country' => $country,

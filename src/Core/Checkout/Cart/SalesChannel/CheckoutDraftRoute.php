@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -31,6 +33,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Bundles a change of the checkout context with the recalculated result, so a headless checkout needs one request per change.
  * Every part is produced by the existing route for it.
+ *
+ * @internal
  */
 #[Package('checkout')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -67,6 +71,11 @@ class CheckoutDraftRoute
     ];
 
     private const FLAGS = ['methods', 'shippingCosts', 'checkoutGateway', 'taxed', 'contextGateway', 'appName'];
+
+    /**
+     * Read from the body by every Store API response (`includes`, `excludes`) and by the app Context Gateway (`data`).
+     */
+    private const PASSED_ON_FIELDS = ['includes', 'excludes', 'data'];
 
     /**
      * @internal
@@ -164,7 +173,7 @@ class CheckoutDraftRoute
 
         // unlike the context route, unknown fields fail, so a client never gets a success for a change that did not happen
         foreach (array_keys($body) as $field) {
-            if (!\in_array($field, self::CONTEXT_FIELDS, true) && !\in_array($field, self::FLAGS, true)) {
+            if (!\in_array($field, [...self::CONTEXT_FIELDS, ...self::FLAGS, ...self::PASSED_ON_FIELDS], true)) {
                 throw CartException::invalidRequestParameter((string) $field);
             }
         }
@@ -192,15 +201,27 @@ class CheckoutDraftRoute
         return $context;
     }
 
+    /**
+     * Rebuilds the context with the parameters of `SalesChannelRequestContextResolver`, so that e.g. the language and currency headers
+     * apply to the result of a `PATCH` like to a `GET`. The context the switch route rebuilt is built from the token only.
+     */
     private function reloadContext(Request $request, SalesChannelContext $context, string $token): SalesChannelContext
     {
-        // the context route already rebuilt the context of the current request, building it again would calculate the cart again
-        $current = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        if ($current instanceof SalesChannelContext && $current !== $context && $current->getToken() === $token) {
-            return $current;
-        }
+        $languageId = (string) $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
+        $currencyId = (string) $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
+        $source = $context->getContext()->getSource();
 
-        return $this->contextService->get(new SalesChannelContextServiceParameters($context->getSalesChannelId(), $token));
+        return $this->contextService->get(new SalesChannelContextServiceParameters(
+            $context->getSalesChannelId(),
+            $token,
+            $languageId !== '' ? $languageId : null,
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID),
+            $source instanceof AdminSalesChannelApiSource ? $source->getOriginalContext() : null,
+            null,
+            $context->getImitatingUserId(),
+            $currencyId !== '' ? $currencyId : null,
+        ));
     }
 
     private function flag(Request $request, string $name, bool $default): bool

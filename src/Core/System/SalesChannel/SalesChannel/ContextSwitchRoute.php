@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
+use Shopware\Core\Checkout\Customer\ProspectiveAddress;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -126,7 +126,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
                 }
             }
 
-            $parameters[$field] = $address instanceof DataBag ? $address->only(...ProspectiveCustomer::ADDRESS_FIELDS) : $address;
+            $parameters[$field] = $address instanceof DataBag ? $address->only(...ProspectiveAddress::FIELDS) : $address;
             $definition->add($field, new Type('array'));
 
             if ($address instanceof DataBag) {
@@ -188,7 +188,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
         foreach ($addressDefinitions as $field => $addressDefinition) {
             $stateCriteria = (new Criteria())
-                ->addFilter(new EqualsFilter('country_state.countryId', ProspectiveCustomer::normalizeAddress($parameters[$field] ?? null)['countryId'] ?? null));
+                ->addFilter(new EqualsFilter('country_state.countryId', ProspectiveAddress::fromPayload($parameters[$field] ?? null)?->countryId));
 
             $addressDefinition
                 ->add('countryId', new EntityExists(entity: 'country', context: $frameworkContext))
@@ -257,9 +257,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         $definition = new DataValidationDefinition('context_switch');
 
         foreach ([self::SHIPPING_ADDRESS, self::BILLING_ADDRESS] as $field) {
-            $address = ProspectiveCustomer::normalizeAddress($parameters[$field] ?? null);
-            if ($address !== null && $address['zipcode'] !== null) {
-                $definition->addSub($field, (new DataValidationDefinition())->add('zipcode', new CustomerZipCode(countryId: $address['countryId'])));
+            $address = ProspectiveAddress::fromPayload($parameters[$field] ?? null);
+            if ($address?->zipcode !== null) {
+                $definition->addSub($field, (new DataValidationDefinition())->add('zipcode', new CustomerZipCode(countryId: $address->countryId)));
             }
         }
 
@@ -276,11 +276,11 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             return false;
         }
 
-        if (\array_key_exists(self::COUNTRY_ID, $parameters) && $parameters[self::COUNTRY_ID] !== $address['countryId']) {
+        if (\array_key_exists(self::COUNTRY_ID, $parameters) && $parameters[self::COUNTRY_ID] !== $address->countryId) {
             return true;
         }
 
-        return \array_key_exists(self::STATE_ID, $parameters) && ($parameters[self::STATE_ID] ?: null) !== $address['countryStateId'];
+        return \array_key_exists(self::STATE_ID, $parameters) && ($parameters[self::STATE_ID] ?: null) !== $address->countryStateId;
     }
 
     /**
@@ -294,20 +294,20 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     private function toProspectiveCustomer(array $parameters): array
     {
         if (\array_key_exists(self::BILLING_ADDRESS, $parameters)) {
-            $parameters[SalesChannelContextService::PROSPECTIVE_CUSTOMER][self::BILLING_ADDRESS] = ProspectiveCustomer::normalizeAddress($parameters[self::BILLING_ADDRESS]);
+            $parameters[SalesChannelContextService::PROSPECTIVE_CUSTOMER][self::BILLING_ADDRESS] = ProspectiveAddress::fromPayload($parameters[self::BILLING_ADDRESS])?->toPayload();
         }
 
         if (\array_key_exists(self::SHIPPING_ADDRESS, $parameters)) {
-            $shippingAddress = ProspectiveCustomer::normalizeAddress($parameters[self::SHIPPING_ADDRESS]);
+            $shippingAddress = ProspectiveAddress::fromPayload($parameters[self::SHIPPING_ADDRESS]);
 
             if ($shippingAddress === null) {
                 // without a shipping address, the stored billing address is forgotten as well
                 $parameters[SalesChannelContextService::PROSPECTIVE_CUSTOMER] = null;
             } else {
-                $parameters[SalesChannelContextService::PROSPECTIVE_CUSTOMER][self::SHIPPING_ADDRESS] = $shippingAddress;
+                $parameters[SalesChannelContextService::PROSPECTIVE_CUSTOMER][self::SHIPPING_ADDRESS] = $shippingAddress->toPayload();
                 // the context country is the address country, so the context factory can build the shipping location from both
-                $parameters[self::COUNTRY_ID] = $shippingAddress['countryId'];
-                $parameters[self::STATE_ID] = $shippingAddress['countryStateId'];
+                $parameters[self::COUNTRY_ID] = $shippingAddress->countryId;
+                $parameters[self::STATE_ID] = $shippingAddress->countryStateId;
             }
         }
 

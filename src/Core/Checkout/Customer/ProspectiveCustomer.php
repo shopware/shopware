@@ -8,31 +8,21 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * What is known about a visitor who has no customer yet, e.g. the address typed into a headless checkout form.
  * It only exists on a sales channel context without a customer and is never persisted as a customer.
- *
- * @phpstan-type ProspectiveAddress array{countryId: string, countryStateId: ?string, zipcode: ?string, city: ?string, street: ?string}
  */
 #[Package('checkout')]
 final class ProspectiveCustomer extends Struct
 {
-    final public const ADDRESS_FIELDS = ['countryId', 'countryStateId', 'zipcode', 'city', 'street'];
-
     /**
      * @internal
-     *
-     * @param ProspectiveAddress $shippingAddress
-     * @param ProspectiveAddress|null $billingAddress
      */
     public function __construct(
-        protected array $shippingAddress,
-        protected ?array $billingAddress,
+        protected ProspectiveAddress $shippingAddress,
+        protected ?ProspectiveAddress $billingAddress,
         private readonly CustomerEntity $ruleCustomer,
     ) {
     }
 
-    /**
-     * @return ProspectiveAddress
-     */
-    public function getShippingAddress(): array
+    public function getShippingAddress(): ProspectiveAddress
     {
         return $this->shippingAddress;
     }
@@ -40,31 +30,9 @@ final class ProspectiveCustomer extends Struct
     /**
      * @return ProspectiveAddress|null null when the billing address is the shipping address
      */
-    public function getBillingAddress(): ?array
+    public function getBillingAddress(): ?ProspectiveAddress
     {
         return $this->billingAddress;
-    }
-
-    /**
-     * @internal
-     *
-     * @return ProspectiveAddress|null the address with every field set, empty values as null
-     */
-    public static function normalizeAddress(mixed $address): ?array
-    {
-        if (!\is_array($address) || !\is_string($address['countryId'] ?? null) || $address['countryId'] === '') {
-            return null;
-        }
-
-        $value = static fn (string $field): ?string => \is_string($address[$field] ?? null) && $address[$field] !== '' ? $address[$field] : null;
-
-        return [
-            'countryId' => $address['countryId'],
-            'countryStateId' => $value('countryStateId'),
-            'zipcode' => $value('zipcode'),
-            'city' => $value('city'),
-            'street' => $value('street'),
-        ];
     }
 
     /**

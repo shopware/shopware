@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\ProspectiveAddress;
 use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -477,7 +478,7 @@ class ContextSwitchRouteTest extends TestCase
     private function createProspectiveCustomer(string $countryId, ?string $countryStateId = null): ProspectiveCustomer
     {
         return new ProspectiveCustomer(
-            ['countryId' => $countryId, 'countryStateId' => $countryStateId, 'zipcode' => '48624', 'city' => null, 'street' => null],
+            new ProspectiveAddress($countryId, $countryStateId, '48624'),
             null,
             new CustomerEntity(),
         );

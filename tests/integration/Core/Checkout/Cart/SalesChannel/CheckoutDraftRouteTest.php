@@ -50,6 +50,7 @@ class CheckoutDraftRouteTest extends TestCase
             'countryId' => $this->germanyId,
             'countries' => [['id' => $this->germanyId]],
             'shippingMethods' => [['id' => $this->ids->get('zip-shipping')]],
+            'currencies' => [['id' => Defaults::CURRENCY], ['id' => $this->getCurrencyId('USD')]],
         ]);
     }
 
@@ -63,7 +64,14 @@ class CheckoutDraftRouteTest extends TestCase
         $draft = $this->request('PATCH', ['shippingAddress' => ['countryId' => $this->germanyId, 'zipcode' => '48624']]);
 
         static::assertContains($this->ids->get('zip-shipping'), array_column($draft['shippingMethods'], 'id'));
-        static::assertSame('48624', $draft['prospectiveCustomer']['shippingAddress']['zipcode']);
+        static::assertSame([
+            'countryId' => $this->germanyId,
+            'countryStateId' => null,
+            'zipcode' => '48624',
+            'city' => null,
+            'street' => null,
+            'apiAlias' => 'prospective_customer_address',
+        ], $draft['prospectiveCustomer']['shippingAddress']);
         static::assertSame($customers, $this->countCustomers(), 'No customer is written for an address');
 
         $draft = $this->request('GET');
@@ -80,6 +88,17 @@ class CheckoutDraftRouteTest extends TestCase
         static::assertNull($draft['prospectiveCustomer']);
         static::assertNotContains($this->ids->get('zip-shipping'), array_column($draft['shippingMethods'], 'id'));
         static::assertNull($this->request('GET')['prospectiveCustomer']);
+    }
+
+    public function testPatchUsesTheCurrencyHeaderLikeGet(): void
+    {
+        $usdId = $this->getCurrencyId('USD');
+        $this->browser->setServerParameter('HTTP_SW_CURRENCY_ID', $usdId);
+
+        $draft = $this->request('PATCH', ['shippingAddress' => ['countryId' => $this->germanyId]]);
+
+        static::assertSame($usdId, $draft['currency']['id']);
+        static::assertSame($usdId, $this->request('GET')['currency']['id']);
     }
 
     public function testInvalidZipCodeIsReportedAtItsField(): void
@@ -178,6 +197,15 @@ class CheckoutDraftRouteTest extends TestCase
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('iso', $iso));
         $id = static::getContainer()->get('country.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertIsString($id);
+
+        return $id;
+    }
+
+    private function getCurrencyId(string $isoCode): string
+    {
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('isoCode', $isoCode));
+        $id = static::getContainer()->get('currency.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertIsString($id);
 
         return $id;

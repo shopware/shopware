@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CheckoutDraftRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRouteResponse;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\ProspectiveAddress;
 use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -197,24 +199,66 @@ class CheckoutDraftRouteTest extends TestCase
         $request = $this->createPatchRequest(['shippingAddress' => ['countryId' => 'country-id'], 'methods' => false]);
 
         $changedContext = Generator::generateSalesChannelContext(token: 'token');
-        $changedContext->setProspectiveCustomer(new ProspectiveCustomer(['countryId' => 'country-id', 'countryStateId' => null, 'zipcode' => null, 'city' => null, 'street' => null], null, new CustomerEntity()));
+        $changedContext->setProspectiveCustomer(new ProspectiveCustomer(new ProspectiveAddress('country-id'), null, new CustomerEntity()));
 
         $this->contextSwitchRoute = $contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
         $contextSwitchRoute->expects($this->once())
             ->method('switchContext')
             ->with(static::equalTo(new RequestDataBag(['shippingAddress' => ['countryId' => 'country-id']])), $this->context)
-            ->willReturnCallback(static function () use ($request, $changedContext): ContextTokenResponse {
-                // the context service rebuilds the context of the current request after the switch
-                $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $changedContext);
-
-                return new ContextTokenResponse('token');
-            });
+            ->willReturn(new ContextTokenResponse('token'));
         $this->contextService = $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
-        $contextService->expects($this->never())->method('get');
+        $contextService->expects($this->once())
+            ->method('get')
+            ->with(static::equalTo(new SalesChannelContextServiceParameters($this->context->getSalesChannelId(), 'token')))
+            ->willReturn($changedContext);
 
         $draft = $this->createRoute()->draft($request, $this->context)->getDraft();
 
         static::assertSame($changedContext->getProspectiveCustomer(), $draft->prospectiveCustomer);
+    }
+
+    public function testPatchRebuildsTheContextWithTheParametersOfTheRequest(): void
+    {
+        $request = $this->createPatchRequest(['currencyId' => 'stored-currency-id', 'methods' => false]);
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'header-language-id');
+        $request->headers->set(PlatformRequest::HEADER_CURRENCY_ID, 'header-currency-id');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, 'domain-id');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, 'domain-currency-id');
+
+        $this->contextSwitchRoute->method('switchContext')->willReturn(new ContextTokenResponse('token'));
+        $this->contextService = $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService->expects($this->once())
+            ->method('get')
+            ->with(static::equalTo(new SalesChannelContextServiceParameters(
+                salesChannelId: $this->context->getSalesChannelId(),
+                token: 'token',
+                languageId: 'header-language-id',
+                currencyId: 'domain-currency-id',
+                domainId: 'domain-id',
+                overwriteCurrencyId: 'header-currency-id',
+            )))
+            ->willReturn($this->context);
+
+        $this->createRoute()->draft($request, $this->context);
+    }
+
+    public function testPatchAcceptsTheFieldsOfTheResponseAndTheContextGateway(): void
+    {
+        $body = ['countryId' => 'country-id', 'includes' => ['checkout_draft' => ['cart']], 'excludes' => [], 'data' => ['key' => 'value'], 'contextGateway' => true, 'appName' => 'App'];
+
+        $this->contextSwitchRoute = $contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
+        $contextSwitchRoute->expects($this->once())
+            ->method('switchContext')
+            ->with(static::equalTo(new RequestDataBag(['countryId' => 'country-id'])))
+            ->willReturn(new ContextTokenResponse('token'));
+        $this->contextService->method('get')->willReturn($this->context);
+        $this->contextGatewayRoute = $contextGatewayRoute = $this->createMock(AbstractContextGatewayRoute::class);
+        $contextGatewayRoute->expects($this->once())
+            ->method('load')
+            ->with(static::callback(static fn (Request $request): bool => $request->request->all('data') === ['key' => 'value']))
+            ->willReturn(new ContextTokenResponse('token'));
+
+        $this->createRoute()->draft($this->createPatchRequest($body), $this->context);
     }
 
     /**

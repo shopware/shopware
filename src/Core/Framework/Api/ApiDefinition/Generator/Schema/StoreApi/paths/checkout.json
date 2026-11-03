@@ -891,6 +891,10 @@
                                         "description": "The installed app whose Context Gateway runs with `contextGateway`.",
                                         "type": "string"
                                     },
+                                    "data": {
+                                        "description": "Passed on to the Context Gateway of the app with `contextGateway`, like the `data` of `POST /store-api/context/gateway`.",
+                                        "type": "object"
+                                    },
                                     "methods": {
                                         "description": "Same as the query parameter.",
                                         "type": "boolean"

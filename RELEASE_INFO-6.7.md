@@ -223,10 +223,12 @@ Check import files that relied on `0` being ignored.
 
 A visitor who is neither logged in nor registered can now send an address, which is stored on the context as `SalesChannelContext::getProspectiveCustomer()`.
 No customer or address is written, and `SalesChannelContext::getCustomer()` stays `null`.
+The addresses are available as `ProspectiveAddress` structs with readonly properties.
 The shipping location of such a context contains the address, so zip code, city and street rules and zip code tax rules match before registration.
 
 Rule matching sees a customer that only exists for the rules: a guest of the default customer group without order history, with the sent shipping and billing address.
-This affects `CheckoutRuleScope::getCustomer()` and therefore guest, customer group, active, order history and billing address rules.
+This affects `CheckoutRuleScope::getCustomer()` and therefore guest, active, order history and billing address rules.
+Company, newsletter recipient and "created by admin" rules set to "no", and customer custom field rules with "not equal", match as well.
 Rules that need contact or account data, such as e-mail, tags or birthday, do not match before registration.
 Custom rules that load the customer by its id find no customer.
 

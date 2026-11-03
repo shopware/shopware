@@ -58,13 +58,53 @@
                 ],
                 "properties": {
                     "shippingAddress": {
-                        "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                            },
+                            {
+                                "type": "object",
+                                "required": [
+                                    "countryStateId",
+                                    "zipcode",
+                                    "city",
+                                    "street",
+                                    "apiAlias"
+                                ],
+                                "properties": {
+                                    "apiAlias": {
+                                        "type": "string",
+                                        "const": "prospective_customer_address"
+                                    }
+                                }
+                            }
+                        ]
                     },
                     "billingAddress": {
                         "description": "`null` when the billing address is the shipping address.",
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "countryStateId",
+                                            "zipcode",
+                                            "city",
+                                            "street",
+                                            "apiAlias"
+                                        ],
+                                        "properties": {
+                                            "apiAlias": {
+                                                "type": "string",
+                                                "const": "prospective_customer_address"
+                                            }
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 "type": "null"

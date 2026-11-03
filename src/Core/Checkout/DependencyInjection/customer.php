@@ -600,6 +600,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('sales_channel.newsletter_recipient.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(AccountNewsletterRecipientV2Route::class)

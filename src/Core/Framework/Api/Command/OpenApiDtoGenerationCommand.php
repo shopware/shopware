@@ -11,6 +11,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Api\Command\OpenApiDtoGenerationCommandTest
  */
 #[Package('framework')]
 #[AsCommand(

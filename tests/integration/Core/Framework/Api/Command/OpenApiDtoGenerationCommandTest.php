@@ -1,17 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Command;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Command\OpenApiDtoGenerationCommand;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationCheckResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiOperationReader;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -20,7 +19,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(OpenApiDtoGenerationCheckResult::class)]
+#[Package('framework')]
 class OpenApiDtoGenerationCommandTest extends TestCase
 {
     public function testCommandGeneratesDtoFiles(): void

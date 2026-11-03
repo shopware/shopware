@@ -143,7 +143,11 @@ whether it is registered, extends another component, or is imported by its paren
 A component its parent imports moves nested into the parent's module; while the parent is no mini-module yet, the codemod skips it.
 A component whose registration is marked `@private` becomes a registered private module.
 It takes the code owner from what `.codeowners` already says about the directory, at the same level, and never guesses one.
-It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, a missing code owner.
+It writes `dependencies.ts` and routes `src/` through it where that cannot change behaviour:
+injected service names, mixins, stores, filters, services, the context, feature flags, component helpers,
+the static parts of the global such as `Shopware.Data` and `Shopware.Utils`, and imports from outside the module.
+For that it may add a constant to `src/app/service-names`, or export the id of a store or the name of a filter from its file.
+It prints a checklist of what is left for the sweep after it: what `src/` still takes from outside, contract tests, a missing code owner.
 
 `src/` stays free of side effects apart from importing its template and styles.
 

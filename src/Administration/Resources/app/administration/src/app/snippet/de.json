@@ -16,6 +16,8 @@
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
+      "USER__USERNAME_WHITESPACE": "Der Benutzername darf keine führenden oder nachfolgenden Leerzeichen enthalten.",
+      "USER__USERNAME_NOT_UNIQUE": "Dieser Benutzername wird bereits verwendet.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
@@ -1643,6 +1645,11 @@
         "newValue": "Neuer Wert",
         "remindMeLater": "Später erinnern",
         "selectAnOption": "Lies die verfügbaren Optionen sorgfältig durch und wähle diejenige, die am besten zu Deinem Szenario passt:",
+        "moveShopPermanently": {
+          "title": "Shop-ID beibehalten?",
+          "text": "Tu das nur, wenn Du Deinen Live-Shop dauerhaft auf diese Installation umgezogen hast. Die Apps ziehen hierher um und funktionieren in der vorherigen Installation nicht mehr, auch wenn sie noch läuft. Wenn das eine Staging- oder Testkopie ist, brich ab und wähle stattdessen \"Neue Shop-ID generieren\".",
+          "confirm": "Shop-ID beibehalten"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL Umgebungsvariable",
@@ -1658,7 +1665,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor. Das bedeuted, dass die neue Instanz die App-Daten der alten Installation überschreibt.",
+            "description": "Das ist nur die richtige Option, wenn Du Deinen Live-Shop dauerhaft auf einen neuen Server oder in eine neue Umgebung umgezogen hast. Shopware registriert die Apps mit derselben Shop-ID neu, sodass sie ihre Daten behalten. In der vorherigen Installation funktionieren die Apps danach nicht mehr, auch wenn sie noch läuft.",
             "name": "Shop-ID beibehalten"
           },
           "reinstall-apps": {

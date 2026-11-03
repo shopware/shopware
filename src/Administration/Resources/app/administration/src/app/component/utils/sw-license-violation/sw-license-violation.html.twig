@@ -46,12 +46,17 @@
                     </template>
                 </td>
 
-                <td>{{ violation.extensions.licenseViolation.text }}</td>
-
-                <td class="sw-license-violation__table-actions">
-                    <p v-if="getPluginForViolation(violation) && !getPluginForViolation(violation).allowUpdate">
+                <td>
+                    {{ violation.extensions.licenseViolation.text }}
+                    <p
+                        v-if="getPluginForViolation(violation) && !getPluginForViolation(violation).allowUpdate"
+                        class="sw-license-violation__removal-hint"
+                    >
                         {{ $t('sw-license-violation.removeExternally') }}
                     </p>
+                </td>
+
+                <td class="sw-license-violation__table-actions">
                     <div
                         v-for="action in violation.extensions.licenseViolation.actions"
                         :key="action.externalLink"

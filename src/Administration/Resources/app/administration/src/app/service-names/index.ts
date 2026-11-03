@@ -29,6 +29,7 @@ export {
     messageStatsService,
     numberRangeService,
     productIndexService,
+    productStreamPreviewService,
     repositoryFactory,
     ruleConditionDataProviderService,
     ruleConditionsConfigApiService,

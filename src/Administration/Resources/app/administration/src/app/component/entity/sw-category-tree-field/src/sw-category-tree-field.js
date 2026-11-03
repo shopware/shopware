@@ -4,9 +4,10 @@
 
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
+import { Data, getApiContext, repositoryFactoryService, Utils } from '../dependencies';
 
-const utils = Shopware.Utils;
-const { Criteria } = Shopware.Data;
+const utils = Utils;
+const { Criteria } = Data;
 
 /**
  * @private
@@ -14,7 +15,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: [
         'selection-add',
@@ -234,7 +235,7 @@ export default {
             criteria.addFilter(Criteria.equals('parentId', parentId));
 
             // search for categories
-            return this.globalCategoryRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.globalCategoryRepository.search(criteria, getApiContext()).then((searchResult) => {
                 this.disableCategories(searchResult);
 
                 // when requesting root categories, replace the data
@@ -349,7 +350,7 @@ export default {
             categorySearchCriteria.setTerm(term);
 
             // search for categories
-            return this.globalCategoryRepository.search(categorySearchCriteria, Shopware.Context.api);
+            return this.globalCategoryRepository.search(categorySearchCriteria, getApiContext());
         },
 
         isSearchItemChecked(itemId) {

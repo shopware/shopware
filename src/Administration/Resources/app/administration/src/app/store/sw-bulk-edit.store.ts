@@ -61,7 +61,13 @@ interface SwBulkState {
     documentGenerationResult: DocumentGenerationResult;
 }
 
-const swBulkStore = Shopware.Store.register('swBulkEdit', {
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swBulkEditStoreId = 'swBulkEdit';
+
+const swBulkStore = Shopware.Store.register(swBulkEditStoreId, {
     state() {
         const today = new Date().toISOString();
 

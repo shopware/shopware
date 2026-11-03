@@ -1,8 +1,6 @@
 import template from './sw-many-to-many-assignment-card.html.twig';
 import './sw-many-to-many-assignment-card.scss';
-
-const { debounce, get } = Shopware.Utils;
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, debounce, EntityCollection, featureService, get, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -23,7 +21,7 @@ export default {
 
     inheritAttrs: false,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [repositoryFactoryService, featureService],
 
     emits: ['update:entityCollection', 'paginate'],
 

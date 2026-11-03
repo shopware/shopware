@@ -173,6 +173,16 @@ export const numberRangeService = 'numberRangeService';
 export const productIndexService = 'productIndexService';
 
 /**
+ * The name the productStreamPreviewService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [productStreamPreviewService] };
+ *
+ * @public
+ */
+export const productStreamPreviewService = 'productStreamPreviewService';
+
+/**
  * Creates the repositories for entities.
  *
  * @example

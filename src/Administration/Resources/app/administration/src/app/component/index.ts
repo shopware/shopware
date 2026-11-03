@@ -110,6 +110,10 @@ import 'src/app/component/data-grid/sw-data-grid-column-position/register';
 import 'src/app/component/data-grid/sw-data-grid-inline-edit/register';
 import 'src/app/component/data-grid/sw-data-grid-settings/register';
 import 'src/app/component/data-grid/sw-data-grid-skeleton/register';
+import 'src/app/component/entity/sw-bulk-edit-modal/register';
+import 'src/app/component/entity/sw-category-tree-field/register';
+import 'src/app/component/entity/sw-many-to-many-assignment-card/register';
+import 'src/app/component/entity/sw-product-stream-grid-preview/register';
 /**
  * @sw-package framework
  * @private
@@ -327,13 +331,6 @@ export default () => {
         () => import('src/app/component/extension-api/sw-extension-teaser-popover/index'),
         'sw-extension-component-section',
         () => import('src/app/component/extension-api/sw-extension-component-section/index'),
-        'sw-product-stream-grid-preview',
-        () => import('src/app/component/entity/sw-product-stream-grid-preview/index'),
-        'sw-many-to-many-assignment-card',
-        () => import('src/app/component/entity/sw-many-to-many-assignment-card/index'),
-        'sw-category-tree-field',
-        () => import('src/app/component/entity/sw-category-tree-field/index'),
-    Shopware.Component.register('sw-bulk-edit-modal', () => import('src/app/component/entity/sw-bulk-edit-modal/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));

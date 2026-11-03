@@ -4,9 +4,17 @@
 
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
+import {
+    Criteria,
+    getApiContext,
+    getAppContext,
+    getAssetFilter,
+    getCurrencyFilter,
+    productStreamPreviewService,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Defaults } = Shopware;
 
 /**
  * @private
@@ -14,7 +22,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'productStreamPreviewService'],
+    inject: [repositoryFactoryService, productStreamPreviewService],
 
     emits: ['selection-change'],
 
@@ -134,11 +142,11 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         currencyFilter() {
-            return Shopware.Filter.getByName('currency');
+            return getCurrencyFilter();
         },
     },
 
@@ -176,17 +184,15 @@ export default {
         },
 
         loadSystemDefaultCurrency() {
-            return this.repositoryFactory
-                .create('currency')
-                .get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'system-currency',
-                        Shopware.Context.app.systemCurrencyId,
-                        Shopware.Context.api.languageId ?? 'default',
-                    ],
-                    ttl: 5 * 60 * 1000,
-                });
+            return this.repositoryFactory.create('currency').get(getAppContext().systemCurrencyId, getApiContext(), {
+                cacheKey: [
+                    'shared-data',
+                    'system-currency',
+                    getAppContext().systemCurrencyId,
+                    getApiContext().languageId ?? 'default',
+                ],
+                ttl: 5 * 60 * 1000,
+            });
         },
 
         loadProducts() {
@@ -205,7 +211,7 @@ export default {
                         this.criteria,
                         [],
                         {
-                            'sw-currency-id': Context.app.systemCurrencyId,
+                            'sw-currency-id': getAppContext().systemCurrencyId,
                             'sw-inheritance': true,
                         },
                         this.displayAsGroup,

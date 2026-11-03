@@ -502,12 +502,12 @@
       "count": 57
     }
   },
-  "src/app/component/entity/sw-bulk-edit-modal/index.js": {
+  "src/app/component/entity/sw-bulk-edit-modal/src/sw-bulk-edit-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/entity/sw-category-tree-field/index.js": {
+  "src/app/component/entity/sw-category-tree-field/src/sw-category-tree-field.js": {
     "complexity": {
       "count": 1
     },
@@ -518,7 +518,7 @@
       "count": 1
     }
   },
-  "src/app/component/entity/sw-category-tree-field/sw-category-tree-field.spec.js": {
+  "src/app/component/entity/sw-category-tree-field/tests/sw-category-tree-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
@@ -533,17 +533,17 @@
       "count": 23
     }
   },
-  "src/app/component/entity/sw-many-to-many-assignment-card/index.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/app/component/entity/sw-many-to-many-assignment-card/sw-many-to-many-assignment-card.html.twig": {
+  "src/app/component/entity/sw-many-to-many-assignment-card/src/sw-many-to-many-assignment-card.html.twig": {
     "vue/max-template-depth": {
       "count": 4
     }
   },
-  "src/app/component/entity/sw-many-to-many-assignment-card/sw-many-to-many-assignment-card.spec.js": {
+  "src/app/component/entity/sw-many-to-many-assignment-card/src/sw-many-to-many-assignment-card.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-many-to-many-assignment-card/tests/sw-many-to-many-assignment-card.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -553,12 +553,12 @@
       "count": 1
     }
   },
-  "src/app/component/entity/sw-product-stream-grid-preview/index.js": {
+  "src/app/component/entity/sw-product-stream-grid-preview/src/sw-product-stream-grid-preview.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/entity/sw-product-stream-grid-preview/sw-product-stream-grid-preview.spec.js": {
+  "src/app/component/entity/sw-product-stream-grid-preview/tests/sw-product-stream-grid-preview.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }

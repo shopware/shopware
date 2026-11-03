@@ -1,0 +1,98 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package framework
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-many-to-many-assignment-card',
+    load: () => import('./src/sw-many-to-many-assignment-card'),
+    public: {
+        props: [
+            'columns',
+            'entityCollection',
+            'localMode',
+            'resultLimit',
+            'criteria',
+            'highlightSearchTerm',
+            'labelProperty',
+            'selectLabel',
+            'placeholder',
+            'searchableFields',
+            'disabled',
+            'displayVariants',
+        ],
+        emits: [
+            'update:entityCollection',
+            'paginate',
+        ],
+        slots: [
+            'prepend-select',
+            'select',
+            'before-item-list',
+            'result-item',
+            'result-label-property',
+            'after-item-list',
+            'data-grid',
+            '`column-${column.property}`',
+            'empty-state',
+        ],
+        blocks: [
+            'sw_entity_many_to_many_assignment_card',
+            'sw_entity_many_to_many_assignment_card_content',
+            'sw_entity_many_to_many_assignment_card_head',
+            'sw_entity_many_to_many_assignment_card_pre_select',
+            'sw_entity_many_to_many_assignment_card_select',
+            'sw_entity_many_to_many_assignment_card_search_field',
+            'sw_entity_many_to_many_assignment_card_results_list',
+            'sw_entity_many_to_many_assignment_card_results_list_before',
+            'sw_entity_many_to_many_assignment_card_results_list_result',
+            'sw_entity_many_to_many_assignment_card_results_list_list_item',
+            'sw_entity_many_to_many_assignment_card_results_list_list_item_label',
+            'sw_entity_many_to_many_assignment_card_results_list_after',
+            'sw_entity_many_to_many_assignment_card_grid',
+            'sw_entity_many_to_many_assignment_card_grid_column',
+            'sw_entity_many_to_many_assignment_card_grid_column_actions',
+            'sw_entity_many_to_many_assignment_card_grid_footer',
+            'sw_entity_many_to_many_assignment_card_grid_footer_remote_mode',
+            'sw_entity_many_to_many_assignment_card_grid_footer_local_mode',
+        ],
+        computed: [
+            'context',
+            'languageId',
+            'assignmentRepository',
+            'searchRepository',
+            'page',
+            'limit',
+            'total',
+            'focusEl',
+            'originalFilters',
+        ],
+        methods: [
+            'createdComponent',
+            'initData',
+            'onSearchTermChange',
+            'onClear',
+            'loadResultCollection',
+            'debouncedSearch',
+            'onSelectExpanded',
+            'paginateResult',
+            'searchItems',
+            'onItemSelect',
+            'removeItem',
+            'isSelected',
+            'resetActiveItem',
+            'onSelectCollapsed',
+            'resetSearchCriteria',
+            'getKey',
+            'paginateGrid',
+            'setGridFilter',
+            'addContainsFilter',
+            'removeFromGrid',
+        ],
+    },
+});

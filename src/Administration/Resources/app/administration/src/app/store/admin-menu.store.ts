@@ -28,8 +28,14 @@ function menuEntryKey(entry: NavigationEntry): string | undefined {
 const SIDEBAR_EXPANDED_STORAGE_KEY = 'sw-admin-menu-sidebar-expanded';
 localStorage.removeItem('sw-admin-menu-expanded');
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const adminMenuStoreId = 'adminMenu';
+
 const adminMenuStore = Shopware.Store.register({
-    id: 'adminMenu',
+    id: adminMenuStoreId,
 
     state: () => ({
         /**

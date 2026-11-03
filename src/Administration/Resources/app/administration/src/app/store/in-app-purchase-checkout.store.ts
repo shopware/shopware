@@ -17,9 +17,15 @@ export type InAppPurchaseCheckoutState =
           extension: string;
       };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const inAppPurchaseCheckoutStoreId = 'inAppPurchaseCheckout';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const inAppPurchaseCheckoutStore = Shopware.Store.register({
-    id: 'inAppPurchaseCheckout',
+    id: inAppPurchaseCheckoutStoreId,
 
     state: (): InAppPurchaseCheckoutState => ({
         entry: null,

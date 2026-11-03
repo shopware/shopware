@@ -13,8 +13,14 @@ export type ModalItemEntry = Omit<uiModalOpen, 'responseType' | 'variant' | 'zIn
     zIndex?: number;
 };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const modalsStoreId = 'modals';
+
 const modalsStore = Shopware.Store.register({
-    id: 'modals',
+    id: modalsStoreId,
 
     state: () => ({
         modals: [] as ModalItemEntry[],

@@ -9,6 +9,16 @@
 export const appActionButtonService = 'appActionButtonService';
 
 /**
+ * The name the appModulesService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [appModulesService] };
+ *
+ * @public
+ */
+export const appModulesService = 'appModulesService';
+
+/**
  * The name the cacheApiService service is registered and injected under.
  *
  * @example
@@ -37,6 +47,16 @@ export const cacheService = 'cacheService';
  * @public
  */
 export const captchaService = 'captchaService';
+
+/**
+ * The name the customEntityDefinitionService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [customEntityDefinitionService] };
+ *
+ * @public
+ */
+export const customEntityDefinitionService = 'customEntityDefinitionService';
 
 /**
  * The name the customFieldDataProviderService service is registered and injected under.
@@ -153,6 +173,16 @@ export const filterService = 'filterService';
 export const liveSearchService = 'liveSearchService';
 
 /**
+ * The name the loginService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [loginService] };
+ *
+ * @public
+ */
+export const loginService = 'loginService';
+
+/**
  * The name the mediaFolderService service is registered and injected under.
  *
  * @example
@@ -181,6 +211,16 @@ export const mediaPresignedUploadService = 'mediaPresignedUploadService';
  * @public
  */
 export const mediaService = 'mediaService';
+
+/**
+ * The name the menuService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [menuService] };
+ *
+ * @public
+ */
+export const menuService = 'menuService';
 
 /**
  * The name the messageStatsService service is registered and injected under.
@@ -221,6 +261,16 @@ export const productIndexService = 'productIndexService';
  * @public
  */
 export const productStreamPreviewService = 'productStreamPreviewService';
+
+/**
+ * The name the recentlySearchService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [recentlySearchService] };
+ *
+ * @public
+ */
+export const recentlySearchService = 'recentlySearchService';
 
 /**
  * Creates the repositories for entities.
@@ -271,6 +321,26 @@ export const searchPreferencesService = 'searchPreferencesService';
  * @public
  */
 export const searchRankingService = 'searchRankingService';
+
+/**
+ * The name the searchService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [searchService] };
+ *
+ * @public
+ */
+export const searchService = 'searchService';
+
+/**
+ * The name the searchTypeService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [searchTypeService] };
+ *
+ * @public
+ */
+export const searchTypeService = 'searchTypeService';
 
 /**
  * The name the seoUrlTemplateService service is registered and injected under.
@@ -343,6 +413,16 @@ export const serviceRegistryClient = 'serviceRegistryClient';
 export const shortcutService = 'shortcutService';
 
 /**
+ * The name the snackbarService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [snackbarService] };
+ *
+ * @public
+ */
+export const snackbarService = 'snackbarService';
+
+/**
  * The name the snippetService service is registered and injected under.
  *
  * @example
@@ -411,6 +491,26 @@ export const translationService = 'translationService';
  * @public
  */
 export const updateService = 'updateService';
+
+/**
+ * The name the userActivityApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [userActivityApiService] };
+ *
+ * @public
+ */
+export const userActivityApiService = 'userActivityApiService';
+
+/**
+ * The name the userActivityService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [userActivityService] };
+ *
+ * @public
+ */
+export const userActivityService = 'userActivityService';
 
 /**
  * The name the userConfigService service is registered and injected under.

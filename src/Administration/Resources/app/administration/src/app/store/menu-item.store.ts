@@ -9,8 +9,14 @@ export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'd
     moduleId: string;
 };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const menuItemStoreId = 'menuItem';
+
 const menuItemStore = Shopware.Store.register({
-    id: 'menuItem',
+    id: menuItemStoreId,
 
     state: () => ({
         menuItems: [] as MenuItemEntry[],

@@ -9,8 +9,14 @@ export type MediaModalConfig = Omit<uiMediaModalOpen, 'responseType'>;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type SaveMediaModalConfig = Omit<uiMediaModalOpenSaveMedia, 'responseType'>;
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const mediaModalStoreId = 'mediaModal';
+
 const mediaModalStore = Shopware.Store.register({
-    id: 'mediaModal',
+    id: mediaModalStoreId,
 
     state: () => ({
         mediaModal: null as MediaModalConfig | null,

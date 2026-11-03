@@ -186,6 +186,30 @@ import 'src/app/component/sidebar/sw-help-sidebar/register';
 import 'src/app/component/sidebar/sw-sidebar/register';
 import 'src/app/component/sidebar/sw-sidebar-item/register';
 import 'src/app/component/sidebar/sw-sidebar-navigation-item/register';
+import 'src/app/component/structure/sw-admin/register';
+import 'src/app/component/structure/sw-admin-menu/register';
+import 'src/app/component/structure/sw-card-view/register';
+import 'src/app/component/structure/sw-desktop/register';
+import 'src/app/component/structure/sw-discard-changes-modal/register';
+import 'src/app/component/structure/sw-error/register';
+import 'src/app/component/structure/sw-hidden-iframes/register';
+import 'src/app/component/structure/sw-in-app-purchase-checkout/register';
+import 'src/app/component/structure/sw-inheritance-warning/register';
+import 'src/app/component/structure/sw-language-info/register';
+import 'src/app/component/structure/sw-language-switch/register';
+import 'src/app/component/structure/sw-media-modal-renderer/register';
+import 'src/app/component/structure/sw-modals-renderer/register';
+import 'src/app/component/structure/sw-not-found/register';
+import 'src/app/component/structure/sw-page/register';
+import './structure/sw-request-consent-modal/register';
+import 'src/app/component/structure/sw-sales-channel-config/register';
+import 'src/app/component/structure/sw-sales-channel-switch/register';
+import 'src/app/component/structure/sw-search-bar/register';
+import 'src/app/component/structure/sw-search-bar-item/register';
+import 'src/app/component/structure/sw-search-more-results/register';
+import 'src/app/component/structure/sw-sidebar-renderer/register';
+import 'src/app/component/structure/sw-skip-link/register';
+import './structure/sw-ui-shell-update-2026-modal/register';
 /**
  * @sw-package framework
  * @private
@@ -255,54 +279,12 @@ export default () => {
     Shopware.Component.register('sw-tree-item', () => import('src/app/component/tree/sw-tree-item/index'));
     Shopware.Component.register('sw-tree-input-field', () => import('src/app/component/tree/sw-tree-input-field/index'));
     Shopware.Component.register('sw-tree', () => import('src/app/component/tree/sw-tree/index'));
-    Shopware.Component.register('sw-skip-link', () => import('src/app/component/structure/sw-skip-link/index'));
-    Shopware.Component.register(
-        'sw-sidebar-renderer',
-        () => import('src/app/component/structure/sw-sidebar-renderer/index'),
-    );
-    Shopware.Component.register(
-        'sw-search-more-results',
-        () => import('src/app/component/structure/sw-search-more-results/index'),
-    );
-    Shopware.Component.register('sw-search-bar-item', () => import('src/app/component/structure/sw-search-bar-item/index'));
-    Shopware.Component.register('sw-search-bar', () => import('src/app/component/structure/sw-search-bar/index'));
-    Shopware.Component.register(
-        'sw-sales-channel-switch',
-        () => import('src/app/component/structure/sw-sales-channel-switch/index'),
-    );
-    Shopware.Component.register(
-        'sw-sales-channel-config',
-        () => import('src/app/component/structure/sw-sales-channel-config/index'),
-    );
-    Shopware.Component.register('sw-page', () => import('src/app/component/structure/sw-page/index'));
-    Shopware.Component.register('sw-modals-renderer', () => import('src/app/component/structure/sw-modals-renderer/index'));
-    Shopware.Component.register('sw-language-switch', () => import('src/app/component/structure/sw-language-switch/index'));
-    Shopware.Component.register('sw-language-info', () => import('src/app/component/structure/sw-language-info/index'));
-    Shopware.Component.register(
-        'sw-inheritance-warning',
-        () => import('src/app/component/structure/sw-inheritance-warning/index'),
-    );
-    Shopware.Component.register(
-        'sw-in-app-purchase-checkout',
-        () => import('src/app/component/structure/sw-in-app-purchase-checkout/index'),
-    );
-    Shopware.Component.register('sw-hidden-iframes', () => import('src/app/component/structure/sw-hidden-iframes/index'));
-    Shopware.Component.register('sw-error', () => import('src/app/component/structure/sw-error/index'));
-    Shopware.Component.register('sw-not-found', () => import('src/app/component/structure/sw-not-found/index'));
-    Shopware.Component.register(
-        'sw-discard-changes-modal',
-        () => import('src/app/component/structure/sw-discard-changes-modal/index'),
-    );
-    Shopware.Component.register('sw-desktop', () => import('src/app/component/structure/sw-desktop/index'));
-    Shopware.Component.register('sw-card-view', () => import('src/app/component/structure/sw-card-view/index'));
     Shopware.Component.register(
         'sw-block-parent',
         () => import('src/app/component/structure/sw-block-override/sw-block-parent/index'),
     );
     Shopware.Component.register('sw-block', () => import('src/app/component/structure/sw-block-override/sw-block/index'));
     Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
-    Shopware.Component.register('sw-admin-menu', () => import('src/app/component/structure/sw-admin-menu/index'));
-    Shopware.Component.register('sw-admin', () => import('src/app/component/structure/sw-admin/index'));
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
@@ -320,13 +302,7 @@ export default () => {
         () => import('src/app/component/media/sw-model-editor-collapse'),
     );
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
-    Shopware.Component.register(
-        'sw-media-modal-renderer',
-        () => import('src/app/component/structure/sw-media-modal-renderer/index'),
-    );
-    Shopware.Component.register('sw-request-consent-modal', () => import('./structure/sw-request-consent-modal'));
     // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
-    Shopware.Component.register('sw-ui-shell-update-2026-modal', () => import('./structure/sw-ui-shell-update-2026-modal'));
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',

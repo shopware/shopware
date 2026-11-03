@@ -1,0 +1,228 @@
+import template from './sw-desktop.html.twig';
+import './sw-desktop.scss';
+import {
+    hasOwnProperty,
+    shopIdChangeService,
+    snackbarService,
+    THEME_LABELS,
+    THEMES,
+    useContextStore,
+    userActivityApiService,
+    useSessionStore,
+    useTheme,
+} from '../dependencies';
+
+/**
+ * @sw-package framework
+ *
+ * @private
+ */
+export default {
+    template,
+
+    inject: [shopIdChangeService, userActivityApiService, snackbarService],
+
+    shortcuts: {
+        CT: 'onCycleTheme',
+    },
+
+    data() {
+        return {
+            noNavigation: false,
+            shopIdCheck: null,
+            isShopIdCheckPending: true,
+        };
+    },
+
+    computed: {
+        desktopClasses() {
+            return {
+                'sw-desktop--no-nav': this.noNavigation,
+                'sw-desktop--staging': this.isStaging,
+            };
+        },
+
+        currentUser() {
+            return useSessionStore().currentUser;
+        },
+
+        isStaging() {
+            return useContextStore().app.config.settings?.enableStagingMode === true;
+        },
+
+        showUsageDataConsentModalDataProvider() {
+            return !this.isShopIdCheckPending && this.shopIdCheck === null;
+        },
+
+        showWrongAppUrlModal() {
+            return !this.isShopIdCheckPending && this.shopIdCheck === null;
+        },
+    },
+
+    watch: {
+        $route() {
+            this.checkRouteSettings();
+        },
+
+        '$route.name': {
+            handler(to, from) {
+                if (from === undefined || to === from) {
+                    return;
+                }
+
+                this.onUpdateSearchFrequently();
+            },
+            immediate: true,
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.checkRouteSettings();
+            this.updateShopIdChangeModal();
+        },
+
+        checkRouteSettings() {
+            if (this.$route.meta && hasOwnProperty(this.$route.meta, 'noNav')) {
+                this.noNavigation = this.$route.meta.noNav;
+            } else {
+                this.noNavigation = false;
+            }
+        },
+
+        async updateShopIdChangeModal() {
+            if (!useContextStore().app.config.settings?.appsRequireAppUrl) {
+                this.shopIdCheck = null;
+                this.isShopIdCheckPending = false;
+                return;
+            }
+
+            this.isShopIdCheckPending = true;
+
+            try {
+                this.shopIdCheck = await this.shopIdChangeService.checkShopId();
+            } finally {
+                this.isShopIdCheckPending = false;
+            }
+        },
+
+        closeModal() {
+            this.shopIdCheck = null;
+        },
+
+        async onCycleTheme() {
+            const currentTheme = useTheme().theme.value;
+            const nextTheme = THEMES[(THEMES.indexOf(currentTheme) + 1) % THEMES.length];
+
+            try {
+                await useTheme().saveUserTheme(nextTheme);
+            } catch {
+                useTheme().setTheme(currentTheme);
+                this.snackbarService.addSnackbar({
+                    message: this.$t('global.sw-desktop.theme.saveError'),
+                    variant: 'error',
+                });
+
+                return;
+            }
+
+            this.snackbarService.addSnackbar({
+                message: this.$t('global.sw-desktop.theme.changed', {
+                    theme: this.$t(THEME_LABELS[nextTheme]),
+                }),
+                variant: 'success',
+            });
+        },
+
+        onUpdateSearchFrequently() {
+            const metadata = this.getModuleMetadata();
+
+            if (!metadata || !metadata?.route?.name) {
+                return false;
+            }
+
+            const data = {
+                key: `${metadata.name}@${metadata.route.name}`,
+                cluster: this.currentUser.id,
+            };
+
+            return this.userActivityApiService.increment(data);
+        },
+
+        getModuleMetadata() {
+            const { $module } = this.$route.meta;
+            const routeName = this.$route?.name;
+
+            if (!$module) {
+                return false;
+            }
+
+            const { name, icon, color, entity, routes, title } = $module;
+
+            if (!this.$te(title) || !routes?.index) {
+                return false;
+            }
+
+            // special cases with searchMatcher function at the current module
+            const searchMatcher = this.getModuleMetadataWithSearchMatcher($module, routeName);
+            if (searchMatcher) {
+                const { components, children, meta, props, ...route } = searchMatcher.route;
+                return {
+                    ...searchMatcher,
+                    route,
+                };
+            }
+
+            if (routes?.index?.name === routeName || routes.index?.children?.some((child) => child.name === routeName)) {
+                const { components, children, meta, props, ...route } = routes.index;
+                return {
+                    name,
+                    icon,
+                    color,
+                    title,
+                    entity,
+                    privilege: meta?.privilege,
+                    route,
+                };
+            }
+
+            if (routes?.create?.name === routeName || routes.create?.children?.some((child) => child.name === routeName)) {
+                const { components, children, meta, props, ...route } = routes.create;
+                return {
+                    name,
+                    icon,
+                    color,
+                    entity,
+                    privilege: meta?.privilege,
+                    route,
+                    action: true,
+                };
+            }
+
+            return false;
+        },
+
+        getModuleMetadataWithSearchMatcher(module, routeName) {
+            if (typeof module.searchMatcher !== 'function') {
+                return false;
+            }
+
+            const { title } = module;
+
+            // get metadata in searchMatcher
+            const metadata = module.searchMatcher(
+                new RegExp(`^${this.$t(title).toLowerCase()}(.*)`),
+                this.$t(title, 2),
+                module,
+            );
+
+            return metadata.find(
+                (item) => item.route.name === routeName || item.route?.children?.some((child) => child.name === routeName),
+            );
+        },
+    },
+};

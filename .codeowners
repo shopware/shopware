@@ -97,3 +97,9 @@ src/Administration/Resources/app/administration/src/module/sw-bulk-edit/componen
 # framework: Administration mini-modules
 src/Administration/Resources/app/administration/src/module/sw-settings-services/component/sw-settings-services-service-card/index.ts @shopware/product-cc-framework
 src/Administration/Resources/app/administration/src/module/sw-settings-services/component/sw-settings-services-service-card/tests/requirements.spec.ts @shopware/product-cc-framework
+
+# after-sales: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/index.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/global.d.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/tests/requirements.spec.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/tests/public-api.spec.ts @shopware/product-cc-after-sales

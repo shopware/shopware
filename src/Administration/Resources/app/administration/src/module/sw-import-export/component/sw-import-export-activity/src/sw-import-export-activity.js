@@ -4,9 +4,16 @@
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
 
-const { Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { format } = Shopware.Utils;
+import {
+    Criteria,
+    EntityCollection,
+    fileSize,
+    notificationMixin,
+    featureService,
+    importExportService,
+    repositoryFactoryService,
+    getDateFilter,
+} from '../dependencies';
 
 /**
  * @public
@@ -14,9 +21,9 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'importExport', 'feature'],
+    inject: [repositoryFactoryService, importExportService, featureService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         type: {
@@ -68,7 +75,7 @@ export default {
         },
 
         activityCriteria() {
-            const criteria = new Shopware.Data.Criteria();
+            const criteria = new Criteria();
 
             if (this.type === 'import') {
                 criteria.addFilter(
@@ -181,7 +188,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 
@@ -382,7 +389,7 @@ export default {
         },
 
         calculateFileSize(size) {
-            return format.fileSize(size);
+            return fileSize(size);
         },
 
         getStateLabel(state) {

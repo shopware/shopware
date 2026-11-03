@@ -9,4 +9,10 @@
  * @public
  * @shopware-kind framework
  */
-export { feature, repositoryFactory, ruleConditionDataProviderService, shopwareServicesService } from './src/service-names';
+export {
+    feature,
+    importExport,
+    repositoryFactory,
+    ruleConditionDataProviderService,
+    shopwareServicesService,
+} from './src/service-names';

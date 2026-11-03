@@ -1033,6 +1033,7 @@ declare module 'shopware:framework/public-component' {
 declare module 'shopware:framework/service-names' {
     export {
         feature,
+        importExport,
         repositoryFactory,
         ruleConditionDataProviderService,
         shopwareServicesService,

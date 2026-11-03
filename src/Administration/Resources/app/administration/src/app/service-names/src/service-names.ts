@@ -41,3 +41,13 @@ export const ruleConditionDataProviderService = 'ruleConditionDataProviderServic
  * @public
  */
 export const shopwareServicesService = 'shopwareServicesService';
+
+/**
+ * Starts, cancels and downloads import and export processes.
+ *
+ * @example
+ * export default { inject: [importExport] };
+ *
+ * @public
+ */
+export const importExport = 'importExport';

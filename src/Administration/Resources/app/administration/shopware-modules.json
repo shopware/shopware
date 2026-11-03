@@ -297,6 +297,7 @@
             ],
             "service-names": [
                 "feature",
+                "importExport",
                 "repositoryFactory",
                 "ruleConditionDataProviderService",
                 "shopwareServicesService"

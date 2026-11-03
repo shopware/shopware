@@ -633,6 +633,26 @@ export const productStreamPreviewService = 'productStreamPreviewService';
 export const productTypeService = 'productTypeService';
 
 /**
+ * The name the promotionCodeApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [promotionCodeApiService] };
+ *
+ * @public
+ */
+export const promotionCodeApiService = 'promotionCodeApiService';
+
+/**
+ * The name the promotionSyncService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [promotionSyncService] };
+ *
+ * @public
+ */
+export const promotionSyncService = 'promotionSyncService';
+
+/**
  * The name the recentlySearchService service is registered and injected under.
  *
  * @example

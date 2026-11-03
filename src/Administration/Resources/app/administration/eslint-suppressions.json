@@ -10175,7 +10175,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/index.js": {
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/src/sw-promotion-v2-settings-discount-type.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10183,7 +10183,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/index.js": {
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/src/sw-promotion-v2-settings-rule-selection.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10191,7 +10191,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/index.js": {
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/src/sw-promotion-v2-settings-trigger.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10199,7 +10199,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/index.js": {
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/src/sw-promotion-v2-wizard-description.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10207,7 +10207,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/index.js": {
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/src/sw-promotion-v2-wizard-discount-selection.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10215,7 +10215,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/index.js": {
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/src/sw-promotion-v2-generate-codes-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10223,12 +10223,12 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/sw-promotion-v2-generate-codes-modal.spec.js": {
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/tests/sw-promotion-v2-generate-codes-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/index.js": {
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/src/sw-promotion-v2-individual-codes-behavior.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10236,27 +10236,27 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/sw-promotion-v2-individual-codes-behavior.spec.js": {
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/tests/sw-promotion-v2-individual-codes-behavior.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/handler.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/src/handler.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/index.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/src/sw-promotion-discount-component.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/sw-promotion-discount-component.spec.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/tests/sw-promotion-discount-component.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 14
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/index.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/src/sw-promotion-v2-cart-condition-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10264,17 +10264,17 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.spec.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/tests/sw-promotion-v2-cart-condition-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero/index.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero/src/sw-promotion-v2-empty-state-hero.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/index.js": {
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/src/sw-promotion-v2-sales-channel-select.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10324,7 +10324,7 @@
       "count": 3
     }
   },
-  "src/module/sw-promotion-v2/page/sw-promotion-v2-list/index.js": {
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-list/src/sw-promotion-v2-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10332,7 +10332,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/page/sw-promotion-v2-list/sw-promotion-v2-list.spec.js": {
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-list/tests/sw-promotion-v2-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 33
     }
@@ -10345,12 +10345,12 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/view/sw-promotion-detail-discounts/index.js": {
+  "src/module/sw-promotion-v2/view/sw-promotion-detail-discounts/src/sw-promotion-detail-discounts.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/index.js": {
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/src/sw-promotion-v2-conditions.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10358,12 +10358,12 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/sw-promotion-v2-conditions.spec.js": {
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/tests/sw-promotion-v2-conditions.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/index.js": {
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/src/sw-promotion-v2-detail-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

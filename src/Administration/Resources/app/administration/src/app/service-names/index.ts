@@ -75,6 +75,8 @@ export {
     productStreamConditionService,
     productStreamPreviewService,
     productTypeService,
+    promotionCodeApiService,
+    promotionSyncService,
     recentlySearchService,
     recommendationsService,
     repositoryFactory,

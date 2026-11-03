@@ -366,3 +366,14 @@ import '../src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-
 import '../src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/global';
 import '../src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/global';
 import '../src/module/sw-privilege-error/page/sw-privilege-error/global';
+import '../src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/global';
+import '../src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/global';
+import '../src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/global';
+import '../src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/global';
+import '../src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/global';
+import '../src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/global';
+import '../src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/global';
+import '../src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/global';
+import '../src/module/sw-promotion-v2/page/sw-promotion-v2-list/global';
+import '../src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/global';
+import '../src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/global';

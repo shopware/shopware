@@ -1,0 +1,46 @@
+/**
+ * @sw-package checkout
+ */
+import template from './sw-promotion-v2-wizard-discount-selection.html.twig';
+
+/**
+ * @private
+ */
+export default {
+    template,
+
+    emits: ['change-selection'],
+
+    data() {
+        return {
+            value: 'basic',
+            modalTitle: this.$t('sw-promotion-v2.detail.discount-selection.modalTitle'),
+        };
+    },
+
+    methods: {
+        getSelectionOptions() {
+            return [
+                {
+                    value: 'basic',
+                    name: this.$t('sw-promotion-v2.detail.discount-selection.basic.name'),
+                    description: this.$t('sw-promotion-v2.detail.discount-selection.basic.description'),
+                },
+                {
+                    value: 'buy-x-get-y',
+                    name: this.$t('sw-promotion-v2.detail.discount-selection.buy-x-get-y.name'),
+                    description: this.$t('sw-promotion-v2.detail.discount-selection.buy-x-get-y.description'),
+                },
+                {
+                    value: 'shipping-discount',
+                    name: this.$t('sw-promotion-v2.detail.discount-selection.shipping-discount.name'),
+                    description: this.$t('sw-promotion-v2.detail.discount-selection.shipping-discount.description'),
+                },
+            ];
+        },
+
+        onChangeSelection(value) {
+            this.$emit('change-selection', value);
+        },
+    },
+};

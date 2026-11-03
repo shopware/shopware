@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -29,7 +31,7 @@ use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
 #[CoversClass(CustomerGroupSubscriber::class)]
 class CustomerGroupSubscriberTest extends TestCase
 {
-    public function testGeneratedUrlsAreActiveAndSkipInactiveLanguages(): void
+    public function testGeneratedUrlsAreActiveForActiveLanguages(): void
     {
         $context = Context::createDefaultContext();
         $customerGroupId = Uuid::randomHex();
@@ -39,33 +41,32 @@ class CustomerGroupSubscriberTest extends TestCase
         $language->setId($languageId);
         $language->setActive(true);
 
-        $inactiveLanguageId = Uuid::randomHex();
-        $inactiveLanguage = new LanguageEntity();
-        $inactiveLanguage->setId($inactiveLanguageId);
-        $inactiveLanguage->setActive(false);
-
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
         $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        $salesChannel->setLanguages(new LanguageCollection([$language, $inactiveLanguage]));
+        $salesChannel->setLanguages(new LanguageCollection([$language]));
 
         $translation = new CustomerGroupTranslationEntity();
         $translation->setId(Uuid::randomHex());
         $translation->setLanguageId($languageId);
         $translation->setRegistrationTitle('Registration');
 
-        $inactiveTranslation = new CustomerGroupTranslationEntity();
-        $inactiveTranslation->setId(Uuid::randomHex());
-        $inactiveTranslation->setLanguageId($inactiveLanguageId);
-        $inactiveTranslation->setRegistrationTitle('Registrierung');
-
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setId($customerGroupId);
         $customerGroup->setRegistrationActive(true);
         $customerGroup->setRegistrationSalesChannels(new SalesChannelCollection([$salesChannel]));
-        $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation, $inactiveTranslation]));
+        $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation]));
 
-        $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection([$customerGroup])]);
+        $customerGroupRepository = new StaticEntityRepository([
+            static function (Criteria $criteria) use ($customerGroup): CustomerGroupCollection {
+                static::assertEquals(
+                    [new EqualsFilter('active', true)],
+                    $criteria->getAssociation('registrationSalesChannels.languages')->getFilters()
+                );
+
+                return new CustomerGroupCollection([$customerGroup]);
+            },
+        ]);
 
         $persister = $this->createMock(SeoUrlPersister::class);
         $persister->expects($this->once())

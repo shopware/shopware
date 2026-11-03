@@ -131,6 +131,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             ->addFilter(new EqualsFilter('registrationActive', true))
             ->addAssociations(['registrationSalesChannels.languages', 'translations']);
 
+        $criteria->getAssociation('registrationSalesChannels.languages')
+            ->addFilter(new EqualsFilter('active', true));
+
         $criteria->getAssociation('registrationSalesChannels')
             ->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
 
@@ -152,10 +155,6 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 }
 
                 foreach ($registrationSalesChannel->getLanguages() as $languageId => $language) {
-                    if (!$language->isActive()) {
-                        continue;
-                    }
-
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
                     if ($title === '') {

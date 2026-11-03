@@ -147,6 +147,9 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
             ->addFilter(new EqualsFilter('registrationActive', true))
             ->addAssociations(['registrationSalesChannels.languages', 'registrationSalesChannels.domains', 'translations']);
 
+        $criteria->getAssociation('registrationSalesChannels.languages')
+            ->addFilter(new EqualsFilter('active', true));
+
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
         $buildUrls = [];
 
@@ -165,10 +168,6 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
                 }
 
                 foreach ($registrationSalesChannel->getLanguages() as $languageId => $language) {
-                    if (!$language->isActive()) {
-                        continue;
-                    }
-
                     // rows are only created for languages with an external storefront domain,
                     // mirroring the SEO URL generation of products, categories and landing pages
                     if (!$this->hasExternalStorefrontDomain($registrationSalesChannel, $languageId)) {

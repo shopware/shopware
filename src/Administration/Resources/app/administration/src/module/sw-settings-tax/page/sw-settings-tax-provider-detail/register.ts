@@ -1,8 +1,7 @@
-import Component, * as Module from './index';
+import Component from './private';
 
 /**
  * @sw-package checkout
  */
 
 Shopware.Component.register(Component);
-Shopware._private.publish('components', 'sw-settings-tax-provider-detail', Module);

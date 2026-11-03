@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-settings-message-stats/page/sw-settings-message-stats';
+import 'src/module/sw-settings-message-stats/page/sw-settings-message-stats/private';
 
 const mockStats = {
     enabled: true,

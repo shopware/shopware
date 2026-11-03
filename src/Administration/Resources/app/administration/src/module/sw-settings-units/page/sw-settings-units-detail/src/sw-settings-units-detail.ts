@@ -15,7 +15,7 @@ import {
 } from '../dependencies';
 
 /**
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     template,

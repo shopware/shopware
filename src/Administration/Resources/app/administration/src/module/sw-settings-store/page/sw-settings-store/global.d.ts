@@ -1,11 +1,11 @@
-import type Component from './index';
+import type Component from './private';
 
 /**
  * @sw-package checkout
  */
 
 declare global {
-    interface PublicComponents {
+    interface PrivateComponents {
         'sw-settings-store': typeof Component;
     }
 }

@@ -5,7 +5,7 @@ import { wrapComponentConfig } from '../dependencies';
 /**
  * @sw-package fundamentals@discovery
  *
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     template,

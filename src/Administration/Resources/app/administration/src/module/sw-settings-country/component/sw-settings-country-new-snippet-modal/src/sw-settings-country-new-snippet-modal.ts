@@ -23,7 +23,7 @@ interface TreeItem {
 /**
  * @sw-package fundamentals@discovery
  *
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     template,

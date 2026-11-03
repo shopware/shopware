@@ -3,7 +3,7 @@ import { Utils } from '../dependencies';
 
 /**
  * @sw-package framework
- * @public
+ * @private
  */
 export default {
     template,

@@ -1,7 +1,7 @@
 import template from './sw-settings-rule-assignment-listing.html.twig';
 
 /**
- * @public
+ * @private
  * @sw-package fundamentals@after-sales
  */
 export default {

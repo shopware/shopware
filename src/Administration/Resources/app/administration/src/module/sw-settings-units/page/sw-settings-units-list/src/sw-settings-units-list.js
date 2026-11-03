@@ -6,7 +6,7 @@ import './sw-settings-units.scss';
 import { aclService, Criteria, getApiContext, notificationMixin, repositoryFactoryService } from '../dependencies';
 
 /**
- * @public
+ * @private
  */
 export default {
     template,

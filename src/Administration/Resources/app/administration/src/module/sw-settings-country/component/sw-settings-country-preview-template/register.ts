@@ -1,8 +1,7 @@
-import Component, * as Module from './index';
+import Component from './private';
 
 /**
  * @sw-package fundamentals@discovery
  */
 
 Shopware.Component.register(Component);
-Shopware._private.publish('components', 'sw-settings-country-preview-template', Module);

@@ -17,7 +17,7 @@ interface Column {
 
 /**
  * @sw-package framework
- * @public
+ * @private
  */
 export default defineComponent({
     template,

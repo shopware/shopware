@@ -3,7 +3,7 @@ import './sw-settings-rule-add-assignment-listing.scss';
 import { cloneDeep, Criteria, getApiContext } from '../dependencies';
 
 /**
- * @public
+ * @private
  * @sw-package fundamentals@after-sales
  */
 export default {

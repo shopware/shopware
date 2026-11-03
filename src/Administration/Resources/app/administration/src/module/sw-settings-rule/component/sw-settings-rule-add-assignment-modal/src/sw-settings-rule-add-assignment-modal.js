@@ -3,7 +3,7 @@ import './sw-settings-rule-assignment-modal.scss';
 import { Criteria, EntityCollection, getApiContext, repositoryFactoryService } from '../dependencies';
 
 /**
- * @public
+ * @private
  * @sw-package fundamentals@after-sales
  */
 export default {

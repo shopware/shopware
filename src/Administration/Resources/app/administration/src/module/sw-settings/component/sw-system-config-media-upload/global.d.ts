@@ -1,11 +1,11 @@
-import type Component from './index';
+import type Component from './private';
 
 /**
  * @sw-package framework
  */
 
 declare global {
-    interface PublicComponents {
+    interface PrivateComponents {
         'sw-system-config-media-upload': typeof Component;
     }
 }

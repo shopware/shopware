@@ -57,7 +57,7 @@ const PREVIEW_LOADING_HIDE_DELAY = 300 as number;
 /**
  * @sw-package fundamentals@discovery
  *
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     template,

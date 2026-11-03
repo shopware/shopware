@@ -15,7 +15,7 @@ import {
 const PRODUCT_INDEXER_INTERVAL = 3000;
 
 /**
- * @public
+ * @private
  */
 export default {
     template,

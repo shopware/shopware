@@ -1,11 +1,11 @@
-import type Component from './index';
+import type Component from './private';
 
 /**
  * @sw-package fundamentals@discovery
  */
 
 declare global {
-    interface PublicComponents {
+    interface PrivateComponents {
         'sw-multi-snippet-drag-and-drop': typeof Component;
     }
 }

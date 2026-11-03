@@ -296,9 +296,6 @@
             "sw-media-collapse": [
                 "default"
             ],
-            "sw-multi-snippet-drag-and-drop": [
-                "default"
-            ],
             "sw-payment-card": [
                 "default"
             ],
@@ -326,9 +323,6 @@
             "sw-settings-cart": [
                 "default"
             ],
-            "sw-settings-country-address-handling": [
-                "default"
-            ],
             "sw-settings-country-create": [
                 "default"
             ],
@@ -345,12 +339,6 @@
                 "default"
             ],
             "sw-settings-country-list": [
-                "default"
-            ],
-            "sw-settings-country-new-snippet-modal": [
-                "default"
-            ],
-            "sw-settings-country-preview-template": [
                 "default"
             ],
             "sw-settings-country-state": [
@@ -443,9 +431,6 @@
             "sw-settings-media": [
                 "default"
             ],
-            "sw-settings-message-stats": [
-                "default"
-            ],
             "sw-settings-newsletter": [
                 "default"
             ],
@@ -485,33 +470,6 @@
             "sw-settings-product-feature-sets-values-card": [
                 "default"
             ],
-            "sw-settings-rule-add-assignment-listing": [
-                "default"
-            ],
-            "sw-settings-rule-add-assignment-modal": [
-                "default"
-            ],
-            "sw-settings-rule-assignment-listing": [
-                "default"
-            ],
-            "sw-settings-rule-category-tree": [
-                "default"
-            ],
-            "sw-settings-rule-detail": [
-                "default"
-            ],
-            "sw-settings-rule-detail-assignments": [
-                "default"
-            ],
-            "sw-settings-rule-detail-base": [
-                "default"
-            ],
-            "sw-settings-rule-list": [
-                "default"
-            ],
-            "sw-settings-rule-tree-item": [
-                "default"
-            ],
             "sw-settings-salutation-detail": [
                 "default"
             ],
@@ -534,9 +492,6 @@
                 "default"
             ],
             "sw-settings-search-search-behaviour": [
-                "default"
-            ],
-            "sw-settings-search-search-index": [
                 "default"
             ],
             "sw-settings-search-searchable-content": [
@@ -593,9 +548,6 @@
             "sw-settings-state-machine-state-list": [
                 "default"
             ],
-            "sw-settings-store": [
-                "default"
-            ],
             "sw-settings-tag-detail-assignments": [
                 "default"
             ],
@@ -609,12 +561,6 @@
                 "default"
             ],
             "sw-settings-tax-list": [
-                "default"
-            ],
-            "sw-settings-tax-provider-detail": [
-                "default"
-            ],
-            "sw-settings-tax-provider-sorting-modal": [
                 "default"
             ],
             "sw-settings-tax-rule-modal": [
@@ -638,16 +584,7 @@
             "sw-settings-tax-rule-type-zip-code-range-cell": [
                 "default"
             ],
-            "sw-settings-units-detail": [
-                "default"
-            ],
-            "sw-settings-units-list": [
-                "default"
-            ],
             "sw-system-config": [
-                "default"
-            ],
-            "sw-system-config-media-upload": [
                 "default"
             ],
             "sw-tax-rule-card": [
@@ -668,7 +605,6 @@
             "sw-custom-field-type-select": "src/module/sw-settings-custom-field/component/sw-custom-field-type-select",
             "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
             "sw-media-collapse": "src/module/sw-media/component/sw-media-collapse",
-            "sw-multi-snippet-drag-and-drop": "src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop",
             "sw-payment-card": "src/module/sw-settings-payment/component/sw-payment-card",
             "sw-plugin-box": "src/module/sw-settings-payment/component/sw-plugin-box",
             "sw-price-rule-modal": "src/module/sw-settings-shipping/component/sw-price-rule-modal",
@@ -678,15 +614,12 @@
             "sw-settings-cache-index": "src/module/sw-settings-cache/page/sw-settings-cache-index",
             "sw-settings-captcha-select-v2": "src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2",
             "sw-settings-cart": "src/module/sw-settings-cart/page/sw-settings-cart",
-            "sw-settings-country-address-handling": "src/module/sw-settings-country/component/sw-settings-country-address-handling",
             "sw-settings-country-create": "src/module/sw-settings-country/page/sw-settings-country-create",
             "sw-settings-country-currency-dependent-modal": "src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal",
             "sw-settings-country-currency-hamburger-menu": "src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu",
             "sw-settings-country-detail": "src/module/sw-settings-country/page/sw-settings-country-detail",
             "sw-settings-country-general": "src/module/sw-settings-country/component/sw-settings-country-general",
             "sw-settings-country-list": "src/module/sw-settings-country/page/sw-settings-country-list",
-            "sw-settings-country-new-snippet-modal": "src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal",
-            "sw-settings-country-preview-template": "src/module/sw-settings-country/component/sw-settings-country-preview-template",
             "sw-settings-country-state": "src/module/sw-settings-country/component/sw-settings-country-state",
             "sw-settings-currency-country-modal": "src/module/sw-settings-currency/component/sw-settings-currency-country-modal",
             "sw-settings-currency-detail": "src/module/sw-settings-currency/page/sw-settings-currency-detail",
@@ -717,7 +650,6 @@
             "sw-settings-measurement": "src/module/sw-settings-measurement/page/sw-settings-measurement",
             "sw-settings-measurement-default-units": "src/module/sw-settings-measurement/component/sw-settings-measurement-default-units",
             "sw-settings-media": "src/module/sw-settings-media/page/sw-settings-media",
-            "sw-settings-message-stats": "src/module/sw-settings-message-stats/page/sw-settings-message-stats",
             "sw-settings-newsletter": "src/module/sw-settings-newsletter/page/sw-settings-newsletter",
             "sw-settings-number-range-create": "src/module/sw-settings-number-range/page/sw-settings-number-range-create",
             "sw-settings-number-range-detail": "src/module/sw-settings-number-range/page/sw-settings-number-range-detail",
@@ -731,15 +663,6 @@
             "sw-settings-product-feature-sets-list": "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list",
             "sw-settings-product-feature-sets-modal": "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal",
             "sw-settings-product-feature-sets-values-card": "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card",
-            "sw-settings-rule-add-assignment-listing": "src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing",
-            "sw-settings-rule-add-assignment-modal": "src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-modal",
-            "sw-settings-rule-assignment-listing": "src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing",
-            "sw-settings-rule-category-tree": "src/module/sw-settings-rule/component/sw-settings-rule-category-tree",
-            "sw-settings-rule-detail": "src/module/sw-settings-rule/page/sw-settings-rule-detail",
-            "sw-settings-rule-detail-assignments": "src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments",
-            "sw-settings-rule-detail-base": "src/module/sw-settings-rule/view/sw-settings-rule-detail-base",
-            "sw-settings-rule-list": "src/module/sw-settings-rule/page/sw-settings-rule-list",
-            "sw-settings-rule-tree-item": "src/module/sw-settings-rule/component/sw-settings-rule-tree-item",
             "sw-settings-salutation-detail": "src/module/sw-settings-salutation/page/sw-settings-salutation-detail",
             "sw-settings-salutation-list": "src/module/sw-settings-salutation/page/sw-settings-salutation-list",
             "sw-settings-search": "src/module/sw-settings-search/page/sw-settings-search",
@@ -748,7 +671,6 @@
             "sw-settings-search-live-search": "src/module/sw-settings-search/component/sw-settings-search-live-search",
             "sw-settings-search-live-search-keyword": "src/module/sw-settings-search/component/sw-settings-search-live-search-keyword",
             "sw-settings-search-search-behaviour": "src/module/sw-settings-search/component/sw-settings-search-search-behaviour",
-            "sw-settings-search-search-index": "src/module/sw-settings-search/component/sw-settings-search-search-index",
             "sw-settings-search-searchable-content": "src/module/sw-settings-search/component/sw-settings-search-searchable-content",
             "sw-settings-search-searchable-content-customfields": "src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields",
             "sw-settings-search-searchable-content-general": "src/module/sw-settings-search/component/sw-settings-search-searchable-content-general",
@@ -767,14 +689,11 @@
             "sw-settings-state-machine-list": "src/module/sw-settings-state-machine/page/sw-settings-state-machine-list",
             "sw-settings-state-machine-state-detail": "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail",
             "sw-settings-state-machine-state-list": "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-list",
-            "sw-settings-store": "src/module/sw-settings-store/page/sw-settings-store",
             "sw-settings-tag-detail-assignments": "src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments",
             "sw-settings-tag-detail-modal": "src/module/sw-settings-tag/component/sw-settings-tag-detail-modal",
             "sw-settings-tag-list": "src/module/sw-settings-tag/page/sw-settings-tag-list",
             "sw-settings-tax-detail": "src/module/sw-settings-tax/page/sw-settings-tax-detail",
             "sw-settings-tax-list": "src/module/sw-settings-tax/page/sw-settings-tax-list",
-            "sw-settings-tax-provider-detail": "src/module/sw-settings-tax/page/sw-settings-tax-provider-detail",
-            "sw-settings-tax-provider-sorting-modal": "src/module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal",
             "sw-settings-tax-rule-modal": "src/module/sw-settings-tax/component/sw-settings-tax-rule-modal",
             "sw-settings-tax-rule-type-individual-states": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states",
             "sw-settings-tax-rule-type-individual-states-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell",
@@ -782,10 +701,7 @@
             "sw-settings-tax-rule-type-zip-code-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-cell",
             "sw-settings-tax-rule-type-zip-code-range": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range",
             "sw-settings-tax-rule-type-zip-code-range-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell",
-            "sw-settings-units-detail": "src/module/sw-settings-units/page/sw-settings-units-detail",
-            "sw-settings-units-list": "src/module/sw-settings-units/page/sw-settings-units-list",
             "sw-system-config": "src/module/sw-settings/component/sw-system-config",
-            "sw-system-config-media-upload": "src/module/sw-settings/component/sw-system-config-media-upload",
             "sw-tax-rule-card": "src/module/sw-settings-tax/component/sw-tax-rule-card"
         }
     },

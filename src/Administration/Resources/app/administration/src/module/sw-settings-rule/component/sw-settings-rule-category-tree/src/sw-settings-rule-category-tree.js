@@ -3,7 +3,7 @@ import './sw-settings-rule-category-tree.scss';
 import { Criteria, getApiContext, repositoryFactoryService } from '../dependencies';
 
 /**
- * @public
+ * @private
  * @sw-package fundamentals@after-sales
  */
 export default {

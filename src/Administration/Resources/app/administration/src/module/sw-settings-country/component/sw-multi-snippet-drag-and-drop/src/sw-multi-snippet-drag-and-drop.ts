@@ -26,7 +26,7 @@ const DEFAULT_MAX_LINES = 10 as number;
 /**
  * @sw-package fundamentals@discovery
  *
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     template,

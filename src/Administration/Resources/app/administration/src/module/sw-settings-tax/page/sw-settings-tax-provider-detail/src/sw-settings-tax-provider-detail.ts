@@ -13,7 +13,7 @@ import {
 /**
  * @sw-package checkout
  *
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     template,

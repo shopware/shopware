@@ -9,7 +9,7 @@ import {
 } from '../dependencies';
 
 /**
- * @public
+ * @private
  * @sw-package fundamentals@after-sales
  */
 export default {

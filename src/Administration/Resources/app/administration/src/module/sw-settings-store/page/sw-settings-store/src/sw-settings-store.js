@@ -3,7 +3,7 @@ import { notificationMixin } from '../dependencies';
 
 /**
  * @sw-package checkout
- * @public
+ * @private
  */
 export default {
     template,

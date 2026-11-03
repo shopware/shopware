@@ -4,7 +4,7 @@ import { DOMWrapper, mount } from '@vue/test-utils';
  * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
-    const customFieldRelations = [];
+    const customFieldSetRelationSearch = jest.fn(() => Promise.resolve([]));
     const customFields = [
         {
             name: 'my_first_custom_field',
@@ -27,7 +27,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                             create: (repository) => {
                                 if (repository === 'custom_field_set_relation') {
                                     return {
-                                        search: () => Promise.resolve(customFieldRelations),
+                                        search: customFieldSetRelationSearch,
                                     };
                                 }
 
@@ -226,56 +226,13 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         expect(getProductSortingFieldsByName).toEqual(['8d863f0747d84544a767ea77a239b0ec']);
     });
 
-    it('should add an always-false id filter when no product custom-field-set relations exist', async () => {
-        // see https://github.com/shopware/shopware/issues/15732
-        // empty customFieldSetIDs must not produce equalsAny with an empty value (400)
-        // and must not drop the scope filter entirely (would return unrelated custom fields)
-        expect(wrapper.vm.customFieldSetIDs).toEqual([]);
+    it('should scope custom fields to product custom field sets without loading the relations first', async () => {
+        const isProductSetFilter = (f) =>
+            f.type === 'equals' && f.field === 'customFieldSet.relations.entityName' && f.value === 'product';
 
-        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
-        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
-
-        const hasCustomFieldSetIdFilter = (params) => (params.filter ?? []).some((f) => f.field === 'customFieldSetId');
-        const hasNullIdFilter = (params) =>
-            (params.filter ?? []).some((f) => f.type === 'equals' && f.field === 'id' && f.value === null);
-
-        expect(hasCustomFieldSetIdFilter(criteriaParams)).toBe(false);
-        expect(hasCustomFieldSetIdFilter(singleSelectCriteriaParams)).toBe(false);
-        expect(hasNullIdFilter(criteriaParams)).toBe(true);
-        expect(hasNullIdFilter(singleSelectCriteriaParams)).toBe(true);
-    });
-
-    it('should not add any id scope filter when customFieldSetIDs is not yet loaded', async () => {
-        wrapper.vm.customFieldSetIDs = null;
-
-        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
-        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
-
-        const hasScopeFilter = (params) =>
-            (params.filter ?? []).some((f) => f.field === 'customFieldSetId' || f.field === 'id');
-
-        expect(hasScopeFilter(criteriaParams)).toBe(false);
-        expect(hasScopeFilter(singleSelectCriteriaParams)).toBe(false);
-    });
-
-    it('should add a customFieldSetId equalsAny filter when product custom-field-set relations exist', async () => {
-        wrapper.vm.customFieldSetIDs = ['set-id-1', 'set-id-2'];
-
-        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
-        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
-
-        const findCustomFieldSetIdFilter = (params) => (params.filter ?? []).find((f) => f.field === 'customFieldSetId');
-
-        const mainFilter = findCustomFieldSetIdFilter(criteriaParams);
-        const singleSelectFilter = findCustomFieldSetIdFilter(singleSelectCriteriaParams);
-
-        expect(mainFilter).toBeDefined();
-        expect(mainFilter.type).toBe('equalsAny');
-        expect(mainFilter.value).toBe('set-id-1|set-id-2');
-
-        expect(singleSelectFilter).toBeDefined();
-        expect(singleSelectFilter.type).toBe('equalsAny');
-        expect(singleSelectFilter.value).toBe('set-id-1|set-id-2');
+        expect(wrapper.vm.customFieldCriteria.parse().filter.some(isProductSetFilter)).toBe(true);
+        expect(wrapper.vm.customFieldCriteriaSingleSelect().parse().filter.some(isProductSetFilter)).toBe(true);
+        expect(customFieldSetRelationSearch).not.toHaveBeenCalled();
     });
 
     it('should change productSortingEntity when add custom field', async () => {

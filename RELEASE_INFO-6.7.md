@@ -435,6 +435,7 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 The components of the Administration render `mt-loader` and `mt-skeleton-bar` instead of the deprecated `sw-loader` and `sw-skeleton-bar`.
 Their loaders carry the classes `.mt-loader`, `.mt-loader__container` and `.mt-loader__element` instead of `.sw-loader`, `.sw-loader__container` and `.sw-loader-element`, and the skeleton bar carries `.mt-skeleton-bar` instead of `.sw-skeleton-bar`.
 Extensions that style or select the old classes inside core components have to use the new ones.
+Acceptance tests that wait for `.sw-loader` inside core components return immediately and have to locate `.mt-loader` instead.
 Jest specs that mount core components and stub or look for `sw-loader` have to use `mt-loader` instead.
 
 ### Bulk order status handler results

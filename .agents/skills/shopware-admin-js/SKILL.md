@@ -17,7 +17,8 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 
 ## Tests
 
-- Write Jest tests for new features and bug fixes.
+- Write Jest tests for new frontend behavior and bug fixes.
+- For snippet-only changes or new translations using an existing error-rendering path, run snippet linting instead of adding tests that only assert translated text.
 - Keep tests next to the code under test with `.spec.ts` when adding new TypeScript tests.
 - Split very large specs into a `.spec/` directory by behavior group.
 

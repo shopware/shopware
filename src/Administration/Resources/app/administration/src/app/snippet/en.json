@@ -16,6 +16,8 @@
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "The URL {path} conflicts with the existing route {blockedSegment} and cannot be used.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
       "DUPLICATED_NAME": "This name is already in use.",
+      "USER__USERNAME_WHITESPACE": "The username must not contain leading or trailing whitespace.",
+      "USER__USERNAME_NOT_UNIQUE": "This username is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
@@ -1643,6 +1645,11 @@
         "newValue": "New value",
         "remindMeLater": "Remind me later",
         "selectAnOption": "Read the available options carefully and select the one that best suits your scenario:",
+        "moveShopPermanently": {
+          "title": "Keep the shop identifier?",
+          "text": "Only do this if you permanently moved your live shop to this installation. The apps move here and stop working in the previous installation, even if it is still running. If this is a staging or test copy, cancel and choose \"Generate a new shop identifier\" instead.",
+          "confirm": "Keep the shop identifier"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL environment variable",
@@ -1658,7 +1665,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
+            "description": "This is only the right option if you have permanently moved your live shop to a new server or environment. Shopware re-registers the apps with the same shop identifier, so they keep their data. The apps stop working in the previous installation, even if it is still running.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {

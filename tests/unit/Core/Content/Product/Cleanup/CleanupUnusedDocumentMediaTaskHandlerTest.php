@@ -8,8 +8,9 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDocumentMediaTaskHandler;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class CleanupUnusedDocumentMediaTaskHandlerTest extends TestCase
             ->with(50, null, 1, ProductDocumentDefinition::ENTITY_NAME);
 
         $handler = new CleanupUnusedDocumentMediaTaskHandler(
-            static::createStub(EntityRepository::class),
+            StaticEntityRepository::of(ScheduledTaskCollection::class),
             static::createStub(LoggerInterface::class),
             $purger
         );

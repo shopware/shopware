@@ -53,4 +53,57 @@ class WebhookSubscriptionTest extends TestCase
         static::assertFalse($subscription->isOwnedBy(new AdminApiSource($appId)));
         static::assertFalse($subscription->isOwnedBy(new AdminApiSource(null, $appId)));
     }
+
+    public function testAUsersWebhookIsReadFromItsRow(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $userId = Uuid::randomHex();
+
+        static::assertEquals(
+            new WebhookSubscription($webhookId, SubscriberType::User, $userId, 'product.written', ['role']),
+            WebhookSubscription::fromRow($this->row($webhookId, ownerUserId: $userId, aclRoleIds: '["role"]'))
+        );
+    }
+
+    public function testTheAppOwnsAWebhookBeforeAnIntegrationOrUser(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        static::assertEquals(
+            new WebhookSubscription($webhookId, SubscriberType::App, $appId, 'product.written', null),
+            WebhookSubscription::fromRow($this->row($webhookId, appId: $appId, ownerIntegrationId: Uuid::randomHex(), ownerUserId: Uuid::randomHex()))
+        );
+    }
+
+    public function testTheIntegrationOwnsAWebhookBeforeTheUser(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        static::assertEquals(
+            new WebhookSubscription($webhookId, SubscriberType::Integration, $integrationId, 'product.written', null),
+            WebhookSubscription::fromRow($this->row($webhookId, ownerIntegrationId: $integrationId, ownerUserId: Uuid::randomHex()))
+        );
+    }
+
+    public function testAWebhookWithoutAnAppOrOwnerHasNoSubscription(): void
+    {
+        static::assertNull(WebhookSubscription::fromRow($this->row(Uuid::randomHex())));
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function row(string $webhookId, ?string $appId = null, ?string $ownerIntegrationId = null, ?string $ownerUserId = null, ?string $aclRoleIds = null): array
+    {
+        return [
+            'id' => Uuid::fromHexToBytes($webhookId),
+            'app_id' => $appId === null ? null : Uuid::fromHexToBytes($appId),
+            'owner_integration_id' => $ownerIntegrationId === null ? null : Uuid::fromHexToBytes($ownerIntegrationId),
+            'owner_user_id' => $ownerUserId === null ? null : Uuid::fromHexToBytes($ownerUserId),
+            'event_name' => 'product.written',
+            'acl_role_ids' => $aclRoleIds,
+        ];
+    }
 }

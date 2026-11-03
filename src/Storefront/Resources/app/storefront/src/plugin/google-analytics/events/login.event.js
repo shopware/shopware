@@ -1,27 +1,36 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import SessionStorage from 'src/helper/storage/session-storage.helper';
+import NavigationHelper from 'src/plugin/google-analytics/navigation.helper';
+
+const PENDING_LOGIN_KEY = 'swGaPendingLogin';
 
 export default class LoginEvent extends EventAwareAnalyticsEvent
 {
     /**
-     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} activeRoute
      * @returns {boolean}
      */
-    supports(controllerName, actionName, activeRoute) {
-        return (activeRoute === 'frontend.account.login.page') || (activeRoute === 'frontend.checkout.register.page');
+    supports() {
+        // the login is reported on the page the shopper lands on, which can be any page
+        return true;
+    }
+
+    execute() {
+        super.execute();
+        this._reportPendingLogin();
     }
 
     /**
      * @return string
      */
     getPluginName() {
-        return 'FormValidation';
+        // the login and register forms validate through FormHandler, which only publishes
+        // `validSubmit` once the form is valid and about to be sent
+        return 'FormHandler';
     }
 
     getEvents() {
         return {
-            'beforeSubmit':  this._onFormSubmit.bind(this),
+            'validSubmit': this._onFormSubmit.bind(this),
         };
     }
 
@@ -32,10 +41,30 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
 
         const target = event.target;
 
-        if (!target.classList.contains('login-form') || !event.detail.validity) {
+        if (!target.classList.contains('login-form')) {
             return;
         }
 
-        gtag('event', 'login', { method: 'mail'});
+        // the server checks the credentials only after the submit, so the login is reported on the next page
+        SessionStorage.setItem(PENDING_LOGIN_KEY, '1');
+    }
+
+    /**
+     * @private
+     */
+    _reportPendingLogin() {
+        if (!SessionStorage.getItem(PENDING_LOGIN_KEY)) {
+            return;
+        }
+
+        SessionStorage.removeItem(PENDING_LOGIN_KEY);
+
+        // Only a successful login redirects. Wrong credentials, a throttled login or a password that
+        // no longer meets the password policies render the login form or the recovery without one.
+        if (!this.active || !NavigationHelper.isRedirected()) {
+            return;
+        }
+
+        this.pushEvent('login', { method: 'mail'}, { ecommerce: false });
     }
 }

@@ -304,8 +304,7 @@ class GaranLabelTwigFilterTest extends TestCase
 
         $resolver = new GaranLabelResolver(new GaranLabelDurationFormatter(), new GaranLabelRenderer($twig));
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository($searchResults, new ProductDefinition());
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, $searchResults, new ProductDefinition());
 
         return new GaranLabelTwigFilter(new GaranLabelDurationFormatter(), $productRepository, $resolver, new GaranLabelInlineImage());
     }

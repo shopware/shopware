@@ -20,6 +20,7 @@ class StorefrontException extends HttpException
     final public const UN_SUPPORT_STOREFRONT_RESPONSE = 'STOREFRONT__UN_SUPPORT_STOREFRONT_RESPONSE';
     final public const CLASS_DONT_HAVE_TWIG_INJECTED = 'STOREFRONT__CLASS_DONT_HAVE_TWIG_INJECTED';
     final public const NO_REQUEST_PROVIDED = 'STOREFRONT__NO_REQUEST_PROVIDED';
+    final public const ANALYTICS_NOT_ACTIVE = 'STOREFRONT__ANALYTICS_NOT_ACTIVE';
     /**
      * @deprecated tag:v6.8.0 - Will be replaced by `ProductException::PRODUCT_REVIEW_NOT_ACTIVE`
      */
@@ -99,6 +100,15 @@ class StorefrontException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::NO_REQUEST_PROVIDED,
             'No request is available.This controller action require an active request context.'
+        );
+    }
+
+    public static function analyticsNotActive(): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ANALYTICS_NOT_ACTIVE,
+            'Analytics is not active for this sales channel.'
         );
     }
 

@@ -25,6 +25,7 @@ import { dropBaseImport } from './drop-base-import';
 import { findSpecifiers, importedName, rewriteMovedImports, type MovedEntry } from './moved-imports';
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
+import { moveSuppressionKeys } from './move-suppressions';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -262,17 +263,13 @@ const importThroughPrivate = (importers: ReturnType<typeof findImporters>, root:
         return file;
     });
 
-const moveSuppressions = (moves: Map<string, string>) => {
+/** Moves the ESLint suppressions of the moved files, see `moveSuppressionKeys()`. */
+const moveSuppressions = (moves: Map<string, string>, origin: string) => {
     const file = path.join(adminRoot, 'eslint-suppressions.json');
     const suppressions = JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, unknown>;
-    const moved = Object.fromEntries(Object.entries(suppressions).map(([key, value]) => [moves.get(key) ?? key, value]));
-    const sorted = Object.fromEntries(
-        Object.keys(moved)
-            .sort()
-            .map((key) => [key, moved[key]]),
-    );
+    const moved = moveSuppressionKeys(suppressions, moves, origin, (key) => fs.existsSync(path.join(adminRoot, key)));
 
-    fs.writeFileSync(file, JSON.stringify(sorted, null, 2));
+    fs.writeFileSync(file, JSON.stringify(moved, null, 2));
 };
 
 /** The script files of a module's own `src/`, without specs and without the nested modules in it. */
@@ -567,7 +564,7 @@ function run(directory: string) {
         );
     }
 
-    moveSuppressions(moves);
+    moveSuppressions(moves, origin);
     const owner = isPrivateShape(shape) ? null : addOwner(root);
     const routed = routeModule({
         adminRoot,

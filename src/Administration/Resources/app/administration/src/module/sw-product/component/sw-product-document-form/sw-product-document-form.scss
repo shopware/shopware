@@ -12,14 +12,16 @@
         margin-top: var(--scale-size-4);
     }
 
-    &__upload-footer {
+    &__upload-footer,
+    &__remove-footer {
         display: flex;
         justify-content: flex-end;
         width: 100%;
         gap: var(--scale-size-8);
     }
 
-    &__edit-content {
+    &__edit-content,
+    &__remove-content {
         display: flex;
         flex-direction: column;
         gap: var(--scale-size-24);

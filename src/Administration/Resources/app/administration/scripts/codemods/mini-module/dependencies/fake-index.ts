@@ -14,8 +14,17 @@ const GLOBALS: Record<string, GlobalSource> = {
         imported: 'default',
         name: 'Criteria',
         consumed: 2,
+        fromPackage: true,
     },
     'Utils.format.fileSize': { kind: 'function', name: 'fileSize', consumed: 3 },
+    'Utils.debounce': {
+        kind: 'import',
+        module: 'lodash-es/debounce',
+        imported: 'default',
+        name: 'debounce',
+        consumed: 2,
+        fromPackage: true,
+    },
     Utils: { kind: 'import', module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
 };
 

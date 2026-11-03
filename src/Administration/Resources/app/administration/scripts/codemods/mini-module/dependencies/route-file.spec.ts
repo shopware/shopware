@@ -50,14 +50,14 @@ export default {
 
     it('keeps the key of a shorthand property whose value it replaces', () => {
         // ARRANGE
-        const source = 'const { Criteria: C } = Shopware.Data;\nexport default { data() { return { C }; } };\n';
+        const source = 'const { Utils: U } = Shopware;\nexport default { data() { return { U }; } };\n';
 
         // ACT
         const { code } = routeForSpec(source, { use: USE_REWRITES });
 
         // ASSERT
         expect(code).toBe(
-            "import { Criteria } from '../dependencies';\n\nexport default { data() { return { C: Criteria }; } };\n",
+            "import { Utils } from '../dependencies';\n\nexport default { data() { return { U: Utils }; } };\n",
         );
     });
 

@@ -77,7 +77,8 @@ export type Registered = { module: string; file: string; exportName: string | nu
  * Where a part of the `Shopware` global comes from: `import` names the module and export that hold the same
  * value, `function` a function that dependencies.ts must reach through the global when it is called, because
  * code may replace or spy on it there. `consumed` counts the segments of the path it covers, `name` is the
- * name dependencies.ts gives it.
+ * name dependencies.ts gives it. `fromPackage` says the value comes from a package, so the resolver cannot
+ * tell a function from a class.
  *
  * @example
  * // Shopware.Data.Criteria
@@ -86,7 +87,7 @@ export type Registered = { module: string; file: string; exportName: string | nu
  * { kind: 'function', name: 'fileSize', consumed: 3 }
  */
 export type GlobalSource =
-    | { kind: 'import'; module: string; imported: string; name: string; consumed: number }
+    | { kind: 'import'; module: string; imported: string; name: string; consumed: number; fromPackage?: boolean }
     | { kind: 'function'; name: string; consumed: number };
 
 /**

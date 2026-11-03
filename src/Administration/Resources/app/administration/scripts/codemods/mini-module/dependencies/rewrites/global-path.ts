@@ -3,6 +3,7 @@
  * @private
  */
 
+import ts from 'typescript';
 import { isWritten } from '../global-uses';
 import type { UseRewrite } from '../model';
 import { prefixNode, replaceNode } from './helpers';
@@ -46,7 +47,16 @@ export const rewriteGlobalPath: UseRewrite = (use, context) => {
         return null;
     }
 
-    if (source.kind === 'function') {
+    // A value from a package may be a function or a class: a call is reached through the global, `new` imports
+    // it, and anything else needs judgement.
+    const isNew = ts.isNewExpression(node.parent) && node.parent.expression === node;
+    const asFunction =
+        source.kind === 'function' || (source.fromPackage && !!use.call && source.consumed === use.path.length);
+    if (source.kind === 'import' && source.fromPackage && source.consumed === use.path.length && !use.call && !isNew) {
+        return null;
+    }
+
+    if (asFunction) {
         const global = `Shopware.${use.path.slice(0, source.consumed).join('.')}`;
         return replaceNode(node, context, source.name, [
             {

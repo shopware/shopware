@@ -324,8 +324,7 @@ export function createGlobalResolver(adminRoot: string) {
             value = member(value, globalPath[consumed], 0);
         }
 
-        // Everything the global takes from packages is a function, from lodash or the Meteor SDK.
-        if (isFunction(value.declaration) || (value.isPackage && !value.object && !value.namespace)) {
+        if (isFunction(value.declaration)) {
             return { kind: 'function', name: globalPath[consumed - 1], consumed };
         }
 
@@ -337,6 +336,7 @@ export function createGlobalResolver(adminRoot: string) {
                   imported: deepest.export.imported,
                   name: deepest.name,
                   consumed: deepest.consumed,
+                  fromPackage: deepest.consumed === consumed && !!value.isPackage,
               }
             : null;
     };

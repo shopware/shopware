@@ -65,6 +65,28 @@ Utils.createId = () => 'id';
 `);
     });
 
+    it('calls a package value through the global, imports it for new, and leaves any other use', () => {
+        // ARRANGE
+        const source = `const search = Shopware.Utils.debounce(() => {}, 300);
+const criteria = new Shopware.Data.Criteria();
+const Klass = Shopware.Data.Criteria;
+`;
+
+        // ACT
+        const { code, dependencies } = routeForSpec(source, { use: [rewriteGlobalPath] });
+
+        // ASSERT
+        expect(code).toBe(`import { Criteria, debounce } from '../dependencies';
+
+const search = debounce(() => {}, 300);
+const criteria = new Criteria();
+const Klass = Shopware.Data.Criteria;
+`);
+        expect(dependencies).toContain(
+            'export const debounce = (...args: Parameters<typeof Shopware.Utils.debounce>) => Shopware.Utils.debounce(...args);',
+        );
+    });
+
     it('leaves registries and getters of the global, such as Snippet and Module', () => {
         // ARRANGE
         const source = "Shopware.Module.register('x', {});\nconst t = Shopware.Snippet.t('y');\n";

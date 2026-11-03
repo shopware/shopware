@@ -122,7 +122,7 @@ class MappingProviderExtensionTest extends TestCase
         static::assertSame('Plugin title', $this->render($elements)[0]['text']);
         $id = $this->save($elements);
         $repository = static::getContainer()->get('content_layout.repository');
-        $layout = $repository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $layout = $repository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
         $codec = static::getContainer()->get(StoredElementCodec::class);
         $reloaded = array_map($codec->encode(...), $layout->getLayout());

@@ -6,7 +6,7 @@
 import ts from 'typescript';
 
 /**
- * Removes moved files from `missingTests` in src/meta/baseline.ts: the meta test exempts everything in a
+ * Removes moved files, also those inside a moved directory, from `missingTests` in src/meta/baseline.ts: the meta test exempts everything in a
  * mini-module, and fails on a baseline entry whose file is gone.
  *
  * @example
@@ -26,7 +26,8 @@ export function dropUntestedFiles(code: string, files: string[]): string {
             ts.isArrayLiteralExpression(node.initializer)
         ) {
             node.initializer.elements.forEach((element) => {
-                if (ts.isStringLiteral(element) && files.includes(element.text)) {
+                const isMoved = (entry: string) => files.some((file) => entry === file || entry.startsWith(`${file}/`));
+                if (ts.isStringLiteral(element) && isMoved(element.text)) {
                     const start = code.lastIndexOf('\n', element.getStart(source)) + 1;
                     const end = code.indexOf('\n', element.getEnd()) + 1;
                     ranges.push({ start, end });

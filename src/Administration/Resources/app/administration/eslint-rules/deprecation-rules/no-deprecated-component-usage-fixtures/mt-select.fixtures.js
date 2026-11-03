@@ -40,7 +40,7 @@ const mtSelectValidTests = [
             <template>
                 <mt-select>
                     <!-- TODO Codemod: Remove the "label" slot and use the "label" prop instead -->
-<template #label>
+                    <template #label>
                         My Label
                     </template>
                 </mt-select>
@@ -259,7 +259,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: null,
         errors: [{
-            message: '[mt-select] Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
+            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".\nMigrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }]
     },
     {
@@ -271,7 +271,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: null,
         errors: [{
-            message: '[mt-select] Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
+            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".\nMigrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }]
     },
     {
@@ -288,7 +288,7 @@ const mtSelectInvalidTests = [
             <template>
                 <mt-select>
                     <!-- TODO Codemod: Remove the "default" slot and use the "options" prop instead -->
-<option value="optionA">Option A</option>
+                    <option value="optionA">Option A</option>
                     <option value="optionB">Option B</option>
                 </mt-select>
             </template>`,
@@ -327,7 +327,7 @@ const mtSelectInvalidTests = [
             <template>
                 <mt-select>
                     <!-- TODO Codemod: Remove the "default" slot and use the "options" prop instead -->
-<template #default>
+                    <template #default>
                         <option value="optionA">Option A</option>
                         <option value="optionB">Option B</option>
                     </template>
@@ -369,7 +369,7 @@ const mtSelectInvalidTests = [
             <template>
                 <mt-select>
                     <!-- TODO Codemod: Remove the "label" slot and use the "label" prop instead -->
-<template #label>
+                    <template #label>
                         My Label
                     </template>
                 </mt-select>

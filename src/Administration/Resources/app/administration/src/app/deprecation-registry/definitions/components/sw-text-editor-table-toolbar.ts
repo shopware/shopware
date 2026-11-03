@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, reference, renameComponent } from '../helpers';
+import { componentMigration, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-text-editor-table-toolbar',
@@ -12,7 +12,7 @@ export default componentMigration({
     removedIn: '6.8.0',
     description: 'The legacy sw-text-editor-table-toolbar component is replaced by mt-text-editor.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#component-replacement-with-meteor-component-library' }),
+        upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
     usage: [
         renameComponent({ from: 'sw-text-editor-table-toolbar', to: 'mt-text-editor', fix: 'manual' }),

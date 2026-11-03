@@ -39,5 +39,4 @@ function appendRegistryContext(lines, migration) {
 
 module.exports = {
     appendRegistryContext,
-    formatReferences,
 };

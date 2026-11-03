@@ -1,6 +1,6 @@
 const RuleTester = require('eslint').RuleTester;
-const { withRegistryMessageContext } = require('./registry/with-registry-message-context');
-const { describeWithSelectedDeprecationIds } = require('./registry/selected-deprecation-ids');
+const { withRegistryMessageContext } = require('./test-utils/with-registry-message-context');
+const { describeWithSelectedDeprecationIds } = require('./test-utils/selected-deprecation-ids');
 const rule = require('./no-deprecated-component-usage');
 const { loadRegistry } = require('./registry/load-registry');
 const { mtIconValidTests, mtIconInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-icon.fixtures');

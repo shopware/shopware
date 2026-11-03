@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, reference, renameProp } from '../helpers';
+import { componentMigration, renameProp, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-entity-listing.items',
@@ -12,7 +12,7 @@ export default componentMigration({
     description:
         'The sw-entity-listing items prop is deprecated. Use data-source instead so listing data follows the current component API.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#removal-of-items-prop-in-sw-entity-listing-component' }),
+        upgradeGuide('UPGRADE-6.8.md#removal-of-items-prop-in-sw-entity-listing-component'),
     ],
     usage: [
         renameProp({

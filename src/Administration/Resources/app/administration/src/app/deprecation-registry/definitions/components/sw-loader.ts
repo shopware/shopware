@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, reference, renameComponent } from '../helpers';
+import { componentMigration, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-loader',
@@ -12,7 +12,7 @@ export default componentMigration({
     removedIn: '6.8.0',
     description: 'The legacy sw-loader component is replaced by mt-loader.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-loader' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-loader'),
     ],
     usage: [
         renameComponent({ from: 'sw-loader', to: 'mt-loader' }),

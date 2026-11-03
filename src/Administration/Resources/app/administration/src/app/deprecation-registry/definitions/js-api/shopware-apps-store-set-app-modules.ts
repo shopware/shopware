@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { jsApiMigration, memberCall, reference } from '../helpers';
+import { jsApiMigration, memberCall, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.shopware-apps-store.set-app-modules',
@@ -11,9 +11,9 @@ export default jsApiMigration({
     description:
         'The setAppModules action in the shopwareApps store is deprecated and should not be used by custom Administration code.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
-        memberCall({ from: "Shopware.Store.get('shopwareApps').setAppModules", to: null, fix: 'manual' }),
+        memberCall({ from: "Shopware.Store.get('shopwareApps').setAppModules", fix: 'manual' }),
     ],
 });

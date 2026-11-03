@@ -1,4 +1,4 @@
-const { describeWithSelectedDeprecationIds } = require('../registry/selected-deprecation-ids');
+const { describeWithSelectedDeprecationIds } = require('../test-utils/selected-deprecation-ids');
 const { rule, tester } = require('./tester');
 
 describeWithSelectedDeprecationIds('component.sw-alert', () => {

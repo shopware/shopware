@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-const SELECTED_IDS_VARIABLE = 'SHOPWARE_ADMIN_DEPRECATION_IDS';
+const { SELECTED_IDS_VARIABLE } = require('../registry/filter-migrations');
 
 /**
  * Sets the deprecation id selection that `deprecation:migrate --id` passes to ESLint and returns a

@@ -972,9 +972,6 @@ export default [
         files: ['src/app/deprecation-registry/**/*.ts'],
         rules: {
             'sw-deprecation-rules/private-feature-declarations': 'off',
-            '@typescript-eslint/no-unsafe-assignment': 'off',
-            '@typescript-eslint/no-unsafe-call': 'off',
-            '@typescript-eslint/restrict-template-expressions': 'off',
         },
     },
     {

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { jsApiMigration, reference, replaceObjectOption } from '../helpers';
+import { jsApiMigration, replaceObjectOption, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.meta-info-object',
@@ -11,7 +11,7 @@ export default jsApiMigration({
     description:
         'Providing metaInfo as an object is not supported anymore with the vue-meta removal. Return meta information from a metaInfo function instead.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.6.md#removal-of-vue-meta' }),
+        upgradeGuide('UPGRADE-6.6.md#removal-of-vue-meta'),
     ],
     usage: [
         replaceObjectOption({ from: 'metaInfo', to: 'metaInfo() { return {}; }' }),

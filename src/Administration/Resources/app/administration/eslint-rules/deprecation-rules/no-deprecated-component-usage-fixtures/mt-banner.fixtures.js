@@ -56,15 +56,42 @@ const mtBannerInvalidTests = [
         }]
     },
     {
-        name: '"mt-banner" wrong "showIcon" prop usage with condition should be replaced with "hideIcon"',
+        name: '"mt-banner" static "showIcon" value that is no boolean is reported for a manual migration',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-banner showIcon="condition" />
             </template>`,
+        output: null,
+        errors: [{
+                message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.\nThe static value "condition" is no boolean. Review it and set "hide-icon" manually.',
+        }]
+    },
+    {
+        name: '"mt-banner" static "showIcon" boolean value should be replaced with the inverted bound "hide-icon"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-banner showIcon="false" />
+            </template>`,
         output: `
             <template>
-                <mt-banner hide-icon="!(condition)" />
+                <mt-banner :hide-icon="true" />
+            </template>`,
+        errors: [{
+                message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
+        }]
+    },
+    {
+        name: '"mt-banner" bound "showIcon" condition should be replaced with the negated "hide-icon"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-banner :showIcon="condition" />
+            </template>`,
+        output: `
+            <template>
+                <mt-banner :hide-icon="!(condition)" />
             </template>`,
         errors: [{
                 message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',

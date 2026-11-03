@@ -1,5 +1,5 @@
-const { filterMigrations, getSelectedMigrationIds, isMigrationSelected } = require('./filter-migrations');
-const { selectDeprecationIds } = require('./selected-deprecation-ids');
+const { filterMigrations, getSelectedMigrationIds, isMigrationSelected, selectedUsages } = require('./filter-migrations');
+const { selectDeprecationIds } = require('../test-utils/selected-deprecation-ids');
 
 const migrations = [
     { id: 'a' },
@@ -51,5 +51,23 @@ describe('deprecation id selection', () => {
         expect(getSelectedMigrationIds()).toEqual([]);
         expect(isMigrationSelected({ id: 'anything' })).toBe(true);
         expect(filterMigrations(migrations)).toEqual(migrations);
+    });
+
+    it('flattens the selected migrations into their usage steps, optionally of one kind', () => {
+        const rename = { kind: 'rename', from: 'x' };
+        const remove = { kind: 'remove', from: 'y' };
+        const withUsages = [
+            { id: 'a', usage: [rename, remove] },
+            { id: 'b', usage: [rename] },
+        ];
+        selectIds('a');
+
+        expect(selectedUsages(withUsages)).toEqual([
+            { migration: withUsages[0], usage: rename },
+            { migration: withUsages[0], usage: remove },
+        ]);
+        expect(selectedUsages(withUsages, 'remove')).toEqual([
+            { migration: withUsages[0], usage: remove },
+        ]);
     });
 });

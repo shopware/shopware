@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { codemodRule, componentMigration, reference } from '../helpers';
+import { codemodRule, componentMigration, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-empty-state',
@@ -15,7 +15,7 @@ export default componentMigration({
         'mt-empty-state requires an icon, which sw-empty-state took from the route module, and has no "actions", "icon" or default slot; ' +
         'use its "button" slot or the button-text, link-text and link-href props for actions.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.9.md#sw-empty-state-removed' }),
+        upgradeGuide('UPGRADE-6.9.md#sw-empty-state-removed'),
     ],
     usage: [
         codemodRule({

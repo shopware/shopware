@@ -5,7 +5,6 @@
 import {
     componentMigration,
     mapPropValue,
-    reference,
     removeEvent,
     removeProp,
     renameComponent,
@@ -13,6 +12,7 @@ import {
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -24,7 +24,7 @@ export default componentMigration({
     description:
         'The legacy sw-text-field component is replaced by mt-text-field. Legacy value APIs, medium size, invalid state, AI badge, base-field-mounted, and label slot need migration.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-text-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-text-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-text-field', to: 'mt-text-field' }),

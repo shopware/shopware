@@ -2,7 +2,15 @@
  * @sw-package framework
  */
 
-import { componentMigration, reference, removeProp, renameComponent, renameEvent, renameProp, slotToProp } from '../helpers';
+import {
+    componentMigration,
+    removeProp,
+    renameComponent,
+    renameEvent,
+    renameProp,
+    slotToProp,
+    upgradeGuide,
+} from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-checkbox-field',
@@ -13,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-checkbox-field component is replaced by mt-checkbox. Checkbox model and several legacy props/slots changed.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-checkbox-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-checkbox-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-checkbox-field', to: 'mt-checkbox' }),

@@ -4,12 +4,12 @@
 
 import {
     componentMigration,
-    reference,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -21,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-textarea-field component is replaced by mt-textarea. Value binding uses model-value/update:model-value and the label slot should become the label prop when it contains plain text.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-textarea-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-textarea-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-textarea-field', to: 'mt-textarea', fix: 'unsafe-auto' }),

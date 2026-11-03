@@ -3,14 +3,13 @@
  */
 
 import {
-    addBooleanPropTransform,
     componentMigration,
     mapPropValue,
     missingProp,
-    reference,
     removeProp,
     renameComponent,
-    routerLinkToClickTransform,
+    routerLinkClickHandler,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -22,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-button component is replaced by mt-button. Several legacy variant values and router-link usage need migration.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-button' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-button'),
     ],
     usage: [
         renameComponent({ from: 'sw-button', to: 'mt-button' }),
@@ -30,7 +29,7 @@ export default componentMigration({
             prop: 'variant',
             from: 'ghost',
             to: 'primary',
-            transform: addBooleanPropTransform({ prop: 'ghost' }),
+            addBooleanProp: 'ghost',
         }),
         mapPropValue({
             prop: 'variant',
@@ -53,12 +52,12 @@ export default componentMigration({
             prop: 'variant',
             from: 'ghost-danger',
             to: 'critical',
-            transform: addBooleanPropTransform({ prop: 'ghost' }),
+            addBooleanProp: 'ghost',
         }),
         removeProp({
             prop: 'router-link',
             fix: 'unsafe-auto',
-            transform: routerLinkToClickTransform,
+            replaceWith: routerLinkClickHandler,
             message:
                 'Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
         }),

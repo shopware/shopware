@@ -4,7 +4,7 @@
 
 const { RuleTester } = require('eslint');
 const rule = require('./no-sw-empty-state-usage');
-const { describeWithSelectedDeprecationIds } = require('./registry/selected-deprecation-ids');
+const { describeWithSelectedDeprecationIds } = require('./test-utils/selected-deprecation-ids');
 
 const ruleTester = new RuleTester({
     languageOptions: {

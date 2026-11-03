@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
 const {
-    getContextFreeTransformResult,
     getFixLevel,
     getRunnableMigrations,
     parseArgs,
@@ -47,10 +46,6 @@ function getMigrations() {
     return getRunnableMigrations(loadRegistry());
 }
 
-function getUsageMessage(usage) {
-    return usage.message ?? getContextFreeTransformResult(usage)?.message ?? null;
-}
-
 function printMigrationList(migrations) {
     migrations.forEach((migration) => {
         const fixLevel = getFixLevel(migration).padEnd(11);
@@ -66,10 +61,10 @@ function printMigrationSummary(migrations) {
         console.log(`- ${migration.id}: ${fixLevel}`);
 
         migration.usage
-            .map(getUsageMessage)
+            .map((usage) => usage.message)
             .filter(Boolean)
-            .forEach((usage) => {
-                console.log(`  ${usage}`);
+            .forEach((message) => {
+                console.log(`  ${message}`);
             });
     });
 }

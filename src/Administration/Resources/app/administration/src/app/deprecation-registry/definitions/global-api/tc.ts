@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { globalApiMigration, reference, renameCall } from '../helpers';
+import { globalApiMigration, renameCall, upgradeGuide } from '../helpers';
 
 export default globalApiMigration({
     id: 'global.$tc',
@@ -11,7 +11,7 @@ export default globalApiMigration({
     removedIn: '6.9.0',
     description: 'The $tc translation helper is deprecated. Use $t and pass count interpolation explicitly.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.9.md#tc-and-the-vue-i18n-8-argument-order-removed' }),
+        upgradeGuide('UPGRADE-6.9.md#tc-and-the-vue-i18n-8-argument-order-removed'),
     ],
     usage: [
         renameCall({

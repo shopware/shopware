@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { aiBadgeToTitleSlotTransform, componentMigration, reference, removeProp, renameComponent } from '../helpers';
+import { aiBadgeTitleSlot, componentMigration, removeProp, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-card',
@@ -12,14 +12,14 @@ export default componentMigration({
     removedIn: '6.8.0',
     description: 'The legacy sw-card component is replaced by mt-card. AI badge and content padding props were removed.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-card' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-card'),
     ],
     usage: [
         renameComponent({ from: 'sw-card', to: 'mt-card' }),
         removeProp({
             prop: 'ai-badge',
             fix: 'unsafe-auto',
-            transform: aiBadgeToTitleSlotTransform,
+            replaceWith: aiBadgeTitleSlot,
             message: 'Remove the AI badge prop and render the AI badge directly in the title slot.',
         }),
         removeProp({

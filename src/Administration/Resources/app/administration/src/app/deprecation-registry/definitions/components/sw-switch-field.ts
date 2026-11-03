@@ -4,13 +4,13 @@
 
 import {
     componentMigration,
-    reference,
     removeProp,
     removeSlot,
     renameComponent,
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -22,7 +22,7 @@ export default componentMigration({
     description:
         'The legacy sw-switch-field component is replaced by mt-switch. Switch model and several layout props changed.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-switch-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-switch-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-switch-field', to: 'mt-switch' }),
@@ -57,7 +57,7 @@ export default componentMigration({
         }),
         removeSlot({
             slot: 'hint',
-            slotReplacementComment: 'Slot "hint" was removed with no replacement.',
+            replacementComment: 'Slot "hint" was removed with no replacement.',
         }),
     ],
 });

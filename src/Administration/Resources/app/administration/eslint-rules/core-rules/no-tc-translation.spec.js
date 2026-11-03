@@ -1,6 +1,6 @@
 const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-tc-translation');
-const { describeWithSelectedDeprecationIds } = require('../deprecation-rules/registry/selected-deprecation-ids');
+const { describeWithSelectedDeprecationIds } = require('../deprecation-rules/test-utils/selected-deprecation-ids');
 
 const HINT =
     '/* TODO Codemod: After the fixer replaces the call, verify pluralization and count interpolation manually. */ ';
@@ -271,14 +271,20 @@ templateTester.run('no-tc-translation (twig template)', rule, {
     ],
 });
 
-describe('no-tc-translation message', () => {
-    it('carries the registry description and the pluralization review hint', () => {
-        const message = rule.meta.messages.noTc;
-
-        expect(message).toContain('The $tc translation helper is deprecated.');
-        expect(message).toContain('verify pluralization and count interpolation manually');
-        expect(message).toContain('Removed in Shopware 6.9.0.');
-    });
+tester.run('no-tc-translation message', rule, {
+    valid: [],
+    invalid: [
+        {
+            name: 'carries the registry description and the pluralization review hint',
+            code: `this.$tc('a.b');`,
+            output: `${HINT}this.$t('a.b');`,
+            errors: [
+                {
+                    message: /verify pluralization and count interpolation manually\.\nThe \$tc translation helper is deprecated\.[\s\S]*Removed in Shopware 6\.9\.0\./,
+                },
+            ],
+        },
+    ],
 });
 
 describeWithSelectedDeprecationIds('component.sw-alert', () => {

@@ -4,15 +4,14 @@
 
 import {
     componentMigration,
+    flagSlotForManualMove,
     mapOptionsPropKeys,
-    reference,
     removeProp,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
-    slotToProp,
-    slotToPropComment,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -24,7 +23,7 @@ export default componentMigration({
     description:
         'The legacy sw-select-field component is replaced by mt-select. Value binding uses Vue 3 modelValue/update:model-value semantics and options must use label/value objects.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-select-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-select-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-select-field', to: 'mt-select' }),
@@ -52,12 +51,7 @@ export default componentMigration({
             unsafeMessage:
                 'Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }),
-        slotToProp({
-            slot: 'label',
-            prop: 'label',
-            fix: 'unsafe-auto',
-            slotReviewHint: 'Remove the "label" slot and use the "label" prop instead',
-        }),
-        slotToPropComment({ slot: 'default', prop: 'options', fix: 'unsafe-auto' }),
+        flagSlotForManualMove({ slot: 'label', toProp: 'label' }),
+        flagSlotForManualMove({ slot: 'default', toProp: 'options' }),
     ],
 });

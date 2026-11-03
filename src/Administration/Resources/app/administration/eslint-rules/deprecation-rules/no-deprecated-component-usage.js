@@ -1,452 +1,145 @@
+/**
+ * @sw-package framework
+ */
+
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
-const { findObjectVBindAttribute } = require('./registry/template-ast');
+const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
+const { hasCodemodComment, insertTemplateCodemodComment, isConvertedFrom } = require('./registry/codemod-comment');
+const ast = require('./registry/template-ast');
 
-function collectFixOperations(fix) {
-    const recorder = new Proxy(
-        {},
-        {
-            get(_target, method) {
-                return (...args) => ({ method, args });
-            },
-        },
-    );
+/**
+ * Names what an attribute passes to the element, in the shape registry steps declare as `produces`.
+ *
+ * @example
+ * describeAttribute(attribute); // { kind: 'prop', name: 'label' } for :label="x", { kind: 'model', name: 'v-model' } for v-model="x"
+ */
+function describeAttribute(attribute) {
+    const staticName = ast.getStaticAttributeName(attribute);
+    const directive = ast.getDirectiveName(attribute);
+    const argumentName = ast.getDirectiveArgumentName(attribute);
 
-    const result = fix(recorder);
-
-    if (!result) {
-        return [];
+    if (staticName) {
+        return { kind: 'prop', name: staticName };
     }
-
-    if (typeof result[Symbol.iterator] === 'function') {
-        return Array.from(result);
-    }
-
-    return [result];
-}
-
-function getStartTagFromReportNode(node) {
-    if (node?.type === 'VElement') {
-        return node.startTag;
-    }
-
-    if (node?.type === 'VAttribute') {
-        return node.parent;
-    }
-
-    return null;
-}
-
-function normalizeAttributeName(name) {
-    return name.toLowerCase();
-}
-
-function normalizeDescriptorName(name) {
-    const normalizedName = normalizeTemplateName(name);
-
-    if (normalizedName === 'vmodel:modelvalue') {
-        return 'vmodel';
-    }
-
-    return normalizedName;
-}
-
-function getAttributeDescriptor(attribute) {
-    const keyName = attribute?.key?.name;
-
-    if (typeof keyName === 'string') {
-        return {
-            kind: 'prop',
-            name: normalizeAttributeName(keyName),
-        };
-    }
-
-    const directive = keyName?.name;
-    const argumentName = attribute?.key?.argument?.name;
 
     if (directive === 'bind' && argumentName) {
-        return {
-            kind: 'prop',
-            name: normalizeAttributeName(argumentName),
-        };
+        return { kind: 'prop', name: argumentName };
     }
 
     if (directive === 'on' && argumentName) {
-        return {
-            kind: 'event',
-            name: normalizeAttributeName(argumentName),
-        };
+        return { kind: 'event', name: argumentName };
     }
 
     if (directive === 'model') {
-        return {
-            kind: 'model',
-            name: argumentName ? normalizeAttributeName(`v-model:${argumentName}`) : 'v-model',
-        };
+        return { kind: 'model', name: argumentName ? `v-model:${argumentName}` : 'v-model' };
     }
 
     return null;
 }
 
-function getReplacementAttributeName(replacement) {
-    return replacement.trim().match(/^[^\s=]+/)?.[0] ?? replacement;
+/**
+ * Compares attribute names of one kind; `v-model:modelValue` is the plain `v-model`.
+ *
+ * @example
+ * isSameAttributeName('model', 'v-model', 'v-model:model-value'); // true
+ */
+function isSameAttributeName(kind, left, right) {
+    const toComparable = (name) => {
+        const comparable = ast.toComparableName(name);
+
+        return kind === 'model' && comparable === 'vmodel:modelvalue' ? 'vmodel' : comparable;
+    };
+
+    return toComparable(left) === toComparable(right);
 }
 
-function getReplacementDescriptor(attribute, target, replacement) {
-    const replacementName = getReplacementAttributeName(replacement);
+/**
+ * Tells whether the element already has the attribute a fix would write, apart from the attribute the
+ * fix replaces. Vue rejects duplicate attributes, so such a fix is dropped and only the report stays.
+ *
+ * @example
+ * // <mt-text-field value="old" model-value="new" />, renaming value → model-value
+ * producesDuplicateAttribute(node, { node: valueAttribute, produces: { kind: 'prop', name: 'model-value' } }); // true
+ */
+function producesDuplicateAttribute(element, descriptor) {
+    const { produces } = descriptor;
 
-    if (attribute === target || attribute.key === target) {
-        if (replacementName === 'v-model' || replacementName.startsWith('v-model:')) {
-            return {
-                kind: 'model',
-                name: normalizeAttributeName(replacementName),
-            };
-        }
-
-        if (replacementName.startsWith('@')) {
-            return {
-                kind: 'event',
-                name: normalizeAttributeName(replacementName.slice(1)),
-            };
-        }
-
-        if (replacementName.startsWith('v-on:')) {
-            return {
-                kind: 'event',
-                name: normalizeAttributeName(replacementName.slice('v-on:'.length)),
-            };
-        }
-
-        return {
-            kind: 'prop',
-            name: normalizeAttributeName(replacementName),
-        };
-    }
-
-    if (attribute.key?.argument === target) {
-        const directive = attribute.key?.name?.name;
-
-        if (directive === 'bind') {
-            return {
-                kind: 'prop',
-                name: normalizeAttributeName(replacementName),
-            };
-        }
-
-        if (directive === 'on') {
-            return {
-                kind: 'event',
-                name: normalizeAttributeName(replacementName),
-            };
-        }
-
-        if (directive === 'model') {
-            return {
-                kind: 'model',
-                name: normalizeAttributeName(`v-model:${replacementName}`),
-            };
-        }
-    }
-
-    return null;
-}
-
-function hasDuplicateReplacementAttribute(descriptor) {
-    if (!descriptor.fix) {
+    if (!produces) {
         return false;
     }
 
-    const startTag = getStartTagFromReportNode(descriptor.node);
-    const attributes = startTag?.attributes ?? [];
+    return element.startTag.attributes.some((attribute) => {
+        const isReplacedAttribute =
+            attribute === descriptor.node || attribute.key === descriptor.node || attribute.key?.argument === descriptor.node;
+        const description = describeAttribute(attribute);
 
-    if (!attributes.length) {
-        return false;
-    }
-
-    return collectFixOperations(descriptor.fix).some((operation) => {
-        if (operation.method !== 'replaceText') {
-            return false;
-        }
-
-        const [
-            target,
-            replacement,
-        ] = operation.args;
-
-        if (typeof replacement !== 'string') {
-            return false;
-        }
-
-        const replacedAttribute = attributes.find((attribute) => {
-            return attribute === target || attribute.key === target || attribute.key?.argument === target;
-        });
-
-        if (!replacedAttribute) {
-            return false;
-        }
-
-        const replacementDescriptor = getReplacementDescriptor(replacedAttribute, target, replacement);
-
-        if (!replacementDescriptor) {
-            return false;
-        }
-
-        return attributes.some((attribute) => {
-            if (attribute === replacedAttribute) {
-                return false;
-            }
-
-            const attributeDescriptor = getAttributeDescriptor(attribute);
-
-            return (
-                attributeDescriptor?.kind === replacementDescriptor.kind &&
-                normalizeDescriptorName(attributeDescriptor.name) === normalizeDescriptorName(replacementDescriptor.name)
-            );
-        });
-    });
-}
-
-function reportWithDuplicateReplacementGuard(context, descriptor) {
-    context.report({
-        ...descriptor,
-        fix: descriptor.fix
-            ? (fixer) => {
-                  if (hasDuplicateReplacementAttribute(descriptor)) {
-                      return null;
-                  }
-
-                  return descriptor.fix(fixer);
-              }
-            : undefined,
-    });
-}
-
-function normalizeTemplateName(name) {
-    return name.replace(/-/g, '').toLowerCase();
-}
-
-function matchesTemplateName(actual, expected) {
-    return actual === expected || normalizeTemplateName(actual) === normalizeTemplateName(expected);
-}
-
-function getStaticAttributeName(attribute) {
-    return typeof attribute?.key?.name === 'string' ? attribute.key.name : null;
-}
-
-function getDirectiveName(attribute) {
-    return attribute?.key?.name?.name ?? null;
-}
-
-function getDirectiveArgumentName(attribute) {
-    return attribute?.key?.argument?.name ?? null;
-}
-
-function findMatchingPropAttribute(node, propName) {
-    return node.startTag.attributes.find((attribute) => {
-        const staticName = getStaticAttributeName(attribute);
-
-        if (staticName && matchesTemplateName(staticName, propName)) {
-            return true;
-        }
-
-        const argumentName = getDirectiveArgumentName(attribute);
-
-        return getDirectiveName(attribute) === 'bind' && argumentName && matchesTemplateName(argumentName, propName);
-    });
-}
-
-function hasMatchingPropAttribute(node, propName) {
-    return Boolean(findMatchingPropAttribute(node, propName));
-}
-
-function getPropAttributeValueKind(attribute) {
-    if (!attribute?.value) {
-        return 'static';
-    }
-
-    if (getDirectiveName(attribute) === 'bind') {
-        const expression = attribute.value?.expression;
-
-        if (expression?.type === 'Literal' && expression.value === true) {
-            return 'static';
-        }
-
-        return 'expression';
-    }
-
-    return 'static';
-}
-
-function getAttributeValueSource(context, attribute) {
-    if (!attribute?.value) {
-        return null;
-    }
-
-    if (getDirectiveName(attribute) === 'bind') {
-        return context.sourceCode.getText(attribute.value.expression ?? attribute.value);
-    }
-
-    return attribute.value.value;
-}
-
-function getTransformResult(usage, node, attribute) {
-    if (typeof usage.transform !== 'function') {
-        return null;
-    }
-
-    return usage.transform({
-        valueKind: attribute ? getPropAttributeValueKind(attribute) : 'unknown',
-        hasObjectVBind: findObjectVBindAttribute(node) !== null,
-    });
-}
-
-function findMatchingEventAttribute(node, eventName) {
-    return node.startTag.attributes.find((attribute) => {
-        const argumentName = getDirectiveArgumentName(attribute);
-
-        return getDirectiveName(attribute) === 'on' && argumentName && matchesTemplateName(argumentName, eventName);
-    });
-}
-
-function findMatchingVModelAttribute(node, argumentName) {
-    return node.startTag.attributes.find((attribute) => {
-        if (getDirectiveName(attribute) !== 'model') {
-            return false;
-        }
-
-        const currentArgumentName = getDirectiveArgumentName(attribute) ?? null;
-
-        return currentArgumentName === argumentName;
-    });
-}
-
-function findSlot(node, slotName) {
-    return node.children.find((child) => {
         return (
-            child.type === 'VElement' &&
-            child.name === 'template' &&
-            child.startTag?.attributes?.some((attribute) => {
-                return getDirectiveName(attribute) === 'slot' && getDirectiveArgumentName(attribute) === slotName;
-            })
+            !isReplacedAttribute &&
+            description?.kind === produces.kind &&
+            isSameAttributeName(produces.kind, description.name, produces.name)
         );
     });
 }
 
-function hasCodemodComment(context, node, text) {
-    return context.sourceCode.ast?.templateBody?.comments?.some((comment) => {
-        return (
-            comment.value.includes(text) &&
-            comment.loc.start.line >= node.loc.start.line &&
-            comment.loc.end.line <= node.loc.end.line
-        );
-    });
-}
-
-function getCondensedTextContent(node) {
-    return (node.children?.[0]?.value ?? '').replace(/\n/g, '').replace(/\s+/g, ' ');
-}
-
-function getFirstElementChildWithoutSlot(node) {
-    return node.children.find((child) => {
-        return child.type === 'VElement' && child.name !== 'template';
-    });
-}
-
+/**
+ * Builds the API a registry step's `eslint.report(api)` receives for one matching element: the element,
+ * the step, reporting with the duplicate-attribute guard, the fix policy and the template helpers.
+ * The TypeScript side of this contract is `ComponentUsageRuleApi` in the registry helpers.
+ *
+ * @example
+ * usage.eslint.report(createComponentUsageRuleApi(context, node, migration, usage));
+ */
 function createComponentUsageRuleApi(context, node, migration, usage) {
+    const sourceCode = context.sourceCode;
+
     return {
-        context,
-        sourceCode: context.sourceCode,
         node,
         migration,
         usage,
-        appendRegistryContext: (message, registryMigration) => appendRegistryContext([message], registryMigration),
-        reportWithDuplicateReplacementGuard(descriptor) {
-            reportWithDuplicateReplacementGuard(context, descriptor);
+        sourceCode,
+        canAutoFix(step = usage) {
+            return canAutoFix(context, step);
         },
-        isFixDisabled() {
-            return context.options.includes('disableFix');
+        buildMessage(text) {
+            return appendRegistryContext([text], migration);
         },
-        getTransformResult(usageConfig, usageNode, attribute) {
-            return getTransformResult(usageConfig, usageNode, attribute);
+        report({ produces, ...descriptor }) {
+            context.report({
+                ...descriptor,
+                fix:
+                    descriptor.fix &&
+                    ((fixer) => {
+                        return producesDuplicateAttribute(node, { node: descriptor.node, produces })
+                            ? null
+                            : descriptor.fix(fixer);
+                    }),
+            });
         },
+        insertCodemodCommentBefore: insertTemplateCodemodComment,
         ast: {
-            findMatchingPropAttribute,
-            hasMatchingPropAttribute,
-            findMatchingEventAttribute,
-            findMatchingVModelAttribute,
-            findSlot,
-            getCondensedTextContent,
-            getDirectiveName,
-            getFirstElementChildWithoutSlot,
-            getStaticAttributeName,
-            getDirectiveArgumentName,
-            getAttributeValueSource(attribute) {
-                return getAttributeValueSource(context, attribute);
-            },
-            hasCodemodComment(usageNode, text) {
-                return hasCodemodComment(context, usageNode, text);
-            },
+            findMatchingPropAttribute: ast.findMatchingPropAttribute,
+            hasMatchingPropAttribute: ast.hasMatchingPropAttribute,
+            findMatchingEventAttribute: ast.findMatchingEventAttribute,
+            findMatchingVModelAttribute: ast.findMatchingVModelAttribute,
+            findObjectVBindAttribute: ast.findObjectVBindAttribute,
+            findObjectVOnAttribute: ast.findObjectVOnAttribute,
+            findSlot: ast.findSlot,
+            getCondensedTextContent: ast.getCondensedTextContent,
+            getDirectiveName: ast.getDirectiveName,
+            getDirectiveArgumentName: ast.getDirectiveArgumentName,
+            getFirstElementChildWithoutSlot: ast.getFirstElementChildWithoutSlot,
+            getStaticAttributeName: ast.getStaticAttributeName,
+            getAttributeValueSource: (attribute) => ast.getAttributeValueSource(sourceCode, attribute),
+            hasCodemodComment: (element, text) => hasCodemodComment(sourceCode, element, text),
         },
     };
 }
 
 /**
- * Lists the comments directly above an element, nearest first, with only whitespace in between.
- *
- * @example
- * getLeadingComments(context, node).map((comment) => comment.value);
- * // the codemod review comment that ends in "Converted from sw-icon - please check if everything works correctly"
- */
-function getLeadingComments(context, node) {
-    const comments = context.sourceCode.ast?.templateBody?.comments ?? [];
-    const leadingComments = [];
-    let end = node.range[0];
-
-    comments
-        .filter((comment) => comment.range[1] <= node.range[0])
-        .sort((left, right) => right.range[0] - left.range[0])
-        .every((comment) => {
-            if (context.sourceCode.text.slice(comment.range[1], end).trim() !== '') {
-                return false;
-            }
-
-            leadingComments.push(comment);
-            end = comment.range[0];
-
-            return true;
-        });
-
-    return leadingComments;
-}
-
-/**
- * Tells whether `no-deprecated-components` converted the element from the given component,
- * recognised by the "Converted from" comment it puts above every converted element.
- *
- * @example
- * isConvertedFrom(context, mtIconNode, 'sw-icon'); // true right after the sw-icon conversion
- */
-function isConvertedFrom(context, node, componentName) {
-    return getLeadingComments(context, node).some((comment) => {
-        return comment.value.includes(`Converted from ${componentName} `);
-    });
-}
-
-function runRegistryUsage(context, node, migration, usage) {
-    if (usage.onlyAfterConversion && !isConvertedFrom(context, node, migration.component)) {
-        return;
-    }
-
-    if (usage.eslint?.report) {
-        usage.eslint.report(createComponentUsageRuleApi(context, node, migration, usage));
-    }
-}
-
-/**
- * @sw-package framework
- *
- * This rule checks if converted components still use the old logic, props, etc.
+ * This rule runs the follow-up steps of registry component migrations on the replacement element:
+ * renamed or removed props, events, slots and v-model arguments the conversion leaves behind.
  *
  * @type {import('eslint').Rule.RuleModule}
  */
@@ -455,41 +148,33 @@ module.exports = {
         type: 'problem',
         fixable: 'code',
         docs: {
-            description: 'No usage of deprecated components',
+            description: 'No usage of deprecated component props, events and slots',
             recommended: true,
         },
-        schema: [
-            {
-                enum: [
-                    'disableFix',
-                    'enableFix',
-                ],
-            },
-        ],
+        schema: FIX_OPTION_SCHEMA,
     },
-    /** @param {RuleContext} context */
-    create(context) {
-        const registry = loadRegistry();
-        const migrations = filterMigrations(registry.componentApiMigrations).map((migration) => {
-            return {
-                component: migration.replacement ?? migration.component,
-                migration,
-            };
-        });
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
-            // Event handlers for <template> tags
-            {
-                VElement(node) {
-                    migrations
-                        .filter(({ component }) => component === node.name)
-                        .forEach(({ migration }) => {
-                            migration.usage.forEach((usage) => {
-                                runRegistryUsage(context, node, migration, usage);
-                            });
+    create(context) {
+        const migrations = filterMigrations(loadRegistry().componentApiMigrations);
+
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor({
+            VElement(node) {
+                migrations
+                    .filter((migration) => (migration.replacement ?? migration.component) === node.name)
+                    .forEach((migration) => {
+                        migration.usage.forEach((usage) => {
+                            if (!usage.eslint?.report) {
+                                return;
+                            }
+
+                            if (usage.onlyAfterConversion && !isConvertedFrom(context.sourceCode, node, migration.component)) {
+                                return;
+                            }
+
+                            usage.eslint.report(createComponentUsageRuleApi(context, node, migration, usage));
                         });
-                },
+                    });
             },
-        );
+        });
     },
 };

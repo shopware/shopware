@@ -4,12 +4,12 @@
 
 import {
     componentMigration,
-    reference,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -21,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-number-field component is replaced by mt-number-field. Legacy value APIs and label slot need migration.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-number-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-number-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-number-field', to: 'mt-number-field' }),

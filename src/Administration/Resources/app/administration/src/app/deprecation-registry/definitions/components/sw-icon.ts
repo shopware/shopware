@@ -2,15 +2,7 @@
  * @sw-package framework
  */
 
-import {
-    componentMigration,
-    missingProp,
-    onlyAfterConversion,
-    reference,
-    renameComponent,
-    renameProp,
-    replaceWithStaticValueTransform,
-} from '../helpers';
+import { componentMigration, missingProp, onlyAfterConversion, renameComponent, renameProp, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-icon',
@@ -21,19 +13,19 @@ export default componentMigration({
     description:
         'The legacy sw-icon component is replaced by mt-icon. Small and large boolean sizing props are replaced by explicit size values.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-icon' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-icon'),
     ],
     usage: [
         renameComponent({ from: 'sw-icon', to: 'mt-icon' }),
         renameProp({
             from: 'small',
             to: 'size',
-            transform: replaceWithStaticValueTransform({ value: '16px' }),
+            staticValue: '16px',
         }),
         renameProp({
             from: 'large',
             to: 'size',
-            transform: replaceWithStaticValueTransform({ value: '32px' }),
+            staticValue: '32px',
         }),
         onlyAfterConversion(
             missingProp({

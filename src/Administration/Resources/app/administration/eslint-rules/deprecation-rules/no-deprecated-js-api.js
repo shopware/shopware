@@ -3,8 +3,9 @@
  */
 
 const { loadRegistry } = require('./registry/load-registry');
-const { filterMigrations } = require('./registry/filter-migrations');
+const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
+const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
 
 function buildMessage(migration, usage) {
     const replacement = usage.to ? ` Use ${usage.to} instead.` : '';
@@ -63,27 +64,42 @@ function getMemberName(node) {
     return `${objectName}.${propertyName}`;
 }
 
-function getObjectOptionReplacement(sourceCode, node) {
-    const valueText = sourceCode.getText(node.value);
-
-    if (node.method || node.value.type !== 'ObjectExpression') {
-        return null;
-    }
-
-    return `metaInfo() { return ${valueText}; }`;
+/**
+ * Turns an object option into a method that returns the object, e.g. for options that became functions.
+ *
+ * @example
+ * getObjectOptionReplacement(sourceCode, metaInfoProperty, 'metaInfo');
+ * // metaInfo: { title: 'x' } → metaInfo() { return { title: 'x' }; }
+ */
+function getObjectOptionReplacement(sourceCode, property, optionName) {
+    return `${optionName}() { return ${sourceCode.getText(property.value)}; }`;
 }
 
-function normalizeSource(text) {
-    return text.replace(/\s+/g, ' ').trim();
-}
-
+/**
+ * Normalizes a callee's source text for comparison with a registry `from`, which may contain a call
+ * such as `Shopware.Store.get('shopwareApps').setAppModules`: whitespace, trailing commas and quote
+ * style do not change which API is called.
+ *
+ * @example
+ * normalizeComparableSource('Shopware.Store.get("shopwareApps",\n).setAppModules');
+ * // "Shopware.Store.get('shopwareApps').setAppModules"
+ */
 function normalizeComparableSource(text) {
-    return normalizeSource(text)
+    return text
+        .replace(/\s+/g, ' ')
+        .trim()
         .replace(/,\s*([}\]])/g, '$1')
         .replace(/\s+([}\])])/g, '$1')
         .replace(/"/g, "'");
 }
 
+/**
+ * Tells whether a call matches a member-call step: a dotted `from` names the whole callee, a plain
+ * `from` only the called method.
+ *
+ * @example
+ * matchesMemberCall({ from: 'this.computePath' }, 'computePath', 'this.computePath', 'this.computePath'); // true
+ */
 function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     if (usage.from.includes('.')) {
         return (
@@ -94,6 +110,12 @@ function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     return usage.from === propertyName;
 }
 
+/**
+ * This rule reports deprecated JavaScript APIs from the registry: object options that became methods,
+ * deprecated member calls and imports of renamed packages, and fixes the first and the last.
+ *
+ * @type {import('eslint').Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: 'suggestion',
@@ -102,38 +124,14 @@ module.exports = {
             recommended: true,
         },
         fixable: 'code',
-        schema: [
-            {
-                enum: [
-                    'enableFix',
-                    'disableFix',
-                ],
-            },
-        ],
+        schema: FIX_OPTION_SCHEMA,
     },
 
     create(context) {
         const registry = loadRegistry();
-        const usages = filterMigrations(registry.jsApiMigrations).flatMap((migration) => {
-            return migration.usage.map((usage) => {
-                return {
-                    migration,
-                    usage,
-                };
-            });
-        });
-        const packageUsages = filterMigrations(registry.packageMigrations).flatMap((migration) => {
-            return migration.usage.map((usage) => {
-                return {
-                    migration,
-                    usage,
-                };
-            });
-        });
-
-        const objectOptionUsages = usages.filter(({ usage }) => usage.kind === 'replace-object-option');
-        const memberCallUsages = usages.filter(({ usage }) => usage.kind === 'member-call');
-        const packageImportUsages = packageUsages.filter(({ usage }) => usage.kind === 'rename-package');
+        const objectOptionUsages = selectedUsages(registry.jsApiMigrations, 'replace-object-option');
+        const memberCallUsages = selectedUsages(registry.jsApiMigrations, 'member-call');
+        const packageImportUsages = selectedUsages(registry.packageMigrations, 'rename-package');
 
         /**
          * Finds the rename-package usage a module source names, either the package itself or one of its subpaths.
@@ -177,7 +175,9 @@ module.exports = {
                 node: sourceNode,
                 message: buildMessage(match.migration, match.usage),
                 fix(fixer) {
-                    if (context.options.includes('disableFix')) return null;
+                    if (!canAutoFix(context, match.usage)) {
+                        return null;
+                    }
 
                     const quote = context.sourceCode.getText(sourceNode)[0];
                     const subpath = sourceNode.value.slice(match.usage.from.length);
@@ -208,7 +208,7 @@ module.exports = {
                 const propertyName = getPropertyName(node.key);
                 const match = objectOptionUsages.find(({ usage }) => usage.from === propertyName);
 
-                if (!match || node.value.type !== 'ObjectExpression') {
+                if (!match || node.method || node.value.type !== 'ObjectExpression') {
                     return;
                 }
 
@@ -216,15 +216,14 @@ module.exports = {
                     node,
                     message: buildMessage(match.migration, match.usage),
                     fix(fixer) {
-                        if (context.options.includes('disableFix')) return null;
-
-                        const replacement = getObjectOptionReplacement(context.sourceCode, node);
-
-                        if (!replacement) {
+                        if (!canAutoFix(context, match.usage)) {
                             return null;
                         }
 
-                        return fixer.replaceText(node, replacement);
+                        return fixer.replaceText(
+                            node,
+                            getObjectOptionReplacement(context.sourceCode, node, match.usage.from),
+                        );
                     },
                 });
             },

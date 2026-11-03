@@ -2,101 +2,106 @@
  * @sw-package framework
  */
 
-import type { ComponentUsageRuleApi, DeprecationMigration, DeprecationReference, DeprecationUsage } from './types';
+import type {
+    ComponentUsageReport,
+    ComponentUsageRuleApi,
+    ComponentUsageStep,
+    ProducedAttribute,
+    TemplateNode,
+} from './types';
 
-export function withoutUndefined<T>(value: T): T {
-    if (Array.isArray(value)) {
-        return value.map(withoutUndefined) as T;
-    }
+/**
+ * How a step handles one usage: a fix, or the reason the usage needs a manual migration.
+ * A plan with neither reports the usage without a fix.
+ */
+export type UsagePlan = {
+    fix?: ComponentUsageReport['fix'];
+    produces?: ProducedAttribute;
+    /** Appended to the report and suppresses the fix. */
+    manualReason?: string;
+};
 
-    if (!value || typeof value !== 'object') {
-        return value;
-    }
+type UsageReport = UsagePlan & {
+    /** The node the report points at. */
+    node: TemplateNode;
+    /** The deprecated prop, event, slot or model argument, named in the default headline. */
+    apiName: string;
+    /** The replacement named in the default headline. */
+    replacement?: string;
+};
 
-    return Object.fromEntries(
-        Object.entries(value)
-            .filter(
-                ([
-                    ,
-                    entryValue,
-                ]) => entryValue !== undefined,
-            )
-            .map(
-                ([
-                    entryKey,
-                    entryValue,
-                ]) => [
-                    entryKey,
-                    withoutUndefined(entryValue),
-                ],
-            ),
-    ) as T;
-}
+/**
+ * Reports one deprecated usage of the running step. Builds the headline from the step's `message` or the
+ * deprecated API name, appends the manual reason, and only passes the fix on when the step and the rule
+ * options allow an automatic fix. Every component usage step reports through it.
+ *
+ * @example
+ * reportUsage(api, {
+ *     node: attribute,
+ *     apiName: 'value',
+ *     replacement: 'model-value',
+ *     fix: (fixer) => fixer.replaceText(attribute.key, 'model-value'),
+ * });
+ * // [mt-text-field] The "value" API is deprecated. Use "model-value" instead.
+ */
+export function reportUsage(api: ComponentUsageRuleApi, report: UsageReport): void {
+    const { node, apiName, replacement, manualReason, produces, fix } = report;
+    const headline = api.usage.message ?? defaultHeadline(apiName, replacement);
+    const text = manualReason ? `${headline}\n${manualReason}` : headline;
 
-export function reference({ type, target }: { type: string; target: string }): DeprecationReference {
-    return { type, target };
-}
-
-export function migration(config: DeprecationMigration): DeprecationMigration {
-    return withoutUndefined(config);
-}
-
-export function usage(kind: string, config: Record<string, unknown>): DeprecationUsage {
-    return withoutUndefined({
-        kind,
-        ...config,
+    api.report({
+        node,
+        message: api.buildMessage(`[${api.node.name}] ${text}`),
+        produces,
+        fix: manualReason === undefined && api.canAutoFix() ? fix : undefined,
     });
 }
 
-export function manualUsage(kind: string, config: Record<string, unknown>): DeprecationUsage {
-    return usage(kind, {
-        ...config,
-        fix: config.fix ?? 'manual',
-    });
-}
+function defaultHeadline(apiName: string, replacement: string | undefined): string {
+    const replacementHint = replacement ? ` Use "${replacement}" instead.` : '';
 
-export function componentUsageMessage(
-    api: ComponentUsageRuleApi,
-    usageConfig: DeprecationUsage,
-    apiName: unknown,
-    additionalMessage?: string,
-): string {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- registry usage targets are strings
-    const replacement = usageConfig.to ? ` Use "${usageConfig.to}" instead.` : '';
-    const defaultMessage = `[${api.node.name}] The "${apiName}" API is deprecated.${replacement}`;
-    const message = typeof usageConfig.message === 'string' ? `[${api.node.name}] ${usageConfig.message}` : defaultMessage;
-
-    return api.appendRegistryContext(additionalMessage ? `${message}\n${additionalMessage}` : message, api.migration);
-}
-
-export function usageFixesAutomatically(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): boolean {
-    return !api.isFixDisabled() && usageConfig.fix !== 'manual';
+    return `The "${apiName}" API is deprecated.${replacementHint}`;
 }
 
 /**
- * Tells whether a component usage binds an object with `v-bind="…"`, which can hide or override any
- * prop, so prop fixes on that element must fall back to a manual review.
+ * Tells whether the element binds an object with `v-bind="…"`, which can hide or override any prop,
+ * so prop fixes on it must fall back to a manual review.
  *
  * @example
- * hasObjectVBind(api); // true for <sw-field v-bind="fieldProps" />
+ * hasObjectVBind(api); // true for <mt-button v-bind="buttonProps" />
  */
 export function hasObjectVBind(api: ComponentUsageRuleApi): boolean {
-    return findObjectVBindAttribute(api) !== null;
+    return Boolean(api.ast.findObjectVBindAttribute(api.node));
 }
 
 /**
- * Finds the object `v-bind="…"` attribute (a `v-bind` without argument) on the component usage's start tag.
+ * Tells whether the element binds listeners with `v-on="…"`, which can hide or override any event,
+ * so event fixes on it must fall back to a manual review.
  *
  * @example
- * findObjectVBindAttribute(api); // the VAttribute for <sw-field v-bind="fieldProps" />, null without one
+ * hasObjectVOn(api); // true for <mt-text-field v-on="listeners" />
  */
-export function findObjectVBindAttribute(api: ComponentUsageRuleApi): Record<string, unknown> | null {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- template nodes are untyped vue-eslint-parser records
-    const attributes: Array<Record<string, unknown>> = api.node.startTag.attributes;
+export function hasObjectVOn(api: ComponentUsageRuleApi): boolean {
+    return Boolean(api.ast.findObjectVOnAttribute(api.node));
+}
 
-    return (
-        attributes.find((attribute) => {
-            return api.ast.getDirectiveName(attribute) === 'bind' && !api.ast.getDirectiveArgumentName(attribute);
-        }) ?? null
-    );
+/**
+ * Attaches the ESLint reporter to a component usage step, so the reporter receives the typed step.
+ * Every component usage builder ends with it.
+ *
+ * @example
+ * return defineUsageStep<RemoveEventStep>({ kind: 'remove-event', fix, ...config }, reportRemoveEvent);
+ */
+export function defineUsageStep<Step extends ComponentUsageStep>(
+    fields: Omit<Step, 'eslint'>,
+    report: (api: ComponentUsageRuleApi, step: Step) => void,
+): Step {
+    const step = {
+        ...fields,
+        eslint: {
+            report: (api: ComponentUsageRuleApi) => report(api, step),
+        },
+    } as Step;
+
+    return step;
 }

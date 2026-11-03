@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { reference, removeTemplateBlock, templateBlockMigration } from '../helpers';
+import { removeTemplateBlock, templateBlockMigration, upgradeGuide } from '../helpers';
 
 export default templateBlockMigration({
     id: 'template-block.import-export-profile-label',
@@ -11,7 +11,7 @@ export default templateBlockMigration({
     description:
         'Several import/export profile Twig blocks are deprecated because the surrounding Administration markup was removed or renamed.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
         removeTemplateBlock({ from: 'sw_import_export_edit_profile_general_container_name', fix: 'manual' }),

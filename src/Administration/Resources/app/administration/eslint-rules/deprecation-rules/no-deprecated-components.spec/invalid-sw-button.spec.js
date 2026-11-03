@@ -1,4 +1,4 @@
-const { withRegistryMessageContext } = require('../registry/with-registry-message-context');
+const { withRegistryMessageContext } = require('../test-utils/with-registry-message-context');
 const { rule, tester } = require('./tester');
 
 tester.run('no-deprecated-components (invalid sw-button)', rule, {

@@ -3,8 +3,8 @@
  */
 
 import conditionRemovedKeys from './condition-removed-keys';
-import type { DeprecationMigration } from '../helpers';
+import type { SnippetKeyMigration } from '../helpers';
 
 export default [
     conditionRemovedKeys,
-] satisfies DeprecationMigration[];
+] satisfies SnippetKeyMigration[];

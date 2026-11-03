@@ -4,12 +4,12 @@
 
 import {
     componentMigration,
-    reference,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -21,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-colorpicker component is replaced by mt-colorpicker. Value binding uses model-value/update:model-value and the label slot should become the label prop when possible.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-colorpicker' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-colorpicker'),
     ],
     usage: [
         renameComponent({ from: 'sw-colorpicker', to: 'mt-colorpicker', fix: 'unsafe-auto' }),

@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import { reference, templateEventMigration, templateEventUsage } from './helpers';
-import type { DeprecationMigration } from './helpers';
+import { templateEventMigration, templateEventUsage, upgradeGuide } from './helpers';
+import type { TemplateEventMigration } from './helpers';
 
 export default [
     templateEventMigration({
@@ -13,7 +13,7 @@ export default [
         description:
             'Legacy Vue 2 value/change/input component events are deprecated. Use the Vue 3 update:* event emitted by the component model.',
         references: [
-            reference({ type: 'upgrade', target: 'UPGRADE-6.6.md#admin-event-name-changes' }),
+            upgradeGuide('UPGRADE-6.6.md#admin-event-name-changes'),
         ],
         usage: [
             templateEventUsage({ component: 'sw-text-field', from: 'input', to: 'update:value' }),
@@ -125,4 +125,4 @@ export default [
             templateEventUsage({ component: 'sw-radio-field', from: 'change', to: 'update:value' }),
         ],
     }),
-] satisfies DeprecationMigration[];
+] satisfies TemplateEventMigration[];

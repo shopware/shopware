@@ -1,154 +1,95 @@
 /**
  * @sw-package framework
  */
-import * as helpers from './index';
-import { mapOptionsPropKeys } from './map-options-prop-keys';
-import { mapPropValue } from './map-prop-value';
-import { missingProp } from './missing-prop';
-import { removeEvent } from './remove-event';
-import { removeProp } from './remove-prop';
-import { removeSlot } from './remove-slot';
-import { renameEvent } from './rename-event';
-import { renameProp } from './rename-prop';
-import { renameVModelArgument } from './rename-v-model-argument';
-import { slotToItemsProp } from './slot-to-items-prop';
-import { slotToProp } from './slot-to-prop';
-import { slotToPropComment } from './slot-to-prop-comment';
 import {
-    componentUsageMessage,
-    findObjectVBindAttribute,
-    hasObjectVBind,
-    manualUsage,
-    migration,
-    reference,
-    usage,
-    usageFixesAutomatically,
-    withoutUndefined,
-} from './shared';
-import { createAttribute, createDirectiveAttribute, createRuleApi } from './test-utils';
+    codemodRule,
+    flagSlotForManualMove,
+    mapOptionsPropKeys,
+    mapPropValue,
+    memberCall,
+    missingProp,
+    onlyAfterConversion,
+    removeAsset,
+    removeEvent,
+    removeProp,
+    removeSlot,
+    removeSnippetKey,
+    removeTemplateBlock,
+    renameCall,
+    renameComponent,
+    renameEvent,
+    renamePackage,
+    renameProp,
+    renameTemplateBlock,
+    renameVModelArgument,
+    replaceExtension,
+    replaceObjectOption,
+    slotToItemsProp,
+    slotToProp,
+    templateEventUsage,
+    upgradeGuide,
+} from './index';
 
+// The fixes themselves are covered by the RuleTester fixtures of `no-deprecated-component-usage`.
 describe('src/app/deprecation-registry/definitions/helpers', () => {
-    describe('index', () => {
-        it('re-exports every component usage helper', () => {
-            expect(helpers).toEqual(
-                expect.objectContaining({
-                    mapOptionsPropKeys,
-                    mapPropValue,
-                    missingProp,
-                    removeEvent,
-                    removeProp,
-                    removeSlot,
-                    renameEvent,
-                    renameProp,
-                    renameVModelArgument,
-                    slotToItemsProp,
-                    slotToProp,
-                    slotToPropComment,
-                    reference,
-                }),
-            );
-        });
+    it.each([
+        ['rename-prop', 'auto', renameProp({ from: 'a', to: 'b' })],
+        ['remove-prop', 'auto', removeProp({ prop: 'a' })],
+        ['map-prop-value', 'auto', mapPropValue({ prop: 'a', from: 'b', to: 'c' })],
+        ['map-options-prop-keys', 'unsafe-auto', mapOptionsPropKeys({ prop: 'options', from: { name: 'label' } })],
+        ['missing-prop', 'auto', missingProp({ prop: 'a', value: 'b' })],
+        ['remove-slot', 'auto', removeSlot({ slot: 'a' })],
+        ['slot-to-prop', 'auto', slotToProp({ slot: 'a', prop: 'b' })],
+        ['flag-slot-for-manual-move', 'unsafe-auto', flagSlotForManualMove({ slot: 'a', hint: 'Move it.' })],
+        ['slot-to-items-prop', 'unsafe-auto', slotToItemsProp({ prop: 'items', itemComponent: 'sw-tabs-item' })],
+        ['rename-event', 'auto', renameEvent({ from: 'a', to: 'b' })],
+        ['remove-event', 'auto', removeEvent({ event: 'a' })],
+        ['rename-v-model-argument', 'auto', renameVModelArgument({ from: 'value' })],
+    ])('builds a %s step with fix level %s and an ESLint check', (kind, fix, step) => {
+        expect(step).toEqual(expect.objectContaining({ kind, fix }));
+        expect(typeof step.eslint.report).toBe('function');
+    });
 
-        it('marks a usage step to run only on converted elements', () => {
-            const step = helpers.onlyAfterConversion(helpers.renameProp({ from: 'old', to: 'new' }));
+    it.each([
+        ['rename-component', 'auto', renameComponent({ from: 'sw-a', to: 'mt-a' })],
+        ['codemod-rule', 'unsafe-auto', codemodRule({ rule: 'r', from: 'sw-a', to: 'mt-a' })],
+        ['rename-call', 'unsafe-auto', renameCall({ from: '$tc', to: '$t' })],
+        ['replace-object-option', 'auto', replaceObjectOption({ from: 'a', to: 'b' })],
+        ['member-call', 'manual', memberCall({ from: 'this.a' })],
+        ['replace-extension', 'auto', replaceExtension({ from: ['.png'], to: '.webp' })],
+        ['remove-asset', 'manual', removeAsset()],
+        ['remove-template-block', 'manual', removeTemplateBlock({ from: 'a' })],
+        ['rename-template-block', 'auto', renameTemplateBlock({ from: 'a', to: 'b' })],
+        ['rename-template-event', 'auto', templateEventUsage({ component: 'sw-a', from: 'a', to: 'b' })],
+        ['remove-snippet-key', 'manual', removeSnippetKey({ from: 'a' })],
+        ['rename-package', 'auto', renamePackage({ from: '@a/a', to: '@a/b' })],
+    ])('builds a plain %s step with fix level %s', (kind, fix, step) => {
+        expect(step).toEqual(expect.objectContaining({ kind, fix }));
+    });
 
-            expect(step).toEqual(expect.objectContaining({ kind: 'rename-prop', onlyAfterConversion: true }));
-        });
-
-        it('builds the component replacement step with an automatic fix by default', () => {
-            expect(helpers.renameComponent({ from: 'sw-old', to: 'mt-new' })).toEqual({
-                kind: 'rename-component',
-                from: 'sw-old',
-                to: 'mt-new',
-                fix: 'auto',
-            });
+    it('keeps a configured fix level and message', () => {
+        expect(renameComponent({ from: 'sw-a', to: 'mt-a', fix: 'manual', message: 'Check it.' })).toEqual({
+            kind: 'rename-component',
+            from: 'sw-a',
+            to: 'mt-a',
+            fix: 'manual',
+            message: 'Check it.',
         });
     });
 
-    describe('shared', () => {
-        it('drops undefined values deeply and keeps other falsy values', () => {
-            expect(
-                withoutUndefined({
-                    a: undefined,
-                    b: null,
-                    c: [
-                        { d: undefined, e: 0 },
-                    ],
-                }),
-            ).toEqual({
-                b: null,
-                c: [
-                    { e: 0 },
-                ],
-            });
-        });
+    it('derives the review comment of a slot that moves to a prop', () => {
+        expect(flagSlotForManualMove({ slot: 'default', toProp: 'options' }).hint).toBe(
+            'Remove the "default" slot and use the "options" prop instead',
+        );
+    });
 
-        it('builds references and migrations without undefined fields', () => {
-            expect(reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#x' })).toEqual({
-                type: 'upgrade',
-                target: 'UPGRADE-6.8.md#x',
-            });
-            expect(
-                migration({
-                    id: 'test',
-                    deprecatedIn: '6.8.0',
-                    removedIn: '6.9.0',
-                    description: 'Test.',
-                    usage: [],
-                    component: undefined,
-                }),
-            ).toEqual({
-                id: 'test',
-                deprecatedIn: '6.8.0',
-                removedIn: '6.9.0',
-                description: 'Test.',
-                usage: [],
-            });
-        });
+    it('marks a usage step to run only on converted elements', () => {
+        expect(onlyAfterConversion(renameProp({ from: 'a', to: 'b' }))).toEqual(
+            expect.objectContaining({ kind: 'rename-prop', onlyAfterConversion: true }),
+        );
+    });
 
-        it('builds usage steps and defaults manual usage steps to a manual fix', () => {
-            expect(usage('member-call', { from: 'a', message: undefined })).toEqual({ kind: 'member-call', from: 'a' });
-            expect(manualUsage('member-call', { from: 'a' })).toEqual({ kind: 'member-call', from: 'a', fix: 'manual' });
-            expect(manualUsage('member-call', { from: 'a', fix: 'auto' })).toEqual({
-                kind: 'member-call',
-                from: 'a',
-                fix: 'auto',
-            });
-        });
-
-        it('builds the component usage message from the step message or the deprecated API name', () => {
-            const step = helpers.renameProp({ from: 'old', to: 'new' });
-            const api = createRuleApi({ usage: step });
-
-            expect(componentUsageMessage(api, step, 'old')).toBe(
-                '[mt-test] The "old" API is deprecated. Use "new" instead.',
-            );
-            expect(componentUsageMessage(api, { ...step, message: 'Custom.' }, 'old', 'More.')).toBe(
-                '[mt-test] Custom.\nMore.',
-            );
-        });
-
-        it('fixes automatically unless the step is manual or fixes are disabled', () => {
-            const step = helpers.renameProp({ from: 'old', to: 'new' });
-
-            expect(usageFixesAutomatically(createRuleApi({ usage: step }), step)).toBe(true);
-            expect(usageFixesAutomatically(createRuleApi({ usage: step, disabledFix: true }), step)).toBe(false);
-            expect(usageFixesAutomatically(createRuleApi({ usage: step }), { ...step, fix: 'manual' })).toBe(false);
-        });
-
-        it('finds an object v-bind but no argument v-bind', () => {
-            const step = helpers.renameProp({ from: 'old', to: 'new' });
-            const objectBind = createDirectiveAttribute('bind');
-            const argumentBind = createDirectiveAttribute('bind', 'old');
-
-            const withObjectBind = createRuleApi({ usage: step, attribute: objectBind });
-            const withArgumentBind = createRuleApi({ usage: step, attribute: argumentBind });
-            const withStaticAttribute = createRuleApi({ usage: step, attribute: createAttribute('old') });
-
-            expect(findObjectVBindAttribute(withObjectBind)).toBe(objectBind);
-            expect(hasObjectVBind(withObjectBind)).toBe(true);
-            expect(findObjectVBindAttribute(withArgumentBind)).toBeNull();
-            expect(hasObjectVBind(withStaticAttribute)).toBe(false);
-        });
+    it('links an upgrade guide heading', () => {
+        expect(upgradeGuide('UPGRADE-6.9.md#x')).toEqual({ type: 'upgrade', target: 'UPGRADE-6.9.md#x' });
     });
 });

@@ -3,11 +3,11 @@
  */
 import componentMigrations from './index';
 import { expectWellFormedMigrations } from '../helpers/test-utils';
+import type { CodemodRuleStep, ComponentStep, RenameComponentStep } from '../helpers';
 
-const COMPONENT_LEVEL_KINDS = [
-    'rename-component',
-    'codemod-rule',
-];
+function isComponentStep(usage: ComponentStep): usage is RenameComponentStep | CodemodRuleStep {
+    return usage.kind === 'rename-component' || usage.kind === 'codemod-rule';
+}
 
 describe('src/app/deprecation-registry/definitions/components', () => {
     it('has well-formed migrations', () => {
@@ -24,14 +24,11 @@ describe('src/app/deprecation-registry/definitions/components', () => {
     });
 
     it.each(componentMigrations.map((migration) => [migration.id, migration]))(
-        'lets the usage steps of "%s" either replace the component first or carry an ESLint check',
+        'lets the usage steps of "%s" replace the component first, at most once',
         (_id, migration) => {
             expect(migration.usage.length).toBeGreaterThan(0);
 
-            const isComponentStep = (usage: (typeof migration.usage)[number]) =>
-                COMPONENT_LEVEL_KINDS.includes(usage.kind ?? '');
             const componentSteps = migration.usage.filter(isComponentStep);
-            const usageSteps = migration.usage.filter((usage) => !isComponentStep(usage));
 
             expect(componentSteps).toEqual(migration.usage.slice(0, componentSteps.length));
             expect(componentSteps.length).toBeLessThanOrEqual(1);
@@ -39,18 +36,16 @@ describe('src/app/deprecation-registry/definitions/components', () => {
                 expect(usage.from).toBe(migration.component);
                 expect(usage.to).toMatch(/^mt-[a-z0-9-]+$/);
             });
-            usageSteps.forEach((usage) => {
-                expect(typeof usage.kind).toBe('string');
-                expect(typeof usage.eslint?.report).toBe('function');
-            });
         },
     );
 
     it.each(componentMigrations.filter((migration) => migration.replacement).map((migration) => [migration.id, migration]))(
         'converts "%s" to its replacement in the first step',
         (_id, migration) => {
-            expect(COMPONENT_LEVEL_KINDS).toContain(migration.usage[0].kind);
-            expect(migration.usage[0].to).toBe(migration.replacement);
+            const [firstStep] = migration.usage;
+
+            expect(isComponentStep(firstStep)).toBe(true);
+            expect(isComponentStep(firstStep) && firstStep.to).toBe(migration.replacement);
         },
     );
 });

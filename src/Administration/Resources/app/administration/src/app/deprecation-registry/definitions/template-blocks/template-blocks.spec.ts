@@ -3,6 +3,7 @@
  */
 import migrations from './index';
 import { expectWellFormedMigrations } from '../helpers/test-utils';
+import type { RenameTemplateBlockStep } from '../helpers';
 
 describe('src/app/deprecation-registry/definitions/template-blocks', () => {
     it('has well-formed migrations', () => {
@@ -26,7 +27,7 @@ describe('src/app/deprecation-registry/definitions/template-blocks', () => {
     it('gives every renamed block a different target block', () => {
         migrations
             .flatMap((migration) => migration.usage)
-            .filter((usage) => usage.kind === 'rename-template-block')
+            .filter((usage): usage is RenameTemplateBlockStep => usage.kind === 'rename-template-block')
             .forEach((usage) => {
                 expect(usage.to).toMatch(/^[a-z0-9_]+$/);
                 expect(usage.to).not.toBe(usage.from);

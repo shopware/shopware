@@ -3,14 +3,22 @@
  */
 
 const { loadRegistry } = require('./registry/load-registry');
-const { filterMigrations } = require('./registry/filter-migrations');
+const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
+const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
+const { insertTemplateCodemodComment } = require('./registry/codemod-comment');
+const {
+    findMatchingEventAttribute,
+    findObjectVOnAttribute,
+    getDirectiveName,
+    matchesTemplateName,
+} = require('./registry/template-ast');
 
 /**
  * Builds the report message; empty hints are skipped by appendRegistryContext.
  *
  * @example
- * buildMessage(migration, usage, [usage.message, objectVOnMessage]);
+ * buildMessage(migration, usage, [usage.message, objectVOnHint]);
  */
 function buildMessage(migration, usage, hints = []) {
     return appendRegistryContext(
@@ -23,65 +31,28 @@ function buildMessage(migration, usage, hints = []) {
 }
 
 /**
- * Tells whether the usage may be rewritten by `--fix`; 'manual' usages are only reported.
+ * Returns the event a listener with a static argument listens to, or null for any other attribute.
+ * The raw name keeps the registry's spelling for the report.
  *
  * @example
- * usageFixesAutomatically({ fix: 'unsafe-auto' }); // true
+ * getStaticEventName(attribute); // 'update:modelValue' for @update:modelValue="x", null for @[name]="x"
  */
-function usageFixesAutomatically(usage) {
-    return usage.fix !== 'manual';
-}
+function getStaticEventName(attribute) {
+    const argument = attribute.key?.argument;
 
-/**
- * Tells whether the element already listens to the replacement event; renaming would then produce a
- * duplicate attribute, which the Vue template compiler rejects.
- *
- * @example
- * hasReplacementListener(node, 'update:value'); // true for <sw-text-field @input="a" @update:value="b" />
- */
-function hasReplacementListener(node, eventName) {
-    const normalizedEventName = normalizeEventName(eventName);
-
-    return node.startTag.attributes.some((attribute) => {
-        const argument = attribute.key?.argument;
-        const listenedName = argument?.rawName ?? argument?.name;
-
-        return (
-            attribute.key?.name?.name === 'on' &&
-            typeof listenedName === 'string' &&
-            normalizeEventName(listenedName) === normalizedEventName
-        );
-    });
-}
-
-/**
- * vue-eslint-parser lowercases v-on argument names; registry names may be camelCase or kebab-case.
- *
- * @example
- * normalizeEventName('update:modelValue') === normalizeEventName('update:model-value'); // true
- */
-function normalizeEventName(name) {
-    return name.replace(/-/g, '').toLowerCase();
-}
-
-function getEventName(attribute) {
-    if (attribute.key?.name?.name !== 'on') {
+    if (getDirectiveName(attribute) !== 'on' || argument?.type !== 'VIdentifier') {
         return null;
     }
 
-    return attribute.key?.argument?.rawName ?? attribute.key?.argument?.name ?? null;
+    return argument.rawName ?? argument.name;
 }
 
-function isDynamicEvent(attribute) {
-    return attribute.key?.argument?.type !== 'VIdentifier';
-}
-
-function hasObjectVOn(node) {
-    return node.startTag.attributes.some((attribute) => {
-        return attribute.key?.name?.name === 'on' && !attribute.key?.argument;
-    });
-}
-
+/**
+ * This rule renames listeners of deprecated component events, as listed in the registry's template
+ * event migrations.
+ *
+ * @type {import('eslint').Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: 'suggestion',
@@ -90,74 +61,52 @@ module.exports = {
             recommended: true,
         },
         fixable: 'code',
-        schema: [
-            {
-                enum: [
-                    'enableFix',
-                    'disableFix',
-                ],
-            },
-        ],
+        schema: FIX_OPTION_SCHEMA,
     },
 
     create(context) {
-        const registry = loadRegistry();
-        const migrations = filterMigrations(registry.templateEventMigrations).flatMap((migration) => {
-            return migration.usage.map((usage) => {
-                return {
-                    migration,
-                    usage,
-                };
-            });
-        });
+        const usages = selectedUsages(loadRegistry().templateEventMigrations);
 
         return context.sourceCode.parserServices.defineTemplateBodyVisitor({
             VElement(node) {
-                const matchingUsages = migrations.filter(({ usage }) => usage.component === node.name);
+                const componentUsages = usages.filter(({ usage }) => usage.component === node.name);
 
-                if (!matchingUsages.length) {
+                if (!componentUsages.length) {
                     return;
                 }
 
                 node.startTag.attributes.forEach((attribute) => {
-                    const eventName = getEventName(attribute);
-
-                    if (!eventName || isDynamicEvent(attribute)) {
-                        return;
-                    }
-
-                    const match = matchingUsages.find(
-                        ({ usage }) => normalizeEventName(usage.from) === normalizeEventName(eventName),
-                    );
+                    const eventName = getStaticEventName(attribute);
+                    const match = eventName && componentUsages.find(({ usage }) => matchesTemplateName(usage.from, eventName));
 
                     if (!match) {
                         return;
                     }
 
-                    const objectVOnMessage = hasObjectVOn(node)
-                        ? `Object v-on can hide the replacement event. Review the bound listener object and rename "${match.usage.from}" to "${match.usage.to}" manually if needed.`
+                    const { migration, usage } = match;
+                    const objectVOnHint = findObjectVOnAttribute(node)
+                        ? `Object v-on can hide the replacement event. Review the bound listener object and rename "${usage.from}" to "${usage.to}" manually if needed.`
                         : '';
 
                     context.report({
                         node: attribute,
-                        message: buildMessage(match.migration, match.usage, [
-                            match.usage.message,
-                            objectVOnMessage,
+                        message: buildMessage(migration, usage, [
+                            usage.message,
+                            objectVOnHint,
                         ]),
                         *fix(fixer) {
-                            if (context.options.includes('disableFix')) return;
-                            if (!usageFixesAutomatically(match.usage)) return;
-                            if (objectVOnMessage) return;
-                            if (hasReplacementListener(node, match.usage.to)) return;
+                            // A second listener for the new event would be a duplicate attribute, which Vue rejects.
+                            if (!canAutoFix(context, usage) || objectVOnHint || findMatchingEventAttribute(node, usage.to)) {
+                                return;
+                            }
 
-                            yield fixer.replaceText(attribute.key.argument, match.usage.to);
+                            yield fixer.replaceText(attribute.key.argument, usage.to);
 
-                            if (match.usage.fix === 'unsafe-auto') {
-                                const reviewHint = match.usage.message ?? 'Verify this automatic event rename.';
-
-                                yield fixer.insertTextBefore(
+                            if (usage.fix === 'unsafe-auto') {
+                                yield insertTemplateCodemodComment(
+                                    fixer,
                                     node,
-                                    `<!-- TODO Codemod: ${reviewHint} -->\n${' '.repeat(node.loc.start.column)}`,
+                                    usage.message ?? 'Verify this automatic event rename.',
                                 );
                             }
                         },

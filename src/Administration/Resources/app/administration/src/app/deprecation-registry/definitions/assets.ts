@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import { assetMigration, reference, removeAsset, replaceExtension } from './helpers';
-import type { DeprecationMigration } from './helpers';
+import { assetMigration, removeAsset, replaceExtension, upgradeGuide } from './helpers';
+import type { AssetMigration } from './helpers';
 
 export default [
     assetMigration({
@@ -13,7 +13,7 @@ export default [
         description:
             'Administration PNG and JPG assets are deprecated in favor of WebP variants. Update imports to the matching .webp file.',
         references: [
-            reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+            upgradeGuide('UPGRADE-6.7.md#administration'),
         ],
         files: [
             '/static/img/sw-login-background.png',
@@ -75,4 +75,4 @@ export default [
             removeAsset(),
         ],
     }),
-] satisfies DeprecationMigration[];
+] satisfies AssetMigration[];

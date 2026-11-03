@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { jsApiMigration, memberCall, reference } from '../helpers';
+import { jsApiMigration, memberCall, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.sw-product-detail-variants.load-config-setting-groups',
@@ -11,9 +11,9 @@ export default jsApiMigration({
     description:
         'The loadConfigSettingGroups() method in sw-product-detail-variants is deprecated and should be removed from customizations.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
-        memberCall({ from: 'this.loadConfigSettingGroups', to: null, fix: 'manual' }),
+        memberCall({ from: 'this.loadConfigSettingGroups', fix: 'manual' }),
     ],
 });

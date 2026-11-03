@@ -5,7 +5,6 @@
 import {
     componentMigration,
     mapPropValue,
-    reference,
     removeEvent,
     removeProp,
     renameComponent,
@@ -13,6 +12,7 @@ import {
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -24,7 +24,7 @@ export default componentMigration({
     description:
         'The legacy sw-password-field component is replaced by mt-password-field. Legacy value APIs, medium size, invalid state, base-field-mounted, and the label slot need migration.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-password-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-password-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-password-field', to: 'mt-password-field' }),

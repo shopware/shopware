@@ -4,12 +4,12 @@
 
 import {
     componentMigration,
-    reference,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -21,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-datepicker component is replaced by mt-datepicker. Value binding uses model-value/update:model-value and the label slot should become the label prop when possible.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-datepicker' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-datepicker'),
     ],
     usage: [
         renameComponent({ from: 'sw-datepicker', to: 'mt-datepicker', fix: 'unsafe-auto' }),

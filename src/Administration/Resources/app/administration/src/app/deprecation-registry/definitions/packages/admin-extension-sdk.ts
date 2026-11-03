@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { packageMigration, reference, renamePackage } from '../helpers';
+import { packageMigration, renamePackage, upgradeGuide } from '../helpers';
 
 export default packageMigration({
     id: 'package.admin-extension-sdk',
@@ -10,7 +10,7 @@ export default packageMigration({
     removedIn: '6.8.0',
     description: 'The @shopware-ag/admin-extension-sdk package is deprecated. Use @shopware-ag/meteor-admin-sdk instead.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
         renamePackage({

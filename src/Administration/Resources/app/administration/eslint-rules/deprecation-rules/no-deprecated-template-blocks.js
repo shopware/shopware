@@ -3,8 +3,9 @@
  */
 
 const { loadRegistry } = require('./registry/load-registry');
-const { filterMigrations } = require('./registry/filter-migrations');
+const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
+const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
 
 function buildMessage(migration, usage) {
     const replacement = usage.to ? ` Use "${usage.to}" instead.` : ' Remove or move this customization.';
@@ -52,6 +53,14 @@ function pairTokenRanges(sourceText, openPattern, closePattern, isSelfClosing = 
     return pairs;
 }
 
+/**
+ * Finds every block definition in a template, Twig `{% block %}` and `<sw-block name|extends>`,
+ * with the range of its name and the range the block spans.
+ *
+ * @example
+ * collectBlockMatches('{% block a %}{% endblock %}');
+ * // [{ name: 'a', start: 9, end: 10, rangeStart: 0, rangeEnd: 27 }]
+ */
 function collectBlockMatches(sourceText) {
     const matches = [];
     const twigBlockNamePattern = /^\{%\s*block\s+([A-Za-z0-9_]+)\s*%}$/;
@@ -116,6 +125,12 @@ function isBackwardCompatibilityWrapper(match, blockMatch, blockMatches) {
     });
 }
 
+/**
+ * This rule reports overrides of deprecated Administration Twig blocks and renames them to their
+ * replacement, unless the replacement block is overridden in the same file as well.
+ *
+ * @type {import('eslint').Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: 'suggestion',
@@ -124,26 +139,11 @@ module.exports = {
             recommended: true,
         },
         fixable: 'code',
-        schema: [
-            {
-                enum: [
-                    'enableFix',
-                    'disableFix',
-                ],
-            },
-        ],
+        schema: FIX_OPTION_SCHEMA,
     },
 
     create(context) {
-        const registry = loadRegistry();
-        const usages = filterMigrations(registry.templateBlockMigrations).flatMap((migration) => {
-            return migration.usage.map((usage) => {
-                return {
-                    migration,
-                    usage,
-                };
-            });
-        });
+        const usages = selectedUsages(loadRegistry().templateBlockMigrations);
 
         return {
             Program() {
@@ -169,7 +169,7 @@ module.exports = {
                         },
                         message: buildMessage(match.migration, match.usage),
                         fix(fixer) {
-                            if (context.options.includes('disableFix') || !match.usage.to || replacementBlockExists) {
+                            if (!canAutoFix(context, match.usage) || !match.usage.to || replacementBlockExists) {
                                 return null;
                             }
 

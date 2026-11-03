@@ -5,15 +5,24 @@
 const { loadRegistry } = require('../deprecation-rules/registry/load-registry');
 const { isMigrationSelected } = require('../deprecation-rules/registry/filter-migrations');
 const { appendRegistryContext } = require('../deprecation-rules/registry/format-migration-message');
+const { scriptCodemodComment } = require('../deprecation-rules/registry/codemod-comment');
 
-const tcMigration = loadRegistry().globalApiMigrations.find((migration) => migration.id === 'global.$tc');
-if (!tcMigration) {
-    throw new Error('no-tc-translation needs the "global.$tc" migration in the deprecation registry.');
-}
+/**
+ * Returns the registry's `global.$tc` migration and its rename step, which decide the fix level, the
+ * review hint and the message context of this rule.
+ *
+ * @example
+ * getTcMigration().renameUsage; // { kind: 'rename-call', from: '$tc', to: '$t', fix: 'unsafe-auto', … }
+ */
+function getTcMigration() {
+    const migration = loadRegistry().globalApiMigrations.find((candidate) => candidate.id === 'global.$tc');
+    const renameUsage = migration?.usage.find((usage) => usage.kind === 'rename-call');
 
-const renameUsage = tcMigration.usage.find((usage) => usage.kind === 'rename-call');
-if (!renameUsage) {
-    throw new Error('no-tc-translation needs a rename-call usage on the "global.$tc" deprecation registry migration.');
+    if (!renameUsage) {
+        throw new Error('no-tc-translation needs the "global.$tc" migration with a rename-call usage in the deprecation registry.');
+    }
+
+    return { migration, renameUsage };
 }
 
 // Keys of vue-i18n's `TranslateOptions`, keep in sync with `src/core/helper/i18n-legacy-syntax.helper.ts`.
@@ -151,11 +160,11 @@ function getLegacyTcLocale(args) {
  * and an unsafe automatic fix puts a codemod review comment in front of the whole call, so the rewritten call is easy to find.
  *
  * @example
- * getRenameFix(fixer, callNode, getTranslateCallee(callNode.callee));
+ * getRenameFix(fixer, callNode, getTranslateCallee(callNode.callee), renameUsage);
  * // this.$tc('a.b', count) with fix 'unsafe-auto' becomes this.$t('a.b', count),
  * // preceded by a codemod review comment that carries the registry hint
  */
-function getRenameFix(fixer, callNode, callee) {
+function getRenameFix(fixer, callNode, callee, renameUsage) {
     if (renameUsage.fix === 'manual') {
         return null;
     }
@@ -167,7 +176,7 @@ function getRenameFix(fixer, callNode, callee) {
     }
 
     return [
-        fixer.insertTextBefore(callNode, `/* TODO Codemod: ${renameUsage.message} */ `),
+        fixer.insertTextBefore(callNode, `${scriptCodemodComment(renameUsage.message ?? 'Verify this automatic rename.')} `),
         rename,
     ];
 }
@@ -183,13 +192,8 @@ module.exports = {
         fixable: 'code',
         schema: [],
         messages: {
-            noTc: appendRegistryContext(
-                [
-                    'Use {{replacement}}() instead of {{name}}(). {{name}} is deprecated — {{replacement}} handles pluralization natively.',
-                    renameUsage.message ?? '',
-                ],
-                tcMigration,
-            ),
+            // The registry context is passed as data, so the registry loads only when the rule runs.
+            noTc: 'Use {{replacement}}() instead of {{name}}(). {{name}} is deprecated — {{replacement}} handles pluralization natively.\n{{registryContext}}',
             legacyArgumentOrder: 'Pass the named parameters before the plural count: {{name}}(key, named, plural). ' +
                 'The vue-i18n 8 order {{name}}(key, plural, named) is deprecated.',
             legacyArgumentOrderManual: 'The third argument of {{name}}(key, plural, …) could be named parameters. ' +
@@ -204,11 +208,14 @@ module.exports = {
     },
 
     create(context) {
-        if (!isMigrationSelected(tcMigration)) {
+        const { migration, renameUsage } = getTcMigration();
+
+        if (!isMigrationSelected(migration)) {
             return {};
         }
 
-        const sourceCode = context.sourceCode ?? context.getSourceCode();
+        const sourceCode = context.sourceCode;
+        const registryContext = appendRegistryContext([renameUsage.message ?? ''], migration);
 
         function checkArguments(node, callee) {
             const args = node.arguments;
@@ -280,8 +287,8 @@ module.exports = {
                 context.report({
                     node: callee.node,
                     messageId: 'noTc',
-                    data: { name: callee.name, replacement: callee.replacement },
-                    fix: (fixer) => getRenameFix(fixer, node, callee),
+                    data: { name: callee.name, replacement: callee.replacement, registryContext },
+                    fix: (fixer) => getRenameFix(fixer, node, callee, renameUsage),
                 });
             }
 

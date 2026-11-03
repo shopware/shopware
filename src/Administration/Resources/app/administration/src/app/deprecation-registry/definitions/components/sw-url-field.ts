@@ -5,7 +5,6 @@
 import {
     componentMigration,
     mapPropValue,
-    reference,
     removeProp,
     removeSlot,
     renameComponent,
@@ -13,6 +12,7 @@ import {
     renameProp,
     renameVModelArgument,
     slotToProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -24,7 +24,7 @@ export default componentMigration({
     description:
         'The legacy sw-url-field component is replaced by mt-url-field. Legacy value APIs and text slots need migration.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-url-field' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-url-field'),
     ],
     usage: [
         renameComponent({ from: 'sw-url-field', to: 'mt-url-field' }),

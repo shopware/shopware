@@ -1,39 +1,36 @@
+/**
+ * @sw-package framework
+ */
+
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
-const { findObjectVBindAttribute } = require('./registry/template-ast');
+const { canAutoFix } = require('./registry/fix-policy');
+const { convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
+const { findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
 
-function hasObjectVOn(node) {
-    return node.startTag.attributes.some((attribute) => {
-        return (
-            attribute.type === 'VAttribute' &&
-            attribute.directive === true &&
-            attribute.key?.name?.name === 'on' &&
-            !attribute.key.argument
-        );
-    });
-}
-
-function getCodemodComment(componentName, hasDynamicProps, hasDynamicListeners) {
-    const vBindWarning = hasDynamicProps
+/**
+ * Builds the comment above a converted element. Object `v-bind` / `v-on` can still pass deprecated
+ * props or listeners, so they get an extra review sentence.
+ *
+ * @example
+ * getConversionComment('sw-icon', node); // the review comment carrying convertedFromText('sw-icon')
+ */
+function getConversionComment(componentName, node) {
+    const vBindWarning = findObjectVBindAttribute(node)
         ? '. Dynamic v-bind props may still contain deprecated API usage and need manual review.'
         : '';
-    const vOnWarning = hasDynamicListeners
+    const vOnWarning = findObjectVOnAttribute(node)
         ? '. Dynamic v-on listeners may still contain deprecated event usage and need manual review.'
         : '';
 
-    return `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly${vBindWarning}${vOnWarning} -->`;
-}
-
-function usageFixesAutomatically(usage) {
-    return usage?.fix !== 'manual';
+    return templateCodemodComment(`${convertedFromText(componentName)}${vBindWarning}${vOnWarning}`);
 }
 
 /**
- * @sw-package framework
- *
- * This rule checks if deprecated components are used and can convert them to the new components.
- * It also adds a comment to the converted component to make it easier to track the changes.
+ * This rule reports deprecated components and renames them to their replacement. It puts a review
+ * comment above every converted element, which `no-deprecated-component-usage` uses to find the
+ * conversions its follow-up steps apply to.
  *
  * @type {import('eslint').Rule.RuleModule}
  */
@@ -62,96 +59,62 @@ module.exports = {
             },
         ],
     },
-    /** @param {RuleContext} context */
+
     create(context) {
-        const registry = loadRegistry();
-        const componentMigrations = filterMigrations(registry.componentApiMigrations).filter((migration) => {
-            return migration.usage.some((usage) => usage.kind === 'rename-component');
-        });
-        const defaultActivatedComponents = filterMigrations(registry.componentApiMigrations).map(
-            (migration) => migration.component,
-        );
+        const migrations = filterMigrations(loadRegistry().componentApiMigrations);
+        const activatedComponents =
+            context.options[0]?.activatedComponents ?? migrations.map((migration) => migration.component);
+        const renameMigrations = migrations
+            .filter((migration) => activatedComponents.includes(migration.component))
+            .map((migration) => ({
+                migration,
+                renameUsage: migration.usage.find((usage) => usage.kind === 'rename-component'),
+            }))
+            .filter(({ renameUsage }) => renameUsage);
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
-            // Event handlers for <template> tags
-            {
-                VElement(node) {
-                    const enableFix = context.options?.[0]?.fix ?? true;
-                    const activatedComponents = context.options?.[0]?.activatedComponents ?? defaultActivatedComponents;
-                    const migration = componentMigrations.find((candidate) => {
-                        return candidate.component === node.name && activatedComponents.includes(candidate.component);
-                    });
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor({
+            VElement(node) {
+                const match = renameMigrations.find(({ migration }) => migration.component === node.name);
 
-                    if (migration) {
-                        const componentName = migration.component;
-                        const newComponentName = migration.replacement;
-                        const renameUsage = migration.usage.find((usage) => usage.kind === 'rename-component');
+                if (!match) {
+                    return;
+                }
 
-                        // Convert old component to new component
-                        context.report({
-                            loc: node.loc,
-                            message: appendRegistryContext(
-                                [
-                                    `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
-                                    renameUsage?.message ?? '',
-                                ],
-                                migration,
-                            ),
-                            *fix(fixer) {
-                                if (!enableFix || !usageFixesAutomatically(renameUsage)) return;
+                const { migration, renameUsage } = match;
+                const oldName = migration.component;
+                const newName = migration.replacement;
 
-                                const isSelfClosing = node.startTag.selfClosing;
-                                const codemodComment = getCodemodComment(
-                                    componentName,
-                                    findObjectVBindAttribute(node) !== null,
-                                    hasObjectVOn(node),
-                                );
+                context.report({
+                    loc: node.loc,
+                    message: appendRegistryContext(
+                        [
+                            `"${oldName}" is deprecated. Please use "${newName}" instead.`,
+                            renameUsage.message ?? '',
+                        ],
+                        migration,
+                    ),
+                    *fix(fixer) {
+                        if (!canAutoFix(context, renameUsage)) {
+                            return;
+                        }
 
-                                // Handle self-closing tags
-                                if (isSelfClosing) {
-                                    // Replace the component name
-                                    const startTagRange = [
-                                        node.startTag.range[0],
-                                        componentName.length + node.startTag.range[0] + 1,
-                                    ];
-                                    yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
+                        const nameRange = [
+                            node.startTag.range[0],
+                            node.startTag.range[0] + 1 + oldName.length,
+                        ];
 
-                                    // Save indentation of the old component
-                                    const indentation = node.loc.start.column;
+                        yield fixer.insertTextBeforeRange(
+                            nameRange,
+                            `${getConversionComment(oldName, node)}\n${' '.repeat(node.loc.start.column)}`,
+                        );
+                        yield fixer.replaceTextRange(nameRange, `<${newName}`);
 
-                                    // Add comment to the converted component
-                                    yield fixer.insertTextBeforeRange(
-                                        startTagRange,
-                                        `${codemodComment}\n${' '.repeat(indentation)}`,
-                                    );
-
-                                    return;
-                                }
-
-                                // Handle non-self-closing tags
-                                const startTagRange = [
-                                    node.startTag.range[0],
-                                    componentName.length + node.startTag.range[0] + 1,
-                                ];
-                                const endTagRange = node.endTag.range;
-
-                                // Replace the component name
-                                yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-                                yield fixer.replaceTextRange(endTagRange, `</${newComponentName}>`);
-
-                                // Save indentation of the old component
-                                const indentation = node.loc.start.column;
-
-                                // Add comment to the converted component
-                                yield fixer.insertTextBeforeRange(
-                                    startTagRange,
-                                    `${codemodComment}\n${' '.repeat(indentation)}`,
-                                );
-                            },
-                        });
-                    }
-                },
+                        if (node.endTag) {
+                            yield fixer.replaceTextRange(node.endTag.range, `</${newName}>`);
+                        }
+                    },
+                });
             },
-        );
+        });
     },
 };

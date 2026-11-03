@@ -34,7 +34,7 @@ import sw_loader from './sw-loader';
 import sw_checkbox_field from './sw-checkbox-field';
 import sw_entity_listing from './sw-entity-listing';
 import sw_empty_state from './sw-empty-state';
-import type { DeprecationMigration } from '../helpers';
+import type { ComponentMigration } from '../helpers';
 
 export default [
     sw_alert_deprecated,
@@ -69,4 +69,4 @@ export default [
     sw_checkbox_field,
     sw_entity_listing,
     sw_empty_state,
-] satisfies DeprecationMigration[];
+] satisfies ComponentMigration[];

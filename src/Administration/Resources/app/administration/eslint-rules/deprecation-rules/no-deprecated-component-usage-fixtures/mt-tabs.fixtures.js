@@ -70,7 +70,7 @@ const mtTabsInvalidTests = [
     }
 ]">
                     <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-<template #default="{ active }">
+                    <template #default="{ active }">
                         <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
                         <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
                     </template>
@@ -122,7 +122,7 @@ const mtTabsInvalidTests = [
     }
 ]">
                     <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-<template #default="{ active }">
+                    <template #default="{ active }">
                         <sw-tabs-item name="tab1">{{ $tc('sw-cms.elements.general.config.tab.one') }}</sw-tabs-item>
                         <sw-tabs-item name="tab2">{{ $tc('sw-cms.elements.general.config.tab.two') }}</sw-tabs-item>
                     </template>
@@ -170,7 +170,8 @@ const mtTabsInvalidTests = [
         'label': 'Tab 2',
         'name': 'tab2'
     }
-]"><!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
+]">
+                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
                     <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
                     <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
                 </mt-tabs>
@@ -380,7 +381,8 @@ const mtTabsInvalidTests = [
                     v-if="productId"
                     class="sw-product-detail-page__tabs"
                     position-identifier="sw-product-detail"
-                ><!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
+                >
+                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
                     <sw-tabs-item
                         class="sw-product-detail__tab-general"
                         route="sw.product.detail.base"
@@ -397,6 +399,31 @@ const mtTabsInvalidTests = [
                     >
                         {{ $tc('sw-product.detail.tabSpecifications') }}
                     </sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        errors: [
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+        ],
+    },
+    {
+        name: '"mt-tabs" keeps slashes and parentheses of item routes and escapes their quotes',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-tabs>
+                    <sw-tabs-item :route="getRoute('general/tab')">General</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        output: `
+            <template>
+                <mt-tabs :items="[
+    {
+        'label': 'General',
+        'name': 'getRoute(\\'general/tab\\')'
+    }
+]">
+                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
+                    <sw-tabs-item :route="getRoute('general/tab')">General</sw-tabs-item>
                 </mt-tabs>
             </template>`,
         errors: [

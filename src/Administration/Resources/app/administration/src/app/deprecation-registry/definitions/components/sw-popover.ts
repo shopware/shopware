@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, missingProp, reference, removeProp, renameComponent, renameProp } from '../helpers';
+import { componentMigration, missingProp, removeProp, renameComponent, renameProp, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-popover',
@@ -13,7 +13,7 @@ export default componentMigration({
     description:
         'The legacy sw-popover component is replaced by mt-floating-ui from the Meteor component library. The new component has a different visibility model and several legacy layout props were removed.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-popover' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-popover'),
     ],
     usage: [
         renameComponent({ from: 'sw-popover', to: 'mt-floating-ui', fix: 'unsafe-auto' }),

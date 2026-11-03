@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { reference, removeTemplateBlock, templateBlockMigration } from '../helpers';
+import { removeTemplateBlock, templateBlockMigration, upgradeGuide } from '../helpers';
 
 export default templateBlockMigration({
     id: 'template-block.newsletter-recipient-filter',
@@ -11,7 +11,7 @@ export default templateBlockMigration({
     description:
         'Newsletter recipient status filter Twig blocks are deprecated with the removed newsletter recipient filter UI.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
         removeTemplateBlock({

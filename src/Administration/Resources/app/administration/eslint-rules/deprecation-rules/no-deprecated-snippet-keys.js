@@ -3,7 +3,7 @@
  */
 
 const { loadRegistry } = require('./registry/load-registry');
-const { filterMigrations } = require('./registry/filter-migrations');
+const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 
 function buildMessage(migration, usage, snippetKey) {
@@ -41,6 +41,12 @@ function findMustacheStringLiterals(text) {
     });
 }
 
+/**
+ * Finds the removed key a snippet key uses: the key itself or one of its parents.
+ *
+ * @example
+ * findDeprecatedSnippet('sw-foo.bar.title', usages); // the usage with from: 'sw-foo.bar'
+ */
 function findDeprecatedSnippet(value, usages) {
     return (
         usages.find(({ usage }) => {
@@ -49,6 +55,11 @@ function findDeprecatedSnippet(value, usages) {
     );
 }
 
+/**
+ * This rule reports snippet keys the registry lists as removed, in scripts and in template mustaches.
+ *
+ * @type {import('eslint').Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: 'problem',
@@ -60,15 +71,7 @@ module.exports = {
     },
 
     create(context) {
-        const registry = loadRegistry();
-        const usages = filterMigrations(registry.snippetKeyMigrations).flatMap((migration) => {
-            return migration.usage.map((usage) => {
-                return {
-                    migration,
-                    usage,
-                };
-            });
-        });
+        const usages = selectedUsages(loadRegistry().snippetKeyMigrations);
 
         function checkNode(node) {
             const value = getStringValue(node);

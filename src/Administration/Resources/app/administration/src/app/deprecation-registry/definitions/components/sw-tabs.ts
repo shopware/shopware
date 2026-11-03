@@ -4,12 +4,12 @@
 
 import {
     componentMigration,
-    reference,
+    flagSlotForManualMove,
     removeProp,
-    removeSlot,
     renameComponent,
     renameProp,
     slotToItemsProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -21,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-tabs component is replaced by mt-tabs. Simple component and prop renames can be automated, but default/content slot migrations require manual review because mt-tabs expects tab metadata through the items prop and content outside the component.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#sw-tabs-automatic-wrapper-switch-deferred' }),
+        upgradeGuide('UPGRADE-6.8.md#sw-tabs-automatic-wrapper-switch-deferred'),
     ],
     usage: [
         renameComponent({
@@ -44,11 +44,10 @@ export default componentMigration({
             fix: 'unsafe-auto',
             message: 'Convert the default slot tab declarations into mt-tabs items.',
         }),
-        removeSlot({
+        flagSlotForManualMove({
             slot: 'content',
-            fix: 'unsafe-auto',
             message: 'Move content slot markup out of mt-tabs and render it next to the active tab state.',
-            slotReviewHint: 'The "content" slot is not used anymore. Please set the content manually outside the component.',
+            hint: 'The "content" slot is not used anymore. Please set the content manually outside the component.',
         }),
     ],
 });

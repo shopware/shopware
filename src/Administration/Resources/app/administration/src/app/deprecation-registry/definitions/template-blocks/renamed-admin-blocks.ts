@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { reference, renameTemplateBlock, templateBlockMigration } from '../helpers';
+import { renameTemplateBlock, templateBlockMigration, upgradeGuide } from '../helpers';
 
 export default templateBlockMigration({
     id: 'template-block.renamed-admin-blocks',
@@ -11,7 +11,7 @@ export default templateBlockMigration({
     description:
         'Several Administration Twig blocks were renamed to fix typos or align names with the new component structure.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
         renameTemplateBlock({

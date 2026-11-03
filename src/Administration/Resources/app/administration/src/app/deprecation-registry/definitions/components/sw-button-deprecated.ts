@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, reference, renameComponent } from '../helpers';
+import { componentMigration, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-button-deprecated',
@@ -12,7 +12,7 @@ export default componentMigration({
     removedIn: '6.8.0',
     description: 'The legacy sw-button-deprecated component is replaced by mt-button.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-button' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-button'),
     ],
     usage: [
         renameComponent({ from: 'sw-button-deprecated', to: 'mt-button', fix: 'manual' }),

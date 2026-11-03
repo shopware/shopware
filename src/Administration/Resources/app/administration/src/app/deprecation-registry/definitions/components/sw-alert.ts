@@ -4,13 +4,12 @@
 
 import {
     componentMigration,
-    invertBooleanTransform,
     mapPropValue,
-    reference,
     removeProp,
     removeSlot,
     renameComponent,
     renameProp,
+    upgradeGuide,
 } from '../helpers';
 
 export default componentMigration({
@@ -22,7 +21,7 @@ export default componentMigration({
     description:
         'The legacy sw-alert component is replaced by mt-banner. Banner prop names and variants changed in the Meteor component library.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#component-replacement-with-meteor-component-library' }),
+        upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
     usage: [
         renameComponent({ from: 'sw-alert', to: 'mt-banner' }),
@@ -36,7 +35,7 @@ export default componentMigration({
         renameProp({
             from: 'show-icon',
             to: 'hide-icon',
-            transform: invertBooleanTransform,
+            invert: true,
         }),
         mapPropValue({
             prop: 'variant',
@@ -55,7 +54,7 @@ export default componentMigration({
         }),
         removeSlot({
             slot: 'actions',
-            slotReplacementComment: 'Slot "actions" was removed and has no replacement.',
+            replacementComment: 'Slot "actions" was removed and has no replacement.',
         }),
     ],
 });

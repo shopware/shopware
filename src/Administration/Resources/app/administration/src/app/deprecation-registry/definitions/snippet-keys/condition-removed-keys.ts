@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { reference, removeSnippetKey, snippetKeyMigration } from '../helpers';
+import { removeSnippetKey, snippetKeyMigration, upgradeGuide } from '../helpers';
 
 export default snippetKeyMigration({
     id: 'snippet.condition-removed-keys',
@@ -11,7 +11,7 @@ export default snippetKeyMigration({
     description:
         'Several condition snippet keys are deprecated because the corresponding rule condition labels were removed.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
+        upgradeGuide('UPGRADE-6.7.md#administration'),
     ],
     usage: [
         removeSnippetKey({ from: 'global.sw-condition.condition.cartTaxDisplay', fix: 'manual' }),

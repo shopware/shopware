@@ -7,13 +7,12 @@ import {
     getFixLevel,
     getLeastAutomaticFixLevel,
     getRunnableMigrations,
-    getUsageFixLevel,
     parseArgs,
     selectMigrations,
     validateSelection,
 } from './migration-selection';
 
-type Usage = { kind: string; fix?: string; transform?: () => { kind: string; fix: string } };
+type Usage = { kind: string; fix: string };
 
 function migration(id: string, usage: Usage[] = [{ kind: 'rename-prop', fix: 'auto' }]) {
     return { id, usage };
@@ -117,15 +116,6 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
             expect(getLeastAutomaticFixLevel(['auto'])).toBe('auto');
         });
 
-        it('counts a usage without a fix level as manual', () => {
-            expect(getUsageFixLevel({ kind: 'remove-prop' })).toBe('manual');
-        });
-
-        it('uses the fix level a transform provides', () => {
-            const usage = { kind: 'map-prop-value', fix: 'auto', transform: () => ({ kind: 'x', fix: 'unsafe-auto' }) };
-
-            expect(getUsageFixLevel(usage)).toBe('unsafe-auto');
-        });
 
         it('rates a migration by its least automatic usage', () => {
             expect(

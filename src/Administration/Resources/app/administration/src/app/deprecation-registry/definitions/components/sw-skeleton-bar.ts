@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, reference, renameComponent } from '../helpers';
+import { componentMigration, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-skeleton-bar',
@@ -12,7 +12,7 @@ export default componentMigration({
     removedIn: '6.8.0',
     description: 'The legacy sw-skeleton-bar component is replaced by mt-skeleton-bar.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-skeleton-bar' }),
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-skeleton-bar'),
     ],
     usage: [
         renameComponent({ from: 'sw-skeleton-bar', to: 'mt-skeleton-bar' }),

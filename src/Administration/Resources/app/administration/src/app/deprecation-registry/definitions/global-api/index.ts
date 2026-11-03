@@ -3,8 +3,8 @@
  */
 
 import tc from './tc';
-import type { DeprecationMigration } from '../helpers';
+import type { GlobalApiMigration } from '../helpers';
 
 export default [
     tc,
-] satisfies DeprecationMigration[];
+] satisfies GlobalApiMigration[];

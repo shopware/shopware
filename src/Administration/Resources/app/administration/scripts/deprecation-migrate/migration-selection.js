@@ -108,21 +108,6 @@ function selectMigrations(args, migrations) {
 }
 
 /**
- * Evaluates a usage's dynamic transform with an empty context, because the listing and the summary
- * describe a migration without a concrete usage site.
- *
- * @example
- * getContextFreeTransformResult({ transform: () => ({ kind: 'x', fix: 'manual' }) }); // { kind: 'x', fix: 'manual' }
- */
-function getContextFreeTransformResult(usage) {
-    if (typeof usage.transform !== 'function') {
-        return null;
-    }
-
-    return usage.transform({});
-}
-
-/**
  * Picks the least automatic of the given fix levels, so a migration is only as automatic as its weakest step.
  *
  * @example
@@ -133,29 +118,13 @@ function getLeastAutomaticFixLevel(fixLevels) {
 }
 
 /**
- * Returns the fix level of one usage step from its own `fix` and its transform's. A usage that
- * declares neither has no automatic fix, so it counts as manual.
- *
- * @example
- * getUsageFixLevel({ kind: 'remove-prop' }); // 'manual'
- */
-function getUsageFixLevel(usage) {
-    const fixLevels = [
-        usage.fix,
-        getContextFreeTransformResult(usage)?.fix,
-    ].filter(Boolean);
-
-    return getLeastAutomaticFixLevel(fixLevels.length > 0 ? fixLevels : ['manual']);
-}
-
-/**
  * Returns the fix level of a whole migration, the least automatic level of its usage steps.
  *
  * @example
  * getFixLevel({ usage: [{ fix: 'auto' }, { fix: 'unsafe-auto' }] }); // 'unsafe-auto'
  */
 function getFixLevel(migration) {
-    return getLeastAutomaticFixLevel(migration.usage.map(getUsageFixLevel));
+    return getLeastAutomaticFixLevel(migration.usage.map((usage) => usage.fix));
 }
 
 /**
@@ -174,11 +143,9 @@ function getRunnableMigrations(registry) {
 }
 
 module.exports = {
-    getContextFreeTransformResult,
     getFixLevel,
     getLeastAutomaticFixLevel,
     getRunnableMigrations,
-    getUsageFixLevel,
     parseArgs,
     selectMigrations,
     validateSelection,

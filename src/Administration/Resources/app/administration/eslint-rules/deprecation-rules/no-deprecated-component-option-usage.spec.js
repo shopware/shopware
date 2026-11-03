@@ -2,7 +2,7 @@ const path = require('path');
 const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-deprecated-component-option-usage');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
-const { describeWithSelectedDeprecationIds } = require('./registry/selected-deprecation-ids');
+const { describeWithSelectedDeprecationIds } = require('./test-utils/selected-deprecation-ids');
 
 const componentSources = path.join(__dirname, 'no-deprecated-component-option-usage-fixtures');
 

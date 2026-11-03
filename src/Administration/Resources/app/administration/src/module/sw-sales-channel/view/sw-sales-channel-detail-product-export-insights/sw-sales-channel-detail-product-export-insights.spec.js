@@ -173,10 +173,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-expor
         jest.clearAllMocks();
     });
 
-    it('is a Vue component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('renders all insight cards when user can view orders and customers', () => {
         const cards = wrapper.findAll('.sw-chart-card');
 

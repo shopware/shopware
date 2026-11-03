@@ -580,7 +580,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
-            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->aclRoleLoader)]),
+            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->aclRoleLoader, $this->webhookOutboxStore)]),
         );
     }
 

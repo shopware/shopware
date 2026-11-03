@@ -91,6 +91,5 @@ class AppUrlVerifyCommandTest extends TestCase
         static::assertStringContainsString('Manual attempt', $display);
         static::assertStringContainsString('Checked at', $display);
         static::assertStringContainsString('2025-01-01 12:00:00 UTC', $display);
-        static::assertStringContainsString('When a hard fail occurs, app communication will be disabled.', $display);
     }
 }

@@ -68,8 +68,36 @@ class SeoUrlPersister
      */
     private function doUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel, bool $overwrite): void
     {
+        $updates = [];
+        $updatesBySalesChannel = [];
+        foreach ($seoUrls as $seoUrl) {
+            if ($seoUrl instanceof SeoUrlEntity) {
+                $seoUrl = $seoUrl->jsonSerialize();
+            }
+            $updates[] = $seoUrl;
+            $updatesBySalesChannel[(string) ($seoUrl['salesChannelId'] ?? '')][] = $seoUrl;
+        }
+
+        if ($updatesBySalesChannel === []) {
+            $this->persistSalesChannelSeoUrls($context, $routeName, $foreignKeys, [], $salesChannel->getId(), $overwrite);
+        }
+
+        // canonical, retarget and deleted handling is scoped to one sales channel, so callers may mix sales channels
+        foreach ($updatesBySalesChannel as $salesChannelId => $salesChannelUpdates) {
+            $this->persistSalesChannelSeoUrls($context, $routeName, $foreignKeys, $salesChannelUpdates, $salesChannelId === '' ? null : $salesChannelId, $overwrite);
+        }
+
+        $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates, $context));
+    }
+
+    /**
+     * @param array<string> $foreignKeys
+     * @param list<array<string, mixed>> $seoUrls
+     */
+    private function persistSalesChannelSeoUrls(Context $context, string $routeName, array $foreignKeys, array $seoUrls, ?string $salesChannelId, bool $overwrite): void
+    {
         $languageId = $context->getLanguageId();
-        $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
+        $canonicals = $seoUrls === [] ? [] : $this->findCanonicalPaths($routeName, $languageId, $foreignKeys, [$salesChannelId]);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $table = $this->seoUrlRepository->getDefinition()->getEntityName();
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
@@ -85,26 +113,15 @@ class SeoUrlPersister
 
         $seoPathInfos = [];
 
-        $salesChannelId = $salesChannel->getId();
-        $updates = [];
         foreach ($seoUrls as $seoUrl) {
-            if ($seoUrl instanceof SeoUrlEntity) {
-                $seoUrl = $seoUrl->jsonSerialize();
-            }
-            $updates[] = $seoUrl;
-
             $fk = $seoUrl['foreignKey'];
-            $salesChannelId = $seoUrl['salesChannelId'] ??= null;
+            $seoUrl['salesChannelId'] ??= null;
 
             // skip duplicates
-            if (isset($processed[$fk][$salesChannelId])) {
+            if (isset($processed[$fk])) {
                 continue;
             }
-
-            if (!isset($processed[$fk])) {
-                $processed[$fk] = [];
-            }
-            $processed[$fk][$salesChannelId] = true;
+            $processed[$fk] = true;
 
             $updatedFks[] = $fk;
 
@@ -175,8 +192,6 @@ class SeoUrlPersister
         // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
         // thereby preserving the canonical SEO URL for Entity A.
         $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
-
-        $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates, $context));
     }
 
     /**
@@ -208,12 +223,19 @@ class SeoUrlPersister
     }
 
     /**
+     * Only the canonical URLs of the given sales channels are loaded, so the cost does not grow with the number of sales channels.
+     *
      * @param array<string> $foreignKeys
+     * @param list<string|null> $salesChannelIds `null` stands for SEO URLs without a sales channel
      *
      * @return array<string, mixed>
      */
-    private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys): array
+    private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys, array $salesChannelIds): array
     {
+        if ($salesChannelIds === []) {
+            return [];
+        }
+
         $fks = Uuid::fromHexToBytesList($foreignKeys);
         $languageId = Uuid::fromHexToBytes($languageId);
 
@@ -236,6 +258,19 @@ class SeoUrlPersister
         $query->setParameter('routeName', $routeName);
         $query->setParameter('language_id', $languageId);
         $query->setParameter('foreign_keys', $fks, ArrayParameterType::BINARY);
+
+        $salesChannelIdBytes = Uuid::fromHexToBytesList(array_values(array_filter($salesChannelIds, static fn (?string $id): bool => $id !== null)));
+        if ($salesChannelIdBytes === []) {
+            $query->andWhere('seo_url.sales_channel_id IS NULL');
+        } else {
+            $salesChannelCondition = 'seo_url.sales_channel_id IN (:sales_channel_ids)';
+            if (\in_array(null, $salesChannelIds, true)) {
+                $salesChannelCondition = '(' . $salesChannelCondition . ' OR seo_url.sales_channel_id IS NULL)';
+            }
+
+            $query->andWhere($salesChannelCondition);
+            $query->setParameter('sales_channel_ids', $salesChannelIdBytes, ArrayParameterType::BINARY);
+        }
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 

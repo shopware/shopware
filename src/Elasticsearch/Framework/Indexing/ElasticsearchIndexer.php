@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\Clock\ClockInterface;
@@ -117,10 +118,14 @@ class ElasticsearchIndexer
 
     private function createIndexingMessage(IndexerOffset $offset): ?ElasticsearchIndexingMessage
     {
-        $definition = $this->registry->get((string) $offset->getDefinition());
+        if ($offset->getDefinition() === null) {
+            return null;
+        }
+
+        $definition = $this->registry->get($offset->getDefinition());
 
         if (!$definition) {
-            throw ElasticsearchException::definitionNotFound((string) $offset->getDefinition());
+            throw ElasticsearchException::definitionNotFound($offset->getDefinition());
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();
@@ -161,13 +166,21 @@ class ElasticsearchIndexer
      */
     private function init(array $entities = []): IndexerOffset
     {
-        $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
+        $entitiesToHandle = $this->handleEntities($entities);
+
+        if ($entities === []) {
+            $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
+        } else {
+            $this->connection->executeStatement(
+                'DELETE FROM elasticsearch_index_task WHERE `entity` IN (:entities)',
+                ['entities' => $entitiesToHandle],
+                ['entities' => ArrayParameterType::STRING]
+            );
+        }
 
         $timestamp = \DateTime::createFromImmutable($this->clock->now());
 
-        $this->createIndex($timestamp);
-
-        $entitiesToHandle = $this->handleEntities($entities);
+        $this->createIndex($timestamp, $entitiesToHandle);
 
         return new IndexerOffset(
             $entitiesToHandle,
@@ -203,11 +216,18 @@ class ElasticsearchIndexer
         return $errors;
     }
 
-    private function createIndex(\DateTime $timestamp): void
+    /**
+     * @param list<string>|null $entities
+     */
+    private function createIndex(\DateTime $timestamp, ?array $entities = null): void
     {
         $context = Context::createDefaultContext();
 
         foreach ($this->registry->getDefinitions() as $definition) {
+            if ($entities !== null && !\in_array($definition->getEntityDefinition()->getEntityName(), $entities, true)) {
+                continue;
+            }
+
             $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
             $index = $alias . '_' . $timestamp->getTimestamp();
@@ -316,17 +336,17 @@ class ElasticsearchIndexer
     /**
      * @param array<string> $entities
      *
-     * @return iterable<string>
+     * @return list<string>
      */
-    private function handleEntities(array $entities = []): iterable
+    private function handleEntities(array $entities = []): array
     {
-        if ($entities === []) {
-            return $this->registry->getDefinitionNames();
-        }
-
         $registeredEntities = \is_array($this->registry->getDefinitionNames())
             ? $this->registry->getDefinitionNames()
             : iterator_to_array($this->registry->getDefinitionNames());
+
+        if ($entities === []) {
+            return array_values($registeredEntities);
+        }
 
         $validEntities = array_intersect($entities, $registeredEntities);
         $unregisteredEntities = array_diff($entities, $registeredEntities);
@@ -339,6 +359,6 @@ class ElasticsearchIndexer
             $this->helper->logAndThrowException($exception);
         }
 
-        return $validEntities;
+        return array_values($validEntities);
     }
 }

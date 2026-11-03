@@ -209,6 +209,16 @@ export const documentV2ApiService = 'documentV2ApiService';
 export const documentV2Service = 'documentV2Service';
 
 /**
+ * The name the domainLinkService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [domainLinkService] };
+ *
+ * @public
+ */
+export const domainLinkService = 'domainLinkService';
+
+/**
  * The name the entityFactory service is registered and injected under.
  *
  * @example
@@ -229,6 +239,16 @@ export const entityFactory = 'entityFactory';
 export const entityHydrator = 'entityHydrator';
 
 /**
+ * The name the entityMappingService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [entityMappingService] };
+ *
+ * @public
+ */
+export const entityMappingService = 'entityMappingService';
+
+/**
  * The name the excludedSearchTermService service is registered and injected under.
  *
  * @example
@@ -237,6 +257,16 @@ export const entityHydrator = 'entityHydrator';
  * @public
  */
 export const excludedSearchTermService = 'excludedSearchTermService';
+
+/**
+ * The name the exportTemplateService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [exportTemplateService] };
+ *
+ * @public
+ */
+export const exportTemplateService = 'exportTemplateService';
 
 /**
  * The name the extensionHelperService service is registered and injected under.
@@ -473,6 +503,16 @@ export const orderService = 'orderService';
 export const orderStateMachineService = 'orderStateMachineService';
 
 /**
+ * The name the productExportService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [productExportService] };
+ *
+ * @public
+ */
+export const productExportService = 'productExportService';
+
+/**
  * The name the productIndexService service is registered and injected under.
  *
  * @example
@@ -541,6 +581,36 @@ export const ruleConditionDataProviderService = 'ruleConditionDataProviderServic
  * @public
  */
 export const ruleConditionsConfigApiService = 'ruleConditionsConfigApiService';
+
+/**
+ * The name the salesChannelFileApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [salesChannelFileApiService] };
+ *
+ * @public
+ */
+export const salesChannelFileApiService = 'salesChannelFileApiService';
+
+/**
+ * The name the salesChannelProductAssignmentApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [salesChannelProductAssignmentApiService] };
+ *
+ * @public
+ */
+export const salesChannelProductAssignmentApiService = 'salesChannelProductAssignmentApiService';
+
+/**
+ * The name the salesChannelService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [salesChannelService] };
+ *
+ * @public
+ */
+export const salesChannelService = 'salesChannelService';
 
 /**
  * The name the searchPreferencesService service is registered and injected under.

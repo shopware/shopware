@@ -10522,12 +10522,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js": {
+  "src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/src/sw-sales-channel-menu.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.spec.js": {
+  "src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/tests/sw-sales-channel-menu.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10535,7 +10535,7 @@
       "count": 21
     }
   },
-  "src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/index.js": {
+  "src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/src/sw-agentic-commerce-tracking-config.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10543,7 +10543,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/src/sw-sales-channel-defaults-select.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10551,12 +10551,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/sw-sales-channel-defaults-select.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/tests/sw-sales-channel-defaults-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/src/sw-sales-channel-detail-domains.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10567,7 +10567,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/sw-sales-channel-detail-domains.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/tests/sw-sales-channel-detail-domains.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10575,7 +10575,7 @@
       "count": 72
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/src/sw-sales-channel-detail-hreflang.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10583,7 +10583,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-measurement/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-measurement/src/sw-sales-channel-measurement.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10591,12 +10591,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-measurement/sw-sales-channel-measurement.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-measurement/tests/sw-sales-channel-measurement.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 15
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/src/sw-sales-channel-modal-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10604,7 +10604,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/src/sw-sales-channel-modal-grid.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10612,12 +10612,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/sw-sales-channel-modal-grid.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/tests/sw-sales-channel-modal-grid.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal/src/sw-sales-channel-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10625,7 +10625,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/src/sw-sales-channel-product-assignment-categories.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10633,12 +10633,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/sw-sales-channel-product-assignment-categories.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/tests/sw-sales-channel-product-assignment-categories.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups/src/sw-sales-channel-products-assignment-dynamic-product-groups.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10646,12 +10646,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups/sw-sales-channel-products-assignment-dynamic-product-groups.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups/tests/sw-sales-channel-products-assignment-dynamic-product-groups.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 80
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/src/sw-sales-channel-products-assignment-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10659,12 +10659,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/sw-sales-channel-products-assignment-modal.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/tests/sw-sales-channel-products-assignment-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/src/sw-sales-channel-products-assignment-single-products.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10672,7 +10672,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/sw-sales-channel-products-assignment-single-products.spec.js": {
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/tests/sw-sales-channel-products-assignment-single-products.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }
@@ -10693,7 +10693,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-create/src/sw-sales-channel-create.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10701,12 +10701,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-create/sw-sales-channel-create.spec.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-create/tests/sw-sales-channel-create.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/src/sw-sales-channel-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10717,12 +10717,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/tests/sw-sales-channel-detail-tabs.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/tests/sw-sales-channel-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10730,7 +10730,7 @@
       "count": 100
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-list/index.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-list/src/sw-sales-channel-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10738,7 +10738,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/page/sw-sales-channel-list/sw-sales-channel-list.spec.js": {
+  "src/module/sw-sales-channel/page/sw-sales-channel-list/tests/sw-sales-channel-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
@@ -10800,7 +10800,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-create-base/src/sw-sales-channel-create-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10808,7 +10808,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/src/sw-sales-channel-detail-agentic-commerce-integration.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10816,7 +10816,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/src/sw-sales-channel-detail-agentic-file.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10824,12 +10824,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/sw-sales-channel-detail-agentic-file.spec.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/tests/sw-sales-channel-detail-agentic-file.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/src/sw-sales-channel-detail-agentic-files.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10837,17 +10837,17 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/sw-sales-channel-detail-agentic-files.spec.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/tests/sw-sales-channel-detail-agentic-files.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 14
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics/src/sw-sales-channel-detail-analytics.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/src/sw-sales-channel-detail-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10858,7 +10858,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/sw-sales-channel-detail-base.spec.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/tests/sw-sales-channel-detail-base.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
     },
@@ -10866,7 +10866,7 @@
       "count": 71
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/src/sw-sales-channel-detail-product-comparison-preview.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10874,7 +10874,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/src/sw-sales-channel-detail-product-comparison.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10882,7 +10882,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/src/sw-sales-channel-detail-product-export-insights.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10890,12 +10890,12 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/sw-sales-channel-detail-product-export-insights.spec.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/tests/sw-sales-channel-detail-product-export-insights.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 51
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/index.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/src/sw-sales-channel-detail-products.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10903,7 +10903,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/sw-sales-channel-detail-products.spec.js": {
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/tests/sw-sales-channel-detail-products.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

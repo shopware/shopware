@@ -1,0 +1,131 @@
+/**
+ * @sw-package discovery
+ */
+
+import template from './sw-sales-channel-create.html.twig';
+import { getApiContext, systemConfigApiService, useContextStore, Utils } from '../dependencies';
+
+const utils = Utils;
+
+const insertIdIntoRoute = (to, from, next) => {
+    if (to.name.includes('sw.sales.channel.create') && !to.params.id) {
+        to.params.id = utils.createId();
+    }
+
+    next();
+};
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    beforeRouteEnter: insertIdIntoRoute,
+
+    beforeRouteUpdate: insertIdIntoRoute,
+
+    inject: [systemConfigApiService],
+
+    computed: {
+        allowSaving() {
+            return this.acl.can('sales_channel.creator');
+        },
+    },
+
+    methods: {
+        createdComponent() {
+            if (!this.$route.params.typeId) {
+                return;
+            }
+
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
+            }
+
+            this.isLoading = true;
+            this.salesChannel = this.salesChannelRepository.create();
+            this.salesChannel.typeId = this.$route.params.typeId;
+            this.salesChannel.active = false;
+            this.salesChannel.measurementUnits = this.createEmptyMeasurementUnits();
+
+            // Set default language from admin context
+            const defaultLanguageId = useContextStore().api.languageId;
+            this.salesChannel.languageId = defaultLanguageId;
+            this.ensureDefaultLanguageInCollection(defaultLanguageId);
+
+            this.setMeasurementUnits()
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                    });
+                })
+                .finally(() => {
+                    this.$super('createdComponent');
+                    this.isLoading = false;
+                });
+        },
+
+        createEmptyMeasurementUnits() {
+            return {
+                system: null,
+                units: {
+                    length: null,
+                    weight: null,
+                },
+            };
+        },
+
+        async setMeasurementUnits() {
+            const measurementUnits = await this.getMeasurementUnits();
+
+            this.salesChannel.measurementUnits = {
+                system: measurementUnits['core.measurementUnits.system'],
+                units: {
+                    length: measurementUnits['core.measurementUnits.length'],
+                    weight: measurementUnits['core.measurementUnits.weight'],
+                },
+            };
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({
+                name: 'sw.sales.channel.detail',
+                params: { id: this.salesChannel.id },
+            });
+        },
+
+        onSave() {
+            this.$super('onSave');
+        },
+
+        getMeasurementUnits() {
+            return this.systemConfigApiService.getValues('core.measurementUnits');
+        },
+
+        ensureDefaultLanguageInCollection(languageId) {
+            if (!languageId || !this.salesChannel?.languages) {
+                return;
+            }
+
+            if (this.salesChannel.languages.has(languageId)) {
+                return;
+            }
+
+            const languageRepository = this.repositoryFactory.create('language');
+            languageRepository.get(languageId, getApiContext()).then((language) => {
+                if (!language || this.salesChannel.languages.has(languageId)) {
+                    return;
+                }
+
+                if (typeof this.salesChannel.languages.add === 'function') {
+                    this.salesChannel.languages.add(language);
+                    return;
+                }
+
+                this.salesChannel.languages = this.salesChannel.languages.concat([language]);
+            });
+        },
+    },
+};

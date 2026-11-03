@@ -13,6 +13,7 @@
     showTaxInfo = false,
     advancedPricing = true,
     large = false,
+    showListPriceBadge = false,
 %}
 
 {% set attributeDefaults = {
@@ -110,6 +111,9 @@
                 </span>
 
                 {% if isListPrice and not displayFrom and not displayFromVariants %}
+                    {% if showListPriceBadge %}
+                        <span class="badge text-bg-danger sw-product-price-display__list-price-badge" aria-hidden="true">&#37;</span>
+                    {% endif %}
                     <span class="visually-hidden">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
                     <s class="fs-6">{{ price.listPrice.price|currency }}</s>
                     <span class="fs-6">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>

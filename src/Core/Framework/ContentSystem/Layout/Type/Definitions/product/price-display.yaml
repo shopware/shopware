@@ -30,3 +30,11 @@ properties:
     default: false
     adminUI:
       component: "switch"
+
+  showListPriceBadge:
+    type: boolean
+    title: "Show list price badge"
+    description: "Render the list price badge."
+    default: true
+    adminUI:
+      component: "switch"

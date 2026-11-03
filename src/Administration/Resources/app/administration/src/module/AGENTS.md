@@ -72,14 +72,27 @@ a name in `public` the component doesn't have is a type error.
 `global.d.ts` next to `index.ts` adds the component to the global `PublicComponents` interface, so `Shopware.Component.override()` on that name may replace public members only, and `this.$super()` takes public names only.
 Extensions see these types through `extension-tooling/mini-modules.d.ts`, which imports every `global.d.ts`; a spec fails when one is missing there.
 
-Extensions import a mini-module as `shopware:mini-modules/<directory name>`, so a component module's directory carries the component name.
-`register.ts` publishes the exports of `index.ts` for that import, and every mini-module has one, also without a component:
+Extensions import a mini-module as `shopware:<kind>/<directory name>`, so a component module's directory carries the component name.
+A component module is of the kind `components`.
+Any other mini-module names its kind with `@shopware-kind <kind>` in the doc comment of its `index.ts` exports, and the generator fails without one:
+
+```ts
+// index.ts of a helper module
+/**
+ * @public
+ * @shopware-kind helpers
+ */
+export { getPrimaryDelivery } from './src/primary-delivery';
+```
+
+The kinds are `components`, `framework`, `handlers` and `helpers`; `PUBLIC_KINDS` in `src/core/mini-module-registry.ts` lists them.
+`register.ts` publishes the exports of `index.ts` for that import under `Shopware.Public.<kind>`, and every mini-module has one, also without a component:
 
 ```ts
 // register.ts
 import * as SwExample from './index';
 
-Shopware._private.publishMiniModule('sw-example', SwExample);
+Shopware._private.publish('components', 'sw-example', SwExample);
 ```
 
 Run `composer admin:generate-shopware-modules` after adding a mini-module or changing the exports of its `index.ts`.

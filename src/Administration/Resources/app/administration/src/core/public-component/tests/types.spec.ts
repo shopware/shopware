@@ -2,6 +2,7 @@ import {
     definePrivateComponent,
     definePublicComponent,
     type PrivateInstance,
+    type PublicComponent,
     type PublicInstance,
     type PublicOverride,
 } from '../index';
@@ -137,6 +138,21 @@ describe('public-component types', () => {
         expect(SwPrivateExample.name).toBe('sw-private-example');
         expect(instance.save(true)).toBe(true);
         expect(title).toBeUndefined();
+    });
+
+    it('keeps the name and base of a registered private component, so register.ts can register or extend it', () => {
+        // ACT
+        const declaration = definePrivateComponent({
+            name: 'sw-private-detail',
+            extends: 'sw-example',
+            load: () => Promise.resolve({ default: { methods: { save(): void {} } } }),
+            public: { methods: ['save', 'inheritedReset'] },
+        });
+        const registrable: PublicComponent & { extends: string } = declaration;
+
+        // ASSERT
+        expect(registrable.name).toBe('sw-private-detail');
+        expect(registrable.extends).toBe('sw-example');
     });
 
     it('lets an override replace public members and add its own, but not replace private ones', () => {

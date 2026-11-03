@@ -143,7 +143,8 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
     }
 }
 
-// Maps `definePublicComponent({ name: 'sw-xyz', load: () => import('./src/sw-xyz') })` in a mini-module's index.ts
+// Maps `definePublicComponent({ name: 'sw-xyz', load: () => import('./src/sw-xyz') })` in a mini-module's index.ts,
+// and a named `definePrivateComponent()` in its private.ts; a nested one without a name has nothing to map
 function processDefinePublicComponentCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
     const declaration = call.getArguments()[0];
     if (declaration?.getKind() !== ts.SyntaxKind.ObjectLiteralExpression) {
@@ -247,7 +248,7 @@ for (const sourceFile of sourceFiles) {
             procsessComponentExtendCall(sourceFile, call);
         }
 
-        if (call.getExpression().getText() === 'definePublicComponent') {
+        if (['definePublicComponent', 'definePrivateComponent'].includes(call.getExpression().getText())) {
             processDefinePublicComponentCall(sourceFile, call);
         }
     });

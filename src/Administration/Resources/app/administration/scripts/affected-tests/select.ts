@@ -155,7 +155,9 @@ async function selectForMiniModule(
         return;
     }
 
-    const name = findPublicComponentName(repository.read(`${miniModule}/index.ts`) ?? '');
+    const name = findPublicComponentName(
+        repository.read(`${miniModule}/index.ts`) ?? repository.read(`${miniModule}/private.ts`) ?? '',
+    );
     if (!name) {
         if (part === 'register.ts' && /\bComponent\.(register|extend)\(/.test(repository.read(file) ?? '')) {
             uncertain.push({ file, reason: 'registers a component whose name index.ts does not declare' });

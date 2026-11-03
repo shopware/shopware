@@ -187,6 +187,14 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- each register.ts adds its component
     interface PublicComponents {}
+
+    /**
+     * Every globally registered component declared with `definePrivateComponent()`, by name.
+     * Each one's global.d.ts adds itself, so `Shopware.Component.override()` inside the Administration knows its lists.
+     * The extension type surface imports none of them, so for extensions such a name stays untyped.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- each private module's global.d.ts adds its component
+    interface PrivateComponents {}
 }
 
 /**
@@ -229,8 +237,9 @@ export function definePublicComponent<
 }
 
 /**
- * A component as a nested private mini-module declares it in its private.ts: how to load it, and what its parent
- * module may use. It has no global name, because its parent imports it and mounts it locally.
+ * A component as a private mini-module declares it in its private.ts: how to load it, and what other
+ * Administration code may use. A nested one has no global name, because its parent imports it and mounts it locally;
+ * a registered one has its name, and `extends` when it extends another component.
  *
  * @public
  */
@@ -240,15 +249,20 @@ export type PrivateComponent<
     Name extends string | undefined = string | undefined,
 > = {
     name?: Name;
+    extends?: string;
     load: Load;
     public?: Api;
 };
 
 /**
- * Declares a component in the private.ts of a nested mini-module, which lives in the `src/` of its parent's module.
- * The parent mounts it locally with `defineAsyncComponent(SwExample.load)`, so it never reaches extensions.
- * The `public` lists name what the parent module may use, and they are checked like those of
+ * Declares a component in the private.ts of a private mini-module, which never reaches extensions.
+ * The `public` lists name what other Administration code may use, and they are checked like those of
  * `definePublicComponent()`: a name the component doesn't have is a type error.
+ *
+ * A nested module, in the `src/` of its parent's module, has no name: the parent mounts it with
+ * `defineAsyncComponent(SwExample.load)`.
+ * A registered one has a name, its register.ts calls `Shopware.Component.register()` or `extend()`,
+ * and its global.d.ts adds it to `PrivateComponents`.
  *
  * @example
  * // private.ts
@@ -262,8 +276,18 @@ export type PrivateComponent<
  */
 export function definePrivateComponent<
     Load extends () => Promise<unknown>,
-    const Api extends PublicComponentApi<LoadedComponent<Load>> = object,
+    const Api extends PublicComponentApi<Base extends string ? unknown : LoadedComponent<Load>> = object,
     const Name extends string | undefined = undefined,
->(component: { name?: Name; load: Load; public?: Api }): PrivateComponent<Load, Api, Name> {
-    return component;
+    const Base extends string | undefined = undefined,
+>(component: {
+    name?: Name;
+    extends?: Base;
+    load: Load;
+    public?: Api;
+}): PrivateComponent<Load, Api, Name> &
+    (Name extends string ? { name: Name } : unknown) &
+    (Base extends string ? { extends: Base } : unknown) {
+    return component as PrivateComponent<Load, Api, Name> &
+        (Name extends string ? { name: Name } : unknown) &
+        (Base extends string ? { extends: Base } : unknown);
 }

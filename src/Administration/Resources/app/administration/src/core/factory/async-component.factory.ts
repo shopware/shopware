@@ -477,7 +477,8 @@ function register<
 >;
 
 /**
- * Registers a component declared with `definePublicComponent()` in the index.ts of its mini-module.
+ * Registers a component declared with `definePublicComponent()` in the index.ts of its mini-module,
+ * or with a named `definePrivateComponent()` in its private.ts.
  */
 function register(component: PublicComponent): unknown;
 
@@ -564,7 +565,7 @@ function extend(
 
 /**
  * Registers a component declared with `definePublicComponent({ extends })` in the index.ts of its mini-module,
- * on top of the component it extends.
+ * or with a named `definePrivateComponent({ extends })` in its private.ts, on top of the component it extends.
  */
 function extend(component: PublicComponent & { extends: string }): () => Promise<ComponentConfig>;
 
@@ -630,11 +631,14 @@ function extend(
 
 /**
  * The configuration an override of the named component accepts:
- * for a component declared with `definePublicComponent()`, only its public API.
+ * for a component declared with `definePublicComponent()`, only its public API,
+ * and for a registered `definePrivateComponent()`, only what its lists name.
  */
 type OverrideConfiguration<Name extends string> = Name extends keyof PublicComponents
     ? PublicOverride<PublicComponents[Name]> | (() => Promise<ComponentConfig>)
-    : ComponentConfig | (() => Promise<ComponentConfig>);
+    : Name extends keyof PrivateComponents
+      ? PublicOverride<PrivateComponents[Name]> | (() => Promise<ComponentConfig>)
+      : ComponentConfig | (() => Promise<ComponentConfig>);
 
 /**
  * Override an existing component including its config and template.

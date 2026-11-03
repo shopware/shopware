@@ -3,24 +3,31 @@
  */
 import template from './sw-settings-tag-detail-modal.html.twig';
 import './sw-settings-tag-detail-modal.scss';
+import {
+    aclService,
+    featureService,
+    mapPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+    syncService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'syncService',
-        'acl',
-        'feature',
+        repositoryFactoryService,
+        syncService,
+        aclService,
+        featureService,
     ],
 
     emits: ['close', 'finish'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

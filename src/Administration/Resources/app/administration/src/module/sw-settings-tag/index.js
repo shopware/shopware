@@ -2,16 +2,13 @@
  * @sw-package inventory
  */
 import './acl';
+import './component/sw-settings-tag-detail-assignments/register';
+import './component/sw-settings-tag-detail-modal/register';
+import './page/sw-settings-tag-list/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-tag-list', () => import('./page/sw-settings-tag-list'));
-Shopware.Component.register('sw-settings-tag-detail-modal', () => import('./component/sw-settings-tag-detail-modal'));
-Shopware.Component.register(
-    'sw-settings-tag-detail-assignments',
-    () => import('./component/sw-settings-tag-detail-assignments'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

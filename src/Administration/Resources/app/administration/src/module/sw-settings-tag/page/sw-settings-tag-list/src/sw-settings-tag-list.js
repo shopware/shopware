@@ -3,17 +3,25 @@
  */
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
+import {
+    aclService,
+    Criteria,
+    getApiContext,
+    listingMixin,
+    notificationMixin,
+    repositoryFactoryService,
+    tagApiService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'tagApiService'],
+    inject: [repositoryFactoryService, aclService, tagApiService],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {
@@ -327,7 +335,7 @@ export default {
             };
 
             return this.tagRepository
-                .clone(id, behavior, Shopware.Context.api)
+                .clone(id, behavior, getApiContext())
                 .then(() => {
                     this.duplicateName = null;
                     this.getList();

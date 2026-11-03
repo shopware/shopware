@@ -1,24 +1,23 @@
 /**
  * @sw-package inventory
  */
-import utils from 'src/core/service/util.service';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
+import { Criteria, getApiContext, listingMixin, repositoryFactoryService, utils } from '../dependencies';
 
-const { Context, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inheritAttrs: false,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['remove-assignment', 'add-assignment'],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     props: {
         tag: {
@@ -244,7 +243,7 @@ export default {
         search(criteria) {
             return this.entityRepository
                 .search(criteria, {
-                    ...Context.api,
+                    ...getApiContext(),
                     inheritance: true,
                 })
                 .then((items) => {

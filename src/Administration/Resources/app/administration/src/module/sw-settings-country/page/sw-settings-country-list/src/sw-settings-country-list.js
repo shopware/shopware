@@ -3,17 +3,24 @@
  */
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';
+import {
+    aclService,
+    Criteria,
+    getApiContext,
+    listingMixin,
+    repositoryFactoryService,
+    useContextStore,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     data() {
         return {
@@ -58,7 +65,7 @@ export default {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             this.countryRepository
-                .search(criteria, Shopware.Context.api)
+                .search(criteria, getApiContext())
                 .then((items) => {
                     this.total = items.total;
                     this.country = items;
@@ -87,7 +94,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 

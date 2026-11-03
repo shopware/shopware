@@ -3,41 +3,22 @@
  */
 
 import './acl';
+import './component/sw-country-state-detail/register';
+import './component/sw-multi-snippet-drag-and-drop/register';
+import './component/sw-settings-country-address-handling/register';
+import './component/sw-settings-country-currency-dependent-modal/register';
+import './component/sw-settings-country-currency-hamburger-menu/register';
+import './component/sw-settings-country-general/register';
+import './component/sw-settings-country-new-snippet-modal/register';
+import './component/sw-settings-country-preview-template/register';
+import './component/sw-settings-country-state/register';
+import './page/sw-settings-country-detail/register';
+import './page/sw-settings-country-create/register';
+import './page/sw-settings-country-list/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-country-list', () => import('./page/sw-settings-country-list'));
-Shopware.Component.register('sw-settings-country-detail', () => import('./page/sw-settings-country-detail'));
-Shopware.Component.extend(
-    'sw-settings-country-create',
-    'sw-settings-country-detail',
-    () => import('./page/sw-settings-country-create'),
-);
-Shopware.Component.register('sw-country-state-detail', () => import('./component/sw-country-state-detail'));
-Shopware.Component.register('sw-settings-country-general', () => import('./component/sw-settings-country-general'));
-Shopware.Component.register('sw-settings-country-state', () => import('./component/sw-settings-country-state'));
-Shopware.Component.register(
-    'sw-settings-country-currency-dependent-modal',
-    () => import('./component/sw-settings-country-currency-dependent-modal'),
-);
-Shopware.Component.register(
-    'sw-settings-country-currency-hamburger-menu',
-    () => import('./component/sw-settings-country-currency-hamburger-menu'),
-);
-Shopware.Component.register(
-    'sw-settings-country-preview-template',
-    () => import('./component/sw-settings-country-preview-template'),
-);
-Shopware.Component.register(
-    'sw-settings-country-new-snippet-modal',
-    () => import('./component/sw-settings-country-new-snippet-modal'),
-);
-Shopware.Component.register(
-    'sw-settings-country-address-handling',
-    () => import('./component/sw-settings-country-address-handling'),
-);
-Shopware.Component.register('sw-multi-snippet-drag-and-drop', () => import('./component/sw-multi-snippet-drag-and-drop'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

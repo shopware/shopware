@@ -3,25 +3,37 @@
  */
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
+import {
+    aclService,
+    customFieldDataProviderService,
+    discardDetailPageChangesMixin,
+    featureService,
+    getApiContext,
+    getUserConfigService,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    set,
+} from '../dependencies';
 
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-        'feature',
+        repositoryFactoryService,
+        aclService,
+        customFieldDataProviderService,
+        featureService,
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('country'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('country'),
     ],
 
     shortcuts: {
@@ -180,9 +192,7 @@ export default {
         async loadUserConfig() {
             this.userConfig = {
                 key: 'setting-country',
-                value:
-                    (await Shopware.Service('userConfigService').search(['setting-country']))?.data?.['setting-country'] ||
-                    [],
+                value: (await getUserConfigService().search(['setting-country']))?.data?.['setting-country'] || [],
             };
             this.userConfigValues = this.userConfig.value[this.countryId];
 
@@ -203,10 +213,10 @@ export default {
             const userConfigValue = this.userConfig.value[this.countryId];
 
             return this.countryRepository
-                .save(this.country, Shopware.Context.api)
+                .save(this.country, getApiContext())
                 .then(() => {
                     if (userConfigValue && Object.keys(userConfigValue).length > 0) {
-                        Shopware.Service('userConfigService')
+                        getUserConfigService()
                             .upsert({
                                 'setting-country': this.userConfig.value,
                             })
@@ -264,7 +274,7 @@ export default {
          * @param value
          */
         onUpdateCountry(path, value) {
-            Shopware.Utils.object.set(this.country, path, value);
+            set(this.country, path, value);
         },
     },
 };

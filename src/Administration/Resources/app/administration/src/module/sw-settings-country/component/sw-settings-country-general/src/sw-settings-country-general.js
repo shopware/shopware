@@ -3,23 +3,31 @@
  */
 import template from './sw-settings-country-general.html.twig';
 import './sw-settings-country-general.scss';
+import {
+    aclService,
+    Criteria,
+    discardDetailPageChangesMixin,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     emits: ['modal-save'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('country'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('country'),
     ],
 
     props: {
@@ -83,7 +91,7 @@ export default {
         },
 
         loadCurrencies() {
-            return this.currencyRepository.search(new Criteria(1, 500), Shopware.Context.api).then((currencies) => {
+            return this.currencyRepository.search(new Criteria(1, 500), getApiContext()).then((currencies) => {
                 this.currencies = currencies;
             });
         },

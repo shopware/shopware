@@ -2,10 +2,13 @@
  * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-create.html.twig';
+import { getApiContext, getAppContext, Utils } from '../dependencies';
 
-const utils = Shopware.Utils;
+const utils = Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -19,18 +22,18 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
+            getApiContext().languageId = getApiContext().systemLanguageId;
 
             if (this.$route.params.id) {
-                this.country = this.countryRepository.create(Shopware.Context.api, this.$route.params.id);
+                this.country = this.countryRepository.create(getApiContext(), this.$route.params.id);
                 this.country.customerTax = {
                     amount: 0,
-                    currencyId: Shopware.Context.app.systemCurrencyId,
+                    currencyId: getAppContext().systemCurrencyId,
                     enabled: false,
                 };
                 this.country.companyTax = {
                     amount: 0,
-                    currencyId: Shopware.Context.app.systemCurrencyId,
+                    currencyId: getAppContext().systemCurrencyId,
                     enabled: false,
                 };
                 this.countryId = this.country.id;

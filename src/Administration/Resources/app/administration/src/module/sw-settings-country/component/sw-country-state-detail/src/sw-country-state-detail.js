@@ -2,18 +2,19 @@
  * @sw-package fundamentals@discovery
  */
 import template from './sw-country-state-detail.html.twig';
+import { aclService, placeholderMixin } from '../dependencies';
 
-const { Mixin } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     emits: ['attribute-edit-cancel', 'attribute-edit-save'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         countryState: {

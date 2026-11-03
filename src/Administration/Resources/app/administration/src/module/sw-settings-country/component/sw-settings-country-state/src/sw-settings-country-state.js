@@ -3,16 +3,17 @@
  */
 import template from './sw-settings-country-state.html.twig';
 import './sw-settings-country-state.scss';
+import { aclService, getApiContext, notificationMixin, repositoryFactoryService } from '../dependencies';
 
-const { Mixin } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         country: {
@@ -111,7 +112,7 @@ export default {
             this.countryStateLoading = true;
 
             return this.countryStateRepository
-                .syncDeleted(countryStateIds, Shopware.Context.api)
+                .syncDeleted(countryStateIds, getApiContext())
                 .then(() => {
                     this.$refs.countryStateGrid.resetSelection();
                     this.refreshCountryStateList();
@@ -122,7 +123,7 @@ export default {
         },
 
         onAddCountryState() {
-            this.currentCountryState = this.countryStateRepository.create(Shopware.Context.api);
+            this.currentCountryState = this.countryStateRepository.create(getApiContext());
         },
 
         onSaveCountryState(countryState) {
@@ -155,7 +156,7 @@ export default {
 
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited
-            const copy = this.countryStateRepository.create(Shopware.Context.api, item.id);
+            const copy = this.countryStateRepository.create(getApiContext(), item.id);
             copy._isNew = false;
 
             this.currentCountryState = Object.assign(copy, item);

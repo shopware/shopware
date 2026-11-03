@@ -116,3 +116,4 @@ import '../src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-co
 import '../src/module/sw-settings-tax/component/sw-tax-rule-card/global';
 import '../src/module/sw-settings-tax/page/sw-settings-tax-detail/global';
 import '../src/module/sw-settings-tax/page/sw-settings-tax-list/global';
+import '../src/app/component/form/sw-datepicker-deprecated/global';

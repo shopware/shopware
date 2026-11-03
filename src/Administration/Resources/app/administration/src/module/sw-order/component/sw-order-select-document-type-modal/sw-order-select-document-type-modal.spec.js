@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button/src/sw-button';
-import 'src/app/component/form/sw-radio-field';
-import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/sw-radio-field/src/sw-radio-field';
+import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { DOCUMENT_TYPES } from '../../order.types';
 import { REQUIRES_INVOICE } from './index';

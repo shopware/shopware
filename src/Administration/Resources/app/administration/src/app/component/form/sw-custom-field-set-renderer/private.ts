@@ -1,0 +1,90 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package framework
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-custom-field-set-renderer',
+    load: () => import('./src/sw-custom-field-set-renderer'),
+    public: {
+        props: [
+            'sets',
+            'entity',
+            'parentEntity',
+            'variant',
+            'disabled',
+            'isLoading',
+            'isSaveSuccessful',
+            'showCustomFieldSetSelection',
+        ],
+        emits: [
+            'process-finish',
+            'save',
+            'change-active-selection',
+        ],
+        blocks: [
+            'sw_custom_field_set_renderer',
+            'sw_custom_field_set_renderer_card',
+            'sw_custom_field_set_renderer_card_mt_tabs',
+            'sw_custom_field_set_renderer_card_mt_tabs_content',
+            'sw_custom_field_set_renderer_card_mt_tabs_form_renderer',
+            'sw_custom_field_set_renderer_card_tabs',
+            'sw_custom_field_set_renderer_card_tabs_content',
+            'sw_custom_field_set_renderer_card_form_renderer',
+            'sw_custom_field_set_renderer_media',
+            'sw_custom_field_set_renderer_media_form_renderer',
+            'sw_custom_field_set_renderer_media_button_save',
+        ],
+        computed: [
+            'hasParent',
+            'hasExplicitParentEntity',
+            'usesTranslatedInheritance',
+            'visibleCustomFieldSets',
+            'customFieldSetTabs',
+            'activeCustomFieldSetTabName',
+            'customFieldSetRepository',
+            'customFieldSetCriteria',
+            'globalCustomFieldSets',
+            'componentsWithMapInheritanceSupport',
+            'translatedInheritanceSourceLanguageId',
+        ],
+        methods: [
+            'createdComponent',
+            'initializeCustomFields',
+            'hasOverriddenTranslatedCustomFields',
+            'hasInheritedTranslatedCustomFields',
+            'hasInheritedTranslatedCustomFieldsWithoutFallback',
+            'resetTranslatedInheritanceState',
+            'getTranslatedInheritanceLoadKey',
+            'getTranslatedInheritanceContext',
+            'isInheritedTranslatedCustomField',
+            'getInheritedCustomFields',
+            'getDefaultInheritedCustomFieldValue',
+            'loadInheritedCustomFields',
+            'getInheritedCustomField',
+            'getCustomFieldInformation',
+            'getInheritValue',
+            'getParentCustomFieldSetSelectionSwitchState',
+            'supportsMapInheritance',
+            'isMeteorComponent',
+            'getBind',
+            'getElementEventListeners',
+            'getInheritWrapperBind',
+            'customFieldSetCriteriaById',
+            'loadCustomFieldSet',
+            'resetTabs',
+            'waitForTabComponent',
+            'getTabLabel',
+            'setActiveCustomFieldSetTab',
+            'onChangeCustomFieldSets',
+            'onChangeCustomFieldSetSelectionActive',
+            'sortSets',
+            'onUpdateActiveSelection',
+        ],
+    },
+});

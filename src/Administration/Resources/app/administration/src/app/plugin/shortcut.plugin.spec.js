@@ -7,17 +7,17 @@
 import { mount } from '@vue/test-utils';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 import 'src/app/component/form/sw-text-editor';
-import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
-import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-colorpicker';
-import 'src/app/component/form/sw-colorpicker-deprecated';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/src/sw-text-editor-toolbar';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/src/sw-text-editor-toolbar-button';
+import 'src/app/component/form/sw-text-field/src/sw-text-field';
+import 'src/app/component/form/field-base/sw-contextual-field/src/sw-contextual-field';
+import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
+import 'src/app/component/form/sw-colorpicker/src/sw-colorpicker';
+import 'src/app/component/form/sw-colorpicker-deprecated/src/sw-colorpicker-deprecated';
 import 'src/app/component/form/sw-compact-colorpicker';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/sw-switch-field/src/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field/src/sw-checkbox-field';
 import 'src/app/component/base/sw-container/src/sw-container';
 import 'src/app/component/base/sw-button/src/sw-button';
 

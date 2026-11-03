@@ -1,0 +1,65 @@
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated field's update:value reaches the parent only through $attrs */
+import template from './sw-text-field.html.twig';
+import { wrapComponentConfig } from '../dependencies';
+
+/**
+ * @sw-package framework
+ *
+ * @private
+ * @status ready
+ * @description Wrapper component for sw-text-field and mt-text-field. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-field instead.
+ */
+export default wrapComponentConfig({
+    template,
+
+    props: {
+        modelValue: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        value: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    computed: {
+        compatValue: {
+            get() {
+                if (this.value === null || this.value === undefined) {
+                    return this.modelValue;
+                }
+
+                return this.value;
+            },
+            set(value: string) {
+                this.$emit('update:value', value);
+                this.$emit('update:modelValue', value);
+            },
+        },
+    },
+
+    methods: {
+        getSlots() {
+            return this.$slots;
+        },
+
+        handleUpdateModelValue(event: unknown) {
+            this.$emit('update:modelValue', event);
+
+            // Emit old event for backwards compatibility
+            this.$emit('update:value', event);
+        },
+    },
+});

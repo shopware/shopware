@@ -45,5 +45,6 @@ export {
     translationService,
     updateService,
     userConfigService,
+    userInputSanitizeService,
     userService,
 } from './src/service-names';

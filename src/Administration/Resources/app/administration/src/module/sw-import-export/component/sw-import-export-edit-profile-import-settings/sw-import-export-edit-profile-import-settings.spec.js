@@ -2,9 +2,9 @@
  * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/sw-switch-field/src/sw-switch-field';
+import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
 
 async function createWrapper(profile) {
     return mount(await wrapTestComponent('sw-import-export-edit-profile-import-settings', { sync: true }), {

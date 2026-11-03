@@ -3,11 +3,11 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-password-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/sw-text-field/src/sw-text-field';
+import 'src/app/component/form/sw-password-field/src/sw-password-field';
+import 'src/app/component/form/field-base/sw-contextual-field/src/sw-contextual-field';
+import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
 import { ref } from 'vue';
 
 async function createWrapper({ provide, ...additionalOptions } = {}) {

@@ -1,0 +1,124 @@
+import './sw-select-result.scss';
+import template from './sw-select-result.html.twig';
+import { EventBus, featureService } from '../dependencies';
+
+/**
+ * @sw-package framework
+ *
+ * @private
+ * @status ready
+ * @description Base component for select results.
+ * @example-type code-only
+ */
+export default {
+    template,
+
+    inject: ['setActiveItemIndex', featureService],
+
+    props: {
+        index: {
+            type: Number,
+            required: true,
+        },
+        item: {
+            type: Object,
+            required: true,
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        selected: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        descriptionPosition: {
+            type: String,
+            required: false,
+            default: 'right',
+            validValues: ['bottom', 'right', 'left'],
+            validator(value) {
+                return ['bottom', 'right', 'left'].includes(value);
+            },
+        },
+        ariaLabel: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+    },
+
+    data() {
+        return {
+            active: false,
+        };
+    },
+
+    computed: {
+        resultClasses() {
+            return [
+                {
+                    'is--active': this.active,
+                    'is--disabled': this.disabled,
+                    'has--description': this.hasDescriptionSlot,
+                    [`is--description-${this.descriptionPosition}`]: this.hasDescriptionSlot,
+                },
+                `sw-select-option--${this.index}`,
+            ];
+        },
+
+        hasDescriptionSlot() {
+            return !!this.$slots.description;
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    unmounted() {
+        this.destroyedComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            EventBus.on('active-item-change', this.checkIfActive);
+            EventBus.on('item-select-by-keyboard', this.checkIfSelected);
+        },
+
+        destroyedComponent() {
+            EventBus.off('active-item-change', this.checkIfActive);
+            EventBus.off('item-select-by-keyboard', this.checkIfSelected);
+        },
+
+        checkIfSelected(selectedItemIndex) {
+            if (selectedItemIndex === this.index) this.onClickResult({});
+        },
+
+        checkIfActive(activeItemIndex, { shouldFocus } = { shouldFocus: false }) {
+            this.active = this.index === activeItemIndex;
+
+            if (this.active && shouldFocus) {
+                this.$el.focus();
+            }
+        },
+
+        onClickResult() {
+            if (this.disabled) {
+                return;
+            }
+
+            EventBus.emit('item-select', this.item);
+        },
+
+        onMouseEnter() {
+            if (this.active) {
+                return;
+            }
+
+            this.setActiveItemIndex(this.index);
+        },
+    },
+};

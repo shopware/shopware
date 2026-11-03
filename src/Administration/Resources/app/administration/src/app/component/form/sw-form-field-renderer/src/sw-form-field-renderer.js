@@ -1,0 +1,380 @@
+import template from './sw-form-field-renderer.html.twig';
+import {
+    featureService,
+    getApiContext,
+    getAppContext,
+    isUndefined,
+    repositoryFactoryService,
+    swInlineSnippetMixin,
+} from '../dependencies';
+
+/**
+ * @sw-package framework
+ *
+ * @private
+ * @status ready
+ * @description
+ * Dynamically renders components with a given configuration. The rendered component can be forced by defining
+ * the config.componentName property. If not set the form-field-renderer will guess a suitable
+ * component for the type. Everything inside the config prop will be passed to the rendered child prop as properties.
+ * Also all additional props will be passed to the child.
+ * @example-type code-only
+ * @component-example
+ * {# Datepicker #}
+ * <sw-form-field-renderer
+ *     v-model="yourValue"
+ *     type="datetime">
+ * </sw-form-field-renderer>
+ *
+ * {# Text field #}
+ * <sw-form-field-renderer
+ *     v-model="yourValue"
+ *     type="string">
+ * </sw-form-field-renderer>
+ *
+ * {# sw-number-field #}
+ * <sw-form-field-renderer
+ *     v-model="yourValue"
+ *     :config="{
+ *         componentName: 'sw-field',
+ *         type: 'number',
+ *         numberType: 'float'
+ *     }">
+ * </sw-form-field-renderer>
+ *
+ * {# sw-select - multi #}
+ * <sw-form-field-renderer
+ *     v-model="yourValue"
+ *     :config="{
+ *         componentName: 'sw-multi-select',
+ *         label: {
+ *             'en-GB': 'Multi Select'
+ *         },
+ *         multi: true,
+ *         options: [
+ *             { value: 'option1', label: { 'en-GB': 'One' } },
+ *             { value: 'option2', label: 'Two' },
+ *             { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *         ]
+ *     }">
+ * </sw-form-field-renderer>
+ *
+ * {# sw-select - single #}
+ * <sw-form-field-renderer
+ *     v-model="yourValue"
+ *     :componentName: 'sw-single-select',
+ *     :config="{
+ *         label: 'Single Select',
+ *         options: [
+ *             { value: 'option1', label: { 'en-GB': 'One' } },
+ *             { value: 'option2', label: 'Two' },
+ *             { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *         ]
+ *     }">
+ * </sw-form-field-renderer>
+ */
+export default {
+    template,
+
+    inheritAttrs: false,
+
+    inject: [repositoryFactoryService, featureService],
+
+    emits: ['update:value'],
+
+    mixins: [swInlineSnippetMixin],
+
+    props: {
+        type: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        config: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+        value: {
+            required: true,
+        },
+        error: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+    },
+
+    data() {
+        return {
+            currency: { id: getAppContext().systemCurrencyId, factor: 1 },
+            currentComponentName: '',
+            swFieldConfig: {},
+            currentValue:
+                this.type === 'price' && !this.value && !Array.isArray(this.value)
+                    ? [
+                          {
+                              currencyId: getAppContext().systemCurrencyId,
+                              gross: null,
+                              net: null,
+                              linked: true,
+                          },
+                      ]
+                    : this.value,
+        };
+    },
+
+    computed: {
+        bind() {
+            let bind = {};
+
+            // Filter all listeners from the $attrs object
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!['onUpdate:value'].includes(key)) {
+                    bind[key] = this.$attrs[key];
+                }
+            });
+
+            bind = {
+                ...bind,
+                ...this.config,
+                ...this.swFieldType,
+                ...this.translations,
+                ...this.optionTranslations,
+            };
+
+            if (this.componentName === 'sw-entity-multi-id-select') {
+                bind.repository = this.createRepository(this.config.entity);
+            }
+
+            if (this.type === 'multi-select') {
+                bind.enableMultiSelection = true;
+            }
+
+            return bind;
+        },
+
+        hasConfig() {
+            return !!this.config;
+        },
+
+        componentName() {
+            if (this.hasConfig) {
+                // Handle old "sw-field" component with custom type
+                if (this.config.componentName === 'sw-field') {
+                    return this.getComponentFromType(this.config.type);
+                }
+
+                return this.config.componentName || this.getComponentFromType();
+            }
+            return this.getComponentFromType();
+        },
+
+        swFieldType() {
+            if (this.type === 'price') {
+                return {
+                    type: 'price',
+                    allowModal: true,
+                    hideListPrices: true,
+                    currency: this.currency,
+                };
+            }
+
+            if (this.hasConfig && this.config.hasOwnProperty('type')) {
+                return {};
+            }
+
+            if (this.type === 'int') {
+                return { type: 'number', numberType: 'int' };
+            }
+
+            if (this.type === 'float') {
+                return { type: 'number', numberType: 'float' };
+            }
+
+            if (this.type === 'string' || this.type === 'text') {
+                return { type: 'text' };
+            }
+
+            if (this.type === 'bool') {
+                return { type: 'switch', bordered: true };
+            }
+
+            if (this.type === 'datetime') {
+                return { type: 'date', dateType: 'datetime' };
+            }
+
+            if (this.type === 'date') {
+                return { type: 'date', dateType: 'date' };
+            }
+
+            if (this.type === 'time') {
+                return { type: 'date', dateType: 'time' };
+            }
+
+            return { type: this.type };
+        },
+
+        translations() {
+            return this.getTranslations(this.componentName);
+        },
+
+        optionTranslations() {
+            if (['sw-single-select', 'sw-multi-select', 'mt-select'].includes(this.componentName)) {
+                if (!this.config.hasOwnProperty('options')) {
+                    return {};
+                }
+
+                const options = [];
+                let labelProperty = 'label';
+
+                // Use custom label property if defined
+                if (this.config.hasOwnProperty('labelProperty')) {
+                    labelProperty = this.config.labelProperty;
+                }
+
+                this.config.options.forEach((option) => {
+                    const translation = this.getTranslations('options', option, [labelProperty]);
+                    if (!translation.label) {
+                        translation.label = option.value;
+                    }
+                    // Merge original option with translation
+                    const translatedOption = { ...option, ...translation };
+                    options.push(translatedOption);
+                });
+
+                return { options };
+            }
+
+            return {};
+        },
+
+        componentPropName() {
+            if (this.componentName.startsWith('mt-')) {
+                return 'modelValue';
+            }
+
+            return 'value';
+        },
+    },
+
+    watch: {
+        currentValue: {
+            handler(value) {
+                if (
+                    Array.isArray(value) &&
+                    Array.isArray(this.value) &&
+                    value.length === this.value.length &&
+                    value.every((val, index) => val === this.value[index])
+                ) {
+                    return;
+                }
+
+                if (value !== this.value) {
+                    this.$emit('update:value', value);
+                }
+            },
+            deep: true,
+        },
+        value() {
+            this.currentValue = this.value;
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.fetchSystemCurrency();
+        },
+
+        emitUpdate(data) {
+            this.$emit('update:value', data);
+        },
+
+        getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
+            if (!translatableFields) {
+                return {};
+            }
+
+            const translations = {};
+            translatableFields.forEach((field) => {
+                if (config[field] && config[field] !== '') {
+                    translations[field] = this.getInlineSnippet(config[field]);
+                }
+            });
+
+            return translations;
+        },
+
+        getComponentFromType(customType = undefined) {
+            const type = customType ?? this.type;
+
+            const components = {
+                bool: 'mt-switch',
+                switch: 'mt-switch',
+                textarea: 'mt-textarea',
+                checkbox: 'mt-checkbox',
+                colorpicker: 'mt-colorpicker',
+                compactColorpicker: 'sw-compact-colorpicker',
+                date: 'mt-datepicker',
+                datetime: 'mt-datepicker',
+                time: 'mt-datepicker',
+                email: 'mt-email-field',
+                float: 'mt-number-field',
+                int: 'mt-number-field',
+                number: 'mt-number-field',
+                'multi-entity-id-select': 'sw-entity-multi-id-select',
+                'multi-select': 'mt-select',
+                password: 'mt-password-field',
+                price: 'sw-price-field',
+                radio: 'sw-radio-field',
+                'single-entity-id-select': 'sw-entity-single-select',
+                'single-select': 'mt-select',
+                string: 'mt-text-field',
+                text: 'mt-text-field',
+                tagged: 'sw-tagged-field',
+                url: 'mt-url-field',
+            };
+
+            return components[type] ?? 'mt-text-field';
+        },
+
+        createRepository(entity) {
+            if (isUndefined(entity)) {
+                throw new Error('sw-form-field-renderer - sw-entity-multi-id-select component needs entity property');
+            }
+
+            return this.repositoryFactory.create(entity);
+        },
+
+        fetchSystemCurrency() {
+            if (this.type !== 'price') {
+                return Promise.resolve();
+            }
+
+            return this.repositoryFactory
+                .create('currency')
+                .get(getAppContext().systemCurrencyId, getApiContext(), {
+                    cacheKey: [
+                        'shared-data',
+                        'system-currency',
+                        getAppContext().systemCurrencyId,
+                        getApiContext().languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((currency) => {
+                    if (currency) {
+                        this.currency = currency;
+                    }
+                });
+        },
+
+        getScopedSlots() {
+            return this.$slots;
+        },
+    },
+};

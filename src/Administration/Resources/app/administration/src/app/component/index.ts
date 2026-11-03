@@ -42,6 +42,64 @@ import 'src/app/component/base/sw-tabs-deprecated/register';
 import 'src/app/component/base/sw-tabs-item/register';
 import 'src/app/component/base/sw-user-card/register';
 import 'src/app/component/base/sw-version/register';
+import 'src/app/component/form/sw-price-field/register';
+import 'src/app/component/form/field-base/sw-base-field/register';
+import 'src/app/component/form/field-base/sw-block-field/register';
+import 'src/app/component/form/field-base/sw-contextual-field/register';
+import 'src/app/component/form/field-base/sw-field-error/register';
+import 'src/app/component/form/select/base/sw-single-select/register';
+import 'src/app/component/form/select/base/sw-multi-select/register';
+import 'src/app/component/form/select/base/sw-multi-tag-select/register';
+import 'src/app/component/form/select/base/sw-select-base/register';
+import 'src/app/component/form/select/base/sw-select-result/register';
+import 'src/app/component/form/select/base/sw-select-result-list/register';
+import 'src/app/component/form/select/base/sw-select-selection-list/register';
+import 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/register';
+import 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/register';
+import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal/register';
+import 'src/app/component/form/select/entity/sw-entity-many-to-many-select/register';
+import 'src/app/component/form/select/entity/sw-entity-multi-id-select/register';
+import 'src/app/component/form/select/entity/sw-entity-multi-select/register';
+import 'src/app/component/form/select/entity/sw-entity-single-select/register';
+import 'src/app/component/form/sw-checkbox-field/register';
+import 'src/app/component/form/sw-checkbox-field-deprecated/register';
+import 'src/app/component/form/sw-code-editor/register';
+import 'src/app/component/form/sw-colorpicker/register';
+import 'src/app/component/form/sw-colorpicker-deprecated/register';
+import 'src/app/component/form/sw-confirm-field/register';
+import 'src/app/component/form/sw-custom-field-set-renderer/register';
+import 'src/app/component/form/sw-datepicker/register';
+import 'src/app/component/form/sw-datepicker-deprecated/register';
+import 'src/app/component/form/sw-dynamic-url-field/register';
+import 'src/app/component/form/sw-email-field/register';
+import 'src/app/component/form/sw-text-field-deprecated/register';
+import 'src/app/component/form/sw-field-copyable/register';
+import 'src/app/component/form/sw-file-input/register';
+import 'src/app/component/form/sw-form-field-renderer/register';
+import 'src/app/component/form/sw-gtc-checkbox/register';
+import 'src/app/component/form/sw-list-price-field/register';
+import 'src/app/component/form/sw-maintain-currencies-modal/register';
+import 'src/app/component/form/sw-number-field/register';
+import 'src/app/component/form/sw-password-field/register';
+import 'src/app/component/form/sw-purchase-price-field/register';
+import 'src/app/component/form/sw-radio-field/register';
+import 'src/app/component/form/sw-select-field/register';
+import 'src/app/component/form/sw-select-field-deprecated/register';
+import 'src/app/component/form/sw-select-option/register';
+import 'src/app/component/form/sw-select-rule-create/register';
+import 'src/app/component/form/sw-snippet-field/register';
+import 'src/app/component/form/sw-snippet-field-edit-modal/register';
+import 'src/app/component/form/sw-switch-field/register';
+import 'src/app/component/form/sw-tagged-field/register';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu/register';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/register';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/register';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/register';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/register';
+import 'src/app/component/form/sw-text-field/register';
+import 'src/app/component/form/sw-textarea-field/register';
+import 'src/app/component/form/sw-textarea-field-deprecated/register';
+import 'src/app/component/form/sw-url-field/register';
 /**
  * @sw-package framework
  * @private
@@ -235,229 +293,55 @@ export default () => {
     Shopware.Component.register('sw-grid-row', () => import('src/app/component/grid/sw-grid-row/index'));
     Shopware.Component.register('sw-grid-column', () => import('src/app/component/grid/sw-grid-column/index'));
     Shopware.Component.register('sw-grid', () => import('src/app/component/grid/sw-grid/index'));
-    Shopware.Component.register('sw-url-field', () => import('src/app/component/form/sw-url-field/index'));
-    Shopware.Component.register(
-        'sw-textarea-field-deprecated',
-        () => import('src/app/component/form/sw-textarea-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-textarea-field', () => import('src/app/component/form/sw-textarea-field/index'));
-    Shopware.Component.register(
-        'sw-text-field-deprecated',
-        () => import('src/app/component/form/sw-text-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-text-field', () => import('src/app/component/form/sw-text-field/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
-    Shopware.Component.register(
-        'sw-text-editor-toolbar-table-button',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-toolbar-button',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-toolbar',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-table-toolbar',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-link-menu',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-link-menu/index'),
-    );
-    Shopware.Component.register('sw-tagged-field', () => import('src/app/component/form/sw-tagged-field/index'));
-    Shopware.Component.register('sw-switch-field', () => import('src/app/component/form/sw-switch-field/index'));
-    Shopware.Component.register(
-        'sw-snippet-field-edit-modal',
-        () => import('src/app/component/form/sw-snippet-field-edit-modal/index'),
-    );
-    Shopware.Component.register('sw-snippet-field', () => import('src/app/component/form/sw-snippet-field/index'));
-    Shopware.Component.register('sw-select-rule-create', () => import('src/app/component/form/sw-select-rule-create/index'));
-    Shopware.Component.register('sw-select-option', () => import('src/app/component/form/sw-select-option/index'));
-    Shopware.Component.register(
-        'sw-select-field-deprecated',
-        () => import('src/app/component/form/sw-select-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-select-field', () => import('src/app/component/form/sw-select-field/index'));
-    Shopware.Component.register('sw-radio-field', () => import('src/app/component/form/sw-radio-field/index'));
-    Shopware.Component.register(
-        'sw-purchase-price-field',
-        () => import('src/app/component/form/sw-purchase-price-field/index'),
-    );
-    Shopware.Component.register('sw-price-field', () => import('src/app/component/form/sw-price-field/index'));
-    Shopware.Component.register('sw-password-field', () => import('src/app/component/form/sw-password-field/index'));
-    Shopware.Component.register('sw-number-field', () => import('src/app/component/form/sw-number-field/index'));
-    Shopware.Component.register(
-        'sw-maintain-currencies-modal',
-        () => import('src/app/component/form/sw-maintain-currencies-modal/index'),
-    );
-    Shopware.Component.register('sw-list-price-field', () => import('src/app/component/form/sw-list-price-field/index'));
-    Shopware.Component.register('sw-gtc-checkbox', () => import('src/app/component/form/sw-gtc-checkbox/index'));
-    Shopware.Component.register(
-        'sw-form-field-renderer',
-        () => import('src/app/component/form/sw-form-field-renderer/index'),
-    );
-    Shopware.Component.register('sw-file-input', () => import('src/app/component/form/sw-file-input/index'));
-    Shopware.Component.register('sw-field-copyable', () => import('src/app/component/form/sw-field-copyable/index'));
-    Shopware.Component.register('sw-email-field', () => import('src/app/component/form/sw-email-field/index'));
-    Shopware.Component.register('sw-dynamic-url-field', () => import('src/app/component/form/sw-dynamic-url-field/index'));
-    Shopware.Component.register(
-        'sw-custom-field-set-renderer',
-        () => import('src/app/component/form/sw-custom-field-set-renderer/index'),
-    );
-    Shopware.Component.register('sw-confirm-field', () => import('src/app/component/form/sw-confirm-field/index'));
-    Shopware.Component.register(
-        'sw-colorpicker-deprecated',
-        () => import('src/app/component/form/sw-colorpicker-deprecated/index'),
-    );
-    Shopware.Component.register('sw-colorpicker', () => import('src/app/component/form/sw-colorpicker/index'));
-    Shopware.Component.register(
-        'sw-checkbox-field-deprecated',
-        () => import('src/app/component/form/sw-checkbox-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-checkbox-field', () => import('src/app/component/form/sw-checkbox-field/index'));
     Shopware.Component.register(
         'sw-boolean-radio-group',
         () => import('src/app/component/form/sw-boolean-radio-group/index'),
     );
-    Shopware.Component.register(
-        'sw-entity-single-select',
-        () => import('src/app/component/form/select/entity/sw-entity-single-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-multi-select',
-        () => import('src/app/component/form/select/entity/sw-entity-multi-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-multi-id-select',
-        () => import('src/app/component/form/select/entity/sw-entity-multi-id-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-many-to-many-select',
-        () => import('src/app/component/form/select/entity/sw-entity-many-to-many-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-advanced-selection-modal',
-        () => import('src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index'),
-    );
-    Shopware.Component.register(
-        'sw-advanced-selection-rule',
-        () => import('src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index'),
-    );
-    Shopware.Component.register(
-        'sw-advanced-selection-product',
-        () => import('src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/index'),
-    );
-    Shopware.Component.register(
-        'sw-single-select',
-        () => import('src/app/component/form/select/base/sw-single-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-select-selection-list',
-        () => import('src/app/component/form/select/base/sw-select-selection-list/index'),
-    );
-    Shopware.Component.register(
-        'sw-select-result-list',
-        () => import('src/app/component/form/select/base/sw-select-result-list/index'),
-    );
-    Shopware.Component.register(
-        'sw-select-result',
-        () => import('src/app/component/form/select/base/sw-select-result/index'),
-    );
-    Shopware.Component.register('sw-select-base', () => import('src/app/component/form/select/base/sw-select-base/index'));
-    Shopware.Component.register(
-        'sw-multi-tag-select',
-        () => import('src/app/component/form/select/base/sw-multi-tag-select/index'),
-    );
-    Shopware.Component.register('sw-multi-select', () => import('src/app/component/form/select/base/sw-multi-select/index'));
-    Shopware.Component.register('sw-field-error', () => import('src/app/component/form/field-base/sw-field-error/index'));
-    Shopware.Component.register(
-        'sw-contextual-field',
-        () => import('src/app/component/form/field-base/sw-contextual-field/index'),
-    );
-    Shopware.Component.register('sw-block-field', () => import('src/app/component/form/field-base/sw-block-field/index'));
-    Shopware.Component.register('sw-base-field', () => import('src/app/component/form/field-base/sw-base-field/index'));
-    Shopware.Component.register(
         'sw-sidebar-filter-panel',
         () => import('src/app/component/filter/sw-sidebar-filter-panel/index'),
-    );
     Shopware.Component.register('sw-range-filter', () => import('src/app/component/filter/sw-range-filter/index'));
     Shopware.Component.register('sw-number-filter', () => import('src/app/component/filter/sw-number-filter/index'));
-    Shopware.Component.register(
         'sw-multi-select-filter',
         () => import('src/app/component/filter/sw-multi-select-filter/index'),
-    );
     Shopware.Component.register('sw-filter-panel', () => import('src/app/component/filter/sw-filter-panel/index'));
     Shopware.Component.register('sw-existence-filter', () => import('src/app/component/filter/sw-existence-filter/index'));
     Shopware.Component.register('sw-date-filter', () => import('src/app/component/filter/sw-date-filter/index'));
     Shopware.Component.register('sw-boolean-filter', () => import('src/app/component/filter/sw-boolean-filter/index'));
     Shopware.Component.register('sw-base-filter', () => import('src/app/component/filter/sw-base-filter/index'));
-    Shopware.Component.register(
         'sw-iframe-renderer',
         () => import('src/app/component/extension-api/sw-iframe-renderer/index'),
-    );
-    Shopware.Component.register(
         'sw-extension-teaser-sales-channel',
         () => import('src/app/component/extension-api/sw-extension-teaser-sales-channel/index'),
-    );
-    Shopware.Component.register(
         'sw-extension-teaser-popover',
         () => import('src/app/component/extension-api/sw-extension-teaser-popover/index'),
-    );
-    Shopware.Component.register(
         'sw-extension-component-section',
         () => import('src/app/component/extension-api/sw-extension-component-section/index'),
-    );
-    Shopware.Component.register(
         'sw-product-stream-grid-preview',
         () => import('src/app/component/entity/sw-product-stream-grid-preview/index'),
-    );
-    Shopware.Component.register(
         'sw-many-to-many-assignment-card',
         () => import('src/app/component/entity/sw-many-to-many-assignment-card/index'),
-    );
-    Shopware.Component.register(
         'sw-category-tree-field',
         () => import('src/app/component/entity/sw-category-tree-field/index'),
-    );
     Shopware.Component.register('sw-bulk-edit-modal', () => import('src/app/component/entity/sw-bulk-edit-modal/index'));
-    Shopware.Component.register(
         'sw-data-grid-skeleton',
         () => import('src/app/component/data-grid/sw-data-grid-skeleton/index'),
-    );
-    Shopware.Component.register(
         'sw-data-grid-settings',
         () => import('src/app/component/data-grid/sw-data-grid-settings/index'),
-    );
-    Shopware.Component.register(
         'sw-data-grid-inline-edit',
         () => import('src/app/component/data-grid/sw-data-grid-inline-edit/index'),
-    );
-    Shopware.Component.register(
         'sw-data-grid-column-position',
         () => import('src/app/component/data-grid/sw-data-grid-column-position/index'),
-    );
-    Shopware.Component.register(
         'sw-data-grid-column-boolean',
         () => import('src/app/component/data-grid/sw-data-grid-column-boolean/index'),
-    );
     Shopware.Component.register('sw-data-grid', () => import('src/app/component/data-grid/sw-data-grid/index'));
-    Shopware.Component.register(
         'sw-context-menu-item',
         () => import('src/app/component/context-menu/sw-context-menu-item/index'),
-    );
-    Shopware.Component.register(
         'sw-context-menu-divider',
         () => import('src/app/component/context-menu/sw-context-menu-divider/index'),
-    );
     Shopware.Component.register('sw-context-menu', () => import('src/app/component/context-menu/sw-context-menu/index'));
     Shopware.Component.register('sw-context-button', () => import('src/app/component/context-menu/sw-context-button/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
-    Shopware.Component.register('sw-code-editor', () => import('src/app/component/form/sw-code-editor'));
-    Shopware.Component.register('sw-datepicker', () => import('src/app/component/form/sw-datepicker'));
-    Shopware.Component.register('sw-datepicker-deprecated', () => import('src/app/component/form/sw-datepicker-deprecated'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
     Shopware.Component.register('sw-image-slider', () => import('src/app/component/media/sw-image-slider'));

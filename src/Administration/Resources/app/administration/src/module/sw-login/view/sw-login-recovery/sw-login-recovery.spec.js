@@ -5,7 +5,7 @@
 import { config, mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-recovery';
-import 'src/app/component/form/sw-text-field';
+import 'src/app/component/form/sw-text-field/src/sw-text-field';
 import 'src/app/component/base/sw-button/src/sw-button';
 import 'src/app/component/base/sw-alert/src/sw-alert';
 

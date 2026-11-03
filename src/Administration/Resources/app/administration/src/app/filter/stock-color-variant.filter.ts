@@ -1,8 +1,14 @@
 /**
+ * @private
+ * The name the stockColorVariant filter is registered under, for code that looks it up with `Shopware.Filter.getByName()`.
+ */
+export const stockColorVariantFilterName = 'stockColorVariant';
+
+/**
  * @sw-package inventory
  */
 
-Shopware.Filter.register('stockColorVariant', (value: number) => {
+Shopware.Filter.register(stockColorVariantFilterName, (value: number) => {
     if (typeof value !== 'number' && !value) {
         return '';
     }

@@ -353,6 +353,16 @@ export const updateService = 'updateService';
 export const userConfigService = 'userConfigService';
 
 /**
+ * The name the userInputSanitizeService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [userInputSanitizeService] };
+ *
+ * @public
+ */
+export const userInputSanitizeService = 'userInputSanitizeService';
+
+/**
  * The name the userService service is registered and injected under.
  *
  * @example

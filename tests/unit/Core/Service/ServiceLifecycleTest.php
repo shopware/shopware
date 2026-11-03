@@ -485,7 +485,6 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
         // update() looks the service up, then uninstall() looks it up again by name
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
 
         $this->createLifecycle($appRepo)->update('MyCoolService', $context);

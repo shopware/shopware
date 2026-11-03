@@ -58,7 +58,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        foreach ($this->writeOutcome->rows($event->getCommandsForEntity(ShippingMethodDefinition::ENTITY_NAME), ['tax_type', 'tax_id']) as $shippingMethod) {
+        foreach ($this->writeOutcome->resultingRows($event->getCommandsForEntity(ShippingMethodDefinition::ENTITY_NAME), ['tax_type', 'tax_id']) as $shippingMethod) {
             $taxType = $shippingMethod->getResultingValue('tax_type');
             \assert($taxType === null || \is_string($taxType));
 

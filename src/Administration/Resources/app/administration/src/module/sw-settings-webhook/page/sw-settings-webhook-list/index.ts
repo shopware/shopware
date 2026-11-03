@@ -181,9 +181,9 @@ export default Component.wrapComponentConfig({
 
         ownerCondition(owner: Owner) {
             if (owner === 'user') {
-                return Criteria.multi('AND', [
-                    Criteria.equals('appId', null),
-                    Criteria.equals('ownerIntegration.app.id', null),
+                return Criteria.equalsAny('ownerType', [
+                    'user',
+                    'integration',
                 ]);
             }
 

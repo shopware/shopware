@@ -241,9 +241,9 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toEqual(['user']);
         expect(criteriaOf(webhookSearch).filters).toEqual([
             Criteria.multi('OR', [
-                Criteria.multi('AND', [
-                    Criteria.equals('appId', null),
-                    Criteria.equals('ownerIntegration.app.id', null),
+                Criteria.equalsAny('ownerType', [
+                    'user',
+                    'integration',
                 ]),
             ]),
         ]);

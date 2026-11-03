@@ -16,7 +16,7 @@
                 {% if sliderConfig.title.value %}data-list-name="{{ sliderConfig.title.value }}"{% endif %}
             {% endif %}>
             {% block element_product_slider_alignment %}
-                {% if config.verticalAlign.value %}
+                {% if sliderConfig.displayMode.value == 'standard' and sliderConfig.verticalAlign.value %}
                     <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == 'center' %} align-self-center{% elseif sliderConfig.verticalAlign.value == 'flex-end' %} align-self-end{% else %} align-self-start{% endif %}">
                 {% endif %}
 
@@ -114,7 +114,7 @@
                     </div>
                 {% endblock %}
 
-                {% if config.verticalAlign.value %}
+                {% if sliderConfig.displayMode.value == 'standard' and sliderConfig.verticalAlign.value %}
                     </div>
                 {% endif %}
             {% endblock %}

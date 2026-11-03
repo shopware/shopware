@@ -9,8 +9,8 @@ import {
     MtPopoverItem,
     MtButton,
 } from '@shopware-ag/meteor-component-library';
-import SwSettingsServicesServiceCard from './index';
-import SwColorBadge from '../../../../app/component/utils/sw-color-badge';
+import SwSettingsServicesServiceCard from '../src/sw-settings-services-service-card';
+import SwColorBadge from '../../../../../app/component/utils/sw-color-badge';
 
 const createService = (overrides = {}) => ({
     id: 'service-id',

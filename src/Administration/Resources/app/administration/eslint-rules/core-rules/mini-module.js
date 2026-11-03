@@ -57,10 +57,10 @@ function isMiniModuleRoot(directory, cwd) {
  *
  * @param {string} relativePath - posix path relative to the Administration root
  * @param {string} cwd - the Administration root, used to look for the `tests/` folder next to a file at the module's root
- * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'register'|'dependencies', rest: string } | null}
+ * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'register'|'dependencies'|'global', rest: string } | null}
  */
 function findMiniModule(relativePath, cwd) {
-    const entry = /^(src\/.+)\/(index|private|register|dependencies)(\.[jt]s)?$/.exec(relativePath);
+    const entry = /^(src\/.+)\/(index|private|register|dependencies|global)(\.d)?(\.[jt]s)?$/.exec(relativePath);
     if (entry && isMiniModuleRoot(entry[1], cwd)) {
         return { root: entry[1], part: entry[2], rest: '' };
     }

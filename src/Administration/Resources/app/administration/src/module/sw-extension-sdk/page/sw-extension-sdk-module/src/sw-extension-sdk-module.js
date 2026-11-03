@@ -4,11 +4,14 @@
 
 import template from './sw-extension-sdk-module.html.twig';
 import './sw-extension-sdk-module.scss';
+import { useContextStore, useExtensionSdkModulesStore, wrapComponentConfig } from '../dependencies';
 
 /**
  * @private Only to be used by the Admin extension API
+ *
+ * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     props: {
@@ -32,7 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         module() {
-            return Shopware.Store.get('extensionSdkModules').modules.find((module) => module.id === this.id);
+            return useExtensionSdkModulesStore().modules.find((module) => module.id === this.id);
         },
 
         isLoading() {
@@ -52,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         smartBarButtons() {
-            return Shopware.Store.get('extensionSdkModules').smartBarButtons.filter(
+            return useExtensionSdkModulesStore().smartBarButtons.filter(
                 (button) => button.locationId === this.module?.locationId,
             );
         },
@@ -95,7 +98,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
         },
     },
 });

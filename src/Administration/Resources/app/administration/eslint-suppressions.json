@@ -7072,12 +7072,12 @@
       "count": 1
     }
   },
-  "src/module/sw-extension-sdk/page/sw-extension-sdk-module/index.js": {
+  "src/module/sw-extension-sdk/page/sw-extension-sdk-module/src/sw-extension-sdk-module.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension-sdk/page/sw-extension-sdk-module/sw-extension-sdk-module.spec.js": {
+  "src/module/sw-extension-sdk/page/sw-extension-sdk-module/tests/sw-extension-sdk-module.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }

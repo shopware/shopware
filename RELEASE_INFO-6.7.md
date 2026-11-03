@@ -227,6 +227,13 @@ Check import files that relied on `0` being ignored.
 
 ## API
 
+### Plain JSON becomes the default Admin API response format in 6.8
+
+Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
+With the `v6.8.0.0` feature flag enabled, Admin API entity responses use plain JSON when the `Accept` header is missing or contains only `*/*`.
+Clients that expect JSON:API should explicitly send `Accept: application/vnd.api+json`; this header also works on earlier Shopware 6 versions.
+Clients can already opt into plain JSON with `Accept: application/json`.
+
 ### Usernames with surrounding whitespace
 
 User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.

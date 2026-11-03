@@ -47,8 +47,9 @@ class JsonFieldTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable`');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS `_test_nullable`;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext CHARACTER SET utf8mb4,

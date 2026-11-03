@@ -196,7 +196,7 @@ class SCSSValidator
     {
         $matches = [];
         $vars = [];
-        preg_match_all('/.*?(\$(?![0-9])(?:[a-zA-Z0-9-_]|(?:\\[!"#$%&\'\(\)*+,.\/:;<=>?@\[\]^{|}~]))+)/', $value, $matches);
+        preg_match_all('/.*?(\$(?![0-9])(?:[a-zA-Z0-9-_]|(?:\\[!"#$%&\'\(\)*+,.\/:;<=>?@\[\]^{|}~]))+)/D', $value, $matches);
         foreach ($matches[1] as $match) {
             $vars[] = $match;
         }

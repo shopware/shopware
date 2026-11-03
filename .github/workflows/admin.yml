@@ -41,7 +41,9 @@ jobs:
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
+    env:
+      NODE_OPTIONS: "--max_old_space_size=8192"
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -71,15 +73,38 @@ jobs:
         working-directory: src/Administration/Resources/app/administration
         run: npm run format
 
+  # Only pull requests and merge queue entries have a base commit to compare with
+  baseline-growth:
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
+    runs-on: ubuntu-24.04
+    name: "Lint baselines do not grow"
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Fetch the base commit
+        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
+
+      - name: Compare the baselines with the base commit
+        run: |
+          node .github/bin/js/check-baseline-growth.ts --base "$BASE_SHA" \
+            --config src/Administration/Resources/app/administration/eslint.config.ts \
+            --config src/Administration/Resources/app/administration/extension-tooling/eslint.mjs \
+            src/Administration/Resources/app/administration/eslint-suppressions.json \
+            src/Storefront/Resources/app/administration/eslint-suppressions.json
+
   admin:
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
     name: "Jest Admin (unit)"
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
+      NODE_OPTIONS: "--max_old_space_size=8192"
 
     steps:
       - name: Setup Shopware
@@ -116,6 +141,54 @@ jobs:
           flags: jest-admin
           disable_search: true
           disable_file_fixes: true
+
+  # @deprecated tag:v6.8.0 - Remove together with the ADMIN_VITE_8 feature flag, Vite 8 then builds the Administration by default.
+  build-vite-8:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    name: "Admin build (Vite 8)"
+    timeout-minutes: 30
+    env:
+      NODE_VERSION: 'lts/*'
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            src/Administration/Resources/app/administration/package-lock.json
+            src/Administration/Resources/app/administration/build/vite-8/package-lock.json
+
+      # The postinstall script of the Administration also installs the Vite 8 toolchain in build/vite-8
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      # The flag is only set here, so the steps of setup-shopware are not affected by it
+      - name: Build the Administration and the Administration code of the bundles
+        env:
+          ADMIN_VITE_8: '1'
+        run: composer run build:js:admin
+
+      # vite-plugin-symfony writes its own version into entrypoints.json, and version 8 only ships with the Vite 8 toolchain.
+      # The Storefront is the only core bundle with Administration code, so its output proves that build/plugins.vite.ts used Vite 8, too.
+      - name: Assert that Vite 8 built the Administration and the Storefront bundle
+        run: |
+          set -euo pipefail
+          for out in src/Administration/Resources/public/administration src/Storefront/Resources/public/administration; do
+            jq -e '.version[1] == 8' "$out/.vite/entrypoints.json"
+            jq -e '[.[] | select(.isEntry)] | length > 0' "$out/.vite/manifest.json"
+            jq -r '.[].file' "$out/.vite/manifest.json" | xargs -I{} test -s "$out/{}"
+          done
 
   extension-tooling-e2e:
     needs:
@@ -186,7 +259,9 @@ jobs:
     needs:
       - markdown-only-changes
       - lint
+      - baseline-growth
       - admin
+      - build-vite-8
       - license-check
 
     runs-on: Ubuntu-latest
@@ -195,5 +270,6 @@ jobs:
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
+          # baseline-growth only runs for pull requests and merge queue entries
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, build-vite-8, license-check, baseline-growth' || 'baseline-growth' }}
           jobs: ${{ toJSON(needs) }}

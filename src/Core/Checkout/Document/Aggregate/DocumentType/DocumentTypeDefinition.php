@@ -18,17 +18,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
  *
- * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed. Use `document.type_name` instead.
+ * @deprecated tag:v6.9.0 - Will be removed. Use `document.type_name` instead.
  */
 #[Package('after-sales')]
 class DocumentTypeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'document_type';
+
+    // @phpstan-ignore shopware.internalMethod (Preserve the inherited public constructor contract.)
+    public function __construct()
+    {
+        Feature::throwIfActive('v6.9.0.0', Feature::deprecatedClassMessage(self::class, 'v6.9.0.0'));
+    }
 
     public function getEntityName(): string
     {

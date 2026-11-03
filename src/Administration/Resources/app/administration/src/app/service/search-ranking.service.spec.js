@@ -159,6 +159,38 @@ describe('app/service/search-ranking.service.js', () => {
             new Criteria(1, 25).setTerm('o c'),
         ],
         [
+            'term has brackets around words, which are stripped',
+            'tennis (cap [shoe] <sock \\bag',
+            {
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+            new Criteria(1, 25)
+                .addQuery(Criteria.contains('product.name', 'tennis'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', 'cap'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', 'shoe'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', 'sock'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', 'bag'), searchRankingPoint.HIGH_SEARCH_RANKING),
+        ],
+        [
+            'term has brackets inside a word, which are kept',
+            'ab(12)cd',
+            {
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+            new Criteria(1, 25).addQuery(
+                Criteria.contains('product.name', 'ab(12)cd'),
+                searchRankingPoint.HIGH_SEARCH_RANKING,
+            ),
+        ],
+        [
+            'term has a word shorter than 2 characters after stripping its brackets',
+            'order (c)',
+            {
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+            new Criteria(1, 25).addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
+        ],
+        [
             'term has just two words with the same',
             'same same',
             {
@@ -366,6 +398,16 @@ describe('app/service/search-ranking.service.js', () => {
         };
 
         expect(actual).toEqual(expected);
+    });
+
+    it('Should skip entities without a search query score when building global search queries', async () => {
+        createModules(searchRankingModules);
+        const service = new SearchRankingService();
+
+        const userSearchPreference = await service.getUserSearchPreference();
+        const actual = service.buildGlobalSearchQueries(userSearchPreference, 'o c');
+
+        expect(actual).toEqual({});
     });
 
     it.each(buildingCriteriaScoreQueryCase)(

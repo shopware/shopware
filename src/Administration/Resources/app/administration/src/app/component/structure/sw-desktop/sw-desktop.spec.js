@@ -145,6 +145,7 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
                 'sw-admin-menu': true,
                 'router-view': true,
                 'sw-app-shop-id-change-modal': true,
+                'sw-app-wrong-app-url-modal': true,
                 'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
                 'sw-settings-services-grant-permissions-modal': true,
@@ -307,6 +308,27 @@ describe('src/app/component/structure/sw-desktop', () => {
 
         expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
         expect(wrapper.find('sw-settings-usage-data-consent-modal-data-provider-stub').exists()).toBe(false);
+    });
+
+    it('shows the APP_URL warning once no shop ID change is pending', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve(null)),
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(true);
+    });
+
+    it('holds back the APP_URL warning while a shop ID change is pending', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve({ apps: [], fingerprints: {} })),
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(false);
     });
 
     it('should show the staging bar, when enabled', async () => {

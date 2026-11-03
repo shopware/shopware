@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -76,15 +77,19 @@ class ThemeService implements ResetInterface
      * Only compiles a single theme/saleschannel combination.
      * Use `compileThemeById` to compile all dependend saleschannels
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'notifyOnAsyncCompletion', parameterType: 'bool', defaultValue: true, description: 'Whether the user is notified once the asynchronous compilation is completed. Callers compiling several themes or sales channels at once pass true only for the last one, so the user is notified once.')]
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-        bool $withAssets = true
+        bool $withAssets = true/* , bool $notifyOnAsyncCompletion = true */
     ): void {
         if ($this->isAsyncCompilation($context)) {
-            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context);
+            /** @deprecated tag:v6.8.0 - Remove next line as $notifyOnAsyncCompletion will become a part of method signature */
+            $notifyOnAsyncCompletion = (bool) (\func_get_args()[5] ?? true);
+
+            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context, notifyOnCompletion: $notifyOnAsyncCompletion);
 
             return;
         }
@@ -167,14 +172,17 @@ class ThemeService implements ResetInterface
         bool $withAssets = true
     ): array {
         $mappings = $this->getThemeDependencyMapping($themeId);
+        $lastMapping = $mappings->last();
         $compiledThemeIds = [];
         foreach ($mappings as $mapping) {
+            // like the start, the completion of an async compilation is notified only once
             $this->compileTheme(
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),
                 $context,
                 $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
-                $withAssets
+                $withAssets,
+                $mapping === $lastMapping
             );
 
             $compiledThemeIds[] = $mapping->getThemeId();
@@ -468,7 +476,8 @@ class ThemeService implements ResetInterface
         string $themeId,
         bool $withAssets,
         Context $context,
-        bool $assign = false
+        bool $assign = false,
+        bool $notifyOnCompletion = true
     ): void {
         $this->messageBus->dispatch(
             new CompileThemeMessage(
@@ -476,7 +485,8 @@ class ThemeService implements ResetInterface
                 $themeId,
                 $withAssets,
                 $context,
-                $assign
+                $assign,
+                $notifyOnCompletion
             )
         );
 

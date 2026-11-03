@@ -113,6 +113,10 @@ export default {
         },
 
         onMouseEnter() {
+            if (this.active) {
+                return;
+            }
+
             this.setActiveItemIndex(this.index);
         },
     },

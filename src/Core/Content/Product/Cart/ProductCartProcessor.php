@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\Events\ProductCartDataContextHashEvent;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
@@ -79,6 +80,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly EntityCacheKeyGenerator $generator,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly GaranLabelResolver $garanLabelResolver,
     ) {
     }
 
@@ -413,6 +415,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'parentId' => $product->getParentId(),
             'stock' => $product->getStock(),
         ];
+
+        // an edited order keeps the GARAN label it was placed with, see GaranLabelOrderSubscriber
+        if (!$behavior->hasPermission(CheckoutPermissions::SKIP_PRODUCT_RECALCULATION)) {
+            $payload[GaranLabelResolver::PAYLOAD_KEY] = $this->garanLabelResolver->resolveSnapshot($product);
+        }
 
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
     }

@@ -33,10 +33,11 @@ swDefineOverride({});
         );
     });
 
-    it('uses the symbol as a computed key in both the slot scope and the returned state', () => {
+    it('uses the symbol as a computed key in both the reference accessor and the returned state', () => {
         const result = transformShopwareSetupSfc(source, 'sw-thing.override.vue')?.code ?? '';
 
-        expect(result).toContain('#default="{ __swOverride: { [__swSetupNamespace]: { info } } }"');
+        expect(result).toContain('const __swSetupOverrideScope = (scope) => scope.__swOverride[__swSetupNamespace];');
+        expect(result).toContain('{{ __swSetupOverrideScope(__swSetupScope).info }}');
         expect(result).toContain('[__swSetupNamespace]: {');
     });
 

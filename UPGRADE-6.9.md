@@ -11,6 +11,8 @@ The complete list of removed classes, entities, and Administration components is
 - The `document.renderer` and `document_type.renderer` service tags were removed. Register document types, data providers, and renderers via the `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` tags instead, or use the app manifest `<documents>` block. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
 - The `document_type` and `document_type_translation` entities were removed including their DAL definitions and associations. Document types are code-registered strings. Read the type from `document.typeName` instead of the `documentType` association. Persisted references were backfilled into the `type_name` columns, and the `document_type_id` columns became nullable.
 
+Direct construction of `DocumentTypeDefinition`, `DocumentTypeTranslationDefinition`, and their entities and collections (including empty collections) already throws when `v6.9.0.0` is active. Remove these constructions and use the document v2 type registry instead.
+
 The class aliases and deprecated service aliases of the shared document classes were removed. These classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). References to a previous name, for example `Shopware\Core\Checkout\Document\DocumentEntity`, no longer resolve. Use the canonical names in imports, type declarations, static references, and service IDs.
 
 Twig template overrides were not affected: v2 renders the same `@Framework/documents/*.html.twig` templates.
@@ -105,6 +107,18 @@ The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` inst
 `mt-empty-state` has no `icon` slot and no equivalent for the `absolute`, `emptyModule`, `autoHeight`, `showDescription` and `color` props. It also no longer falls back to the icon and description of the current module, so pass `icon` and `description` explicitly.
 
 It has no default slot either, and `description` renders plain text instead of HTML. It is left-aligned by default, set `centered` to keep the previous layout. Overrides of the `sw_empty_state_*` Twig blocks no longer apply.
+
+The `sw-deprecation-rules/no-sw-empty-state-usage` ESLint rule of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+It renames `title` to `headline` and `subline` to `description`, moves the `actions` slot to `button`, and turns plain text default slots and `icon` slots with a single `mt-icon` or `sw-icon` into props.
+If `icon` or `subline` is not set, it passes the module icon or description that `sw-empty-state` used as fallback.
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
+It names removed props and bound values that no longer fall back to the module icon or description.
 
 ## Legacy document components removed
 

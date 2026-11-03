@@ -1,0 +1,86 @@
+diff --git a/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php b/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
++++ b/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
+@@ -3,6 +3,7 @@
+ namespace Shopware\Core\Checkout\Cart\LineItem;
+ 
+ use Shopware\Core\Checkout\Cart\CartException;
++use Shopware\Core\Checkout\Cart\Price\CashRounding;
+ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+@@ -18,8 +19,10 @@
+     /**
+      * @internal
+      */
+-    public function __construct(private readonly QuantityPriceCalculator $quantityPriceCalculator)
+-    {
++    public function __construct(
++        private readonly QuantityPriceCalculator $quantityPriceCalculator,
++        private readonly CashRounding $priceRounding,
++    ) {
+     }
+ 
+     /**
+@@ -28,7 +31,7 @@
+      *
+      * @throws CartException
+      */
+-    public function split(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
++    public function splitQuantity(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
+     {
+         if ($item->getQuantity() === $quantity) {
+             return clone $item;
+@@ -53,7 +56,12 @@
+         if (Feature::isActive('v6.8.0.0')) {
+             $taxes = new CalculatedTaxCollection();
+             foreach ($lineItemPrice->getCalculatedTaxes() as $tax) {
+-                $taxes->add(new CalculatedTax($tax->getTax() / $item->getQuantity() * $quantity, $tax->getTaxRate(), $tax->getPrice() / $item->getQuantity() * $quantity, $tax->getLabel()));
++                $taxes->add(new CalculatedTax(
++                    $this->priceRounding->mathRound($tax->getTax() / $item->getQuantity() * $quantity, $context->getItemRounding()),
++                    $tax->getTaxRate(),
++                    $tax->getPrice() / $item->getQuantity() * $quantity,
++                    $tax->getLabel(),
++                ));
+             }
+ 
+             $price = new CalculatedPrice(
+diff --git a/src/Core/Checkout/DependencyInjection/cart.php b/src/Core/Checkout/DependencyInjection/cart.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/DependencyInjection/cart.php
++++ b/src/Core/Checkout/DependencyInjection/cart.php
+@@ -611,6 +611,7 @@
+     $services->set(LineItemQuantitySplitter::class)
+         ->args([
+             service(QuantityPriceCalculator::class),
++            service(CashRounding::class),
+         ]);
+ 
+     $services->set(PriceDefinitionFactory::class);
+diff --git a/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php b/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
++++ b/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
+@@ -248,7 +248,7 @@
+         foreach ($calculatedCart->getLineItems() as $split) {
+             $isStackable = $split->isStackable();
+             $split->setStackable(true);
+-            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
++            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->splitQuantity($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
+             $split->setStackable($isStackable);
+         }
+ 
+diff --git a/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php b/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
++++ b/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
+@@ -180,7 +180,7 @@
+ 
+             $item->setStackable(true);
+ 
+-            $tmpItem = $this->quantitySplitter->split($item, 1, $context);
++            $tmpItem = $this->quantitySplitter->splitQuantity($item, 1, $context);
+ 
+             for ($i = 1; $i <= $item->getQuantity(); ++$i) {
+                 $items[] = $tmpItem;

@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
@@ -35,6 +36,10 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -43,7 +48,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -210,7 +214,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             static::createStub(Processor::class),
             $cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -247,8 +250,7 @@ class RecalculationServiceTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
 
         // We check product existence by searchIds
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [
             [$productEntity->getId()],
         ]);
 
@@ -263,7 +265,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             static::createStub(Processor::class),
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -305,7 +306,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             static::createStub(Processor::class),
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -338,8 +338,7 @@ class RecalculationServiceTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
 
         // We check product existence by searchIds
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [
             [$productEntity->getId()],
         ]);
 
@@ -356,7 +355,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processor,
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -415,7 +413,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processor,
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -454,8 +451,7 @@ class RecalculationServiceTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([[$productId]]);
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [[$productId]]);
 
         // a factory decorator may return a completely different line item type for a product
         $factory = $this->createMock(LineItemFactoryInterface::class);
@@ -485,7 +481,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processor,
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry($factory)
         );
 
@@ -532,8 +527,7 @@ class RecalculationServiceTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([[$productId]]);
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [[$productId]]);
 
         $factory = $this->createMock(LineItemFactoryInterface::class);
         $factory->method('supports')->willReturn(true);
@@ -582,7 +576,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processor,
             $cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry($factory)
         );
 
@@ -668,22 +661,43 @@ class RecalculationServiceTest extends TestCase
                 ]), []);
             });
 
+        $promotionLineItemFactory = new PromotionLineItemFactory();
+
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $factory->method('supports')->willReturnCallback($promotionLineItemFactory->supports(...));
+        $factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback($promotionLineItemFactory->create(...));
+
+        $processor = $this->createMock(Processor::class);
+        $processor
+            ->expects($this->once())
+            ->method('process')
+            ->willReturnCallback(static function (Cart $cart): Cart {
+                $promotion = $cart->get(Uuid::fromStringToHex('promotion-CODE-123'));
+                static::assertNotNull($promotion);
+                static::assertSame(LineItem::PROMOTION_LINE_ITEM_TYPE, $promotion->getType());
+                static::assertSame('CODE-123', $promotion->getReferencedId());
+
+                return $cart;
+            });
+
         $recalculationService = new RecalculationService(
             $entityRepository,
-            $this->orderConverter,
+            $this->orderConverterWithCart($cart),
             static::createStub(CartService::class),
             $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
-            static::createStub(Processor::class),
+            $processor,
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
-            $this->lineItemFactoryRegistry()
+            $this->lineItemFactoryRegistry($factory)
         );
 
-        $recalculationService->addPromotionLineItem($order->getId(), '', $this->context);
+        $recalculationService->addPromotionLineItem($order->getId(), 'CODE-123', $this->context);
     }
 
     /**
@@ -733,7 +747,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             static::createStub(Processor::class),
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -792,7 +805,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             static::createStub(Processor::class),
             $this->cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -860,7 +872,6 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processorMock,
             $cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
@@ -925,11 +936,52 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processorMock,
             $cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class),
             $this->lineItemFactoryRegistry()
         );
 
         $recalculationService->addCustomLineItem($order->getId(), new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE), $this->context);
+    }
+
+    public function testReplaceOrderAddressWithCustomerAddressClearsFieldsTheCustomerAddressLeavesEmpty(): void
+    {
+        $orderAddress = new OrderAddressEntity();
+        $orderAddress->setId(Uuid::randomHex());
+        $orderAddress->setVersionId(Uuid::randomHex());
+        $orderAddress->setCompany('ACME Corp');
+
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setId(Uuid::randomHex());
+        $customerAddress->setFirstName('Max');
+        $customerAddress->setLastName('Mustermann');
+        $customerAddress->setStreet('Musterstraße 1');
+        $customerAddress->setCity('Musterstadt');
+        $customerAddress->setCountryId(Uuid::randomHex());
+
+        $orderAddressRepository = new StaticEntityRepository([new OrderAddressCollection([$orderAddress])]);
+
+        $recalculationService = new RecalculationService(
+            static::createStub(EntityRepository::class),
+            $this->orderConverter,
+            static::createStub(CartService::class),
+            static::createStub(EntityRepository::class),
+            $orderAddressRepository,
+            new StaticEntityRepository([new CustomerAddressCollection([$customerAddress])]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(Processor::class),
+            $this->cartRuleLoader,
+            $this->lineItemFactoryRegistry()
+        );
+
+        $recalculationService->replaceOrderAddressWithCustomerAddress($orderAddress->getId(), $customerAddress->getId(), $this->context);
+
+        static::assertCount(1, $orderAddressRepository->upserts);
+        $upsert = $orderAddressRepository->upserts[0][0];
+        static::assertIsArray($upsert);
+        static::assertSame($orderAddress->getId(), $upsert['id']);
+        static::assertSame('Musterstraße 1', $upsert['street']);
+        static::assertArrayHasKey('company', $upsert);
+        static::assertNull($upsert['company']);
     }
 
     /**

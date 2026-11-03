@@ -23,4 +23,12 @@ class AclPrivilegeCollection
     {
         return \in_array($resource . ':' . $privilege, $this->privileges, true);
     }
+
+    /**
+     * @return array<string>
+     */
+    public function getPrivileges(): array
+    {
+        return $this->privileges;
+    }
 }

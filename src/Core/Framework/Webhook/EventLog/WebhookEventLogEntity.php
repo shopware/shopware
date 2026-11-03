@@ -47,6 +47,8 @@ class WebhookEventLogEntity extends Entity
 
     protected ?int $sequence = null;
 
+    protected ?string $webhookId = null;
+
     /**
      * @internal
      */
@@ -220,5 +222,15 @@ class WebhookEventLogEntity extends Entity
     public function setSerializedWebhookMessage(object|string $serializedWebhookMessage): void
     {
         $this->serializedWebhookMessage = $serializedWebhookMessage;
+    }
+
+    public function getWebhookId(): ?string
+    {
+        return $this->webhookId;
+    }
+
+    public function setWebhookId(?string $webhookId): void
+    {
+        $this->webhookId = $webhookId;
     }
 }

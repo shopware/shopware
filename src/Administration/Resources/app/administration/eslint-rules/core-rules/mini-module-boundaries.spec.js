@@ -72,6 +72,11 @@ describe('mini-module-boundaries', () => {
                 code: "export { default } from './src/example-card';",
             },
             {
+                name: 'the global.d.ts of a private module types the component its private.ts declares',
+                filename: `${moduleRoot}/global.d.ts`,
+                code: "import SwExample from './private';",
+            },
+            {
                 name: 'a private.ts outside a mini-module is ordinary code',
                 filename: 'src/app/main.ts',
                 code: "import { x } from 'src/app/private';",

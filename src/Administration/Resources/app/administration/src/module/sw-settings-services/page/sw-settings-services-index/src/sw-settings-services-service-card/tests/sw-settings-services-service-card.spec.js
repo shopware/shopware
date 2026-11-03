@@ -10,7 +10,7 @@ import {
     MtButton,
 } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesServiceCard from '../src/sw-settings-services-service-card';
-import SwColorBadge from '../../../../../app/component/utils/sw-color-badge';
+import SwColorBadge from '../../../../../../../app/component/utils/sw-color-badge';
 
 const createService = (overrides = {}) => ({
     id: 'service-id',

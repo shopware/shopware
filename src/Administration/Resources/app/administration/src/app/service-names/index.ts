@@ -10,9 +10,11 @@
  * @shopware-kind framework
  */
 export {
+    acl,
     feature,
     importExport,
     repositoryFactory,
     ruleConditionDataProviderService,
+    serviceRegistryClient,
     shopwareServicesService,
 } from './src/service-names';

@@ -3,6 +3,7 @@ import { defineComponent, type Component } from 'vue';
 import { shopwareServicesService } from 'src/app/service-names';
 import type { ServiceDescription } from '../dependencies';
 import { getShopwareServicesService, useNotificationStore } from '../dependencies';
+import SwSettingsServicesServiceCard from '../private';
 
 /**
  * @sw-package framework
@@ -78,9 +79,7 @@ export async function mountServiceCard(service: ServiceDescription): Promise<Vue
         Shopware.Service().register(shopwareServicesService, () => servicesService as never);
     }
 
-    const card = (await wrapTestComponent('sw-settings-services-service-card', { sync: true })) as {
-        methods: Record<string, unknown>;
-    };
+    const { default: card } = await SwSettingsServicesServiceCard.load();
     status = (await wrapTestComponent('sw-status', { sync: true })) as Component;
     const wrapper = mount(
         { ...card, methods: { ...card.methods, _reloadPage: pageReload } },

@@ -12476,7 +12476,7 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-services/component/sw-settings-services-service-card/tests/sw-settings-services-service-card.spec.js": {
+  "src/module/sw-settings-services/page/sw-settings-services-index/src/sw-settings-services-service-card/tests/sw-settings-services-service-card.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }

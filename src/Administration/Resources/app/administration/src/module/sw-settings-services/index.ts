@@ -1,6 +1,5 @@
 import './service';
 import { grantPermissionsFromSdk, isPermissionGrantedFromSdk } from './composables/permissions';
-import './component/sw-settings-services-service-card/register';
 import './page/sw-settings-services-index/register';
 
 /**

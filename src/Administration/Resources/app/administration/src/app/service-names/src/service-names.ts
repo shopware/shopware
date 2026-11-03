@@ -51,3 +51,23 @@ export const shopwareServicesService = 'shopwareServicesService';
  * @public
  */
 export const importExport = 'importExport';
+
+/**
+ * Tells whether the current user holds a privilege.
+ *
+ * @example
+ * export default { inject: [acl] };
+ *
+ * @public
+ */
+export const acl = 'acl';
+
+/**
+ * Reads the revisions of the Shopware services and their terms from the service registry.
+ *
+ * @example
+ * const registryClient = Shopware.Service(serviceRegistryClient);
+ *
+ * @public
+ */
+export const serviceRegistryClient = 'serviceRegistryClient';

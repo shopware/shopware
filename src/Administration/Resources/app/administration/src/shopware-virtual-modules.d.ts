@@ -1006,12 +1006,6 @@ declare module 'shopware:components/sw-settings-logging-entry-info' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:components/sw-settings-services-service-card' {
-    export { default } from 'src/module/sw-settings-services/component/sw-settings-services-service-card';
-    export type * from 'src/module/sw-settings-services/component/sw-settings-services-service-card';
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-shipping-price-matrices' {
     export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
     export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
@@ -1032,10 +1026,12 @@ declare module 'shopware:framework/public-component' {
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:framework/service-names' {
     export {
+        acl,
         feature,
         importExport,
         repositoryFactory,
         ruleConditionDataProviderService,
+        serviceRegistryClient,
         shopwareServicesService,
     } from 'src/app/service-names';
     export type * from 'src/app/service-names';

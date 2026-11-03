@@ -269,9 +269,6 @@
             "sw-settings-logging-entry-info": [
                 "default"
             ],
-            "sw-settings-services-service-card": [
-                "default"
-            ],
             "sw-settings-shipping-price-matrices": [
                 "default"
             ],
@@ -284,7 +281,6 @@
             "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
             "sw-media-collapse": "src/module/sw-media/component/sw-media-collapse",
             "sw-settings-logging-entry-info": "src/module/sw-settings-logging/component/sw-settings-logging-entry-info",
-            "sw-settings-services-service-card": "src/module/sw-settings-services/component/sw-settings-services-service-card",
             "sw-settings-shipping-price-matrices": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices",
             "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix"
         }
@@ -297,10 +293,12 @@
                 "definePublicComponent"
             ],
             "service-names": [
+                "acl",
                 "feature",
                 "importExport",
                 "repositoryFactory",
                 "ruleConditionDataProviderService",
+                "serviceRegistryClient",
                 "shopwareServicesService"
             ]
         },

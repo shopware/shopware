@@ -3,21 +3,24 @@
  *
  * Everything the service card needs from outside its mini-module.
  */
-import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import { notificationStoreId } from 'src/app/store/notification.store';
 import { assetFilterName } from 'src/app/filter/asset.filter';
 import { dateFilterName } from 'src/app/filter/date.filter';
 import { shopwareServicesService } from 'src/app/service-names';
 
 /** @private */
-export type { CategorizedPermissions, ServiceDescription, ServiceState } from '../../service/shopware-services.service';
+export type {
+    CategorizedPermissions,
+    ServiceDescription,
+    ServiceState,
+} from '../../../../service/shopware-services.service';
 /** @private */
 export type { PropType } from 'vue';
 /** @private */
-export { default as extractErrorMessage } from '../../composables/extract-error';
+export { default as extractErrorMessage } from '../../../../composables/extract-error';
 
 /** @private */
-export const { wrapComponentConfig } = AsyncComponentFactory;
+export { defineComponent as wrapComponentConfig } from 'vue';
 
 /** Activates and deactivates services and reads the permissions they ask for. @private */
 export const getShopwareServicesService = () => Shopware.Service(shopwareServicesService);

@@ -32,7 +32,7 @@ const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = 
 };
 
 /**
- * @public
+ * @private
  */
 export default wrapComponentConfig({
     name: 'sw-settings-services-service-card',

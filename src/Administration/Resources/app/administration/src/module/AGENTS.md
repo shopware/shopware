@@ -30,6 +30,7 @@ order-delivery/
     ├── pinned.spec.ts        # The details and edge cases, as they behave today
     ├── regressions.spec.ts   # Bugs that must not come back
     ├── public-api.spec.ts    # Optional: public members that no user path reaches, as they behave today
+    ├── private-api.spec.ts   # Optional, in a nested private module: members only its parent reaches
     ├── .gitkeep              # Only while tests/ has no spec, so git keeps the folder
     └── *.spec.ts             # Tests of internals, which should be rare
 ```
@@ -114,10 +115,26 @@ A component that extends another one names it with `extends: 'sw-base'`, and its
 Its `public` lists include what it inherits, because an override reaches that too; the meta test checks those names against the base.
 
 A component that its parent imports and lists in `components` has no global name and stays that way.
-Its `private.ts` exports the loaded component for the parent, its `register.ts` only publishes the module, and it has no `global.d.ts`.
+It becomes a nested private mini-module in the `src/` of its parent's module, with `private.ts` instead of `index.ts`, and no `register.ts` or `global.d.ts`:
+
+```ts
+// sw-example-page/src/sw-example-card/private.ts
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-example-card',
+    load: () => import('./src/sw-example-card'),
+    public: { props: ['service'] },
+});
+```
+
+The lists name what the parent may use, and TypeScript and the meta test check them like those of `definePublicComponent()`.
+The parent mounts it with `defineAsyncComponent(SwExampleCard.load)` and types a template ref with `PrivateInstance<typeof SwExampleCard>`.
+Only the `src/` of the enclosing module may import its `private.ts`, without a disabled lint line; anything else fails the lint.
+It is never published to extensions and has no code owner of its own.
 
 `npm run codemod:mini-module -- <component directory>` does the mechanical part of moving an Options API component into a mini-module,
 whether it is registered, extends another component, or is imported by its parent.
+A component its parent imports moves nested into the parent's module; while the parent is no mini-module yet, the codemod skips it.
 It takes the code owner from what `.codeowners` already says about the directory, at the same level, and never guesses one.
 It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, a missing code owner.
 
@@ -165,6 +182,7 @@ it('lists the rules the price matrices use', async () => {
 ```
 
 Each of its tests names the member it pins in a `@public-api` doc comment, because a change to that behaviour can break an extension.
+A nested private module pins the members only its parent reaches in `private-api.spec.ts` the same way, with `@private-api`, and it needs no owner review.
 
 A test that the next major removes (`it.deprecated(...)`) also has `@deprecated tag:vX.Y.Z` in its doc comment, in every kind of spec file.
 

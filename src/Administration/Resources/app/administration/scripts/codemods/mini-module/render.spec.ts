@@ -21,7 +21,7 @@ describe('render', () => {
             renderIndex(target, api),
             renderRegister(target),
             renderGlobalTypes(target),
-            renderPrivate(target),
+            renderPrivate(target, api),
         ];
 
         // ASSERT
@@ -48,7 +48,7 @@ describe('render', () => {
             renderIndex(target, api),
             renderRegister(target),
             renderGlobalTypes(target),
-            renderPrivate(target),
+            renderPrivate(target, api),
         ];
 
         // ASSERT
@@ -63,31 +63,33 @@ describe('render', () => {
         expect(files[3]).toBeNull();
     });
 
-    it('writes the entry files of a component that its parent imports, without a global name', () => {
+    it('writes only a private.ts for a component that its parent imports, without a global name', () => {
         // ARRANGE
-        const target: Target = { name: 'sw-card', packageName: 'framework', shape: { kind: 'local' } };
+        const target: Target = {
+            name: 'sw-card',
+            packageName: 'framework',
+            shape: { kind: 'nested', parent: 'src/module/sw-x/page/sw-x-index' },
+        };
 
         // ACT
         const files = [
             renderIndex(target, api),
             renderRegister(target),
             renderGlobalTypes(target),
-            renderPrivate(target),
+            renderPrivate(target, api),
         ];
 
         // ASSERT
-        expect(files[0]).toContain("props: [\n            'title',\n        ],");
-        expect(files[0]).not.toContain('methods:');
-        expect(files[0]).not.toContain('blocks:');
-        expect(files[1]).toBe(`import * as Module from './index';
-
-/**
- * @sw-package framework
- */
-
-Shopware._private.publish('components', 'sw-card', Module);
-`);
-        expect(files[2]).toBeNull();
-        expect(files[3]).toContain("/** @private */\nexport { default } from './src/sw-card';");
+        expect(files.slice(0, 3)).toEqual([
+            null,
+            null,
+            null,
+        ]);
+        expect(files[3]).toContain("import { definePrivateComponent } from 'src/core/public-component';");
+        expect(files[3]).toContain(
+            "/** @private */\nexport default definePrivateComponent({\n    name: 'sw-card',\n    load: () => import('./src/sw-card'),",
+        );
+        expect(files[3]).toContain("props: [\n            'title',\n        ],");
+        expect(files[3]).not.toContain('methods:');
     });
 });

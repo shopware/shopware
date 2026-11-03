@@ -514,6 +514,55 @@ class LayoutMutationControllerTest extends TestCase
         static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
+    public function testMapPropertyReturnsTheMappedDraft(): void
+    {
+        $this->getBrowser(permissions: ['content_layout:read']);
+        $source = ['type' => 'root', 'id' => 'category', 'path' => 'media'];
+
+        $body = $this->mutate('map-property', [
+            'elementId' => 'mapped-image',
+            'propertyKey' => 'media',
+            'source' => $source,
+            'rootSource' => 'category',
+            'layout' => [['id' => 'mapped-image', 'component' => 'Sw:Media:Image', 'properties' => ['height' => '250px', 'mediaId' => '0188fa1b2c3d4e5f6a7b8c9d0e1f2a40']]],
+        ]);
+
+        static::assertSame($source, $body['layout'][0]['acceptsContext']['media']['source']);
+        static::assertSame('root', $body['layout'][0]['acceptsContext']['media']['scope']);
+        static::assertSame('250px', $body['layout'][0]['properties']['height']);
+        static::assertSame(['mapped-image'], $body['affectedElementIds']);
+    }
+
+    public function testMapPropertyRequiresReadPrivilege(): void
+    {
+        $browser = $this->getBrowser(permissions: []);
+
+        $browser->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'image',
+            'propertyKey' => 'media',
+            'source' => ['type' => 'root', 'id' => 'category', 'path' => 'media'],
+            'rootSource' => 'category',
+        ]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testMapPropertyRejectsAMalformedSourceWithTheMappingError(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'mapped-image',
+            'propertyKey' => 'media',
+            'source' => ['type' => '', 'id' => 'category'],
+            'rootSource' => 'category',
+            'layout' => [['id' => 'mapped-image', 'component' => 'Sw:Media:Image']],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_MAPPING_SOURCE, array_column($body['errors'], 'code'));
+    }
+
     /**
      * @param array<string, mixed> $rootSourcePayload
      */

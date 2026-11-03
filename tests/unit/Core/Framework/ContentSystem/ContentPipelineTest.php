@@ -361,7 +361,7 @@ class ContentPipelineTest extends TestCase
         );
         $specification = new RenderingSpecification(
             [new DataRequirement('product', 'product', new StubLoaderConfig())],
-            PlaceholderValues::from(['query' => 'Listener text']),
+            PlaceholderValues::from(['query' => 'Listener text {{map:product.name}}']),
             new Request(),
             rootSource: 'product',
         );
@@ -375,7 +375,7 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext(),
         );
 
-        static::assertSame('Listener text ', $result->tree[0]->properties['title']);
+        static::assertSame('Listener text {{map:product.name}} ', $result->tree[0]->properties['title']);
     }
 
     #[TestDox('orders preparation, page loading, inline expansion, and finalization')]

@@ -140,6 +140,7 @@ class ContextPathResolverTest extends TestCase
         yield 'present terminal null' => [new StubPathStruct(name: null), ['name'], true, null];
         yield 'present null custom field' => [new StubPathStruct(customFields: ['material' => null]), ['customFields', 'material'], true, null];
         yield 'present empty custom field' => [new StubPathStruct(customFields: ['material' => '']), ['customFields', 'material'], true, ''];
+        yield 'custom field paths cannot continue past the field name' => [new StubPathStruct(customFields: ['material' => 'Leather']), ['customFields', 'material', 'deeper'], false, null];
         yield 'missing property' => [new StubPathStruct(), ['missing'], false, null];
         yield 'null intermediate value' => [new StubPathStruct(child: null), ['child', 'name'], false, null];
         yield 'nested Struct value' => [new StubPathStruct(child: new StubPathStruct(name: 'Child')), ['child', 'name'], true, 'Child'];

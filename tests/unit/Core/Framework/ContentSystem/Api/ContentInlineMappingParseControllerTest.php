@@ -57,6 +57,25 @@ class ContentInlineMappingParseControllerTest extends TestCase
         ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
     }
 
+    public function testForwardsTheInsideMarkupFlagForAttributeTokens(): void
+    {
+        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
+
+        $response = $controller->parse(new ContentInlineMappingParseRequest('<a title="{{ map:product.name }}">', 6));
+
+        static::assertSame([
+            'revision' => 6,
+            'tokens' => [[
+                'path' => 'product.name',
+                'match' => '{{ map:product.name }}',
+                'canonicalToken' => '{{map:product.name}}',
+                'offset' => 10,
+                'insideMarkup' => true,
+                'malformed' => false,
+            ]],
+        ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
+    }
+
     public function testMarksMalformedMappingMarkersForTheEditorToLeaveAsText(): void
     {
         $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());

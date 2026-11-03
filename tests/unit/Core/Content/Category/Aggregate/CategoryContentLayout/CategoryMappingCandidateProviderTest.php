@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Category\Aggregate\CategoryContentLayout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappingCandidateProvider;
@@ -33,6 +34,46 @@ class CategoryMappingCandidateProviderTest extends TestCase
         $this->provider = new CategoryMappingCandidateProvider(
             new CategoryContentLayoutDefinition(new ContentLayoutMetadataDeriver())
         );
+    }
+
+    #[DataProvider('textFieldProvider')]
+    public function testResolvesEachTextFieldAndItsTranslationFallback(string $member, bool $translated, string $expected): void
+    {
+        $entity = new CategoryEntity();
+        $entity->assign([
+            'name' => 'Raw name',
+            'description' => 'Raw description',
+            'metaTitle' => 'Raw metaTitle',
+            'metaDescription' => 'Raw metaDescription',
+            'keywords' => 'Raw keywords',
+        ]);
+        $entity->setTranslated($translated ? [
+            'name' => 'Translated name',
+            'description' => 'Translated description',
+            'metaTitle' => 'Translated metaTitle',
+            'metaDescription' => 'Translated metaDescription',
+            'keywords' => 'Translated keywords',
+        ] : []);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $entity], [], new RenderingCacheContext());
+
+        static::assertSame($expected, $this->provider->resolveRootSource(MappingSourceReference::root('category', $member), $context)->value);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool, string}>
+     */
+    public static function textFieldProvider(): iterable
+    {
+        yield 'name with translations' => ['name', true, 'Translated name'];
+        yield 'name raw fallback' => ['name', false, 'Raw name'];
+        yield 'description with translations' => ['description', true, 'Translated description'];
+        yield 'description raw fallback' => ['description', false, 'Raw description'];
+        yield 'metaTitle with translations' => ['metaTitle', true, 'Translated metaTitle'];
+        yield 'metaTitle raw fallback' => ['metaTitle', false, 'Raw metaTitle'];
+        yield 'metaDescription with translations' => ['metaDescription', true, 'Translated metaDescription'];
+        yield 'metaDescription raw fallback' => ['metaDescription', false, 'Raw metaDescription'];
+        yield 'keywords with translations' => ['keywords', true, 'Translated keywords'];
+        yield 'keywords raw fallback' => ['keywords', false, 'Raw keywords'];
     }
 
     public function testStableDeclarationsMatchTheOfferedCatalogue(): void

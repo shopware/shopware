@@ -156,6 +156,40 @@ class MappingCandidateProviderCompilerPassTest extends TestCase
         (new MappingCandidateProviderCompilerPass())->process($container);
     }
 
+    public function testRejectsTwoWildcardProvidersDeclaringTheSameKey(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('first', (new Definition(WildcardRegisteredProvider::class))->addTag('content_system.mapping_candidate_provider'));
+        $container->setDefinition('second', (new Definition(WildcardRegisteredProvider::class))->addTag('content_system.mapping_candidate_provider'));
+        $this->expectExceptionObject(DependencyInjectionException::mappingCandidateProviderKeyCollision('*', 'product.name', 'first', 'second'));
+
+        (new MappingCandidateProviderCompilerPass())->process($container);
+    }
+
+    public function testTheSameKeyCanBeDeclaredUnderDifferentRoots(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('first', (new Definition(FirstRegisteredProvider::class))->addTag('content_system.mapping_candidate_provider'));
+        $container->setDefinition('other-root', (new Definition(SameKeyOtherRootRegisteredProvider::class))->addTag('content_system.mapping_candidate_provider'));
+        $container->addCompilerPass(new MappingCandidateProviderCompilerPass());
+
+        $container->compile();
+
+        static::assertTrue($container->isCompiled());
+    }
+
+    public function testWildcardAndRootProvidersCanDeclareDifferentKeys(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('wildcard', (new Definition(WildcardRegisteredProvider::class))->addTag('content_system.mapping_candidate_provider'));
+        $container->setDefinition('other-root', (new Definition(OtherRootRegisteredProvider::class))->addTag('content_system.mapping_candidate_provider'));
+        $container->addCompilerPass(new MappingCandidateProviderCompilerPass());
+
+        $container->compile();
+
+        static::assertTrue($container->isCompiled());
+    }
+
     public function testAllowsNonOverlappingProviderDeclarations(): void
     {
         $container = new ContainerBuilder();
@@ -235,5 +269,16 @@ class OtherRootRegisteredProvider extends FirstRegisteredProvider
     public static function registeredCandidateKeys(): array
     {
         return ['category' => ['category.name']];
+    }
+}
+
+/**
+ * @internal
+ */
+class SameKeyOtherRootRegisteredProvider extends FirstRegisteredProvider
+{
+    public static function registeredCandidateKeys(): array
+    {
+        return ['category' => ['product.name']];
     }
 }

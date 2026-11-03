@@ -34,6 +34,37 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 #[CoversClass(CustomFieldMappingCandidateProvider::class)]
 class CustomFieldMappingCandidateProviderTest extends TestCase
 {
+    /**
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('scalarFieldTypeProvider')]
+    public function testOffersTheDeclaredScalarType(string $fieldType, array $config, string $expected): void
+    {
+        $field = $this->customField('scalar_value', $fieldType, $config);
+        $provider = new CustomFieldMappingCandidateProvider(
+            new StaticEntityRepository([new CustomFieldCollection([$field])]),
+            new TagAwareAdapter(new ArrayAdapter()),
+        );
+
+        $candidates = $provider->provide('product');
+
+        static::assertCount(1, $candidates);
+        static::assertSame('product.customFields.scalar_value', $candidates[0]->path);
+        static::assertSame($expected, $candidates[0]->valueType);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>, string}>
+     */
+    public static function scalarFieldTypeProvider(): iterable
+    {
+        yield 'single select yields a string' => [CustomFieldTypes::SELECT, ['componentName' => 'sw-single-select'], 'string'];
+        yield 'integer yields an integer' => [CustomFieldTypes::INT, [], 'integer'];
+        yield 'boolean yields a boolean' => [CustomFieldTypes::BOOL, [], 'boolean'];
+        yield 'checkbox yields a boolean' => [CustomFieldTypes::CHECKBOX, [], 'boolean'];
+        yield 'switch yields a boolean' => [CustomFieldTypes::SWITCH, [], 'boolean'];
+    }
+
     #[DataProvider('mappingDependencies')]
     public function testOnlyCustomFieldMappingAttemptsDependOnMetadata(string $rootSource, string $path, bool $depends): void
     {

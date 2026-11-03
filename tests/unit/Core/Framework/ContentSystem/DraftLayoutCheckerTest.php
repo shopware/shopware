@@ -61,7 +61,11 @@ class DraftLayoutCheckerTest extends TestCase
     #[TestDox('allows a preview with an unavailable inline mapping')]
     public function testAllowsUnavailableInlineMapping(): void
     {
-        $violations = $this->checker()->check([$this->elementWithToken('{{map:product.secret}}')]);
+        $report = new DiagnosticsReport([
+            new Violation(ViolationCode::InvalidMapping, 'el-1', 'text', 'The inline mapping is unavailable.'),
+        ]);
+
+        $violations = $this->checkerReturning($report)->check([$this->elementWithToken('{{map:product.secret}}')]);
 
         static::assertCount(0, $violations);
     }

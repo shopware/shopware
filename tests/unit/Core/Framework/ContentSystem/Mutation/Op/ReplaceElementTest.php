@@ -122,6 +122,29 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['legacy'], $replace->droppedWiring());
     }
 
+    #[DataProvider('aliasedConsumerProvider')]
+    public function testConsumerCarryoverUsesItsAliasRatherThanItsContextKey(string $contextKey, string $alias, bool $retained): void
+    {
+        $consumer = new ContextConsumer(ContextType::Single, false, propertyAlias: $alias);
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', contextDefinitions: new ContextDefinitions([], [$contextKey => $consumer]))]);
+        $registry = $this->registry();
+        $replace = new ReplaceElement($registry, 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($registry));
+
+        $result = $replace->apply($tree);
+
+        static::assertSame($retained ? [$contextKey => $consumer] : [], $result->roots[0]->contextDefinitions->getAllConsumers());
+        static::assertSame($retained ? [] : [$contextKey], $replace->droppedWiring());
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function aliasedConsumerProvider(): iterable
+    {
+        yield 'new type declares the alias but not the context key' => ['legacy', 'product', true];
+        yield 'new type declares the context key but not the alias' => ['product', 'legacy', false];
+    }
+
     #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
     public function testReplaceCarriesStyleUnconditionally(): void
     {

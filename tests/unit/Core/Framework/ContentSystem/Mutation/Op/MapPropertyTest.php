@@ -143,6 +143,30 @@ class MapPropertyTest extends TestCase
         $this->map('text', 'product.cover')->apply($tree);
     }
 
+    public function testReportsTheMappedElementAsAffected(): void
+    {
+        $operation = $this->map('text', 'product.name');
+        static::assertSame([], $operation->affected());
+
+        $operation->apply(new StoredTree([new StoredElement('element-1', 'Sw:Text')], 'product'));
+
+        static::assertSame(['element-1'], $operation->affected());
+    }
+
+    public function testRejectsAMissingTarget(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('element-1'));
+
+        $this->map('text', 'product.name')->apply(new StoredTree([], 'product'));
+    }
+
+    public function testRejectsAnUnregisteredElementType(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Unknown'));
+
+        $this->map('text', 'product.name')->apply(new StoredTree([new StoredElement('element-1', 'Sw:Unknown')], 'product'));
+    }
+
     private function map(string $propertyKey, string $sourcePath): MapProperty
     {
         return $this->mapSource($propertyKey, MappingSourceReference::fromRootPath($sourcePath));
@@ -156,7 +180,7 @@ class MapPropertyTest extends TestCase
             ->build();
 
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $typeRegistry->method('has')->willReturn(true);
+        $typeRegistry->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'Sw:Text');
         $typeRegistry->method('get')->willReturnCallback(
             static fn (string $name): ContentSystemElementTypeSpecification => $specification
         );

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
  * Shared cache tag for custom-field metadata consulted by mapped content.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class CustomFieldMappingCacheTags

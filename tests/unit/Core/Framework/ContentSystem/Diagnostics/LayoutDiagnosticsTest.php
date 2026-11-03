@@ -1289,6 +1289,25 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('text', $report->bindingErrors()[0]->key);
     }
 
+    public function testAdmitsACataloguedStringifiableInlineMapping(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperty('text', 'Buy {{map:product.name}}')
+            ->build();
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', inlineMappable: true)
+            ->build();
+        $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
+
+        $report = $this->diagnostics(
+            ['Sw:Content:Text' => $specification],
+            candidates: [$candidate->path => $candidate],
+        )->analyze([$element], [], 'product')->report;
+
+        static::assertSame([], $report->bindingErrors());
+        static::assertTrue($report->isResolvable());
+    }
+
     #[TestDox('admits a mapping the catalogue offers for the bound root source')]
     public function testCataloguedMappingIsAdmitted(): void
     {

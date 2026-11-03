@@ -106,6 +106,32 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('{{map:product.name}}', $token->match);
     }
 
+    public function testPrepareShiftsMultipleTokensPastALongerPlaceholderReplacement(): void
+    {
+        $replacement = 'A much longer replacement than the placeholder';
+        $first = '{{map:product.name}}';
+        $second = '{{map:product.description}}';
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', 'Before {{prefix}} ' . $first . ' middle ' . $second . ' after')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['prefix' => $replacement]), RenderingMode::FULL);
+
+        $expected = 'Before ' . $replacement . ' ' . $first . ' middle ' . $second . ' after';
+        static::assertSame($expected, $result->tree[0]->property('text')?->asString());
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'text');
+        static::assertCount(2, $tokens);
+        static::assertSame(['product.name', 'product.description'], array_column($tokens, 'path'));
+        static::assertSame([$first, $second], array_column($tokens, 'match'));
+        static::assertSame([
+            \strlen('Before ' . $replacement . ' '),
+            \strlen('Before ' . $replacement . ' ' . $first . ' middle '),
+        ], array_column($tokens, 'offset'));
+        foreach ($tokens as $token) {
+            static::assertSame($token->match, substr($expected, $token->offset, \strlen($token->match)));
+        }
+    }
+
     #[TestDox('keeps authored mapping spans separate from placeholder-injected text')]
     public function testPrepareDoesNotTurnPlaceholderValuesIntoMappingInstructions(): void
     {

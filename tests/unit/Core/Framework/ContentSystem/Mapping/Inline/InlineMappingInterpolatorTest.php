@@ -104,6 +104,35 @@ class InlineMappingInterpolatorTest extends TestCase
         );
     }
 
+    #[DataProvider('booleanTextProvider')]
+    public function testBooleanValuesUseNumericText(bool $value, string $expected): void
+    {
+        $candidate = new MappingCandidate('product.available', 'Available', '', 'basic', 'boolean');
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
+        $candidates->method('resolveSource')->willReturn(MappingSourceResolution::resolved($value));
+        $interpolator = new InlineMappingInterpolator(new MappingRuntimeResolver($candidates, $this->mappingInspector($candidates)));
+
+        static::assertSame($expected, $interpolator->interpolate(
+            $candidate->path,
+            [],
+            'product',
+            $this->element(),
+            cacheContext: new RenderingCacheContext(),
+            loaderValues: [],
+            budget: new InlineMappingExpansionBudget(),
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{bool, string}>
+     */
+    public static function booleanTextProvider(): iterable
+    {
+        yield 'true becomes one' => [true, '1'];
+        yield 'false becomes zero' => [false, '0'];
+    }
+
     public function testProviderFailurePropagatesDuringInterpolation(): void
     {
         $failure = new \RuntimeException('provider failed');

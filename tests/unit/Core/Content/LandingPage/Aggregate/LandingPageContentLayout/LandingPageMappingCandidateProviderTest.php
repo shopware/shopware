@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\LandingPage\Aggregate\LandingPageContentLayout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageMappingCandidateProvider;
@@ -30,6 +31,46 @@ class LandingPageMappingCandidateProviderTest extends TestCase
         $this->provider = new LandingPageMappingCandidateProvider(
             new LandingPageContentLayoutDefinition(new ContentLayoutMetadataDeriver())
         );
+    }
+
+    #[DataProvider('textFieldProvider')]
+    public function testResolvesEachTextFieldAndItsTranslationFallback(string $member, bool $translated, string $expected): void
+    {
+        $entity = new LandingPageEntity();
+        $entity->assign([
+            'name' => 'Raw name',
+            'url' => 'Raw url',
+            'metaTitle' => 'Raw metaTitle',
+            'metaDescription' => 'Raw metaDescription',
+            'keywords' => 'Raw keywords',
+        ]);
+        $entity->setTranslated($translated ? [
+            'name' => 'Translated name',
+            'url' => 'Translated url',
+            'metaTitle' => 'Translated metaTitle',
+            'metaDescription' => 'Translated metaDescription',
+            'keywords' => 'Translated keywords',
+        ] : []);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['landing_page' => $entity], [], new RenderingCacheContext());
+
+        static::assertSame($expected, $this->provider->resolveRootSource(MappingSourceReference::root('landing_page', $member), $context)->value);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool, string}>
+     */
+    public static function textFieldProvider(): iterable
+    {
+        yield 'name with translations' => ['name', true, 'Translated name'];
+        yield 'name raw fallback' => ['name', false, 'Raw name'];
+        yield 'url with translations' => ['url', true, 'Raw url'];
+        yield 'url raw fallback' => ['url', false, 'Raw url'];
+        yield 'metaTitle with translations' => ['metaTitle', true, 'Translated metaTitle'];
+        yield 'metaTitle raw fallback' => ['metaTitle', false, 'Raw metaTitle'];
+        yield 'metaDescription with translations' => ['metaDescription', true, 'Translated metaDescription'];
+        yield 'metaDescription raw fallback' => ['metaDescription', false, 'Raw metaDescription'];
+        yield 'keywords with translations' => ['keywords', true, 'Translated keywords'];
+        yield 'keywords raw fallback' => ['keywords', false, 'Raw keywords'];
     }
 
     public function testStableDeclarationsMatchTheOfferedCatalogue(): void

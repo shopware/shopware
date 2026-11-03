@@ -219,6 +219,12 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Markdown output for list commands
+
+`sales-channel:list`, `plugin:list`, `app:list` and `user:list` accept `--format=markdown` and print their table as Markdown, for example to paste it into tickets or documentation.
+Commands using `OutputFormatTrait` can support the format via `FORMAT_MARKDOWN` and `renderFormattedTable()`.
+The default table of `sales-channel:list` now uses the same style as the other list commands and lists each domain on its own line (separated by `<br>` in Markdown); scripts that parse its table output should switch to `--format=json`.
+
 ## API
 
 ### Usernames with surrounding whitespace
@@ -1244,11 +1250,6 @@ $lineItem = $lineItemFactoryRegistry->create([
 `McpToolsetRegistry::QUERY_PARAMETER` now names the `toolsets` query parameter that selects toolsets in the MCP connect URL, on `/api/_mcp` and `/store-api/_mcp`. The parameter exists since 6.7.15.0, the constant since 6.7.16.0. Code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')` and uses the literal `'toolsets'`. Do not probe the internal `McpRequestedToolsetResolver` class, which can be renamed without notice.
 
 `shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled. A tool group named `all` now belongs to the `other` toolset, because `?toolsets=all` selects every toolset. `McpToolsetRegistry::advertisedTools()` resolves `all` the same way as `advertisedToolsForNames()`.
-### Markdown output for list commands
-
-`sales-channel:list`, `plugin:list`, `app:list` and `user:list` accept `--format=markdown` and print their table as Markdown, for example to paste it into tickets or documentation.
-Commands using `OutputFormatTrait` can support the format via `FORMAT_MARKDOWN` and `renderFormattedTable()`.
-The default table of `sales-channel:list` now uses the same style as the other list commands and lists each domain on its own line (separated by `<br>` in Markdown); scripts that parse its table output should switch to `--format=json`.
 
 ## API
 

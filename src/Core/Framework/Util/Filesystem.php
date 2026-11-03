@@ -21,6 +21,7 @@ class Filesystem
     public function __construct(
         public readonly string $location,
         public readonly Io $io = new Io(),
+        public readonly bool $restrictToLocation = true,
     ) {
     }
 
@@ -28,7 +29,7 @@ class Filesystem
     {
         $path = Path::join($this->location, ...$path);
 
-        return Path::isBasePath($this->location, $path) && $this->io->exists($path);
+        return (!$this->restrictToLocation || Path::isBasePath($this->location, $path)) && $this->io->exists($path);
     }
 
     public function hasFile(string ...$path): bool

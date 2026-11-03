@@ -154,6 +154,17 @@ class FilesystemTest extends TestCase
         $fs->read('../outside.txt');
     }
 
+    public function testPathsOutsideTheLocationAreAccessibleWithoutRestriction(): void
+    {
+        $this->io->dumpFile($this->root . '/node_modules/package/index.scss', 'scss');
+        $this->io->mkdir($this->root . '/plugin');
+
+        $fs = new Filesystem($this->root . '/plugin', restrictToLocation: false);
+
+        static::assertTrue($fs->has('../node_modules/package/index.scss'));
+        static::assertSame('scss', $fs->read('../node_modules/package/index.scss'));
+    }
+
     public function testNestedAndNormalizedPathsInsideTheLocationAreAccessible(): void
     {
         $this->io->dumpFile($this->root . '/app/Resources/config/icon.png', 'icon');

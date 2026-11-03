@@ -6,7 +6,7 @@
 import ts from 'typescript';
 import { scanGlobalUses } from './dependencies/global-uses';
 
-const PACKAGE_DOC = /\/\*\*(?:(?!\*\/)[\s\S])*@sw-package(?:(?!\*\/)[\s\S])*\*\//;
+const PACKAGE_DOC = /\/\*\*?(?:(?!\*\/)[\s\S])*@sw-package(?:(?!\*\/)[\s\S])*\*\//;
 
 /** The comments of a file with what follows each, from the TypeScript scanner. */
 const comments = (code: string) => {
@@ -41,25 +41,101 @@ const lineRange = (code: string, start: number, end: number) => {
     return { start: lineStart, end: lineBreak === -1 ? code.length : lineBreak + 1 };
 };
 
+const FEATURE_RULE = 'sw-deprecation-rules/private-feature-declarations';
+
+/** Whether the comment that ends on the line above a node marks it as `private-feature-declarations` accepts it. */
+const isDeclaredFeature = (code: string, node: ts.Node, source: ts.SourceFile) => {
+    const comment = (ts.getLeadingCommentRanges(code, node.getFullStart()) ?? []).at(-1);
+    if (!comment || comment.kind !== ts.SyntaxKind.MultiLineCommentTrivia) {
+        return false;
+    }
+
+    const nodeLine = source.getLineAndCharacterOfPosition(node.getStart(source)).line;
+    const text = code.slice(comment.pos, comment.end);
+    return (
+        source.getLineAndCharacterOfPosition(comment.end).line === nodeLine - 1 &&
+        (text.includes('@private') || text.includes('@deprecated tag:'))
+    );
+};
+
+/** A call `private-feature-declarations` reports without a doc comment: `register` on `Component`, `Module` or `Service()`. */
+const isFeatureRegistration = (statement: ts.ExpressionStatement) => {
+    const call = statement.expression;
+    if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression)) {
+        return false;
+    }
+
+    const owner = call.expression.expression.getText();
+    return (
+        call.expression.name.text === 'register' &&
+        /^(Shopware\.)?(Component|Module)$|^(Shopware\.)?Service\(\)$/.test(owner.replace(/\s/g, ''))
+    );
+};
+
+/**
+ * The ranges of the code `private-feature-declarations` reports: feature registrations and exports
+ * without a `@private` or `@deprecated tag:` doc comment, as the rule sees them.
+ */
+const reportedFeatureRanges = (code: string) => {
+    const source = ts.createSourceFile('file.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const ranges: { start: number; end: number }[] = [];
+    const visit = (node: ts.Node) => {
+        const isReported =
+            (ts.isExpressionStatement(node) && isFeatureRegistration(node)) ||
+            ts.isExportAssignment(node) ||
+            (ts.isExportDeclaration(node) && !!node.exportClause) ||
+            (ts.isStatement(node) &&
+                ts.canHaveModifiers(node) &&
+                !!ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
+        if (isReported && !isDeclaredFeature(code, node, source)) {
+            ranges.push({ start: node.getStart(source), end: node.getEnd() });
+        }
+
+        node.forEachChild(visit);
+    };
+    visit(source);
+
+    return ranges;
+};
+
 /**
  * Removes `/* eslint-disable … *\/` comments that nothing but an `eslint-enable` or the end of the file follows
- * any more, with that `eslint-enable`.
+ * any more, with that `eslint-enable`, and the `private-feature-declarations` disables, also `-next-line` ones,
+ * that no longer cover a line the rule reports.
  */
 export function dropEmptyLintBlocks(code: string): string {
     const found = comments(code);
     const cuts: { start: number; end: number }[] = [];
+    const reported = reportedFeatureRanges(code);
+    const coversReport = (from: number, to: number) => reported.some(({ start }) => start >= from && start < to);
+    const disablesOnlyFeatureRule = (text: string) =>
+        new RegExp(`^(\\/\\*|\\/\\/)\\s*eslint-disable(-next-line)?\\s+${FEATURE_RULE}\\s*(--[^*]*)?(\\*\\/)?$`).test(
+            text.trim(),
+        );
 
     found.forEach((comment, index) => {
+        if (/^(\/\*|\/\/)\s*eslint-disable-next-line\s/.test(comment.text)) {
+            const nextLineEnd = code.indexOf('\n', code.indexOf('\n', comment.end) + 1);
+            if (
+                disablesOnlyFeatureRule(comment.text) &&
+                !coversReport(comment.end, nextLineEnd === -1 ? code.length : nextLineEnd)
+            ) {
+                cuts.push(lineRange(code, comment.start, comment.end));
+            }
+
+            return;
+        }
+
         if (!/^\/\*\s*eslint-disable\s/.test(comment.text)) {
             return;
         }
 
-        const following = found[index + 1];
-        const closesRightAfter =
-            following && following.start === comment.next && /^\/\*\s*eslint-enable\b/.test(following.text);
-        if (closesRightAfter) {
-            cuts.push(lineRange(code, comment.start, comment.end), lineRange(code, following.start, following.end));
-        } else if (comment.next === code.length) {
+        const enable = found.slice(index + 1).find((later) => /^\/\*\s*eslint-enable\b/.test(later.text));
+        const closesRightAfter = enable && enable === found[index + 1] && enable.start === comment.next;
+        const isUnused = disablesOnlyFeatureRule(comment.text) && !coversReport(comment.end, enable?.start ?? code.length);
+        if (closesRightAfter || (isUnused && enable)) {
+            cuts.push(lineRange(code, comment.start, comment.end), lineRange(code, enable.start, enable.end));
+        } else if (comment.next === code.length || isUnused) {
             cuts.push(lineRange(code, comment.start, comment.end));
         }
     });

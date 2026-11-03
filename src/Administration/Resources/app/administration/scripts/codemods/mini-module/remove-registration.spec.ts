@@ -49,6 +49,32 @@ describe('dropEmptyLintBlocks', () => {
     });
 });
 
+describe('dropEmptyLintBlocks with private-feature-declarations', () => {
+    it('removes the disables of the rule that no longer cover a registration it reports', () => {
+        // ARRANGE
+        const rule = 'sw-deprecation-rules/private-feature-declarations';
+        const codes = [
+            `import './a/register';\n\n/* eslint-disable ${rule} */\nShopware.Component.extend('sw-b', 'sw-a', () => import('./b'));\n`,
+            `/* eslint-disable ${rule} */\nShopware.Component.register('sw-b', () => import('./b'));\n`,
+            `/* eslint-disable-next-line ${rule} */\n/*\n * @sw-package discovery\n */\nconst a = 1;\n`,
+            `// eslint-disable-next-line ${rule}\nShopware.Module.register('sw-b', {});\n`,
+            `/* eslint-disable max-len, ${rule} */\nShopware.Component.extend('sw-b', 'sw-a', () => import('./b'));\n`,
+        ];
+
+        // ACT
+        const results = codes.map(dropEmptyLintBlocks);
+
+        // ASSERT
+        expect(results).toEqual([
+            "import './a/register';\n\nShopware.Component.extend('sw-b', 'sw-a', () => import('./b'));\n",
+            codes[1],
+            '/*\n * @sw-package discovery\n */\nconst a = 1;\n',
+            codes[3],
+            codes[4],
+        ]);
+    });
+});
+
 describe('dropUnusedDestructures', () => {
     it('removes the names of a destructure of the global that nothing reads', () => {
         // ARRANGE

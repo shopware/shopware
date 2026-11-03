@@ -27,6 +27,7 @@ import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
 import { moveSuppressionKeys } from './move-suppressions';
 import { isTestFixture } from './test-fixtures';
+import { removeRegistration } from './remove-registration';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -182,9 +183,12 @@ const readInheritedApi = (name: string): { api: ComponentApi; privateBase: strin
     };
 };
 
+/** Adds a bare import after the last import, or, without one, below the doc comment that heads the file. */
 const addImport = (source: string, specifier: string) => {
     const imports = [...source.matchAll(/^import .+;$/gm)];
-    const at = imports.length > 0 ? imports[imports.length - 1].index + imports[imports.length - 1][0].length + 1 : 0;
+    const header = /^\/\*\*?(?:(?!\*\/)[\s\S])*\*\/\n(?=\n)/.exec(source)?.[0] ?? '';
+    const at =
+        imports.length > 0 ? imports[imports.length - 1].index + imports[imports.length - 1][0].length + 1 : header.length;
 
     return `${source.slice(0, at)}import '${specifier}';\n${source.slice(at)}`;
 };
@@ -650,7 +654,7 @@ const addOwner = (root: string): Owner | null => {
 const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<typeof locateRegistration>>) => {
     const absolute = path.join(adminRoot, file);
     const source = fs.readFileSync(absolute, 'utf8');
-    const withoutRegistration = `${source.slice(0, registration.start)}${source.slice(registration.end)}`;
+    const withoutRegistration = removeRegistration(source, registration);
     fs.writeFileSync(absolute, addImport(withoutRegistration, `${withoutIndex(registration.specifier)}/register`));
 
     return file;

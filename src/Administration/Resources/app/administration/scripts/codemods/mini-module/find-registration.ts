@@ -7,7 +7,7 @@ import ts from 'typescript';
 
 /**
  * How a component reaches the component registry today, and where in its file that happens.
- * `start` and `end` span the whole statement with its doc comment and line break, so cutting them out leaves no gap.
+ * `start` and `end` span the whole statement with the comments right above it and its line break, so cutting them out leaves no gap.
  * `specifier` is the path the lazy `import()` loads, as written.
  * `isPrivate` tells whether the doc comment of the statement marks the component `@private`.
  */
@@ -37,10 +37,32 @@ const readLazyImport = (loader: ts.Expression | undefined): string | null => {
         : null;
 };
 
-/** The range of a statement from its own line, including its doc comment, up to and including its line break. */
+/** Whether a comment switches a lint rule on or off for the lines below it, so it belongs to no single statement. */
+const isLintBlock = (comment: string) => /^\/\*\s*eslint-(disable|enable)(?![-\w])/.test(comment);
+
+/**
+ * Where the comments right above a statement begin: its doc comment and an `eslint-disable-next-line`,
+ * up to a blank line or an `eslint-disable` block, which stay because they belong to the file or to several statements.
+ */
+const attachedCommentsStart = (text: string, statement: ts.Statement, source: ts.SourceFile) => {
+    let start = statement.getStart(source);
+    const comments = ts.getLeadingCommentRanges(text, statement.getFullStart()) ?? [];
+    for (const comment of [...comments].reverse()) {
+        const between = text.slice(comment.end, start);
+        if (/\n[ \t]*\n/.test(between) || !between.includes('\n') || isLintBlock(text.slice(comment.pos, comment.end))) {
+            break;
+        }
+
+        start = comment.pos;
+    }
+
+    return start;
+};
+
+/** The range of a statement from its own line, including the comments right above it, up to and including its line break. */
 const statementRange = (source: ts.SourceFile, statement: ts.Statement) => {
     const text = source.text;
-    const lineStart = text.lastIndexOf('\n', statement.getStart(source, true) - 1) + 1;
+    const lineStart = text.lastIndexOf('\n', attachedCommentsStart(text, statement, source) - 1) + 1;
     const lineBreak = text.indexOf('\n', statement.getEnd());
 
     return { start: lineStart, end: lineBreak === -1 ? text.length : lineBreak + 1 };
@@ -73,7 +95,8 @@ function findRegistrations(code: string): (Registration & { name: string })[] {
         }
 
         const range = statementRange(source, statement);
-        const isPrivate = /@private\b/.test(source.text.slice(range.start, statement.getStart(source)));
+        const docStart = Math.min(range.start, statement.getStart(source, true));
+        const isPrivate = /@private\b/.test(source.text.slice(docStart, statement.getStart(source)));
         const name = componentName.text;
         return [
             kind === 'extend'
@@ -146,7 +169,7 @@ export function findImports(
                 specifier: literal.text,
                 start: literal.getStart(source) + 1,
                 end: literal.getEnd() - 1,
-                lineStart: statementRange(source, statement).start,
+                lineStart: source.text.lastIndexOf('\n', statement.getStart(source) - 1) + 1,
             },
         ];
     });

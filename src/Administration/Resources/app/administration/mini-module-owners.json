@@ -1,5 +1,26 @@
 {
     "src/module/sw-media/component/sw-media-collapse": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-country-state-detail": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-address-handling": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-general": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-preview-template": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/component/sw-settings-country-state": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/page/sw-settings-country-create": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/page/sw-settings-country-detail": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-country/page/sw-settings-country-list": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-customer-group/page/sw-settings-customer-group-list": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-language/page/sw-settings-language-detail": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices": "@shopware/product-cc-checkout",
-    "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix": "@shopware/product-cc-checkout"
+    "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix": "@shopware/product-cc-checkout",
+    "src/module/sw-settings-sitemap/page/sw-settings-sitemap": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-snippet/page/sw-settings-snippet-detail": "? @shopware/product-cc-discovery"
 }

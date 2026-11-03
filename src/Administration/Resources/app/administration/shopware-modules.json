@@ -260,13 +260,304 @@
             "sw-bulk-edit-product-visibility": [
                 "default"
             ],
+            "sw-country-state-detail": [
+                "default"
+            ],
+            "sw-custom-field-detail": [
+                "default"
+            ],
+            "sw-custom-field-list": [
+                "default"
+            ],
+            "sw-custom-field-set-detail-base": [
+                "default"
+            ],
+            "sw-custom-field-translated-labels": [
+                "default"
+            ],
+            "sw-custom-field-type-base": [
+                "default"
+            ],
+            "sw-custom-field-type-date": [
+                "default"
+            ],
+            "sw-custom-field-type-entity": [
+                "default"
+            ],
+            "sw-custom-field-type-number": [
+                "default"
+            ],
+            "sw-custom-field-type-select": [
+                "default"
+            ],
             "sw-import-export-activity": [
                 "default"
             ],
             "sw-media-collapse": [
                 "default"
             ],
+            "sw-multi-snippet-drag-and-drop": [
+                "default"
+            ],
+            "sw-payment-card": [
+                "default"
+            ],
+            "sw-plugin-box": [
+                "default"
+            ],
+            "sw-price-rule-modal": [
+                "default"
+            ],
+            "sw-seo-main-category": [
+                "default"
+            ],
+            "sw-seo-url-template-card": [
+                "default"
+            ],
+            "sw-settings-basic-information": [
+                "default"
+            ],
+            "sw-settings-cache-index": [
+                "default"
+            ],
+            "sw-settings-captcha-select-v2": [
+                "default"
+            ],
+            "sw-settings-cart": [
+                "default"
+            ],
+            "sw-settings-country-address-handling": [
+                "default"
+            ],
+            "sw-settings-country-create": [
+                "default"
+            ],
+            "sw-settings-country-currency-dependent-modal": [
+                "default"
+            ],
+            "sw-settings-country-currency-hamburger-menu": [
+                "default"
+            ],
+            "sw-settings-country-detail": [
+                "default"
+            ],
+            "sw-settings-country-general": [
+                "default"
+            ],
+            "sw-settings-country-list": [
+                "default"
+            ],
+            "sw-settings-country-new-snippet-modal": [
+                "default"
+            ],
+            "sw-settings-country-preview-template": [
+                "default"
+            ],
+            "sw-settings-country-state": [
+                "default"
+            ],
+            "sw-settings-currency-country-modal": [
+                "default"
+            ],
+            "sw-settings-currency-detail": [
+                "default"
+            ],
+            "sw-settings-currency-list": [
+                "default"
+            ],
+            "sw-settings-custom-field-set-create": [
+                "default"
+            ],
+            "sw-settings-custom-field-set-detail": [
+                "default"
+            ],
+            "sw-settings-customer-group-detail": [
+                "default"
+            ],
+            "sw-settings-customer-group-list": [
+                "default"
+            ],
+            "sw-settings-delivery-time-detail": [
+                "default"
+            ],
+            "sw-settings-delivery-time-list": [
+                "default"
+            ],
+            "sw-settings-document-detail": [
+                "default"
+            ],
+            "sw-settings-index": [
+                "default"
+            ],
+            "sw-settings-item": [
+                "default"
+            ],
+            "sw-settings-language-detail": [
+                "default"
+            ],
+            "sw-settings-listing": [
+                "default"
+            ],
+            "sw-settings-listing-default-sales-channel": [
+                "default"
+            ],
+            "sw-settings-listing-delete-modal": [
+                "default"
+            ],
+            "sw-settings-listing-option-base": [
+                "default"
+            ],
+            "sw-settings-listing-option-create": [
+                "default"
+            ],
+            "sw-settings-listing-option-criteria-grid": [
+                "default"
+            ],
+            "sw-settings-listing-option-general-info": [
+                "default"
+            ],
+            "sw-settings-listing-visibility-detail": [
+                "default"
+            ],
             "sw-settings-logging-entry-info": [
+                "default"
+            ],
+            "sw-settings-logging-mail-sent-info": [
+                "default"
+            ],
+            "sw-settings-login-registration": [
+                "default"
+            ],
+            "sw-settings-mailer": [
+                "default"
+            ],
+            "sw-settings-mailer-smtp": [
+                "default"
+            ],
+            "sw-settings-measurement": [
+                "default"
+            ],
+            "sw-settings-measurement-default-units": [
+                "default"
+            ],
+            "sw-settings-media": [
+                "default"
+            ],
+            "sw-settings-message-stats": [
+                "default"
+            ],
+            "sw-settings-newsletter": [
+                "default"
+            ],
+            "sw-settings-number-range-create": [
+                "default"
+            ],
+            "sw-settings-number-range-detail": [
+                "default"
+            ],
+            "sw-settings-number-range-list": [
+                "default"
+            ],
+            "sw-settings-payment-create": [
+                "default"
+            ],
+            "sw-settings-payment-detail": [
+                "default"
+            ],
+            "sw-settings-payment-overview": [
+                "default"
+            ],
+            "sw-settings-payment-sorting-modal": [
+                "default"
+            ],
+            "sw-settings-price-rounding": [
+                "default"
+            ],
+            "sw-settings-product-feature-sets-detail": [
+                "default"
+            ],
+            "sw-settings-product-feature-sets-list": [
+                "default"
+            ],
+            "sw-settings-product-feature-sets-modal": [
+                "default"
+            ],
+            "sw-settings-product-feature-sets-values-card": [
+                "default"
+            ],
+            "sw-settings-rule-add-assignment-listing": [
+                "default"
+            ],
+            "sw-settings-rule-add-assignment-modal": [
+                "default"
+            ],
+            "sw-settings-rule-assignment-listing": [
+                "default"
+            ],
+            "sw-settings-rule-category-tree": [
+                "default"
+            ],
+            "sw-settings-rule-detail": [
+                "default"
+            ],
+            "sw-settings-rule-detail-assignments": [
+                "default"
+            ],
+            "sw-settings-rule-detail-base": [
+                "default"
+            ],
+            "sw-settings-rule-list": [
+                "default"
+            ],
+            "sw-settings-rule-tree-item": [
+                "default"
+            ],
+            "sw-settings-salutation-detail": [
+                "default"
+            ],
+            "sw-settings-salutation-list": [
+                "default"
+            ],
+            "sw-settings-search": [
+                "default"
+            ],
+            "sw-settings-search-example-modal": [
+                "default"
+            ],
+            "sw-settings-search-excluded-search-terms": [
+                "default"
+            ],
+            "sw-settings-search-live-search": [
+                "default"
+            ],
+            "sw-settings-search-live-search-keyword": [
+                "default"
+            ],
+            "sw-settings-search-search-behaviour": [
+                "default"
+            ],
+            "sw-settings-search-search-index": [
+                "default"
+            ],
+            "sw-settings-search-searchable-content": [
+                "default"
+            ],
+            "sw-settings-search-searchable-content-customfields": [
+                "default"
+            ],
+            "sw-settings-search-searchable-content-general": [
+                "default"
+            ],
+            "sw-settings-search-view-general": [
+                "default"
+            ],
+            "sw-settings-search-view-live-search": [
+                "default"
+            ],
+            "sw-settings-seo": [
+                "default"
+            ],
+            "sw-settings-shipping-list": [
                 "default"
             ],
             "sw-settings-shipping-price-matrices": [
@@ -274,15 +565,228 @@
             ],
             "sw-settings-shipping-price-matrix": [
                 "default"
+            ],
+            "sw-settings-shipping-tax-cost": [
+                "default"
+            ],
+            "sw-settings-sitemap": [
+                "default"
+            ],
+            "sw-settings-snippet-detail": [
+                "default"
+            ],
+            "sw-settings-snippet-filter-switch": [
+                "default"
+            ],
+            "sw-settings-snippet-sidebar": [
+                "default"
+            ],
+            "sw-settings-state-machine-detail": [
+                "default"
+            ],
+            "sw-settings-state-machine-list": [
+                "default"
+            ],
+            "sw-settings-state-machine-state-detail": [
+                "default"
+            ],
+            "sw-settings-state-machine-state-list": [
+                "default"
+            ],
+            "sw-settings-store": [
+                "default"
+            ],
+            "sw-settings-tag-detail-assignments": [
+                "default"
+            ],
+            "sw-settings-tag-detail-modal": [
+                "default"
+            ],
+            "sw-settings-tag-list": [
+                "default"
+            ],
+            "sw-settings-tax-detail": [
+                "default"
+            ],
+            "sw-settings-tax-list": [
+                "default"
+            ],
+            "sw-settings-tax-provider-detail": [
+                "default"
+            ],
+            "sw-settings-tax-provider-sorting-modal": [
+                "default"
+            ],
+            "sw-settings-tax-rule-modal": [
+                "default"
+            ],
+            "sw-settings-tax-rule-type-individual-states": [
+                "default"
+            ],
+            "sw-settings-tax-rule-type-individual-states-cell": [
+                "default"
+            ],
+            "sw-settings-tax-rule-type-zip-code": [
+                "default"
+            ],
+            "sw-settings-tax-rule-type-zip-code-cell": [
+                "default"
+            ],
+            "sw-settings-tax-rule-type-zip-code-range": [
+                "default"
+            ],
+            "sw-settings-tax-rule-type-zip-code-range-cell": [
+                "default"
+            ],
+            "sw-settings-units-detail": [
+                "default"
+            ],
+            "sw-settings-units-list": [
+                "default"
+            ],
+            "sw-system-config": [
+                "default"
+            ],
+            "sw-system-config-media-upload": [
+                "default"
+            ],
+            "sw-tax-rule-card": [
+                "default"
             ]
         },
         "sources": {
             "sw-bulk-edit-product-visibility": "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility",
+            "sw-country-state-detail": "src/module/sw-settings-country/component/sw-country-state-detail",
+            "sw-custom-field-detail": "src/module/sw-settings-custom-field/component/sw-custom-field-detail",
+            "sw-custom-field-list": "src/module/sw-settings-custom-field/component/sw-custom-field-list",
+            "sw-custom-field-set-detail-base": "src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base",
+            "sw-custom-field-translated-labels": "src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels",
+            "sw-custom-field-type-base": "src/module/sw-settings-custom-field/component/sw-custom-field-type-base",
+            "sw-custom-field-type-date": "src/module/sw-settings-custom-field/component/sw-custom-field-type-date",
+            "sw-custom-field-type-entity": "src/module/sw-settings-custom-field/component/sw-custom-field-type-entity",
+            "sw-custom-field-type-number": "src/module/sw-settings-custom-field/component/sw-custom-field-type-number",
+            "sw-custom-field-type-select": "src/module/sw-settings-custom-field/component/sw-custom-field-type-select",
             "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
             "sw-media-collapse": "src/module/sw-media/component/sw-media-collapse",
+            "sw-multi-snippet-drag-and-drop": "src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop",
+            "sw-payment-card": "src/module/sw-settings-payment/component/sw-payment-card",
+            "sw-plugin-box": "src/module/sw-settings-payment/component/sw-plugin-box",
+            "sw-price-rule-modal": "src/module/sw-settings-shipping/component/sw-price-rule-modal",
+            "sw-seo-main-category": "src/module/sw-settings-seo/component/sw-seo-main-category",
+            "sw-seo-url-template-card": "src/module/sw-settings-seo/component/sw-seo-url-template-card",
+            "sw-settings-basic-information": "src/module/sw-settings-basic-information/page/sw-settings-basic-information",
+            "sw-settings-cache-index": "src/module/sw-settings-cache/page/sw-settings-cache-index",
+            "sw-settings-captcha-select-v2": "src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2",
+            "sw-settings-cart": "src/module/sw-settings-cart/page/sw-settings-cart",
+            "sw-settings-country-address-handling": "src/module/sw-settings-country/component/sw-settings-country-address-handling",
+            "sw-settings-country-create": "src/module/sw-settings-country/page/sw-settings-country-create",
+            "sw-settings-country-currency-dependent-modal": "src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal",
+            "sw-settings-country-currency-hamburger-menu": "src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu",
+            "sw-settings-country-detail": "src/module/sw-settings-country/page/sw-settings-country-detail",
+            "sw-settings-country-general": "src/module/sw-settings-country/component/sw-settings-country-general",
+            "sw-settings-country-list": "src/module/sw-settings-country/page/sw-settings-country-list",
+            "sw-settings-country-new-snippet-modal": "src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal",
+            "sw-settings-country-preview-template": "src/module/sw-settings-country/component/sw-settings-country-preview-template",
+            "sw-settings-country-state": "src/module/sw-settings-country/component/sw-settings-country-state",
+            "sw-settings-currency-country-modal": "src/module/sw-settings-currency/component/sw-settings-currency-country-modal",
+            "sw-settings-currency-detail": "src/module/sw-settings-currency/page/sw-settings-currency-detail",
+            "sw-settings-currency-list": "src/module/sw-settings-currency/page/sw-settings-currency-list",
+            "sw-settings-custom-field-set-create": "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create",
+            "sw-settings-custom-field-set-detail": "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail",
+            "sw-settings-customer-group-detail": "src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail",
+            "sw-settings-customer-group-list": "src/module/sw-settings-customer-group/page/sw-settings-customer-group-list",
+            "sw-settings-delivery-time-detail": "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail",
+            "sw-settings-delivery-time-list": "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list",
+            "sw-settings-document-detail": "src/module/sw-settings-document/page/sw-settings-document-detail",
+            "sw-settings-index": "src/module/sw-settings/page/sw-settings-index",
+            "sw-settings-item": "src/module/sw-settings/component/sw-settings-item",
+            "sw-settings-language-detail": "src/module/sw-settings-language/page/sw-settings-language-detail",
+            "sw-settings-listing": "src/module/sw-settings-listing/page/sw-settings-listing",
+            "sw-settings-listing-default-sales-channel": "src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel",
+            "sw-settings-listing-delete-modal": "src/module/sw-settings-listing/component/sw-settings-listing-delete-modal",
+            "sw-settings-listing-option-base": "src/module/sw-settings-listing/page/sw-settings-listing-option-base",
+            "sw-settings-listing-option-create": "src/module/sw-settings-listing/page/sw-settings-listing-option-create",
+            "sw-settings-listing-option-criteria-grid": "src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid",
+            "sw-settings-listing-option-general-info": "src/module/sw-settings-listing/component/sw-settings-listing-option-general-info",
+            "sw-settings-listing-visibility-detail": "src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail",
             "sw-settings-logging-entry-info": "src/module/sw-settings-logging/component/sw-settings-logging-entry-info",
+            "sw-settings-logging-mail-sent-info": "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info",
+            "sw-settings-login-registration": "src/module/sw-settings-login-registration/page/sw-settings-login-registration",
+            "sw-settings-mailer": "src/module/sw-settings-mailer/page/sw-settings-mailer",
+            "sw-settings-mailer-smtp": "src/module/sw-settings-mailer/component/sw-settings-mailer-smtp",
+            "sw-settings-measurement": "src/module/sw-settings-measurement/page/sw-settings-measurement",
+            "sw-settings-measurement-default-units": "src/module/sw-settings-measurement/component/sw-settings-measurement-default-units",
+            "sw-settings-media": "src/module/sw-settings-media/page/sw-settings-media",
+            "sw-settings-message-stats": "src/module/sw-settings-message-stats/page/sw-settings-message-stats",
+            "sw-settings-newsletter": "src/module/sw-settings-newsletter/page/sw-settings-newsletter",
+            "sw-settings-number-range-create": "src/module/sw-settings-number-range/page/sw-settings-number-range-create",
+            "sw-settings-number-range-detail": "src/module/sw-settings-number-range/page/sw-settings-number-range-detail",
+            "sw-settings-number-range-list": "src/module/sw-settings-number-range/page/sw-settings-number-range-list",
+            "sw-settings-payment-create": "src/module/sw-settings-payment/page/sw-settings-payment-create",
+            "sw-settings-payment-detail": "src/module/sw-settings-payment/page/sw-settings-payment-detail",
+            "sw-settings-payment-overview": "src/module/sw-settings-payment/page/sw-settings-payment-overview",
+            "sw-settings-payment-sorting-modal": "src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal",
+            "sw-settings-price-rounding": "src/module/sw-settings-currency/component/sw-settings-price-rounding",
+            "sw-settings-product-feature-sets-detail": "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail",
+            "sw-settings-product-feature-sets-list": "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list",
+            "sw-settings-product-feature-sets-modal": "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal",
+            "sw-settings-product-feature-sets-values-card": "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card",
+            "sw-settings-rule-add-assignment-listing": "src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing",
+            "sw-settings-rule-add-assignment-modal": "src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-modal",
+            "sw-settings-rule-assignment-listing": "src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing",
+            "sw-settings-rule-category-tree": "src/module/sw-settings-rule/component/sw-settings-rule-category-tree",
+            "sw-settings-rule-detail": "src/module/sw-settings-rule/page/sw-settings-rule-detail",
+            "sw-settings-rule-detail-assignments": "src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments",
+            "sw-settings-rule-detail-base": "src/module/sw-settings-rule/view/sw-settings-rule-detail-base",
+            "sw-settings-rule-list": "src/module/sw-settings-rule/page/sw-settings-rule-list",
+            "sw-settings-rule-tree-item": "src/module/sw-settings-rule/component/sw-settings-rule-tree-item",
+            "sw-settings-salutation-detail": "src/module/sw-settings-salutation/page/sw-settings-salutation-detail",
+            "sw-settings-salutation-list": "src/module/sw-settings-salutation/page/sw-settings-salutation-list",
+            "sw-settings-search": "src/module/sw-settings-search/page/sw-settings-search",
+            "sw-settings-search-example-modal": "src/module/sw-settings-search/component/sw-settings-search-example-modal",
+            "sw-settings-search-excluded-search-terms": "src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms",
+            "sw-settings-search-live-search": "src/module/sw-settings-search/component/sw-settings-search-live-search",
+            "sw-settings-search-live-search-keyword": "src/module/sw-settings-search/component/sw-settings-search-live-search-keyword",
+            "sw-settings-search-search-behaviour": "src/module/sw-settings-search/component/sw-settings-search-search-behaviour",
+            "sw-settings-search-search-index": "src/module/sw-settings-search/component/sw-settings-search-search-index",
+            "sw-settings-search-searchable-content": "src/module/sw-settings-search/component/sw-settings-search-searchable-content",
+            "sw-settings-search-searchable-content-customfields": "src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields",
+            "sw-settings-search-searchable-content-general": "src/module/sw-settings-search/component/sw-settings-search-searchable-content-general",
+            "sw-settings-search-view-general": "src/module/sw-settings-search/view/sw-settings-search-view-general",
+            "sw-settings-search-view-live-search": "src/module/sw-settings-search/view/sw-settings-search-view-live-search",
+            "sw-settings-seo": "src/module/sw-settings-seo/page/sw-settings-seo",
+            "sw-settings-shipping-list": "src/module/sw-settings-shipping/page/sw-settings-shipping-list",
             "sw-settings-shipping-price-matrices": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices",
-            "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix"
+            "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix",
+            "sw-settings-shipping-tax-cost": "src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost",
+            "sw-settings-sitemap": "src/module/sw-settings-sitemap/page/sw-settings-sitemap",
+            "sw-settings-snippet-detail": "src/module/sw-settings-snippet/page/sw-settings-snippet-detail",
+            "sw-settings-snippet-filter-switch": "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch",
+            "sw-settings-snippet-sidebar": "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar",
+            "sw-settings-state-machine-detail": "src/module/sw-settings-state-machine/page/sw-settings-state-machine-detail",
+            "sw-settings-state-machine-list": "src/module/sw-settings-state-machine/page/sw-settings-state-machine-list",
+            "sw-settings-state-machine-state-detail": "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail",
+            "sw-settings-state-machine-state-list": "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-list",
+            "sw-settings-store": "src/module/sw-settings-store/page/sw-settings-store",
+            "sw-settings-tag-detail-assignments": "src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments",
+            "sw-settings-tag-detail-modal": "src/module/sw-settings-tag/component/sw-settings-tag-detail-modal",
+            "sw-settings-tag-list": "src/module/sw-settings-tag/page/sw-settings-tag-list",
+            "sw-settings-tax-detail": "src/module/sw-settings-tax/page/sw-settings-tax-detail",
+            "sw-settings-tax-list": "src/module/sw-settings-tax/page/sw-settings-tax-list",
+            "sw-settings-tax-provider-detail": "src/module/sw-settings-tax/page/sw-settings-tax-provider-detail",
+            "sw-settings-tax-provider-sorting-modal": "src/module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal",
+            "sw-settings-tax-rule-modal": "src/module/sw-settings-tax/component/sw-settings-tax-rule-modal",
+            "sw-settings-tax-rule-type-individual-states": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states",
+            "sw-settings-tax-rule-type-individual-states-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell",
+            "sw-settings-tax-rule-type-zip-code": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code",
+            "sw-settings-tax-rule-type-zip-code-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-cell",
+            "sw-settings-tax-rule-type-zip-code-range": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range",
+            "sw-settings-tax-rule-type-zip-code-range-cell": "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell",
+            "sw-settings-units-detail": "src/module/sw-settings-units/page/sw-settings-units-detail",
+            "sw-settings-units-list": "src/module/sw-settings-units/page/sw-settings-units-list",
+            "sw-system-config": "src/module/sw-settings/component/sw-system-config",
+            "sw-system-config-media-upload": "src/module/sw-settings/component/sw-system-config-media-upload",
+            "sw-tax-rule-card": "src/module/sw-settings-tax/component/sw-tax-rule-card"
         }
     },
     "shopware:framework": {
@@ -294,12 +798,37 @@
             ],
             "service-names": [
                 "acl",
+                "cacheApiService",
+                "cacheService",
+                "captchaService",
+                "customFieldDataProviderService",
+                "customSnippetApiService",
+                "documentV2ApiService",
+                "documentV2Service",
+                "excludedSearchTermService",
                 "feature",
+                "filterFactory",
+                "filterService",
                 "importExport",
+                "liveSearchService",
+                "messageStatsService",
+                "numberRangeService",
+                "productIndexService",
                 "repositoryFactory",
                 "ruleConditionDataProviderService",
+                "ruleConditionsConfigApiService",
+                "seoUrlTemplateService",
                 "serviceRegistryClient",
-                "shopwareServicesService"
+                "shopwareServicesService",
+                "snippetService",
+                "snippetSetService",
+                "syncService",
+                "systemConfigApiService",
+                "tagApiService",
+                "translationService",
+                "updateService",
+                "userConfigService",
+                "userService"
             ]
         },
         "sources": {

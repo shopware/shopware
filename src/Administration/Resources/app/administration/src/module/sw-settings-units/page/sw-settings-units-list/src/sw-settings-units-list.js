@@ -3,19 +3,17 @@
  */
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { aclService, Criteria, getApiContext, notificationMixin, repositoryFactoryService } from '../dependencies';
 
 /**
- * @private
+ * @public
  */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -67,7 +65,7 @@ export default {
         },
 
         isAddingUnitsDisabled() {
-            return Shopware.Context.api.languageId !== Shopware.Context.api.systemLanguageId;
+            return getApiContext().languageId !== getApiContext().systemLanguageId;
         },
     },
 

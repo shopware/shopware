@@ -2,10 +2,10 @@
  * @sw-package inventory
  */
 import './acl';
+import './page/sw-settings-units-detail/register';
+import './page/sw-settings-units-list/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-units-list', () => import('./page/sw-settings-units-list'));
-Shopware.Component.register('sw-settings-units-detail', () => import('./page/sw-settings-units-detail'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

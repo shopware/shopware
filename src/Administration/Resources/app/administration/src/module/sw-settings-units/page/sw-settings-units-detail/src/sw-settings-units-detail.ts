@@ -1,0 +1,174 @@
+/**
+ * @sw-package inventory
+ */
+import template from './sw-settings-units-detail.html.twig';
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService as customFieldDataProviderServiceName,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    type Repository,
+    repositoryFactoryService,
+    wrapComponentConfig,
+} from '../dependencies';
+
+/**
+ * @public
+ */
+export default wrapComponentConfig({
+    template,
+
+    mixins: [notificationMixin],
+
+    inject: [repositoryFactoryService, aclService, customFieldDataProviderServiceName],
+
+    props: {
+        /**
+         * Either the id of the unit when in edit mode or null when in create mode.
+         */
+        unitId: {
+            type: String as unknown as PropType<EntityKey<'unit'> | null>,
+            required: false,
+            default: null,
+        },
+    },
+
+    computed: {
+        unitRepository(): Repository<'unit'> {
+            return this.repositoryFactory.create('unit');
+        },
+
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldSetRepository(): Repository<'custom_field_set'> {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldSetCriteria(): Criteria {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
+
+            return criteria;
+        },
+
+        ...mapPropertyErrors('unit', ['name', 'shortCode']),
+    },
+
+    data(): {
+        unit: Entity<'unit'> | null;
+        isLoading: boolean;
+        isSaveSuccessful: boolean;
+        customFieldSets: Entity<'custom_field_set'>[];
+    } {
+        return {
+            unit: null,
+            isLoading: true,
+            isSaveSuccessful: false,
+            customFieldSets: [],
+        };
+    },
+
+    watch: {
+        unitId() {
+            this.loadUnit();
+        },
+
+        isSaveSuccessful(newValue) {
+            if (newValue === false) {
+                return;
+            }
+
+            window.setTimeout(() => {
+                this.isSaveSuccessful = false;
+            }, 800);
+        },
+    },
+
+    created() {
+        const customFieldDataProviderService = this.customFieldDataProviderService as {
+            getCustomFieldSets(
+                entityName: string,
+                forceReload: boolean,
+                limit: number | null,
+            ): Promise<Entity<'custom_field_set'>[]>;
+        };
+
+        customFieldDataProviderService
+            .getCustomFieldSets('unit', false, null)
+            .then((result) => {
+                this.customFieldSets = result;
+
+                if (this.unitId !== null) {
+                    this.loadUnit();
+
+                    return;
+                }
+
+                this.unit = this.unitRepository.create(getApiContext());
+                this.isLoading = false;
+            })
+            .catch(() => {
+                this.createNotificationError({
+                    message: this.$t('sw-settings-units.notification.errorMessage'),
+                });
+
+                this.isLoading = false;
+            });
+    },
+
+    methods: {
+        loadUnit(): void {
+            if (this.unitId === null) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            this.unitRepository
+                .get(this.unitId, getApiContext())
+                .then((unit) => {
+                    this.unit = unit;
+
+                    this.isLoading = false;
+                })
+                .catch((error: { message: string }) => {
+                    this.createNotificationError({
+                        message: this.$t(error.message),
+                    });
+                });
+        },
+
+        onSave(): void {
+            if (this.unit === null) {
+                return;
+            }
+
+            this.isLoading = true;
+            this.unitRepository
+                .save(this.unit)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+
+                    void this.$router.push({
+                        name: 'sw.settings.units.detail',
+                        params: { id: this.unit?.id ?? '' },
+                    });
+
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-units.notification.errorMessage'),
+                    });
+
+                    this.isLoading = false;
+                });
+        },
+
+        onChangeLanguage(): void {
+            this.loadUnit();
+        },
+    },
+});

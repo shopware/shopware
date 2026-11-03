@@ -9,8 +9,14 @@ type PaymentOverviewCard = Omit<uiModulePaymentOverviewCard, 'responseType'>;
 interface PaymentOverviewCardState {
     cards: PaymentOverviewCard[];
 }
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const paymentOverviewCardStoreId = 'paymentOverviewCard';
+
 const paymentOverviewCardStore = Shopware.Store.register({
-    id: 'paymentOverviewCard',
+    id: paymentOverviewCardStoreId,
 
     state: (): PaymentOverviewCardState => ({
         cards: [],

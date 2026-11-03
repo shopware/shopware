@@ -1,20 +1,27 @@
 import template from './sw-settings-payment-sorting-modal.html.twig';
 import './sw-settings-payment-sorting-modal.scss';
-
-const { Mixin } = Shopware;
+import {
+    aclService,
+    featureService,
+    getApiContext,
+    getAssetFilter,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory', 'feature'],
+    inject: [aclService, repositoryFactoryService, featureService],
 
     emits: ['modal-close', 'modal-save'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         paymentMethods: {
@@ -42,7 +49,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
@@ -60,7 +67,7 @@ export default {
             });
 
             return this.paymentMethodRepository
-                .saveAll(this.sortedPaymentMethods, Shopware.Context.api)
+                .saveAll(this.sortedPaymentMethods, getApiContext())
                 .then(() => {
                     this.isSaving = false;
                     this.$emit('modal-close');

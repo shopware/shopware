@@ -1,14 +1,16 @@
 import template from './sw-payment-card.html.twig';
 import './sw-payment-card.scss';
+import { aclService } from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     emits: ['set-payment-active'],
 

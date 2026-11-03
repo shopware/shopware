@@ -1,21 +1,14 @@
 import './init';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './component/sw-payment-card/register';
+import './component/sw-plugin-box/register';
+import './component/sw-settings-payment-sorting-modal/register';
+import './page/sw-settings-payment-detail/register';
+import './page/sw-settings-payment-create/register';
+import './page/sw-settings-payment-overview/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-plugin-box', () => import('./component/sw-plugin-box'));
-Shopware.Component.register(
-    'sw-settings-payment-sorting-modal',
-    () => import('./component/sw-settings-payment-sorting-modal'),
-);
-Shopware.Component.register('sw-payment-card', () => import('./component/sw-payment-card'));
-Shopware.Component.register('sw-settings-payment-overview', () => import('./page/sw-settings-payment-overview'));
-Shopware.Component.register('sw-settings-payment-detail', () => import('./page/sw-settings-payment-detail'));
-Shopware.Component.extend(
-    'sw-settings-payment-create',
-    'sw-settings-payment-detail',
-    () => import('./page/sw-settings-payment-create'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

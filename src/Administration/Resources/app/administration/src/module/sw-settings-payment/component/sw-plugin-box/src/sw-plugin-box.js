@@ -1,14 +1,16 @@
 import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
+import { repositoryFactoryService, systemConfigApiService } from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['systemConfigApiService', 'repositoryFactory'],
+    inject: [systemConfigApiService, repositoryFactoryService],
 
     props: {
         pluginId: {

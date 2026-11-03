@@ -7,9 +7,8 @@ import './sw-product-settings-mode.scss';
 
 /**
  * @deprecated tag:v6.8.0 - Component will be removed. No longer used.
- *
- * @public
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

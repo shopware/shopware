@@ -9710,7 +9710,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-settings-mode/src/sw-product-settings-mode.js": {
+  "src/module/sw-product/component/sw-product-settings-mode/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

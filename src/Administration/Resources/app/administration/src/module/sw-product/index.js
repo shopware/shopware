@@ -24,7 +24,6 @@ import './component/sw-product-price-form/register';
 import './component/sw-product-properties/register';
 import './component/sw-product-seo-form/register';
 import './component/sw-product-settings-form/register';
-import './component/sw-product-settings-mode/register';
 import './component/sw-product-variant-modal/register';
 import './component/sw-product-variants/sw-product-modal-delivery/register';
 import './component/sw-product-variants/sw-product-modal-variant-generation/register';
@@ -56,6 +55,7 @@ const { Module } = Shopware;
  * @deprecated tag:v6.8.0 - File will be removed. No longer used.
  */
 if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
 }
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */

@@ -174,7 +174,6 @@ import '../src/module/sw-product/component/sw-product-price-form/global';
 import '../src/module/sw-product/component/sw-product-properties/global';
 import '../src/module/sw-product/component/sw-product-seo-form/global';
 import '../src/module/sw-product/component/sw-product-settings-form/global';
-import '../src/module/sw-product/component/sw-product-settings-mode/global';
 import '../src/module/sw-product/component/sw-product-variant-modal/global';
 import '../src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/global';
 import '../src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/global';

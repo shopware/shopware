@@ -6,9 +6,10 @@
  * Usage: npm run codemod:mini-module -- <component directory>
  *
  * It moves the files into `src/` and `tests/`, writes `index.ts` with every member the component has,
- * `register.ts` and `global.d.ts`, replaces the registration, and moves the ESLint suppressions.
+ * `register.ts` and `global.d.ts`, replaces the registration, moves the ESLint suppressions,
+ * and takes the code owner from what `.codeowners` already says about the directory.
  * What needs judgement it prints as a checklist for the sweep after it:
- * `dependencies.ts`, contract tests, the code owners, and what it could not read.
+ * `dependencies.ts`, contract tests, a missing code owner, and what it could not read.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -17,6 +18,15 @@ import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
 import { findImports, findRegistration } from './find-registration';
 import { markPublic } from './mark-public';
+import { dropBaseImport } from './drop-base-import';
+import {
+    CODEOWNERS_FILE,
+    expectedCodeowners,
+    findStatedOwner,
+    readManifest,
+    writeManifest,
+    type Owner,
+} from '../../mini-module-owners/owners';
 import { renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
 
 const adminRoot = path.resolve(__dirname, '../../..');
@@ -295,8 +305,9 @@ function run(directory: string) {
     }
 
     const sourceFile = path.join(adminRoot, root, 'src', `${name}${path.extname(entry)}`);
-    fs.writeFileSync(sourceFile, markPublic(fs.readFileSync(sourceFile, 'utf8')));
-    fs.mkdirSync(path.join(componentDirectory, 'tests'), { recursive: true });
+    const source = markPublic(fs.readFileSync(sourceFile, 'utf8'));
+    fs.writeFileSync(sourceFile, shape.kind === 'extend' ? dropBaseImport(source, shape.base) : source);
+    keepTestsDirectory(componentDirectory);
 
     const entryFiles = {
         'index.ts': renderIndex(target, api),
@@ -326,11 +337,41 @@ function run(directory: string) {
     }
 
     moveSuppressions(moves);
+    const owner = addOwner(root);
     execFileSync(path.join(adminRoot, 'node_modules', '.bin', 'prettier'), ['--write', ...written, ...changed], {
         cwd: adminRoot,
     });
-    printSweepChecklist(root, name, packageName, api, shape);
+    printSweepChecklist(root, name, api, shape, owner);
 }
+
+/**
+ * Makes sure `tests/` exists in git also when the component had no spec, because the generator and the lint
+ * recognise a mini-module by its `src/` and `tests/`. Spec files are written when there is something to test.
+ */
+const keepTestsDirectory = (componentDirectory: string) => {
+    const tests = path.join(componentDirectory, 'tests');
+    fs.mkdirSync(tests, { recursive: true });
+
+    if (fs.readdirSync(tests).length === 0) {
+        fs.writeFileSync(path.join(tests, '.gitkeep'), '');
+    }
+};
+
+/**
+ * Adds the module to mini-module-owners.json with the owner `.codeowners` already states for its directory,
+ * at the same level, and rewrites the generated block. Returns the owner, or null when none is stated.
+ */
+const addOwner = (root: string): Owner | null => {
+    const owner = findStatedOwner(fs.readFileSync(CODEOWNERS_FILE, 'utf8'), root);
+    if (owner === null) {
+        return null;
+    }
+
+    writeManifest({ ...readManifest(), [root]: owner });
+    fs.writeFileSync(CODEOWNERS_FILE, expectedCodeowners());
+
+    return owner;
+};
 
 /** Replaces the registration statement with an import of the module's register.ts, and returns the file. */
 const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<typeof locateRegistration>>) => {
@@ -384,7 +425,15 @@ register.ts only publishes the module, so there is no global.d.ts, and the publi
     return '';
 };
 
-function printSweepChecklist(root: string, name: string, packageName: string, api: ComponentApi, shape: Shape) {
+/** What the sweep must do about the code owner, for the checklist. */
+const describeOwner = (root: string, owner: Owner | null) =>
+    owner === null
+        ? `.codeowners states no owner for ${root}, so the module is not in mini-module-owners.json.
+   Ask which team owns it, add it there (a "? " in front keeps the team optional), and run composer admin:generate-mini-module-owners.`
+        : `mini-module-owners.json names ${owner} for the module, as .codeowners did for its directory, and .codeowners has its lines.
+   Keep the level: an optional owner ("? ") stays optional.`;
+
+function printSweepChecklist(root: string, name: string, api: ComponentApi, shape: Shape, owner: Owner | null) {
     const outside = findLines(
         path.join(adminRoot, root, 'src'),
         /Shopware\.|= Shopware;|inject:|getByName\(|(from|import) 'src\//,
@@ -398,21 +447,26 @@ This is a refactor: behaviour must not change, so keep odd code, unused injects 
 ${describeShape(name, shape)}
 1. Write dependencies.ts and route every outside access of src/ through it:
 ${outside.map((line) => `   - ${line}`).join('\n') || '   - nothing found'}
-   - A service name in inject becomes a constant from src/app/service-names; add a missing one there.
+   - A service name in inject or in Shopware.Service('x') becomes a constant from src/app/service-names; add a missing one there.
+     Shopware.Service(x) becomes a function in dependencies.ts: export const getXService = () => Shopware.Service(xService);
    - A store id in Shopware.Store.get() becomes the id the store file exports, wrapped in a function such as useXStore().
      If the store file exports no id yet, export it there, like sw-settings-shipping-detail/store.ts does.
    - A filter in Shopware.Filter.getByName('x') becomes the name the filter file exports; export one if it has none.
    - A new constant in src/app/service-names is public API owned by framework: add only what the module injects.
    - Mixin.getByName('x') becomes the default import of the mixin's file.
+   - Shopware.Component.wrapComponentConfig is Vue's defineComponent, so a TypeScript component takes it from there:
+     /** @private */
+     export { defineComponent as wrapComponentConfig } from 'vue';
 2. Complete the public lists in index.ts where the codemod could not read them:
 ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unresolved'}
    Add one sentence to the doc comment of index.ts that says what the component is for.
 3. Add tests/<name>.harness.ts and the contract tests: requirements.spec.ts tells the module's story from the user's view, details go in pinned.spec.ts.
    The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
-   Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.
+   If present, public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.
+   If present, bugs that must not come back go into regressions.spec.ts.
    A contract spec over 500 lines splits into a directory, e.g. tests/pinned.spec/search.spec.ts.
-4. Add .codeowners entries for index.ts, ${shape.kind === 'local' ? '' : 'global.d.ts, '}tests/requirements.spec.ts and tests/public-api.spec.ts.
-   The team is the one that owns other code of @sw-package ${packageName} there.
+   Delete tests/.gitkeep, if present, once tests/ has a spec.
+4. ${describeOwner(root, owner)}
 5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
    Run npm run unit-setup, so Jest finds the moved component by its name.
    Then run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts

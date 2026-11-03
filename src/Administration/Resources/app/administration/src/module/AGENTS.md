@@ -30,6 +30,7 @@ order-delivery/
     ├── pinned.spec.ts        # The details and edge cases, as they behave today
     ├── regressions.spec.ts   # Bugs that must not come back
     ├── public-api.spec.ts    # Optional: public members that no user path reaches, as they behave today
+    ├── .gitkeep              # Only while tests/ has no spec, so git keeps the folder
     └── *.spec.ts             # Tests of internals, which should be rare
 ```
 
@@ -117,7 +118,8 @@ Its `private.ts` exports the loaded component for the parent, its `register.ts` 
 
 `npm run codemod:mini-module -- <component directory>` does the mechanical part of moving an Options API component into a mini-module,
 whether it is registered, extends another component, or is imported by its parent.
-It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, code owners.
+It takes the code owner from what `.codeowners` already says about the directory, at the same level, and never guesses one.
+It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, a missing code owner.
 
 `src/` stays free of side effects apart from importing its template and styles.
 

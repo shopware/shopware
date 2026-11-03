@@ -114,6 +114,8 @@ class ProductSerializerTest extends TestCase
         yield 'the column is missing' => [[]];
         // CsvReader hands an empty cell over as an empty string, not as null
         yield 'the cell is empty' => [['id' => '']];
+        // a non string value skips the empty check of the field serializer and normalizes to an empty id
+        yield 'the value is false' => [['id' => false]];
     }
 
     public function testTheMediaOfARecordIsNotReadFromAnEmptyArray(): void

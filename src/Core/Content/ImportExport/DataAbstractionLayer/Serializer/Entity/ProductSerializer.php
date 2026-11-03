@@ -179,7 +179,7 @@ class ProductSerializer extends EntitySerializer
      */
     private function findVisibilityIds(?string $productId, array $visibilities, Context $context): array
     {
-        if ($productId === null) {
+        if ($productId === null || $productId === '') {
             return $visibilities;
         }
 

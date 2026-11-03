@@ -46,9 +46,11 @@ it.deprecated('v6.8.0.0')('shows the same delivery as the detail page', () => {}
 it.deprecated('v6.8.0.0')('falls back to the first delivery', () => {});`,
         },
         {
-            name: 'public-api tests need no comment',
+            name: 'a public-api test that names its member',
             filename: 'src/x/tests/public-api.spec.ts',
-            code: "it('lists the used rules', () => {});",
+            code: `
+/** @public-api usedRules */
+it('lists the used rules', () => {});`,
         },
         {
             name: 'other specs are not checked',
@@ -64,9 +66,17 @@ it.deprecated('v6.8.0.0')('falls back to the first delivery', () => {});`,
             errors: [{ messageId: 'missingDeprecation' }],
         },
         {
+            name: 'a public-api test without its member',
+            filename: 'src/x/tests/public-api.spec.ts',
+            code: "it('lists the used rules', () => {});",
+            errors: [{ messageId: 'missingOrigin' }],
+        },
+        {
             name: 'a deprecated public-api test without its tag',
             filename: 'src/x/tests/public-api.spec.ts',
-            code: "it.deprecated('v6.8.0.0')('lists the used rules', () => {});",
+            code: `
+/** @public-api usedRules */
+it.deprecated('v6.8.0.0')('lists the used rules', () => {});`,
             errors: [{ messageId: 'missingDeprecation' }],
         },
         {

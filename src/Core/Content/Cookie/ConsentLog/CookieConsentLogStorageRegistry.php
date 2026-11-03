@@ -35,4 +35,16 @@ final class CookieConsentLogStorageRegistry
 
         return $this->storages->get($this->configuredStorage);
     }
+
+    /**
+     * All registered storages, not only the configured one.
+     *
+     * @return iterable<CookieConsentLogStorageInterface>
+     */
+    public function getStorages(): iterable
+    {
+        foreach (array_keys($this->storages->getProvidedServices()) as $name) {
+            yield $this->storages->get($name);
+        }
+    }
 }

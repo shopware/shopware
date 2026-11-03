@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageRegistry;
 use Shopware\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -18,17 +20,27 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(CleanupCookieConsentLogTaskHandler::class)]
 class CleanupCookieConsentLogTaskHandlerTest extends TestCase
 {
-    public function testRunDeletesEverythingOlderThanTheRetention(): void
+    public function testRunCleansEveryStorage(): void
     {
-        $storage = $this->createMock(CookieConsentLogStorageInterface::class);
-        $storage->expects($this->once())
-            ->method('cleanup')
-            ->with(static::callback(static fn (\DateTimeInterface $before) => $before->format('Y-m-d H:i:s') === '2026-03-15 12:00:00'));
+        $storages = [];
+        foreach (['database', 'filesystem', 'none'] as $name) {
+            $storage = $this->createMock(CookieConsentLogStorageInterface::class);
+            $storage->expects($this->once())
+                ->method('cleanup')
+                ->with(static::callback(static fn (\DateTimeInterface $before) => $before->format('Y-m-d H:i:s') === '2026-03-15 12:00:00'));
+            $storages[$name] = $storage;
+        }
+
+        // The configured storage is "none", yet every storage is still cleaned.
+        $registry = new CookieConsentLogStorageRegistry(
+            new ServiceLocator(array_map(static fn (CookieConsentLogStorageInterface $storage) => static fn () => $storage, $storages)),
+            'none',
+        );
 
         $handler = new CleanupCookieConsentLogTaskHandler(
             static::createStub(EntityRepository::class),
             new NullLogger(),
-            $storage,
+            $registry,
             new MockClock('2026-07-13 12:00:00'),
             120,
         );

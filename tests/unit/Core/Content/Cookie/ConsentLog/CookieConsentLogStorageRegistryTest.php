@@ -39,4 +39,22 @@ class CookieConsentLogStorageRegistryTest extends TestCase
 
         $registry->getStorage();
     }
+
+    public function testItReturnsEveryRegisteredStorage(): void
+    {
+        $database = new NullCookieConsentLogStorage();
+        $filesystem = new NullCookieConsentLogStorage();
+        $none = new NullCookieConsentLogStorage();
+
+        $registry = new CookieConsentLogStorageRegistry(
+            new ServiceLocator([
+                'database' => static fn () => $database,
+                'filesystem' => static fn () => $filesystem,
+                'none' => static fn () => $none,
+            ]),
+            'none',
+        );
+
+        static::assertSame([$database, $filesystem, $none], iterator_to_array($registry->getStorages(), false));
+    }
 }

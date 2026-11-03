@@ -91,7 +91,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('scheduled_task.repository'),
             service('logger'),
-            service(CookieConsentLogStorageInterface::class),
+            service(CookieConsentLogStorageRegistry::class),
             service(ClockInterface::class),
             param('shopware.cookie_consent.retention_days'),
         ])

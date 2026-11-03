@@ -225,7 +225,6 @@ The built-in cookie banner can now record consent decisions on the server, as pr
 
 - While logging is on, a new technically required cookie `cookie-consent-id` is set, and visitors see the banner once more.
 - Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).
-- Behind a proxy or CDN, configure `framework.trusted_proxies`, otherwise decisions can get lost because of the rate limit.
 - Headless frontends log decisions via `POST /store-api/cookie-consent-log`.
 
 ## Administration

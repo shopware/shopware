@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Cookie\ScheduledTask;
 
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -22,7 +22,7 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly CookieConsentLogStorageInterface $storage,
+        private readonly CookieConsentLogStorageRegistry $storageRegistry,
         private readonly ClockInterface $clock,
         private readonly int $retentionDays,
     ) {
@@ -31,8 +31,12 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $this->storage->cleanup(
-            $this->clock->now()->sub(new \DateInterval(\sprintf('P%dD', $this->retentionDays))),
-        );
+        $before = $this->clock->now()->sub(new \DateInterval(\sprintf('P%dD', $this->retentionDays)));
+
+        // Clean every storage, not only the configured one: a storage that is no longer
+        // configured can still hold records that must be deleted after the retention period.
+        foreach ($this->storageRegistry->getStorages() as $storage) {
+            $storage->cleanup($before);
+        }
     }
 }

@@ -105,7 +105,7 @@ const load = (variant, name) => import(\`../../../../../../node_modules/kit/icon
         );
     });
 
-    it('imports the register.ts of a private module for a bare import of its directory elsewhere', () => {
+    it('imports the private.ts of a private module for a bare import of its directory elsewhere, saying why', () => {
         // ARRANGE
         const source = `import 'src/app/component/base/sw-icon';
 import '../../../app/component/base/sw-icon/index';
@@ -122,8 +122,11 @@ import 'src/app/component/base/sw-icon-other';
         });
 
         // ASSERT
-        expect(rewritten).toBe(`import 'src/app/component/base/sw-icon/register';
-import '../../../app/component/base/sw-icon/register';
+        expect(rewritten)
+            .toBe(`// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-icon/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import '../../../app/component/base/sw-icon/private';
 import 'src/app/component/base/sw-icon-other';
 `);
     });

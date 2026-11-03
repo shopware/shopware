@@ -50,6 +50,20 @@ describe('public-component types', () => {
         expect(declaration.name).toBe('sw-example');
     });
 
+    it('lets a component that extends another one list what it inherits', () => {
+        // ACT
+        const declaration = definePublicComponent({
+            name: 'sw-example-child',
+            extends: 'sw-example',
+            load: () => Promise.resolve({ default: { methods: { save(): void {} } } }),
+            public: { methods: ['save', 'inheritedReset'] },
+        });
+        const base: 'sw-example' = declaration.extends;
+
+        // ASSERT
+        expect(base).toBe('sw-example');
+    });
+
     it('leaves the names of a typed .vue component to the build check', () => {
         // ARRANGE
         type TypedSfc = new () => { label: string; $props: { label: string } };

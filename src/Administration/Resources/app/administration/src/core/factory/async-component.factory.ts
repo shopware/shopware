@@ -559,8 +559,24 @@ function register(componentName: string | PublicComponent, componentConfiguratio
 function extend(
     componentName: string,
     extendComponentName: string,
+    componentConfiguration?: ComponentConfig | (() => Promise<ComponentConfig>),
+): () => Promise<ComponentConfig>;
+
+/**
+ * Registers a component declared with `definePublicComponent({ extends })` in the index.ts of its mini-module,
+ * on top of the component it extends.
+ */
+function extend(component: PublicComponent & { extends: string }): () => Promise<ComponentConfig>;
+
+function extend(
+    componentName: string | (PublicComponent & { extends: string }),
+    extendComponentName = '',
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>) = { name: '' },
 ): () => Promise<ComponentConfig> {
+    if (typeof componentName === 'object') {
+        return extend(componentName.name, componentName.extends, componentName.load as () => Promise<ComponentConfig>);
+    }
+
     let config: ComponentConfig;
 
     const configurationResolveMethod = async (): Promise<ComponentConfig> => {

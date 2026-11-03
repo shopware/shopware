@@ -109,3 +109,64 @@ export function extractComponentApi(componentSource: string, templateSource: str
 
     return api;
 }
+
+/**
+ * Adds the members of the component a component extends, because Vue merges them in,
+ * so an override of the extending component reaches them as well. The component's own members come first.
+ *
+ * @example
+ * mergeComponentApi({ ...empty, methods: ['save'] }, { ...empty, methods: ['save', 'reset'] }).methods;
+ * // → ['save', 'reset']
+ */
+export function mergeComponentApi(own: ComponentApi, base: ComponentApi): ComponentApi {
+    const merge = (list: keyof ComponentApi) => [...new Set([...own[list], ...base[list]])];
+
+    return {
+        props: merge('props'),
+        emits: merge('emits'),
+        slots: merge('slots'),
+        blocks: merge('blocks'),
+        computed: merge('computed'),
+        methods: merge('methods'),
+        unresolved: merge('unresolved'),
+    };
+}
+
+/**
+ * Reads the `public` lists of a mini-module's `definePublicComponent()` declaration,
+ * for a component that extends one that is a mini-module already.
+ *
+ * @example
+ * readDeclaredApi("export default definePublicComponent({ name: 'sw-a', load, public: { methods: ['save'] } });").methods;
+ * // → ['save']
+ */
+export function readDeclaredApi(indexSource: string): ComponentApi {
+    const source = ts.createSourceFile('index.ts', indexSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const declaration = findComponentObject(source);
+    const lists = declaration?.properties.find(
+        (property): property is ts.PropertyAssignment =>
+            ts.isPropertyAssignment(property) && getPropertyName(property) === 'public',
+    )?.initializer;
+    const api: ComponentApi = {
+        props: [],
+        emits: [],
+        slots: [],
+        blocks: [],
+        computed: [],
+        methods: [],
+        unresolved: [],
+    };
+
+    if (!lists || !ts.isObjectLiteralExpression(lists)) {
+        return api;
+    }
+
+    for (const property of lists.properties) {
+        const name = getPropertyName(property) as Exclude<keyof ComponentApi, 'unresolved'> | null;
+        if (name && name in api && ts.isPropertyAssignment(property)) {
+            api[name] = readNames(name, property.initializer, api.unresolved);
+        }
+    }
+
+    return api;
+}

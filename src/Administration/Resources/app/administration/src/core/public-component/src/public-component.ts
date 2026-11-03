@@ -96,15 +96,18 @@ export type PublicComponentApi<Component = unknown> = {
  * A native-setup component lists its props, emits, slots, blocks and `swDefinePublic()` bindings (`setup`) too,
  * and the build fails when they differ from the component.
  * `name` keeps its literal type, so `Shopware.Component.override(SwExample.name, …)` checks the public API.
+ * `extends` names the component it extends, which register.ts passes to `Shopware.Component.extend()`.
  *
  * @public
  */
 export type PublicComponent<
     Load extends () => Promise<unknown> = () => Promise<unknown>,
-    Api extends PublicComponentApi<LoadedComponent<Load>> = PublicComponentApi<LoadedComponent<Load>>,
+    // definePublicComponent() checks the names; an extending component's names are unknown to the type
+    Api extends object = PublicComponentApi,
     Name extends string = string,
 > = {
     name: Name;
+    extends?: string;
     load: Load;
     public?: Api;
 };
@@ -178,6 +181,8 @@ declare global {
 /**
  * Declares a component in the index.ts of its mini-module, and the register.ts of the module registers it.
  * The `public` lists are checked against the component: a name it doesn't have is a type error.
+ * A component that `extends` another one is registered with `Shopware.Component.extend()`, and its lists may name
+ * what it inherits. TypeScript doesn't know the type of the component it extends, so only the meta test checks those.
  *
  * @example
  * // index.ts
@@ -200,8 +205,14 @@ declare global {
  */
 export function definePublicComponent<
     Load extends () => Promise<unknown>,
-    const Api extends PublicComponentApi<LoadedComponent<Load>> = object,
+    const Api extends PublicComponentApi<Base extends string ? unknown : LoadedComponent<Load>> = object,
     const Name extends string = string,
->(component: { name: Name; load: Load; public?: Api }): PublicComponent<Load, Api, Name> {
-    return component;
+    const Base extends string | undefined = undefined,
+>(component: {
+    name: Name;
+    extends?: Base;
+    load: Load;
+    public?: Api;
+}): PublicComponent<Load, Api, Name> & (Base extends string ? { extends: Base } : unknown) {
+    return component as PublicComponent<Load, Api, Name> & (Base extends string ? { extends: Base } : unknown);
 }

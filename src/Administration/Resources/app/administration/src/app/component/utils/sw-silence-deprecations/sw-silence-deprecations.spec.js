@@ -140,7 +140,10 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
             name: 'sw-silence-deprecations-test-fragment',
             template: '<div class="first" /><div class="second" />',
             created() {
-                Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'sw-silence-deprecations-test-fragment is deprecated.');
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_9_0_0',
+                    'sw-silence-deprecations-test-fragment is deprecated.',
+                );
             },
         };
 
@@ -383,7 +386,10 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
             name: 'sw-silence-deprecations-test-ordered',
             template: '<div />',
             created() {
-                Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'sw-silence-deprecations-test-ordered is deprecated.');
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_9_0_0',
+                    'sw-silence-deprecations-test-ordered is deprecated.',
+                );
             },
         };
 

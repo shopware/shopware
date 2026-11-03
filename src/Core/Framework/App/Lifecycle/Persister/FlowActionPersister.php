@@ -37,7 +37,7 @@ class FlowActionPersister
         foreach ($flowActions as $action) {
             $icon = $action->getMeta()->getIcon();
             if ($icon && $fs->has('Resources', $icon)) {
-                $icon = $fs->readImage('Resources/' . $icon);
+                $icon = $fs->read('Resources', $icon);
             }
 
             $payload = array_merge([

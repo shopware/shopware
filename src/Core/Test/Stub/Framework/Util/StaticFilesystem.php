@@ -26,16 +26,6 @@ class StaticFilesystem extends Filesystem
         return isset($this->files[Path::join(...$path)]);
     }
 
-    public function hasFile(string ...$path): bool
-    {
-        return $this->has(...$path);
-    }
-
-    public function fileSize(string ...$path): int
-    {
-        return \strlen($this->read(...$path));
-    }
-
     public function read(string ...$path): string
     {
         if (!$this->has(...$path)) {

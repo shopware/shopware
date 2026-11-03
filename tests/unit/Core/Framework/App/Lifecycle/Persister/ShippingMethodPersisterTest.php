@@ -77,7 +77,7 @@ class ShippingMethodPersisterTest extends TestCase
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
             \array_key_exists('sourceResolver', $services) ? $services['sourceResolver'] : new StaticSourceResolver([
-                'swagUnitTestShippingMethodPersister' => new StaticFilesystem(['icons/TestIcon.png' => (string) file_get_contents(self::ICON_URL)]),
+                'swagUnitTestShippingMethodPersister' => new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
             ]),
         );
     }

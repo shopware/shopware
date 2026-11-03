@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -430,8 +431,7 @@ EOF;
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data.a*/b', 'bar'));
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
+        static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('.a*/b'));
 
         $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, Context::createDefaultContext());
     }

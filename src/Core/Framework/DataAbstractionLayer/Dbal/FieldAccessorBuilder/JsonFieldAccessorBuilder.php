@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -44,7 +45,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         if (!EntityDefinitionQueryHelper::isValidJsonPath($jsonPath)) {
-            throw new \InvalidArgumentException('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
+            throw DataAbstractionLayerException::invalidIdentifier($jsonPath);
         }
 
         // enquote hyphenated json keys in path

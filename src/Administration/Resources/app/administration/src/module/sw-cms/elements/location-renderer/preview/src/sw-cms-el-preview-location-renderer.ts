@@ -1,13 +1,11 @@
 import template from './sw-cms-el-preview-location-renderer.html.twig';
-import type { ElementDataProp } from '../index';
-
-const { Component } = Shopware;
+import { type ElementDataProp, publishData, wrapComponentConfig } from '../dependencies';
 
 /**
  * @private
  * @sw-package discovery
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     props: {
@@ -37,7 +35,7 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: this.publishingKey,
                 path: 'element',
                 scope: this,

@@ -1,7 +1,6 @@
 import './component/register';
 import './config/register';
-/** @private */
-Shopware.Component.register('sw-cms-el-preview-location-renderer', () => import('./preview/index'));
+import './preview/register';
 
 /**
  * @private

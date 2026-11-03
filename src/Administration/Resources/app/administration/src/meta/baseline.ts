@@ -125,7 +125,6 @@ const missingTests = [
     'src/module/sw-cms/component/index.ts',
     'src/module/sw-cms/elements/index.ts',
     'src/module/sw-cms/elements/location-renderer/index.ts',
-    'src/module/sw-cms/elements/location-renderer/preview/index.ts',
     'src/module/sw-cms/blocks/index.ts',
     'src/module/sw-customer/constant/sw-customer.constant.js',
     'src/module/sw-customer/default-search-configuration.js',

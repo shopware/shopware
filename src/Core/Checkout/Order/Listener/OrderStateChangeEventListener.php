@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -51,6 +52,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             'state_machine.order.state_changed' => 'onOrderStateChange',
             'state_machine.order_delivery.state_changed' => 'onOrderDeliveryStateChange',
             'state_machine.order_transaction.state_changed' => 'onOrderTransactionStateChange',
+            'state_machine.order_transaction_capture.state_changed' => 'onOrderTransactionCaptureStateChange',
+            'state_machine.order_transaction_capture_refund.state_changed' => 'onOrderTransactionCaptureRefundStateChange',
             BusinessEventCollectorEvent::NAME => 'onAddStateEvents',
         ];
     }
@@ -101,6 +104,22 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
 
+    /**
+     * @throws OrderException
+     */
+    public function onOrderTransactionCaptureStateChange(StateMachineStateChangeEvent $event): void
+    {
+        $this->dispatchEventForOrderContaining('transactions.captures.id', $event);
+    }
+
+    /**
+     * @throws OrderException
+     */
+    public function onOrderTransactionCaptureRefundStateChange(StateMachineStateChangeEvent $event): void
+    {
+        $this->dispatchEventForOrderContaining('transactions.captures.refunds.id', $event);
+    }
+
     public function onOrderStateChange(StateMachineStateChangeEvent $event): void
     {
         $orderId = $event->getTransition()->getEntityId();
@@ -149,6 +168,25 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 $collection->set($name, $definition);
             }
         }
+    }
+
+    /**
+     * @throws OrderException
+     */
+    private function dispatchEventForOrderContaining(string $entityIdField, StateMachineStateChangeEvent $event): void
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter($entityIdField, $event->getTransition()->getEntityId()));
+
+        $orderId = $this->orderRepository->searchIds($criteria, $event->getContext())->firstId();
+        if ($orderId === null) {
+            return;
+        }
+
+        $context = $this->getContext($orderId, $event->getContext());
+        $order = $this->getOrder($orderId, $context);
+
+        $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
 
     /**

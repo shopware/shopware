@@ -12,7 +12,7 @@
         <input
             {% if feature('ACCESSIBILITY_TWEAKS') %}type="hidden" class="grecaptcha-v2-input"{% else %}type="text" class="d-none grecaptcha-v2-input"{% endif %}
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER') }}"
-            {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="required" data-validate-hidden="true" aria-describedby="{{ feedbackId }}"{% endif %}
+            {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="grecaptcha" data-validate-hidden="true" aria-describedby="{{ feedbackId }}"{% endif %}
             {% if not feature('ACCESSIBILITY_TWEAKS') %}data-skip-report-validity="true"{% endif %}
             {% if not feature('ACCESSIBILITY_TWEAKS') %}required{% endif %}>
 

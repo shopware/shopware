@@ -35,7 +35,11 @@ async function createWrapper({ featureActive = false, props = {} } = {}) {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot name="content" active="upload"></slot></div>',
                 },
-                'sw-media-sidebar': true,
+                'sw-media-sidebar': {
+                    props: ['items'],
+                    emits: ['media-item-selection-clear'],
+                    template: '<sw-media-sidebar-stub />',
+                },
                 'sw-media-upload-v2': true,
                 'sw-upload-listener': true,
                 'sw-media-grid': true,
@@ -116,8 +120,8 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         await tabs.vm.$emit('new-item-active', 'upload');
         await flushPromises();
 
-        expect(wrapper.vm.activeTab).toBe('upload');
-        expect(wrapper.vm.selection).toEqual([]);
+        expect(tabs.props('defaultItem')).toBe('upload');
+        expect(wrapper.findComponent('sw-media-sidebar-stub').props('items')).toEqual([]);
         expect(wrapper.find('.sw-media-modal-v2__library-content').attributes('style')).toBe('display: none;');
         expect(wrapper.find('.sw-media-modal-v2__uploads-content').attributes('style')).not.toBe('display: none;');
     });
@@ -127,9 +131,11 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             selection: [{ id: 'first-media' }, { id: 'second-media' }],
         });
 
-        await wrapper.findComponent('sw-media-sidebar-stub').vm.$emit('media-item-selection-clear');
+        const sidebar = wrapper.findComponent('sw-media-sidebar-stub');
+        expect(sidebar.props('items')).toHaveLength(2);
+        await sidebar.vm.$emit('media-item-selection-clear');
 
-        expect(wrapper.vm.selection).toEqual([]);
+        expect(sidebar.props('items')).toEqual([]);
     });
 
     it('should disable the library item in meteor tabs when uploads exist', async () => {
@@ -139,7 +145,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             uploads: [{ id: 'uploaded-media' }],
         });
 
-        expect(wrapper.vm.mediaModalTabs[0].disabled).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).props('items')[0].disabled).toBe(true);
     });
 
     it('should add the app tabs after the built-in meteor tabs', async () => {
@@ -167,6 +173,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             },
         });
         await wrapper.setData({ selection: [{ id: 'selected-media' }] });
+        expect(wrapper.findComponent('sw-media-sidebar-stub').props('items')).toHaveLength(1);
 
         await wrapper.findComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'extension-primitives-tab');
         await flushPromises();
@@ -174,7 +181,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         const iframe = wrapper.find('sw-iframe-renderer-stub');
         expect(iframe.attributes('src')).toBe('https://app.example');
         expect(iframe.attributes('location-id')).toBe('primitives-tab');
-        expect(wrapper.vm.selection).toEqual([]);
+        expect(wrapper.findComponent('sw-media-sidebar-stub').props('items')).toEqual([]);
         expect(wrapper.find('.sw-media-modal-v2__library-content').attributes('style')).toBe('display: none;');
     });
 });

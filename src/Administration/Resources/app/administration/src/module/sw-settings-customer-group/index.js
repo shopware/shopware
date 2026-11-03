@@ -1,12 +1,8 @@
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './page/sw-settings-customer-group-detail/register';
+import './page/sw-settings-customer-group-list/register';
 
-/**
- * @sw-package discovery
- */
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-customer-group-list', () => import('./page/sw-settings-customer-group-list'));
-Shopware.Component.register('sw-settings-customer-group-detail', () => import('./page/sw-settings-customer-group-detail'));
 Shopware.Component.extend(
     'sw-settings-customer-group-create',
     'sw-settings-customer-group-detail',

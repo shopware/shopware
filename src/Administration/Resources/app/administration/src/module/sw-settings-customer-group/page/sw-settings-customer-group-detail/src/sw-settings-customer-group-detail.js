@@ -1,30 +1,41 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    discardDetailPageChangesMixin,
+    featureService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    ShopwareError,
+} from '../dependencies';
 
 /**
  * @sw-package discovery
  */
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-        'feature',
+        repositoryFactoryService,
+        aclService,
+        customFieldDataProviderService,
+        featureService,
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('customerGroup'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('customerGroup'),
     ],
 
     props: {
@@ -126,7 +137,7 @@ export default {
             }
 
             criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
-            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
+            criteria.addFilter(Criteria.equals('languageId', getApiContext().languageId));
             criteria.addFilter(Criteria.equals('isCanonical', true));
             criteria.addAssociation('salesChannel.domains');
             criteria.addGroupField('seoPathInfo');
@@ -234,7 +245,7 @@ export default {
             try {
                 this.customerGroup = await this.customerGroupRepository.get(
                     this.customerGroupId,
-                    Shopware.Context.api,
+                    getApiContext(),
                     this.customerGroupCriteria,
                 );
             } finally {
@@ -284,7 +295,7 @@ export default {
 
         validateSaveRequest() {
             if (
-                Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId &&
+                getApiContext().languageId === getApiContext().systemLanguageId &&
                 this.customerGroup.registrationActive &&
                 types.isEmpty(this.customerGroup.registrationTitle)
             ) {

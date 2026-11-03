@@ -142,7 +142,7 @@ class OrderRouteTest extends TestCase
      */
     #[DataProvider('legacyCustomerDataProvider')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testValidateGuestCustomerWithoutGuestAuthenticator(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false): void
+    public function testValidateGuestCustomerWithoutGuestAuthenticator(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false): void
     {
         $this->assertGuestOrderAccess($isGuest, $mail, $postalCode, $exception, $login, $credentialsInQuery);
     }
@@ -167,7 +167,7 @@ class OrderRouteTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - remove together with OrderRoute::checkGuestAuth()
      *
-     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>, 4?: bool, 5?: bool}>
+     * @return iterable<string, array{?bool, mixed, mixed, ?class-string<\Throwable>, 4?: bool, 5?: bool}>
      */
     public static function legacyCustomerDataProvider(): iterable
     {
@@ -184,6 +184,9 @@ class OrderRouteTest extends TestCase
         yield 'valid guest with credentials in query' => [true, 'test@example.com', 'AA-345', null, false, true];
         yield 'wrong e-mail in query' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class, false, true];
         yield 'no request e-mail in query' => [true, null, 'AA-345', GuestNotAuthenticatedException::class, false, true];
+        yield 'int postal code' => [true, 'test@example.com', 345, WrongGuestCredentialsException::class];
+        yield 'array postal code in query' => [true, 'test@example.com', ['AA-345'], WrongGuestCredentialsException::class, false, true];
+        yield 'bool e-mail' => [true, true, 'AA-345', WrongGuestCredentialsException::class];
     }
 
     #[DataProvider('deeplinkFilterProvider')]
@@ -332,7 +335,7 @@ class OrderRouteTest extends TestCase
     /**
      * @param ?class-string<\Throwable> $exception
      */
-    private function assertGuestOrderAccess(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login, bool $credentialsInQuery): void
+    private function assertGuestOrderAccess(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login, bool $credentialsInQuery): void
     {
         if ($exception !== null) {
             $this->expectException($exception);

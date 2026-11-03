@@ -85,6 +85,14 @@ class CustomFieldSetGatewayTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
+
+        static::getContainer()->get('custom_field.repository')->create([
+            [
+                'id' => $this->ids->get('custom-field-without-set'),
+                'name' => 'test_field_without_set',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+        ], Context::createDefaultContext());
     }
 
     protected function tearDown(): void
@@ -94,6 +102,10 @@ class CustomFieldSetGatewayTest extends TestCase
         $customFieldRepository->delete([
             ['id' => $this->ids->get('custom-field-set-1')],
             ['id' => $this->ids->get('custom-field-set-2')],
+        ], Context::createDefaultContext());
+
+        static::getContainer()->get('custom_field.repository')->delete([
+            ['id' => $this->ids->get('custom-field-without-set')],
         ], Context::createDefaultContext());
     }
 
@@ -150,6 +162,29 @@ class CustomFieldSetGatewayTest extends TestCase
             $this->ids->get('custom-field-2') => $this->ids->get('custom-field-set-1'),
             $this->ids->get('custom-field-3') => $this->ids->get('custom-field-set-2'),
         ], $result);
+    }
+
+    public function testFetchFieldSetIdsSkipsCustomFieldsWithoutSet(): void
+    {
+        $result = static::getContainer()
+            ->get(CustomFieldSetGateway::class)
+            ->fetchFieldSetIds([
+                $this->ids->get('custom-field-1'),
+                $this->ids->get('custom-field-without-set'),
+            ]);
+
+        static::assertSame([
+            $this->ids->get('custom-field-1') => $this->ids->get('custom-field-set-1'),
+        ], $result);
+    }
+
+    public function testFetchMethodsReturnEmptyArrayForEmptyInput(): void
+    {
+        $gateway = static::getContainer()->get(CustomFieldSetGateway::class);
+
+        static::assertSame([], $gateway->fetchFieldSetIds([]));
+        static::assertSame([], $gateway->fetchFieldSetEntityMappings([]));
+        static::assertSame([], $gateway->fetchCustomFieldsForSets([]));
     }
 
     public function testFetchFieldSetEntityMappings(): void

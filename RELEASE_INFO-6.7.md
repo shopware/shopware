@@ -623,7 +623,9 @@ See `UPGRADE-6.8.md` for the full variable mapping.
 
 ### Twig changes apply without a reload in the Storefront dev servers
 
-`composer watch:storefront` and the Vite dev server `composer storefront:dev-server` apply Twig changes to the open page without a reload.
+`composer watch:storefront` applies Twig changes to the open page without a reload.
+The Vite dev server `composer storefront:dev-server` reloads the page on a Twig change by default and applies it in place with `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`.
+With `SHOPWARE_STOREFRONT_DEV_UPDATE=manual` it does not watch the Twig files.
 Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are, and open AJAX modals, the cart and the navigation offcanvas are rendered again as well.
 Elements with a Storefront plugin keep their markup.
 If a change cannot be applied, for example because the markup of a plugin element changed, a notice on the page asks for a reload.
@@ -633,6 +635,7 @@ Inline scripts in changed markup do not run again, so initialize JavaScript thro
 The browser console warns once if the shop does not run in debug mode or a response came from an HTTP cache, for example Varnish.
 In every hot mode session, the browser console also lists extensions whose JavaScript is compiled but not loaded, because they have no production build yet.
 See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
+
 ### Legal guarantee notice on the registration form
 
 Disabling the new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the legal guarantee notice on the registration form while the checkout keeps it.

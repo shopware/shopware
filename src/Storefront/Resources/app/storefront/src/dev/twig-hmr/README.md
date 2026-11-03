@@ -1,22 +1,37 @@
 # Twig hot reload for the Storefront watcher
 
-The Storefront dev servers apply Twig changes to the open page without a reload.
+The Storefront dev servers can apply Twig changes to the open page without a reload.
 Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are.
 When a change cannot be applied safely, a notice on the page says so and offers a reload.
 The code in this directory is only loaded by the webpack and the Vite dev server and is never shipped in production builds.
 
 ## Usage
 
-The Twig hot reload is always on in both dev servers:
+The Twig hot reload is always on in the webpack watcher:
 
 ```bash
 composer watch:storefront
-composer storefront:dev-server
 ```
 
-The webpack watcher, `composer watch:storefront`, serves the shop through its proxy, by default on port 9998.
-The Vite dev server, `composer storefront:dev-server`, only serves the scripts and styles, so open the shop URL as usual.
-Both print `Twig hot reload: on` at startup.
+It serves the shop through its proxy, by default on port 9998, and prints `Twig hot reload: on` at startup.
+
+The Vite dev server reloads the page on a Twig change by default.
+Set `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr` to apply Twig changes in place:
+
+```bash
+SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
+```
+
+| Value | Twig change in the Vite dev server |
+|---|---|
+| `reload` (default) | `twig-reload.vite.js` reloads the page |
+| `hmr` | `twig-hmr.vite.js` applies the change in place |
+| `manual` | Nothing happens, the views are not watched |
+
+The variable is read from the shell first, then from the `.env.local` and `.env` of the project root, so put it into `.env.local` to keep it.
+The same value also decides how style changes reach the page, see `build/README.md`.
+The Vite dev server only serves the scripts and styles, so open the shop URL as usual.
+It prints the active mode at startup.
 
 `SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH=1` limits the watched files to the Storefront bundle in both dev servers.
 
@@ -68,6 +83,7 @@ A reverse proxy such as Varnish in front of the shop does not know the header an
 Twig compiles the parent of `sw_extends` into the compiled template and only checks the modification time of the template itself.
 After a template was added or removed, for example a new override in a plugin, the compiled templates would keep the old inheritance chain.
 For a structural batch, the client sends `sw-twig-hmr-reset: 1` with the page request and fetches the open fragments afterwards.
+In the reload mode of the Vite dev server, `twig-reload.js` sends the same request first and reloads the page after it.
 `TwigHmrCacheSubscriber` then removes the compiled templates in the `twig.cache` directory in debug mode, before anything is rendered.
 It only removes the `*.php` files and keeps the directories and the temporary files of Twig.
 A parallel render, for example of the Symfony toolbar, writes a temporary file and renames it then, so it can still finish its write.

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\OpenApi;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
@@ -221,6 +222,10 @@ final class OpenApiDtoGenerator
     private function groupTaggedOperationsByNamespace(array $spec): array
     {
         $paths = \is_array($spec['paths'] ?? null) ? $spec['paths'] : [];
+        $document = (new OpenApiDtoSerializer())->deserialize(json_encode($spec, \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION), OA\OpenApi::class);
+        if (!$document instanceof OA\OpenApi) {
+            throw FrameworkException::invalidArgumentException('Expected an OpenAPI document.');
+        }
 
         $groups = [];
         foreach ($paths as $pathKey => $pathItem) {
@@ -228,15 +233,24 @@ final class OpenApiDtoGenerator
                 continue;
             }
 
-            foreach ($this->operationReader->read($pathItem) as $entry) {
-                $operation = $entry['operation'];
+            $parsedPath = $document->paths[$pathKey] ?? null;
+            if (!$parsedPath instanceof OA\PathItem) {
+                continue;
+            }
+            foreach ($this->operationReader->read($parsedPath) as $entry) {
+                $location = $entry['location'];
+                $operation = isset($location[1])
+                    ? ($pathItem[$location[0]][$location[1]] ?? null)
+                    : ($pathItem[$location[0]] ?? null);
+                if (!\is_array($operation)) {
+                    continue;
+                }
 
                 $namespace = $this->namespaceFromSchema($operation);
                 if ($namespace === null) {
                     continue;
                 }
 
-                $location = $entry['location'];
                 if (isset($location[1])) {
                     $groups[$namespace][$pathKey][$location[0]][$location[1]] = $operation;
                 } else {

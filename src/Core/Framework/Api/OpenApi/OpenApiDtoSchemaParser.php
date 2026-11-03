@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\OpenApi;
 
+use OpenApi\Annotations as OA;
+use OpenApi\OpenApiException;
+use OpenApi\Undefined;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,6 +33,8 @@ final class OpenApiDtoSchemaParser
         self::PHP_TYPE_STRING,
     ];
 
+    private OA\OpenApi $document;
+
     public function __construct(private readonly OpenApiOperationReader $operationReader)
     {
     }
@@ -41,6 +46,7 @@ final class OpenApiDtoSchemaParser
      */
     public function parse(array $schema, bool $includeComponentSchemas = true, ?string $namespace = null): array
     {
+        $schema = $this->deserialize($schema);
         $schema = $this->resolveOperationInputs($schema);
         $registry = $this->schemaRegistry($schema);
         $registry = $this->inheritComponentPackages(
@@ -80,6 +86,7 @@ final class OpenApiDtoSchemaParser
      */
     public function parseComponents(array $schema, array $schemaNames, string $namespace): array
     {
+        $schema = $this->deserialize($schema);
         $schema = $this->resolveOperationInputs($schema);
         $registry = $this->schemaRegistry($schema);
         $registry = $this->inheritComponentPackages($schema, $registry, $schemaNames, includePaths: false);
@@ -102,16 +109,11 @@ final class OpenApiDtoSchemaParser
         return $this->deduplicate($definitions);
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     *
-     * @return array<string, mixed>
-     */
-    private function resolveOperationInputs(array $schema): array
+    private function resolveOperationInputs(OA\OpenApi $schema): OA\OpenApi
     {
         $paths = $this->arrayAtPath($schema, ['paths']) ?? [];
-        foreach ($paths as $path => $pathData) {
-            if (!\is_array($pathData)) {
+        foreach ($paths as $pathData) {
+            if (!$pathData instanceof OA\PathItem) {
                 continue;
             }
 
@@ -120,28 +122,41 @@ final class OpenApiDtoSchemaParser
 
                 $requestBody = $this->schemaAtKey($operation, 'requestBody');
                 if ($requestBody !== null) {
-                    $requestBody = $this->resolveComponentReference($requestBody, $schema, 'requestBodies');
-                    $operation['requestBody'] = $this->resolveJsonContent($requestBody, $schema);
+                    $requestBody = $this->resolveComponentReference($requestBody, 'requestBodies');
+                    if (!$requestBody instanceof OA\RequestBody) {
+                        throw FrameworkException::invalidArgumentException('Expected a request body.');
+                    }
+                    $operation->requestBody = $this->resolveJsonContent($requestBody);
                 }
 
+                $responses = [];
                 foreach ($this->arrayAtKey($operation, 'responses') ?? [] as $statusCode => $response) {
-                    if (preg_match('/^2\d{2}$/D', (string) $statusCode) !== 1 || !\is_array($response)) {
+                    if (!$response instanceof OA\Response) {
                         continue;
                     }
-
-                    $response = $this->resolveComponentReference($response, $schema, 'responses');
-                    $operation['responses'][$statusCode] = $this->resolveJsonContent($response, $schema);
+                    if (preg_match('/^2\d{2}$/D', (string) $statusCode) === 1) {
+                        $response = $this->resolveComponentReference($response, 'responses');
+                        if (!$response instanceof OA\Response) {
+                            throw FrameworkException::invalidArgumentException('Expected a response.');
+                        }
+                        $response = $this->resolveJsonContent($response);
+                    }
+                    $responses[] = $response;
                 }
+                $operation->responses = $responses;
 
                 $parameters = [];
                 foreach ([...($this->arrayAtKey($pathData, 'parameters') ?? []), ...($this->arrayAtKey($operation, 'parameters') ?? [])] as $parameter) {
-                    if (!\is_array($parameter)) {
+                    if (!$parameter instanceof OA\AbstractAnnotation) {
                         continue;
                     }
 
-                    $parameter = $this->resolveComponentReference($parameter, $schema, 'parameters');
-                    $name = $parameter['name'] ?? null;
-                    $location = $parameter['in'] ?? null;
+                    $parameter = $this->resolveComponentReference($parameter, 'parameters');
+                    if (!$parameter instanceof OA\Parameter) {
+                        throw FrameworkException::invalidArgumentException('Expected a parameter.');
+                    }
+                    $name = $this->get($parameter, 'name');
+                    $location = $this->get($parameter, 'in');
                     if (!\is_string($name) || !\is_string($location)) {
                         continue;
                     }
@@ -149,30 +164,14 @@ final class OpenApiDtoSchemaParser
                     // Operations override inherited parameters with the same name and location.
                     $parameters[$location . ':' . $name] = $parameter;
                 }
-                $operation['parameters'] = array_values($parameters);
-                $location = $entry['location'];
-                if (isset($location[1])) {
-                    $additionalOperations = $this->arrayAtKey($pathData, 'additionalOperations') ?? [];
-                    $additionalOperations[$location[1]] = $operation;
-                    $pathData['additionalOperations'] = $additionalOperations;
-                } else {
-                    $pathData[$location[0]] = $operation;
-                }
+                $operation->parameters = array_values($parameters);
             }
-            $paths[$path] = $pathData;
         }
-        $schema['paths'] = $paths;
 
         return $schema;
     }
 
-    /**
-     * @param array<string, mixed> $input
-     * @param array<string, mixed> $schema
-     *
-     * @return array<string, mixed>
-     */
-    private function resolveComponentReference(array $input, array $schema, string $section, bool $allowUnresolved = true): array
+    private function resolveComponentReference(OA\AbstractAnnotation $input, string $section, bool $allowUnresolved = true): OA\AbstractAnnotation
     {
         $seen = [];
         while (($reference = $this->refFromSchema($input)) !== null) {
@@ -181,36 +180,46 @@ final class OpenApiDtoSchemaParser
                 throw FrameworkException::invalidArgumentException('Cannot resolve reference "' . $reference . '".');
             }
             $seen[$reference] = true;
-            $name = str_replace(['~1', '~0'], ['/', '~'], substr($reference, \strlen($prefix)));
-            $resolved = $this->arrayAtPath($schema, ['components', $section, $name]);
-            if ($resolved === null) {
+            try {
+                $resolved = $this->document->ref($reference);
+            } catch (OpenApiException) {
                 if (!$allowUnresolved) {
                     throw FrameworkException::invalidArgumentException('Cannot resolve reference "' . $reference . '".');
                 }
 
-                // Runtime API generation supplies some components, such as the language header.
                 return $input;
             }
-
-            unset($input['$ref']);
-            // Media Type Reference Objects cannot override fields such as schema with siblings.
-            $input = $section === 'mediaTypes' ? $resolved : [...$resolved, ...$input];
+            if (!$resolved instanceof OA\AbstractAnnotation) {
+                throw FrameworkException::invalidArgumentException('Cannot resolve reference "' . $reference . '".');
+            }
+            if ($section !== 'mediaTypes') {
+                $siblings = $this->children($input);
+                unset($siblings['ref']);
+                $class = $resolved::class;
+                $resolved = new $class([...$this->children($resolved), ...$siblings, '_context' => $resolved->_context]);
+            }
+            $input = $resolved;
         }
 
         return $input;
     }
 
     /**
-     * @param array<string, mixed> $container
-     * @param array<string, mixed> $schema
+     * @template T of OA\AbstractAnnotation
      *
-     * @return array<string, mixed>
+     * @param T $container
+     *
+     * @return T
      */
-    private function resolveJsonContent(array $container, array $schema): array
+    private function resolveJsonContent(OA\AbstractAnnotation $container): OA\AbstractAnnotation
     {
-        $mediaType = $this->arrayAtPath($container, ['content', 'application/json']);
-        if ($mediaType !== null) {
-            $container['content']['application/json'] = $this->resolveComponentReference($mediaType, $schema, 'mediaTypes', allowUnresolved: false);
+        $mediaType = $this->nodeAtPath($container, ['content', 'application/json']);
+        if ($mediaType !== null && ($container instanceof OA\RequestBody || $container instanceof OA\Response) && \is_array($container->content)) {
+            $mediaType = $this->resolveComponentReference($mediaType, 'mediaTypes', allowUnresolved: false);
+            if (!$mediaType instanceof OA\MediaType) {
+                throw FrameworkException::invalidArgumentException('Expected a media type.');
+            }
+            $container->content['application/json'] = $mediaType;
         }
 
         return $container;
@@ -245,13 +254,12 @@ final class OpenApiDtoSchemaParser
      * Generates DTOs only for the component schemas that are actually referenced (transitively)
      * by the operations in the given spec, instead of the whole component catalogue.
      *
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      * @param array<string, OpenApiDtoType> $componentTypes
      *
      * @return list<OpenApiDtoDefinition>
      */
-    private function parseReferencedComponentSchemas(array $schema, array $registry, array $componentTypes): array
+    private function parseReferencedComponentSchemas(OA\AbstractAnnotation $schema, array $registry, array $componentTypes): array
     {
         $definitions = [];
         foreach ($this->collectReferencedSchemaNames($schema, $registry) as $name) {
@@ -276,12 +284,11 @@ final class OpenApiDtoSchemaParser
      * Collects the transitive closure of component schema names referenced from the operations
      * in the spec (request bodies, responses and parameters), following nested `$ref`s.
      *
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<string>
      */
-    private function collectReferencedSchemaNames(array $schema, array $registry): array
+    private function collectReferencedSchemaNames(OA\AbstractAnnotation $schema, array $registry): array
     {
         return $this->collectReferencedComponentNames(
             $this->extractRefNames($this->arrayAtPath($schema, ['paths']) ?? []),
@@ -291,7 +298,7 @@ final class OpenApiDtoSchemaParser
 
     /**
      * @param list<string> $rootComponentNames
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<string>
      */
@@ -308,7 +315,7 @@ final class OpenApiDtoSchemaParser
             $seen[$name] = true;
 
             $schemaData = $registry[$name] ?? null;
-            if (\is_array($schemaData)) {
+            if ($schemaData instanceof OA\AbstractAnnotation) {
                 foreach ($this->extractRefNames($schemaData) as $nestedName) {
                     if (!isset($seen[$nestedName])) {
                         $queue[] = $nestedName;
@@ -325,13 +332,16 @@ final class OpenApiDtoSchemaParser
      */
     private function extractRefNames(mixed $data): array
     {
+        if ($data instanceof OA\AbstractAnnotation) {
+            $data = $this->children($data);
+        }
         if (!\is_array($data)) {
             return [];
         }
 
         $names = [];
         foreach ($data as $key => $value) {
-            if ($key === '$ref') {
+            if ($key === 'ref') {
                 $references = \is_array($value) ? $value : [$value];
                 foreach ($references as $reference) {
                     if (\is_string($reference) && str_contains($reference, '/components/schemas/')) {
@@ -349,37 +359,35 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     *
      * @return array<string, OpenApiDtoType>
      */
-    private function componentRootTypes(array $schema): array
+    private function componentRootTypes(OA\AbstractAnnotation $schema): array
     {
         $types = [];
         foreach ($this->arrayAtPath($schema, ['paths']) ?? [] as $pathData) {
-            if (!\is_array($pathData)) {
+            if (!$pathData instanceof OA\PathItem) {
                 continue;
             }
 
             foreach ($this->operationReader->read($pathData) as $entry) {
                 $operation = $entry['operation'];
 
-                $request = $this->arrayAtPath($operation, ['requestBody', 'content', 'application/json', 'schema']);
+                $request = $this->nodeAtPath($operation, ['requestBody', 'content', 'application/json', 'schema']);
                 $requestRef = $request !== null ? $this->refFromSchema($request) : null;
                 if ($requestRef !== null) {
                     $this->addComponentRootType($types, $this->resolveRefName($requestRef), OpenApiDtoType::Request);
                 }
 
-                foreach ($operation['responses'] ?? [] as $statusCode => $response) {
+                foreach ($this->get($operation, 'responses') ?? [] as $statusCode => $response) {
                     if (preg_match('/^2\d{2}$/D', (string) $statusCode) !== 1) {
                         continue;
                     }
 
-                    if (!\is_array($response)) {
+                    if (!$response instanceof OA\AbstractAnnotation) {
                         continue;
                     }
 
-                    $responseSchema = $this->arrayAtPath($response, ['content', 'application/json', 'schema']);
+                    $responseSchema = $this->nodeAtPath($response, ['content', 'application/json', 'schema']);
                     $responseRef = $responseSchema !== null ? $this->refFromSchema($responseSchema) : null;
                     if ($responseRef !== null) {
                         $this->addComponentRootType($types, $this->resolveRefName($responseRef), OpenApiDtoType::Response);
@@ -410,11 +418,9 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, OA\Schema>
      */
-    private function schemaRegistry(array $schema): array
+    private function schemaRegistry(OA\AbstractAnnotation $schema): array
     {
         $schemas = $this->arrayAtPath($schema, ['components', 'schemas']);
         if ($schemas === null) {
@@ -423,7 +429,7 @@ final class OpenApiDtoSchemaParser
 
         $registry = [];
         foreach ($schemas as $name => $value) {
-            if (!\is_string($name) || !\is_array($value)) {
+            if (!\is_string($name) || !($value instanceof OA\Schema)) {
                 continue;
             }
 
@@ -434,13 +440,12 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      * @param list<string> $rootComponentNames
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, OA\Schema>
      */
-    private function inheritComponentPackages(array $schema, array $registry, array $rootComponentNames, bool $includePaths = true): array
+    private function inheritComponentPackages(OA\AbstractAnnotation $schema, array $registry, array $rootComponentNames, bool $includePaths = true): array
     {
         /** @var array<string, string|null> $packages */
         $packages = [];
@@ -480,14 +485,17 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
-            $registry[$name][OpenApiDtoGenerator::PACKAGE_EXTENSION] = $package;
+            if (!\is_array($registry[$name]->x)) {
+                $registry[$name]->x = [];
+            }
+            $registry[$name]->x['dto-package'] = $package;
         }
 
         return $registry;
     }
 
     /**
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      * @param array<string, string|null> $packages
      * @param array<string, true> $reachedComponents
      * @param array<string, true> $visitedComponents
@@ -500,12 +508,12 @@ final class OpenApiDtoSchemaParser
         array &$reachedComponents,
         array &$visitedComponents,
     ): void {
-        if (!\is_array($value)) {
+        if (!\is_array($value) && !$value instanceof OA\AbstractAnnotation) {
             return;
         }
 
-        $package = $this->packageFromSchema($value) ?? $inheritedPackage;
-        $references = $value['$ref'] ?? [];
+        $package = $value instanceof OA\AbstractAnnotation ? ($this->packageFromSchema($value) ?? $inheritedPackage) : $inheritedPackage;
+        $references = $this->get($value, '$ref') ?? [];
         $references = \is_array($references) ? $references : [$references];
 
         foreach ($references as $reference) {
@@ -528,8 +536,8 @@ final class OpenApiDtoSchemaParser
             );
         }
 
-        foreach ($value as $key => $nestedValue) {
-            if ($key === '$ref') {
+        foreach ($value instanceof OA\AbstractAnnotation ? $this->children($value) : $value as $key => $nestedValue) {
+            if ($key === 'ref') {
                 continue;
             }
 
@@ -545,7 +553,7 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      * @param array<string, string|null> $packages
      * @param array<string, true> $reachedComponents
      * @param array<string, true> $visitedComponents
@@ -591,7 +599,7 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      * @param array<string, OpenApiDtoType> $componentTypes
      *
      * @return list<OpenApiDtoDefinition>
@@ -600,7 +608,7 @@ final class OpenApiDtoSchemaParser
     {
         $definitions = [];
         foreach ($registry as $schemaName => $schemaData) {
-            if (!\is_string($schemaName) || !\is_array($schemaData) || $this->isInlineComponent($schemaData)) {
+            if (!\is_string($schemaName) || !($schemaData instanceof OA\AbstractAnnotation) || $this->isInlineComponent($schemaData)) {
                 continue;
             }
 
@@ -640,12 +648,11 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<OpenApiDtoDefinition>
      */
-    private function parseRequestBodies(array $schema, array $registry): array
+    private function parseRequestBodies(OA\AbstractAnnotation $schema, array $registry): array
     {
         $paths = $this->arrayAtPath($schema, ['paths']);
         if ($paths === null) {
@@ -654,28 +661,28 @@ final class OpenApiDtoSchemaParser
 
         $definitions = [];
         foreach ($paths as $pathData) {
-            if (!\is_array($pathData)) {
+            if (!$pathData instanceof OA\PathItem) {
                 continue;
             }
 
             foreach ($this->operationReader->read($pathData) as $entry) {
                 $operation = $entry['operation'];
 
-                $operationId = $operation['operationId'] ?? null;
+                $operationId = $this->get($operation, 'operationId');
                 if (!\is_string($operationId) || $operationId === '') {
                     continue;
                 }
 
                 $dtoName = $this->toPascalCase($operationId) . 'Request';
                 $parameters = $this->extractParameterProperties($operation, $registry);
-                $requestSchema = $this->arrayAtPath($operation, ['requestBody', 'content', 'application/json', 'schema']);
+                $requestSchema = $this->nodeAtPath($operation, ['requestBody', 'content', 'application/json', 'schema']);
 
                 if ($requestSchema === null) {
                     if ($parameters !== []) {
                         $definitions[] = new OpenApiDtoDefinition(
                             $dtoName,
                             $parameters,
-                            $this->stringOrNull($operation['description'] ?? null),
+                            $this->stringOrNull($this->get($operation, 'description')),
                             $this->packageFromSchema($operation),
                             type: OpenApiDtoType::Request,
                         );
@@ -686,12 +693,12 @@ final class OpenApiDtoSchemaParser
 
                 $referencedBodySchema = $this->singleAllOfReference($requestSchema);
                 if ($referencedBodySchema !== null) {
-                    $referenceName = $this->resolveRefName($referencedBodySchema['$ref']);
+                    $referenceName = $this->resolveRefName($this->get($referencedBodySchema, '$ref'));
                     $requestBody = $this->schemaAtKey($operation, 'requestBody');
                     $bodyProperty = $this->createProperty(
                         $this->toPropertyName($referenceName),
                         $referencedBodySchema,
-                        ($requestBody['required'] ?? null) === true,
+                        $this->get($requestBody, 'required') === true,
                         $this->toPascalCase($referenceName),
                         null,
                         registry: $registry,
@@ -700,7 +707,7 @@ final class OpenApiDtoSchemaParser
                     $definitions[] = new OpenApiDtoDefinition(
                         $dtoName,
                         $this->mergeProperties([$bodyProperty], $parameters),
-                        $this->stringOrNull($operation['description'] ?? null),
+                        $this->stringOrNull($this->get($operation, 'description')),
                         $this->packageFromSchema($operation),
                         type: OpenApiDtoType::Request,
                     );
@@ -730,7 +737,7 @@ final class OpenApiDtoSchemaParser
                 $definitions[] = new OpenApiDtoDefinition(
                     $dtoName,
                     $properties,
-                    $this->stringOrNull($resolvedRequestSchema['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                    $this->stringOrNull($this->get($resolvedRequestSchema, 'description')) ?? $this->stringOrNull($this->get($operation, 'description')),
                     $this->packageFromSchema($resolvedRequestSchema) ?? $this->packageFromSchema($operation),
                     type: OpenApiDtoType::Request,
                 );
@@ -742,12 +749,11 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<OpenApiDtoDefinition>
      */
-    private function parseResponseBodies(array $schema, array $registry): array
+    private function parseResponseBodies(OA\AbstractAnnotation $schema, array $registry): array
     {
         $paths = $this->arrayAtPath($schema, ['paths']);
         if ($paths === null) {
@@ -756,14 +762,14 @@ final class OpenApiDtoSchemaParser
 
         $definitions = [];
         foreach ($paths as $pathData) {
-            if (!\is_array($pathData)) {
+            if (!$pathData instanceof OA\PathItem) {
                 continue;
             }
 
             foreach ($this->operationReader->read($pathData) as $entry) {
                 $operation = $entry['operation'];
 
-                $operationId = $operation['operationId'] ?? null;
+                $operationId = $this->get($operation, 'operationId');
                 if (!\is_string($operationId) || $operationId === '') {
                     continue;
                 }
@@ -773,7 +779,7 @@ final class OpenApiDtoSchemaParser
                     continue;
                 }
 
-                $responseSchema = $this->arrayAtPath($response['response'], ['content', 'application/json', 'schema']);
+                $responseSchema = $this->nodeAtPath($response['response'], ['content', 'application/json', 'schema']);
                 if ($responseSchema === null) {
                     continue;
                 }
@@ -789,7 +795,7 @@ final class OpenApiDtoSchemaParser
                 $definitions[] = new OpenApiDtoDefinition(
                     $dtoName,
                     $extracted['properties'],
-                    $this->stringOrNull($response['response']['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                    $this->stringOrNull($this->get($response['response'], 'description')) ?? $this->stringOrNull($this->get($operation, 'description')),
                     $this->packageFromSchema($resolvedResponseSchema) ?? $this->packageFromSchema($operation),
                     responseStatusCode: $response['statusCode'],
                     type: OpenApiDtoType::Response,
@@ -802,58 +808,57 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $operation
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<OpenApiDtoProperty>
      */
-    private function extractParameterProperties(array $operation, array $registry): array
+    private function extractParameterProperties(OA\AbstractAnnotation $operation, array $registry): array
     {
-        $parameters = $operation['parameters'] ?? null;
+        $parameters = $this->get($operation, 'parameters');
         if (!\is_array($parameters) || !\array_is_list($parameters)) {
             return [];
         }
 
         $properties = [];
         foreach ($parameters as $parameter) {
-            if (!\is_array($parameter)) {
+            if (!$parameter instanceof OA\AbstractAnnotation) {
                 continue;
             }
 
-            if (($parameter['in'] ?? null) === 'header') {
+            if ($this->get($parameter, 'in') === 'header') {
                 continue;
             }
 
             $schema = $this->schemaAtKey($parameter, 'schema');
-            $name = $parameter['name'] ?? null;
+            $name = $this->get($parameter, 'name');
             if ($schema === null || !\is_string($name) || $name === '') {
                 continue;
             }
 
             $constraintSchema = $this->dereferenceSchema($schema, $registry);
-            $defaultSchema = \array_key_exists('default', $schema) ? $schema : $constraintSchema;
+            $defaultSchema = $this->hasDefault($schema) ? $schema : $constraintSchema;
             $type = $this->mapOpenApiTypeToPhp($schema, $registry);
             $properties = $this->mergeProperties($properties, [new OpenApiDtoProperty(
                 name: $this->toPropertyName($name),
                 phpType: $type['phpType'],
-                required: ($parameter['required'] ?? null) === true,
+                required: ($this->get($parameter, 'required')) === true,
                 nullable: $type['nullable'],
                 arrayItemType: $type['arrayItemType'],
-                description: $this->stringOrNull($parameter['description'] ?? null),
-                format: $this->stringOrNull($constraintSchema['format'] ?? null),
-                pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
-                enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
-                minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
-                minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
-                maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
+                description: $this->stringOrNull($this->get($parameter, 'description')),
+                format: $this->stringOrNull($this->get($constraintSchema, 'format')),
+                pattern: $this->stringOrNull($this->get($constraintSchema, 'pattern')),
+                enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($this->get($constraintSchema, 'enum')),
+                minItems: $this->intOrNull($this->get($constraintSchema, 'minItems')),
+                minLength: $this->intOrNull($this->get($constraintSchema, 'minLength')),
+                maxLength: $this->intOrNull($this->get($constraintSchema, 'maxLength')),
                 arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
                 arrayItemMaxLength: $this->arrayItemMaxLength($constraintSchema),
                 unresolvedReference: $type['unresolved'],
                 nativeEnum: $this->isNativeEnumReference($schema, $registry),
                 schemaName: $name,
-                constValue: $this->scalarValue($constraintSchema['const'] ?? null),
-                defaultValue: $defaultSchema['default'] ?? null,
-                hasDefaultValue: \array_key_exists('default', $defaultSchema),
+                constValue: $this->scalarValue($this->get($constraintSchema, 'const')),
+                defaultValue: $this->get($defaultSchema, 'default'),
+                hasDefaultValue: $this->hasDefault($defaultSchema),
             )]);
         }
 
@@ -861,21 +866,20 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<OpenApiDtoDefinition>
      */
-    private function extractDtoFromSchema(string $name, array $schema, array $registry, OpenApiDtoType $type): array
+    private function extractDtoFromSchema(string $name, OA\AbstractAnnotation $schema, array $registry, OpenApiDtoType $type): array
     {
         $enumType = $this->nativeEnumType($schema);
         if ($enumType !== null) {
             return [new OpenApiDtoDefinition(
                 $name,
                 [],
-                $this->stringOrNull($schema['description'] ?? null),
+                $this->stringOrNull($this->get($schema, 'description')),
                 $this->packageFromSchema($schema),
-                $this->scalarEnum($schema['enum'] ?? null) ?? [],
+                $this->scalarEnum($this->get($schema, 'enum')) ?? [],
                 $enumType,
             )];
         }
@@ -884,7 +888,7 @@ final class OpenApiDtoSchemaParser
         if ($variants !== null && \count($variants) > 1) {
             $definitions = [];
             foreach ($variants as $variant) {
-                $variantName = $this->stringOrNull($variant['title'] ?? null);
+                $variantName = $this->stringOrNull($this->get($variant, 'title'));
                 $ref = $this->refFromSchema($variant);
                 if ($variantName === null && $ref !== null) {
                     $variantName = $this->resolveRefName($ref);
@@ -902,7 +906,7 @@ final class OpenApiDtoSchemaParser
                 $definitions[] = new OpenApiDtoDefinition(
                     $this->toPascalCase($variantName),
                     $extracted['properties'],
-                    $this->stringOrNull($variant['description'] ?? null),
+                    $this->stringOrNull($this->get($variant, 'description')),
                     $this->packageFromSchema($variant)
                         ?? $this->packageFromSchema($this->dereferenceSchema($variant, $registry))
                         ?? $this->packageFromSchema($schema),
@@ -923,7 +927,7 @@ final class OpenApiDtoSchemaParser
             new OpenApiDtoDefinition(
                 $name,
                 $extracted['properties'],
-                $this->stringOrNull($schema['description'] ?? null),
+                $this->stringOrNull($this->get($schema, 'description')),
                 $this->packageFromSchema($schema),
                 type: $type,
             ),
@@ -932,12 +936,11 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return array{properties: list<OpenApiDtoProperty>, nestedDefinitions: list<OpenApiDtoDefinition>}
      */
-    private function extractFromSchema(array $schema, string $parentDtoName, array $registry): array
+    private function extractFromSchema(OA\AbstractAnnotation $schema, string $parentDtoName, array $registry): array
     {
         $resolved = $this->resolveSchemaProperties($schema, $registry);
         $resolvedSchema = $this->dereferenceSchema($schema, $registry);
@@ -954,7 +957,7 @@ final class OpenApiDtoSchemaParser
     /**
      * @param array<string, mixed> $properties
      * @param list<string> $requiredFields
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return array{properties: list<OpenApiDtoProperty>, nestedDefinitions: list<OpenApiDtoDefinition>}
      */
@@ -965,7 +968,7 @@ final class OpenApiDtoSchemaParser
         $propertyNames = [];
 
         foreach ($properties as $propertyName => $propertySchema) {
-            if (!\is_string($propertyName) || !\is_array($propertySchema)) {
+            if (!\is_string($propertyName) || !($propertySchema instanceof OA\AbstractAnnotation)) {
                 continue;
             }
 
@@ -988,7 +991,7 @@ final class OpenApiDtoSchemaParser
                 $nestedDefinitions[] = new OpenApiDtoDefinition(
                     $nestedName,
                     $nestedExtracted['properties'],
-                    $this->stringOrNull($propertySchema['description'] ?? null),
+                    $this->stringOrNull($this->get($propertySchema, 'description')),
                     $this->packageFromSchema($propertySchema) ?? $parentPackage,
                     type: OpenApiDtoType::Nested,
                 );
@@ -1006,7 +1009,7 @@ final class OpenApiDtoSchemaParser
                 $nestedDefinitions[] = new OpenApiDtoDefinition(
                     $nestedName,
                     $nestedExtracted['properties'],
-                    $this->stringOrNull($items['description'] ?? null),
+                    $this->stringOrNull($this->get($items, 'description')),
                     $this->packageFromSchema($items) ?? $parentPackage,
                     type: OpenApiDtoType::Nested,
                 );
@@ -1034,12 +1037,11 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      */
     private function createProperty(
         string $propertyName,
-        array $schema,
+        OA\AbstractAnnotation $schema,
         bool $required,
         string $phpType,
         ?string $arrayItemType,
@@ -1048,7 +1050,7 @@ final class OpenApiDtoSchemaParser
         array $registry = [],
     ): OpenApiDtoProperty {
         $constraintSchema = $this->dereferenceSchema($schema, $registry);
-        $defaultSchema = \array_key_exists('default', $schema) ? $schema : $constraintSchema;
+        $defaultSchema = $this->hasDefault($schema) ? $schema : $constraintSchema;
 
         return new OpenApiDtoProperty(
             name: $this->toPropertyName($propertyName),
@@ -1056,41 +1058,41 @@ final class OpenApiDtoSchemaParser
             required: $required,
             nullable: $nullable ?? $this->hasTypeNull($schema),
             arrayItemType: $arrayItemType,
-            description: $this->stringOrNull($schema['description'] ?? null),
-            format: $this->stringOrNull($constraintSchema['format'] ?? null),
-            pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
-            enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
-            minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
-            minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
-            maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
+            description: $this->stringOrNull($this->get($schema, 'description')),
+            format: $this->stringOrNull($this->get($constraintSchema, 'format')),
+            pattern: $this->stringOrNull($this->get($constraintSchema, 'pattern')),
+            enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($this->get($constraintSchema, 'enum')),
+            minItems: $this->intOrNull($this->get($constraintSchema, 'minItems')),
+            minLength: $this->intOrNull($this->get($constraintSchema, 'minLength')),
+            maxLength: $this->intOrNull($this->get($constraintSchema, 'maxLength')),
             arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
             arrayItemMaxLength: $this->arrayItemMaxLength($constraintSchema),
             unresolvedReference: $unresolvedReference,
             arrayMapValueType: $phpType === self::PHP_TYPE_ARRAY ? $this->arrayMapValueType($constraintSchema, $registry) : null,
             nativeEnum: $this->isNativeEnumReference($schema, $registry),
             schemaName: $propertyName,
-            constValue: $this->scalarValue($constraintSchema['const'] ?? null),
-            defaultValue: $defaultSchema['default'] ?? null,
-            hasDefaultValue: \array_key_exists('default', $defaultSchema),
+            constValue: $this->scalarValue($this->get($constraintSchema, 'const')),
+            defaultValue: $this->get($defaultSchema, 'default'),
+            hasDefaultValue: $this->hasDefault($defaultSchema),
         );
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      */
-    private function isNativeEnumReference(array $schema, array $registry): bool
+    private function isNativeEnumReference(OA\AbstractAnnotation $schema, array $registry): bool
     {
         $ref = $this->refFromSchema($schema);
 
-        return $ref !== null && $this->nativeEnumType($registry[$this->resolveRefName($ref)] ?? []) !== null;
+        $resolved = $ref !== null ? ($registry[$this->resolveRefName($ref)] ?? null) : null;
+
+        return $resolved !== null && $this->nativeEnumType($resolved) !== null;
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      */
-    private function arrayMapValueType(array $schema, array $registry): ?string
+    private function arrayMapValueType(OA\AbstractAnnotation $schema, array $registry): ?string
     {
         $additionalProperties = $this->schemaAtKey($schema, 'additionalProperties');
         if ($additionalProperties === null) {
@@ -1120,12 +1122,11 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return array{properties: array<string, mixed>, required: list<string>}
      */
-    private function resolveSchemaProperties(array $schema, array $registry): array
+    private function resolveSchemaProperties(OA\AbstractAnnotation $schema, array $registry): array
     {
         $resolvedSchema = $this->dereferenceSchema($schema, $registry);
         $allOf = $this->schemaListAtKey($resolvedSchema, 'allOf');
@@ -1146,21 +1147,19 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $requestSchema
-     * @param list<array<string, mixed>> $variants
+     * @param list<OA\Schema> $variants
      * @param list<OpenApiDtoProperty> $parameters
-     * @param array<string, array<string, mixed>> $registry
-     * @param array<string, mixed> $operation
+     * @param array<string, OA\Schema> $registry
      *
      * @return list<OpenApiDtoDefinition>
      */
     private function extractVariantRequestDtos(
         string $fallbackDtoName,
-        array $requestSchema,
+        OA\AbstractAnnotation $requestSchema,
         array $variants,
         array $parameters,
         array $registry,
-        array $operation,
+        OA\AbstractAnnotation $operation,
     ): array {
         $definitions = [];
         $shared = $this->resolveSchemaProperties($requestSchema, $registry);
@@ -1168,7 +1167,7 @@ final class OpenApiDtoSchemaParser
         foreach ($variants as $variant) {
             $resolvedVariant = $this->dereferenceSchema($variant, $registry);
             $resolvedProperties = $this->resolveSchemaProperties($variant, $registry);
-            $title = $this->stringOrNull($variant['title'] ?? null);
+            $title = $this->stringOrNull($this->get($variant, 'title'));
             $variantDtoName = $title !== null && $title !== '' ? $this->toPascalCase($title) : $fallbackDtoName;
 
             $variantProperties = [
@@ -1189,7 +1188,7 @@ final class OpenApiDtoSchemaParser
             $definitions[] = new OpenApiDtoDefinition(
                 $variantDtoName,
                 $properties,
-                $this->stringOrNull($resolvedVariant['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                $this->stringOrNull($this->get($resolvedVariant, 'description')) ?? $this->stringOrNull($this->get($operation, 'description')),
                 $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($operation),
                 type: OpenApiDtoType::Request,
             );
@@ -1200,12 +1199,11 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OA\Schema> $registry
      *
      * @return array{phpType: string, arrayItemType: ?string, nullable: bool, unresolved: bool}
      */
-    private function mapOpenApiTypeToPhp(array $schema, array $registry): array
+    private function mapOpenApiTypeToPhp(OA\AbstractAnnotation $schema, array $registry): array
     {
         $ref = $this->refFromSchema($schema);
         if ($ref !== null) {
@@ -1239,7 +1237,7 @@ final class OpenApiDtoSchemaParser
         if ($variants !== null) {
             $nonNullVariants = array_values(array_filter(
                 $variants,
-                fn (array $variant): bool => !$this->isNullSchema($variant),
+                fn (OA\Schema $variant): bool => !$this->isNullSchema($variant),
             ));
 
             $hasNull = \count($variants) !== \count($nonNullVariants);
@@ -1253,7 +1251,7 @@ final class OpenApiDtoSchemaParser
             }
 
             $mappedVariants = array_map(
-                fn (array $variant): array => $this->mapOpenApiTypeToPhp($variant, $registry),
+                fn (OA\Schema $variant): array => $this->mapOpenApiTypeToPhp($variant, $registry),
                 $nonNullVariants,
             );
             $phpTypes = array_values(array_unique(array_column($mappedVariants, 'phpType')));
@@ -1272,7 +1270,7 @@ final class OpenApiDtoSchemaParser
 
         $allOf = $this->schemaListAtKey($schema, 'allOf');
         if ($allOf !== null) {
-            $title = $this->stringOrNull($schema['title'] ?? null);
+            $title = $this->stringOrNull($this->get($schema, 'title'));
             if ($title !== null) {
                 return [
                     'phpType' => $this->toPascalCase($title),
@@ -1287,7 +1285,7 @@ final class OpenApiDtoSchemaParser
             }
 
             foreach ($allOf as $partialSchema) {
-                if (isset($partialSchema['$ref']) && \is_string($partialSchema['$ref'])) {
+                if (($this->get($partialSchema, '$ref') !== null) && \is_string($this->get($partialSchema, '$ref'))) {
                     return $this->mapOpenApiTypeToPhp($partialSchema, $registry);
                 }
             }
@@ -1328,27 +1326,27 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
-     *
-     * @return array<string, mixed>
+     * @param array<string, OA\Schema> $registry
      */
-    private function dereferenceSchema(array $schema, array $registry): array
+    private function dereferenceSchema(OA\AbstractAnnotation $schema, array $registry): OA\AbstractAnnotation
     {
         $ref = $this->refFromSchema($schema);
         if ($ref === null) {
             return $schema;
         }
 
-        return $registry[$this->resolveRefName($ref)] ?? $schema;
+        if (!isset($registry[$this->resolveRefName($ref)])) {
+            return $schema;
+        }
+        $resolved = $this->document->ref($ref);
+
+        return $resolved instanceof OA\Schema ? $resolved : $schema;
     }
 
     /**
-     * @param array<string, mixed> $operation
-     *
-     * @return array{response: array<string, mixed>, statusCode: int}|null
+     * @return array{response: OA\AbstractAnnotation, statusCode: int}|null
      */
-    private function successResponse(array $operation): ?array
+    private function successResponse(OA\AbstractAnnotation $operation): ?array
     {
         $responses = $this->arrayAtKey($operation, 'responses');
         if ($responses === null) {
@@ -1373,21 +1371,14 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $schema
-     *
-     * @return list<array<string, mixed>>|null
+     * @return list<OA\Schema>|null
      */
-    private function variants(array $schema): ?array
+    private function variants(OA\AbstractAnnotation $schema): ?array
     {
         return $this->schemaListAtKey($schema, 'oneOf') ?? $this->schemaListAtKey($schema, 'anyOf');
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     *
-     * @return array{'$ref': string}|null
-     */
-    private function singleAllOfReference(array $schema): ?array
+    private function singleAllOfReference(OA\AbstractAnnotation $schema): ?OA\AbstractAnnotation
     {
         if ($this->arrayAtKey($schema, 'properties') !== null || $this->stringListAtKey($schema, 'required') !== [] || $this->variants($schema) !== null) {
             return null;
@@ -1398,20 +1389,17 @@ final class OpenApiDtoSchemaParser
             return null;
         }
 
-        $ref = $this->stringOrNull($allOf[0]['$ref'] ?? null);
+        $ref = $this->stringOrNull($this->get($allOf[0], '$ref'));
         if ($ref === null) {
             return null;
         }
 
-        return ['$ref' => $ref];
+        return $allOf[0];
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function packageFromSchema(array $schema): ?string
+    private function packageFromSchema(OA\AbstractAnnotation $schema): ?string
     {
-        return $this->stringOrNull($schema[OpenApiDtoGenerator::PACKAGE_EXTENSION] ?? null);
+        return $this->stringOrNull($this->get($schema, OpenApiDtoGenerator::PACKAGE_EXTENSION));
     }
 
     /**
@@ -1457,39 +1445,27 @@ final class OpenApiDtoSchemaParser
         }
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function isInlineObject(array $schema): bool
+    private function isInlineObject(OA\AbstractAnnotation $schema): bool
     {
         return $this->schemaType($schema) === 'object'
             && $this->arrayAtKey($schema, 'properties') !== null
-            && !isset($schema['$ref']);
+            && !($this->get($schema, '$ref') !== null);
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function isInlineComponent(array $schema): bool
+    private function isInlineComponent(OA\AbstractAnnotation $schema): bool
     {
-        return ($schema[OpenApiDtoGenerator::INLINE_EXTENSION] ?? null) === true;
+        return $this->get($schema, OpenApiDtoGenerator::INLINE_EXTENSION) === true;
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function hasDtoShape(array $schema): bool
+    private function hasDtoShape(OA\AbstractAnnotation $schema): bool
     {
         return $this->arrayAtKey($schema, 'properties') !== null
             || $this->schemaListAtKey($schema, 'allOf') !== null;
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function isNullSchema(array $schema): bool
+    private function isNullSchema(OA\AbstractAnnotation $schema): bool
     {
-        $type = $schema['type'] ?? null;
+        $type = $this->get($schema, 'type');
         if ($type === 'null') {
             return true;
         }
@@ -1501,22 +1477,16 @@ final class OpenApiDtoSchemaParser
         return $type !== [] && array_values(array_filter($type, static fn (mixed $value): bool => $value !== 'null')) === [];
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function hasTypeNull(array $schema): bool
+    private function hasTypeNull(OA\AbstractAnnotation $schema): bool
     {
-        $type = $schema['type'] ?? null;
+        $type = $this->get($schema, 'type');
 
         return \is_array($type) && \in_array('null', $type, true);
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function schemaType(array $schema): ?string
+    private function schemaType(OA\AbstractAnnotation $schema): ?string
     {
-        $type = $schema['type'] ?? null;
+        $type = $this->get($schema, 'type');
         if (\is_string($type)) {
             return $type;
         }
@@ -1539,12 +1509,10 @@ final class OpenApiDtoSchemaParser
 
     /**
      * OpenApiFileLoader merges identical component refs from Admin and Store API schemas into a list.
-     *
-     * @param array<string, mixed> $schema
      */
-    private function refFromSchema(array $schema): ?string
+    private function refFromSchema(OA\AbstractAnnotation $schema): ?string
     {
-        $ref = $schema['$ref'] ?? null;
+        $ref = $this->get($schema, '$ref');
         if (\is_string($ref)) {
             return $ref;
         }
@@ -1622,12 +1590,9 @@ final class OpenApiDtoSchemaParser
         return \is_string($value) || \is_int($value) || \is_float($value) || \is_bool($value) ? $value : null;
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function nativeEnumType(array $schema): ?string
+    private function nativeEnumType(OA\AbstractAnnotation $schema): ?string
     {
-        $values = $this->scalarEnum($schema['enum'] ?? null);
+        $values = $this->scalarEnum($this->get($schema, 'enum'));
         $type = $this->schemaType($schema);
 
         if ($values === null || !\in_array($type, ['string', 'integer'], true)) {
@@ -1665,24 +1630,18 @@ final class OpenApiDtoSchemaParser
         return $enum;
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function arrayItemMinLength(array $schema): ?int
+    private function arrayItemMinLength(OA\AbstractAnnotation $schema): ?int
     {
         $items = $this->schemaAtKey($schema, 'items');
 
-        return $items !== null ? $this->intOrNull($items['minLength'] ?? null) : null;
+        return $items !== null ? $this->intOrNull($this->get($items, 'minLength')) : null;
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function arrayItemMaxLength(array $schema): ?int
+    private function arrayItemMaxLength(OA\AbstractAnnotation $schema): ?int
     {
         $items = $this->schemaAtKey($schema, 'items');
 
-        return $items !== null ? $this->intOrNull($items['maxLength'] ?? null) : null;
+        return $items !== null ? $this->intOrNull($this->get($items, 'maxLength')) : null;
     }
 
     private function stringOrNull(mixed $value): ?string
@@ -1696,93 +1655,163 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @param array<string, mixed> $source
-     *
-     * @return array<string, mixed>|null
+     * @param array<string, mixed> $schema
      */
-    private function schemaAtKey(array $source, string $key): ?array
+    private function deserialize(array $schema): OA\OpenApi
     {
-        $value = $source[$key] ?? null;
+        $document = (new OpenApiDtoSerializer())->deserialize(json_encode($schema, \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION), OA\OpenApi::class);
+        if (!$document instanceof OA\OpenApi) {
+            throw FrameworkException::invalidArgumentException('Expected an OpenAPI document.');
+        }
+        $this->document = $document;
+
+        return $document;
+    }
+
+    /**
+     * @param OA\AbstractAnnotation|array<array-key, mixed>|null $source
+     */
+    private function get(OA\AbstractAnnotation|array|null $source, string $key): mixed
+    {
+        if ($source === null) {
+            return null;
+        }
+        if (\is_array($source)) {
+            return $source[$key] ?? null;
+        }
+        if (str_starts_with($key, 'x-')) {
+            return \is_array($source->x) ? ($source->x[substr($key, 2)] ?? null) : null;
+        }
+        $key = $key === '$ref' ? 'ref' : $key;
+        $value = get_object_vars($source)[$key] ?? null;
+        if (Undefined::isDefault($value)) {
+            return null;
+        }
+        if ($source instanceof OA\Operation && $key === 'responses' && \is_array($value)) {
+            $responses = [];
+            foreach ($value as $response) {
+                if ($response instanceof OA\Response) {
+                    $responses[$response->response] = $response;
+                }
+            }
+
+            return $responses;
+        }
+        if (\in_array($key, ['default', 'const'], true)) {
+            return $this->jsonValue($value);
+        }
+
+        return $value;
+    }
+
+    private function hasDefault(OA\AbstractAnnotation $schema): bool
+    {
+        return $schema instanceof OA\Schema && !Undefined::isDefault($schema->default);
+    }
+
+    private function jsonValue(mixed $value): mixed
+    {
+        if ($value instanceof \stdClass) {
+            $value = get_object_vars($value);
+        }
+
+        return \is_array($value) ? array_map($this->jsonValue(...), $value) : $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function children(OA\AbstractAnnotation $node): array
+    {
+        return array_filter(get_object_vars($node), static fn (mixed $value, string $key): bool => !str_starts_with($key, '_') && !Undefined::isDefault($value), \ARRAY_FILTER_USE_BOTH);
+    }
+
+    /**
+     * @param OA\AbstractAnnotation|array<array-key, mixed> $source
+     */
+    private function schemaAtKey(OA\AbstractAnnotation|array $source, string $key): ?OA\AbstractAnnotation
+    {
+        $value = $this->get($source, $key);
+
+        return $value instanceof OA\AbstractAnnotation ? $value : null;
+    }
+
+    /**
+     * @param OA\AbstractAnnotation|array<array-key, mixed> $source
+     *
+     * @return array<array-key, mixed>|null
+     */
+    private function arrayAtKey(OA\AbstractAnnotation|array $source, string $key): ?array
+    {
+        $value = $this->get($source, $key);
 
         return \is_array($value) ? $value : null;
     }
 
     /**
-     * @param array<string, mixed> $source
-     *
-     * @return array<string, mixed>|null
-     */
-    private function arrayAtKey(array $source, string $key): ?array
-    {
-        $value = $source[$key] ?? null;
-
-        return \is_array($value) ? $value : null;
-    }
-
-    /**
-     * @param array<string, mixed> $source
+     * @param OA\AbstractAnnotation|array<array-key, mixed> $source
      * @param list<string> $path
-     *
-     * @return array<string, mixed>|null
      */
-    private function arrayAtPath(array $source, array $path): ?array
+    private function atPath(OA\AbstractAnnotation|array $source, array $path): mixed
     {
         $current = $source;
         foreach ($path as $key) {
-            $next = $current[$key] ?? null;
-            if (!\is_array($next)) {
+            if (!\is_array($current) && !$current instanceof OA\AbstractAnnotation) {
                 return null;
             }
-
-            $current = $next;
+            $current = $this->get($current, $key);
         }
 
         return $current;
     }
 
     /**
-     * @param array<string, mixed> $source
+     * @param OA\AbstractAnnotation|array<array-key, mixed> $source
+     * @param list<string> $path
      *
-     * @return list<array<string, mixed>>|null
+     * @return array<array-key, mixed>|null
      */
-    private function schemaListAtKey(array $source, string $key): ?array
+    private function arrayAtPath(OA\AbstractAnnotation|array $source, array $path): ?array
     {
-        $value = $source[$key] ?? null;
-        if (!\is_array($value) || !\array_is_list($value)) {
-            return null;
-        }
+        $value = $this->atPath($source, $path);
 
-        $schemas = [];
-        foreach ($value as $item) {
-            if (!\is_array($item)) {
-                return null;
-            }
-
-            $schemas[] = $item;
-        }
-
-        return $schemas;
+        return \is_array($value) ? $value : null;
     }
 
     /**
-     * @param array<string, mixed> $source
-     *
-     * @return list<string>
+     * @param OA\AbstractAnnotation|array<array-key, mixed> $source
+     * @param list<string> $path
      */
-    private function stringListAtKey(array $source, string $key): array
+    private function nodeAtPath(OA\AbstractAnnotation|array $source, array $path): ?OA\AbstractAnnotation
     {
-        $value = $source[$key] ?? null;
-        if (!\is_array($value) || !\array_is_list($value)) {
-            return [];
-        }
+        $value = $this->atPath($source, $path);
 
-        $strings = [];
+        return $value instanceof OA\AbstractAnnotation ? $value : null;
+    }
+
+    /**
+     * @return list<OA\Schema>|null
+     */
+    private function schemaListAtKey(OA\AbstractAnnotation $source, string $key): ?array
+    {
+        $value = $this->arrayAtKey($source, $key);
+        if ($value === null || !\array_is_list($value)) {
+            return null;
+        }
         foreach ($value as $item) {
-            if (\is_string($item)) {
-                $strings[] = $item;
+            if (!$item instanceof OA\Schema) {
+                return null;
             }
         }
 
-        return $strings;
+        return $value;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function stringListAtKey(OA\AbstractAnnotation $source, string $key): array
+    {
+        return array_values(array_filter($this->arrayAtKey($source, $key) ?? [], 'is_string'));
     }
 }

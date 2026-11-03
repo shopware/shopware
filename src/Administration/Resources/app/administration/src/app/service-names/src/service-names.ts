@@ -69,6 +69,16 @@ export const cacheService = 'cacheService';
 export const captchaService = 'captchaService';
 
 /**
+ * The name the cartStoreService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [cartStoreService] };
+ *
+ * @public
+ */
+export const cartStoreService = 'cartStoreService';
+
+/**
  * The name the cmsDataResolverService service is registered and injected under.
  *
  * @example
@@ -343,6 +353,16 @@ export const liveSearchService = 'liveSearchService';
 export const loginService = 'loginService';
 
 /**
+ * The name the mailService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [mailService] };
+ *
+ * @public
+ */
+export const mailService = 'mailService';
+
+/**
  * The name the mediaDefaultFolderService service is registered and injected under.
  *
  * @example
@@ -421,6 +441,26 @@ export const numberRangeService = 'numberRangeService';
  * @public
  */
 export const orderDocumentApiService = 'orderDocumentApiService';
+
+/**
+ * The name the orderService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [orderService] };
+ *
+ * @public
+ */
+export const orderService = 'orderService';
+
+/**
+ * The name the orderStateMachineService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [orderStateMachineService] };
+ *
+ * @public
+ */
+export const orderStateMachineService = 'orderStateMachineService';
 
 /**
  * The name the productIndexService service is registered and injected under.
@@ -641,6 +681,16 @@ export const snippetService = 'snippetService';
  * @public
  */
 export const snippetSetService = 'snippetSetService';
+
+/**
+ * The name the stateMachineService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [stateMachineService] };
+ *
+ * @public
+ */
+export const stateMachineService = 'stateMachineService';
 
 /**
  * The name the stateStyleDataProviderService service is registered and injected under.

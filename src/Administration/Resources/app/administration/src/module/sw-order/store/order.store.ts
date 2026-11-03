@@ -40,8 +40,14 @@ interface SwOrderState {
     customer: Entity<'customer'> | null;
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swOrderStoreId = 'swOrder';
+
 const swOrderStore = Shopware.Store.register({
-    id: 'swOrder',
+    id: swOrderStoreId,
 
     state: (): SwOrderState => ({
         customer: null,

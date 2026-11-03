@@ -1,0 +1,469 @@
+import './sw-order-general-info.scss';
+import template from './sw-order-general-info.html.twig';
+import {
+    cloneDeep,
+    Criteria,
+    EntityCollection,
+    getApiContext,
+    getCurrencyFilter,
+    getDateFilter,
+    getDecodeIdnEmailFilter,
+    isFeatureActive,
+    notificationMixin,
+    useOrderDetailStore,
+} from '../dependencies';
+
+/**
+ * @sw-package checkout
+ */
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: {
+        swOrderDetailOnSaveEdits: {
+            from: 'swOrderDetailOnSaveEdits',
+            default: null,
+        },
+        swOrderDetailAskAndSaveEdits: {
+            from: 'swOrderDetailAskAndSaveEdits',
+            default: () => true,
+        },
+        acl: {
+            from: 'acl',
+            default: null,
+        },
+        repositoryFactory: {
+            from: 'repositoryFactory',
+            default: null,
+        },
+        stateMachineService: {
+            from: 'stateMachineService',
+            default: null,
+        },
+        orderStateMachineService: {
+            from: 'orderStateMachineService',
+            default: null,
+        },
+        stateStyleDataProviderService: {
+            from: 'stateStyleDataProviderService',
+            default: null,
+        },
+    },
+
+    emits: ['save-edits'],
+
+    mixins: [notificationMixin],
+
+    props: {
+        order: {
+            type: Object,
+            required: true,
+        },
+    },
+
+    data() {
+        return {
+            currentActionName: null,
+            currentStateType: null,
+            deliveryStateOptions: [],
+            liveOrder: null,
+            modalConfirmed: false,
+            orderStateOptions: [],
+            paymentStateOptions: [],
+            showModal: false,
+            tagCollection: null,
+        };
+    },
+
+    computed: {
+        isLoading: () => useOrderDetailStore().isLoading,
+
+        savedSuccessful: () => useOrderDetailStore().savedSuccessful,
+
+        lastChangedUser() {
+            if (this.liveOrder) {
+                if (this.liveOrder.updatedBy) {
+                    return this.liveOrder.updatedBy;
+                }
+
+                if (this.liveOrder.createdBy && !this.liveOrder.updatedAt) {
+                    return this.liveOrder.createdBy;
+                }
+            }
+
+            return null;
+        },
+
+        lastChangedDateTime() {
+            if (this.liveOrder) {
+                if (this.liveOrder.updatedAt) {
+                    return this.liveOrder.updatedAt;
+                }
+
+                if (this.liveOrder.createdAt) {
+                    return this.liveOrder.createdAt;
+                }
+            }
+
+            return null;
+        },
+
+        lastChangedByCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.setIds([this.order.id]);
+
+            criteria.addAssociation('createdBy').addAssociation('updatedBy');
+
+            return criteria;
+        },
+
+        orderRepository() {
+            return this.repositoryFactory.create('order');
+        },
+
+        orderTagRepository() {
+            return this.repositoryFactory.create(this.order.tags.entity, this.order.tags.source);
+        },
+
+        stateMachineStateRepository() {
+            return this.repositoryFactory.create('state_machine_state');
+        },
+
+        stateMachineStateCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addSorting({ field: 'name', order: 'ASC' });
+            criteria.addAssociation('stateMachine');
+            criteria.addFilter(
+                Criteria.equalsAny('state_machine_state.stateMachine.technicalName', [
+                    'order.state',
+                    'order_transaction.state',
+                    'order_delivery.state',
+                ]),
+            );
+
+            return criteria;
+        },
+
+        transaction() {
+            if (!isFeatureActive('v6.8.0.0')) {
+                for (let i = 0; i < this.order.transactions.length; i += 1) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                        return this.order.transactions[i];
+                    }
+                }
+
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
+        },
+
+        delivery() {
+            if (!isFeatureActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
+        },
+
+        currencyFilter() {
+            return getCurrencyFilter();
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
+        dateFilter() {
+            return getDateFilter();
+        },
+
+        emailIdnFilter() {
+            return getDecodeIdnEmailFilter();
+        },
+    },
+
+    watch: {
+        savedSuccessful() {
+            if (this.savedSuccessful) {
+                this.getLiveOrder();
+                useOrderDetailStore().setLoading(['states', false]);
+            }
+        },
+
+        'order.id'() {
+            this.createdComponent();
+        },
+
+        'order.tags'() {
+            this.syncTagCollection();
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.syncTagCollection();
+            this.getLiveOrder();
+            this.getTransitionOptions();
+        },
+
+        syncTagCollection() {
+            const tags = cloneDeep(this.order.tags);
+
+            this.tagCollection = new EntityCollection(
+                this.order.tags.source,
+                this.order.tags.entity,
+                getApiContext(),
+                null,
+                tags,
+                tags.length,
+            );
+        },
+
+        getLiveOrder() {
+            this.orderRepository.search(this.lastChangedByCriteria, getApiContext()).then((response) => {
+                if (response && response.first()) {
+                    this.liveOrder = response.first();
+                }
+            });
+        },
+
+        onTagAdd(item) {
+            this.orderTagRepository.assign(item.id).then(() => {
+                this.tagCollection.add(item);
+            });
+        },
+
+        onTagRemove(item) {
+            this.orderTagRepository.delete(item.id).then(() => {
+                this.tagCollection.remove(item.id);
+            });
+        },
+
+        getAllStates() {
+            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria);
+        },
+
+        buildTransitionOptions(stateMachineName, allTransitions, possibleTransitions) {
+            const entries = allTransitions.filter((entry) => {
+                return entry.stateMachine.technicalName === stateMachineName;
+            });
+
+            const options = entries.map((state, index) => {
+                return {
+                    stateName: state.technicalName,
+                    id: index,
+                    name: state.translated.name,
+                    disabled: true,
+                };
+            });
+
+            options.forEach((option) => {
+                const transitionToState = possibleTransitions.filter((transition) => {
+                    return transition.toStateName === option.stateName;
+                });
+
+                if (transitionToState.length >= 1) {
+                    option.disabled = false;
+                    option.id = transitionToState[0].actionName;
+                }
+            });
+
+            return options;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
+        backgroundStyle(stateType) {
+            let technicalName;
+
+            switch (stateType) {
+                case 'order_transaction':
+                    technicalName = this.transaction.stateMachineState.technicalName;
+                    break;
+                case 'order_delivery':
+                    technicalName = this.delivery.stateMachineState.technicalName;
+                    break;
+                case 'order':
+                    technicalName = this.order.stateMachineState.technicalName;
+                    break;
+                default:
+                    return null;
+            }
+
+            return this.stateStyleDataProviderService.getStyle(`${stateType}.state`, technicalName).selectBackgroundStyle;
+        },
+
+        getTransitionOptions() {
+            useOrderDetailStore().setLoading(['states', true]);
+
+            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
+
+            if (this.transaction) {
+                statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
+            }
+
+            if (this.delivery) {
+                statePromises.push(this.stateMachineService.getState('order_delivery', this.delivery.id));
+            }
+
+            return Promise.all([this.getAllStates(), ...statePromises])
+                .then((data) => {
+                    const allStates = data[0];
+                    const orderState = data[1];
+
+                    this.orderStateOptions = this.buildTransitionOptions(
+                        'order.state',
+                        allStates,
+                        orderState.data.transitions,
+                    );
+
+                    if (this.transaction) {
+                        const orderTransactionState = data[2];
+                        this.paymentStateOptions = this.buildTransitionOptions(
+                            'order_transaction.state',
+                            allStates,
+                            orderTransactionState.data.transitions,
+                        );
+                    }
+
+                    if (this.delivery) {
+                        const orderDeliveryState = data[3];
+                        this.deliveryStateOptions = this.buildTransitionOptions(
+                            'order_delivery.state',
+                            allStates,
+                            orderDeliveryState.data.transitions,
+                        );
+                    }
+
+                    return Promise.resolve();
+                })
+                .finally(() => {
+                    useOrderDetailStore().setLoading(['states', false]);
+                });
+        },
+
+        async onStateSelected(stateType, actionName) {
+            if (!stateType || !actionName) {
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
+                return;
+            }
+
+            if (!this.modalConfirmed) {
+                this.currentActionName = actionName;
+                this.currentStateType = stateType;
+
+                this.showModal = true;
+
+                return;
+            }
+
+            this.modalConfirmed = false;
+        },
+
+        onLeaveModalClose() {
+            this.modalConfirmed = false;
+            this.currentActionName = null;
+            this.currentStateType = null;
+            this.showModal = false;
+
+            useOrderDetailStore().setLoading(['states', false]);
+        },
+
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
+            this.showModal = false;
+            useOrderDetailStore().setLoading(['states', true]);
+
+            let transition = null;
+
+            switch (this.currentStateType) {
+                case 'order_transaction':
+                    transition = this.orderStateMachineService.transitionOrderTransactionState(
+                        this.transaction.id,
+                        this.currentActionName,
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
+                    );
+                    break;
+                case 'order_delivery':
+                    transition = this.orderStateMachineService.transitionOrderDeliveryState(
+                        this.delivery.id,
+                        this.currentActionName,
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
+                    );
+                    break;
+                case 'order':
+                    transition = this.orderStateMachineService.transitionOrderState(this.order.id, this.currentActionName, {
+                        documentIds: docIds,
+                        sendMail,
+                        internalComment,
+                    });
+                    break;
+                default:
+                    this.createNotificationError({
+                        message: this.$t('sw-order.stateCard.labelErrorStateChange'),
+                    });
+                    return;
+            }
+
+            if (transition) {
+                transition
+                    .then(() => {
+                        this.loadHistory();
+                    })
+                    .catch((error) => {
+                        this.createStateChangeErrorNotification(error);
+                    })
+                    .finally(() => {
+                        useOrderDetailStore().setLoading(['states', false]);
+                    });
+            }
+
+            this.currentActionName = null;
+            this.currentStateType = null;
+        },
+
+        loadHistory() {
+            this.statesLoading = true;
+            this.modalConfirmed = false;
+
+            this.getTransitionOptions()
+                .then(() => {
+                    if (this.swOrderDetailOnSaveEdits) {
+                        this.swOrderDetailOnSaveEdits();
+                    } else {
+                        this.$emit('save-edits');
+                    }
+                })
+                .catch((error) => {
+                    this.createNotificationError(error);
+                });
+        },
+
+        createStateChangeErrorNotification(errorMessage) {
+            this.createNotificationError({
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+            });
+        },
+    },
+};

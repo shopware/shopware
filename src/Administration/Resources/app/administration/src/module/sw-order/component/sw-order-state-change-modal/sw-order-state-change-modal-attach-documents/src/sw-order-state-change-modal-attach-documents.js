@@ -1,0 +1,65 @@
+import template from './sw-order-state-change-modal-attach-documents.html.twig';
+import './sw-order-state-change-modal-attach-documents.scss';
+
+/**
+ * @sw-package checkout
+ */
+
+const SEND_MAIL_STORAGE_KEY = 'sw-order-state-change-modal-send-mail';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    emits: ['on-confirm'],
+
+    props: {
+        order: {
+            type: Object,
+            required: true,
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: true,
+        },
+    },
+
+    data() {
+        return {
+            sendMail: true,
+            internalComment: null,
+        };
+    },
+
+    watch: {
+        sendMail(value) {
+            if (value) localStorage.removeItem(SEND_MAIL_STORAGE_KEY);
+            else localStorage.setItem(SEND_MAIL_STORAGE_KEY, 'false');
+        },
+    },
+
+    mounted() {
+        this.loadSendMail();
+    },
+
+    methods: {
+        loadSendMail() {
+            const stored = localStorage.getItem(SEND_MAIL_STORAGE_KEY);
+            this.sendMail = stored !== 'false';
+        },
+
+        onConfirm() {
+            const docIds = [];
+            this.$refs.attachDocuments.documents.forEach((doc) => {
+                if (doc.attach) {
+                    docIds.push(doc.id);
+                }
+            });
+
+            this.$emit('on-confirm', docIds, this.sendMail, this.internalComment?.trim() || null);
+        },
+    },
+};

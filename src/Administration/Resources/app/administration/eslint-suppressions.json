@@ -8692,7 +8692,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-address-modal/index.js": {
+  "src/module/sw-order/component/sw-order-address-modal/src/sw-order-address-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8700,12 +8700,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-address-modal/sw-order-address-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-address-modal/tests/sw-order-address-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 10
     }
   },
-  "src/module/sw-order/component/sw-order-address-selection/index.js": {
+  "src/module/sw-order/component/sw-order-address-selection/src/sw-order-address-selection.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8713,12 +8713,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-address-selection/sw-order-address-selection.spec.js": {
+  "src/module/sw-order/component/sw-order-address-selection/tests/sw-order-address-selection.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 32
     }
   },
-  "src/module/sw-order/component/sw-order-create-address-modal/index.js": {
+  "src/module/sw-order/component/sw-order-create-address-modal/src/sw-order-create-address-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8726,7 +8726,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-details-body/index.js": {
+  "src/module/sw-order/component/sw-order-create-details-body/src/sw-order-create-details-body.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8734,7 +8734,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-details-footer/index.js": {
+  "src/module/sw-order/component/sw-order-create-details-footer/src/sw-order-create-details-footer.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8742,12 +8742,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-details-footer/sw-order-create-details-footer.spec.js": {
+  "src/module/sw-order/component/sw-order-create-details-footer/tests/sw-order-create-details-footer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-details-header/index.js": {
+  "src/module/sw-order/component/sw-order-create-details-header/src/sw-order-create-details-header.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8755,12 +8755,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-document-modal/sw-order-create-document-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-create-document-modal/tests/sw-order-create-document-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-order/component/sw-order-create-initial-modal/index.ts": {
+  "src/module/sw-order/component/sw-order-create-initial-modal/src/sw-order-create-initial-modal.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8768,12 +8768,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-initial-modal/sw-order-create-initial-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-create-initial-modal/tests/sw-order-create-initial-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 15
     }
   },
-  "src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js": {
+  "src/module/sw-order/component/sw-order-create-invalid-promotion-modal/src/sw-order-create-invalid-promotion-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8781,17 +8781,17 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-create-options/index.ts": {
+  "src/module/sw-order/component/sw-order-create-options/src/sw-order-create-options.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }
   },
-  "src/module/sw-order/component/sw-order-create-options/sw-order-create-options.spec.js": {
+  "src/module/sw-order/component/sw-order-create-options/tests/sw-order-create-options.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/module/sw-order/component/sw-order-create-promotion-modal/index.js": {
+  "src/module/sw-order/component/sw-order-create-promotion-modal/src/sw-order-create-promotion-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8799,17 +8799,17 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-customer-address-select/index.ts": {
+  "src/module/sw-order/component/sw-order-customer-address-select/src/sw-order-customer-address-select.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-customer-address-select/sw-order-customer-address-select.spec.js": {
+  "src/module/sw-order/component/sw-order-customer-address-select/tests/sw-order-customer-address-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-order/component/sw-order-customer-comment/index.js": {
+  "src/module/sw-order/component/sw-order-customer-comment/src/sw-order-customer-comment.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8817,7 +8817,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-customer-grid/index.ts": {
+  "src/module/sw-order/component/sw-order-customer-grid/src/sw-order-customer-grid.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8825,7 +8825,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-customer-grid/sw-order-customer-grid.spec.js": {
+  "src/module/sw-order/component/sw-order-customer-grid/tests/sw-order-customer-grid.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8833,7 +8833,7 @@
       "count": 17
     }
   },
-  "src/module/sw-order/component/sw-order-delivery-metadata/index.js": {
+  "src/module/sw-order/component/sw-order-delivery-metadata/src/sw-order-delivery-metadata.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8841,7 +8841,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-details-state-card/index.js": {
+  "src/module/sw-order/component/sw-order-details-state-card/src/sw-order-details-state-card.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8882,7 +8882,7 @@
       "count": 39
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/index.js": {
+  "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/src/sw-order-document-settings-credit-note-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8890,12 +8890,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/sw-order-document-settings-credit-note-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/tests/sw-order-document-settings-credit-note-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 15
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js": {
+  "src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/src/sw-order-document-settings-delivery-note-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8903,7 +8903,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js": {
+  "src/module/sw-order/component/sw-order-document-settings-invoice-modal/src/sw-order-document-settings-invoice-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8911,7 +8911,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-modal/index.js": {
+  "src/module/sw-order/component/sw-order-document-settings-modal/src/sw-order-document-settings-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8919,12 +8919,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-modal/sw-order-document-settings-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-document-settings-modal/tests/sw-order-document-settings-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-order/component/sw-order-document-settings-storno-modal/index.js": {
+  "src/module/sw-order/component/sw-order-document-settings-storno-modal/src/sw-order-document-settings-storno-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8932,7 +8932,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-general-info/index.js": {
+  "src/module/sw-order/component/sw-order-general-info/src/sw-order-general-info.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8940,12 +8940,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-general-info/sw-order-general-info.spec.js": {
+  "src/module/sw-order/component/sw-order-general-info/tests/sw-order-general-info.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 14
     }
   },
-  "src/module/sw-order/component/sw-order-inline-field/index.js": {
+  "src/module/sw-order/component/sw-order-inline-field/src/sw-order-inline-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8953,7 +8953,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-leave-page-modal/index.js": {
+  "src/module/sw-order/component/sw-order-leave-page-modal/src/sw-order-leave-page-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8961,7 +8961,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js": {
+  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/src/sw-order-line-items-grid-sales-channel.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8969,7 +8969,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/sw-order-line-items-grid-sales-channel.spec.js": {
+  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/tests/sw-order-line-items-grid-sales-channel.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8977,20 +8977,12 @@
       "count": 5
     }
   },
-  "src/module/sw-order/component/sw-order-line-items-grid/index.js": {
+  "src/module/sw-order/component/sw-order-line-items-grid/src/sw-order-line-items-grid.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
     "filename-rules/not-match": {
       "count": 1
-    }
-  },
-  "src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 16
     }
   },
   "src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.spec/add-line-item.spec.js": {
@@ -8998,7 +8990,15 @@
       "count": 3
     }
   },
-  "src/module/sw-order/component/sw-order-nested-line-items-modal/index.js": {
+  "src/module/sw-order/component/sw-order-line-items-grid/tests/sw-order-line-items-grid.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-test-rules/no-vm-access": {
+      "count": 16
+    }
+  },
+  "src/module/sw-order/component/sw-order-nested-line-items-modal/src/sw-order-nested-line-items-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9006,7 +9006,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-nested-line-items-row/index.js": {
+  "src/module/sw-order/component/sw-order-nested-line-items-row/src/sw-order-nested-line-items-row.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9014,7 +9014,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-new-customer-modal/index.js": {
+  "src/module/sw-order/component/sw-order-new-customer-modal/src/sw-order-new-customer-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9022,12 +9022,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-new-customer-modal/sw-order-new-customer-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-new-customer-modal/tests/sw-order-new-customer-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 32
     }
   },
-  "src/module/sw-order/component/sw-order-product-select/index.js": {
+  "src/module/sw-order/component/sw-order-product-select/src/sw-order-product-select.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9035,12 +9035,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-product-select/sw-order-product-select.spec.js": {
+  "src/module/sw-order/component/sw-order-product-select/tests/sw-order-product-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-order/component/sw-order-promotion-field/index.js": {
+  "src/module/sw-order/component/sw-order-promotion-field/src/sw-order-promotion-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9048,12 +9048,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": {
+  "src/module/sw-order/component/sw-order-promotion-field/tests/sw-order-promotion-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 34
     }
   },
-  "src/module/sw-order/component/sw-order-promotion-tag-field/index.js": {
+  "src/module/sw-order/component/sw-order-promotion-tag-field/src/sw-order-promotion-tag-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9061,12 +9061,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-promotion-tag-field/sw-order-promotion-tag-field.spec.js": {
+  "src/module/sw-order/component/sw-order-promotion-tag-field/tests/sw-order-promotion-tag-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 20
     }
   },
-  "src/module/sw-order/component/sw-order-save-changes-beforehand-modal/index.js": {
+  "src/module/sw-order/component/sw-order-save-changes-beforehand-modal/src/sw-order-save-changes-beforehand-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9074,7 +9074,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-saveable-field/index.js": {
+  "src/module/sw-order/component/sw-order-saveable-field/src/sw-order-saveable-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9082,7 +9082,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-select-document-type-modal/index.js": {
+  "src/module/sw-order/component/sw-order-select-document-type-modal/src/sw-order-select-document-type-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9090,12 +9090,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-select-document-type-modal/sw-order-select-document-type-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-select-document-type-modal/tests/sw-order-select-document-type-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-order/component/sw-order-send-document-modal/index.js": {
+  "src/module/sw-order/component/sw-order-send-document-modal/src/sw-order-send-document-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9103,7 +9103,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-send-document-modal/sw-order-send-document-modal.spec.js": {
+  "src/module/sw-order/component/sw-order-send-document-modal/tests/sw-order-send-document-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9119,7 +9119,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/index.js": {
+  "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/src/sw-order-state-change-modal-attach-documents.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9127,12 +9127,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/sw-order-state-change-modal-attach-documents.spec.ts": {
+  "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/tests/sw-order-state-change-modal-attach-documents.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-order/component/sw-order-state-history-card-entry/index.js": {
+  "src/module/sw-order/component/sw-order-state-history-card-entry/src/sw-order-state-history-card-entry.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9140,7 +9140,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-state-history-card/index.js": {
+  "src/module/sw-order/component/sw-order-state-history-card/src/sw-order-state-history-card.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9148,7 +9148,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-state-history-modal/index.ts": {
+  "src/module/sw-order/component/sw-order-state-history-modal/src/sw-order-state-history-modal.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
@@ -9171,7 +9171,7 @@
       "count": 9
     }
   },
-  "src/module/sw-order/component/sw-order-state-select-v2/index.js": {
+  "src/module/sw-order/component/sw-order-state-select-v2/src/sw-order-state-select-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9179,22 +9179,22 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.spec.js": {
+  "src/module/sw-order/component/sw-order-state-select-v2/tests/sw-order-state-select-v2.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-user-card/index.js": {
+  "src/module/sw-order/component/sw-order-user-card/src/sw-order-user-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-order/component/sw-order-user-card/src/sw-order-user-card.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
     "filename-rules/not-match": {
       "count": 1
-    }
-  },
-  "src/module/sw-order/component/sw-order-user-card/sw-order-user-card.html.twig": {
-    "vue/max-template-depth": {
-      "count": 2
     }
   },
   "src/module/sw-order/default-search-configuration.js": {
@@ -9224,7 +9224,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/page/sw-order-create/index.ts": {
+  "src/module/sw-order/page/sw-order-create/src/sw-order-create.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
@@ -9235,7 +9235,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/page/sw-order-create/sw-order-create.spec.js": {
+  "src/module/sw-order/page/sw-order-create/tests/sw-order-create.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 12
     }
@@ -9296,45 +9296,45 @@
       "count": 1
     }
   },
-  "src/module/sw-order/view/sw-order-create-base/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-order/view/sw-order-create-base/sw-order-create-base.html.twig": {
+  "src/module/sw-order/view/sw-order-create-base/src/sw-order-create-base.html.twig": {
     "vue/max-template-depth": {
       "count": 2
     }
   },
-  "src/module/sw-order/view/sw-order-create-base/sw-order-create-base.spec.js": {
+  "src/module/sw-order/view/sw-order-create-base/src/sw-order-create-base.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-base/tests/sw-order-create-base.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
   },
-  "src/module/sw-order/view/sw-order-create-details/index.ts": {
+  "src/module/sw-order/view/sw-order-create-details/src/sw-order-create-details.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/module/sw-order/view/sw-order-create-details/sw-order-create-details.spec.js": {
+  "src/module/sw-order/view/sw-order-create-details/tests/sw-order-create-details.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-order/view/sw-order-create-general/index.ts": {
+  "src/module/sw-order/view/sw-order-create-general/src/sw-order-create-general.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }
   },
-  "src/module/sw-order/view/sw-order-create-general/sw-order-create-general.spec.js": {
+  "src/module/sw-order/view/sw-order-create-general/tests/sw-order-create-general.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
   },
-  "src/module/sw-order/view/sw-order-create-initial/index.js": {
+  "src/module/sw-order/view/sw-order-create-initial/src/sw-order-create-initial.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9342,12 +9342,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/view/sw-order-create-initial/sw-order-create-initial.spec.js": {
+  "src/module/sw-order/view/sw-order-create-initial/tests/sw-order-create-initial.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-order/view/sw-order-detail-details/index.js": {
+  "src/module/sw-order/view/sw-order-detail-details/src/sw-order-detail-details.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9355,12 +9355,12 @@
       "count": 1
     }
   },
-  "src/module/sw-order/view/sw-order-detail-details/sw-order-detail-details.spec.js": {
+  "src/module/sw-order/view/sw-order-detail-details/tests/sw-order-detail-details.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-order/view/sw-order-detail-documents/index.js": {
+  "src/module/sw-order/view/sw-order-detail-documents/src/sw-order-detail-documents.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9368,7 +9368,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/view/sw-order-detail-general/index.js": {
+  "src/module/sw-order/view/sw-order-detail-general/src/sw-order-detail-general.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9376,7 +9376,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/view/sw-order-detail-general/sw-order-detail-general.spec.js": {
+  "src/module/sw-order/view/sw-order-detail-general/tests/sw-order-detail-general.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }

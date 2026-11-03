@@ -1,238 +1,71 @@
-import type CriteriaType from 'src/core/data/criteria.data';
-
-import template from './sw-order-create-options.html.twig';
-import './sw-order-create-options.scss';
-
-import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
  * @sw-package checkout
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-
-const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Component.wrapComponentConfig({
-    template,
-
-    emits: [
-        'auto-promotion-toggle',
-        'send-order-confirmation-mail-toggle',
-        'promotions-change',
-        'shipping-cost-change',
-    ],
-
-    props: {
-        promotionCodes: {
-            type: Array as PropType<string[]>,
-            required: true,
-        },
-
-        disabledAutoPromotion: {
-            type: Boolean,
-            required: true,
-        },
-
-        sendOrderConfirmationMail: {
-            type: Boolean,
-            required: false,
-            default: true,
-        },
-
-        context: {
-            type: Object as PropType<ContextSwitchParameters>,
-            required: true,
-        },
-    },
-
-    data(): {
-        shippingCost: number;
-        promotionCodeTags: string[];
-        isSameAsBillingAddress: boolean;
-    } {
-        return {
-            shippingCost: 0,
-            isSameAsBillingAddress: false,
-            promotionCodeTags: [],
-        };
-    },
-
-    computed: {
-        salesChannelId(): EntityKey<'sales_channel'> {
-            return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
-        },
-
-        salesChannelCriteria(): CriteriaType {
-            const criteria = new Criteria();
-
-            if (this.salesChannelId) {
-                criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
-            }
-
-            return criteria;
-        },
-
-        shippingMethodCriteria(): CriteriaType {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('active', 1));
-
-            if (this.salesChannelId) {
-                criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
-            }
-
-            return criteria;
-        },
-
-        paymentMethodCriteria(): CriteriaType {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('active', 1));
-
-            if (this.salesChannelId) {
-                criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
-            }
-
-            return criteria;
-        },
-
-        customer(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
-        },
-
-        currency(): Entity<'currency'> {
-            return Store.get('swOrder').context.currency;
-        },
-
-        cart(): Cart {
-            return Store.get('swOrder').cart;
-        },
-
-        cartDelivery(): CartDelivery | null {
-            return this.cart?.deliveries[0] as CartDelivery | null;
-        },
-    },
-
-    watch: {
-        cartDelivery: {
-            immediate: true,
-            handler(value): void {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                this.shippingCost = value?.shippingCosts?.totalPrice ?? 0;
-            },
-        },
-
-        'context.currencyId': {
-            async handler(currencyId: EntityKey<'currency'>): Promise<void> {
-                if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
-                    return;
-                }
-
-                await this.updateCartContext();
-            },
-        },
-
-        'context.shippingAddressId': {
-            handler(): void {
-                this.updateSameAsBillingAddressToggle();
-            },
-        },
-
-        'context.billingAddressId': {
-            handler(): void {
-                this.updateSameAsBillingAddressToggle();
-            },
-        },
-
-        'context.shippingMethodId': {
-            async handler(shippingMethodId: EntityKey<'shipping_method'>): Promise<void> {
-                if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
-                    return;
-                }
-
-                await this.updateCartContext();
-            },
-        },
-
-        'context.languageId'(languageId: EntityKey<'language'>) {
-            if (!languageId) {
-                return;
-            }
-
-            Store.get('context').api.languageId = languageId;
-        },
-
-        isSameAsBillingAddress(value): void {
-            if (!value) {
-                return;
-            }
-
-            this.context.shippingAddressId = this.context.billingAddressId;
-        },
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        updateSameAsBillingAddressToggle(): void {
-            this.isSameAsBillingAddress = this.context.shippingAddressId === this.context.billingAddressId;
-        },
-
-        createdComponent(): void {
-            this.promotionCodeTags = [...this.promotionCodes];
-            this.isSameAsBillingAddress = this.context.shippingAddressId === this.context.billingAddressId;
-        },
-
-        validatePromotions(searchTerm: string): boolean {
-            const promotionCode = searchTerm.trim();
-
-            if (promotionCode.length <= 0) {
-                return false;
-            }
-
-            const isExist = this.promotionCodes.find((code: string) => code === promotionCode);
-            return !isExist;
-        },
-
-        onToggleAutoPromotion(value: boolean): void {
-            this.$emit('auto-promotion-toggle', value);
-        },
-
-        onToggleSendOrderConfirmationMail(value: boolean): void {
-            this.$emit('send-order-confirmation-mail-toggle', value);
-        },
-
-        changePromotionCodes(value: string[]): void {
-            this.$emit('promotions-change', value);
-        },
-
-        async updateCartContext(): Promise<void> {
-            if (!this.salesChannelId || !this.customer || !this.cart.token) {
-                return;
-            }
-
-            await this.updateOrderContext();
-            await this.loadCart();
-        },
-
-        async updateOrderContext(): Promise<void> {
-            await Store.get('swOrder').updateOrderContext({
-                context: this.context,
-                salesChannelId: this.salesChannelId,
-                contextToken: this.cart.token,
-            });
-        },
-
-        async loadCart(): Promise<void> {
-            await Store.get('swOrder').getCart({
-                salesChannelId: this.salesChannelId,
-                contextToken: this.cart.token,
-            });
-        },
-
-        onChangeShippingCost(value: number): void {
-            this.$emit('shipping-cost-change', value);
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-order-create-options',
+    load: () => import('./src/sw-order-create-options'),
+    public: {
+        props: [
+            'promotionCodes',
+            'disabledAutoPromotion',
+            'sendOrderConfirmationMail',
+            'context',
+        ],
+        emits: [
+            'auto-promotion-toggle',
+            'send-order-confirmation-mail-toggle',
+            'promotions-change',
+            'shipping-cost-change',
+        ],
+        blocks: [
+            'sw_order_create_options',
+            'sw_order_create_options_container',
+            'sw_order_create_options_order',
+            'sw_order_create_options_order_headline',
+            'sw_order_create_options_order_switch_disable_auto_promotion',
+            'sw_order_create_options_order_switch_send_order_confirmation_mail',
+            'sw_order_create_options_order_field_container',
+            'sw_order_create_options_order_language',
+            'sw_order_create_options_promotions',
+            'sw_order_create_options_payment',
+            'sw_order_create_options_payment_headline',
+            'sw_order_create_options_payment_container',
+            'sw_order_create_options_payment_method',
+            'sw_order_create_options_billing_address',
+            'sw_order_create_options_order_currency',
+            'sw_order_create_options_shipment',
+            'sw_order_create_options_shipment_headline',
+            'sw_order_create_options_shipping_method',
+            'sw_order_create_options_shipping_address',
+        ],
+        computed: [
+            'salesChannelId',
+            'salesChannelCriteria',
+            'shippingMethodCriteria',
+            'paymentMethodCriteria',
+            'customer',
+            'currency',
+            'cart',
+            'cartDelivery',
+        ],
+        methods: [
+            'updateSameAsBillingAddressToggle',
+            'createdComponent',
+            'validatePromotions',
+            'onToggleAutoPromotion',
+            'onToggleSendOrderConfirmationMail',
+            'changePromotionCodes',
+            'updateCartContext',
+            'updateOrderContext',
+            'loadCart',
+            'onChangeShippingCost',
+        ],
     },
 });

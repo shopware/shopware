@@ -67,6 +67,7 @@ final readonly class WebhookTargetValidator
         array $allowedIpAddresses = [],
         ?\Closure $dnsResolver = null,
         private bool $allowPublicIpLiterals = false,
+        private bool $enableUrlValidation = true,
     ) {
         $this->allowedIpAddresses = array_values(array_filter(
             $allowedIpAddresses,
@@ -92,6 +93,10 @@ final readonly class WebhookTargetValidator
         $port = parse_url($url, \PHP_URL_PORT);
         if (!\is_int($port)) {
             $port = $scheme === 'http' ? 80 : 443;
+        }
+
+        if (!$this->enableUrlValidation) {
+            return new WebhookTarget($host, $port, null);
         }
 
         $ipLiteral = trim($host, '[]');
@@ -129,7 +134,11 @@ final readonly class WebhookTargetValidator
 
     private function isAllowedScheme(string $scheme): bool
     {
-        return $scheme === 'https' || ($this->allowUnencryptedTraffic && $scheme === 'http');
+        if ($scheme === 'https') {
+            return true;
+        }
+
+        return $scheme === 'http' && ($this->allowUnencryptedTraffic || !$this->enableUrlValidation);
     }
 
     private function isPublicIpAddress(string $ip): bool

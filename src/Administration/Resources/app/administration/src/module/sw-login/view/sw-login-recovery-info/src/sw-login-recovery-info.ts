@@ -3,13 +3,12 @@
  */
 
 import template from './sw-login-recovery-info.html.twig';
-
-const { Component } = Shopware;
+import { wrapComponentConfig } from '../dependencies';
 
 /**
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     emits: ['is-not-loading'],

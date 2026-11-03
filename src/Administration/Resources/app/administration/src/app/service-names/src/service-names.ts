@@ -993,6 +993,16 @@ export const userConfigService = 'userConfigService';
 export const userInputSanitizeService = 'userInputSanitizeService';
 
 /**
+ * The name the userRecoveryService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [userRecoveryService] };
+ *
+ * @public
+ */
+export const userRecoveryService = 'userRecoveryService';
+
+/**
  * The name the userService service is registered and injected under.
  *
  * @example

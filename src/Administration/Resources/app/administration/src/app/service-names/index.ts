@@ -109,6 +109,7 @@ export {
     userActivityService,
     userConfigService,
     userInputSanitizeService,
+    userRecoveryService,
     userService,
     validationApiService,
 } from './src/service-names';

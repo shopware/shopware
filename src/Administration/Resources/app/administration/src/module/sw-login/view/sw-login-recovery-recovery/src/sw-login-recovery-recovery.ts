@@ -3,19 +3,24 @@
  */
 
 import template from './sw-login-recovery-recovery.html.twig';
-
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+import {
+    mapPropertyErrors,
+    notificationMixin,
+    ShopwareError,
+    useErrorStore,
+    userRecoveryService,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['userRecoveryService'],
+    inject: [userRecoveryService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     emits: ['is-loading', 'is-not-loading'],
 
@@ -118,9 +123,9 @@ export default Component.wrapComponentConfig({
                     /* eslint-enable @typescript-eslint/no-unsafe-member-access */
 
                     if (apiError) {
-                        Shopware.Store.get('error').addApiError({
+                        useErrorStore().addApiError({
                             expression: `user.${this.hash}.password`,
-                            error: new Shopware.Classes.ShopwareError(apiError),
+                            error: new ShopwareError(apiError),
                         });
                     }
 

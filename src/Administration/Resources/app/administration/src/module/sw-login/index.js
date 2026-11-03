@@ -1,17 +1,13 @@
+import './view/sw-login-login/register';
+import './view/sw-login-recovery/register';
+import './view/sw-login-recovery-info/register';
+import './view/sw-login-recovery-recovery/register';
 /**
  * @sw-package framework
  */
 
 const { Component, Module } = Shopware;
 
-/** @private */
-Component.register('sw-login-recovery', () => import('./view/sw-login-recovery'));
-/** @private */
-Component.register('sw-login-recovery-recovery', () => import('./view/sw-login-recovery-recovery'));
-/** @private */
-Component.register('sw-login-recovery-info', () => import('./view/sw-login-recovery-info'));
-/** @private */
-Component.register('sw-login-login', () => import('./view/sw-login-login'));
 /** @private */
 Component.register('sw-login', () => import('./page/index'));
 

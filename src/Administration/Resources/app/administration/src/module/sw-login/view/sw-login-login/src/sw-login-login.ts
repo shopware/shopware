@@ -2,11 +2,17 @@
  * @sw-package framework
  */
 
-import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
-import type { LoginConfig } from '../../../../core/service/login.service';
-
-const { Component } = Shopware;
+import {
+    getAppContext,
+    getErrorCode,
+    licenseViolationService,
+    type LoginConfig,
+    loginService,
+    userService,
+    useSessionStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 interface LoginData {
     username: string;
@@ -22,10 +28,10 @@ interface LoginData {
 /**
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['loginService', 'userService', 'licenseViolationService'],
+    inject: [loginService, userService, licenseViolationService],
 
     emits: [
         'is-loading',
@@ -72,7 +78,7 @@ export default Component.wrapComponentConfig({
             if (!localStorage.getItem('sw-admin-locale')) {
                 const localeFactory = Shopware.Application.getContainer('factory').locale;
 
-                await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
+                await useSessionStore().setAdminLocale(localeFactory.getLastKnownLocale());
             }
 
             try {
@@ -156,7 +162,7 @@ export default Component.wrapComponentConfig({
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route') as string);
             sessionStorage.removeItem('sw-admin-previous-route');
 
-            const firstRunWizard = Shopware.Context.app.firstRunWizard;
+            const firstRunWizard = getAppContext().firstRunWizard;
 
             if (
                 firstRunWizard &&

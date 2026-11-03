@@ -8208,7 +8208,7 @@
       "count": 4
     }
   },
-  "src/module/sw-login/view/sw-login-login/index.ts": {
+  "src/module/sw-login/view/sw-login-login/src/sw-login-login.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 7
     },
@@ -8216,12 +8216,12 @@
       "count": 5
     }
   },
-  "src/module/sw-login/view/sw-login-recovery-info/index.ts": {
+  "src/module/sw-login/view/sw-login-recovery-info/src/sw-login-recovery-info.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/module/sw-login/view/sw-login-recovery-recovery/index.ts": {
+  "src/module/sw-login/view/sw-login-recovery-recovery/src/sw-login-recovery-recovery.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
@@ -8229,12 +8229,12 @@
       "count": 3
     }
   },
-  "src/module/sw-login/view/sw-login-recovery-recovery/sw-login-recovery-recovery.spec.js": {
+  "src/module/sw-login/view/sw-login-recovery-recovery/tests/sw-login-recovery-recovery.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-login/view/sw-login-recovery/index.ts": {
+  "src/module/sw-login/view/sw-login-recovery/src/sw-login-recovery.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 5
     },
@@ -8242,7 +8242,7 @@
       "count": 5
     }
   },
-  "src/module/sw-login/view/sw-login-recovery/sw-login-recovery.spec.js": {
+  "src/module/sw-login/view/sw-login-recovery/tests/sw-login-recovery.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }

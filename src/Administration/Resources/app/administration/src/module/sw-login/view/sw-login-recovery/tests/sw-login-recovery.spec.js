@@ -4,7 +4,7 @@
 
 import { config, mount } from '@vue/test-utils';
 
-import 'src/module/sw-login/view/sw-login-recovery';
+import 'src/module/sw-login/view/sw-login-recovery/src/sw-login-recovery';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
 import 'src/app/component/form/sw-text-field/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved

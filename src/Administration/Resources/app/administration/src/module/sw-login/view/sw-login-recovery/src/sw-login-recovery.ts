@@ -3,22 +3,26 @@
  */
 
 import template from './sw-login-recovery.html.twig';
-
-const { Component } = Shopware;
-const { debounce } = Shopware.Utils;
+import {
+    debounce,
+    getLoginService,
+    getUserRecoveryService,
+    validationApiService,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     emits: ['is-loading', 'is-not-loading'],
 
-    inject: ['validationApiService'],
+    inject: [validationApiService],
 
     beforeRouteEnter(to, from, next) {
-        void Shopware.Service('loginService')
+        void getLoginService()
             .getLoginTemplateConfig()
             .then((config) => {
                 if (config.passwordRecoveryEnabled === false) {
@@ -98,7 +102,7 @@ export default Component.wrapComponentConfig({
         sendRecoveryMail() {
             this.$emit('is-loading');
 
-            Shopware.Service('userRecoveryService')
+            getUserRecoveryService()
                 .createRecovery(this.email)
                 .then(() => {
                     this.displayRecoveryInfo();

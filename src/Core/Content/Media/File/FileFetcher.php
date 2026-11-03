@@ -158,7 +158,7 @@ class FileFetcher
             'resolve' => [$resolved->host => $resolved->ip],
         ];
 
-        if ($this->enableUrlValidation && !$this->trustedUrlResolver->isAllowedPrivateIp($resolved->ip)) {
+        if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 

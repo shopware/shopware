@@ -222,20 +222,6 @@ class FileFetcherTest extends TestCase
         $fileFetcher->fetchFileFromURL($request, self::TEMP_FILE);
     }
 
-    public function testFetchFileFromURLReachesAllowedPrivateAddress(): void
-    {
-        $httpClient = new MockHttpClient(
-            new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION), ['primary_ip' => '10.0.0.5'])
-        );
-
-        $resolver = new TrustedUrlResolver(static fn (string $host): array => ['10.0.0.5'], allowedPrivateIps: ['10.0.0.5']);
-
-        $this->createFileFetcher(resolver: $resolver, httpClient: $httpClient)
-            ->fetchFileFromURL($this->createUrlRequest('https://media.example.com/image.png'), self::TEMP_FILE);
-
-        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
-    }
-
     #[DataProvider('fetchFileFromUrlExceptionsDataProvider')]
     public function testFetchFileFromURLWillThrowException(
         bool $enableUploadFeature,

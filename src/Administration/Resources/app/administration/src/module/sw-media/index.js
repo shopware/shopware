@@ -6,6 +6,7 @@ import './mixin/media-sidebar-modal.mixin';
 import './mixin/video-cover.mixin';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './component/sw-media-collapse/register';
 
 const { Module } = Shopware;
 
@@ -18,7 +19,6 @@ Shopware.Component.register(
     () => import('./component/sidebar/sw-media-quickinfo-metadata-item'),
 );
 Shopware.Component.register('sw-media-quickinfo-usage', () => import('./component/sidebar/sw-media-quickinfo-usage'));
-Shopware.Component.extend('sw-media-collapse', 'sw-collapse', () => import('./component/sw-media-collapse'));
 Shopware.Component.register('sw-media-folder-info', () => import('./component/sidebar/sw-media-folder-info'));
 Shopware.Component.register('sw-media-quickinfo', () => import('./component/sidebar/sw-media-quickinfo'));
 Shopware.Component.register('sw-media-quickinfo-multiple', () => import('./component/sidebar/sw-media-quickinfo-multiple'));

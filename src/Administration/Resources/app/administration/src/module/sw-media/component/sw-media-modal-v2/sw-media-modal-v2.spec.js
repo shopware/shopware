@@ -3,8 +3,9 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({ featureActive = false } = {}) {
+async function createWrapper({ featureActive = false, props = {} } = {}) {
     return mount(await wrapTestComponent('sw-media-modal-v2', { sync: true }), {
+        props,
         global: {
             renderStubDefaultSlot: true,
             stubs: {
@@ -43,6 +44,7 @@ async function createWrapper({ featureActive = false } = {}) {
                 'sw-simple-search-field': true,
                 'sw-media-library': true,
                 'sw-media-media-item': true,
+                'sw-iframe-renderer': true,
             },
             provide: {
                 feature: {
@@ -138,5 +140,41 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         });
 
         expect(wrapper.vm.mediaModalTabs[0].disabled).toBe(true);
+    });
+
+    it('should add the app tabs after the built-in meteor tabs', async () => {
+        wrapper = await createWrapper({
+            featureActive: true,
+            props: {
+                extensionTabs: [{ label: 'Primitives', locationId: 'primitives-tab' }],
+                extensionBaseUrl: 'https://app.example',
+            },
+        });
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).props('items')[2]).toEqual({
+            label: 'Primitives',
+            name: 'extension-primitives-tab',
+        });
+        expect(wrapper.find('sw-iframe-renderer-stub').exists()).toBe(false);
+    });
+
+    it('should render the location of an active app tab and clear the selection', async () => {
+        wrapper = await createWrapper({
+            featureActive: true,
+            props: {
+                extensionTabs: [{ label: 'Primitives', locationId: 'primitives-tab' }],
+                extensionBaseUrl: 'https://app.example',
+            },
+        });
+        await wrapper.setData({ selection: [{ id: 'selected-media' }] });
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'extension-primitives-tab');
+        await flushPromises();
+
+        const iframe = wrapper.find('sw-iframe-renderer-stub');
+        expect(iframe.attributes('src')).toBe('https://app.example');
+        expect(iframe.attributes('location-id')).toBe('primitives-tab');
+        expect(wrapper.vm.selection).toEqual([]);
+        expect(wrapper.find('.sw-media-modal-v2__library-content').attributes('style')).toBe('display: none;');
     });
 });

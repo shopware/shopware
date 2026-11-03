@@ -306,6 +306,24 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Apps can add tabs to the media modal they open
+
+`ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).
+They are shown after the built-in tabs of that opening of the media modal only, and each renders the given location of the app that opened the modal.
+The location passes its selection to the modal's `callback` and closes the modal with `ui.mediaModal.select({ selection })`.
+Only the app that opened the modal can select.
+The tabs are shown with the Meteor tabs of the media modal (major feature flag `v6.8.0.0`), in the new Twig block `sw_media_modal_v2_mt_tab_content_extension` of `sw-media-modal-v2`.
+
+```js
+ui.mediaModal.open({
+    tabs: [{ label: 'Primitives', locationId: 'my-app-primitives-tab' }],
+    callback: (selection) => {},
+});
+
+// In the location "my-app-primitives-tab"
+ui.mediaModal.select({ selection: [{ id: 'cube' }] });
+```
+
 ### CMS layout overview places the page type navigation in a grid
 
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.

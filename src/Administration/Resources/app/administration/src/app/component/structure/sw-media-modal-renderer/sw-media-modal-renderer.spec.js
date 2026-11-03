@@ -100,4 +100,24 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             },
         ]);
     });
+
+    it('should pass the app tabs of the opening app to the media modal', async () => {
+        store.openModal({
+            tabs: [{ label: 'Primitives', locationId: 'primitives-tab' }],
+            baseUrl: 'https://app.example',
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.extensionTabs).toEqual([{ label: 'Primitives', locationId: 'primitives-tab' }]);
+        expect(wrapper.find('sw-media-modal-v2-stub').attributes('extension-base-url')).toBe('https://app.example');
+    });
+
+    it('should not pass app tabs when the opening app is unknown', async () => {
+        store.openModal({
+            tabs: [{ label: 'Primitives', locationId: 'primitives-tab' }],
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.extensionTabs).toEqual([]);
+    });
 });

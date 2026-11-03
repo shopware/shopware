@@ -1,6 +1,6 @@
 # The Native `sw-block` System in Shopware 6 Administration
 
-> **Status**: Introduced in Shopware 6.8 — experimental, coexists with the TwigJS block system. The future target is to fully replace TwigJS blocks with this approach.
+> **Status**: Experimental until 6.9, coexists with the TwigJS block system. The future target is to fully replace TwigJS blocks with this approach.
 >
 > **Companion document**: See [`05-twig-block-system.md`](./05-twig-block-system.md) for the current TwigJS block system.
 
@@ -414,7 +414,7 @@ This is verified in the test suite — toggling `v-if` on an override component 
 | TypeScript support | None inside templates | Full (slot typing, props) |
 | Performance | Runtime TwigJS compilation | Standard Vue rendering |
 | Debugging | Difficult (string merging) | Standard Vue devtools |
-| Stability | Stable public API | Experimental (6.8+) |
+| Stability | Stable public API | Experimental until 6.9 |
 | Works with SFCs | No | Yes |
 
 ---

@@ -19,6 +19,16 @@ export const appActionButtonService = 'appActionButtonService';
 export const appModulesService = 'appModulesService';
 
 /**
+ * The name the bulkEditApiFactory service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [bulkEditApiFactory] };
+ *
+ * @public
+ */
+export const bulkEditApiFactory = 'bulkEditApiFactory';
+
+/**
  * The name the cacheApiService service is registered and injected under.
  *
  * @example
@@ -291,6 +301,16 @@ export const messageStatsService = 'messageStatsService';
  * @public
  */
 export const numberRangeService = 'numberRangeService';
+
+/**
+ * The name the orderDocumentApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [orderDocumentApiService] };
+ *
+ * @public
+ */
+export const orderDocumentApiService = 'orderDocumentApiService';
 
 /**
  * The name the productIndexService service is registered and injected under.

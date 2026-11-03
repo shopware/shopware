@@ -1,0 +1,406 @@
+/**
+ * @sw-package framework
+ */
+import template from './sw-bulk-edit-save-modal-process.html.twig';
+import './sw-bulk-edit-save-modal-process.scss';
+import { chunk, Criteria, getApiContext, notificationMixin, useBulkEditStore } from '../dependencies';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: {
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
+        orderDocumentApiService: {},
+        repositoryFactory: {},
+        syncService: {},
+        feature: {},
+        documentV2ApiService: {
+            default: null,
+        },
+    },
+
+    mixins: [notificationMixin],
+
+    emits: [
+        'changes-apply',
+        'title-set',
+        'buttons-update',
+        'redirect',
+    ],
+
+    data() {
+        return {
+            requestsPerPayload: 5,
+            document: {
+                invoice: {
+                    isReached: 0,
+                },
+                storno: {
+                    isReached: 0,
+                },
+                delivery_note: {
+                    isReached: 0,
+                },
+                credit_note: {
+                    isReached: 0,
+                },
+            },
+            maxDependentDocumentsToShow: 10,
+        };
+    },
+
+    computed: {
+        selectedIds() {
+            return useBulkEditStore().selectedIds;
+        },
+
+        documentTypes() {
+            return useBulkEditStore()?.orderDocuments?.download?.value;
+        },
+
+        deleteDocumentTypes() {
+            return useBulkEditStore()?.orderDocuments?.delete?.value?.filter((documentType) => documentType.selected) ?? [];
+        },
+
+        documentTypeConfigs() {
+            return useBulkEditStore().documentTypeConfigs;
+        },
+
+        selectedDocumentTypes() {
+            if (!this.documentTypeConfigs || this.documentTypeConfigs.length <= 0) {
+                return [];
+            }
+
+            const selectedDocumentTypes = [];
+
+            this.documentTypeConfigs.forEach((documentTypeConfig) => {
+                const selectedDocumentType = this.documentTypes.find((documentType) => {
+                    return documentTypeConfig.type === documentType.technicalName;
+                });
+
+                if (selectedDocumentType) {
+                    selectedDocumentTypes.push(selectedDocumentType);
+                }
+            });
+
+            return selectedDocumentTypes;
+        },
+
+        createDocumentPayload() {
+            const payload = [];
+
+            this.selectedIds.forEach((selectedId) => {
+                this.documentTypeConfigs?.forEach((documentTypeConfig) => {
+                    if (documentTypeConfig) {
+                        payload.push({
+                            ...documentTypeConfig,
+                            orderId: selectedId,
+                        });
+                    }
+                });
+            });
+
+            return payload;
+        },
+
+        documentRepository() {
+            return this.repositoryFactory.create('document');
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        async createdComponent() {
+            this.updateButtons();
+            this.setTitle();
+            useBulkEditStore().resetDocumentGenerationResult();
+            try {
+                await this.createDocuments();
+                await this.deleteDocuments();
+                this.$emit('changes-apply');
+            } catch {
+                this.$emit('redirect', 'error');
+            }
+        },
+
+        setTitle() {
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.process.title'));
+        },
+
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'cancel',
+                    label: this.$t('global.default.cancel'),
+                    position: 'left',
+                    action: '',
+                    disabled: false,
+                },
+                {
+                    key: 'next',
+                    label: this.$t('global.default.close'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: '',
+                    disabled: true,
+                },
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
+        },
+
+        async createDocuments() {
+            if (this.createDocumentPayload.length <= 0) {
+                return;
+            }
+
+            const invoiceDocuments = this.createDocumentPayload.filter((item) => item.type === 'invoice');
+            const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
+            const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
+            const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
+            const documentGroups = [
+                ['invoice', invoiceDocuments],
+                ['storno', stornoDocuments],
+                ['credit_note', creditNoteDocuments],
+                ['delivery_note', deliveryNoteDocuments],
+            ];
+
+            let totalRequested = 0;
+            let totalErrors = 0;
+            let totalSkipped = 0;
+            const failedItems = [];
+
+            for (const [documentType, documents] of documentGroups) {
+                if (documents.length <= 0) {
+                    continue;
+                }
+
+                const {
+                    requested,
+                    failed,
+                    skipped,
+                    failedItems: documentFailedItems,
+                } = await this.createDocument(documentType, documents);
+
+                totalRequested += requested;
+                totalErrors += failed;
+                totalSkipped += skipped ?? 0;
+                failedItems.push(...(documentFailedItems ?? []));
+            }
+
+            useBulkEditStore().setDocumentGenerationResult(totalRequested, totalErrors, totalSkipped, failedItems);
+        },
+
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
+        async createDocument(documentType, payload) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return this.createDocumentV2(documentType, payload);
+            }
+
+            const requestedTotal = payload.length;
+
+            if (payload.length <= this.requestsPerPayload) {
+                const response = await this.orderDocumentApiService.generate(documentType, payload);
+                this.document[documentType].isReached = 100;
+
+                return this.getDocumentGenerationResult(response, documentType, requestedTotal);
+            }
+
+            const chunkedPayload = chunk(payload, this.requestsPerPayload);
+            const percentages = Math.round(100 / chunkedPayload.length);
+
+            const results = await Promise.all(
+                chunkedPayload.map(async (item) => {
+                    const response = await this.orderDocumentApiService.generate(documentType, item);
+                    this.document[documentType].isReached = this.document[documentType].isReached + percentages;
+
+                    return this.getDocumentGenerationResult(response, documentType, item.length);
+                }),
+            );
+
+            this.document[documentType].isReached = 100;
+
+            return {
+                requested: requestedTotal,
+                failed: results.reduce((total, result) => total + result.failed, 0),
+                skipped: results.reduce((total, result) => total + result.skipped, 0),
+                failedItems: results.flatMap((result) => result.failedItems),
+            };
+        },
+
+        async createDocumentV2(documentType, payload) {
+            const requestedTotal = payload.length;
+            const failedItems = [];
+            let skipped = 0;
+            let completed = 0;
+
+            const forceDocumentCreation = payload[0]?.config?.forceDocumentCreation ?? true;
+            const orderIdsWithExistingDocument = forceDocumentCreation
+                ? new Set()
+                : await this.getOrderIdsWithExistingDocument(
+                      documentType,
+                      payload.map((item) => item.orderId),
+                  );
+
+            for (const item of payload) {
+                if (orderIdsWithExistingDocument.has(item.orderId)) {
+                    skipped += 1;
+                    completed += 1;
+                    this.document[documentType].isReached = Math.round((completed / requestedTotal) * 100);
+                    continue;
+                }
+
+                let response = null;
+                let latestError = null;
+
+                try {
+                    response = await this.documentV2ApiService.createDocument(
+                        item.orderId,
+                        documentType,
+                        item.config?.fileFormats,
+                        undefined,
+                        item.config?.documentDate,
+                        item.config?.documentComment,
+                        item.config?.custom?.deliveryDate,
+                    );
+                } catch (error) {
+                    latestError = error.response?.data?.errors?.pop();
+                }
+
+                if (!response) {
+                    failedItems.push({
+                        orderId: item.orderId,
+                        documentType,
+                        errorCode: latestError?.code,
+                        detail: latestError?.detail,
+                    });
+                }
+
+                completed += 1;
+                this.document[documentType].isReached = Math.round((completed / requestedTotal) * 100);
+            }
+
+            return {
+                requested: requestedTotal,
+                failed: failedItems.length,
+                skipped,
+                failedItems,
+            };
+        },
+
+        async getOrderIdsWithExistingDocument(documentType, orderIds) {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('orderId', orderIds));
+            criteria.addFilter(Criteria.equals('documentType.technicalName', documentType));
+
+            const documents = await this.documentRepository.search(criteria);
+
+            return new Set(documents.map((document) => document.orderId));
+        },
+
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
+        getDocumentGenerationResult(response, documentType, requested) {
+            const generatedDocuments = response?.data?.data;
+
+            if (!Array.isArray(generatedDocuments)) {
+                throw new Error('Invalid document generation response');
+            }
+
+            const failedItems = this.getFailedDocumentGenerationItems(response?.data?.errors ?? {}, documentType);
+            const failed = failedItems.length;
+
+            return {
+                requested,
+                failed,
+                skipped: Math.max(requested - generatedDocuments.length - failed, 0),
+                failedItems,
+            };
+        },
+
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
+        getFailedDocumentGenerationItems(errors, documentType) {
+            return Object.entries(errors).map(([orderId, orderErrors]) => {
+                const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
+
+                return {
+                    orderId,
+                    documentType,
+                    errorCode: error?.code,
+                    detail: error?.detail,
+                };
+            });
+        },
+
+        async deleteDocuments() {
+            if (this.deleteDocumentTypes.length === 0) {
+                return;
+            }
+
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'documentType.technicalName',
+                    this.deleteDocumentTypes.map((documentType) => documentType.technicalName),
+                ),
+            );
+
+            const documents = await this.documentRepository.searchIds(criteria);
+
+            if (documents.total === 0) {
+                return;
+            }
+
+            const syncPayload = {
+                'delete-order_document': {
+                    action: 'delete',
+                    entity: 'document',
+                    payload: documents.data.map((id) => ({ id })),
+                },
+            };
+
+            try {
+                await this.syncService.sync(
+                    syncPayload,
+                    {},
+                    {
+                        'single-operation': 1,
+                        'sw-language-id': getApiContext().languageId,
+                    },
+                );
+            } catch (error) {
+                const detailedErrorMessage = error.response?.data?.errors?.[0]?.detail;
+                this.createNotificationError({
+                    message: detailedErrorMessage ? this.truncateErrorMessage(detailedErrorMessage) : error.message,
+                });
+
+                throw error;
+            }
+        },
+
+        truncateErrorMessage(detailedErrorMessage) {
+            const dependentDocuments = detailedErrorMessage.split(', ');
+
+            if (dependentDocuments.length <= this.maxDependentDocumentsToShow) {
+                return detailedErrorMessage;
+            }
+
+            const remainingDependentDocuments = dependentDocuments.length - this.maxDependentDocumentsToShow;
+
+            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow).join(', ')}
+                ... (and ${remainingDependentDocuments} more)`;
+        },
+    },
+};

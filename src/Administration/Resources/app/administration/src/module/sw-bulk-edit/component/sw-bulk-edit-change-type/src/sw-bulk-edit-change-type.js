@@ -1,0 +1,102 @@
+/**
+ * @sw-package framework
+ */
+import template from './sw-bulk-edit-change-type.html.twig';
+import './sw-bulk-edit-change-type.scss';
+import { featureService } from '../dependencies';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: [featureService],
+
+    emits: ['update:value'],
+
+    props: {
+        value: {
+            type: String,
+            required: true,
+        },
+        allowOverwrite: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        allowClear: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        allowAdd: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        allowRemove: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    data() {
+        return {
+            isDisplayingValue: true,
+        };
+    },
+
+    computed: {
+        currentValue: {
+            get() {
+                return this.value;
+            },
+            set(newValue) {
+                this.isDisplayingValue = newValue !== 'clear';
+
+                this.$emit('update:value', newValue);
+            },
+        },
+
+        options() {
+            const options = [];
+            if (this.allowOverwrite) {
+                options.push({
+                    value: 'overwrite',
+                    label: this.$t('sw-bulk-edit.changeTypes.overwrite'),
+                });
+            }
+
+            if (this.allowClear) {
+                options.push({
+                    value: 'clear',
+                    label: this.$t('sw-bulk-edit.changeTypes.clear'),
+                });
+            }
+
+            if (this.allowAdd) {
+                options.push({
+                    value: 'add',
+                    label: this.$t('global.default.add'),
+                });
+            }
+
+            if (this.allowRemove) {
+                options.push({
+                    value: 'remove',
+                    label: this.$t('global.default.remove'),
+                });
+            }
+
+            return options;
+        },
+    },
+
+    methods: {
+        onChangeType(value) {
+            this.currentValue = value;
+        },
+    },
+};

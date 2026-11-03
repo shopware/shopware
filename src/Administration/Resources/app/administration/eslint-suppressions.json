@@ -4872,7 +4872,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js": {
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/src/sw-bulk-edit-product-media-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4880,7 +4880,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js": {
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/src/sw-bulk-edit-product-media.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4893,7 +4893,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/src/sw-bulk-edit-change-type-field-renderer.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4901,12 +4901,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/sw-bulk-edit-change-type-field-renderer.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/tests/sw-bulk-edit-change-type-field-renderer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/src/sw-bulk-edit-change-type.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4914,12 +4914,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/sw-bulk-edit-change-type.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/tests/sw-bulk-edit-change-type.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/src/sw-bulk-edit-custom-fields.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4927,22 +4927,22 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/tests/sw-bulk-edit-custom-fields.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-document-generation-failed-list/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-document-generation-failed-list/src/sw-bulk-edit-document-generation-failed-list.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-document-generation-failed-list/sw-bulk-edit-document-generation-failed-list.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-document-generation-failed-list/tests/sw-bulk-edit-document-generation-failed-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/src/sw-bulk-edit-form-field-renderer.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4950,17 +4950,17 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents/src/sw-bulk-edit-order-documents-delete-documents.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents/sw-bulk-edit-order-documents-delete-documents.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents/tests/sw-bulk-edit-order-documents-delete-documents.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/src/sw-bulk-edit-order-documents-download-documents.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -4968,7 +4968,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/sw-bulk-edit-order-documents-download-documents.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/tests/sw-bulk-edit-order-documents-download-documents.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
@@ -4999,7 +4999,7 @@
       "count": 6
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/src/sw-bulk-edit-order-documents-generate-delivery-note.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5007,12 +5007,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/sw-bulk-edit-order-documents-generate-delivery-note.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/tests/sw-bulk-edit-order-documents-generate-delivery-note.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/src/sw-bulk-edit-order-documents-generate-invoice.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5020,12 +5020,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/sw-bulk-edit-order-documents-generate-invoice.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/tests/sw-bulk-edit-order-documents-generate-invoice.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/src/sw-bulk-edit-order-documents.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5033,12 +5033,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/sw-bulk-edit-order-documents.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/tests/sw-bulk-edit-order-documents.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/src/sw-bulk-edit-save-modal-confirm.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5046,7 +5046,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/src/sw-bulk-edit-save-modal-error.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5054,7 +5054,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/src/sw-bulk-edit-save-modal-process.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5065,12 +5065,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/sw-bulk-edit-save-modal-process.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/tests/sw-bulk-edit-save-modal-process.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 57
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/src/sw-bulk-edit-save-modal-success.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5078,12 +5078,12 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/sw-bulk-edit-save-modal-success.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/tests/sw-bulk-edit-save-modal-success.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 56
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/src/sw-bulk-edit-save-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5091,7 +5091,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/sw-bulk-edit-save-modal.spec.js": {
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/tests/sw-bulk-edit-save-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }
@@ -5112,7 +5112,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/index.js": {
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/src/sw-bulk-edit-customer.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5120,7 +5120,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/sw-bulk-edit-customer.spec.js": {
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/tests/sw-bulk-edit-customer.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5128,7 +5128,7 @@
       "count": 18
     }
   },
-  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js": {
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/src/sw-bulk-edit-order.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5139,7 +5139,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/sw-bulk-edit-order.spec.js": {
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/tests/sw-bulk-edit-order.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5147,7 +5147,7 @@
       "count": 53
     }
   },
-  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js": {
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/src/sw-bulk-edit-product.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5164,7 +5164,7 @@
       "count": 2
     }
   },
-  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/sw-bulk-edit-product.spec.js": {
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/tests/sw-bulk-edit-product.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

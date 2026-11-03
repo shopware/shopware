@@ -1,0 +1,603 @@
+import template from './sw-bulk-edit-order.html.twig';
+import './sw-bulk-edit-order.scss';
+import {
+    bulkEditApiFactoryService,
+    chunk,
+    Criteria,
+    customFieldDataProviderService,
+    featureService,
+    getApiContext,
+    intersectionBy,
+    isEmpty,
+    notificationMixin,
+    orderDocumentApiService,
+    repositoryFactoryService,
+    uniqBy,
+    useBulkEditStore,
+} from '../dependencies';
+
+/**
+ * @sw-package checkout
+ *
+ * @public
+ */
+export default {
+    template,
+
+    inject: [
+        bulkEditApiFactoryService,
+        repositoryFactoryService,
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
+        orderDocumentApiService,
+        featureService,
+        customFieldDataProviderService,
+    ],
+
+    mixins: [notificationMixin],
+
+    data() {
+        return {
+            isLoading: false,
+            isLoadedData: false,
+            bulkEditData: {},
+            isStatusSelected: false,
+            isStatusMailsSelected: false,
+            orderStatus: [],
+            transactionStatus: [],
+            deliveryStatus: [],
+            customFieldSets: [],
+            itemsPerRequest: 100,
+            processStatus: '',
+            order: {},
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
+    computed: {
+        selectedIds() {
+            return useBulkEditStore().selectedIds;
+        },
+
+        stateMachineStateRepository() {
+            return this.repositoryFactory.create('state_machine_state');
+        },
+
+        orderRepository() {
+            return this.repositoryFactory.create('order');
+        },
+
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, null);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
+
+            return criteria;
+        },
+
+        hasChanges() {
+            const customFieldsValue = this.bulkEditData.customFields?.value;
+            const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const hasCustomFieldsChanged = !isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+
+            return hasFieldsChanged || hasCustomFieldsChanged;
+        },
+
+        hasInvalidDocumentGenerationConfig() {
+            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return false;
+            }
+
+            const orderDocuments = useBulkEditStore().orderDocuments;
+
+            return Object.values(orderDocuments).some((document) => {
+                if (!document?.isChanged || Array.isArray(document.value)) {
+                    return false;
+                }
+
+                return !(document.value?.fileFormats?.length > 0);
+            });
+        },
+
+        restrictedFields() {
+            let restrictedFields = [];
+
+            if (this.$route.params.excludeDelivery === '1') {
+                restrictedFields = restrictedFields.concat(['orderDeliveries']);
+            }
+
+            return restrictedFields;
+        },
+
+        statusFormFields() {
+            const fields = [
+                {
+                    name: 'orderTransactions',
+                    config: {
+                        componentName: 'sw-single-select',
+                        changeLabel: this.$t('sw-bulk-edit.order.status.payment.label'),
+                        entity: 'state_machine_state',
+                        placeholder: this.$t('sw-bulk-edit.order.status.payment.placeholder'),
+                        options: this.transactionStatus,
+                    },
+                },
+                {
+                    name: 'orderDeliveries',
+                    config: {
+                        componentName: 'sw-single-select',
+                        changeLabel: this.$t('sw-bulk-edit.order.status.shipping.label'),
+                        entity: 'state_machine_state',
+                        placeholder: this.$t('sw-bulk-edit.order.status.shipping.placeholder'),
+                        options: this.deliveryStatus,
+                    },
+                },
+                {
+                    name: 'orders',
+                    config: {
+                        componentName: 'sw-single-select',
+                        changeLabel: this.$t('sw-bulk-edit.order.status.order.label'),
+                        entity: 'state_machine_state',
+                        placeholder: this.$t('sw-bulk-edit.order.status.order.placeholder'),
+                        options: this.orderStatus,
+                    },
+                },
+                {
+                    name: 'transitionInternalComment',
+                    config: {
+                        componentName: 'sw-textarea-field',
+                        changeLabel: this.$t('sw-bulk-edit.order.status.transitionInternalComment.label'),
+                    },
+                },
+                {
+                    name: 'statusMails',
+                    labelHelpText: this.$t('sw-bulk-edit.order.status.statusMails.helpText'),
+                    config: {
+                        hidden: true,
+                        changeLabel: this.$t('sw-bulk-edit.order.status.statusMails.label'),
+                    },
+                },
+                {
+                    name: 'documents',
+                    labelHelpText: this.$t('sw-bulk-edit.order.status.documents.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents',
+                        changeLabel: this.$t('sw-bulk-edit.order.status.documents.label'),
+                        documents: this.bulkEditData?.documents,
+                    },
+                },
+            ];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
+        },
+
+        documentsFormFields() {
+            return [
+                {
+                    name: 'invoice',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateInvoice.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-invoice',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateInvoice.label'),
+                    },
+                },
+                {
+                    name: 'storno',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateCancellationInvoice.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-cancellation-invoice',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateCancellationInvoice.label'),
+                        changeSubLabel: this.$t('sw-bulk-edit.order.documents.generateCancellationInvoice.changeSubLabel'),
+                    },
+                },
+                {
+                    name: 'delivery_note',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateDeliveryNote.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-delivery-note',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateDeliveryNote.label'),
+                    },
+                },
+                {
+                    name: 'credit_note',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateCreditNote.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-credit-note',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateCreditNote.label'),
+                        changeSubLabel: this.$t('sw-bulk-edit.order.documents.generateCreditNote.changeSubLabel'),
+                    },
+                },
+                {
+                    name: 'download',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.downloadDocuments.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-download-documents',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.downloadDocuments.label'),
+                    },
+                },
+                {
+                    name: 'delete',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.deleteDocuments.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-delete-documents',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.deleteDocuments.label'),
+                    },
+                },
+            ];
+        },
+
+        tagsFormFields() {
+            return [
+                {
+                    name: 'tags',
+                    config: {
+                        componentName: 'sw-entity-tag-select',
+                        entityCollection: this.order.tags,
+                        allowOverwrite: true,
+                        allowClear: true,
+                        allowAdd: true,
+                        allowRemove: true,
+                        changeLabel: this.$t('sw-bulk-edit.order.tags.changeLabel'),
+                        placeholder: this.$t('sw-bulk-edit.order.tags.placeholder'),
+                    },
+                },
+            ];
+        },
+    },
+
+    watch: {
+        bulkEditData: {
+            handler(value) {
+                const { orders, orderTransactions, orderDeliveries, statusMails } = value;
+                this.isStatusSelected =
+                    (orders.isChanged && orders.value) ||
+                    (orderTransactions.isChanged && orderTransactions.value) ||
+                    (orderDeliveries?.isChanged && orderDeliveries.value);
+
+                this.isStatusMailsSelected = statusMails.isChanged;
+            },
+            deep: true,
+        },
+
+        isStatusSelected() {
+            if (!this.isStatusSelected) {
+                this.bulkEditData.statusMails.isChanged = false;
+                this.bulkEditData.transitionInternalComment.isChanged = false;
+                this.bulkEditData.transitionInternalComment.value = null;
+            }
+
+            this.bulkEditData.statusMails.disabled = !this.isStatusSelected;
+            this.bulkEditData.transitionInternalComment.disabled = !this.isStatusSelected;
+        },
+
+        isStatusMailsSelected() {
+            if (!this.isStatusMailsSelected) {
+                this.bulkEditData.documents.isChanged = false;
+            }
+
+            this.bulkEditData.documents.disabled = !this.isStatusMailsSelected;
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        async createdComponent() {
+            this.setRouteMetaModule();
+            useBulkEditStore().resetOrderDocumentsIsChanged();
+
+            this.isLoading = true;
+
+            this.order = this.orderRepository.create(getApiContext());
+
+            await Promise.all([
+                this.fetchStatusOptions('orders.id'),
+                this.fetchStatusOptions('orderTransactions.orderId'),
+                this.fetchStatusOptions('orderDeliveries.orderId'),
+                this.loadCustomFieldSets(),
+            ]);
+
+            this.isLoading = false;
+            this.isLoadedData = true;
+
+            this.loadBulkEditData();
+        },
+
+        setRouteMetaModule() {
+            if (!this.$route.meta.$module) {
+                this.$route.meta.$module = {};
+            }
+
+            this.$route.meta.$module.color = 'var(--sw-color-module-purple-default)';
+            this.$route.meta.$module.icon = 'regular-shopping-bag';
+        },
+
+        loadBulkEditData() {
+            const bulkEditFormGroups = [this.statusFormFields, this.documentsFormFields, this.tagsFormFields];
+
+            bulkEditFormGroups.forEach((bulkEditForms) => {
+                bulkEditForms.forEach((bulkEditForm) => {
+                    this.bulkEditData[bulkEditForm.name] = {
+                        isChanged: false,
+                        type: 'overwrite',
+                        value: null,
+                    };
+                });
+            });
+
+            this.bulkEditData.customFields = {
+                type: 'overwrite',
+                value: null,
+            };
+
+            this.bulkEditData.statusMails.disabled = true;
+            this.bulkEditData.transitionInternalComment.disabled = true;
+            this.bulkEditData.documents.disabled = true;
+
+            this.order.documents = {
+                documentType: {},
+                skipSentDocuments: true,
+            };
+        },
+
+        fetchStatusOptions(field) {
+            return this.fetchStateMachineStates(field)
+                .then((states) => {
+                    return this.fetchToStateMachineTransitions(states);
+                })
+                .then((toStates) => {
+                    switch (field) {
+                        case 'orderTransactions.orderId':
+                            this.transactionStatus = toStates;
+                            break;
+                        case 'orderDeliveries.orderId':
+                            this.deliveryStatus = toStates;
+                            break;
+                        default:
+                            this.orderStatus = toStates;
+                    }
+                })
+                .catch((error) =>
+                    this.createNotificationError({
+                        message: error,
+                    }),
+                );
+        },
+
+        fetchStateMachineStates(field) {
+            const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
+
+            let versionField = null;
+
+            switch (field) {
+                case 'orderTransactions.orderId':
+                    versionField = 'orderTransactions.orderVersionId';
+                    break;
+                case 'orderDeliveries.orderId':
+                    versionField = 'orderDeliveries.orderVersionId';
+                    break;
+                default:
+                    versionField = 'orders.versionId';
+            }
+
+            const requests = payloadChunks.map((ids) => {
+                const criteria = new Criteria(1, null);
+
+                criteria.addFilter(
+                    Criteria.multi('AND', [
+                        Criteria.equalsAny(field, ids),
+                        Criteria.equals(versionField, getApiContext().liveVersionId),
+                    ]),
+                );
+
+                return this.stateMachineStateRepository.searchIds(criteria);
+            });
+
+            return Promise.all(requests)
+                .then((responses) => {
+                    let states = [];
+
+                    responses.forEach((order) => {
+                        if (order?.data) {
+                            states = [...order.data];
+                        }
+                    });
+
+                    return states;
+                })
+                .catch((error) =>
+                    this.createNotificationError({
+                        message: error,
+                    }),
+                );
+        },
+
+        fetchToStateMachineTransitions(states) {
+            if (!states.length) {
+                return Promise.resolve([]);
+            }
+
+            return this.stateMachineStateRepository
+                .search(this.toStateMachineStatesCriteria(states), getApiContext())
+                .then((response) => {
+                    if (!response.length) {
+                        return [];
+                    }
+
+                    const fromStates = response
+                        .map((state) => {
+                            if (state?.fromStateMachineTransitions) {
+                                return state.fromStateMachineTransitions;
+                            }
+
+                            return null;
+                        })
+                        .filter((state) => state !== null);
+
+                    let entries = intersectionBy(...fromStates, 'actionName').filter((state) => state?.toStateMachineState);
+
+                    entries = uniqBy(entries, (entry) => {
+                        return entry.toStateMachineState.technicalName;
+                    });
+
+                    return entries.map((entry) => ({
+                        label: entry.toStateMachineState.translated.name,
+                        value: entry.actionName,
+                    }));
+                })
+                .catch((error) =>
+                    this.createNotificationError({
+                        message: error,
+                    }),
+                );
+        },
+
+        toStateMachineStatesCriteria(states) {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.equalsAny('id', states));
+            criteria.addAssociation('fromStateMachineTransitions.toStateMachineState');
+
+            return criteria;
+        },
+
+        onProcessData() {
+            const data = {
+                statusData: [],
+                syncData: [],
+            };
+
+            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
+
+            Object.entries(this.bulkEditData).forEach(([key, item]) => {
+                if (item.isChanged || (key === 'customFields' && item.value)) {
+                    const payload = {
+                        field: key,
+                        type: item.type,
+                        value: item.value,
+                    };
+
+                    if (dataPush.includes(key)) {
+                        const documentTypes = this.order?.documents?.documentType;
+
+                        if (this.bulkEditData?.documents?.isChanged) {
+                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                (documentTypeName) => documentTypes[documentTypeName] === true,
+                            );
+
+                            if (selectedDocumentTypes.length > 0) {
+                                payload.documentTypes = selectedDocumentTypes;
+                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
+                            }
+                        }
+
+                        payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
+                            ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
+                            : null;
+                        payload.value = this.order?.[key];
+                        data.statusData.push(payload);
+                    } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
+                        data.syncData.push(payload);
+                    }
+                }
+            });
+
+            return data;
+        },
+
+        openModal() {
+            this.$router.push({ name: 'sw.bulk.edit.order.save' });
+        },
+
+        closeModal() {
+            this.$router.push({ name: 'sw.bulk.edit.order' });
+        },
+
+        onSave() {
+            this.isLoading = true;
+
+            const { statusData, syncData } = this.onProcessData();
+            const bulkEditOrderHandler = this.bulkEditApiFactory.getHandler('order');
+
+            const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
+            const requests = [];
+
+            payloadChunks.forEach((payload) => {
+                if (statusData.length) {
+                    requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
+                }
+
+                if (syncData.length) {
+                    requests.push(bulkEditOrderHandler.bulkEdit(payload, syncData));
+                }
+            });
+
+            return Promise.all(requests)
+                .then(() => {
+                    this.processStatus = 'success';
+                })
+                .catch(() => {
+                    this.processStatus = 'fail';
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.getLatestOrderStatus().finally(() => {
+                        this.isLoading = false;
+                    });
+                });
+        },
+
+        getLatestOrderStatus() {
+            const promises = [];
+
+            if (this.bulkEditData.orderTransactions.isChanged) {
+                promises.push(this.fetchStatusOptions('orderTransactions.orderId'));
+            }
+            if (this.bulkEditData.orderDeliveries?.isChanged) {
+                promises.push(this.fetchStatusOptions('orderDeliveries.orderId'));
+            }
+            if (this.bulkEditData.orders.isChanged) {
+                promises.push(this.fetchStatusOptions('orders.id'));
+            }
+
+            if (promises.length === 0) {
+                return Promise.resolve();
+            }
+
+            this.isLoading = true;
+
+            return Promise.all(promises);
+        },
+
+        loadCustomFieldSets() {
+            return this.customFieldDataProviderService.getCustomFieldSets('order', false, null).then((res) => {
+                this.customFieldSets = res;
+            });
+        },
+
+        onCustomFieldsChange(value) {
+            this.bulkEditData.customFields.value = value;
+        },
+
+        onChangeDocument(type, isChanged) {
+            useBulkEditStore().setOrderDocumentsIsChanged({
+                type,
+                isChanged,
+            });
+        },
+    },
+};

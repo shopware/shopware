@@ -1,0 +1,64 @@
+/**
+ * @sw-package framework
+ */
+import template from './sw-bulk-edit-custom-fields.html.twig';
+import './sw-bulk-edit-custom-fields.scss';
+
+/**
+ * @private
+ */
+export default {
+    template,
+
+    emits: ['change'],
+
+    props: {
+        entity: {
+            type: Object,
+            required: false,
+            default: () => ({ customFields: {} }),
+        },
+    },
+
+    data() {
+        return {
+            selectedCustomFields: {},
+        };
+    },
+
+    watch: {
+        selectedCustomFields: {
+            handler(value) {
+                this.$emit('change', value);
+            },
+            deep: true,
+        },
+    },
+
+    methods: {
+        initializeCustomFields() {
+            if (!this.entity.customFields) {
+                this.entity.customFields = {};
+            }
+
+            this.$super('initializeCustomFields');
+        },
+
+        toggleItemCheck($event, item) {
+            if ($event) {
+                this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+            } else delete this.selectedCustomFields[item.name];
+        },
+
+        updateCustomField(item) {
+            if (
+                !this.entity.customFields.hasOwnProperty(item.name) ||
+                !this.selectedCustomFields.hasOwnProperty(item.name)
+            ) {
+                return;
+            }
+
+            this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+        },
+    },
+};

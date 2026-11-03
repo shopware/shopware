@@ -1,5 +1,6 @@
 import './acl';
 import './page/sw-order-detail/register';
+import './page/sw-order-list/register';
 
 import './mixin/cart-notification.mixin';
 
@@ -13,8 +14,6 @@ import DocumentV2Service from './service/documentV2.service';
 const { Application, Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-order-list', () => import('./page/sw-order-list'));
-Shopware.Component.register('sw-order-detail', () => import('./page/sw-order-detail'));
 Shopware.Component.register('sw-order-create', () => import('./page/sw-order-create'));
 Shopware.Component.register('sw-order-detail-general', () => import('./view/sw-order-detail-general'));
 Shopware.Component.register('sw-order-detail-details', () => import('./view/sw-order-detail-details'));

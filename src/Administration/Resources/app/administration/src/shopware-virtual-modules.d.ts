@@ -982,6 +982,18 @@ declare module 'shopware:stores/mediaModal' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-detail' {
+    export { default } from 'src/module/sw-order/page/sw-order-detail';
+    export type * from 'src/module/sw-order/page/sw-order-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-list' {
+    export { default } from 'src/module/sw-order/page/sw-order-list';
+    export type * from 'src/module/sw-order/page/sw-order-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:framework/public-component' {
     export { definePublicComponent } from 'src/core/public-component';
     export type * from 'src/core/public-component';
@@ -989,6 +1001,27 @@ declare module 'shopware:framework/public-component' {
 
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:framework/service-names' {
-    export { repositoryFactory } from 'src/app/service-names';
+    export {
+        acl,
+        feature,
+        filterFactory,
+        filterService,
+        orderService,
+        orderStateMachineService,
+        repositoryFactory,
+        stateStyleDataProviderService,
+    } from 'src/app/service-names';
     export type * from 'src/app/service-names';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:handlers/bulk-edit-order' {
+    export { default } from 'src/module/sw-bulk-edit/service/handler/bulk-edit-order';
+    export type * from 'src/module/sw-bulk-edit/service/handler/bulk-edit-order';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:helpers/primary-delivery' {
+    export { getPrimaryDelivery } from 'src/core/order/primary-delivery';
+    export type * from 'src/core/order/primary-delivery';
 }

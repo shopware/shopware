@@ -69,9 +69,11 @@ src/Administration/Resources/app/administration/src/core/order/primary-delivery/
 src/Administration/Resources/app/administration/src/core/order/primary-delivery/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/core/order/primary-delivery/tests/regressions.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/tests/regressions.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/tests/regressions.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-bulk-edit/service/handler/bulk-edit-order/index.ts @shopware/product-cc-checkout

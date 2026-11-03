@@ -1,8 +1,92 @@
+import { definePublicComponent } from 'src/core/public-component';
+
 /**
  * @sw-package checkout
  *
- * The `sw-order-detail` page.
+ * The order detail page: shows an order in tabs, and lets the user edit, recalculate and save it.
  * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
 /** @public */
-export { default } from './src/sw-order-detail';
+export default definePublicComponent({
+    name: 'sw-order-detail',
+    load: () => import('./src/sw-order-detail'),
+    public: {
+        props: [
+            'orderId',
+        ],
+        blocks: [
+            'sw_order_detail',
+            'sw_order_detail_header',
+            'sw_order_detail_header_title',
+            'sw_order_detail_header_label_manual_order',
+            'sw_order_detail_header_title_new',
+            'sw_order_detail_language_switch',
+            'sw_order_detail_actions',
+            'sw_order_detail_actions_slot_smart_bar_actions',
+            'sw_order_detail_actions_abort',
+            'sw_order_detail_actions_save',
+            'sw_order_detail_content',
+            'sw_order_detail_content_leave_page_modal',
+            'sw_order_detail_content_save_changes_beforehand_modal',
+            'sw_order_detail_content_tabs',
+            'sw_order_detail_content_mt_tabs',
+            'sw_order_detail_content_tabs_general',
+            'sw_order_detail_content_tabs_details',
+            'sw_order_detail_content_tabs_documents',
+            'sw_order_detail_content_tabs_extension',
+            'sw_order_detail_content_view',
+        ],
+        computed: [
+            'order',
+            'versionContext',
+            'orderAddressIds',
+            'editing',
+            'loading',
+            'isLoading',
+            'isSaveSuccessful',
+            'orderIdentifier',
+            'orderChanges',
+            'showTabs',
+            'showWarningTabStyle',
+            'orderDetailTabs',
+            'isOrderEditing',
+            'orderRepository',
+            'automaticPromotions',
+            'deliveryDiscounts',
+            'orderCriteria',
+            'convertedProductLineItems',
+        ],
+        methods: [
+            'createdComponent',
+            'onPageHide',
+            'beforeDestroyComponent',
+            'updateCreatedById',
+            'onChangeLanguage',
+            'saveEditsFinish',
+            'onStartEditing',
+            'onSaveEdits',
+            'handleOrderAddressUpdate',
+            'onCancelEditing',
+            'onSaveAndRecalculate',
+            'onRecalculateAndReload',
+            'onSaveAndReload',
+            'saveAndReload',
+            'onUpdateLoading',
+            'onUpdateEditing',
+            'onError',
+            'onLeaveModalClose',
+            'onLeaveModalConfirm',
+            'reloadEntityData',
+            'createNewVersionId',
+            'updateOrderAddresses',
+            'updateEditing',
+            'convertMissingProductLineItems',
+            'handleCartErrors',
+            'askAndSaveEdits',
+            'onAskAndSaveEditsConfirm',
+            'onAskAndSaveEditsCancel',
+        ],
+    },
+});

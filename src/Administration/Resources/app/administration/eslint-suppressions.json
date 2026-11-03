@@ -5199,10 +5199,7 @@
       "count": 1
     }
   },
-  "src/module/sw-bulk-edit/service/handler/bulk-edit-order.handler.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-order/src/bulk-edit-order.handler.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -9246,10 +9243,7 @@
       "count": 12
     }
   },
-  "src/module/sw-order/page/sw-order-detail/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
+  "src/module/sw-order/page/sw-order-detail/src/sw-order-detail.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -9257,7 +9251,7 @@
       "count": 1
     }
   },
-  "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": {
+  "src/module/sw-order/page/sw-order-detail/tests/sw-order-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9265,18 +9259,18 @@
       "count": 103
     }
   },
-  "src/module/sw-order/page/sw-order-list/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
+  "src/module/sw-order/page/sw-order-list/src/sw-order-list.js": {
+    "filename-rules/not-match": {
       "count": 1
     },
-    "filename-rules/not-match": {
+    "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
     }
   },
-  "src/module/sw-order/page/sw-order-list/sw-order-list.spec.js": {
+  "src/module/sw-order/page/sw-order-list/tests/sw-order-list.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

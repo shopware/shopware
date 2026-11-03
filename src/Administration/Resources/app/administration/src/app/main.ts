@@ -5,6 +5,7 @@
 /** Mini-modules that no Administration module registers */
 import 'src/core/public-component/register';
 import 'src/app/service-names/register';
+import 'src/core/order/primary-delivery/register';
 
 /** Initializer */
 import initializers from 'src/app/init/';

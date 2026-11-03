@@ -256,8 +256,18 @@
     },
     "shopware:components": {
         "exports": [],
-        "subpaths": {},
-        "sources": {}
+        "subpaths": {
+            "sw-order-detail": [
+                "default"
+            ],
+            "sw-order-list": [
+                "default"
+            ]
+        },
+        "sources": {
+            "sw-order-detail": "src/module/sw-order/page/sw-order-detail",
+            "sw-order-list": "src/module/sw-order/page/sw-order-list"
+        }
     },
     "shopware:framework": {
         "exports": [],
@@ -266,7 +276,14 @@
                 "definePublicComponent"
             ],
             "service-names": [
-                "repositoryFactory"
+                "acl",
+                "feature",
+                "filterFactory",
+                "filterService",
+                "orderService",
+                "orderStateMachineService",
+                "repositoryFactory",
+                "stateStyleDataProviderService"
             ]
         },
         "sources": {
@@ -276,12 +293,24 @@
     },
     "shopware:handlers": {
         "exports": [],
-        "subpaths": {},
-        "sources": {}
+        "subpaths": {
+            "bulk-edit-order": [
+                "default"
+            ]
+        },
+        "sources": {
+            "bulk-edit-order": "src/module/sw-bulk-edit/service/handler/bulk-edit-order"
+        }
     },
     "shopware:helpers": {
         "exports": [],
-        "subpaths": {},
-        "sources": {}
+        "subpaths": {
+            "primary-delivery": [
+                "getPrimaryDelivery"
+            ]
+        },
+        "sources": {
+            "primary-delivery": "src/core/order/primary-delivery"
+        }
     }
 }

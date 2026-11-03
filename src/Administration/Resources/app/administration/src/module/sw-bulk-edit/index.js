@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import './init/services.init';
+import './service/handler/bulk-edit-order/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-bulk-edit-product', () => import('./page/sw-bulk-edit-product'));

@@ -2,12 +2,15 @@
  * @sw-package framework
  */
 import template from './sw-custom-field-type-base.html.twig';
+import { aclService } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     props: {
         currentCustomField: {

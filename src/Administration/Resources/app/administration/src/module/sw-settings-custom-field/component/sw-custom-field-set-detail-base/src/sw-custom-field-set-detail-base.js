@@ -2,12 +2,15 @@
  * @sw-package framework
  */
 import template from './sw-custom-field-set-detail-base.html.twig';
+import { aclService, customFieldDataProviderService, getRepositoryFactory } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['customFieldDataProviderService', 'acl'],
+    inject: [customFieldDataProviderService, aclService],
 
     emits: ['reset-errors'],
 
@@ -50,7 +53,7 @@ export default {
                 return undefined;
             }
 
-            return Shopware.Service('repositoryFactory').create(this.set.relations.entity, this.set.relations.source);
+            return getRepositoryFactory().create(this.set.relations.entity, this.set.relations.source);
         },
 
         selectedRelationEntityNames() {

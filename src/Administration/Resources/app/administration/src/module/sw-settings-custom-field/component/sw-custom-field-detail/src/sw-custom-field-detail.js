@@ -3,25 +3,32 @@
  */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Mixin, Context, Component } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'customFieldDataProviderService',
+        repositoryFactoryService,
+        customFieldDataProviderService,
         'SwCustomFieldListIsCustomFieldNameUnique',
-        'acl',
+        aclService,
     ],
 
     emits: ['custom-field-edit-cancel', 'custom-field-edit-save'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         currentCustomField: {
@@ -164,7 +171,7 @@ export default {
                 ]),
             );
 
-            this.ruleConditionRepository.search(criteria, Context.api).then((searchResult) => {
+            this.ruleConditionRepository.search(criteria, getApiContext()).then((searchResult) => {
                 this.disableCartExpose = searchResult.length > 0;
             });
         },

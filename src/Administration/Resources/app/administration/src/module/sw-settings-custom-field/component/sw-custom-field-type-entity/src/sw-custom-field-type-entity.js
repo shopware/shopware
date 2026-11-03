@@ -2,17 +2,18 @@
  * @sw-package framework
  */
 import template from './sw-custom-field-type-entity.html.twig';
+import { Criteria, getApiContext, repositoryFactoryService } from '../dependencies';
 
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     mounted() {
-        this.customEntityRepository.search(new Criteria(), Shopware.Context.api).then((result) => {
+        this.customEntityRepository.search(new Criteria(), getApiContext()).then((result) => {
             this.customEntities = result;
         });
     },

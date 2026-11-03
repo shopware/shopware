@@ -3,17 +3,27 @@
  */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
+import {
+    aclService,
+    Criteria,
+    getApiContext,
+    getCacheService,
+    notificationMixin,
+    repositoryFactoryService,
+    ShopwareError,
+    swInlineSnippetMixin,
+    useErrorStore,
+} from '../dependencies';
 
-const { Criteria } = Shopware.Data;
-const { Mixin } = Shopware;
-const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     provide() {
         return {
@@ -23,7 +33,7 @@ export default {
 
     emits: ['loading-changed'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('notification')],
+    mixins: [swInlineSnippetMixin, notificationMixin],
 
     props: {
         set: {
@@ -141,7 +151,7 @@ export default {
                 .catch((error) => {
                     const [{ detail: message = 'Error', code = 'UNKNOWN_ERROR' } = {}] = error?.response?.data?.errors ?? [];
 
-                    Shopware.Store.get('error').addApiError({
+                    useErrorStore().addApiError({
                         expression: `custom_field.${field.id}.name.error`,
                         error: new ShopwareError({ code, detail: message }),
                     });
@@ -204,8 +214,8 @@ export default {
                 toBeDeletedCustomFields.push(this.deleteCustomField.id);
             }
 
-            return this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, Shopware.Context.api).then(() => {
-                Shopware.Service('cacheService').invalidateCaches({
+            return this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, getApiContext()).then(() => {
+                getCacheService().invalidateCaches({
                     cacheKey: ['custom-field-sets'],
                 });
 

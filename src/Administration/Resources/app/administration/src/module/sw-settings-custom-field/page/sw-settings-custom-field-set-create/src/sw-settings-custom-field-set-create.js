@@ -2,11 +2,13 @@
  * @sw-package framework
  */
 import template from './sw-settings-custom-field-set-create.html.twig';
+import { Criteria, getApiContext, Utils } from '../dependencies';
 
-const { Criteria } = Shopware.Data;
-const utils = Shopware.Utils;
+const utils = Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -21,7 +23,7 @@ export default {
     methods: {
         async createdComponent() {
             this.isLoading = true;
-            this.set = await this.customFieldSetRepository.create(Shopware.Context.api, this.$route.params.id);
+            this.set = await this.customFieldSetRepository.create(getApiContext(), this.$route.params.id);
             this.set.name = 'custom_';
 
             this.set.config = {};

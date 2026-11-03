@@ -2,20 +2,29 @@
  * @sw-package framework
  */
 import template from './sw-settings-custom-field-set-detail.html.twig';
+import {
+    aclService,
+    Criteria,
+    discardDetailPageChangesMixin,
+    getApiContext,
+    getCacheService,
+    notificationMixin,
+    repositoryFactoryService,
+    swInlineSnippetMixin,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('discard-detail-page-changes')('set'),
+        notificationMixin,
+        swInlineSnippetMixin,
+        discardDetailPageChangesMixin('set'),
     ],
 
     shortcuts: {
@@ -112,11 +121,7 @@ export default {
         },
 
         async loadEntityData() {
-            this.set = await this.customFieldSetRepository.get(
-                this.setId,
-                Shopware.Context.api,
-                this.customFieldSetCriteria,
-            );
+            this.set = await this.customFieldSetRepository.get(this.setId, getApiContext(), this.customFieldSetCriteria);
         },
 
         saveFinish() {
@@ -152,7 +157,7 @@ export default {
             this.customFieldSetRepository
                 .save(this.set)
                 .then(() => {
-                    Shopware.Service('cacheService').invalidateCaches({
+                    getCacheService().invalidateCaches({
                         cacheKey: ['custom-field-sets'],
                     });
 

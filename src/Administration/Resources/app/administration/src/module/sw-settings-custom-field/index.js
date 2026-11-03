@@ -2,52 +2,26 @@
  * @sw-package framework
  */
 import './acl';
+import './component/sw-custom-field-detail/register';
+import './component/sw-custom-field-list/register';
+import './component/sw-custom-field-set-detail-base/register';
+import './component/sw-custom-field-translated-labels/register';
+import './component/sw-custom-field-type-base/register';
+import './component/sw-custom-field-type-date/register';
+import './component/sw-custom-field-type-select/register';
+import './component/sw-custom-field-type-entity/register';
+import './component/sw-custom-field-type-number/register';
+import './page/sw-settings-custom-field-set-detail/register';
+import './page/sw-settings-custom-field-set-create/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.extend(
-    'sw-settings-custom-field-set-create',
-    'sw-settings-custom-field-set-detail',
-    () => import('./page/sw-settings-custom-field-set-create'),
-);
 Shopware.Component.register('sw-settings-custom-field-set-list', () => import('./page/sw-settings-custom-field-set-list'));
-Shopware.Component.register(
-    'sw-settings-custom-field-set-detail',
-    () => import('./page/sw-settings-custom-field-set-detail'),
-);
-Shopware.Component.register(
-    'sw-custom-field-translated-labels',
-    () => import('./component/sw-custom-field-translated-labels'),
-);
-Shopware.Component.register('sw-custom-field-set-detail-base', () => import('./component/sw-custom-field-set-detail-base'));
-Shopware.Component.register('sw-custom-field-list', () => import('./component/sw-custom-field-list'));
-Shopware.Component.register('sw-custom-field-detail', () => import('./component/sw-custom-field-detail'));
-Shopware.Component.register('sw-custom-field-type-base', () => import('./component/sw-custom-field-type-base'));
-Shopware.Component.extend(
-    'sw-custom-field-type-select',
-    'sw-custom-field-type-base',
-    () => import('./component/sw-custom-field-type-select'),
-);
-Shopware.Component.extend(
-    'sw-custom-field-type-entity',
-    'sw-custom-field-type-select',
-    () => import('./component/sw-custom-field-type-entity'),
-);
 Shopware.Component.extend(
     'sw-custom-field-type-text',
     'sw-custom-field-type-base',
     () => import('./component/sw-custom-field-type-text'),
-);
-Shopware.Component.extend(
-    'sw-custom-field-type-number',
-    'sw-custom-field-type-base',
-    () => import('./component/sw-custom-field-type-number'),
-);
-Shopware.Component.extend(
-    'sw-custom-field-type-date',
-    'sw-custom-field-type-base',
-    () => import('./component/sw-custom-field-type-date'),
 );
 Shopware.Component.extend(
     'sw-custom-field-type-checkbox',

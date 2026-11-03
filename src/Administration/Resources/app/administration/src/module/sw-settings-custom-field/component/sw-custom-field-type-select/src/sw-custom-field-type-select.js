@@ -4,7 +4,9 @@
 import template from './sw-custom-field-type-select.html.twig';
 import './sw-custom-field-type-select.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

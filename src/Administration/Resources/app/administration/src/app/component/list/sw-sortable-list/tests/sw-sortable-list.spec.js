@@ -4,7 +4,7 @@
 
 import { shallowMount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
-import 'src/app/component/list/sw-sortable-list';
+import 'src/app/component/list/sw-sortable-list/src/sw-sortable-list';
 
 const listItems = [{ id: 0 }, { id: 1 }, { id: 2 }];
 

@@ -1,5 +1,6 @@
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
+import { wrapComponentConfig } from '../dependencies';
 
 interface DragConfig {
     delay: number;
@@ -56,8 +57,7 @@ const defaultScrollOnDragConf = {
  *          </template>
  * </sw-sortable-list>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     emits: ['items-sorted'],

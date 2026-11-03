@@ -135,6 +135,7 @@ import 'src/app/component/grid/sw-grid/register';
 import 'src/app/component/grid/sw-grid-column/register';
 import 'src/app/component/grid/sw-grid-row/register';
 import 'src/app/component/grid/sw-pagination/register';
+import 'src/app/component/list/sw-sortable-list/register';
 /**
  * @sw-package framework
  * @private
@@ -323,7 +324,6 @@ export default () => {
     Shopware.Component.register('sw-meteor-page', () => import('src/app/component/meteor/sw-meteor-page/index'));
     Shopware.Component.register('sw-meteor-navigation', () => import('src/app/component/meteor/sw-meteor-navigation/index'));
     Shopware.Component.register('sw-meteor-card', () => import('src/app/component/meteor/sw-meteor-card/index'));
-    Shopware.Component.register('sw-sortable-list', () => import('src/app/component/list/sw-sortable-list/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
     Shopware.Component.register(
         'sw-boolean-radio-group',

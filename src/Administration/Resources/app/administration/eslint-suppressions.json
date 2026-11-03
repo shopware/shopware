@@ -1281,12 +1281,12 @@
       "count": 1
     }
   },
-  "src/app/component/list/sw-sortable-list/index.ts": {
+  "src/app/component/list/sw-sortable-list/src/sw-sortable-list.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 6
     }
   },
-  "src/app/component/list/sw-sortable-list/sw-sortable-list.spec.js": {
+  "src/app/component/list/sw-sortable-list/tests/sw-sortable-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 35
     }

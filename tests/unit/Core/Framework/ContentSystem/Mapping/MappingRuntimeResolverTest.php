@@ -44,7 +44,7 @@ class MappingRuntimeResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
-        $this->registry = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $this->registry = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $types = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $types->method('has')->willReturn(true);
         $types->method('get')->willReturn(ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
@@ -70,7 +70,7 @@ class MappingRuntimeResolverTest extends TestCase
     public function testUnavailableMappingsStillRecordMetadataDependencies(bool $inline): void
     {
         $this->registry->method('forRootSource')->willReturn([]);
-        $this->registry->expects($this->never())->method('resolveSource');
+        $this->registry->expects($this->never())->method('resolveAdmittedSource');
         $this->registry->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.name')->willReturn(['provider-metadata']);
 
         static::assertSame(MappingRejection::Unavailable, $this->resolve($inline));
@@ -82,7 +82,7 @@ class MappingRuntimeResolverTest extends TestCase
     {
         $expected = MappingSourceResolution::resolved('Shirt');
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->once())->method('resolveSource')->willReturnCallback(
+        $this->registry->expects($this->once())->method('resolveAdmittedSource')->willReturnCallback(
             function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use ($expected): MappingSourceResolution {
                 static::assertSame('product', $rootSource);
                 static::assertSame($this->candidate->source, $source);
@@ -103,7 +103,7 @@ class MappingRuntimeResolverTest extends TestCase
     {
         $expected = MappingSourceResolution::noValue();
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->once())->method('resolveSource')->willReturn($expected);
+        $this->registry->expects($this->once())->method('resolveAdmittedSource')->willReturn($expected);
 
         static::assertSame($expected, $this->resolve($inline));
     }
@@ -112,7 +112,7 @@ class MappingRuntimeResolverTest extends TestCase
     public function testUnavailableCandidateIsRejectedBeforeProviderDispatch(bool $inline): void
     {
         $this->registry->method('forRootSource')->willReturn([]);
-        $this->registry->expects($this->never())->method('resolveSource');
+        $this->registry->expects($this->never())->method('resolveAdmittedSource');
 
         static::assertSame(MappingRejection::Unavailable, $this->resolve($inline));
     }
@@ -121,7 +121,7 @@ class MappingRuntimeResolverTest extends TestCase
     public function testIncompatibleValueIsRejected(bool $inline): void
     {
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->once())->method('resolveSource')->willReturn(MappingSourceResolution::resolved(42));
+        $this->registry->expects($this->once())->method('resolveAdmittedSource')->willReturn(MappingSourceResolution::resolved(42));
 
         static::assertSame(MappingRejection::Incompatible, $this->resolve($inline));
     }
@@ -131,7 +131,7 @@ class MappingRuntimeResolverTest extends TestCase
     {
         $expected = MappingSourceResolution::resolved(null);
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->once())->method('resolveSource')->willReturn($expected);
+        $this->registry->expects($this->once())->method('resolveAdmittedSource')->willReturn($expected);
 
         static::assertSame($expected, $this->resolve($inline));
     }
@@ -140,7 +140,7 @@ class MappingRuntimeResolverTest extends TestCase
     public function testProviderErrorsPropagate(bool $inline): void
     {
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->once())->method('resolveSource')->willThrowException(new \TypeError('Provider failed'));
+        $this->registry->expects($this->once())->method('resolveAdmittedSource')->willThrowException(new \TypeError('Provider failed'));
 
         $this->expectException(\TypeError::class);
 
@@ -150,7 +150,7 @@ class MappingRuntimeResolverTest extends TestCase
     public function testStoredCardinalityIsAdmittedBeforeProviderDispatch(): void
     {
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->never())->method('resolveSource');
+        $this->registry->expects($this->never())->method('resolveAdmittedSource');
 
         static::assertSame(MappingRejection::Unavailable, $this->resolver->resolveProperty(
             'product',

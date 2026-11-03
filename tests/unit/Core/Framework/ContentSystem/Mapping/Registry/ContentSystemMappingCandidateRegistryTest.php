@@ -616,7 +616,7 @@ class ForwardingMappingCandidateRegistry extends AbstractContentSystemMappingCan
         return $this->decorated->forRootSource($rootSource);
     }
 
-    public function resolveSource(
+    protected function resolveAdmittedSource(
         string $rootSource,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,

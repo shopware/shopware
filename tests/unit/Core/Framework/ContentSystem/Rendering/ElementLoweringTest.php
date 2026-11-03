@@ -84,12 +84,12 @@ class ElementLoweringTest extends TestCase
     public function testUncacheableRenderingSharesTheCallersContextAcrossMappings(): void
     {
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn(['product.name' => $candidate]);
         $cacheContext = new RenderingCacheContext();
         $cacheContext->disable();
         $cacheContext->addTags(['existing-dependency']);
-        $candidates->expects($this->exactly(2))->method('resolveSource')->willReturnCallback(
+        $candidates->expects($this->exactly(2))->method('resolveAdmittedSource')->willReturnCallback(
             static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use ($cacheContext): MappingSourceResolution {
                 static::assertSame($cacheContext, $context->cacheContext);
                 static::assertTrue($context->cacheContext->isDisabled());
@@ -98,8 +98,10 @@ class ElementLoweringTest extends TestCase
                 return MappingSourceResolution::resolved('Shirt');
             },
         );
-        $candidates->expects($this->once())->method('cacheTagsForMapping')
-            ->with('product', 'product.customFields.withdrawn')->willReturn(['custom-field-metadata']);
+        $candidates->method('cacheTagsForMapping')->willReturnMap([
+            ['product', 'product.name', []],
+            ['product', 'product.customFields.withdrawn', ['custom-field-metadata']],
+        ]);
         $wholeField = StoredElementBuilder::create('Sw:MappedText', 'whole-field')
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $candidate->source)
             ->build();
@@ -154,9 +156,9 @@ class ElementLoweringTest extends TestCase
             ContentDataLoaderResult::cached($product),
         );
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn(['product.name' => $candidate]);
-        $candidates->expects($this->once())->method('resolveSource')->willReturnCallback(
+        $candidates->expects($this->once())->method('resolveAdmittedSource')->willReturnCallback(
             static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use ($settings, $product): MappingSourceResolution {
                 static::assertSame('product', $rootSource);
                 static::assertSame(['settings' => $settings], $context->loaderValues);
@@ -200,9 +202,9 @@ class ElementLoweringTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn(['product.name' => $candidate]);
-        $candidates->expects($this->once())->method('resolveSource')->willReturn(MappingSourceResolution::resolved('blue'));
+        $candidates->expects($this->once())->method('resolveAdmittedSource')->willReturn(MappingSourceResolution::resolved('blue'));
         $loader = $this->loader();
         $loader->expects($this->never())->method('load');
 
@@ -261,9 +263,9 @@ class ElementLoweringTest extends TestCase
     {
         $source = MappingSourceReference::fromRootPath($path);
         $candidate = new MappingCandidate($path, 'Value', '', 'basic', $valueType, source: $source);
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([$path => $candidate]);
-        $candidates->expects($this->once())->method('resolveSource')->willReturn($resolution);
+        $candidates->expects($this->once())->method('resolveAdmittedSource')->willReturn($resolution);
         $element = StoredElementBuilder::create($component, 'mapped-1')->withProperty('text', $fallback)
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)->build();
 
@@ -279,9 +281,9 @@ class ElementLoweringTest extends TestCase
     public function testInlineMappingOutput(MappingSourceResolution $resolution, string $path, string $valueType, string $_component, string|int|float|bool $_fallback, array $_expectedWholeField, string $expectedInline): void
     {
         $candidate = new MappingCandidate($path, 'Value', '', 'basic', $valueType);
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([$path => $candidate]);
-        $candidates->expects($this->once())->method('resolveSource')->willReturn($resolution);
+        $candidates->expects($this->once())->method('resolveAdmittedSource')->willReturn($resolution);
         $text = 'Hi {{map:' . $path . '}}!';
         $element = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
 
@@ -292,9 +294,9 @@ class ElementLoweringTest extends TestCase
 
     public function testWithdrawnWholeFieldMappingIsOmittedWithoutResolvingTheSource(): void
     {
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([]);
-        $candidates->expects($this->never())->method('resolveSource');
+        $candidates->expects($this->never())->method('resolveAdmittedSource');
         $element = StoredElementBuilder::create('Sw:Content:Text', 'mapped-1')->withProperty('text', 'Fallback')
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))->build();
 
@@ -303,9 +305,9 @@ class ElementLoweringTest extends TestCase
 
     public function testWithdrawnInlineMappingIsOmittedWithoutResolvingTheSource(): void
     {
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([]);
-        $candidates->expects($this->never())->method('resolveSource');
+        $candidates->expects($this->never())->method('resolveAdmittedSource');
         $text = 'Hi {{map:product.name}}!';
         $element = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
 
@@ -890,7 +892,7 @@ class ElementLoweringTest extends TestCase
         $configSerializer ??= new StubLoaderConfigSerializer();
         $types = $this->typeRegistry();
         if ($candidates === null) {
-            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
             $candidates->method('forRootSource')->willReturn([]);
         }
         $parser = new InlineMappingTokenParser();

@@ -14,8 +14,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * builds its selection modal from and the write boundary that admits a stored mapping. One registry for both
  * is what keeps an offered candidate acceptable and an acceptable one offered.
  *
- * Decorate this service to override an existing mapping deliberately. Keep catalogue metadata and resolution
- * consistent, preserve exact source identity checks, and forward unrelated sources to the decorated registry.
+ * Decorate this service to override an existing mapping through {@see resolveAdmittedSource()}. The final
+ * entry point enforces exact catalogue identity and records metadata dependencies before invoking that hook.
  */
 #[Package('framework')]
 abstract class AbstractContentSystemMappingCandidateRegistry implements ResetInterface
@@ -52,13 +52,37 @@ abstract class AbstractContentSystemMappingCandidateRegistry implements ResetInt
     abstract public function forRootSource(string $rootSource): array;
 
     /**
-     * Resolve a source through the provider that offered it for this root source. Preserve exact catalogue
-     * identity and configuration checks even for direct callers; property admission remains the caller's concern.
+     * Resolve only an exact catalogued source, including configuration, even through decorators or direct calls.
+     * Property admission and runtime value-type checks remain the caller's concern.
      * The explicit result distinguishes a resolved null from no value. Provider errors propagate normally.
      */
-    abstract public function resolveSource(
+    final public function resolveSource(
         string $rootSource,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-    ): MappingSourceResolution;
+    ): MappingSourceResolution {
+        $path = $source->displayName();
+        $context->cacheContext->addTags($this->cacheTagsForMapping($rootSource, $path));
+        $candidate = $this->forRootSource($rootSource)[$path] ?? null;
+        if ($candidate === null || !$candidate->source->isSameAs($source)) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $context->cacheContext->addTags($candidate->cacheTags);
+
+        return $this->resolveAdmittedSource($rootSource, $source, $context);
+    }
+
+    /**
+     * Receives an exact source admitted by this registry's catalogue, with metadata dependencies already recorded.
+     * Override to customize a value; forward unrelated sources to the decorated registry's public resolveSource().
+     * Plugins remain responsible for the safety of returned values and any additional data dependencies.
+     */
+    protected function resolveAdmittedSource(
+        string $rootSource,
+        MappingSourceReference $source,
+        MappingSourceResolutionContext $context,
+    ): MappingSourceResolution {
+        return $this->getDecorated()->resolveSource($rootSource, $source, $context);
+    }
 }

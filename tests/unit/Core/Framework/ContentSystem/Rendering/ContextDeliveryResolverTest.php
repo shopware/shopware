@@ -615,9 +615,9 @@ class ContextDeliveryResolverTest extends TestCase
 
     public function testMappingWithoutARootSourceSkipsResolutionAndAuthoredFallback(): void
     {
-        $mappingSources = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $mappingSources->expects($this->never())->method('forRootSource');
-        $mappingSources->expects($this->never())->method('resolveSource');
+        $mappingSources->expects($this->never())->method('resolveAdmittedSource');
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
@@ -637,9 +637,9 @@ class ContextDeliveryResolverTest extends TestCase
     {
         $failure = new \RuntimeException('provider failed');
         $candidate = new MappingCandidate('product.cover', 'cover', '', 'media', 'string');
-        $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $mappingSources->method('forRootSource')->willReturn(['product.cover' => $candidate]);
-        $mappingSources->method('resolveSource')->willThrowException($failure);
+        $mappingSources->method('resolveAdmittedSource')->willThrowException($failure);
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
@@ -767,9 +767,9 @@ class ContextDeliveryResolverTest extends TestCase
             group: 'basic',
             valueType: 'string',
         );
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn(['product.cover' => $candidate]);
-        $candidates->expects($this->never())->method('resolveSource');
+        $candidates->expects($this->never())->method('resolveAdmittedSource');
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
@@ -930,9 +930,9 @@ class ContextDeliveryResolverTest extends TestCase
             $candidates[$candidate->source->displayName()] = $candidate;
         }
 
-        $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $mappingSources->method('forRootSource')->willReturn($candidates);
-        $mappingSources->method('resolveSource')->willReturnCallback(
+        $mappingSources->method('resolveAdmittedSource')->willReturnCallback(
             static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
                 $root = $context->rootValues[$source->id] ?? null;
                 if ($source->path === null) {

@@ -51,32 +51,6 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
         $this->catalogues = [];
     }
 
-    public function resolveSource(
-        string $rootSource,
-        MappingSourceReference $source,
-        MappingSourceResolutionContext $context,
-    ): MappingSourceResolution {
-        $context->cacheContext->addTags($this->cacheTagsForMapping($rootSource, $source->displayName()));
-        $catalogue = $this->catalogueForRootSource($rootSource);
-        $candidateKey = $source->displayName();
-        $candidate = $catalogue['candidates'][$candidateKey] ?? null;
-        $provider = $catalogue['providers'][$candidateKey] ?? null;
-
-        if (
-            $candidate === null
-            || $provider === null
-            || !$candidate->source->isSameAs($source)
-        ) {
-            return MappingSourceResolution::noValue();
-        }
-
-        $context->cacheContext->addTags($candidate->cacheTags);
-
-        return $source->type === 'root'
-            ? $provider->resolveRootSource($source, $context)
-            : $provider->resolveSource($source, $context);
-    }
-
     public function forRootSource(string $rootSource): array
     {
         return $this->catalogueForRootSource($rootSource)['candidates'];
@@ -92,6 +66,21 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
         }
 
         return array_values(array_unique(array_merge(...$tags)));
+    }
+
+    protected function resolveAdmittedSource(
+        string $rootSource,
+        MappingSourceReference $source,
+        MappingSourceResolutionContext $context,
+    ): MappingSourceResolution {
+        $provider = $this->catalogueForRootSource($rootSource)['providers'][$source->displayName()] ?? null;
+        if ($provider === null) {
+            return MappingSourceResolution::noValue();
+        }
+
+        return $source->type === 'root'
+            ? $provider->resolveRootSource($source, $context)
+            : $provider->resolveSource($source, $context);
     }
 
     /**

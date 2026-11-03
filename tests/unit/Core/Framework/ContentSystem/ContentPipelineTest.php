@@ -353,9 +353,9 @@ class ContentPipelineTest extends TestCase
         $order = [];
         $source = MappingSourceReference::root('product', 'name');
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string', source: $source);
-        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidateRegistry = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidateRegistry->method('forRootSource')->willReturn(['product.name' => $candidate]);
-        $candidateRegistry->method('resolveSource')->willReturnCallback(
+        $candidateRegistry->method('resolveAdmittedSource')->willReturnCallback(
             static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use (&$order): MappingSourceResolution {
                 $order[] = 'inline expansion';
 
@@ -1759,7 +1759,7 @@ class ContentPipelineTest extends TestCase
 
         $types = $this->typeRegistry();
         if ($candidateRegistry === null) {
-            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
             $candidates->method('forRootSource')->willReturn([]);
         } else {
             $candidates = $candidateRegistry;
@@ -1799,7 +1799,7 @@ class ContentPipelineTest extends TestCase
     private function inlineMappingExpander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
     {
         if ($candidates === null) {
-            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
             $candidates->method('forRootSource')->willReturn([]);
         }
         $types = $this->typeRegistry();

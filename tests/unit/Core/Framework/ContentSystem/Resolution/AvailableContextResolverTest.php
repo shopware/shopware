@@ -538,11 +538,11 @@ class AvailableContextResolverTest extends TestCase
         $catalogued = $source->type === 'root'
             ? MappingSourceReference::root('product', 'cover')
             : new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
-        $candidates = $this->createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn($offered ? [
             $catalogued->displayName() => new MappingCandidate($catalogued->displayName(), 'Image', '', 'media', $valueType, $contextType, source: $catalogued),
         ] : []);
-        $candidates->expects($this->never())->method('resolveSource');
+        $candidates->expects($this->never())->method('resolveAdmittedSource');
         $map = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $map->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
         $resolver = new AvailableContextResolver(
@@ -708,7 +708,7 @@ class AvailableContextResolverTest extends TestCase
             $elementResolver,
             new ProviderDeliveryKeyResolver(),
             new ContextPathResolver(),
-            new StoredMappingInspector($registry, static::createStub(AbstractContentSystemMappingCandidateRegistry::class), new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser()),
+            new StoredMappingInspector($registry, $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']), new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser()),
         );
     }
 }

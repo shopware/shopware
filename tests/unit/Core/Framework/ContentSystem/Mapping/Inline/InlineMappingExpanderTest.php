@@ -122,9 +122,9 @@ class InlineMappingExpanderTest extends TestCase
             valueType: 'string',
             source: new MappingSourceReference('plugin', 'example', path: 'message'),
         );
-        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveSource')->willReturn(MappingSourceResolution::resolved('EUR'));
+        $candidates->method('resolveAdmittedSource')->willReturn(MappingSourceResolution::resolved('EUR'));
         $mappingInspector = $this->mappingInspector($candidates);
         $expander = new InlineMappingExpander(
             $mappingInspector,
@@ -156,9 +156,9 @@ class InlineMappingExpanderTest extends TestCase
     #[TestDox('removes inline tokens when the layout has no root source')]
     public function testRemovesTokensWithoutARootSource(): void
     {
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->expects($this->never())->method('forRootSource');
-        $candidates->expects($this->never())->method('resolveSource');
+        $candidates->expects($this->never())->method('resolveAdmittedSource');
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
         $forest = [$element];
 
@@ -266,9 +266,9 @@ class InlineMappingExpanderTest extends TestCase
     public function testSharesTheRenderBudgetAcrossPropertiesRootsAndChildrenAndStopsResolving(): void
     {
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->expects($this->exactly(4))->method('resolveSource')
+        $candidates->expects($this->exactly(4))->method('resolveAdmittedSource')
             ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
         $child = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: 'child');
         $parent = $this->element([
@@ -288,9 +288,9 @@ class InlineMappingExpanderTest extends TestCase
     public function testPropertyFailureStopsBeforeResolvingLaterProperties(): void
     {
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
-        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->expects($this->once())->method('resolveSource')
+        $candidates->expects($this->once())->method('resolveAdmittedSource')
             ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
         $forest = [];
         foreach (['first', 'second', 'third', 'fourth', 'fifth'] as $id) {
@@ -374,7 +374,7 @@ class InlineMappingExpanderTest extends TestCase
     private function expander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
     {
         if ($candidates === null) {
-            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
             $candidates->method('forRootSource')->willReturnCallback(static fn (string $rootSource): array => $rootSource !== 'product' ? [] : [
                 'product.name' => new MappingCandidate(
                     path: 'product.name',
@@ -384,7 +384,7 @@ class InlineMappingExpanderTest extends TestCase
                     valueType: 'string',
                 ),
             ]);
-            $candidates->method('resolveSource')->willReturnCallback(
+            $candidates->method('resolveAdmittedSource')->willReturnCallback(
                 static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
                     $root = $context->rootValues[$source->id] ?? null;
 

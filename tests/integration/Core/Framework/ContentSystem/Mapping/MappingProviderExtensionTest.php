@@ -403,6 +403,37 @@ class MappingProviderExtensionTest extends TestCase
         static::assertSame('ParameterizedPlugin', $rendered[1]['text']);
     }
 
+    public function testImmediateOverridesCannotSkipSourceAdmission(): void
+    {
+        $inner = new ContentSystemMappingCandidateRegistry([static::getContainer()->get(ProductMappingCandidateProvider::class)], new NullLogger());
+        $registry = new ImmediateProductNameOverrideRegistry($inner);
+        static::getContainer()->set(ContentSystemMappingCandidateRegistry::class, $registry);
+        $elements = [
+            $this->element('whole-field', MappingSourceReference::root('product', 'name')),
+            ['id' => 'inline', 'component' => 'Sw:Content:Text', 'properties' => ['text' => '{{map:product.name}}']],
+        ];
+        $this->save($elements);
+
+        $rendered = $this->render($elements);
+
+        static::assertSame('Immediate override', $rendered[0]['text']);
+        static::assertSame('Immediate override', $rendered[1]['text']);
+        static::assertSame(2, $registry->resolutionCalls);
+
+        $context = new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), [], [], new RenderingCacheContext());
+        static::assertTrue($registry->resolveSource('product', MappingSourceReference::root('product', 'internalComment'), $context)->isNoValue());
+        static::assertTrue($registry->resolveSource('product', new MappingSourceReference('root', 'product', ['unlisted' => true], 'name'), $context)->isNoValue());
+
+        $unavailable = $this->render([
+            $this->element('whole-field', MappingSourceReference::root('product', 'internalComment')),
+            ['id' => 'inline', 'component' => 'Sw:Content:Text', 'properties' => ['text' => 'Before {{map:product.internalComment}} after']],
+        ]);
+
+        static::assertArrayNotHasKey('text', $unavailable[0]);
+        static::assertSame('Before  after', $unavailable[1]['text']);
+        static::assertSame(2, $registry->resolutionCalls);
+    }
+
     public function testExplicitOverridePreservesTheCoreSourceIdentityAndUnrelatedMappings(): void
     {
         $registry = $this->installRegistry([], override: true);
@@ -577,7 +608,7 @@ class ProductNameOverrideRegistry extends AbstractContentSystemMappingCandidateR
         return $candidates;
     }
 
-    public function resolveSource(string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    protected function resolveAdmittedSource(string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
         $resolved = $this->inner->resolveSource($rootSource, $source, $context);
         if ($rootSource === 'product' && $source->isSameAs(MappingSourceReference::root('product', 'name')) && $resolved->hasValue && \is_string($resolved->value)) {
@@ -587,6 +618,21 @@ class ProductNameOverrideRegistry extends AbstractContentSystemMappingCandidateR
         }
 
         return $resolved;
+    }
+}
+
+/**
+ * @internal
+ */
+class ImmediateProductNameOverrideRegistry extends ProductNameOverrideRegistry
+{
+    public int $resolutionCalls = 0;
+
+    protected function resolveAdmittedSource(string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        ++$this->resolutionCalls;
+
+        return MappingSourceResolution::resolved('Immediate override');
     }
 }
 

@@ -22,7 +22,7 @@ import { findImports, findRegistration, findRegistrationByPath } from './find-re
 import { isDocumentedPrivate, markExport } from './mark-export';
 import { readDeclarationKind, readExtendShape } from './inherit-privacy';
 import { dropBaseImport } from './drop-base-import';
-import { rewriteMovedImports, type MovedEntry } from './moved-imports';
+import { findSpecifiers, importedName, rewriteMovedImports, type MovedEntry } from './moved-imports';
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
@@ -363,7 +363,8 @@ const filesMentioning = (text: string) => {
 
 /**
  * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store,
- * that code outside the directory imports would break, and a mixin only the registry reaches cannot be imported.
+ * that code outside the directory imports would break, also when only another module's dependencies.ts or spec
+ * imports it, and a mixin only the registry reaches cannot be imported.
  */
 const findBlocker = (componentDirectory: string, entry: string, index: AdminIndex): string | null => {
     const files = scriptFilesBelow(componentDirectory).filter(
@@ -371,14 +372,12 @@ const findBlocker = (componentDirectory: string, entry: string, index: AdminInde
     );
 
     for (const file of files) {
-        const importers = filesMentioning(path.basename(file).replace(SCRIPT_EXTENSION, ''))
+        const importers = filesMentioning(importedName(file))
             .filter((importer) => !path.join(adminRoot, importer).startsWith(`${componentDirectory}${path.sep}`))
             .filter((importer) => {
                 const absolute = path.join(adminRoot, importer);
-                return (
-                    findImports(fs.readFileSync(absolute, 'utf8'), (specifier) =>
-                        leadsToFile(path.dirname(absolute), specifier, file),
-                    ).length > 0
+                return findSpecifiers(fs.readFileSync(absolute, 'utf8')).some((specifier) =>
+                    leadsToFile(path.dirname(absolute), specifier, file),
                 );
             });
 

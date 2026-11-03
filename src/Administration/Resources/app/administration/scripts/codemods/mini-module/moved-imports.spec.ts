@@ -1,4 +1,4 @@
-import { movedPath, rewriteMovedImports } from './moved-imports';
+import { findSpecifiers, importedName, movedPath, rewriteMovedImports } from './moved-imports';
 
 const origin = 'src/app/component/base/sw-icon';
 const moves = new Map([
@@ -21,6 +21,47 @@ describe('movedPath', () => {
             `${origin}/src/sw-icon.js`,
             `${origin}/src/sw-icon.html.twig`,
             'src/app/component/base/sw-other',
+        ]);
+    });
+});
+
+describe('importedName', () => {
+    it('names the directory of an index file, which an import leaves out', () => {
+        // ACT
+        const names = [
+            importedName('src/m/subcomponents/sw-check-list/index.ts'),
+            importedName('src/m/sw-tree/fixtures/treeItems.js'),
+        ];
+
+        // ASSERT
+        expect(names).toEqual([
+            'sw-check-list',
+            'treeItems',
+        ]);
+    });
+});
+
+describe('findSpecifiers', () => {
+    it('finds static, dynamic, required and mocked paths, without their queries', () => {
+        // ARRANGE
+        const source = `import a from '../a';
+import './b.scss';
+export { c } from 'src/c';
+jest.mock('src/d');
+const e = () => import(\`./icons/\${name}.svg?raw\`);
+import f from 'pinia';
+`;
+
+        // ACT
+        const specifiers = findSpecifiers(source);
+
+        // ASSERT
+        expect(specifiers).toEqual([
+            '../a',
+            './b.scss',
+            'src/c',
+            'src/d',
+            './icons/',
         ]);
     });
 });

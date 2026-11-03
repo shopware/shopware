@@ -20,6 +20,38 @@ const SCRIPT_EXTENSION = /\.[jt]s$/;
 export type MovedEntry = { directory: string; name: string; isPrivate: boolean };
 
 /**
+ * The import paths a file writes, without their queries, as `findImports()` would see them, also in specs:
+ * `import()`, `require()`, `jest.mock()` and the static head of a template literal.
+ *
+ * @example
+ * findSpecifiers("jest.mock('src/a/b');\nimport x from '../c?raw';\n");
+ * // → ['src/a/b', '../c']
+ */
+export function findSpecifiers(source: string): string[] {
+    return [...source.matchAll(SPECIFIER)].map(
+        ([
+            ,
+            ,
+            quoted,
+            template,
+        ]) => (quoted ?? template).split('?')[0],
+    );
+}
+
+/**
+ * The text an import of the file has to contain, to search for its importers:
+ * its name without the extension, or the name of its directory for an index file, which imports leave out.
+ *
+ * @example
+ * importedName('src/a/subcomponents/sw-check-list/index.ts');
+ * // → 'sw-check-list'
+ */
+export function importedName(file: string): string {
+    const name = posix.basename(file).replace(SCRIPT_EXTENSION, '');
+    return name === 'index' ? posix.basename(posix.dirname(file)) : name;
+}
+
+/**
  * Where a path relative to the Administration root ends up after the moves, or itself when it did not move.
  * It tries the extensions and `index` files an import may leave out.
  *

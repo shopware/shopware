@@ -13,6 +13,10 @@ const logEntryMock = {
     context: {
         additionalData: {
             recipients: [],
+            contents: {
+                'text/html': '<p>Order confirmation</p>',
+                'text/plain': 'Order confirmation',
+            },
         },
     },
 };

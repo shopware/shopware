@@ -20,6 +20,8 @@ class MediaUploadParameters
         public ?string $mimeType = null,
         public ?bool $deduplicate = null,
         private ?ExternalThumbnailCollection $thumbnails = null,
+        public ?string $title = null,
+        public ?string $alt = null,
     ) {
     }
 

@@ -298,7 +298,8 @@
             "service-names": [
                 "feature",
                 "repositoryFactory",
-                "ruleConditionDataProviderService"
+                "ruleConditionDataProviderService",
+                "shopwareServicesService"
             ]
         },
         "sources": {

@@ -93,3 +93,7 @@ src/Administration/Resources/app/administration/src/module/sw-settings-logging/c
 src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.ts @shopware/product-cc-inventory
 src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/global.d.ts @shopware/product-cc-inventory
 src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/tests/requirements.spec.ts @shopware/product-cc-inventory
+
+# framework: Administration mini-modules
+src/Administration/Resources/app/administration/src/module/sw-settings-services/component/sw-settings-services-service-card/index.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/src/module/sw-settings-services/component/sw-settings-services-service-card/tests/requirements.spec.ts @shopware/product-cc-framework

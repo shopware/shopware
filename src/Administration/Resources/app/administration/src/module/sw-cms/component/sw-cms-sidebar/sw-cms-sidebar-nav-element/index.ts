@@ -1,45 +1,35 @@
-import template from './sw-cms-sidebar-nav-element.html.twig';
-import './sw-cms-sidebar-nav-element.scss';
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
  * @sw-package discovery
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
-    template,
-
-    emits: ['block-duplicate', 'block-delete'],
-
-    props: {
-        block: {
-            type: Object as PropType<Entity<'cms_block'>>,
-            required: true,
-        },
-
-        removable: {
-            type: Boolean,
-            required: false,
-            default() {
-                return false;
-            },
-        },
-
-        duplicable: {
-            type: Boolean,
-            required: false,
-            default() {
-                return true;
-            },
-        },
-    },
-
-    methods: {
-        onBlockDuplicate() {
-            this.$emit('block-duplicate', this.block);
-        },
-
-        onBlockDelete() {
-            this.$emit('block-delete', this.block);
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-cms-sidebar-nav-element',
+    load: () => import('./src/sw-cms-sidebar-nav-element'),
+    public: {
+        props: [
+            'block',
+            'removable',
+            'duplicable',
+        ],
+        emits: [
+            'block-duplicate',
+            'block-delete',
+        ],
+        blocks: [
+            'sw_cms_sidebar_navigator_element',
+            'sw_cms_sidebar_sidebar_navigator_element_label',
+            'sw_cms_sidebar_sidebar_navigator_element_duplicate',
+            'sw_cms_sidebar_sidebar_navigator_element_delete',
+        ],
+        methods: [
+            'onBlockDuplicate',
+            'onBlockDelete',
+        ],
     },
 });

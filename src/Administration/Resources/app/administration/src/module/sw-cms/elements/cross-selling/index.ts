@@ -1,18 +1,6 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-cross-selling', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-config-cross-selling', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-cross-selling', () => import('./component'));
+import './component/register';
+import './config/register';
+import './preview/register';
 
 /**
  * @private

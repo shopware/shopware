@@ -1,0 +1,60 @@
+import template from './sw-cms-section-actions.html.twig';
+import './sw-cms-section-actions.scss';
+import { useCmsPageStore, wrapComponentConfig } from '../dependencies';
+
+/**
+ * @sw-package discovery
+ *
+ * @public
+ */
+export default wrapComponentConfig({
+    template,
+
+    props: {
+        section: {
+            type: Object as PropType<Entity<'cms_section'>>,
+            required: true,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
+
+        swCmsSectionEmitPageConfigOpen: {
+            from: 'swCmsSectionEmitPageConfigOpen',
+            default: null,
+        },
+    },
+
+    computed: {
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled,
+            };
+        },
+        cmsPageStateStore() {
+            return useCmsPageStore();
+        },
+    },
+
+    methods: {
+        selectSection() {
+            if (this.disabled) {
+                return;
+            }
+
+            this.cmsPageStateStore.setSection(this.section);
+
+            (this.swCmsSectionEmitPageConfigOpen as (arg: string) => void)?.('itemConfig');
+        },
+    },
+});

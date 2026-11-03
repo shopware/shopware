@@ -5,7 +5,7 @@ import RuleConditionsConfigApiService from 'src/core/service/api/rule-conditions
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
-import ruleConditionsConfig from './../../../app/component/rule/condition-type/_mocks/ruleConditionsConfig.json';
+import ruleConditionsConfig from '../../../app/component/rule/condition-type/_mocks/ruleConditionsConfig.json';
 
 function getRuleConditionsConfigApiService() {
     const client = createHTTPClient();

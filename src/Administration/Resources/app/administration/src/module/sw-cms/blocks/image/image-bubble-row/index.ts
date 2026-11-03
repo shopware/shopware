@@ -1,13 +1,5 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-preview-image-bubble-row', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-block-image-bubble-row', () => import('./component'));
+import './component/register';
+import './preview/register';
 
 /**
  * @private

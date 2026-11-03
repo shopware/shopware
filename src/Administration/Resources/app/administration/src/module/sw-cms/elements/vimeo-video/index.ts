@@ -1,18 +1,6 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-vimeo-video', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-config-vimeo-video', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-vimeo-video', () => import('./component'));
+import './component/register';
+import './config/register';
+import './preview/register';
 
 /**
  * @private

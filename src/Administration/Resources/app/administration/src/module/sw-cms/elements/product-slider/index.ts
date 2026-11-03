@@ -1,18 +1,6 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-product-slider', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-config-product-slider', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-product-slider', () => import('./component'));
+import './component/register';
+import './config/register';
+import './preview/register';
 
 /**
  * @private

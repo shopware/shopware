@@ -1,13 +1,5 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-preview-text-three-column', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-block-text-three-column', () => import('./component'));
+import './component/register';
+import './preview/register';
 
 /**
  * @private

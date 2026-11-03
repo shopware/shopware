@@ -1,13 +1,5 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-preview-image-simple-grid', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-block-image-simple-grid', () => import('./component'));
+import './component/register';
+import './preview/register';
 
 /**
  * @private

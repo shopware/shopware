@@ -1,18 +1,6 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-image-slider', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-config-image-slider', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'));
+import './component/register';
+import './config/register';
+import './preview/register';
 
 type ImageSliderItemConfig = {
     newTab: boolean;

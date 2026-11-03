@@ -1,0 +1,115 @@
+import template from './sw-cms-el-config-text.html.twig';
+import {
+    cmsElementMixin,
+    featureService,
+    SwTextEditorToolbarButtonCmsDataMappingButton,
+    useCmsPageStore,
+} from '../dependencies';
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export default {
+    template,
+
+    emits: ['element-update'],
+
+    inject: [featureService],
+
+    mixins: [cmsElementMixin],
+
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
+    computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
+        availableDataMappings() {
+            let mappings = [];
+
+            Object.entries(useCmsPageStore().currentMappingTypes).forEach((entry) => {
+                const [type, value] = entry;
+
+                if (type === 'string') {
+                    mappings = [...mappings, ...value];
+                }
+            });
+
+            return mappings;
+        },
+
+        customTextEditorButtons() {
+            return [SwTextEditorToolbarButtonCmsDataMappingButton(() => this.availableDataMappings)];
+        },
+
+        alignmentOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'flex-start',
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    id: 2,
+                    value: 'center',
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    id: 3,
+                    value: 'flex-end',
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.initElementConfig('text');
+        },
+
+        async handleUpdateContent() {
+            const editor = this.$refs.swCmsTextEditor;
+
+            if (!editor?.validate) {
+                return true;
+            }
+
+            return editor.validate();
+        },
+
+        onBlur(content) {
+            this.emitChanges(content);
+        },
+
+        onInput(content) {
+            this.emitChanges(content);
+        },
+
+        emitChanges(content) {
+            if (content !== this.element.config.content.value) {
+                this.element.config.content.value = content;
+                this.$emit('element-update', this.element);
+            }
+        },
+    },
+};

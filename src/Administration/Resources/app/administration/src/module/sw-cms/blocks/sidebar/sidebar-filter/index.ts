@@ -1,12 +1,5 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-preview-sidebar-filter', () => import('./preview'));
-/**
- * @private
- */
-Shopware.Component.register('sw-cms-block-sidebar-filter', () => import('./component'));
+import './component/register';
+import './preview/register';
 
 /**
  * @private

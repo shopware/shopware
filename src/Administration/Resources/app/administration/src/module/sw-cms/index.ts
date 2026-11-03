@@ -12,6 +12,9 @@ import './store/cms-page.store';
 import './service/cms-block-favorites.service';
 import './service/cms-element-favorites.service';
 import './service/cmsDataResolver.service';
+import './page/sw-cms-detail/register';
+import './page/sw-cms-create/register';
+import './page/sw-cms-list/register';
 
 /**
  * @private
@@ -23,17 +26,6 @@ Shopware.Service().register('cmsPageTypeService', () => {
 initCmsPageTypes();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-cms-list', () => import('./page/sw-cms-list'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-detail', () => import('./page/sw-cms-detail'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', () => import('./page/sw-cms-create'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-cms', {

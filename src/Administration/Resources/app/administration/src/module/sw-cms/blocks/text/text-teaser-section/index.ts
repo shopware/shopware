@@ -1,13 +1,5 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-preview-text-teaser-section', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-block-text-teaser-section', () => import('./component'));
+import './component/register';
+import './preview/register';
 
 /**
  * @private

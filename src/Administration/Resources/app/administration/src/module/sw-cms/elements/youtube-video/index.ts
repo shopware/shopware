@@ -1,18 +1,6 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-youtube-video', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-config-youtube-video', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-youtube-video', () => import('./component'));
+import './component/register';
+import './config/register';
+import './preview/register';
 
 /**
  * @private

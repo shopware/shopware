@@ -1,26 +1,11 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-product-listing', () => import('./preview'));
+import './component/register';
+import './config/components/sw-cms-el-config-product-listing-config-sorting-grid/register';
+import './preview/register';
 /**
  * @private
  * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-product-listing', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-product-listing', () => import('./component'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register(
-    'sw-cms-el-config-product-listing-config-sorting-grid',
-    () => import('./config/components/sw-cms-el-config-product-listing-config-sorting-grid'),
-);
 
 /**
  * @private

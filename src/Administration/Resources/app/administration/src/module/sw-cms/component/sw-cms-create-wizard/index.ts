@@ -1,169 +1,61 @@
-import template from './sw-cms-create-wizard.html.twig';
-import './sw-cms-create-wizard.scss';
-
-const { Filter } = Shopware;
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
  * @sw-package discovery
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
-    template,
-
-    inject: ['feature', 'cmsPageTypeService', 'customEntityDefinitionService'],
-
-    emits: ['on-section-select', 'wizard-complete'],
-
-    props: {
-        page: {
-            type: Object as PropType<Entity<'cms_page'>>,
-            required: true,
-        },
-    },
-
-    data() {
-        return {
-            step: 1,
-            steps: {
-                pageType: 1,
-                sectionType: 2,
-                pageName: 3,
-            },
-        } as {
-            step: number;
-            steps: {
-                pageType: number;
-                sectionType: number;
-                pageName: number;
-                [key: string]: number;
-            };
-        };
-    },
-
-    computed: {
-        visiblePageTypes() {
-            return this.cmsPageTypeService.getVisibleTypes();
-        },
-
-        pageTypeSelectionStyle() {
-            const count = this.visiblePageTypes.length;
-
-            if (count === 0) {
-                return {};
-            }
-
-            const maxPerRow = 5;
-            const tileWidth = 140;
-            const gap = 20;
-
-            const rows = Math.ceil(count / maxPerRow);
-            const columns = Math.ceil(count / rows);
-
-            return {
-                'max-width': `${columns * (tileWidth + gap) - gap}px`,
-            };
-        },
-
-        currentPageType() {
-            return this.cmsPageTypeService.getType(this.page.type);
-        },
-
-        isCustomEntityType() {
-            return this.page.type.startsWith('custom_entity_');
-        },
-
-        isCompletable() {
-            return [this.page.name, !this.isCustomEntityType || this.page.entity].every((condition) => condition);
-        },
-
-        customEntities() {
-            return this.customEntityDefinitionService.getCmsAwareDefinitions().map((entity) => {
-                const snippetKey = `${entity.entity}.moduleTitle`;
-                const value = entity.entity;
-
-                return {
-                    value,
-                    label: this.$te(snippetKey) ? this.$t(snippetKey) : value,
-                };
-            });
-        },
-
-        pagePreviewMedia() {
-            const sections = this.page.sections ?? [];
-            if (sections.length < 1) {
-                return '';
-            }
-
-            const imgPath = 'administration/administration/static/img/cms';
-
-            return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.webp`)})`;
-        },
-
-        pagePreviewStyle() {
-            return {
-                'background-image': this.pagePreviewMedia,
-                'background-size': 'cover',
-            };
-        },
-
-        assetFilter() {
-            return Filter.getByName('asset');
-        },
-
-        cmsPageStore() {
-            return Shopware.Store.get('cmsPage');
-        },
-    },
-
-    watch: {
-        step(newStep: number) {
-            if (this.getStepName(newStep) === 'sectionType') {
-                this.page.sections = new Shopware.Data.EntityCollection(
-                    `/cms-page/${this.page.id}/sections`,
-                    'cms_section',
-                    Shopware.Context.api,
-                );
-            }
-        },
-    },
-
-    methods: {
-        goToStep(stepName: string) {
-            this.step = this.steps[stepName];
-        },
-
-        getStepName(stepValue: number) {
-            const find = Object.entries(this.steps).find((step) => {
-                return stepValue === step[1];
-            });
-
-            if (!find) {
-                return '';
-            }
-
-            return find[0];
-        },
-
-        onPageTypeSelect(type: string) {
-            this.cmsPageStore.setCurrentPageType(type);
-
-            this.page.type = type;
-
-            this.goToStep('sectionType');
-        },
-
-        onSectionSelect(section: Entity<'cms_section'>) {
-            this.goToStep('pageName');
-
-            this.$emit('on-section-select', section);
-        },
-
-        onCompletePageCreation() {
-            if (!this.page.name) {
-                return;
-            }
-
-            this.$emit('wizard-complete');
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-cms-create-wizard',
+    load: () => import('./src/sw-cms-create-wizard'),
+    public: {
+        props: [
+            'page',
+        ],
+        emits: [
+            'on-section-select',
+            'wizard-complete',
+        ],
+        blocks: [
+            'sw_cms_create_wizard',
+            'sw_cms_create_wizard_first_step',
+            'sw_cms_create_wizard_page_type',
+            'sw_cms_create_wizard_page_type_options',
+            'sw_cms_create_wizard_first_step_abort',
+            'sw_cms_create_wizard_first_step_helptext',
+            'sw_cms_create_wizard_second_step',
+            'sw_cms_create_wizard_section',
+            'sw_cms_create_wizard_second_step_back',
+            'sw_cms_create_wizard_second_step_helptext',
+            'sw_cms_create_wizard_third_step',
+            'sw_cms_create_wizard_page_preview',
+            'sw_cms_create_wizard_page_completion',
+            'sw_cms_create_wizard_page_name',
+            'sw_cms_create_wizard_page_completion_buttons',
+            'sw_cms_create_wizard_page_completion_save_button',
+            'sw_cms_create_wizard_third_step_back',
+        ],
+        computed: [
+            'visiblePageTypes',
+            'pageTypeSelectionStyle',
+            'currentPageType',
+            'isCustomEntityType',
+            'isCompletable',
+            'customEntities',
+            'pagePreviewMedia',
+            'pagePreviewStyle',
+            'assetFilter',
+            'cmsPageStore',
+        ],
+        methods: [
+            'goToStep',
+            'getStepName',
+            'onPageTypeSelect',
+            'onSectionSelect',
+            'onCompletePageCreation',
+        ],
     },
 });

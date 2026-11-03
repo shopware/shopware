@@ -1,0 +1,31 @@
+import template from './sw-cms-el-sidebar-filter.html.twig';
+import './sw-cms-el-sidebar-filter.scss';
+import { cmsElementMixin } from '../dependencies';
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export default {
+    template,
+
+    mixins: [cmsElementMixin],
+
+    computed: {
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled,
+            };
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.initElementConfig('sidebar-filter');
+        },
+    },
+};

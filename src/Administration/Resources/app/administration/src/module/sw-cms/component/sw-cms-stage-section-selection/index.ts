@@ -1,18 +1,27 @@
-import template from './sw-cms-stage-section-selection.html.twig';
-import './sw-cms-stage-section-selection.scss';
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
  * @sw-package discovery
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
-    template,
-
-    emits: ['section-select'],
-
-    methods: {
-        selectSection(type: string) {
-            this.$emit('section-select', type);
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-cms-stage-section-selection',
+    load: () => import('./src/sw-cms-stage-section-selection'),
+    public: {
+        emits: [
+            'section-select',
+        ],
+        blocks: [
+            'sw_cms_stage_section_selection',
+            'sw_cms_stage_section_selection__sidebar',
+            'sw_cms_stage_section_selection__fullwidth',
+        ],
+        methods: [
+            'selectSection',
+        ],
     },
 });

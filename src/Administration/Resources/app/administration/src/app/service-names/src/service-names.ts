@@ -9,6 +9,16 @@
 export const appActionButtonService = 'appActionButtonService';
 
 /**
+ * The name the appCmsService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [appCmsService] };
+ *
+ * @public
+ */
+export const appCmsService = 'appCmsService';
+
+/**
  * The name the appModulesService service is registered and injected under.
  *
  * @example
@@ -57,6 +67,26 @@ export const cacheService = 'cacheService';
  * @public
  */
 export const captchaService = 'captchaService';
+
+/**
+ * The name the cmsDataResolverService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [cmsDataResolverService] };
+ *
+ * @public
+ */
+export const cmsDataResolverService = 'cmsDataResolverService';
+
+/**
+ * The name the cmsElementFavorites service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [cmsElementFavorites] };
+ *
+ * @public
+ */
+export const cmsElementFavorites = 'cmsElementFavorites';
 
 /**
  * The name the cmsPageTypeService service is registered and injected under.
@@ -137,6 +167,26 @@ export const documentV2ApiService = 'documentV2ApiService';
  * @public
  */
 export const documentV2Service = 'documentV2Service';
+
+/**
+ * The name the entityFactory service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [entityFactory] };
+ *
+ * @public
+ */
+export const entityFactory = 'entityFactory';
+
+/**
+ * The name the entityHydrator service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [entityHydrator] };
+ *
+ * @public
+ */
+export const entityHydrator = 'entityHydrator';
 
 /**
  * The name the excludedSearchTermService service is registered and injected under.

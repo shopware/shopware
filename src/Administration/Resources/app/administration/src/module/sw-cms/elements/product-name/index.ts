@@ -1,10 +1,6 @@
+import './preview/register';
 Shopware.Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', () => import('./component'));
 Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', () => import('./config'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-preview-product-name', () => import('./preview'));
 
 /**
  * @private

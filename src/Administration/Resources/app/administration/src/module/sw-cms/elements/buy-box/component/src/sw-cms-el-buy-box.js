@@ -1,0 +1,74 @@
+import template from './sw-cms-el-buy-box.html.twig';
+import './sw-cms-el-buy-box.scss';
+import { cmsElementMixin, getCurrencyFilter, placeholderMixin } from '../dependencies';
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export default {
+    template,
+
+    mixins: [cmsElementMixin, placeholderMixin],
+
+    computed: {
+        product() {
+            if (this.currentDemoEntity) {
+                return this.currentDemoEntity;
+            }
+
+            if (!this.element.data?.product) {
+                return {
+                    name: 'Lorem Ipsum dolor',
+                    productNumber: 'XXXXXX',
+                    minPurchase: 1,
+                    deliveryTime: {
+                        name: '1-3 days',
+                    },
+                    price: [{ gross: 0.0 }],
+                };
+            }
+
+            return this.element?.data?.product ?? null;
+        },
+
+        pageType() {
+            return this.cmsPageState?.currentPage?.type ?? '';
+        },
+
+        isProductPageType() {
+            return this.pageType === 'product_detail';
+        },
+
+        alignStyle() {
+            if (!this.element.config?.alignment?.value) {
+                return null;
+            }
+
+            return `justify-content: ${this.element.config.alignment.value};`;
+        },
+
+        currentDemoEntity() {
+            if (this.cmsPageState.currentMappingEntity === 'product') {
+                return this.cmsPageState.currentDemoEntity;
+            }
+
+            return null;
+        },
+
+        currencyFilter() {
+            return getCurrencyFilter();
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.initElementConfig('buy-box');
+            this.initElementData('buy-box');
+        },
+    },
+};

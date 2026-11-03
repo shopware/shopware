@@ -1,13 +1,5 @@
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-preview-product-description-reviews', () => import('./preview'));
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-block-product-description-reviews', () => import('./component'));
+import './component/register';
+import './preview/register';
 
 /**
  * @private

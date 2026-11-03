@@ -70,6 +70,8 @@ Keep the markers out of commits.
 | Body script change | Add `<script>console.log(1)</script>` to a body template | The markup is applied, the script does not run, notice with "An inline script in the page changed" |
 | Head script change | Edit the inline script in `utilities/form-validation-config.html.twig` | Notice with "The <head> changed" and a "Reload page" button |
 | Component changed | Edit the template of a Twig component with a `data-component` script, for example a button label | The element is replaced, the component works and logs a new `init()`, no notice |
+| Component script changed | In the Vite dev server, click the component, then edit its script, for example a `console.info()` in `init()` | No page reload, the console logs `destroy()`, the new `init()` and `Component <name> replaced in 1 element(s)` |
+| Component system changed | In the Vite dev server, edit `src/component-system/component.ts` | The page reloads |
 | Component unchanged | Click a component that counts its state, then edit another block of the page | The component keeps its instance and its state |
 | Symfony toolbar | Edit any template with the toolbar open | Toolbar stays, its `_wdt` request loads from the proxy origin |
 | Mini cart after POST | Add a product to the cart on a detail page, then edit `component/checkout/offcanvas-cart.html.twig` | Offcanvas stays open, line items stay, marker updates |

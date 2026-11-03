@@ -680,6 +680,9 @@ After a Twig file was added or removed, the next request of the Twig hot reload 
 Inline scripts in changed markup do not run again, so initialize JavaScript through the PluginManager.
 The browser console warns once if the shop does not run in debug mode or a response came from an HTTP cache, for example Varnish.
 In every hot mode session, the browser console also lists extensions whose JavaScript is compiled but not loaded, because they have no production build yet.
+With `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`, the Vite dev server also swaps a changed script of a Twig component without a reload.
+In the other modes, a changed component script reloads the page or, in `manual` mode, does nothing.
+The new `window.Shopware.replaceComponent()` method destroys the instances of the component and starts them again with the new class on the same elements, so their state starts fresh.
 See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
 
 ### Legal guarantee notice on the registration form

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -22,6 +23,26 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(DataAbstractionLayerException::class)]
 class DataAbstractionLayerExceptionTest extends TestCase
 {
+    public function testInvalidPriceFieldType(): void
+    {
+        $exception = DataAbstractionLayerException::invalidPriceFieldType('invalid');
+
+        static::assertInstanceOf(DataAbstractionLayerException::class, $exception);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_PRICE_FIELD_TYPE', $exception->getErrorCode());
+        static::assertSame(['type' => 'invalid'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInvalidPriceFieldTypeKeepsLegacyException(): void
+    {
+        $exception = DataAbstractionLayerException::invalidPriceFieldType('invalid');
+
+        static::assertInstanceOf(InvalidPriceFieldTypeException::class, $exception);
+        static::assertSame('FRAMEWORK__INVALID_PRICE_FIELD_TYPE', $exception->getErrorCode());
+        static::assertSame(['type' => 'invalid'], $exception->getParameters());
+    }
+
     public function testInvalidCronIntervalFormat(): void
     {
         $e = DataAbstractionLayerException::invalidCronIntervalFormat('foo');
@@ -120,6 +141,24 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(DataAbstractionLayerException::ENTITY_NOT_VERSION_AWARE, $e->getErrorCode());
         static::assertSame('Entity "entity-name" is not version aware', $e->getMessage());
+    }
+
+    public function testWriteOutcomeWithoutColumns(): void
+    {
+        $e = DataAbstractionLayerException::writeOutcomeWithoutColumns();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::WRITE_OUTCOME_WITHOUT_COLUMNS, $e->getErrorCode());
+        static::assertSame('WriteOutcome needs the columns to read.', $e->getMessage());
+    }
+
+    public function testOutcomeRowColumnNotRequested(): void
+    {
+        $e = DataAbstractionLayerException::outcomeRowColumnNotRequested('stock');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::OUTCOME_ROW_COLUMN_NOT_REQUESTED, $e->getErrorCode());
+        static::assertSame('Column "stock" was not requested. Pass it to WriteOutcome with the other columns.', $e->getMessage());
     }
 
     public function testExpectedArray(): void
@@ -292,5 +331,14 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('Invalid _criteria parameter: error message', $e->getMessage());
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER', $e->getErrorCode());
+    }
+
+    public function testRepositoryIteratorMissingAutoIncrement(): void
+    {
+        $e = DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement();
+
+        static::assertSame('Expected the id search result to contain the autoIncrement value of the last id.', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT, $e->getErrorCode());
     }
 }

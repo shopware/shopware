@@ -14,8 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 
 /**
@@ -25,10 +24,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySea
 #[CoversClass(DalSearchInstrumentor::class)]
 class DalSearchInstrumentorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testMeasureReturnsCallbackResultUnchanged(): void
     {
@@ -53,14 +49,16 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertCount(1, $this->emitted);
-        $metric = $this->emitted[0];
+        static::assertCount(1, $this->meter->getMetrics());
+        $metric = $this->meter->getMetrics()[0];
         static::assertSame('dal.search.duration', $metric->name);
         static::assertIsFloat($metric->value);
         static::assertGreaterThanOrEqual(0.0, $metric->value);
         // product_price buckets to the product group via EntityGroupResolver
-        static::assertSame('product', $metric->labels['entity_group']);
-        static::assertSame('searchIds', $metric->labels['operation']);
+        $labels = $metric->labels;
+        static::assertIsArray($labels);
+        static::assertSame('product', $labels['entity_group']);
+        static::assertSame('searchIds', $labels['operation']);
     }
 
     #[DataProvider('esAwareProvider')]
@@ -78,7 +76,9 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame($expected, $this->emitted[0]->labels['es_aware']);
+        $labels = $this->meter->getMetrics()[0]->labels;
+        static::assertIsArray($labels);
+        static::assertSame($expected, $labels['es_aware']);
     }
 
     public static function esAwareProvider(): \Generator
@@ -96,7 +96,9 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame('sql', $this->emitted[0]->labels['backend']);
+        $labels = $this->meter->getMetrics()[0]->labels;
+        static::assertIsArray($labels);
+        static::assertSame('sql', $labels['backend']);
     }
 
     public function testBackendIsElasticsearchWhenResultCarriesElasticsearchState(): void
@@ -112,7 +114,9 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => $result,
         );
 
-        static::assertSame('elasticsearch', $this->emitted[0]->labels['backend']);
+        $labels = $this->meter->getMetrics()[0]->labels;
+        static::assertIsArray($labels);
+        static::assertSame('elasticsearch', $labels['backend']);
     }
 
     public function testDoesNotEmitButStillRunsCallbackWhenTelemetryGloballyDisabled(): void
@@ -127,7 +131,7 @@ class DalSearchInstrumentorTest extends TestCase
         );
 
         static::assertSame($result, $returned);
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testDoesNotEmitWhenThisMetricDefinitionIsDisabled(): void
@@ -139,17 +143,14 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testDoesNotEmitWhenMetricConfigurationIsMissing(): void
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
         // a provider without the metric configuration must disable the metric, never break the DAL
-        $instrumentor = new DalSearchInstrumentor($meter, new EntityGroupResolver(), new MetricConfigProvider([]), true);
+        $instrumentor = new DalSearchInstrumentor($this->meter, new EntityGroupResolver(), new MetricConfigProvider([]), true);
 
         $instrumentor->measure(
             DalSearchInstrumentor::OPERATION_SEARCH,
@@ -158,21 +159,18 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     private function createInstrumentor(bool $globalEnabled = true, bool $metricEnabled = true): DalSearchInstrumentor
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         $configProvider = new MetricConfigProvider([
             'dal.search.duration' => ['type' => 'histogram', 'description' => 'test', 'enabled' => $metricEnabled],
         ]);
 
-        return new DalSearchInstrumentor($meter, new EntityGroupResolver(), $configProvider, $globalEnabled);
+        return new DalSearchInstrumentor($this->meter, new EntityGroupResolver(), $configProvider, $globalEnabled);
     }
 
     private function definition(string $entityName): EntityDefinition

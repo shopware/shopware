@@ -113,7 +113,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
 
     it('should have one page initially', async () => {
         wrapper = await modal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const paginationButtons = wrapper.findAll('.sw-pagination__list-button');
 

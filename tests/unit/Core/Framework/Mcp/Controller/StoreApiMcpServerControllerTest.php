@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -144,7 +143,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $controller->handle($request);
     }
 
-    public function testInitializeRegistersMcpSession(): void
+    public function testInitializeReturnsASessionWithoutSyncingListVersions(): void
     {
         $body = json_encode([
             'jsonrpc' => '2.0',
@@ -159,16 +158,15 @@ class StoreApiMcpServerControllerTest extends TestCase
 
         $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
 
-        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
-        $sessionRegistry->expects($this->once())
-            ->method('register')
-            ->with(static::callback(static fn (string $sessionId): bool => $sessionId !== ''));
+        // App capabilities only reach the Admin API server, so store-api sessions never sync list versions.
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('syncSession');
 
         $psrRequest = new ServerRequest('POST', '/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController(
             $psrRequest,
             new HttpFoundationFactory(),
-            sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $notifier,
         );
 
         $sfRequest = Request::create('/store-api/_mcp', 'POST', content: $body);
@@ -177,30 +175,6 @@ class StoreApiMcpServerControllerTest extends TestCase
         $response = $controller->handle($sfRequest);
 
         static::assertNotSame('', (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
-    }
-
-    public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
-    {
-        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
-
-        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
-        $sessionRegistry->expects($this->never())->method('register');
-
-        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
-        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
-
-        $controller = $this->buildController(
-            new ServerRequest('GET', '/store-api/_mcp'),
-            $httpFoundationFactory,
-            sessionRegistry: $sessionRegistry,
-        );
-
-        $sfRequest = Request::create('/store-api/_mcp', 'GET');
-        $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
-
-        $response = $controller->handle($sfRequest);
-
-        static::assertSame(405, $response->getStatusCode());
     }
 
     public function testHandleReturnsNotFoundWhenServerIsNull(): void
@@ -318,7 +292,6 @@ class StoreApiMcpServerControllerTest extends TestCase
         ServerRequest $psrRequest,
         ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
         ?Server $server = null,
-        ?McpSessionRegistry $sessionRegistry = null,
         ?McpListChangedNotifier $listChangedNotifier = null,
     ): StoreApiMcpServerController {
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
@@ -337,7 +310,6 @@ class StoreApiMcpServerControllerTest extends TestCase
             $transportFactory,
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
-            sessionRegistry: $sessionRegistry,
             listChangedNotifier: $listChangedNotifier,
         );
     }

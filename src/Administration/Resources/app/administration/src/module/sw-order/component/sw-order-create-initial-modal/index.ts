@@ -22,6 +22,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['feature'],
 
+    emits: ['modal-close', 'order-preview'],
+
     mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
@@ -129,15 +131,21 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
-        onCloseModal(): void {
+        async onCloseModal(): Promise<void> {
             if (!this.customer || !this.cart.token) {
                 this.$emit('modal-close');
                 return;
             }
 
-            void this.cancelCart().then(() => {
-                this.$emit('modal-close');
-            });
+            try {
+                await this.cancelCart();
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-order.initialModal.messageCancelCartError'),
+                });
+            }
+
+            this.$emit('modal-close');
         },
 
         async onPreviewOrder(): Promise<void> {

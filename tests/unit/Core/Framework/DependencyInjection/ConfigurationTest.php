@@ -33,6 +33,19 @@ class ConfigurationTest extends TestCase
         static::assertSame('shopware', $tree->buildTree()->getName());
     }
 
+    public function testUserRecoveryIsEnabledByDefaultAndCanBeDisabled(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['api' => []]]);
+
+        static::assertTrue($config['api']['user_recovery']['enabled']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'api' => ['user_recovery' => ['enabled' => false]],
+        ]]);
+
+        static::assertFalse($config['api']['user_recovery']['enabled']);
+    }
+
     public function testFeatureToggleConfigTreeNode(): void
     {
         $configuration = new Configuration();
@@ -91,6 +104,7 @@ class ConfigurationTest extends TestCase
         yield 'incomplete version' => ['v6.8.0'];
         yield 'patch version' => ['v6.8.1.0'];
         yield 'environment variable name' => ['V6_8_0_0'];
+        yield 'trailing newline' => ["v6.8.0.0\n"];
     }
 
     #[DataProvider('invalidParentMajorDataProvider')]

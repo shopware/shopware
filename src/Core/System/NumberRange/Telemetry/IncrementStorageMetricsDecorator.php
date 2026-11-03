@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\NumberRange\Telemetry;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Framework\Telemetry\Instrumentation\DurationMetric;
+use Shopware\Core\Framework\Telemetry\Instrumentation\OperationResult;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 
 /**
@@ -18,7 +18,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
  *
  * The `storage` label is instance-constant (`shopware.number_range.increment_storage`), resolved once via DI.
  *
- * Merely-hot path: relies on `Meter::emit`'s early-return when telemetry is disabled, no compiler-pass gating.
+ * Merely-hot path: relies on the Meter's early-return when telemetry is disabled, no compiler-pass gating.
  *
  * @internal
  *
@@ -29,12 +29,9 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
 #[Package('framework')]
 class IncrementStorageMetricsDecorator extends AbstractIncrementStorage
 {
-    private const RESULT_SUCCESS = 'success';
-    private const RESULT_FAILED = 'failed';
-
     public function __construct(
         private readonly AbstractIncrementStorage $decorated,
-        private readonly Meter $meter,
+        private readonly Telemetry $telemetry,
         private readonly NumberRangeTypeResolver $typeResolver,
         private readonly string $storage,
     ) {
@@ -42,26 +39,17 @@ class IncrementStorageMetricsDecorator extends AbstractIncrementStorage
 
     public function reserve(array $config): int
     {
-        $result = self::RESULT_SUCCESS;
-        $timer = ElapsedTimer::start();
-
-        try {
-            return $this->decorated->reserve($config);
-        } catch (\Throwable $e) {
-            $result = self::RESULT_FAILED;
-
-            throw $e;
-        } finally {
-            $this->meter->emit(new ConfiguredMetric(
+        return $this->telemetry->instrument(
+            fn (): int => $this->decorated->reserve($config),
+            new DurationMetric(
                 name: 'number_range.allocation.duration',
-                value: $timer->getElapsedMs(),
-                labels: [
+                labels: fn (?int $result, ?\Throwable $e): array => [
                     'number_range_type' => $this->typeResolver->resolve($config['technical_name'] ?? null),
                     'storage' => $this->storage,
-                    'result' => $result,
+                    'result' => OperationResult::fromOutcome($e),
                 ],
-            ));
-        }
+            ),
+        );
     }
 
     public function preview(array $config): int

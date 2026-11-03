@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Profiling\Profiler;
@@ -63,6 +64,10 @@ class Processor
             $cart->addErrors(
                 ...$this->validator->validate($cart, $context)
             );
+
+            if ($behavior->hasPermission(CheckoutPermissions::KEEP_ORDER_TRANSACTION)) {
+                $cart->setTransactions($original->getTransactions());
+            }
 
             $cart->setTransactions(
                 $this->transactionProcessor->process($cart, $context)

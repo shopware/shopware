@@ -56,6 +56,10 @@ class SeoUrlTwigFactoryTest extends TestCase
         $template = $twig->createTemplate($template);
         static::assertSame('hello-01-2024', $template->render(['product' => ['name' => 'Hello 01.2024']]));
 
+        $template = '{% autoescape \'' . SeoUrlGenerator::ESCAPE_SLUGIFY . '\' %}{{ product.options }}{% endautoescape %}';
+        $template = $twig->createTemplate($template);
+        static::assertSame('', $template->render(['product' => ['options' => ['red', 'green']]]));
+
         $fs->remove($tmpDir);
     }
 }

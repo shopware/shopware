@@ -112,8 +112,8 @@ class EntityReaderTest extends TestCase
 
         $this->connection->rollBack();
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `non_id_primary_key_test`');
         $this->connection->executeStatement('
-            DROP TABLE IF EXISTS `non_id_primary_key_test`;
             CREATE TABLE `non_id_primary_key_test` (
                 `test_field` BINARY(16) NOT NULL,
                 `non_pk` BINARY(16) NULL,
@@ -122,8 +122,10 @@ class EntityReaderTest extends TestCase
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`test_field`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
 
-            DROP TABLE IF EXISTS `acme_consists_of_mapping`;
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `acme_consists_of_mapping`');
+        $this->connection->executeStatement('
             CREATE TABLE acme_consists_of_mapping (
                 product_id         binary(16) not null,
                 product_version_id binary(16) not null,
@@ -231,8 +233,12 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(PartialEntity::class, $partialOrder);
         static::assertSame('order1', $partialOrder->get('orderNumber'));
 
-        static::assertInstanceOf(PartialEntity::class, $partialOrder->get('orderCustomer'));
-        static::assertSame('First Name Test', $partialOrder->get('orderCustomer')->get('firstName'));
+        $partialOrderCustomer = $partialOrder->get('orderCustomer');
+        static::assertInstanceOf(PartialEntity::class, $partialOrderCustomer);
+        static::assertSame('First Name Test', $partialOrderCustomer->get('firstName'));
+        static::assertSame($ids->get('order1'), $partialOrderCustomer->get('orderId'));
+        static::assertSame($ids->get('orderCustomer'), $partialOrderCustomer->getId());
+        static::assertSame($ids->get('orderCustomer'), $partialOrderCustomer->getUniqueIdentifier());
     }
 
     public function testPartialLoadingOneToMany(): void

@@ -231,6 +231,23 @@ class ProductAdminSearchIndexerTest extends TestCase
         }
     }
 
+    public function testGlobalCriteriaDoesNotTreatATermWithATrailingNewlineAsAPrefix(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $result = $indexer->globalCriteria("test\n", new Search());
+
+        $textQueries = array_column($result->getQueries()->toArray()['bool']['should'], 'simple_query_string');
+
+        static::assertSame(["test\n"], array_column($textQueries, 'query'));
+    }
+
     private function getConnection(): Connection
     {
         $connection = static::createStub(Connection::class);

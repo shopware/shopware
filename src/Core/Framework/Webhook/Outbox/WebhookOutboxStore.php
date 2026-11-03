@@ -34,6 +34,11 @@ class WebhookOutboxStore
         return $this->recordOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_QUEUED);
     }
 
+    public function recordNotPermitted(string $webhookId): void
+    {
+        $this->insertEventLog($webhookId, Uuid::randomBytes(), WebhookEventLogDefinition::STATUS_NOT_PERMITTED, null);
+    }
+
     /**
      * Writes an inline admin-worker delivery directly as RUNNING before the HTTP call starts.
      *
@@ -462,7 +467,7 @@ class WebhookOutboxStore
             $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
 
             try {
-                $inserted = $this->insertEventLog($insert, $eventLogId, $initialStatus);
+                $inserted = $this->insertEventLog($insert->webhookId, $eventLogId, $initialStatus, $insert->serializedMessage);
             } catch (UniqueConstraintViolationException) {
                 return null;
             }
@@ -619,22 +624,21 @@ class WebhookOutboxStore
         return $markedFailed;
     }
 
-    private function insertEventLog(OutboxInsert $insert, string $eventLogId, string $status): bool
+    private function insertEventLog(string $webhookId, string $eventLogId, string $status, ?string $serializedMessage): bool
     {
         $createdAt = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $webhookId = Uuid::fromHexToBytes($insert->webhookId);
 
         $affected = $this->connection->executeStatement(
             <<<'SQL'
                 INSERT INTO webhook_event_log (
                     id, app_name, delivery_status, webhook_name, event_name,
                     app_version, url, only_live_version, created_at,
-                    serialized_webhook_message
+                    serialized_webhook_message, webhook_id
                 )
                 SELECT
                     :id, a.name, :status, w.name, w.event_name,
                     a.version, w.url, w.only_live_version, :createdAt,
-                    :serializedMessage
+                    :serializedMessage, w.id
                 FROM webhook w
                 LEFT JOIN app a ON (a.id = w.app_id)
                 WHERE w.id = :webhookId
@@ -643,8 +647,8 @@ class WebhookOutboxStore
                 'id' => $eventLogId,
                 'status' => $status,
                 'createdAt' => $createdAt,
-                'serializedMessage' => $insert->serializedMessage,
-                'webhookId' => $webhookId,
+                'serializedMessage' => $serializedMessage,
+                'webhookId' => Uuid::fromHexToBytes($webhookId),
             ]
         );
 

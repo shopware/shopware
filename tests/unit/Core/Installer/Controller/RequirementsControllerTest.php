@@ -25,8 +25,6 @@ use Twig\Environment;
 #[CoversClass(RequirementsController::class)]
 class RequirementsControllerTest extends TestCase
 {
-    use InstallerControllerTestTrait;
-
     private Request $request;
 
     protected function setUp(): void
@@ -50,7 +48,7 @@ class RequirementsControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'requirementChecks' => $checks,
                     'noWayBack' => false,
                 ])
@@ -58,7 +56,7 @@ class RequirementsControllerTest extends TestCase
             ->willReturn('checks');
 
         $controller = new RequirementsController([$validator]);
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $response = $controller->requirements($this->request);
         static::assertSame('checks', $response->getContent());
@@ -80,7 +78,7 @@ class RequirementsControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'requirementChecks' => $checks,
                     'noWayBack' => true,
                 ])
@@ -88,7 +86,7 @@ class RequirementsControllerTest extends TestCase
             ->willReturn('checks');
 
         $controller = new RequirementsController([$validator]);
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $response = $controller->requirements($this->request);
         static::assertSame('checks', $response->getContent());
@@ -115,7 +113,7 @@ class RequirementsControllerTest extends TestCase
             ->willReturn('/installer/license');
 
         $controller = new RequirementsController([$validator]);
-        $controller->setContainer($this->getInstallerContainer($twig, ['router' => $router]));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig, ['router' => $router]));
 
         $response = $controller->requirements($this->request);
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -138,7 +136,7 @@ class RequirementsControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'requirementChecks' => $checks,
                     'noWayBack' => false,
                 ])
@@ -146,7 +144,7 @@ class RequirementsControllerTest extends TestCase
             ->willReturn('checks');
 
         $controller = new RequirementsController([$validator]);
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $response = $controller->requirements($this->request);
         static::assertSame('checks', $response->getContent());

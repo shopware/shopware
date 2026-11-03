@@ -55,6 +55,6 @@ class McpException extends HttpException
 
     public static function toolResultNotFound(string $id): ResourceNotFoundException
     {
-        return new ResourceNotFoundException(\sprintf('Tool result "%s" not found or belongs to a different session.', $id));
+        return new ResourceNotFoundException(\sprintf('Tool result "%s" not found. It may have expired or been stored by another caller.', $id));
     }
 }

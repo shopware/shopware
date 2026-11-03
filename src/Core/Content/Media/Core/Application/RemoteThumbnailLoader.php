@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -78,7 +79,7 @@ class RemoteThumbnailLoader implements ResetInterface
             $mediaFolderId = $mediaEntity->get('mediaFolderId');
             $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
 
-            if ($thumbnailSizes === []) {
+            if ($thumbnailSizes === [] || $this->isVectorGraphic($mediaEntity)) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
 
                 continue;
@@ -207,6 +208,17 @@ class RemoteThumbnailLoader implements ResetInterface
         return $this->mediaFolderThumbnailSizes = $grouped;
     }
 
+    /**
+     * A thumbnail URL of a vector graphic returns the original file at its own size,
+     * so the width of the thumbnail in a srcset would make the browser shrink the image.
+     */
+    private function isVectorGraphic(MediaEntity|PartialEntity $mediaEntity): bool
+    {
+        $mediaType = $mediaEntity->has('mediaType') ? $mediaEntity->get('mediaType') : null;
+
+        return $mediaType instanceof ImageType && $mediaType->is(ImageType::VECTOR_GRAPHIC);
+    }
+
     private function getBaseUrl(): string
     {
         return \rtrim($this->filesystem->publicUrl(''), '/');
@@ -214,56 +226,49 @@ class RemoteThumbnailLoader implements ResetInterface
 
     private function getUrl(MediaEntity|PartialEntity $mediaEntity, string $mediaUrl, string $width, string $height): ?string
     {
-        $extension = new ResolveRemoteThumbnailUrlExtension(
-            $mediaUrl,
-            $mediaEntity->get('path'),
-            $width,
-            $height,
-            $this->pattern,
-            $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
-            $mediaEntity,
-        );
-        $function = static function (
-            string $mediaUrl,
-            string $mediaPath,
-            string $width,
-            string $height,
-            string $pattern,
-            ?\DateTimeInterface $mediaUpdatedAt,
-            Entity $mediaEntity,
-        ): string {
-            if (Feature::isActive('v6.8.0.0')) {
-                $mediaPath = $mediaEntity->get('path');
-                \assert(\is_string($mediaPath));
-                $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-                \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
-            }
-
-            $replacements = [
-                str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
-                $mediaPath,
-                $width,
-                $height,
-                (string) $mediaUpdatedAt?->getTimestamp() ?: '',
-            ];
-
-            $url = str_replace(
-                ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
-                $replacements,
-                $pattern
-            );
-
-            return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
-        };
-
-        if (!$this->extensions->hasListeners(ResolveRemoteThumbnailUrlExtension::NAME)) {
-            return $function(...$extension->getParams());
-        }
-
         return $this->extensions->publish(
             name: ResolveRemoteThumbnailUrlExtension::NAME,
-            extension: $extension,
-            function: $function,
+            extension: new ResolveRemoteThumbnailUrlExtension(
+                $mediaUrl,
+                $mediaEntity->get('path'),
+                $width,
+                $height,
+                $this->pattern,
+                $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
+                $mediaEntity,
+            ),
+            function: static function (
+                string $mediaUrl,
+                string $mediaPath,
+                string $width,
+                string $height,
+                string $pattern,
+                ?\DateTimeInterface $mediaUpdatedAt,
+                Entity $mediaEntity,
+            ): string {
+                if (Feature::isActive('v6.8.0.0')) {
+                    $mediaPath = $mediaEntity->get('path');
+                    \assert(\is_string($mediaPath));
+                    $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+                    \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
+                }
+
+                $replacements = [
+                    str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
+                    $mediaPath,
+                    $width,
+                    $height,
+                    (string) $mediaUpdatedAt?->getTimestamp() ?: '',
+                ];
+
+                $url = str_replace(
+                    ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
+                    $replacements,
+                    $pattern
+                );
+
+                return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
+            }
         );
     }
 }

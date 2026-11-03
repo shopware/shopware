@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import {
     ComponentFactory,
     expectOnlyBranch,
@@ -93,12 +94,12 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expectOnlyBranch(wrapper, branches, '.condition-three');
 
         await wrapper.setData({ condition2: true });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.condition-two');
 
         await wrapper.setData({ condition1: true });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.condition-one');
 
@@ -107,7 +108,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             condition2: false,
             condition3: false,
         });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, null);
     });
@@ -220,12 +221,12 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             showRestart: false,
             showRestartAlternative: true,
         });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.alternative');
 
         await wrapper.setData({ showRestartAlternative: false });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.restart-fallback');
     });
@@ -263,7 +264,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(legacyConditionContext[chainKey]).toBeDefined();
 
         await wrapper.setData({ showBaseCondition: true });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.base-condition');
         expect(legacyConditionContext[chainKey]).toBeDefined();

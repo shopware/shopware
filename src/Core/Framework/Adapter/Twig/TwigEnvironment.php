@@ -34,7 +34,11 @@ class TwigEnvironment extends Environment implements ResetInterface
 
     /**
      * Overrides Twig {@see CoreExtension} with SW custom wrapper {@see SwTwigFunction}.
-     * Overrides Twig {@see EscaperRuntime} with SW custom wrapper {@see CachedEscaperRuntime}
+     * Overrides Twig {@see EscaperRuntime} with SW custom wrapper {@see CachedEscaperRuntime}.
+     *
+     * Twig compiles the escape call in two shapes: up to 3.29 it fetches the runtime on every call,
+     * since 3.30 it fetches it once per template into the `$escaper` property. Both are rewritten,
+     * so the escape cache stays in place whichever Twig version is installed.
      */
     public function compile(Node $node): string
     {
@@ -43,6 +47,7 @@ class TwigEnvironment extends Environment implements ResetInterface
         return strtr($source, [
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
             '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
+            '$this->escaper->escape(' => '\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->escaper, ',
         ]);
     }
 

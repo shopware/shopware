@@ -75,7 +75,7 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
 
         wrapper.vm.element.config.useCustomSorting.value = false;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const showSortingSwitchField = wrapper.find(
             'input[aria-label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
@@ -116,7 +116,7 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
             ],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
             foo_id: 2,
@@ -129,17 +129,17 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         const productSorting = { id: 'foo_id', priority: 2 };
 
         wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [productSorting]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         productSorting.priority = 10;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 2 });
 
         wrapper
             .findComponent('sw-cms-el-config-product-listing-config-sorting-grid-stub')
             .vm.$emit('inline-edit-save', productSorting);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 10 });
     });
@@ -149,15 +149,15 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         const productSorting = { id: 'foo_id', priority: 2 };
 
         wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [productSorting]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         productSorting.priority = 10;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper
             .findComponent('sw-cms-el-config-product-listing-config-sorting-grid-stub')
             .vm.$emit('inline-edit-cancel', productSorting);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(productSorting.priority).toBe(2);
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 2 });
@@ -197,12 +197,12 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
 
         wrapper.vm.defaultSorting = { id: 'default_sorting' };
         wrapper.vm.defaultSortingId = 'default_sorting';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const defaultSortingSelect = wrapper.findComponent('sw-entity-single-select-stub');
         defaultSortingSelect.vm.$emit('update:value', null);
         defaultSortingSelect.vm.$emit('option-select', 'productSorting', null);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.defaultSorting).toStrictEqual({});
         expect(wrapper.vm.defaultSortingId).toBeNull();
@@ -251,7 +251,7 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         await wrapper.setData({
             productSortings: [{ id: 'foo_id', key: 'foo', priority: 2 }],
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(toRaw(wrapper.vm.element.config.availableSortings.value)).not.toBe(originalRaw);
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({ foo_id: 2 });

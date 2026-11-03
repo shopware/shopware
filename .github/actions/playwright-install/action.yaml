@@ -1,0 +1,23 @@
+name: "Playwright install"
+description: "Install Chromium and its system packages for Playwright, timing out and retrying a stalled apt mirror"
+author: "shopware AG"
+
+inputs:
+  working-directory:
+    required: true
+    description: Directory of the Playwright project
+
+runs:
+  using: "composite"
+  steps:
+    - name: Wait for the dpkg lock instead of failing on it
+      shell: bash
+      # timeout cannot stop the apt-get that Playwright runs through sudo, so it outlives a timed-out attempt and keeps holding the lock.
+      run: echo 'DPkg::Lock::Timeout "300";' | sudo tee /etc/apt/apt.conf.d/99-dpkg-lock-timeout
+
+    - name: Install Playwright Browsers
+      uses: shopware/github-actions/npm-ci-retry@main
+      with:
+        working-directory: ${{ inputs.working-directory }}
+        # A stalled apt mirror hangs without failing, so the retry loop never fires; time each attempt out so it can retry (normal runtime is ~2 minutes).
+        command: timeout 10m bash -c 'sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium'

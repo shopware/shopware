@@ -13,6 +13,7 @@ test(
         ProceedFromCartToCheckout,
         ConfirmTermsAndConditions,
         SubmitOrder,
+        StorefrontCheckoutFinish,
         StorefrontProductDetail,
         StorefrontCategory,
         StorefrontAccountLogin,
@@ -65,6 +66,8 @@ test(
 
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
             await ShopCustomer.attemptsTo(SubmitOrder());
+            const orderId = StorefrontCheckoutFinish.getOrderId();
+            TestDataService.addCreatedRecord('order', orderId);
 
             await ShopCustomer.attemptsTo(ValidateAccessibility('Checkout Finish', true));
         });

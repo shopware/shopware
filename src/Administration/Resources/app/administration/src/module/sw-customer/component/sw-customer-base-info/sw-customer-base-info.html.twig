@@ -201,12 +201,32 @@
     <div class="sw-customer-base-info-columns">
         {% block sw_customer_base_metadata_customer_number %}
         <sw-description-list>
+            {% block sw_customer_base_metadata_customer_number_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $t('sw-customer.baseInfo.labelCustomerNumber') }}
             </dt>
-            <dd class="sw-customer-base__label-customer-number">
+            {% endblock %}
+
+            {% block sw_customer_base_metadata_customer_number_content %}
+            <dd
+                v-if="!customerEditMode"
+                class="sw-customer-base__label-customer-number"
+            >
                 {{ customer.customerNumber }}
             </dd>
+            {% endblock %}
+
+            {% block sw_customer_base_metadata_customer_number_editor %}
+            <dd v-else>
+                <mt-text-field
+                    v-model="customer.customerNumber"
+                    name="sw-field--customer-customerNumber"
+                    :placeholder="$t('sw-customer.baseForm.placeholderCustomerNumber')"
+                    :error="customerCustomerNumberError"
+                    size="small"
+                />
+            </dd>
+            {% endblock %}
         </sw-description-list>
         {% endblock %}
 

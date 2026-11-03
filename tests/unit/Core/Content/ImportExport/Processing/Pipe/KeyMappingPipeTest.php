@@ -25,12 +25,12 @@ class KeyMappingPipeTest extends TestCase
         $pipeInResult = $keyMappingPipe->in($config, ['foo' => 'bar']);
         static::assertInstanceOf(\Traversable::class, $pipeInResult);
         $actualOutput = iterator_to_array($pipeInResult);
-        static::assertEmpty($actualOutput);
+        static::assertCount(0, $actualOutput);
 
         $pipeOutResult = $keyMappingPipe->out($config, ['foo' => 'bar']);
         static::assertInstanceOf(\Traversable::class, $pipeOutResult);
         $actualOutput = iterator_to_array($pipeOutResult);
-        static::assertEmpty($actualOutput);
+        static::assertCount(0, $actualOutput);
     }
 
     /**

@@ -17,7 +17,7 @@
         }
 
         .sw-loader {
-            background-color: var(--color-background-tertiary-default);
+            background-color: color-mix(in srgb, var(--color-background-tertiary-default) 80%, transparent);
         }
     }
 

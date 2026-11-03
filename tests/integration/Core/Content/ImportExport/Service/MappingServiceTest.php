@@ -84,9 +84,9 @@ class MappingServiceTest extends TestCase
             return;
         }
 
-        static::assertNotEmpty($fileId);
+        static::assertNotSame('', $fileId);
         $file = $this->fileRepository->search(new Criteria([$fileId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertNotEmpty($file);
+        static::assertNotNull($file);
 
         $csv = $this->fileSystem->read($file->getPath());
 

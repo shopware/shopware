@@ -24,7 +24,7 @@
             {% block sw_product_variants_delivery_variant_mode_selection %}
             <sw-radio-field
                 class="sw-product-variants-delivery-listing_variant-selection"
-                :value="product.variantListingConfig.displayParent"
+                :value="variantMode"
                 :options="mainVariantModeOptions"
                 :disabled="isDisabledListingMode('single')"
                 @update:value="updateVariantMode"
@@ -91,7 +91,7 @@
 
             {% block sw_product_variants_delivery_listing_config_single_main_variant_explanation %}
             <div class="sw-product-variants-delivery-listing__option-explanation">
-                <p v-if="product.variantListingConfig.displayParent">
+                <p v-if="variantMode">
                     {{ $t('sw-product.variations.deliveryModal.listingExplanationModeMainProduct') }}
                 </p>
                 <p v-else>

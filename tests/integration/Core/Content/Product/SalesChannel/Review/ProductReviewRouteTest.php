@@ -147,6 +147,7 @@ class ProductReviewRouteTest extends TestCase
                 'productId' => $this->ids->get('product'),
                 'title' => 'Test',
                 'content' => 'test',
+                'externalUser' => 'Test',
                 'points' => min(5, $i + $i / 5),
                 'status' => true,
             ];

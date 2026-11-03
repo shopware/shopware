@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @codeCoverageIgnore
@@ -22,5 +23,10 @@ class RuntimeFieldInCriteriaException extends ShopwareHttpException
     public function getErrorCode(): string
     {
         return 'FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

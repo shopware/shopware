@@ -16,6 +16,7 @@ final class TemplateData implements \JsonSerializable
     public function __construct(
         public readonly bool $useDefault,
         public readonly ?string $url,
+        public readonly bool $passwordRecoveryEnabled = true,
     ) {
     }
 }

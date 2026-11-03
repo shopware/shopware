@@ -5,10 +5,12 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -30,6 +32,8 @@ class ContextControllerContextTest extends TestCase
 
     private string $languageId;
 
+    private string $salesChannelId;
+
     private Router $router;
 
     protected function setUp(): void
@@ -37,6 +41,7 @@ class ContextControllerContextTest extends TestCase
         $this->router = static::getContainer()->get('router');
 
         $this->languageId = Uuid::randomHex();
+        $this->salesChannelId = Uuid::randomHex();
         $localeId = Uuid::randomHex();
 
         $this->defaultBaseUrl = $_SERVER['APP_URL'];
@@ -71,6 +76,7 @@ class ContextControllerContextTest extends TestCase
         ];
 
         $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->salesChannelId,
             'domains' => $domains,
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $this->languageId]],
         ]);
@@ -147,14 +153,100 @@ class ContextControllerContextTest extends TestCase
         static::assertSame($this->defaultBaseUrl . '/detail/' . $productId, $response->headers->get('Location'));
     }
 
+    public function testSwitchRedirectsToSeoUrlOfNewLanguage(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->createProductSeoUrl($productId, Defaults::LANGUAGE_SYSTEM, 'test-product/SW10003');
+
+        $this->browser->request('GET', $this->testBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
+
+        $this->browser->request(
+            'POST',
+            $this->testBaseUrl . '/checkout/language',
+            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME, 'redirectParameters' => ['productId' => $productId]]
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame($this->defaultBaseUrl . '/test-product/SW10003', $response->headers->get('Location'));
+    }
+
+    public function testSwitchRedirectsToSeoUrlOfNewLanguageAndKeepsQueryParameters(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->createProductSeoUrl($productId, $this->languageId, 'tst-product/SW10003');
+
+        $this->browser->request('GET', $this->defaultBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
+
+        $this->browser->request(
+            'POST',
+            $this->defaultBaseUrl . '/checkout/language',
+            ['languageId' => $this->languageId, 'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME, 'redirectParameters' => ['productId' => $productId, 'offcanvas' => 'menu']]
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame($this->testBaseUrl . '/tst-product/SW10003?offcanvas=menu', $response->headers->get('Location'));
+    }
+
+    public function testSwitchRedirectsToSeoUrlWithSchemeOfCurrentRequest(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->createProductSeoUrl($productId, Defaults::LANGUAGE_SYSTEM, 'test-product/SW10003');
+
+        $secureTestBaseUrl = str_replace('http://', 'https://', $this->testBaseUrl);
+        static::getContainer()->get('sales_channel_domain.repository')->create([
+            [
+                'salesChannelId' => $this->salesChannelId,
+                'languageId' => $this->languageId,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => $secureTestBaseUrl,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('GET', $secureTestBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
+
+        $this->browser->request(
+            'POST',
+            $secureTestBaseUrl . '/checkout/language',
+            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME, 'redirectParameters' => ['productId' => $productId]]
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame(str_replace('http://', 'https://', $this->defaultBaseUrl) . '/test-product/SW10003', $response->headers->get('Location'));
+    }
+
+    public function testSwitchIgnoresSeoUrlOfPreviousLanguage(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->createProductSeoUrl($productId, $this->languageId, 'tst-product/SW10003');
+
+        $this->browser->request('GET', $this->testBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
+
+        $this->browser->request(
+            'POST',
+            $this->testBaseUrl . '/checkout/language',
+            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME, 'redirectParameters' => ['productId' => $productId]]
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame($this->defaultBaseUrl . '/detail/' . $productId, $response->headers->get('Location'));
+    }
+
     public function testConfigure(): void
     {
         $this->browser->request('GET', $this->testBaseUrl);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $contextSubscriber = new ContextControllerTestSubscriber();
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $dispatcher->addSubscriber($contextSubscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($contextSubscriber);
 
         $this->browser->request(
             'POST',
@@ -164,10 +256,23 @@ class ContextControllerContextTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        $dispatcher->removeSubscriber($contextSubscriber);
-
         static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertSame($this->languageId, $contextSubscriber->switchEvent->getRequestDataBag()->get('languageId'));
+    }
+
+    private function createProductSeoUrl(string $productId, string $languageId, string $seoPathInfo): void
+    {
+        static::getContainer()->get('seo_url.repository')->create([
+            [
+                'salesChannelId' => $this->salesChannelId,
+                'languageId' => $languageId,
+                'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                'foreignKey' => $productId,
+                'pathInfo' => '/detail/' . $productId,
+                'seoPathInfo' => $seoPathInfo,
+                'isCanonical' => true,
+            ],
+        ], Context::createDefaultContext());
     }
 }
 

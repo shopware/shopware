@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:behavior-change - will be removed in 6.8.0, invalid locales won't be supported anymore
+ * @deprecated tag:v6.8.0 - will be removed in 6.8.0, invalid locales won't be supported anymore
  *
  * We extend NumberFormatter to make sure that invalid locales are still supported
  * Since php 8.4.0 invalid locales will throw an exception, which leads to a breaking change

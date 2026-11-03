@@ -29,6 +29,10 @@
                                         "url": {
                                             "description": "Experimental: Contains the return url for the Shopware SSO login.",
                                             "type": "string"
+                                        },
+                                        "passwordRecoveryEnabled": {
+                                            "description": "Experimental: Indicates whether the Administration user password recovery flow is enabled (shopware.api.user_recovery.enabled).",
+                                            "type": "boolean"
                                         }
                                     },
                                     "type": "object"

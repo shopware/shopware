@@ -150,7 +150,7 @@ class NewsletterControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $success = $session->getFlashBag()->get('success');
 
-        static::assertNotEmpty($success);
+        static::assertNotCount(0, $success);
         static::assertSame($container->get('translator')->trans('newsletter.subscriptionCompleted'), $success[0]);
     }
 

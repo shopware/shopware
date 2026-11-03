@@ -645,7 +645,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         };
         wrapper.vm.buildReplyToTooltip('foo');
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith('foo', 0, {
+        expect(wrapper.vm.$t).toHaveBeenCalledWith('foo', {
             settingsLink: 'bar',
         });
     });

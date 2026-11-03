@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class Webhook
 {
+    /**
+     * @param AclRoles $roles the ACL roles the webhook is authorized with, resolved live at load: the owner's roles, limited to the webhook's aclRoleIds when set; for an app webhook the owner is the app's integration
+     */
     public function __construct(
         public string $id,
         public string $webhookName,
@@ -26,7 +30,7 @@ final readonly class Webhook
         public bool $appActive,
         public ?string $appVersion,
         public ?string $appSecret,
-        public ?string $appAclRoleId,
+        public AclRoles $roles,
     ) {
     }
 }

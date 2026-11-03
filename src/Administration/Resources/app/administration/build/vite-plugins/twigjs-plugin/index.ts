@@ -1,3 +1,4 @@
+import path from 'path';
 import type { Plugin } from 'vite';
 
 /**
@@ -9,13 +10,16 @@ import type { Plugin } from 'vite';
 const isTwigFile = /\.twig$/;
 const isHTMLFile = /\.html$/;
 
+// Resolved from this file, so it also matches when Shopware is installed in `vendor/shopware/administration`.
+const administrationIndexHtml = path.resolve(__dirname, '../../../index.html').replace(/\\/g, '/');
+
 /* @private */
 export default function twigPlugin(): Plugin {
     return {
         name: 'shopware-vite-plugin-twigjs',
 
         transform(fileContent, id) {
-            if (id.endsWith('src/Administration/Resources/app/administration/index.html')) {
+            if (id === administrationIndexHtml) {
                 return;
             }
 

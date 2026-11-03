@@ -27,7 +27,7 @@ class AssetPackageService
 
         foreach ($bundleMap as $bundleName => $bundlePath) {
             /** @see AssetService::getTargetDirectory() */
-            $targetPath = '/bundles/' . preg_replace('/bundle$/', '', mb_strtolower($bundleName));
+            $targetPath = '/bundles/' . preg_replace('/bundle$/D', '', mb_strtolower($bundleName));
 
             $path = $package->getUrl($targetPath);
 

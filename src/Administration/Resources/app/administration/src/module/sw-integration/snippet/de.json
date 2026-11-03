@@ -21,7 +21,7 @@
     "mcp": {
       "cardTitle": "MCP-Allowlist",
       "modalTitle": "MCP-Allowlist",
-      "infoText": "Wähle aus, welche MCP-Funktionen diese Integration nutzen darf. Alles, was nicht ausgewählt ist, wird blockiert. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
+      "infoText": "Wähle aus, welche MCP-Funktionen genutzt werden dürfen. Alles, was nicht ausgewählt ist, wird blockiert. „Alle“ wählt die derzeit verfügbaren Funktionen aus. Funktionen, die später durch ein Update, ein Plugin oder eine App hinzukommen, musst Du gesondert auswählen. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
       "adminBanner": "Dieser Benutzer ist Administrator. Alle MCP-Funktionen sind unabhängig von der Auswahl unten zugänglich.",
       "noSelectionBanner": "Es sind keine Funktionen ausgewählt, daher ist derzeit nichts über MCP erreichbar. Wähle die benötigten Tools, Ressourcen und Prompts aus.",
       "allCapabilitiesLabel": "Alle Funktionen",
@@ -29,7 +29,7 @@
       "toolsSection": "Tools",
       "resourcesSection": "Ressourcen",
       "promptsSection": "Prompts",
-      "toolsGuidance": "Tools führen Aktionen aus und können Nebenwirkungen haben (Schreiben, Löschen). Beschränke den Zugriff auf das, was diese Integration wirklich benötigt.",
+      "toolsGuidance": "Tools führen Aktionen aus und können Nebenwirkungen haben (Schreiben, Löschen). Beschränke den Zugriff genau auf das, was benötigt wird.",
       "resourcesGuidance": "Ressourcen liefern schreibgeschützte Referenzdaten (Entitätslisten, State Machines, Vertriebskanäle). Schränke diese ein, um sensible Geschäftsdaten nicht unnötig offenzulegen.",
       "promptsGuidance": "Prompts sind System-Anweisungen, die den Kontext der KI bestimmen. Nicht benötigte Prompts verschwenden Kontextfenster und können die KI verwirren.",
       "noCapabilitiesHeadline": "Keine Funktionen gefunden",

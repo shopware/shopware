@@ -24,17 +24,18 @@ readonly class Metric
     /**
      * @internal
      *
-     * @param array<non-empty-string, string|bool|float|int> $processedLabels labels already validated by MetricLabelProcessor
+     * @param array<non-empty-string, string|bool|float|int> $labels labels already validated by MetricLabelProcessor
+     * @param int|float $value value already resolved by the Meter (closures are computed there)
      */
-    public static function fromConfigured(
-        ConfiguredMetric $configuredMetric,
+    public static function fromConfig(
         MetricConfig $metricConfig,
-        array $processedLabels,
+        array $labels,
+        int|float $value,
     ): self {
         return new self(
-            name: $configuredMetric->name,
-            value: $configuredMetric->value instanceof \Closure ? \call_user_func($configuredMetric->value) : $configuredMetric->value,
-            labels: $processedLabels,
+            name: $metricConfig->name,
+            value: $value,
+            labels: $labels,
             type: $metricConfig->type,
             description: $metricConfig->description,
             unit: $metricConfig->unit,

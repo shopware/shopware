@@ -12,6 +12,6 @@ class CoveredTwigExtension extends AbstractExtension
 {
     public function getFunctions(): array
     {
-        return [new TwigFunction('category_url', static fn () => null)];
+        return [new TwigFunction('sw_breadcrumb_full', static fn () => null)];
     }
 }

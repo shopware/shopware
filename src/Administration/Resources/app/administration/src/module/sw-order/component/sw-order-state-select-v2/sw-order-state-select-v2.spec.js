@@ -73,6 +73,18 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         expect(wrapper.findComponent('.mt-select').props('modelValue')).toBe(0);
     });
 
+    it('should render a small select by default', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent('.mt-select').props('small')).toBe(true);
+    });
+
+    it('should render a regular select when small is disabled', async () => {
+        const wrapper = await createWrapper({ small: false });
+
+        expect(wrapper.findComponent('.mt-select').props('small')).toBe(false);
+    });
+
     it('should show placeholder correctly', async () => {
         const wrapper = await createWrapper();
         const select = wrapper.findComponent('.mt-select');

@@ -14,6 +14,11 @@ class GaranLabelResolver
     public const LABEL_TYPE_FULL = 'full';
     public const LABEL_TYPE_NESTED = 'nested';
 
+    /**
+     * Line item holds the {@see self::resolveSnapshot()} values
+     */
+    public const PAYLOAD_KEY = 'garanLabel';
+
     public function __construct(
         private readonly GaranLabelDurationFormatter $durationFormatter,
         private readonly GaranLabelRenderer $renderer,
@@ -37,6 +42,22 @@ class GaranLabelResolver
             trim((string) $product->getManufacturer()?->getTranslation('name')),
             trim((string) $product->getManufacturerNumber()),
         );
+    }
+
+    /**
+     * @return array{guaranteeMonths: int, brand: string, modelIdentifier: string}|null
+     */
+    public function resolveSnapshot(ProductEntity $product): ?array
+    {
+        if ($this->resolveDuration($product) === null) {
+            return null;
+        }
+
+        return [
+            'guaranteeMonths' => (int) $product->getGuaranteeMonths(),
+            'brand' => trim((string) $product->getManufacturer()?->getTranslation('name')),
+            'modelIdentifier' => trim((string) $product->getManufacturerNumber()),
+        ];
     }
 
     public function resolveDuration(ProductEntity $product): ?string

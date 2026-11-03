@@ -196,17 +196,23 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         window.open.mockClear();
     });
 
-    it('should call to get products from product streams when selecting product streams', async () => {
+    it('should emit the products together with the selected product stream ids and their total', async () => {
         const wrapper = await createWrapper();
 
+        const products = [...productsMock];
+        products.total = 1024;
         wrapper.vm.getProductsFromProductStreams = jest.fn(() => {
-            return Promise.resolve(productsMock);
+            return Promise.resolve(products);
         });
 
-        await wrapper.vm.onSelect({ 1: productStreamsMock[0] });
+        await wrapper.vm.onSelect({ 1: productStreamsMock[0], 2: productStreamsMock[1] });
 
         expect(wrapper.vm.getProductsFromProductStreams).toHaveBeenCalledTimes(1);
-        expect(wrapper.emitted()['selection-change'][0]).toEqual(expect.arrayContaining([productsMock, 'groupProducts']));
+        expect(wrapper.emitted()['selection-change'][0]).toEqual([
+            products,
+            'groupProducts',
+            { ids: ['1', '2'], total: 1024 },
+        ]);
 
         wrapper.vm.getProductsFromProductStreams.mockRestore();
     });
@@ -226,6 +232,57 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         wrapper.vm.getProductsFromProductStreams.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should pass each product stream filter to the product search and sum the totals', async () => {
+        const wrapper = await createWrapper();
+
+        const filters = {
+            1: [{ type: 'equals', field: 'name', value: 'first' }],
+            2: [{ type: 'equals', field: 'name', value: 'second' }],
+        };
+        const results = {
+            first: Object.assign([{ id: 'a' }], { total: 600 }),
+            second: Object.assign([{ id: 'b' }], { total: 424 }),
+        };
+
+        wrapper.vm.productStreamRepository.get = jest.fn((id) => Promise.resolve({ apiFilter: filters[id] }));
+        wrapper.vm.getProducts = jest.fn((filter) => Promise.resolve(results[filter[0].value]));
+
+        const products = await wrapper.vm.getProductsFromProductStreams({
+            1: productStreamsMock[0],
+            2: productStreamsMock[1],
+        });
+
+        expect([...products]).toEqual([{ id: 'a' }, { id: 'b' }]);
+        expect(products.total).toBe(1024);
+        expect(wrapper.vm.getProducts).toHaveBeenNthCalledWith(1, filters[1]);
+        expect(wrapper.vm.getProducts).toHaveBeenNthCalledWith(2, filters[2]);
+        expect(wrapper.emitted()['product-loading']).toEqual([[true], [false]]);
+
+        wrapper.vm.productStreamRepository.get.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
+    });
+
+    it('should build the product criteria from the given product stream filter', async () => {
+        const wrapper = await createWrapper();
+
+        const streamFilter = [{ type: 'equals', field: 'productNumber', value: 'SW1000' }];
+
+        wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve([]));
+
+        await wrapper.vm.getProducts(streamFilter);
+
+        const [criteria] = wrapper.vm.productRepository.search.mock.calls[0];
+        expect(criteria.filters).toEqual([
+            streamFilter[0],
+            expect.objectContaining({
+                type: 'not',
+                queries: [expect.objectContaining({ field: 'product.visibilities.salesChannelId', value: 1 })],
+            }),
+        ]);
+
+        wrapper.vm.productRepository.search.mockRestore();
     });
 
     it('should exit the function when selecting product streams', async () => {
@@ -338,6 +395,26 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         });
 
         expect((await getError(wrapper.vm.getProducts)).message).toBe('Whoops!');
+
+        wrapper.vm.productRepository.search.mockRestore();
+    });
+
+    it('should not load the visibilities of the products, because only their ids are assigned', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve(productsMock));
+
+        await wrapper.vm.getProducts();
+
+        const criteria = wrapper.vm.productRepository.search.mock.calls[0][0];
+        expect(criteria.hasAssociation('visibilities')).toBe(false);
+        // products that are already assigned to the sales channel are still excluded
+        expect(criteria.filters).toContainEqual(
+            expect.objectContaining({
+                type: 'not',
+                queries: [expect.objectContaining({ field: 'product.visibilities.salesChannelId', value: 1 })],
+            }),
+        );
 
         wrapper.vm.productRepository.search.mockRestore();
     });

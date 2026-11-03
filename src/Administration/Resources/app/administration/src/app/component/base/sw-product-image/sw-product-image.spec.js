@@ -17,6 +17,7 @@ async function createWrapper() {
                 'sw-context-button': {
                     template: `
                         <div class="sw-context-button">
+                            <slot name="button"></slot>
                             <slot></slot>
                         </div>`,
                 },
@@ -33,7 +34,7 @@ async function createWrapper() {
 describe('app/component/base/sw-product-image', () => {
     it('should display button to set as cover image if media is not a 3D object and is not already a cover image', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             showCoverLabel: true,
@@ -45,7 +46,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should not display button to set as cover image if media is not a 3D object and is already a cover image', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             showCoverLabel: true,
@@ -56,9 +57,20 @@ describe('app/component/base/sw-product-image', () => {
         expect(setAsCoverButton.exists()).toBe(false);
     });
 
-    it('should not show spatial label if media item is not a 3D object', async () => {
+    it('should render the context button trigger as a square secondary button that is not nested interactive content', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
+
+        const trigger = wrapper.find('.sw-product-image__context-button .mt-button');
+        expect(trigger.element.tagName).toBe('SPAN');
+        expect(trigger.classes()).toEqual(
+            expect.arrayContaining(['mt-button--secondary', 'mt-button--x-small', 'mt-button--square']),
+        );
+    });
+
+    it('should not show spatial label if media item is not a 3D object', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.setProps({
             isSpatial: true,
@@ -70,7 +82,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should show spatial label if media item is a 3D object', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             isSpatial: true,
@@ -82,7 +94,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should should AR ready label if media item is a 3D object and has AR enabled', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             isSpatial: true,

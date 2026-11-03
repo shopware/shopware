@@ -163,5 +163,30 @@ class UpdatePathTest extends TestCase
                 'thumbnail' => 'thumbnail/test_100x100.png',
             ],
         ];
+
+        yield 'Test force parameter keeps external URLs' => [
+            [
+                'file_name' => 'test',
+                'file_extension' => 'png',
+                'path' => 'https://example.com/test.png',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            [
+                'width' => 100,
+                'height' => 100,
+                'path' => 'https://example.com/test_100x100.png',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            [
+                'width' => 100,
+                'height' => 100,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            new ArrayInput(['--force' => true]),
+            [
+                'media' => 'https://example.com/test.png',
+                'thumbnail' => 'https://example.com/test_100x100.png',
+            ],
+        ];
     }
 }

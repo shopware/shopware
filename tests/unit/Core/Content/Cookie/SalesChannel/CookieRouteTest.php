@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 #[Package('discovery')]
 #[CoversClass(CookieRoute::class)]
-#[CoversClass(CookieRouteResponse::class)]
 class CookieRouteTest extends TestCase
 {
     public function testItThrowsDecorationPatternException(): void

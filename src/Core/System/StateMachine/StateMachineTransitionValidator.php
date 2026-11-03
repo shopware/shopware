@@ -29,11 +29,12 @@ class StateMachineTransitionValidator implements EventSubscriberInterface
     {
     }
 
-    /**
-     * @phpstan-ignore shopware.deprecatedClass (framework-invoked, must not trigger a deprecation)
-     */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
         return [
             PreWriteValidationEvent::class => 'preValidate',
         ];
@@ -41,6 +42,8 @@ class StateMachineTransitionValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         $transitions = [];
         foreach ($event->getCommandsForEntity(StateMachineTransitionDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {

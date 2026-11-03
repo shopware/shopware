@@ -282,7 +282,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -303,7 +303,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     it('should not get search ranking fields when term is null', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -328,7 +328,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -352,7 +352,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });
@@ -445,6 +445,20 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
     });
 
+    /**
+     * @deprecated tag:v6.8.0 - test will be removed when the 6.7 fallback is dropped
+     */
+    it.deprecated('v6.8.0.0')('should sort deliveries like the order detail page', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getAssociation('deliveries').sortings).toEqual([
+            expect.objectContaining({ field: 'shippingCosts.unitPrice', order: 'DESC' }),
+            expect.objectContaining({ field: 'id', order: 'ASC' }),
+        ]);
+    });
+
     it.activeFeatureFlags(['v6.8.0.0'])('should only load primary order associations', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
@@ -485,6 +499,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
+                    additionalFilters: [
+                        Criteria.equals('lineItems.type', 'promotion'),
+                    ],
                 }),
             }),
         );

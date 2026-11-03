@@ -1,0 +1,38 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-tests-for-behavior-change-catch",
+    "title": "fix(checkout): prevent division by zero for products with purchase steps 0",
+    "body": "Products imported with `purchaseSteps: 0` crash the cart with a DivisionByZeroError when the stock limit is reached. The processor now treats steps below 1 as 1 and never reduces a quantity below the minimum purchase.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/tests-for-behavior-change-catch",
+    "additions": 5,
+    "deletions": 1,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Content/Product/Cart/ProductCartProcessor.php"
+  ],
+  "guides": [
+    "guides/tests-for-behavior-change.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src",
+      "php_src_without_tests",
+      "fix_without_test"
+    ],
+    "metadata": {
+      "fixes_issue": true
+    },
+    "guides": [
+      "tests-for-behavior-change"
+    ]
+  }
+}

@@ -17,10 +17,6 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[Package('discovery')]
 #[CoversClass(PathStrategyFactory::class)]
-#[CoversClass(IdPathStrategy::class)]
-#[CoversClass(FilenamePathStrategy::class)]
-#[CoversClass(PhysicalFilenamePathStrategy::class)]
-#[CoversClass(PlainPathStrategy::class)]
 class PathStrategyFactoryTest extends TestCase
 {
     public function testRegistry(): void

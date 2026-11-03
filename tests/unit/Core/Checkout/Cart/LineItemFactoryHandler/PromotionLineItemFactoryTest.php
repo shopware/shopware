@@ -47,6 +47,7 @@ class PromotionLineItemFactoryTest extends TestCase
 
         static::assertSame(Uuid::fromStringToHex('promotion-test-referenced-id'), $lineItem->getId());
         static::assertSame('test-referenced-id', $lineItem->getReferencedId());
+        static::assertSame('promotion-test-referenced-id', $lineItem->getLabel());
         static::assertFalse($lineItem->isGood());
         static::assertSame(1, $lineItem->getQuantity());
         static::assertSame('promotion', $lineItem->getType());

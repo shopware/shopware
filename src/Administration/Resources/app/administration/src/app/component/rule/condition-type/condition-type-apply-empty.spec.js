@@ -55,7 +55,7 @@ async function createWrapperForComponent(componentName) {
                 'sw-entity-multi-select': true,
                 'sw-condition-base': true,
                 'sw-condition-base-line-item': true,
-                'sw-tagged-field': true,
+                'sw-multi-tag-select': true,
                 'sw-context-menu-item': true,
                 'mt-number-field': true,
                 'sw-field-error': true,
@@ -118,14 +118,14 @@ describe('src/app/component/rule/condition-type/*.js', () => {
             value: { operator: '=', [conditionType.value]: 'kyln' },
         };
         await wrapper.setProps({ condition: condition });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.condition.value[conditionType.value]).toBe('kyln');
 
         const conditionEmpty = {
             value: { operator: 'empty', [conditionType.value]: 'kyln' },
         };
         await wrapper.setProps({ condition: conditionEmpty });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         // Expect value always delete when operator is empty
         expect(wrapper.vm.condition.value[conditionType.value]).toBeUndefined();
     });

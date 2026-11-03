@@ -95,6 +95,13 @@ export default {
                 product.variantListingConfig.configuratorGroupConfig = configuratorGroupConfig;
             }
 
+            if (product && product.listingMode === 'single') {
+                product.variantListingConfig.displayParent = product.variantListingConfig.displayParent === true;
+                product.variantListingConfig.configuratorGroupConfig?.forEach((group) => {
+                    group.expressionForListings = false;
+                });
+            }
+
             delete product.listingMode;
 
             return product;

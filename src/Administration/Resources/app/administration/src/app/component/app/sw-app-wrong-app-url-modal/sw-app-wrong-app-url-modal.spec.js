@@ -144,6 +144,33 @@ describe('sw-app-wrong-app-url-modal', () => {
         expect(removeNotificationSpy).toHaveBeenCalledTimes(0);
     });
 
+    it('shows the APP_URL and the HTTP status code of the failed check', async () => {
+        Shopware.Store.get('context').app.config.appUrl = 'https://shop.example';
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appUrlStatusCode = 403;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = true;
+        localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
+
+        wrapper = await createWrapper();
+
+        const details = wrapper.get('.sw-app-wrong-app-url-modal__details').text();
+        expect(details).toContain('https://shop.example');
+        expect(details).toContain('sw-app.component.sw-app-wrong-app-url-modal.reasonStatusCode');
+    });
+
+    it('points to the console command when the failed check got no response', async () => {
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appUrlStatusCode = null;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = true;
+        localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
+
+        wrapper = await createWrapper();
+
+        expect(wrapper.get('.sw-app-wrong-app-url-modal__details').text()).toContain(
+            'sw-app.component.sw-app-wrong-app-url-modal.reasonUnknown',
+        );
+    });
+
     it('should return filters from filter registry', async () => {
         wrapper = await createWrapper();
 

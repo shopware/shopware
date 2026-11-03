@@ -154,7 +154,7 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 `majorFlag` is inactive it warns in development builds, once per message. Once the flag is active it throws:
 
 ```typescript
-Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
 ```
 
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
@@ -169,6 +169,13 @@ like `true`.
 
 Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
 sides of a flag. A test that asserts a warning spies on `console.warn`.
+
+Deprecated APIs that stay usable past the next major, like the deprecated `$tc` and the vue-i18n 8 argument
+order, use the major of their removal, e.g. `V6_9_0_0`. Put the caller and the replacement into the message, so
+every call site is reported once and stays actionable. See `src/core/helper/i18n-legacy-syntax.helper.ts`.
+
+Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
+`sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
 
 ## Coding Guidelines
 

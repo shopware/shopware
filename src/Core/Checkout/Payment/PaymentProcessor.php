@@ -132,7 +132,6 @@ class PaymentProcessor
 
         // @deprecated tag:v6.8.0 - remove this if block, as both parameters are non-nullable in the PaymentToken
         if ($paymentMethodId === null || $transactionId === null) {
-            \assert($token instanceof TokenStruct);
             throw PaymentException::invalidToken($token->getToken() ?? '');
         }
 

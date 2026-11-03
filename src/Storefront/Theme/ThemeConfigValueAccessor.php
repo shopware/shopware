@@ -253,7 +253,7 @@ class ThemeConfigValueAccessor
         }
 
         // Allow only a conservative set of characters for plain CSS-like expressions.
-        if (preg_match('/^[\s$#%.,:+\-*\/_a-zA-Z0-9-]+$/', $value) !== 1) {
+        if (preg_match('/^[\s$#%.,:+\-*\/_a-zA-Z0-9-]+$/D', $value) !== 1) {
             return false;
         }
 

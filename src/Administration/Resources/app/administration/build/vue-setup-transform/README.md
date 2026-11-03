@@ -53,7 +53,8 @@ developers working on the transform itself.
   generated script root so hoisted macros can still resolve the names.
 - **Source edit** — a range of the SFC plus the chunks that replace it. **Lowering produces every one of
   them**, including the ones outside the script block (an override's generated `<template>`, a base
-  `<sw-block>`'s `:data="$dataScope"`, an override block's `#default` slot scope). Both analyses report
+  `<sw-block>`'s `:data="$dataScope"`, an override block's `#default` slot scope and the reference
+  rewrites inside that block). Both analyses report
   positions and names; no generated syntax is decided outside `lower/`.
 - **Marker statements / rename targets** — locations the analyzer reports, never edits. Override lowering
   strips imports, type declarations and markers from the body it moves into the callback; base lowering
@@ -62,7 +63,14 @@ developers working on the transform itself.
 - **Override-private namespace** — the module-root `Symbol()` (bound to `__swSetupNamespace`) used as a
   **computed** key under the reserved `__swOverride` slot-scope channel, through which an override's
   non-public bindings reach its `<sw-block extends>` template content. Emitted only when the override
-  actually forwards locals. Uniqueness comes from the symbol, so the binding name can be fixed.
+  actually forwards locals, together with the module-root accessor `__swSetupOverrideScope` that resolves
+  the namespace inside the slot scope without a `]` (a dynamic directive argument ends at the first one).
+  Uniqueness comes from the symbol, so the binding name can be fixed.
+- **Reference rewrite** — the replacement of one identifier inside `<sw-block extends>` content with the
+  path it is reachable under in the generated slot scope (`__swSetupScope`). The whole scope is bound
+  under one name instead of destructured, because a destructured slot prop is a plain local: reads would
+  work, writes would silently go nowhere. The analyzer reports the occurrence sites, their visibility,
+  and the syntax each replacement has to reproduce; the lowerer renders the paths.
 - **Chunks** — the source IR: `generated` (compiler-owned text) and `original` (a slice of the author's
   SFC, kept addressable for sourcemaps). There is no re-indent or trim wrapper: the transform does not
   beautify its output, so copied lines keep their original columns.

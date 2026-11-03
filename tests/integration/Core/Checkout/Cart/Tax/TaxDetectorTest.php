@@ -98,6 +98,7 @@ class TaxDetectorTest extends TestCase
         static::assertNotNull($country);
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         $customer->setCompany('ABC Company');
         $customer->setVatIds(['DE123123123']);
 
@@ -105,7 +106,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -179,6 +180,7 @@ class TaxDetectorTest extends TestCase
         static::assertNotNull($deCountry);
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         $customer->setCompany('ABC Company');
         $customer->setVatIds(['VN123123']);
 
@@ -186,7 +188,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($deCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -207,6 +209,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'company' => 'ABC Compay',
             'vatIds' => [null],
         ]);
@@ -215,7 +218,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -256,6 +259,7 @@ class TaxDetectorTest extends TestCase
         static::assertNotNull($deCountry);
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         $customer->setCompany('ABC Company');
         $customer->setVatIds(['VN123123']);
 
@@ -263,7 +267,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($deCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -282,6 +286,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'company' => 'Non-EU Company',
             'vatIds' => ['ANY-VAT-ID'],
         ]);
@@ -289,7 +294,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -308,6 +313,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'company' => 'EU Company',
             'vatIds' => ['DE123456789'],
         ]);
@@ -315,7 +321,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -334,6 +340,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'company' => 'EU Company',
             'vatIds' => ['FR12345678901'],
         ]);
@@ -341,7 +348,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -360,6 +367,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'company' => 'EU Company',
             'vatIds' => ['DE123456789'],
         ]);
@@ -367,7 +375,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -386,6 +394,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'company' => 'EU Company',
             'vatIds' => ['INVALID-VAT'],
         ]);
@@ -393,7 +402,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));

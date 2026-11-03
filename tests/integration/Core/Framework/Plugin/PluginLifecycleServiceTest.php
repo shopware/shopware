@@ -7,7 +7,6 @@ use Composer\IO\NullIO;
 use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
@@ -81,6 +80,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private Connection $connection;
 
+    private Connection $migrationConnection;
+
     private PluginLifecycleService $pluginLifecycleService;
 
     private Context $context;
@@ -112,6 +113,7 @@ class PluginLifecycleServiceTest extends TestCase
         );
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
         $this->connection = $this->container->get(Connection::class);
+        $this->migrationConnection = $this->container->get('doctrine.dbal.migration_connection');
         $this->systemConfigService = $this->container->get(SystemConfigService::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService($this->pluginService);
 
@@ -134,6 +136,10 @@ class PluginLifecycleServiceTest extends TestCase
         static::getContainer()
             ->get(Connection::class)
             ->rollBack();
+
+        // Migrations commit independently, including across the container rebuild on plugin activation.
+        $this->migrationConnection->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => 'SwagTestPlugin\\\\Migration\\\\%']);
+        $this->migrationConnection->executeStatement('DELETE FROM system_config WHERE configuration_key = :key', ['key' => Migration1536761533TestMigration::TEST_SYSTEM_CONFIG_KEY]);
 
         if (isset($_SERVER['FAKE_MIGRATION_NAMESPACE'])) {
             unset($_SERVER['FAKE_MIGRATION_NAMESPACE']);
@@ -326,7 +332,8 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->getPlugin($context);
         $service->installPlugin($plugin, $context);
         $service->activatePlugin($plugin, $context);
-        $service->uninstallPlugin($plugin, $context);
+        // Avoid locking migration fixture data through the application's open test transaction.
+        $service->uninstallPlugin($plugin, $context, keepUserData: true);
 
         $context->removeState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
 
@@ -494,7 +501,6 @@ class PluginLifecycleServiceTest extends TestCase
         ];
     }
 
-    #[RunInSeparateProcess]
     public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
     {
         $this->addTestPluginToKernel(
@@ -632,11 +638,13 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $pluginInstalled = $this->installPlugin($context);
         static::assertNotNull($pluginInstalled->getInstalledAt());
+        static::assertSame(1, $this->getMigrationCount('SwagTestPlugin\\Migration'));
 
         $this->pluginLifecycleService->activatePlugin($pluginInstalled, $context);
         static::assertTrue($pluginInstalled->getActive());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $context);
+        static::assertSame(0, $this->getMigrationCount('SwagTestPlugin\\Migration'));
 
         $pluginUninstalled = $this->getTestPlugin($context);
 
@@ -819,7 +827,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function getMigrationCount(string $namespacePrefix): int
     {
-        $result = $this->connection->executeQuery(
+        $result = $this->migrationConnection->executeQuery(
             'SELECT COUNT(*) FROM migration WHERE class LIKE :class',
             ['class' => addcslashes($namespacePrefix, '\\_%') . '%']
         )
@@ -862,7 +870,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function getMigrationTestKeyCount(): int
     {
-        $result = $this->connection->executeQuery(
+        $result = $this->migrationConnection->executeQuery(
             'SELECT configuration_value FROM system_config WHERE configuration_key = ?',
             [Migration1536761533TestMigration::TEST_SYSTEM_CONFIG_KEY]
         );

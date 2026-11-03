@@ -6,11 +6,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\ManifestValidatorTest
  */
 #[Package('framework')]
-class MissingTranslationError extends Error
+class MissingTranslationError implements Error
 {
-    private const KEY = 'manifest-missing-translation';
+    private readonly string $message;
 
     /**
      * @param array<string, array<string>> $missingTranslations
@@ -27,17 +31,15 @@ class MissingTranslationError extends Error
             $validations[] = $field . ': ' . implode(', ', $missingTranslation);
         }
 
-        $message = \sprintf(
+        $this->message = \sprintf(
             "Missing translations for \"%s\":\n- %s",
             $xmlClassName,
             implode("\n- ", $validations)
         );
-
-        parent::__construct($message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
     }
 }

@@ -739,7 +739,7 @@ class AppManager
             return false;
         }
 
-        $configError = $this->configValidator->validate($manifest, null)->first();
+        $configError = $this->configValidator->validate($manifest, null)[0] ?? null;
         if ($configError) {
             // only one error can be in the returned collection
             throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);

@@ -150,12 +150,12 @@ describe('extension tooling shared type surface (e2e)', () => {
                 writeFile(
                     path.join(projectRoot, 'custom/plugins/Plug/src/Resources/app/administration/src/mini-modules.ts'),
                     [
-                        "import { definePublicComponent, type PublicOverride } from 'shopware:mini-modules/public-component';",
-                        "import { repositoryFactory } from 'shopware:mini-modules/service-names';",
-                        '// @ts-expect-error The mini-modules have no root import.',
-                        "import * as miniModules from 'shopware:mini-modules';",
+                        "import { definePublicComponent, type PublicOverride } from 'shopware:framework/public-component';",
+                        "import { repositoryFactory } from 'shopware:framework/service-names';",
+                        '// @ts-expect-error A kind of mini-modules has no root import.',
+                        "import * as frameworkModules from 'shopware:framework';",
                         '',
-                        'void miniModules;',
+                        'void frameworkModules;',
                         '',
                         'export const PlugExample = definePublicComponent({',
                         "    name: 'plug-example',",

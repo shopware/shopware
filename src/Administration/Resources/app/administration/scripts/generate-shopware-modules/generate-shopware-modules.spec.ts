@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { extractMiniModules, extractModuleRegistry } from './extract-modules';
+import { extractModuleRegistry, extractPublicModules } from './extract-modules';
 import { renderDeclarations, REGENERATE_COMMAND } from './render-declarations';
 import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from './index';
 
@@ -61,29 +61,77 @@ describe('scripts/generate-shopware-modules', () => {
     });
 
     describe('the mini-modules it finds', () => {
-        it('publishes each mini-module under its directory name, with the value exports of its index.ts', () => {
-            expect(registry['shopware:mini-modules'].subpaths['public-component']).toEqual(['definePublicComponent']);
-            expect(registry['shopware:mini-modules'].sources?.['public-component']).toBe('src/core/public-component');
+        /** Writes a mini-module with the given `index.ts` into a temporary Administration and extracts it. */
+        function extractFrom(moduleDir: string, index: string): () => ReturnType<typeof extractPublicModules> {
+            return () => {
+                const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-mini-modules-'));
+
+                fs.mkdirSync(path.join(root, moduleDir, 'src'), { recursive: true });
+                fs.mkdirSync(path.join(root, moduleDir, 'tests'));
+                fs.writeFileSync(path.join(root, moduleDir, 'index.ts'), index);
+
+                try {
+                    return extractPublicModules(root);
+                } finally {
+                    fs.rmSync(root, { recursive: true, force: true });
+                }
+            };
+        }
+
+        it('publishes each mini-module under its kind and directory name, with the value exports of its index.ts', () => {
+            expect(registry['shopware:framework'].subpaths['public-component']).toEqual(['definePublicComponent']);
+            expect(registry['shopware:framework'].sources?.['public-component']).toBe('src/core/public-component');
         });
 
-        it('refuses a component module whose directory is not named after the component', () => {
-            const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-mini-modules-'));
-            const moduleDir = path.join(root, 'src/module/sw-example/component/sw-renamed');
-
-            fs.mkdirSync(path.join(moduleDir, 'src'), { recursive: true });
-            fs.mkdirSync(path.join(moduleDir, 'tests'));
-            fs.writeFileSync(
-                path.join(moduleDir, 'index.ts'),
+        it('publishes a component module as a component without a kind tag', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/component/sw-example-detail',
                 "export default definePublicComponent({ name: 'sw-example-detail', load: () => import('./src/x') });\n",
             );
 
-            try {
-                expect(() => extractMiniModules(root)).toThrow(
-                    '"src/module/sw-example/component/sw-renamed" declares the component "sw-example-detail".',
-                );
-            } finally {
-                fs.rmSync(root, { recursive: true, force: true });
-            }
+            expect(extract()['shopware:components'].subpaths).toEqual({ 'sw-example-detail': ['default'] });
+        });
+
+        it('publishes any other module under the kind its doc comment names', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/helper/example-delivery',
+                "/**\n * @shopware-kind helpers\n */\nexport { primaryDelivery } from './src/x';\n",
+            );
+
+            expect(extract()['shopware:helpers'].subpaths).toEqual({ 'example-delivery': ['primaryDelivery'] });
+        });
+
+        it('refuses a module that is no component and names no kind', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/helper/example-delivery',
+                "export { primaryDelivery } from './src/x';\n",
+            );
+
+            expect(extract).toThrow(
+                '"src/module/sw-example/helper/example-delivery/index.ts" needs exactly one kind. Add "@shopware-kind <kind>"',
+            );
+        });
+
+        it('refuses a kind that does not exist', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/helper/example-delivery',
+                "/** @shopware-kind gadgets */\nexport { primaryDelivery } from './src/x';\n",
+            );
+
+            expect(extract).toThrow(
+                'names the unknown kind "gadgets". Use one of: components, framework, handlers, helpers.',
+            );
+        });
+
+        it('refuses a component module whose directory is not named after the component', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/component/sw-renamed',
+                "export default definePublicComponent({ name: 'sw-example-detail', load: () => import('./src/x') });\n",
+            );
+
+            expect(extract).toThrow(
+                '"src/module/sw-example/component/sw-renamed" declares the component "sw-example-detail".',
+            );
         });
     });
 
@@ -93,7 +141,7 @@ describe('scripts/generate-shopware-modules', () => {
         it('re-exports the values and types of a mini-module from its index.ts', () => {
             expect(declarations).toContain(
                 [
-                    "declare module 'shopware:mini-modules/public-component' {",
+                    "declare module 'shopware:framework/public-component' {",
                     "    export { definePublicComponent } from 'src/core/public-component';",
                     "    export type * from 'src/core/public-component';",
                     '}',
@@ -105,7 +153,7 @@ describe('scripts/generate-shopware-modules', () => {
             const names = Array.from({ length: 12 }, (_, index) => `exportNumber${index}`);
             const rendered = renderDeclarations({
                 ...registry,
-                'shopware:mini-modules': {
+                'shopware:components': {
                     exports: [],
                     subpaths: { 'sw-wide': names },
                     sources: { 'sw-wide': 'src/module/sw-wide' },
@@ -114,7 +162,7 @@ describe('scripts/generate-shopware-modules', () => {
 
             expect(rendered).toContain(
                 [
-                    "declare module 'shopware:mini-modules/sw-wide' {",
+                    "declare module 'shopware:components/sw-wide' {",
                     '    export {',
                     ...names.map((name) => `        ${name},`),
                     "    } from 'src/module/sw-wide';",

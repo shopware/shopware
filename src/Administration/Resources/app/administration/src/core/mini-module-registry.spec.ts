@@ -10,30 +10,41 @@ async function loadRegistry() {
 }
 
 describe('src/core/mini-module-registry', () => {
-    it('publishes the exports of a mini-module under its name', async () => {
-        const { miniModules, publishMiniModule } = await loadRegistry();
+    it('publishes the exports of a mini-module under its kind and name', async () => {
+        const { publicModules, publish } = await loadRegistry();
         const format = () => 'formatted';
 
-        publishMiniModule('sw-example', { default: 'component', format });
+        publish('components', 'sw-example', { default: 'component', format });
 
-        expect(miniModules['sw-example']).toEqual({ default: 'component', format });
+        expect(publicModules.components['sw-example']).toEqual({ default: 'component', format });
+        expect(publicModules.helpers).toEqual({});
     });
 
     it('keeps the published exports from changing later', async () => {
-        const { miniModules, publishMiniModule } = await loadRegistry();
+        const { publicModules, publish } = await loadRegistry();
         const exports: Record<string, unknown> = { default: 'component' };
 
-        publishMiniModule('sw-example', exports);
+        publish('components', 'sw-example', exports);
         exports.added = true;
 
-        expect(miniModules['sw-example']).toEqual({ default: 'component' });
-        expect(Object.isFrozen(miniModules['sw-example'])).toBe(true);
+        expect(publicModules.components['sw-example']).toEqual({ default: 'component' });
+        expect(Object.isFrozen(publicModules.components['sw-example'])).toBe(true);
     });
 
-    it('refuses to publish a name twice', async () => {
-        const { publishMiniModule } = await loadRegistry();
-        publishMiniModule('sw-example', {});
+    it('refuses to publish a name twice within a kind', async () => {
+        const { publish } = await loadRegistry();
+        publish('components', 'sw-example', {});
 
-        expect(() => publishMiniModule('sw-example', {})).toThrow('The mini-module "sw-example" is already published.');
+        expect(() => publish('components', 'sw-example', {})).toThrow(
+            'The mini-module "components/sw-example" is already published.',
+        );
+        expect(() => publish('helpers', 'sw-example', {})).not.toThrow();
+    });
+
+    it('refuses a kind it does not know', async () => {
+        const { publish } = await loadRegistry();
+
+        // @ts-expect-error The kind is checked at runtime, too.
+        expect(() => publish('nope', 'sw-example', {})).toThrow('"nope" is not a public kind.');
     });
 });

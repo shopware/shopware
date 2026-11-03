@@ -359,7 +359,7 @@ class WriteAuthorizerTest extends TestCase
     {
         $ownerColumn = match ($ownerType) {
             IdentityType::App => 'app_id',
-            IdentityType::Integration => 'owner_integration_id',
+            IdentityType::Integration, IdentityType::AppIntegration => 'owner_integration_id',
             IdentityType::User => 'owner_user_id',
         };
 
@@ -368,6 +368,7 @@ class WriteAuthorizerTest extends TestCase
             'app_id' => null,
             'owner_integration_id' => null,
             'owner_user_id' => null,
+            'owner_type' => $ownerType->value,
             'event_name' => $eventName,
             'acl_role_ids' => $aclRoleIds === null ? null : json_encode($aclRoleIds, \JSON_THROW_ON_ERROR),
         ];
@@ -399,7 +400,7 @@ class WriteAuthorizerTest extends TestCase
     private function insertWebhook(string $eventName = 'product.written', ?array $aclRoleIds = null): InsertCommand
     {
         $id = Uuid::randomBytes();
-        $payload = ['id' => $id, 'event_name' => $eventName, 'owner_user_id' => Uuid::fromHexToBytes(self::USER_ID)];
+        $payload = ['id' => $id, 'event_name' => $eventName, 'owner_user_id' => Uuid::fromHexToBytes(self::USER_ID), 'owner_type' => IdentityType::User->value];
         if ($aclRoleIds !== null) {
             $payload['acl_role_ids'] = json_encode($aclRoleIds, \JSON_THROW_ON_ERROR);
         }

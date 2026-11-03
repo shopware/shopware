@@ -114,7 +114,7 @@ class RestrictEventLogReadSubscriber implements EventSubscriberInterface, ResetI
         $criteria = new Criteria();
         $criteria->addFilter(match ($caller->type) {
             IdentityType::User => new EqualsFilter('ownerUserId', $caller->id),
-            IdentityType::Integration => new OrFilter([
+            IdentityType::Integration, IdentityType::AppIntegration => new OrFilter([
                 new EqualsFilter('ownerIntegrationId', $caller->id),
                 new EqualsFilter('app.integrationId', $caller->id),
             ]),

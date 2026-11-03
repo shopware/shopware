@@ -1,9 +1,4 @@
-/**
- * @sw-package innovation
- */
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-settings-media', () => import('./page/sw-settings-media'));
+import './page/sw-settings-media/register';
 
 const { Module } = Shopware;
 

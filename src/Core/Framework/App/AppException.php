@@ -6,6 +6,7 @@ use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Administration\Controller\Exception\MissingAppSecretException;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Shopware\Core\Framework\App\Exception\AppFlowException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -46,8 +47,6 @@ class AppException extends HttpException
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
-    final public const CMS_BLOCK_FILE_MISSING = 'FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING';
-    final public const CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY = 'FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
     public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
     final public const APP_UNALLOWED_HOST = 'APP__UNALLOWED_HOST';
@@ -364,24 +363,14 @@ class AppException extends HttpException
         );
     }
 
-    public static function cmsBlockFileMissing(string $blockName, string $fileName): self
+    public static function cmsBlockFileMissing(string $blockName, string $fileName): AppCmsExtensionException
     {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::CMS_BLOCK_FILE_MISSING,
-            'File "{{ fileName }}" for block "{{ blockName }}" is missing',
-            ['blockName' => $blockName, 'fileName' => $fileName]
-        );
+        return new AppCmsExtensionException(\sprintf('File "%s" for block "%s" is missing', $fileName, $blockName));
     }
 
-    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): self
+    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): AppCmsExtensionException
     {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY,
-            'Block "{{ blockName }}" is outside of the cms/blocks directory',
-            ['blockName' => $blockName]
-        );
+        return new AppCmsExtensionException(\sprintf('Block "%s" is outside of the cms/blocks directory', $blockName));
     }
 
     /**

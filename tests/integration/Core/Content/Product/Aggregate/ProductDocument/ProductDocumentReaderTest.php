@@ -25,20 +25,12 @@ class ProductDocumentReaderTest extends TestCase
 
     private IdsCollection $ids;
 
-    private Connection $connection;
-
     private ProductDocumentReader $reader;
-
-    /**
-     * @var array<string, true>
-     */
-    private array $products = [];
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->connection = static::getContainer()->get(Connection::class);
-        $this->reader = new ProductDocumentReader($this->connection);
+        $this->reader = new ProductDocumentReader(static::getContainer()->get(Connection::class));
     }
 
     public function testItReadsTheFiles(): void
@@ -60,9 +52,8 @@ class ProductDocumentReaderTest extends TestCase
     public function testItCountsTheDocumentsOfEachProduct(): void
     {
         $this->createMedia('file');
-        $this->insertDocument('drill', 'manual', [Defaults::LANGUAGE_SYSTEM => 'file']);
-        $this->insertDocument('drill', 'datasheet', [Defaults::LANGUAGE_SYSTEM => 'file']);
-        $this->insertDocument('hammer', 'certificate', [Defaults::LANGUAGE_SYSTEM => 'file']);
+        $this->createProduct('drill', documents: ['Manual', 'Datasheet']);
+        $this->createProduct('hammer', documents: ['Certificate']);
         $this->createProduct('screwdriver');
 
         $counts = $this->reader->countDocuments([$this->key('drill'), $this->key('screwdriver')]);
@@ -82,43 +73,15 @@ class ProductDocumentReaderTest extends TestCase
         ]], Context::createDefaultContext());
     }
 
-    private function createProduct(string $product): void
-    {
-        if (isset($this->products[$product])) {
-            return;
-        }
-
-        $this->products[$product] = true;
-        static::getContainer()->get('product.repository')->create([(new ProductBuilder($this->ids, $product))->price(10)->build()], Context::createDefaultContext());
-    }
-
     /**
-     * Inserts a document with SQL, past the validator.
-     *
-     * @param array<string, string> $files the file of each language
+     * @param list<string> $documents titles of documents that all use the file "file"
      */
-    private function insertDocument(string $product, string $document, array $files): void
+    private function createProduct(string $product, array $documents = []): void
     {
-        $this->createProduct($product);
-        $createdAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $payload = (new ProductBuilder($this->ids, $product))->price(10)->build();
+        $payload['documents'] = array_map(fn (string $title): array => ['title' => $title, 'mediaId' => $this->ids->get('file')], $documents);
 
-        $this->connection->insert('product_document', [
-            'id' => $this->ids->getBytes($document),
-            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'product_id' => $this->ids->getBytes($product),
-            'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'created_at' => $createdAt,
-        ]);
-
-        foreach ($files as $languageId => $file) {
-            $this->connection->insert('product_document_translation', [
-                'product_document_id' => $this->ids->getBytes($document),
-                'product_document_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'language_id' => Uuid::fromHexToBytes($languageId),
-                'media_id' => $this->ids->getBytes($file),
-                'created_at' => $createdAt,
-            ]);
-        }
+        static::getContainer()->get('product.repository')->create([$payload], Context::createDefaultContext());
     }
 
     private function key(string $name): string

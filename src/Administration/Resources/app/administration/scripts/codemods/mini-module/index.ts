@@ -28,7 +28,7 @@ import { findLocalMixins } from './find-local-mixins';
 import { moveSuppressionKeys } from './move-suppressions';
 import { isTestFixture } from './test-fixtures';
 import { removeRegistration } from './remove-registration';
-import { isMiniModuleDirectory, ownEntries } from './own-entries';
+import { isMiniModuleDirectory, ownEntries, ownFiles } from './own-entries';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -341,29 +341,8 @@ const planNestingThroughDependencies = (
     return planned;
 };
 
-/** The text of a file, or of every file below a directory, to search them for the names they mention. */
-const readSources = (fileOrDirectory: string): string[] =>
-    fs.statSync(fileOrDirectory).isDirectory()
-        ? fs
-              .readdirSync(fileOrDirectory, { recursive: true, encoding: 'utf8' })
-              .map((file) => path.join(fileOrDirectory, file))
-              .filter((file) => fs.statSync(file).isFile())
-              .map((file) => fs.readFileSync(file, 'utf8'))
-        : [fs.readFileSync(fileOrDirectory, 'utf8')];
-
 /** The files of a component directory, as absolute paths, without the mini-modules inside it. */
-const ownFilesBelow = (directory: string) =>
-    ownEntries(directory).flatMap((entry) => {
-        const file = path.join(directory, entry);
-        if (!fs.statSync(file).isDirectory()) {
-            return [file];
-        }
-
-        return fs
-            .readdirSync(file, { recursive: true, encoding: 'utf8' })
-            .map((inner) => path.join(file, inner))
-            .filter((inner) => fs.statSync(inner).isFile());
-    });
+const ownFilesBelow = (directory: string) => ownFiles(directory).map((file) => path.join(directory, file));
 
 /** The script files of a component directory, as absolute paths, without the mini-modules inside it. */
 const scriptFilesBelow = (directory: string) => ownFilesBelow(directory).filter((file) => SCRIPT_EXTENSION.test(file));
@@ -529,11 +508,19 @@ function run(directory: string) {
 
     const isSpec = (file: string) => /\.spec(\.[jt]s)?$/.test(file);
     const entries = ownEntries(componentDirectory);
-    const sources = new Map(entries.map((file) => [file, readSources(path.join(componentDirectory, file))]));
-    const specSources = entries.filter(isSpec).flatMap((file) => sources.get(file) ?? []);
+    const filesOf = (entry: string) =>
+        ownFilesBelow(componentDirectory).filter(
+            (file) =>
+                file === path.join(componentDirectory, entry) || file.startsWith(path.join(componentDirectory, entry, '/')),
+        );
+    const sources = new Map(
+        entries.map(({ name: file }) => [file, filesOf(file).map((inner) => fs.readFileSync(inner, 'utf8'))]),
+    );
+    const names = entries.map((each) => each.name);
+    const specSources = names.filter(isSpec).flatMap((file) => sources.get(file) ?? []);
     const fixtures = new Set(
-        entries.filter((file) => {
-            const others = entries.filter((other) => other !== file && !isSpec(other));
+        names.filter((file) => {
+            const others = names.filter((other) => other !== file && !isSpec(other));
             return (
                 !isSpec(file) &&
                 isTestFixture(
@@ -545,14 +532,17 @@ function run(directory: string) {
         }),
     );
 
-    for (const file of entries) {
-        const from = `${origin}/${file}`;
+    for (const { name: file, holdsModule } of entries) {
+        const folder = isSpec(file) || fixtures.has(file) ? 'tests' : 'src';
         if (file === entry) {
-            move(from, `${root}/src/${name}${path.extname(entry)}`);
-        } else if (isSpec(file) || fixtures.has(file)) {
-            move(from, `${root}/tests/${file}`);
+            move(`${origin}/${file}`, `${root}/src/${name}${path.extname(entry)}`);
+        } else if (holdsModule) {
+            // A folder with a mini-module deeper down moves file by file, and the mini-module keeps its place.
+            filesOf(file)
+                .map((inner) => path.relative(componentDirectory, inner).split(path.sep).join('/'))
+                .forEach((inner) => move(`${origin}/${inner}`, `${root}/${folder}/${inner}`));
         } else {
-            move(from, `${root}/src/${file}`);
+            move(`${origin}/${file}`, `${root}/${folder}/${file}`);
         }
     }
 

@@ -11,6 +11,7 @@ describe('sw-settings-shipping-price-matrices', () => {
 
     afterEach(unmountPriceMatrices);
 
+    /** @public-api usedRules */
     it('returns undefined as the used rules, because the shipping detail store has no usedRules', async () => {
         // ARRANGE
         const wrapper = await mountPriceMatrices();
@@ -22,6 +23,7 @@ describe('sw-settings-shipping-price-matrices', () => {
         expect(usedRules).toBeUndefined();
     });
 
+    /** @public-api ruleRepository */
     it('creates the rule repository', async () => {
         // ARRANGE
         const wrapper = await mountPriceMatrices();
@@ -33,6 +35,7 @@ describe('sw-settings-shipping-price-matrices', () => {
         expect(ruleRepository.entityName).toBe('rule');
     });
 
+    /** @public-api ruleFilter */
     it('filters the first 500 rules to those for prices or without a module type', async () => {
         // ARRANGE
         const wrapper = await mountPriceMatrices();
@@ -55,6 +58,7 @@ describe('sw-settings-shipping-price-matrices', () => {
         ]);
     });
 
+    /** @public-api isLoaded */
     it('throws when isLoaded is read, because the component has no currencies', async () => {
         // ARRANGE
         const wrapper = await mountPriceMatrices();

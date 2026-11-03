@@ -258,11 +258,11 @@ ${outside.map((line) => `   - ${line}`).join('\n') || '   - nothing found'}
 2. Complete the public lists in index.ts where the codemod could not read them:
 ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unresolved'}
    Add one sentence to the doc comment of index.ts that says what the component is for.
-3. Add tests/<name>.harness.ts and the contract tests: rough requirements.spec.ts from the user's view, details in pinned.spec.ts.
+3. Add tests/<name>.harness.ts and the contract tests: requirements.spec.ts tells the module's story from the user's view, details go in pinned.spec.ts.
    The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
-   Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm.
+   Public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.
    A contract spec over 500 lines splits into a directory, e.g. tests/pinned.spec/search.spec.ts.
-4. Add .codeowners entries for index.ts, global.d.ts and tests/requirements.spec.ts.
+4. Add .codeowners entries for index.ts, global.d.ts, tests/requirements.spec.ts and tests/public-api.spec.ts.
    The team is the one that owns other code of @sw-package ${packageName} there.
 5. Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
    Run npm run unit-setup, so Jest finds the moved component by its name.

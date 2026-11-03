@@ -22,7 +22,7 @@ class MessagesShouldNotUsePHPStanTypesTest extends RuleTestCase
             [
                 [
                     'Messages should not use @phpstan-type annotations',
-                    8,
+                    10,
                 ],
             ]
         );
@@ -35,7 +35,7 @@ class MessagesShouldNotUsePHPStanTypesTest extends RuleTestCase
             [
                 [
                     'Messages should not use @phpstan-import-type annotations',
-                    8,
+                    7,
                 ],
             ]
         );

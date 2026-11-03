@@ -62,7 +62,6 @@ class CheckoutFinishPageLoader
             $page->setOrder($this->getOrder($request, $salesChannelContext));
         });
 
-        // A failed payment forwards to this page and passes these values as request attributes
         $page->setChangedPayment((bool) ($request->attributes->get('changedPayment') ?? $request->query->get('changedPayment', '')));
 
         $page->setPaymentFailed((bool) ($request->attributes->get('paymentFailed') ?? $request->query->get('paymentFailed', '')));

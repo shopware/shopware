@@ -132,6 +132,17 @@ export type PublicInstance<Declaration> = Declaration extends { load: infer Load
     : never;
 
 /**
+ * The props, computed values and methods of a component declared with `definePrivateComponent()` that its parent
+ * module may use, for a template ref or a private-api test. The same as `PublicInstance`, named for the private side.
+ *
+ * @example
+ * const card = ref<PrivateInstance<typeof SwServiceCard>>();
+ *
+ * @public
+ */
+export type PrivateInstance<Declaration> = PublicInstance<Declaration>;
+
+/**
  * The members of one kind an override may replace: the public ones with their original signature, new ones freely,
  * and none of the private ones.
  */
@@ -215,4 +226,44 @@ export function definePublicComponent<
     public?: Api;
 }): PublicComponent<Load, Api, Name> & (Base extends string ? { extends: Base } : unknown) {
     return component as PublicComponent<Load, Api, Name> & (Base extends string ? { extends: Base } : unknown);
+}
+
+/**
+ * A component as a nested private mini-module declares it in its private.ts: how to load it, and what its parent
+ * module may use. It has no global name, because its parent imports it and mounts it locally.
+ *
+ * @public
+ */
+export type PrivateComponent<
+    Load extends () => Promise<unknown> = () => Promise<unknown>,
+    Api extends object = PublicComponentApi,
+    Name extends string | undefined = string | undefined,
+> = {
+    name?: Name;
+    load: Load;
+    public?: Api;
+};
+
+/**
+ * Declares a component in the private.ts of a nested mini-module, which lives in the `src/` of its parent's module.
+ * The parent mounts it locally with `defineAsyncComponent(SwExample.load)`, so it never reaches extensions.
+ * The `public` lists name what the parent module may use, and they are checked like those of
+ * `definePublicComponent()`: a name the component doesn't have is a type error.
+ *
+ * @example
+ * // private.ts
+ * export default definePrivateComponent({
+ *     name: 'sw-service-card',
+ *     load: () => import('./src/sw-service-card'),
+ *     public: { props: ['service'] },
+ * });
+ *
+ * @public
+ */
+export function definePrivateComponent<
+    Load extends () => Promise<unknown>,
+    const Api extends PublicComponentApi<LoadedComponent<Load>> = object,
+    const Name extends string | undefined = undefined,
+>(component: { name?: Name; load: Load; public?: Api }): PrivateComponent<Load, Api, Name> {
+    return component;
 }

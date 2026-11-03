@@ -263,6 +263,7 @@
         "exports": [],
         "subpaths": {
             "public-component": [
+                "definePrivateComponent",
                 "definePublicComponent"
             ],
             "service-names": [

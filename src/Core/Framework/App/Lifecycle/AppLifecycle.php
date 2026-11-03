@@ -695,7 +695,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $fs = $this->sourceResolver->filesystemForManifest($manifest);
 
-        return $fs->has($iconPath) ? $fs->read($iconPath) : null;
+        return $fs->readImage($iconPath);
     }
 
     /**

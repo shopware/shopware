@@ -25,6 +25,39 @@ class StaticFilesystemTest extends TestCase
         static::assertFalse($fs->has('two.php'));
     }
 
+    public function testHasFile(): void
+    {
+        $fs = new StaticFilesystem([
+            'one.php' => 'content1',
+        ]);
+
+        static::assertTrue($fs->hasFile('one.php'));
+        static::assertFalse($fs->hasFile('two.php'));
+    }
+
+    public function testFileSize(): void
+    {
+        $fs = new StaticFilesystem([
+            'one.php' => 'content1',
+        ]);
+
+        static::assertSame(8, $fs->fileSize('one.php'));
+    }
+
+    public function testReadImage(): void
+    {
+        $png = (string) base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', true);
+
+        $fs = new StaticFilesystem([
+            'icon.png' => $png,
+            'one.php' => 'content1',
+        ]);
+
+        static::assertSame($png, $fs->readImage('icon.png'));
+        static::assertNull($fs->readImage('one.php'));
+        static::assertNull($fs->readImage('two.png'));
+    }
+
     public function testPath(): void
     {
         $fs = new StaticFilesystem([

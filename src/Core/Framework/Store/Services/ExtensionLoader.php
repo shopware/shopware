@@ -229,7 +229,7 @@ class ExtensionLoader
                 $fs = $this->sourceResolver->filesystemForManifest($app);
 
                 if ($fs->has($icon)) {
-                    $icon = $fs->read($icon);
+                    $icon = $fs->readImage($icon);
                 }
             }
 

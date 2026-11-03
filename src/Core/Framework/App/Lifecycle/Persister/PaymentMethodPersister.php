@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
@@ -140,12 +141,13 @@ class PaymentMethodPersister
 
         $fs = $this->sourceResolver->filesystemForManifest($manifest);
 
-        if (!$fs->has($iconPath)) {
+        // payment icons are stored as public media, which renders SVG as well
+        $icon = $fs->readImage($iconPath, [...Filesystem::RASTER_IMAGE_MIME_TYPES, 'image/svg+xml']);
+        if ($icon === null) {
             return null;
         }
 
         $fileName = \sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
-        $icon = $fs->read($iconPath);
         $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
         $mediaId = $existing?->getOriginalMediaId();

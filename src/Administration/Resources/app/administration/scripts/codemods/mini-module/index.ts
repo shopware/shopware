@@ -22,6 +22,7 @@ import { findImports, findRegistration, findRegistrationByPath } from './find-re
 import { isDocumentedPrivate, markExport } from './mark-export';
 import { dropBaseImport } from './drop-base-import';
 import { dropUntestedFiles } from './drop-untested-baseline';
+import { findLocalMixins } from './find-local-mixins';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -34,6 +35,7 @@ import {
 import { isPrivateShape, renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
 import { createAdminIndex } from './dependencies/admin-index';
 import { routeModule, type RoutedModule } from './dependencies/route-module';
+import type { AdminIndex } from './dependencies/model';
 
 const adminRoot = path.resolve(__dirname, '../../..');
 const relative = (file: string) => path.relative(adminRoot, file).split(path.sep).join('/');
@@ -346,6 +348,80 @@ const planNestingThroughDependencies = (
     return planned;
 };
 
+/** The script files below a directory, as absolute paths. */
+const scriptFilesBelow = (directory: string) =>
+    fs
+        .readdirSync(directory, { recursive: true, encoding: 'utf8' })
+        .filter((file) => SCRIPT_EXTENSION.test(file))
+        .map((file) => path.join(directory, file));
+
+/** Whether an import path, written in a file of the given directory, leads to the file. */
+const leadsToFile = (fromDirectory: string, specifier: string, file: string) => {
+    if (!specifier.startsWith('.') && !specifier.startsWith('src/')) {
+        return false;
+    }
+
+    const target = resolveSpecifier(fromDirectory, specifier);
+    const withoutExtension = file.replace(SCRIPT_EXTENSION, '');
+    return [file, withoutExtension].includes(target) || `${target}/index` === withoutExtension;
+};
+
+/** The script files of src/ and test/ that contain the text, also specs. */
+const filesMentioning = (text: string) => {
+    try {
+        return git('grep', '-lF', text, '--', 'src/**/*.js', 'src/**/*.ts', 'test/**/*.js', 'test/**/*.ts')
+            .split('\n')
+            .filter(Boolean);
+    } catch (error) {
+        if ((error as { status?: number }).status === 1) {
+            return [];
+        }
+
+        throw error;
+    }
+};
+
+/**
+ * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store,
+ * that code outside the directory imports would break, and a mixin only the registry reaches cannot be imported.
+ */
+const findBlocker = (componentDirectory: string, entry: string, index: AdminIndex): string | null => {
+    const files = scriptFilesBelow(componentDirectory).filter(
+        (file) => file !== path.join(componentDirectory, entry) && !/\.spec\.[jt]s$|\.spec\//.test(file),
+    );
+
+    for (const file of files) {
+        const importers = filesMentioning(path.basename(file).replace(SCRIPT_EXTENSION, ''))
+            .filter((importer) => !path.join(adminRoot, importer).startsWith(`${componentDirectory}${path.sep}`))
+            .filter((importer) => {
+                const absolute = path.join(adminRoot, importer);
+                return (
+                    findImports(fs.readFileSync(absolute, 'utf8'), (specifier) =>
+                        leadsToFile(path.dirname(absolute), specifier, file),
+                    ).length > 0
+                );
+            });
+
+        if (importers.length > 0) {
+            return `${relative(componentDirectory)} is not moved: the shared file ${relative(file)} is imported by ${importers.join(', ')}.
+Extract it into its own module first.`;
+        }
+    }
+
+    const localMixins = [
+        ...new Set(
+            scriptFilesBelow(componentDirectory)
+                .filter((file) => !/\.spec\.[jt]s$|\.spec\//.test(file))
+                .flatMap((file) => findLocalMixins(fs.readFileSync(file, 'utf8'), index.isModuleLocalMixin)),
+        ),
+    ];
+
+    return localMixins.length > 0
+        ? `${relative(componentDirectory)} is not moved: it uses the module-local mixin ${localMixins.join(', ')}.
+It moves after the mixin gets its own module.`
+        : null;
+};
+
 type Reading = {
     shape: Shape;
     registration: ReturnType<typeof locateRegistration>;
@@ -410,6 +486,13 @@ function run(directory: string) {
     const { shape, registration, importers, nesting } = reading;
     const root = shape.kind === 'nested' ? `${shape.parent}/src/${name}` : origin;
     const moduleDirectory = path.join(adminRoot, root);
+    const adminIndex = createAdminIndex(adminRoot, moduleDirectory);
+    const blocker = findBlocker(componentDirectory, entry, adminIndex);
+    if (blocker) {
+        console.log(blocker);
+        return;
+    }
+
     const ownApi = extractComponentApi(componentSource, templateSource);
     const api = shape.kind === 'extend' ? mergeComponentApi(ownApi, readInheritedApi(shape.base)) : ownApi;
     const target = { name, packageName, shape };
@@ -493,7 +576,7 @@ function run(directory: string) {
         moduleRoot: moduleDirectory,
         name,
         packageName,
-        index: createAdminIndex(adminRoot, moduleDirectory),
+        index: adminIndex,
     });
     execFileSync(
         path.join(adminRoot, 'node_modules', '.bin', 'prettier'),

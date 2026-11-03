@@ -44,6 +44,7 @@ export const fakeIndex: AdminIndex = {
     typing: (container, name) => (container === 'ServiceContainer' && name === 'filterService' ? 'any' : 'typed'),
     findMixin: (name) =>
         ({ notification: 'src/app/mixin/notification.mixin', placeholder: 'src/app/mixin/placeholder.mixin' })[name] ?? null,
+    isModuleLocalMixin: (name) => name === 'sw-settings-list',
     findStore: (id) =>
         ({
             swProductDetail: { module: '../../page/sw-product-detail/store', file: '/admin/store.ts', exportName: null },

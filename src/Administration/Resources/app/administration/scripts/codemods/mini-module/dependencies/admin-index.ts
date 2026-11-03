@@ -298,6 +298,10 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
             const found = registeredMixin(name);
             return found?.call.isDefaultExport ? modulePath(found.file) : null;
         },
+        isModuleLocalMixin: (name) => {
+            const found = registeredMixin(name);
+            return !!found && !found.call.isDefaultExport;
+        },
         findStore: (id) => toRegistered(registeredStore(id)),
         findFilter: (name) => toRegistered(registeredFilter(name)),
         findComponentHelper: (name) => {

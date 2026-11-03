@@ -108,6 +108,8 @@ export type AdminIndex = {
     typing: (container: 'ServiceContainer' | 'PiniaRootState' | 'FilterTypes', name: string) => Typing;
     /** The module, as dependencies.ts imports it, whose default export is the registered mixin. */
     findMixin: (name: string) => string | null;
+    /** Whether a file registers the mixin without exporting it, so only the registry reaches it. */
+    isModuleLocalMixin: (name: string) => boolean;
     findStore: (id: string) => Registered | null;
     findFilter: (name: string) => Registered | null;
     findComponentHelper: (name: string) => { module: string; imported: string } | null;

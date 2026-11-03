@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
+namespace Shopware\Tests\Integration\Core\Framework\Api\OpenApi;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
@@ -18,7 +17,6 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(OpenApiDtoGenerator::class)]
 class OpenApiDtoGeneratorTest extends TestCase
 {
     private Filesystem $filesystem;
@@ -41,12 +39,12 @@ class OpenApiDtoGeneratorTest extends TestCase
      */
     public static function openApiFixtures(): iterable
     {
-        foreach (Finder::create()->files()->name('*.json')->notPath('invalidSchemas')->sortByName()->in(__DIR__ . '/_fixtures') as $schemaFile) {
+        foreach (Finder::create()->files()->name('*.json')->sortByName()->in(__DIR__ . '/_fixtures') as $schemaFile) {
             yield $schemaFile->getRelativePathname() => [$schemaFile->getPathname()];
         }
 
         yield 'Store API integration DTOs' => [
-            __DIR__ . '/../../../../../integration/Core/Framework/Api/OpenApi/Fixture/schema.json',
+            __DIR__ . '/Fixture/schema.json',
             ['TransformFieldsRequest.php', 'TransformFieldsResponse.php', 'FieldDetails.php'],
         ];
     }

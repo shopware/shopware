@@ -36,6 +36,7 @@ parameters:
 
         # Generated test files
         - tests/unit/Core/Framework/Api/OpenApi/_fixtures
+        - tests/integration/Core/Framework/Api/OpenApi/_fixtures
 
     universalObjectCratesClasses:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy

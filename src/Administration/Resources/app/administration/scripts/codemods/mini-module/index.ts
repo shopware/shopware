@@ -430,6 +430,11 @@ type Reading = {
  */
 const readShape = (componentDirectory: string, name: string, componentSource: string): Reading | string => {
     const registration = locateRegistration(name);
+    if (registration?.registration.isConditional) {
+        return `${name} is not moved: ${registration.file} registers it only under a condition, and its register.ts would register it always.
+Move it by hand.`;
+    }
+
     if (registration?.registration.kind === 'extend') {
         const { base, isPrivate: isRegistrationPrivate } = registration.registration;
         const inherited = readInheritedApi(base);

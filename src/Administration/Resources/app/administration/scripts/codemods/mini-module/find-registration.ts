@@ -10,12 +10,14 @@ import ts from 'typescript';
  * `start` and `end` span the whole statement with the comments right above it and its line break, so cutting them out leaves no gap.
  * `specifier` is the path the lazy `import()` loads, as written.
  * `isPrivate` tells whether the doc comment of the statement marks the component `@private`.
+ * `isConditional` tells whether the statement runs only under a condition, such as inside an `if` on a feature flag.
  */
 export type Registration = {
     start: number;
     end: number;
     specifier: string;
     isPrivate: boolean;
+    isConditional: boolean;
 } & ({ kind: 'register' } | { kind: 'extend'; base: string });
 
 const CALLEES: Record<string, Registration['kind']> = {
@@ -68,6 +70,23 @@ const statementRange = (source: ts.SourceFile, statement: ts.Statement) => {
     return { start: lineStart, end: lineBreak === -1 ? text.length : lineBreak + 1 };
 };
 
+/**
+ * Whether a statement runs only under a condition: inside an `if`, a loop, a `switch`, a `try` or a function other than
+ * the `export default () => {}` that wraps the registrations of `src/app/component/index.ts`.
+ */
+const isConditional = (statement: ts.Node) => {
+    for (let node = statement.parent; !ts.isSourceFile(node); node = node.parent) {
+        const isExportedWrapper =
+            ts.isExportAssignment(node) || (ts.isArrowFunction(node) && ts.isExportAssignment(node.parent));
+        const isPlainBlock = ts.isBlock(node) && (ts.isSourceFile(node.parent) || ts.isArrowFunction(node.parent));
+        if (!isExportedWrapper && !isPlainBlock) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
 /** Every expression statement of a file, also those inside functions, such as a registration inside `export default () => {}`. */
 const expressionStatements = (node: ts.Node): ts.ExpressionStatement[] =>
     ts.isExpressionStatement(node) ? [node] : node.getChildren().flatMap((child) => expressionStatements(child));
@@ -100,8 +119,16 @@ function findRegistrations(code: string): (Registration & { name: string })[] {
         const name = componentName.text;
         return [
             kind === 'extend'
-                ? { kind, base: (base as ts.StringLiteral).text, specifier, isPrivate, name, ...range }
-                : { kind, specifier, isPrivate, name, ...range },
+                ? {
+                      kind,
+                      base: (base as ts.StringLiteral).text,
+                      specifier,
+                      isPrivate,
+                      isConditional: isConditional(statement),
+                      name,
+                      ...range,
+                  }
+                : { kind, specifier, isPrivate, isConditional: isConditional(statement), name, ...range },
         ];
     });
 }
@@ -115,7 +142,7 @@ const withoutName = ({ name, ...registration }: Registration & { name: string })
  *
  * @example
  * findRegistration("Shopware.Component.extend('sw-b', 'sw-a', () => import('./b'));\n", 'sw-b');
- * // → { kind: 'extend', base: 'sw-a', specifier: './b', isPrivate: false, start: 0, end: 63 }
+ * // → { kind: 'extend', base: 'sw-a', specifier: './b', isPrivate: false, isConditional: false, start: 0, end: 63 }
  */
 export function findRegistration(code: string, name: string): Registration | null {
     const found = findRegistrations(code).find((registration) => registration.name === name);

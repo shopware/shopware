@@ -1,7 +1,6 @@
 import template from './sw-condition-modal.html.twig';
 import './sw-condition-modal.scss';
-
-const { EntityCollection } = Shopware.Data;
+import { EntityCollection, repositoryFactoryService } from '../dependencies';
 
 /**
  * @private
@@ -10,7 +9,7 @@ const { EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['modal-close'],
 

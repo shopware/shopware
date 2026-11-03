@@ -1,9 +1,6 @@
-import { computed } from 'vue';
-
 import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
-
-const { EntityCollection } = Shopware.Data;
+import { computed, EntityCollection, featureService } from '../dependencies';
 
 /**
  * @private
@@ -12,7 +9,7 @@ const { EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     provide() {
         return {

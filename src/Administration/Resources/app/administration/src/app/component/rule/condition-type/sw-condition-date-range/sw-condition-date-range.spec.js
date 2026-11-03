@@ -4,7 +4,7 @@
 import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-date-range';
-import 'src/app/component/rule/sw-condition-base';
+import 'src/app/component/rule/sw-condition-base/src/sw-condition-base';
 
 async function createWrapper(useTime) {
     return mount(await wrapTestComponent('sw-condition-date-range', { sync: true }), {

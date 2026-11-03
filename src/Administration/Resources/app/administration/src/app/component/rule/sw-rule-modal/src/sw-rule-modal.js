@@ -1,9 +1,18 @@
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
-
-const { Component, Mixin, Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+import {
+    Criteria,
+    EntityCollection,
+    featureService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    ruleConditionDataProviderService,
+    ruleConditionsConfigApiService,
+    useSessionStore,
+} from '../dependencies';
 
 /**
  * @private
@@ -19,15 +28,15 @@ export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'ruleConditionDataProviderService',
-        'ruleConditionsConfigApiService',
-        'feature',
+        repositoryFactoryService,
+        ruleConditionDataProviderService,
+        ruleConditionsConfigApiService,
+        featureService,
     ],
 
     emits: ['save', 'modal-close'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         allowedRuleScopes: {
@@ -87,7 +96,7 @@ export default {
 
             this.loadConditionData().then((scripts) => {
                 this.ruleConditionDataProviderService.addScriptConditions(scripts);
-                this.rule = this.ruleRepository.create(Context.api);
+                this.rule = this.ruleRepository.create(getApiContext());
                 this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
 
                 if (this.rule[this.ruleAwareGroupKey]) {
@@ -100,8 +109,8 @@ export default {
 
         loadConditionData() {
             const context = {
-                ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                ...getApiContext(),
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria(1, 500);
 
@@ -173,7 +182,7 @@ export default {
 
             this.isLoading = true;
             return this.ruleRepository
-                .save(this.rule, Context.api)
+                .save(this.rule, getApiContext())
                 .then(() => {
                     this.createNotificationSuccess({
                         title: titleSaveSuccess,

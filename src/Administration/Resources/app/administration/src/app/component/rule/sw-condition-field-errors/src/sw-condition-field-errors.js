@@ -1,6 +1,6 @@
-import startCase from 'lodash-es/startCase';
 import template from './sw-condition-field-errors.html.twig';
 import './sw-condition-field-errors.scss';
+import { startCase } from '../dependencies';
 
 const VISIBLE_LIMIT = 5;
 

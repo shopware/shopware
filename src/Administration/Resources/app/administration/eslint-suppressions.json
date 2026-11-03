@@ -1847,17 +1847,17 @@
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-all-line-items-container/index.js": {
+  "src/app/component/rule/sw-condition-all-line-items-container/src/sw-condition-all-line-items-container.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-all-line-items-container/sw-condition-all-line-items-container.spec.js": {
+  "src/app/component/rule/sw-condition-all-line-items-container/tests/sw-condition-all-line-items-container.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/app/component/rule/sw-condition-and-container/index.js": {
+  "src/app/component/rule/sw-condition-and-container/src/sw-condition-and-container.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1870,12 +1870,12 @@
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-base/index.js": {
+  "src/app/component/rule/sw-condition-base/src/sw-condition-base.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-field-errors/index.js": {
+  "src/app/component/rule/sw-condition-field-errors/src/sw-condition-field-errors.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1888,37 +1888,37 @@
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-modal/index.js": {
+  "src/app/component/rule/sw-condition-modal/src/sw-condition-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-operator-select/index.js": {
+  "src/app/component/rule/sw-condition-operator-select/src/sw-condition-operator-select.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-operator-select/sw-condition-operator-select.spec.js": {
+  "src/app/component/rule/sw-condition-operator-select/tests/sw-condition-operator-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/app/component/rule/sw-condition-or-container/index.js": {
+  "src/app/component/rule/sw-condition-or-container/src/sw-condition-or-container.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-tree-node/index.js": {
+  "src/app/component/rule/sw-condition-tree-node/src/sw-condition-tree-node.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-tree/index.js": {
+  "src/app/component/rule/sw-condition-tree/src/sw-condition-tree.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-tree/sw-condition-tree.spec.js": {
+  "src/app/component/rule/sw-condition-tree/tests/sw-condition-tree.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1926,17 +1926,17 @@
       "count": 38
     }
   },
-  "src/app/component/rule/sw-condition-type-select/index.js": {
+  "src/app/component/rule/sw-condition-type-select/src/sw-condition-type-select.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-type-select/sw-condition-type-select.spec.js": {
+  "src/app/component/rule/sw-condition-type-select/tests/sw-condition-type-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/component/rule/sw-condition-unit-menu/index.js": {
+  "src/app/component/rule/sw-condition-unit-menu/src/sw-condition-unit-menu.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -1944,22 +1944,22 @@
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-unit-menu/sw-condition-unit-menu.spec.js": {
+  "src/app/component/rule/sw-condition-unit-menu/tests/sw-condition-unit-menu.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/app/component/rule/sw-condition-value-between-date/index.js": {
+  "src/app/component/rule/sw-condition-value-between-date/src/sw-condition-value-between-date.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-rule-modal/index.js": {
+  "src/app/component/rule/sw-rule-modal/src/sw-rule-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/rule/sw-rule-modal/sw-rule-modal.spec.js": {
+  "src/app/component/rule/sw-rule-modal/tests/sw-rule-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }

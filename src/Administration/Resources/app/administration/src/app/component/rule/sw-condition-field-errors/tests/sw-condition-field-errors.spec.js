@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-field-errors';
+import 'src/app/component/rule/sw-condition-field-errors/src/sw-condition-field-errors';
 
 const error = { detail: 'invalid', code: 'INVALID' };
 

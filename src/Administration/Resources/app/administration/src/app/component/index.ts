@@ -169,6 +169,19 @@ import 'src/app/component/meteor/sw-meteor-single-select/register';
 import 'src/app/component/modal/sw-confirm-modal/register';
 import 'src/app/component/modal/sw-image-preview-modal/register';
 import 'src/app/component/modal/sw-search-preferences-modal/register';
+import 'src/app/component/rule/sw-condition-base/register';
+import 'src/app/component/rule/sw-condition-all-line-items-container/register';
+import 'src/app/component/rule/sw-condition-and-container/register';
+import 'src/app/component/rule/sw-condition-field-errors/register';
+import 'src/app/component/rule/sw-condition-modal/register';
+import 'src/app/component/rule/sw-condition-operator-select/register';
+import 'src/app/component/rule/sw-condition-or-container/register';
+import 'src/app/component/rule/sw-condition-tree/register';
+import 'src/app/component/rule/sw-condition-tree-node/register';
+import 'src/app/component/rule/sw-condition-type-select/register';
+import 'src/app/component/rule/sw-condition-unit-menu/register';
+import 'src/app/component/rule/sw-condition-value-between-date/register';
+import 'src/app/component/rule/sw-rule-modal/register';
 /**
  * @sw-package framework
  * @private
@@ -292,46 +305,6 @@ export default () => {
     );
     Shopware.Component.register('sw-sidebar-item', () => import('src/app/component/sidebar/sw-sidebar-item/index'));
     Shopware.Component.register('sw-sidebar', () => import('src/app/component/sidebar/sw-sidebar/index'));
-    Shopware.Component.register('sw-rule-modal', () => import('src/app/component/rule/sw-rule-modal/index'));
-    Shopware.Component.register(
-        'sw-condition-unit-menu',
-        () => import('src/app/component/rule/sw-condition-unit-menu/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-type-select',
-        () => import('src/app/component/rule/sw-condition-type-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-tree-node',
-        () => import('src/app/component/rule/sw-condition-tree-node/index'),
-    );
-    Shopware.Component.register('sw-condition-tree', () => import('src/app/component/rule/sw-condition-tree/index'));
-    Shopware.Component.register(
-        'sw-condition-or-container',
-        () => import('src/app/component/rule/sw-condition-or-container/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-operator-select',
-        () => import('src/app/component/rule/sw-condition-operator-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-value-between-date',
-        () => import('src/app/component/rule/sw-condition-value-between-date/index'),
-    );
-    Shopware.Component.register('sw-condition-modal', () => import('src/app/component/rule/sw-condition-modal/index'));
-    Shopware.Component.register(
-        'sw-condition-field-errors',
-        () => import('src/app/component/rule/sw-condition-field-errors/index'),
-    );
-    Shopware.Component.register('sw-condition-base', () => import('src/app/component/rule/sw-condition-base/index'));
-    Shopware.Component.register(
-        'sw-condition-and-container',
-        () => import('src/app/component/rule/sw-condition-and-container/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-all-line-items-container',
-        () => import('src/app/component/rule/sw-condition-all-line-items-container/index'),
-    );
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));

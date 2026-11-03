@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-time-range';
-import 'src/app/component/rule/sw-condition-base';
+import 'src/app/component/rule/sw-condition-base/src/sw-condition-base';
 
 Shopware.Service().register('timezoneService', () => ({
     getTimezoneOptions: () => [

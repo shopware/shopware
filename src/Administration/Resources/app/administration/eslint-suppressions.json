@@ -423,7 +423,7 @@
       "count": 16
     }
   },
-  "src/app/component/context-menu/sw-context-button/index.js": {
+  "src/app/component/context-menu/sw-context-button/src/sw-context-button.js": {
     "complexity": {
       "count": 1
     },
@@ -431,22 +431,22 @@
       "count": 1
     }
   },
-  "src/app/component/context-menu/sw-context-button/sw-context-button.spec.js": {
+  "src/app/component/context-menu/sw-context-button/tests/sw-context-button.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/app/component/context-menu/sw-context-menu-divider/index.js": {
+  "src/app/component/context-menu/sw-context-menu-divider/src/sw-context-menu-divider.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/context-menu/sw-context-menu-item/index.js": {
+  "src/app/component/context-menu/sw-context-menu-item/src/sw-context-menu-item.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/context-menu/sw-context-menu/index.js": {
+  "src/app/component/context-menu/sw-context-menu/src/sw-context-menu.js": {
     "filename-rules/not-match": {
       "count": 1
     }

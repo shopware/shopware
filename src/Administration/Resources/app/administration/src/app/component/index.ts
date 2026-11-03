@@ -100,6 +100,10 @@ import 'src/app/component/form/sw-text-field/register';
 import 'src/app/component/form/sw-textarea-field/register';
 import 'src/app/component/form/sw-textarea-field-deprecated/register';
 import 'src/app/component/form/sw-url-field/register';
+import 'src/app/component/context-menu/sw-context-button/register';
+import 'src/app/component/context-menu/sw-context-menu/register';
+import 'src/app/component/context-menu/sw-context-menu-divider/register';
+import 'src/app/component/context-menu/sw-context-menu-item/register';
 /**
  * @sw-package framework
  * @private
@@ -335,12 +339,6 @@ export default () => {
         'sw-data-grid-column-boolean',
         () => import('src/app/component/data-grid/sw-data-grid-column-boolean/index'),
     Shopware.Component.register('sw-data-grid', () => import('src/app/component/data-grid/sw-data-grid/index'));
-        'sw-context-menu-item',
-        () => import('src/app/component/context-menu/sw-context-menu-item/index'),
-        'sw-context-menu-divider',
-        () => import('src/app/component/context-menu/sw-context-menu-divider/index'),
-    Shopware.Component.register('sw-context-menu', () => import('src/app/component/context-menu/sw-context-menu/index'));
-    Shopware.Component.register('sw-context-button', () => import('src/app/component/context-menu/sw-context-button/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));

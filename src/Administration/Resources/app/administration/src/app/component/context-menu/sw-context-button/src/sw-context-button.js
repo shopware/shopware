@@ -1,5 +1,6 @@
 import template from './sw-context-button.html.twig';
 import './sw-context-button.scss';
+import { featureService } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -17,7 +18,7 @@ import './sw-context-button.scss';
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['on-open-change'],
 

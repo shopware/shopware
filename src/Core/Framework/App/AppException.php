@@ -46,6 +46,8 @@ class AppException extends HttpException
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
+    final public const CMS_BLOCK_FILE_MISSING = 'FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING';
+    final public const CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY = 'FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
     public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
     final public const APP_UNALLOWED_HOST = 'APP__UNALLOWED_HOST';
@@ -359,6 +361,26 @@ class AppException extends HttpException
             self::CANNOT_READ_FILE,
             'Unable to read file: "{{ file }}"',
             ['file' => $file]
+        );
+    }
+
+    public static function cmsBlockFileMissing(string $blockName, string $fileName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CMS_BLOCK_FILE_MISSING,
+            'File "{{ fileName }}" for block "{{ blockName }}" is missing',
+            ['blockName' => $blockName, 'fileName' => $fileName]
+        );
+    }
+
+    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY,
+            'Block "{{ blockName }}" is outside of the cms/blocks directory',
+            ['blockName' => $blockName]
         );
     }
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
@@ -423,8 +424,15 @@ class AppException extends HttpException
         );
     }
 
-    public static function cmsBlockFileMissing(string $blockName, string $fileName): self
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function cmsBlockFileMissing(string $blockName, string $fileName): self|AppCmsExtensionException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AppCmsExtensionException(\sprintf('File "%s" for block "%s" is missing', $fileName, $blockName));
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CMS_BLOCK_FILE_MISSING,
@@ -433,8 +441,15 @@ class AppException extends HttpException
         );
     }
 
-    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): self
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): self|AppCmsExtensionException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AppCmsExtensionException(\sprintf('Block "%s" is outside of the cms/blocks directory', $blockName));
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY,

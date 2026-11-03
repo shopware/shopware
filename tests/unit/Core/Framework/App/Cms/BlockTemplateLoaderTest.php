@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Cms\BlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
+use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem as Io;
 use Symfony\Component\Filesystem\Path;
@@ -66,5 +68,27 @@ class BlockTemplateLoaderTest extends TestCase
         static::expectExceptionObject(AppException::cmsBlockOutsideOfBlocksDirectory('../../../outside'));
 
         (new BlockTemplateLoader())->getStylesForBlock($this->cmsExtensions, '../../../outside');
+    }
+
+    public function testThrowsTheDeprecatedExceptionUntilTheNextMajor(): void
+    {
+        $loader = new BlockTemplateLoader();
+
+        $exception = Feature::fake([], fn () => $this->catchException(fn () => $loader->getTemplateForBlock($this->cmsExtensions, '../../../outside')));
+        static::assertInstanceOf(AppCmsExtensionException::class, $exception);
+
+        $exception = Feature::fake(['v6.8.0.0'], fn () => $this->catchException(fn () => $loader->getTemplateForBlock($this->cmsExtensions, '../../../outside')));
+        static::assertInstanceOf(AppException::class, $exception);
+    }
+
+    private function catchException(\Closure $closure): ?\Throwable
+    {
+        try {
+            $closure();
+        } catch (\Throwable $exception) {
+            return $exception;
+        }
+
+        return null;
     }
 }

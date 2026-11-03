@@ -2,7 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import { mount, flushPromises } from '@vue/test-utils';
-import 'src/module/sw-integration/component/sw-integration-mcp-allowlist';
+import 'src/module/sw-integration/component/sw-integration-mcp-allowlist/src/sw-integration-mcp-allowlist';
 
 const defaultCapabilities = {
     tools: [

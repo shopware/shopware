@@ -2,7 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-integration/page/sw-integration-list';
+import 'src/module/sw-integration/page/sw-integration-list/src/sw-integration-list';
 
 const appIntegration = {
     id: 'app-integration-id',

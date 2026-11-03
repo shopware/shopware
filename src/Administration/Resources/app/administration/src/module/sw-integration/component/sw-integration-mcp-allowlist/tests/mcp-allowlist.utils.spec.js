@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { buildGroups, humanizeLabel, humanizeCommonPrefix } from './mcp-allowlist.utils';
+import { buildGroups, humanizeLabel, humanizeCommonPrefix } from '../src/mcp-allowlist.utils';
 
 describe('mcp-allowlist.utils', () => {
     describe('buildGroups', () => {

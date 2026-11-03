@@ -8129,7 +8129,20 @@
       "count": 1
     }
   },
-  "src/module/sw-integration/component/sw-integration-mcp-allowlist/index.js": {
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/src/mcp-allowlist.utils.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/src/sw-integration-mcp-allowlist.html.twig": {
+    "vue/max-template-depth": {
+      "count": 21
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/src/sw-integration-mcp-allowlist.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8140,22 +8153,9 @@
       "count": 1
     }
   },
-  "src/module/sw-integration/component/sw-integration-mcp-allowlist/index.spec.js": {
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/tests/index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 54
-    }
-  },
-  "src/module/sw-integration/component/sw-integration-mcp-allowlist/mcp-allowlist.utils.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 3
-    },
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-integration/component/sw-integration-mcp-allowlist/sw-integration-mcp-allowlist.html.twig": {
-    "vue/max-template-depth": {
-      "count": 21
     }
   },
   "src/module/sw-integration/index.js": {
@@ -8166,7 +8166,7 @@
       "count": 1
     }
   },
-  "src/module/sw-integration/page/sw-integration-list/index.js": {
+  "src/module/sw-integration/page/sw-integration-list/src/sw-integration-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8174,7 +8174,7 @@
       "count": 1
     }
   },
-  "src/module/sw-integration/page/sw-integration-list/sw-integration-list.spec.js": {
+  "src/module/sw-integration/page/sw-integration-list/tests/sw-integration-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }

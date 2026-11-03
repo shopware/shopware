@@ -2,14 +2,14 @@
  * @sw-package fundamentals@framework
  */
 import './acl';
+import './component/sw-integration-mcp-allowlist/register';
+import './page/sw-integration-list/register';
 
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-integration-list', () => import('./page/sw-integration-list'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-integration-mcp-allowlist', () => import('./component/sw-integration-mcp-allowlist'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {

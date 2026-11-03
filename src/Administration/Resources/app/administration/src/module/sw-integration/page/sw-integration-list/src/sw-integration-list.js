@@ -3,21 +3,24 @@
  */
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
+import { aclService, featureService, integrationService, repositoryFactoryService } from '../dependencies';
 
 const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'integrationService',
-        'repositoryFactory',
-        'acl',
-        'feature',
+        integrationService,
+        repositoryFactoryService,
+        aclService,
+        featureService,
     ],
 
     mixins: [Mixin.getByName('notification')],

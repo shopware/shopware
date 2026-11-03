@@ -1,16 +1,18 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { computePrivilegeChips, isPrivilegeGranted } from 'src/core/helper/mcp-privilege.helper';
 import { buildGroups, humanizeLabel, humanizeCommonPrefix } from './mcp-allowlist.utils';
 import template from './sw-integration-mcp-allowlist.html.twig';
 import './sw-integration-mcp-allowlist.scss';
+import { aclService, computePrivilegeChips, isPrivilegeGranted, mcpToolService } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['mcpToolService', 'acl'],
+    inject: [mcpToolService, aclService],
 
     props: {
         /**

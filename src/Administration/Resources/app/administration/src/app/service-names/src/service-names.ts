@@ -413,6 +413,16 @@ export const importExportProfileMapping = 'importExportProfileMapping';
 export const importExportUpdateByMapping = 'importExportUpdateByMapping';
 
 /**
+ * The name the integrationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [integrationService] };
+ *
+ * @public
+ */
+export const integrationService = 'integrationService';
+
+/**
  * The name the licenseViolationService service is registered and injected under.
  *
  * @example
@@ -461,6 +471,16 @@ export const loginService = 'loginService';
  * @public
  */
 export const mailService = 'mailService';
+
+/**
+ * The name the mcpToolService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [mcpToolService] };
+ *
+ * @public
+ */
+export const mcpToolService = 'mcpToolService';
 
 /**
  * The name the mediaDefaultFolderService service is registered and injected under.

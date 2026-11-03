@@ -343,3 +343,5 @@ import '../src/module/sw-import-export/component/sw-import-export-activity-resul
 import '../src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/global';
 import '../src/module/sw-import-export/component/sw-import-export-edit-profile-general/global';
 import '../src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/global';
+import '../src/module/sw-integration/component/sw-integration-mcp-allowlist/global';
+import '../src/module/sw-integration/page/sw-integration-list/global';

@@ -7599,72 +7599,72 @@
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/src/sw-flow-affiliate-and-campaign-code-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/sw-flow-affiliate-and-campaign-code-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/tests/sw-flow-affiliate-and-campaign-code-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-app-action-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-app-action-modal/src/sw-flow-app-action-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal/src/sw-flow-change-customer-group-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal/src/sw-flow-change-customer-status-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/src/sw-flow-create-mail-template-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/sw-flow-create-mail-template-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/tests/sw-flow-create-mail-template-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal/src/sw-flow-event-change-confirm-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-generate-document-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-generate-document-modal/src/sw-flow-generate-document-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-generate-document-modal/sw-flow-generate-document-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-generate-document-modal/tests/sw-flow-generate-document-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/src/sw-flow-grant-download-access-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/sw-flow-grant-download-access-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/tests/sw-flow-grant-download-access-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-leave-page-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-leave-page-modal/src/sw-flow-leave-page-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/src/sw-flow-mail-send-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -7672,7 +7672,7 @@
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/sw-flow-mail-send-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/tests/sw-flow-mail-send-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7680,62 +7680,62 @@
       "count": 39
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-rule-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-rule-modal/src/sw-flow-rule-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-rule-modal/sw-flow-rule-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-rule-modal/tests/sw-flow-rule-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/src/sw-flow-set-entity-custom-field-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/sw-flow-set-entity-custom-field-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/tests/sw-flow-set-entity-custom-field-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/src/sw-flow-set-order-state-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/sw-flow-set-order-state-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/tests/sw-flow-set-order-state-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-tag-modal/index.js": {
+  "src/module/sw-flow/component/modals/sw-flow-tag-modal/src/sw-flow-tag-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/modals/sw-flow-tag-modal/sw-flow-tag-modal.spec.js": {
+  "src/module/sw-flow/component/modals/sw-flow-tag-modal/tests/sw-flow-tag-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-action-error/index.js": {
+  "src/module/sw-flow/component/sw-flow-sequence-action-error/src/sw-flow-sequence-action-error.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-action/index.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.html.twig": {
+  "src/module/sw-flow/component/sw-flow-sequence-action/src/sw-flow-sequence-action.html.twig": {
     "vue/max-template-depth": {
       "count": 11
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.spec.js": {
+  "src/module/sw-flow/component/sw-flow-sequence-action/src/sw-flow-sequence-action.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-action/tests/sw-flow-sequence-action.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7743,32 +7743,32 @@
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-condition/index.js": {
+  "src/module/sw-flow/component/sw-flow-sequence-condition/src/sw-flow-sequence-condition.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-condition/sw-flow-sequence-condition.spec.js": {
+  "src/module/sw-flow/component/sw-flow-sequence-condition/tests/sw-flow-sequence-condition.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-modal/index.js": {
+  "src/module/sw-flow/component/sw-flow-sequence-modal/src/sw-flow-sequence-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence-selector/index.js": {
+  "src/module/sw-flow/component/sw-flow-sequence-selector/src/sw-flow-sequence-selector.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-sequence/index.js": {
+  "src/module/sw-flow/component/sw-flow-sequence/src/sw-flow-sequence.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-trigger/index.js": {
+  "src/module/sw-flow/component/sw-flow-trigger/src/sw-flow-trigger.js": {
     "complexity": {
       "count": 2
     },
@@ -7782,7 +7782,7 @@
       "count": 1
     }
   },
-  "src/module/sw-flow/component/sw-flow-trigger/sw-flow-trigger.spec.js": {
+  "src/module/sw-flow/component/sw-flow-trigger/tests/sw-flow-trigger.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7808,7 +7808,7 @@
       "count": 1
     }
   },
-  "src/module/sw-flow/page/sw-flow-detail/index.js": {
+  "src/module/sw-flow/page/sw-flow-detail/src/sw-flow-detail.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -7816,7 +7816,7 @@
       "count": 1
     }
   },
-  "src/module/sw-flow/page/sw-flow-detail/sw-flow-detail.spec.js": {
+  "src/module/sw-flow/page/sw-flow-detail/tests/sw-flow-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
     },
@@ -7824,12 +7824,12 @@
       "count": 17
     }
   },
-  "src/module/sw-flow/page/sw-flow-index/index.ts": {
+  "src/module/sw-flow/page/sw-flow-index/src/sw-flow-index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/module/sw-flow/page/sw-flow-index/sw-flow-index.spec.js": {
+  "src/module/sw-flow/page/sw-flow-index/tests/sw-flow-index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -7855,37 +7855,37 @@
       "count": 6
     }
   },
-  "src/module/sw-flow/view/detail/sw-flow-detail-flow/index.js": {
+  "src/module/sw-flow/view/detail/sw-flow-detail-flow/src/sw-flow-detail-flow.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/view/detail/sw-flow-detail-flow/sw-flow-detail-flow.spec.js": {
+  "src/module/sw-flow/view/detail/sw-flow-detail-flow/tests/sw-flow-detail-flow.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-flow/view/detail/sw-flow-detail-general/index.js": {
+  "src/module/sw-flow/view/detail/sw-flow-detail-general/src/sw-flow-detail-general.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts": {
+  "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/src/sw-flow-list-flow-templates.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }
   },
-  "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/sw-flow-list-flow-templates.spec.js": {
+  "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/tests/sw-flow-list-flow-templates.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-flow/view/listing/sw-flow-list/index.js": {
+  "src/module/sw-flow/view/listing/sw-flow-list/src/sw-flow-list.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-flow/view/listing/sw-flow-list/sw-flow-list.spec.js": {
+  "src/module/sw-flow/view/listing/sw-flow-list/tests/sw-flow-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }

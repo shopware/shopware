@@ -1,0 +1,86 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package after-sales
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-flow-sequence-action',
+    load: () => import('./src/sw-flow-sequence-action'),
+    public: {
+        props: [
+            'sequence',
+            'disabled',
+            'isUnknownTrigger',
+        ],
+        blocks: [
+            'sw_flow_sequence_action',
+            'sw_flow_sequence_action_card',
+            'sw_flow_sequence_action_header',
+            'sw_flow_sequence_action_title',
+            'sw_flow_sequence_action_context_menu',
+            'sw_flow_sequence_action_remove_action_container',
+            'sw_flow_sequence_action_content',
+            'sw_flow_sequence_action_actions',
+            'sw_flow_sequence_action_actions_empty',
+            'sw_flow_sequence_action_actions_list',
+            'sw_flow_sequence_action_actions_transition_group',
+            'sw_flow_sequence_action_actions_item',
+            'sw_flow_sequence_action_actions_item_header',
+            'sw_flow_sequence_action_actions_item_name',
+            'sw_flow_sequence_action_actions_item_context_button',
+            'sw_flow_sequence_action_actions_item_button_edit',
+            'sw_flow_sequence_action_actions_item_button_delete',
+            'sw_flow_sequence_action_actions_item_button_move_up',
+            'sw_flow_sequence_action_actions_item_button_move_down',
+            'sw_flow_sequence_action_actions_item_description',
+            'sw_flow_sequence_action_item_custom',
+            'sw_flow_sequence_action_add_select',
+            'sw_flow_sequence_action_list',
+            'sw_flow_sequence_action_select_results_list_result_label',
+            'sw_flow_sequence_action_modal',
+        ],
+        computed: [
+            'sequenceRepository',
+            'customFieldSetRepository',
+            'actionOptions',
+            'groups',
+            'sequenceData',
+            'showAddAction',
+            'stopFlowActionName',
+            'actionClasses',
+            'errorArrow',
+            'modalName',
+            'currentLocale',
+        ],
+        methods: [
+            'openDynamicModal',
+            'onSaveActionSuccess',
+            'onCloseModal',
+            'addAction',
+            'editAction',
+            'removeAction',
+            'actionsWithoutStopFlow',
+            'showMoveOption',
+            'moveAction',
+            'onEditAction',
+            'removeActionContainer',
+            'getActionTitle',
+            'sortByPosition',
+            'stopFlowStyle',
+            'getActionDescriptions',
+            'setFieldError',
+            'removeFieldError',
+            'isNotStopFlow',
+            'capitalize',
+            'isAppDisabled',
+            'getStopFlowIndex',
+            'sortActionOptions',
+            'isValidAction',
+        ],
+    },
+});

@@ -1,0 +1,99 @@
+import template from './sw-flow-index.html.twig';
+import './sw-flow-index.scss';
+import {
+    aclService,
+    Criteria,
+    type CriteriaType,
+    featureService,
+    type Repository,
+    repositoryFactoryService,
+    wrapComponentConfig,
+} from '../dependencies';
+
+/**
+ * @private
+ * @sw-package after-sales
+ */
+export default wrapComponentConfig({
+    template,
+
+    inject: [aclService, featureService, repositoryFactoryService],
+
+    data(): {
+        isLoading: boolean;
+        term: string;
+        total: number;
+        showUploadModal: boolean;
+    } {
+        return {
+            isLoading: false,
+            term: '',
+            total: 0,
+            showUploadModal: false,
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
+    computed: {
+        searchType(): string {
+            if (this.$route.name === 'sw.flow.index.templates') {
+                return 'flow_template';
+            }
+
+            return 'flow';
+        },
+
+        flowRepository(): Repository<'flow'> {
+            return this.repositoryFactory.create('flow');
+        },
+
+        flowCriteria(): CriteriaType {
+            return new Criteria(1, null);
+        },
+
+        flowTabs(): Array<{ label: string; name: string; onClick: () => void }> {
+            const createRouteTab = (label: string, routeName: string) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-flow.general.tabMyFlows', 'sw.flow.index.flows'),
+                createRouteTab('sw-flow.general.tabFlowTemplates', 'sw.flow.index.templates'),
+            ];
+        },
+    },
+
+    created(): void {
+        this.createComponent();
+    },
+
+    methods: {
+        createComponent(): void {
+            void this.getTotal();
+        },
+
+        async getTotal(): Promise<void> {
+            const { total } = await this.flowRepository.searchIds(this.flowCriteria);
+            this.total = total;
+        },
+
+        onUpdateTotalFlow(total: number): void {
+            this.total = total;
+        },
+
+        onSearch(term: string): void {
+            this.term = term;
+        },
+    },
+});

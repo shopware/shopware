@@ -1,0 +1,67 @@
+import template from './sw-flow-sequence-selector.html.twig';
+import './sw-flow-sequence-selector.scss';
+import { useFlowStore } from '../dependencies';
+
+/**
+ * @private
+ * @sw-package after-sales
+ */
+export default {
+    template,
+
+    props: {
+        sequence: {
+            type: Object,
+            required: true,
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    computed: {
+        title() {
+            if (!this.sequence.parentId && this.sequence.position > 1) {
+                return this.$t('sw-flow.detail.sequence.selectorTitleAddSequence');
+            }
+
+            return this.$t('sw-flow.detail.sequence.selectorTitle');
+        },
+
+        helpText() {
+            const { parentId, position, trueCase } = this.sequence;
+
+            if (!parentId && position === 1) {
+                return this.$t('sw-flow.detail.sequence.selectorHelpText');
+            }
+
+            if (!parentId && position > 1) {
+                return this.$t('sw-flow.detail.sequence.selectorHelpTextAddSequence');
+            }
+
+            if (trueCase) {
+                return this.$t('sw-flow.detail.sequence.selectorHelpTextTrueCondition');
+            }
+
+            return this.$t('sw-flow.detail.sequence.selectorHelpTextFalseCondition');
+        },
+    },
+
+    methods: {
+        addIfCondition() {
+            useFlowStore().updateSequence({
+                id: this.sequence.id,
+                ruleId: '',
+            });
+        },
+
+        addThenAction() {
+            useFlowStore().updateSequence({
+                id: this.sequence.id,
+                actionName: '',
+            });
+        },
+    },
+};

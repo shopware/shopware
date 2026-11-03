@@ -25,7 +25,13 @@ type EntityActions =
 
 type EntityActionName = (typeof Shopware.Constants.FLOW.ACTION)[EntityActions];
 
-const swFlowStore = Shopware.Store.register('swFlow', {
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swFlowStoreId = 'swFlow';
+
+const swFlowStore = Shopware.Store.register(swFlowStoreId, {
     state: () => ({
         flow: {
             eventName: '',

@@ -39,6 +39,16 @@ export const appModulesService = 'appModulesService';
 export const bulkEditApiFactory = 'bulkEditApiFactory';
 
 /**
+ * The name the businessEventService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [businessEventService] };
+ *
+ * @public
+ */
+export const businessEventService = 'businessEventService';
+
+/**
  * The name the cacheApiService service is registered and injected under.
  *
  * @example
@@ -351,6 +361,26 @@ export const filterService = 'filterService';
  * @public
  */
 export const firstRunWizardService = 'firstRunWizardService';
+
+/**
+ * The name the flowActionService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [flowActionService] };
+ *
+ * @public
+ */
+export const flowActionService = 'flowActionService';
+
+/**
+ * The name the flowBuilderService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [flowBuilderService] };
+ *
+ * @public
+ */
+export const flowBuilderService = 'flowBuilderService';
 
 /**
  * The name the guestCustomerConvertService service is registered and injected under.

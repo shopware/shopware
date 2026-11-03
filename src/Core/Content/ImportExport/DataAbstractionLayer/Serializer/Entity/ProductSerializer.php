@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -208,20 +207,14 @@ class ProductSerializer extends EntitySerializer
      */
     private function mapSalesChannelNamesToIds(array $names, Context $context): array
     {
-        $names = array_unique($names);
+        $names = array_values(array_unique($names));
 
         if ($names === []) {
             return [];
         }
 
-        $filters = [];
-
-        foreach ($names as $name) {
-            $filters[] = new EqualsFilter('name', $name);
-        }
-
         $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+        $criteria->addFilter(new EqualsAnyFilter('name', $names));
 
         $idsByName = [];
 

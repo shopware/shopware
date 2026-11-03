@@ -1,9 +1,15 @@
 /**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const licenseViolationStoreId = 'licenseViolation';
+
+/**
  * @sw-package framework
  * @private
  */
 const licenseViolationStore = Shopware.Store.register({
-    id: 'licenseViolation',
+    id: licenseViolationStoreId,
 
     state: () => ({
         violations: [] as unknown[],

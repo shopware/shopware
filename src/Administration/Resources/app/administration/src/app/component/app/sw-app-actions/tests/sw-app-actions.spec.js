@@ -12,7 +12,7 @@ import 'src/app/component/app/sw-app-action-button/src/sw-app-action-button';
 import 'src/app/component/context-menu/sw-context-button/src/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu/src/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item/src/sw-context-menu-item';
-import 'src/app/component/utils/sw-popover';
+import 'src/app/component/utils/sw-popover/src/sw-popover';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 

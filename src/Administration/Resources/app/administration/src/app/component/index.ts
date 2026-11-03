@@ -212,6 +212,33 @@ import 'src/app/component/structure/sw-skip-link/register';
 import './structure/sw-ui-shell-update-2026-modal/register';
 import 'src/app/component/tree/sw-tree-input-field/register';
 import 'src/app/component/tree/sw-tree-item/register';
+import 'src/app/component/utils/sw-color-badge/register';
+import 'src/app/component/utils/sw-dismissible-notices/register';
+import 'src/app/component/utils/sw-duplicated-media-v2/register';
+import 'src/app/component/utils/sw-external-link/register';
+import 'src/app/component/utils/sw-inherit-wrapper/register';
+import 'src/app/component/utils/sw-internal-link/register';
+import 'src/app/component/utils/sw-license-violation/register';
+import 'src/app/component/utils/sw-loader/register';
+import 'src/app/component/utils/sw-loader-deprecated/register';
+import 'src/app/component/utils/sw-notification-center/register';
+import 'src/app/component/utils/sw-notification-center-item/register';
+import 'src/app/component/utils/sw-notifications/register';
+import 'src/app/component/utils/sw-overlay/register';
+import 'src/app/component/utils/sw-popover/register';
+import 'src/app/component/utils/sw-popover-deprecated/register';
+import 'src/app/component/utils/sw-progress-bar/register';
+import 'src/app/component/utils/sw-shortcut-overview/register';
+import 'src/app/component/utils/sw-shortcut-overview-item/register';
+import 'src/app/component/utils/sw-skeleton/register';
+import 'src/app/component/utils/sw-skeleton-bar/register';
+import 'src/app/component/utils/sw-skeleton-bar-deprecated/register';
+import 'src/app/component/utils/sw-status/register';
+import 'src/app/component/utils/sw-step-display/register';
+import 'src/app/component/utils/sw-step-item/register';
+import 'src/app/component/utils/sw-text-preview/register';
+import 'src/app/component/utils/sw-time-ago/register';
+import 'src/app/component/utils/sw-verify-user-modal/register';
 /**
  * @sw-package framework
  * @private
@@ -225,58 +252,10 @@ export default () => {
     );
     Shopware.Component.register('sw-wizard', () => import('src/app/component/wizard/sw-wizard/index'));
     Shopware.Component.register('sw-vnode-renderer', () => import('src/app/component/utils/sw-vnode-renderer/index'));
-    Shopware.Component.register(
-        'sw-dismissible-notices',
-        () => import('src/app/component/utils/sw-dismissible-notices/index'),
-    );
-    Shopware.Component.register('sw-verify-user-modal', () => import('src/app/component/utils/sw-verify-user-modal/index'));
     Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
-    Shopware.Component.register('sw-time-ago', () => import('src/app/component/utils/sw-time-ago/index'));
-    Shopware.Component.register('sw-text-preview', () => import('src/app/component/utils/sw-text-preview/index'));
-    Shopware.Component.register('sw-step-item', () => import('src/app/component/utils/sw-step-item/index'));
-    Shopware.Component.register('sw-step-display', () => import('src/app/component/utils/sw-step-display/index'));
-    Shopware.Component.register('sw-status', () => import('src/app/component/utils/sw-status/index'));
-    Shopware.Component.register(
-        'sw-skeleton-bar-deprecated',
-        () => import('src/app/component/utils/sw-skeleton-bar-deprecated/index'),
-    );
-    Shopware.Component.register('sw-skeleton-bar', () => import('src/app/component/utils/sw-skeleton-bar/index'));
-    Shopware.Component.register('sw-skeleton', () => import('src/app/component/utils/sw-skeleton/index'));
-    Shopware.Component.register(
-        'sw-shortcut-overview-item',
-        () => import('src/app/component/utils/sw-shortcut-overview-item/index'),
-    );
-    Shopware.Component.register('sw-shortcut-overview', () => import('src/app/component/utils/sw-shortcut-overview/index'));
     Shopware.Component.register('sw-provide', () => import('src/app/component/utils/sw-provide/index'));
-    Shopware.Component.register('sw-progress-bar', () => import('src/app/component/utils/sw-progress-bar/index'));
-    Shopware.Component.register(
-        'sw-popover-deprecated',
-        () => import('src/app/component/utils/sw-popover-deprecated/index'),
-    );
-    Shopware.Component.register('sw-popover', () => import('src/app/component/utils/sw-popover/index'));
-    Shopware.Component.register('sw-overlay', () => import('src/app/component/utils/sw-overlay/index'));
-    Shopware.Component.register('sw-notifications', () => import('src/app/component/utils/sw-notifications/index'));
-    Shopware.Component.register(
-        'sw-notification-center-item',
-        () => import('src/app/component/utils/sw-notification-center-item/index'),
-    );
-    Shopware.Component.register(
-        'sw-notification-center',
-        () => import('src/app/component/utils/sw-notification-center/index'),
-    );
-    Shopware.Component.register('sw-loader-deprecated', () => import('src/app/component/utils/sw-loader-deprecated/index'));
-    Shopware.Component.register('sw-loader', () => import('src/app/component/utils/sw-loader/index'));
-    Shopware.Component.register('sw-license-violation', () => import('src/app/component/utils/sw-license-violation/index'));
-    Shopware.Component.register('sw-internal-link', () => import('src/app/component/utils/sw-internal-link/index'));
-    Shopware.Component.register('sw-inherit-wrapper', () => import('src/app/component/utils/sw-inherit-wrapper/index'));
     Shopware.Component.register('sw-ignore-class', () => import('src/app/component/utils/sw-ignore-class/index'));
-    Shopware.Component.register('sw-external-link', () => import('src/app/component/utils/sw-external-link/index'));
     Shopware.Component.register('sw-error-boundary', () => import('src/app/component/utils/sw-error-boundary/index'));
-    Shopware.Component.register(
-        'sw-duplicated-media-v2',
-        () => import('src/app/component/utils/sw-duplicated-media-v2/index'),
-    );
-    Shopware.Component.register('sw-color-badge', () => import('src/app/component/utils/sw-color-badge/index'));
     Shopware.Component.register('sw-upload-status', () => import('src/app/component/utils/sw-upload-status'));
     Shopware.Component.register('sw-tree', () => import('src/app/component/tree/sw-tree/index'));
     Shopware.Component.register(

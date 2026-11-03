@@ -135,3 +135,5 @@ import '../src/app/component/media/sw-model-editor/global';
 import '../src/app/component/media/sw-model-viewer/global';
 import '../src/app/component/media/sw-sidebar-media-item/global';
 import '../src/app/component/media/sw-vector-field/global';
+import '../src/app/component/utils/sw-duplicated-media-v2/global';
+import '../src/app/component/utils/sw-text-preview/global';

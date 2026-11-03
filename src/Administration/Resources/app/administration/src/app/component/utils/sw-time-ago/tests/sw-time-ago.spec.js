@@ -1,0 +1,339 @@
+/**
+ * @sw-package checkout
+ */
+
+import { mount } from '@vue/test-utils';
+import 'src/app/component/utils/sw-time-ago/src/sw-time-ago';
+
+// mock Date.now() to 2025-06-24 15:00
+Date.now = jest.fn(() => new Date(Date.UTC(2025, 5, 24, 15, 0)).valueOf());
+
+async function createWrapper(props = {}) {
+    return mount(await wrapTestComponent('sw-time-ago', { sync: true }), {
+        props,
+        global: {
+            mocks: {
+                $t: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
+            },
+            directives: {
+                tooltip: {
+                    beforeMount(el, binding) {
+                        el.setAttribute('data-tooltip-message', binding.value.message);
+                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                    },
+                    mounted(el, binding) {
+                        el.setAttribute('data-tooltip-message', binding.value.message);
+                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                    },
+                    updated(el, binding) {
+                        el.setAttribute('data-tooltip-message', binding.value.message);
+                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                    },
+                },
+            },
+        },
+    });
+}
+
+describe('src/app/component/utils/sw-time-ago', () => {
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    it('should update the time every minute', async () => {
+        jest.useFakeTimers();
+
+        Date.now = jest.fn(() => new Date(Date.UTC(2025, 5, 24, 15, 0)).valueOf());
+
+        const wrapper = await createWrapper({
+            date: '2025-06-24T14:30:00.000+00:00',
+        });
+
+        expect(wrapper.vm.now).toBe(1750777200000);
+
+        Date.now = jest.fn(() => new Date(Date.UTC(2025, 5, 24, 15, 1)).valueOf());
+
+        jest.advanceTimersByTime(30000);
+
+        await flushPromises();
+
+        expect(wrapper.vm.now).toBe(1750777260000);
+    });
+
+    it('should setup global interval, if a component is mounted', async () => {
+        jest.spyOn(global, 'setInterval');
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 30_000);
+    });
+
+    it('should keep a single global interval, if multiple components are mounted', async () => {
+        jest.spyOn(global, 'setInterval');
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the global interval, if not all components are unmounted', async () => {
+        jest.spyOn(global, 'setInterval');
+        jest.spyOn(global, 'clearInterval');
+
+        const wrapper1 = await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        expect(clearInterval).toHaveBeenCalledTimes(0);
+
+        wrapper1.unmount();
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        expect(clearInterval).toHaveBeenCalledTimes(0);
+    });
+
+    it('should clear global interval, if all components are unmounted', async () => {
+        jest.spyOn(global, 'clearInterval');
+
+        const wrapper = await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(clearInterval).toHaveBeenCalledTimes(0);
+
+        wrapper.unmount();
+
+        expect(clearInterval).toHaveBeenCalledTimes(1);
+        expect(clearInterval).toHaveBeenCalledWith(expect.any(Number));
+    });
+
+    it('should update when props are changed', async () => {
+        const wrapper = await createWrapper({
+            date: '2025-06-23T12:34:00.000+00:00',
+        });
+
+        expect(wrapper.text()).toContain('12:34');
+
+        await wrapper.setProps({ date: '2025-06-22T18:35:00.000+00:00' });
+
+        expect(wrapper.text()).toContain('18:35');
+    });
+
+    describe('date property as string', () => {
+        describe('past dates', () => {
+            it('should show the correct time for less than one minute', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T15:00:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.justNow');
+            });
+
+            it('should show the correct time for less than one hour', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T14:30:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.minutesAgo');
+            });
+
+            it('should show the correct time for today', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T08:25:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('8:25');
+            });
+
+            it('should show the correct time for days more than one day ago', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-16T15:00:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('16 June 2025 at 15:00');
+            });
+
+            it('should show a tooltip when day is today', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T14:30:00.000+00:00',
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('false');
+            });
+
+            it('should not show a tooltip when day is not today', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-21T14:30:00.000+00:00',
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('true');
+            });
+        });
+
+        describe('future dates', () => {
+            it('should show the correct time for less than one minute from now', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T15:00:10.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.aboutNow');
+            });
+
+            it('should show the correct time for less than one hour from now', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T15:30:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.minutesFromNow');
+            });
+
+            it('should show the correct time for today', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T17:25:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('17:25');
+            });
+
+            it('should show the correct time for days more than one day from now', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-30T15:00:00.000+00:00',
+                });
+
+                expect(wrapper.text()).toContain('30 June 2025 at 15:00');
+            });
+
+            it('should show a tooltip when day is today', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-24T17:30:00.000+00:00',
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('false');
+            });
+
+            it('should not show a tooltip when day is not today', async () => {
+                const wrapper = await createWrapper({
+                    date: '2025-06-27T15:00:00.000+00:00',
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('true');
+            });
+        });
+    });
+
+    describe('date property as object', () => {
+        describe('past dates', () => {
+            it('should show the correct time for less than one minute', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T15:00:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.justNow');
+            });
+
+            it('should show the correct time for less than one hour', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T14:30:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.minutesAgo');
+            });
+
+            it('should show the correct time for today', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T08:25:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('8:25');
+            });
+
+            it('should show the correct time for days more than one day ago', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-16T15:00:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('16 June 2025 at 15:00');
+            });
+
+            it('should show a tooltip when day is today', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T14:30:00.000+00:00'),
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('false');
+            });
+
+            it('should not show a tooltip when day is not today', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-21T14:30:00.000+00:00'),
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('true');
+            });
+        });
+
+        describe('future dates', () => {
+            it('should show the correct time for less than one minute from now', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T15:00:10.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.aboutNow');
+            });
+
+            it('should show the correct time for less than one hour from now', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T15:30:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('global.sw-time-ago.minutesFromNow');
+            });
+
+            it('should show the correct time for today', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T17:25:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('17:25');
+            });
+
+            it('should show the correct time for days more than one day from now', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-30T15:00:00.000+00:00'),
+                });
+
+                expect(wrapper.text()).toContain('30 June 2025 at 15:00');
+            });
+
+            it('should show a tooltip when day is today', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-24T17:30:00.000+00:00'),
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('false');
+            });
+
+            it('should not show a tooltip when day is not today', async () => {
+                const wrapper = await createWrapper({
+                    date: new Date('2025-06-27T15:00:00.000+00:00'),
+                });
+
+                expect(wrapper.find('span').attributes('data-tooltip-disabled')).toBe('true');
+            });
+        });
+    });
+});

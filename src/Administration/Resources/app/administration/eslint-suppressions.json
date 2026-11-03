@@ -2321,7 +2321,7 @@
       "count": 8
     }
   },
-  "src/app/component/utils/sw-color-badge/index.js": {
+  "src/app/component/utils/sw-color-badge/src/sw-color-badge.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2329,12 +2329,12 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-dismissible-notices/index.ts": {
+  "src/app/component/utils/sw-dismissible-notices/src/sw-dismissible-notices.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-duplicated-media-v2/index.js": {
+  "src/app/component/utils/sw-duplicated-media-v2/src/sw-duplicated-media-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2342,7 +2342,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-duplicated-media-v2/sw-duplicated-media-v2.spec.js": {
+  "src/app/component/utils/sw-duplicated-media-v2/tests/sw-duplicated-media-v2.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
@@ -2352,7 +2352,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-external-link/index.js": {
+  "src/app/component/utils/sw-external-link/src/sw-external-link.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2360,7 +2360,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-external-link/sw-external-link.spec.js": {
+  "src/app/component/utils/sw-external-link/tests/sw-external-link.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
@@ -2370,7 +2370,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-inherit-wrapper/index.js": {
+  "src/app/component/utils/sw-inherit-wrapper/src/sw-inherit-wrapper.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2378,12 +2378,12 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-inherit-wrapper/sw-inherit-wrapper.spec.js": {
+  "src/app/component/utils/sw-inherit-wrapper/tests/sw-inherit-wrapper.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 32
     }
   },
-  "src/app/component/utils/sw-internal-link/index.js": {
+  "src/app/component/utils/sw-internal-link/src/sw-internal-link.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2391,12 +2391,12 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-license-violation/index.js": {
+  "src/app/component/utils/sw-license-violation/src/sw-license-violation.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-loader-deprecated/index.js": {
+  "src/app/component/utils/sw-loader-deprecated/src/sw-loader-deprecated.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2404,37 +2404,37 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-loader-deprecated/sw-loader-deprecated.spec.js": {
+  "src/app/component/utils/sw-loader-deprecated/tests/sw-loader-deprecated.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 19
     }
   },
-  "src/app/component/utils/sw-loader/index.js": {
+  "src/app/component/utils/sw-loader/src/sw-loader.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-notification-center-item/index.js": {
+  "src/app/component/utils/sw-notification-center-item/src/sw-notification-center-item.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-notification-center/index.js": {
+  "src/app/component/utils/sw-notification-center/src/sw-notification-center.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-notification-center/sw-notification-center.spec.js": {
+  "src/app/component/utils/sw-notification-center/tests/sw-notification-center.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/app/component/utils/sw-notifications/index.js": {
+  "src/app/component/utils/sw-notifications/src/sw-notifications.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-overlay/index.js": {
+  "src/app/component/utils/sw-overlay/src/sw-overlay.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2442,7 +2442,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-popover-deprecated/index.js": {
+  "src/app/component/utils/sw-popover-deprecated/src/sw-popover-deprecated.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2450,7 +2450,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-progress-bar/index.js": {
+  "src/app/component/utils/sw-progress-bar/src/sw-progress-bar.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2458,12 +2458,12 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-shortcut-overview-item/index.js": {
+  "src/app/component/utils/sw-shortcut-overview-item/src/sw-shortcut-overview-item.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-shortcut-overview/index.js": {
+  "src/app/component/utils/sw-shortcut-overview/src/sw-shortcut-overview.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -2471,17 +2471,17 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-shortcut-overview/sw-shortcut-overview.spec.js": {
+  "src/app/component/utils/sw-shortcut-overview/tests/sw-shortcut-overview.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/app/component/utils/sw-status/index.js": {
+  "src/app/component/utils/sw-status/src/sw-status.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-step-display/index.js": {
+  "src/app/component/utils/sw-step-display/src/sw-step-display.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2489,7 +2489,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-step-item/index.js": {
+  "src/app/component/utils/sw-step-item/src/sw-step-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2497,7 +2497,7 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-text-preview/index.js": {
+  "src/app/component/utils/sw-text-preview/src/sw-text-preview.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2505,12 +2505,12 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-time-ago/index.ts": {
+  "src/app/component/utils/sw-time-ago/src/sw-time-ago.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/component/utils/sw-time-ago/sw-time-ago.spec.js": {
+  "src/app/component/utils/sw-time-ago/tests/sw-time-ago.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -2536,7 +2536,7 @@
       "count": 112
     }
   },
-  "src/app/component/utils/sw-verify-user-modal/index.js": {
+  "src/app/component/utils/sw-verify-user-modal/src/sw-verify-user-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }

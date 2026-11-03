@@ -119,6 +119,16 @@ export const excludedSearchTermService = 'excludedSearchTermService';
 export const extensionSdkService = 'extensionSdkService';
 
 /**
+ * The name the extensionStoreActionService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [extensionStoreActionService] };
+ *
+ * @public
+ */
+export const extensionStoreActionService = 'extensionStoreActionService';
+
+/**
  * @sw-package framework
  */
 
@@ -161,6 +171,16 @@ export const filterFactory = 'filterFactory';
  * @public
  */
 export const filterService = 'filterService';
+
+/**
+ * The name the licenseViolationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [licenseViolationService] };
+ *
+ * @public
+ */
+export const licenseViolationService = 'licenseViolationService';
 
 /**
  * The name the liveSearchService service is registered and injected under.

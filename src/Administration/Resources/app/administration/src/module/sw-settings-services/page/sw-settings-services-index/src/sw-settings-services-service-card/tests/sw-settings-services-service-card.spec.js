@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import SwStatus from 'src/app/component/utils/sw-status';
+import SwStatus from 'src/app/component/utils/sw-status/src/sw-status';
 import {
     MtModalAction,
     MtModalRoot,
@@ -10,7 +10,7 @@ import {
     MtButton,
 } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesServiceCard from '../src/sw-settings-services-service-card';
-import SwColorBadge from '../../../../../../../app/component/utils/sw-color-badge';
+import SwColorBadge from '../../../../../../../app/component/utils/sw-color-badge/src/sw-color-badge';
 
 const createService = (overrides = {}) => ({
     id: 'service-id',

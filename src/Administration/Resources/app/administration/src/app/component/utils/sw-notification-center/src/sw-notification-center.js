@@ -1,0 +1,130 @@
+import template from './sw-notification-center.html.twig';
+import './sw-notification-center.scss';
+import {
+    EventBus,
+    featureService,
+    notificationMixin,
+    POLL_BACKGROUND_INTERVAL,
+    POLL_FOREGROUND_INTERVAL,
+    useNotificationStore,
+} from '../dependencies';
+
+/**
+ * @sw-package framework
+ * @private
+ */
+export default {
+    template,
+
+    inject: [featureService],
+
+    mixins: [notificationMixin],
+
+    data() {
+        return {
+            isOpened: false,
+            optionsMenuOpen: false,
+            isBellRinging: false,
+            showDeleteModal: false,
+            unsubscribeFromStore: null,
+        };
+    },
+
+    computed: {
+        notifications() {
+            return Object.values(useNotificationStore().notifications).reverse();
+        },
+
+        hasNotifications() {
+            return this.notifications.length > 0;
+        },
+
+        additionalContextButtonClass() {
+            return {
+                'sw-notification-center__context-button--new-available': this.notifications.some((n) => !n.visited),
+            };
+        },
+    },
+
+    watch: {
+        isOpened(value) {
+            this.onVisibilityChange(value);
+        },
+    },
+
+    created() {
+        this.unsubscribeFromStore = useNotificationStore().$onAction(this.createNotificationFromSystemError);
+        EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
+    },
+
+    beforeUnmount() {
+        this.unsubscribeFromStore?.();
+
+        EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
+    },
+
+    methods: {
+        onVisibilityChange(isOpened) {
+            const store = useNotificationStore();
+
+            if (isOpened) {
+                store.workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
+                return;
+            }
+
+            store.setAllNotificationsVisited();
+            store.workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
+        },
+
+        openDeleteModal() {
+            this.optionsMenuOpen = false;
+            this.isOpened = false;
+            this.showDeleteModal = true;
+        },
+
+        onConfirmDelete() {
+            useNotificationStore().clearNotificationsForCurrentUser();
+            this.showDeleteModal = false;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onEmptyStateBellClick() {
+            this.isBellRinging = true;
+        },
+
+        togglePanel() {
+            this.changeVisibility(!this.isOpened);
+        },
+
+        onPanelClose() {
+            if (this.optionsMenuOpen) {
+                return;
+            }
+
+            this.changeVisibility(false);
+        },
+
+        changeVisibility(visible) {
+            this.isOpened = visible;
+
+            if (!visible) {
+                this.showDeleteModal = false;
+                this.optionsMenuOpen = false;
+            }
+        },
+
+        createNotificationFromSystemError({ name, args }) {
+            if (name !== 'addSystemError') {
+                return;
+            }
+
+            this.createSystemNotificationError({
+                id: args.id,
+                message: args.error.detail,
+            });
+        },
+    },
+};

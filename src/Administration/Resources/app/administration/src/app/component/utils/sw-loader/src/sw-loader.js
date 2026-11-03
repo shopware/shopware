@@ -1,0 +1,50 @@
+import template from './sw-loader.html.twig';
+import { isFeatureActive, warn } from '../dependencies';
+
+/**
+ * @sw-package framework
+ *
+ * @private
+ * @status ready
+ * @description Wrapper component for sw-loader and mt-loader. Autoswitches between the two components.
+ */
+export default {
+    template,
+
+    props: {
+        modelValue: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        value: {
+            type: String,
+            required: false,
+            default: null,
+        },
+    },
+
+    computed: {
+        useMeteorComponent() {
+            // Use new meteor component in major
+            if (isFeatureActive('ENABLE_METEOR_COMPONENTS')) {
+                return true;
+            }
+
+            // Throw warning when deprecated component is used
+            warn(
+                'sw-loader',
+                'The old usage of "sw-loader" is deprecated and will be removed in v6.8.0.0. Please use "mt-loader" instead.',
+            );
+
+            return false;
+        },
+    },
+
+    methods: {
+        getSlots() {
+            return this.$slots;
+        },
+    },
+};

@@ -9,8 +9,9 @@
  * `register.ts` and `global.d.ts`, replaces the registration, moves the ESLint suppressions,
  * or, for a component its parent imports, moves it as a private module into the `src/` of the parent's module,
  * and takes the code owner from what `.codeowners` already says about the directory.
- * What needs judgement it prints as a checklist for the sweep after it:
- * `dependencies.ts`, contract tests, a missing code owner, and what it could not read.
+ * It writes `dependencies.ts` and routes what `src/` takes from outside the module through it, where it can do so
+ * without changing behaviour. What needs judgement it prints as a checklist for the sweep after it:
+ * what `src/` still takes from outside, contract tests, a missing code owner, and what it could not read.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -29,6 +30,8 @@ import {
     type Owner,
 } from '../../mini-module-owners/owners';
 import { isPrivateShape, renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
+import { createAdminIndex } from './dependencies/admin-index';
+import { routeModule, type RoutedModule } from './dependencies/route-module';
 
 const adminRoot = path.resolve(__dirname, '../../..');
 const relative = (file: string) => path.relative(adminRoot, file).split(path.sep).join('/');
@@ -366,10 +369,25 @@ function run(directory: string) {
 
     moveSuppressions(moves);
     const owner = isPrivateShape(shape) ? null : addOwner(root);
-    execFileSync(path.join(adminRoot, 'node_modules', '.bin', 'prettier'), ['--write', ...written, ...changed], {
-        cwd: adminRoot,
+    const routed = routeModule({
+        adminRoot,
+        moduleRoot: moduleDirectory,
+        name,
+        packageName,
+        index: createAdminIndex(adminRoot, moduleDirectory),
     });
-    printSweepChecklist(root, name, api, shape, owner);
+    execFileSync(
+        path.join(adminRoot, 'node_modules', '.bin', 'prettier'),
+        [
+            '--write',
+            ...written,
+            ...changed,
+            ...routed.changed,
+            ...routed.outsideFiles,
+        ],
+        { cwd: adminRoot },
+    );
+    printSweepChecklist(root, name, api, shape, owner, routed);
 }
 
 /**
@@ -411,16 +429,25 @@ const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<type
     return file;
 };
 
-const findLines = (directory: string, pattern: RegExp) =>
-    fs
-        .readdirSync(directory, { recursive: true, encoding: 'utf8' })
-        .filter((file) => /\.[jt]s$/.test(file))
-        .flatMap((file) =>
-            fs
-                .readFileSync(path.join(directory, file), 'utf8')
-                .split('\n')
-                .flatMap((line, index) => (pattern.test(line) ? [`src/${file}:${index + 1}: ${line.trim()}`] : [])),
-        );
+/** What the codemod changed outside the module so `src/` can import names instead of writing them, for the checklist. */
+const describeOutsideEdits = ({ outside }: RoutedModule) => {
+    const lines = [
+        ...new Set(
+            outside.map((edit) => {
+                if (edit.kind === 'service-name') {
+                    return `   - src/app/service-names exports the new constant ${edit.name}: say in its doc comment what the service does.`;
+                }
+
+                const kind = edit.kind === 'store-id' ? 'store id' : 'filter name';
+                return `   - ${relative(edit.file)} exports the ${kind} ${edit.exportName}.`;
+            }),
+        ),
+    ];
+
+    return lines.length > 0
+        ? `   It changed these files outside the module, which the PR lists:\n${lines.join('\n')}\n`
+        : '';
+};
 
 /** What the sweep must know about how the component reaches the page, for the checklist. */
 const describeShape = (name: string, shape: Shape) => {
@@ -467,16 +494,19 @@ const describeOwner = (root: string, shape: Shape, owner: Owner | null) =>
           : `mini-module-owners.json names ${owner} for the module, as .codeowners did for its directory, and .codeowners has its lines.
    Keep the level: an optional owner ("? ") stays optional.`;
 
-function printSweepChecklist(root: string, name: string, api: ComponentApi, shape: Shape, owner: Owner | null) {
-    const outside = findLines(
-        path.join(adminRoot, root, 'src'),
-        /Shopware\.|= Shopware;|inject:|getByName\(|(from|import) 'src\//,
-    );
-
+function printSweepChecklist(
+    root: string,
+    name: string,
+    api: ComponentApi,
+    shape: Shape,
+    owner: Owner | null,
+    routed: RoutedModule,
+) {
     const entryFile = isPrivateShape(shape) ? 'private.ts' : 'index.ts';
     const apiSpec = isPrivateShape(shape)
         ? 'If present, members only other Administration code reaches go into private-api.spec.ts, which may read them through wrapper.vm; each test names its member with @private-api.'
         : 'If present, public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.';
+    const changesServiceNames = routed.outside.some((edit) => edit.kind === 'service-name');
 
     console.log(`# Sweep ${root}
 
@@ -484,18 +514,12 @@ The codemod moved ${name} into the mini-module layout. Finish it by hand, follow
 A finished example is src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix: copy its patterns.
 This is a refactor: behaviour must not change, so keep odd code, unused injects and the mixin order.
 ${describeShape(name, shape)}
-1. Write dependencies.ts and route every outside access of src/ through it:
-${outside.map((line) => `   - ${line}`).join('\n') || '   - nothing found'}
-   - A service name in inject or in Shopware.Service('x') becomes a constant from src/app/service-names; add a missing one there.
-     Shopware.Service(x) becomes a function in dependencies.ts: export const getXService = () => Shopware.Service(xService);
-   - A store id in Shopware.Store.get() becomes the id the store file exports, wrapped in a function such as useXStore().
-     If the store file exports no id yet, export it there, like sw-settings-shipping-detail/store.ts does.
-   - A filter in Shopware.Filter.getByName('x') becomes the name the filter file exports; export one if it has none.
-   - A new constant in src/app/service-names is public API owned by framework: add only what the module injects.
-   - Mixin.getByName('x') becomes the default import of the mixin's file.
-   - Shopware.Component.wrapComponentConfig is Vue's defineComponent, so a TypeScript component takes it from there:
-     /** @private */
-     export { defineComponent as wrapComponentConfig } from 'vue';
+1. The codemod wrote dependencies.ts and routed src/ through it where that cannot change behaviour.
+${describeOutsideEdits(routed)}   Left for the sweep, because the codemod cannot rewrite them safely:
+${routed.leftovers.map((line) => `   - ${line}`).join('\n') || '   - nothing'}
+   - A name in inject that is no service, such as one a parent provides, stays written: name it in the PR.
+   - A lookup by a computed name, Shopware passed around, or a write to the global needs judgement.
+   - Keep dependencies.ts free of side effects: anything that reads state that changes is a function.
 2. Complete the lists in ${entryFile} where the codemod could not read them:
 ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unresolved'}
    Add one sentence to the doc comment of ${entryFile} that says what the component is for.
@@ -513,6 +537,10 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
               ? 'Run npm run unit-setup, so Jest finds the moved component by its name.'
               : `Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
    Run npm run unit-setup, so Jest finds the moved component by its name.`
+    }${
+        changesServiceNames && isPrivateShape(shape)
+            ? '\n   Run npm run generate-shopware-modules, because src/app/service-names exports new names.'
+            : ''
     }
    Then run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts
    Lines the contract tests leave uncovered are code no contract protects: pin them, or name them in the PR.

@@ -1,19 +1,26 @@
 /**
  * @sw-package framework
  */
-import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-settings-cache-index.html.twig';
 import './sw-settings-cache-index.scss';
+import {
+    cacheApiService,
+    featureService,
+    notificationMixin,
+    POLL_BACKGROUND_INTERVAL,
+    POLL_FOREGROUND_INTERVAL,
+    useNotificationStore,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['cacheApiService', 'feature'],
+    inject: [cacheApiService, featureService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -137,10 +144,10 @@ export default {
         },
 
         decreaseWorkerPoll() {
-            Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
+            useNotificationStore().workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
 
             setTimeout(() => {
-                Shopware.Store.get('notification').workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
+                useNotificationStore().workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
             }, 60000);
         },
 

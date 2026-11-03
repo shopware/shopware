@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
+import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
 const cacheInfo = {
     data: {

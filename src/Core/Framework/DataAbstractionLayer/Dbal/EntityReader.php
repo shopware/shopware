@@ -691,8 +691,9 @@ class EntityReader implements EntityReaderInterface
 
             // if association can be inherited by the parent and the struct data is empty, filter again for the parent id
             $structData = new $collectionClass();
-            if (isset($grouped[$entity->get('parentId')])) {
-                $structData->fill($grouped[$entity->get('parentId')]);
+            $parentId = $entity->get('parentId');
+            if ($parentId !== null && isset($grouped[$parentId])) {
+                $structData->fill($grouped[$parentId]);
             }
 
             if ($association->is(Extension::class)) {
@@ -1073,7 +1074,7 @@ class EntityReader implements EntityReaderInterface
 
             $id = $struct->getUniqueIdentifier();
 
-            $parentId = $struct->has('parentId') ? $struct->get('parentId') : '';
+            $parentId = $struct->has('parentId') ? $struct->get('parentId') : null;
 
             if (\array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
                 // filter mapping list of whole data array
@@ -1081,7 +1082,7 @@ class EntityReader implements EntityReaderInterface
 
                 // sort list by ids if the criteria contained a sorting
                 $structData->sortByIdArray($mapping[$id]);
-            } elseif (\array_key_exists($parentId, $mapping) && $association->is(Inherited::class) && $context->considerInheritance()) {
+            } elseif ($parentId !== null && \array_key_exists($parentId, $mapping) && $association->is(Inherited::class) && $context->considerInheritance()) {
                 // filter mapping for the inherited parent association
                 $structData = $data->getList($mapping[$parentId]);
 

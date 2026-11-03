@@ -109,6 +109,14 @@ export default Component.wrapComponentConfig({
 
             return null;
         },
+
+        noContentMessage(): string {
+            if (this.activeTab === 'response' && !this.selectedDelivery?.responseContent) {
+                return this.$t('sw-settings-webhook.deliveries.noResponse');
+            }
+
+            return this.$t('sw-settings-webhook.deliveries.noBody');
+        },
     },
 
     created() {

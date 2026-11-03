@@ -1,4 +1,10 @@
 .sw-settings-webhook-list {
+    // long urls would push the other columns out of view
+    .sw-data-grid__cell--url .sw-data-grid__cell-value {
+        display: block;
+        max-width: 320px;
+    }
+
     &__owner-type {
         margin: 0 var(--scale-size-8) 0 0;
     }

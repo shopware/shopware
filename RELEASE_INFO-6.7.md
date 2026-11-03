@@ -230,8 +230,20 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-In templates, the renderless `sw-silence-deprecations` component does the same for the components directly inside of it, and for what those components render in turn.
-Slot content passed into those components still reports, like the `<slot />` of a wrapper component:
+In templates, the renderless `sw-silence-deprecations` component does the same for the first level of components inside of it, ignoring plain HTML elements and `<template>`.
+Those components are silenced with everything they render themselves, while everything below them in the same template reports:
+
+```html
+<sw-silence-deprecations flag="V6_9_0_0">
+    <div>
+        <sw-tabs>          <!-- level 1: silenced, including all of sw-tabs' own insides -->
+            <sw-card />    <!-- level 2: reports -->
+        </sw-tabs>
+    </div>
+</sw-silence-deprecations>
+```
+
+So a wrapper component silences its deprecated implementation, but not what its users put into its `<slot />`:
 
 ```html
 <sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">

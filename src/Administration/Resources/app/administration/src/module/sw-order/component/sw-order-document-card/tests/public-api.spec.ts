@@ -17,6 +17,7 @@ const cancellationInvoice = { technicalName: 'storno' };
 describe('sw-order-document-card', () => {
     afterEach(unmountDocumentCards);
 
+    /** @public-api creditItems */
     it('lists the credit line items of the order', async () => {
         // ARRANGE
         const wrapper = await mountDocumentCard({
@@ -30,6 +31,7 @@ describe('sw-order-document-card', () => {
         expect(creditItems).toEqual([creditLineItem]);
     });
 
+    /** @public-api assetFilter */
     it('offers the asset filter', async () => {
         // ARRANGE
         const wrapper = await mountDocumentCard();
@@ -42,6 +44,8 @@ describe('sw-order-document-card', () => {
     });
 
     /**
+     * @public-api dateFilter
+     *
      * @deprecated tag:v6.8.0 - dateFilter is removed
      */
     it.deprecated('v6.8.0.0')('offers the date filter', async () => {
@@ -56,6 +60,8 @@ describe('sw-order-document-card', () => {
     });
 
     /**
+     * @public-api invoiceExists
+     *
      * @deprecated tag:v6.8.0 - invoiceExists is removed
      */
     it.deprecated('v6.8.0.0')('tells whether the order has an invoice', async () => {
@@ -73,6 +79,8 @@ describe('sw-order-document-card', () => {
     });
 
     /**
+     * @public-api documentTypeAvailable
+     *
      * @deprecated tag:v6.8.0 - documentTypeAvailable is removed
      */
     it.deprecated('v6.8.0.0')('offers credit notes and cancellations only with an invoice', async () => {
@@ -102,6 +110,8 @@ describe('sw-order-document-card', () => {
     });
 
     /**
+     * @public-api documentTypeAvailable
+     *
      * @deprecated tag:v6.8.0 - documentTypeAvailable is removed
      */
     it.deprecated('v6.8.0.0')('offers no credit note for an order without credit line items', async () => {

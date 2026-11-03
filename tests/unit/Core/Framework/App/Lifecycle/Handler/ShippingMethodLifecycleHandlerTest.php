@@ -76,7 +76,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
-            appFilesystem: new StaticFilesystem(['icons/TestIcon.png' => (string) file_get_contents(self::ICON_URL)]),
+            appFilesystem: new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
             defaultLocale: self::DEFAULT_LOCALE_ID,
         );
     }

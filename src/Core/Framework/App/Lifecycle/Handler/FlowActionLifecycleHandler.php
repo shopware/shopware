@@ -54,7 +54,7 @@ class FlowActionLifecycleHandler extends AbstractLifecycleHandler
         foreach ($flowActions as $action) {
             $icon = $action->getMeta()->getIcon();
             if ($icon && $context->appFilesystem->has('Resources/' . $icon)) {
-                $icon = $context->appFilesystem->readImage('Resources/' . $icon);
+                $icon = $context->appFilesystem->read('Resources/' . $icon);
             }
 
             $payload = array_merge([

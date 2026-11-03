@@ -153,13 +153,12 @@ class ShippingMethodLifecycleHandler extends AbstractLifecycleHandler
             return null;
         }
 
-        // shipping icons are stored as public media, which renders SVG as well
-        $icon = $fs->readImage($iconPath, [...Filesystem::RASTER_IMAGE_MIME_TYPES, 'image/svg+xml']);
-        if ($icon === null) {
+        if (!$fs->has($iconPath)) {
             return null;
         }
 
         $fileName = \sprintf('shipping_app_%s_%s', $appName, $shippingMethod->getIdentifier());
+        $icon = $fs->read($iconPath);
         $extension = pathinfo($iconPath, \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
 

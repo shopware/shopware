@@ -46,6 +46,8 @@ class RateLimiter
 
     final public const IMPORT_EXPORT_FILE_DOWNLOAD = 'import_export_file_download';
 
+    final public const CHECKOUT_DRAFT = 'checkout_draft';
+
     /**
      * @var array<string, RateLimiterFactory>
      */

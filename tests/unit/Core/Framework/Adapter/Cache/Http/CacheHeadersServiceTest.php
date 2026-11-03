@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\ProspectiveAddress;
+use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
@@ -286,6 +288,23 @@ class CacheHeadersServiceTest extends TestCase
 
         // storefront language is carried by the domain URL, so custom language should not trigger hash generation
         static::assertNull($event);
+    }
+
+    public function testAProspectiveCustomerRequiresCacheHash(): void
+    {
+        // the address can match zip code, guest and order history rules without changing the country
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext(Defaults::LANGUAGE_SYSTEM, prospectiveCustomer: new ProspectiveCustomer(
+                new ProspectiveAddress('country-default', zipcode: '48624'),
+                null,
+                new CustomerEntity(),
+            )),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
     }
 
     public function testNonDefaultShippingCountryRequiresCacheHash(): void
@@ -593,10 +612,12 @@ class CacheHeadersServiceTest extends TestCase
         string $languageId,
         string $shippingCountryId = 'country-default',
         string $paymentMethodId = 'payment-default',
-        string $shippingMethodId = 'shipping-default'
+        string $shippingMethodId = 'shipping-default',
+        ?ProspectiveCustomer $prospectiveCustomer = null,
     ): SalesChannelContext {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn(null);
+        $salesChannelContext->method('getProspectiveCustomer')->willReturn($prospectiveCustomer);
         $salesChannelContext->method('getRuleIds')->willReturn([]);
         $salesChannelContext->method('getRuleIdsByAreas')->willReturn([]);
         $salesChannelContext->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);

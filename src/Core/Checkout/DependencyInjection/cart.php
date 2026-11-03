@@ -78,6 +78,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CheckoutDraftRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
 use Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber;
@@ -121,11 +122,13 @@ use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -291,6 +294,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderRoute::class),
             service(CartItemAddRoute::class),
             service(LineItemFactoryRegistry::class),
+            service(ExtensionDispatcher::class),
+        ]);
+
+    $services->set(CheckoutDraftRoute::class)
+        ->public()
+        ->args([
+            service(ContextSwitchRoute::class),
+            service(ContextGatewayRoute::class),
+            service(SalesChannelContextService::class),
+            service(CartService::class),
+            service(TaxProviderProcessor::class),
+            service(ShippingMethodRoute::class),
+            service(PaymentMethodRoute::class),
+            service(CheckoutGatewayRoute::class),
+            service(ShippingCostRoute::class),
+            service('shopware.rate_limiter'),
             service(ExtensionDispatcher::class),
         ]);
 

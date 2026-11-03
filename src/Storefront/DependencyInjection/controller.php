@@ -365,7 +365,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AccountLoginPageLoader::class),
             service(RegisterRoute::class),
             service(RegisterConfirmRoute::class),
-            service(CartService::class),
             service(CheckoutRegisterPageLoader::class),
             service(SystemConfigService::class),
             service('customer.repository'),

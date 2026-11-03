@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
@@ -68,7 +67,6 @@ class RegisterController extends StorefrontController
         private readonly AccountLoginPageLoader $loginPageLoader,
         private readonly AbstractRegisterRoute $registerRoute,
         private readonly AbstractRegisterConfirmRoute $registerConfirmRoute,
-        private readonly CartService $cartService,
         private readonly CheckoutRegisterPageLoader $registerPageLoader,
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $customerRepository,
@@ -175,10 +173,6 @@ class RegisterController extends StorefrontController
 
         if ($context->getCustomer()) {
             return $this->redirectToRoute($redirect);
-        }
-
-        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
-            return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         $page = $this->registerPageLoader->load($request, $context);

@@ -79,7 +79,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ];
         }
 
-        $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
+        $loginRoute = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE);
+        if (!\is_string($loginRoute) || $loginRoute === '') {
+            $loginRoute = 'frontend.account.login.page';
+        }
+
+        $redirectResponse = new RedirectResponse($this->router->generate($loginRoute, $parameters));
 
         $event->setResponse($redirectResponse);
     }

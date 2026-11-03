@@ -170,15 +170,6 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testCustomerNotLoggedInHandlerAddsRedirectParametersForGetRequest(): void
     {
-        $router = $this->createMock(RouterInterface::class);
-        $router->expects($this->once())
-            ->method('generate')
-            ->with('frontend.account.login.page', [
-                'redirectTo' => 'frontend.account.order.single.page',
-                'redirectParameters' => '{"bar":"foo","deepLinkCode":"abc"}',
-            ])
-            ->willReturn('/login');
-
         $request = new Request(
             query: ['bar' => 'foo'],
             attributes: [
@@ -192,33 +183,21 @@ class StorefrontSubscriberTest extends TestCase
             ],
         );
 
-        $event = new ExceptionEvent(
-            static::createStub(HttpKernelInterface::class),
-            $request,
-            HttpKernelInterface::MAIN_REQUEST,
-            RoutingException::customerNotLoggedIn()
-        );
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->once())
+            ->method('generate')
+            ->with('frontend.account.login.page', [
+                'redirectTo' => 'frontend.account.order.single.page',
+                'redirectParameters' => '{"bar":"foo","deepLinkCode":"abc"}',
+            ])
+            ->willReturn('/login');
 
-        (new StorefrontSubscriber(
-            $router,
-            static::createStub(MaintenanceModeResolver::class),
-            new EventDispatcher(),
-        ))->customerNotLoggedInHandler($event);
-
-        $response = $event->getResponse();
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/login', $response->getTargetUrl());
+        $this->handleCustomerNotLoggedIn($router, $request);
     }
 
     #[DataProvider('nonGetMethodProvider')]
     public function testCustomerNotLoggedInHandlerOmitsRedirectParametersForNonGetRequest(string $method): void
     {
-        $router = $this->createMock(RouterInterface::class);
-        $router->expects($this->once())
-            ->method('generate')
-            ->with('frontend.account.login.page', [])
-            ->willReturn('/login');
-
         $request = Request::create('/account/order/abc', $method);
         $request->attributes->add([
             SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
@@ -226,22 +205,13 @@ class StorefrontSubscriberTest extends TestCase
             '_route_params' => ['deepLinkCode' => 'abc'],
         ]);
 
-        $event = new ExceptionEvent(
-            static::createStub(HttpKernelInterface::class),
-            $request,
-            HttpKernelInterface::MAIN_REQUEST,
-            RoutingException::customerNotLoggedIn()
-        );
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->once())
+            ->method('generate')
+            ->with('frontend.account.login.page', [])
+            ->willReturn('/login');
 
-        (new StorefrontSubscriber(
-            $router,
-            static::createStub(MaintenanceModeResolver::class),
-            new EventDispatcher(),
-        ))->customerNotLoggedInHandler($event);
-
-        $response = $event->getResponse();
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/login', $response->getTargetUrl());
+        $this->handleCustomerNotLoggedIn($router, $request);
     }
 
     public static function nonGetMethodProvider(): \Generator
@@ -260,20 +230,34 @@ class StorefrontSubscriberTest extends TestCase
             ->with('frontend.account.login.page', [])
             ->willReturn('/login');
 
-        $event = new ExceptionEvent(
-            static::createStub(HttpKernelInterface::class),
+        $this->handleCustomerNotLoggedIn(
+            $router,
             new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]),
-            HttpKernelInterface::MAIN_REQUEST,
-            RoutingException::customerNotLoggedIn()
+        );
+    }
+
+    public function testCustomerNotLoggedInHandlerUsesLoginRedirectRouteOfRequest(): void
+    {
+        $request = new Request(
+            query: ['orderId' => 'order-id'],
+            attributes: [
+                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                '_route' => 'frontend.checkout.finish.page',
+                '_route_params' => [],
+                PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE => 'frontend.checkout.register.page',
+            ],
         );
 
-        (new StorefrontSubscriber(
-            $router,
-            static::createStub(MaintenanceModeResolver::class),
-            new EventDispatcher(),
-        ))->customerNotLoggedInHandler($event);
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->once())
+            ->method('generate')
+            ->with('frontend.checkout.register.page', [
+                'redirectTo' => 'frontend.checkout.finish.page',
+                'redirectParameters' => '{"orderId":"order-id"}',
+            ])
+            ->willReturn('/checkout/register');
 
-        static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
+        $this->handleCustomerNotLoggedIn($router, $request);
     }
 
     public function testRedirectCustomerNonStorefrontRequest(): void
@@ -381,5 +365,23 @@ class StorefrontSubscriberTest extends TestCase
             ),
             'expected' => false,
         ];
+    }
+
+    private function handleCustomerNotLoggedIn(RouterInterface $router, Request $request): void
+    {
+        $event = new ExceptionEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            RoutingException::customerNotLoggedIn(),
+        );
+
+        (new StorefrontSubscriber(
+            $router,
+            static::createStub(MaintenanceModeResolver::class),
+            new EventDispatcher(),
+        ))->customerNotLoggedInHandler($event);
+
+        static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
     }
 }

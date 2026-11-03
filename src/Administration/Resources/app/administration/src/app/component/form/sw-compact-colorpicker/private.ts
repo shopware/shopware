@@ -1,0 +1,90 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package framework
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module and what it inherits from sw-colorpicker-deprecated,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-compact-colorpicker',
+    extends: 'sw-colorpicker-deprecated',
+    load: () => import('./src/sw-compact-colorpicker'),
+    public: {
+        props: [
+            'value',
+            'colorOutput',
+            'alpha',
+            'disabled',
+            'readonly',
+            'colorLabels',
+            'zIndex',
+        ],
+        emits: [
+            'update:value',
+            'inheritance-restore',
+            'inheritance-remove',
+        ],
+        blocks: [
+            'sw_compact_colorpicker',
+            'sw_colorpicker_contextual_field',
+            'sw_colorpicker_popover',
+            'sw_compact_colorpicker_colorpicker',
+            'sw_colorpicker_selection',
+            'sw_compact_colorpicker_selector',
+            'sw_compact_colorpicker_hue_slider',
+            'sw_compact_colorpicker_alpha_slider',
+            'sw_compact_colorpicker_preview',
+            'sw_compact_colorpicker_inputs',
+            'sw_compact_colorpicker_inputs_hex',
+            'sw_compact_colorpicker_inputs_red',
+            'sw_compact_colorpicker_inputs_green',
+            'sw_compact_colorpicker_inputs_blue',
+            'sw_compact_colorpicker_inputs_alpha',
+            'sw_colorpicker_button',
+        ],
+        computed: [
+            'colorValue',
+            'integerAlpha',
+            'sliderBackground',
+            'isColorValid',
+            'previewColorValue',
+            'selectorBackground',
+            'redValue',
+            'greenValue',
+            'blueValue',
+            'rgbValue',
+            'hslValue',
+            'hexValue',
+            'convertedValue',
+            'selectorPositionX',
+            'selectorPositionY',
+            'selectorStyles',
+        ],
+        methods: [
+            'emitColor',
+            'componentBeforeDestroy',
+            'debounceEmitColorValue',
+            'outsideClick',
+            'setOutsideClickEvent',
+            'removeOutsideClickEvent',
+            'toggleColorPicker',
+            'moveSelector',
+            'setDragging',
+            'removeDragging',
+            'setSingleRGBValue',
+            'setHslaValues',
+            'splitRGBValues',
+            'splitHSLValues',
+            'convertHSLtoRGB',
+            'convertHSLtoHEX',
+            'convertHSL',
+            'convertRGBtoHSL',
+            'convertHEXtoHSL',
+            'onClickInput',
+            'roundingFloat',
+        ],
+    },
+});

@@ -313,7 +313,7 @@
       "count": 1
     }
   },
-  "src/app/component/base/sw-icon-deprecated/index.js": {
+  "src/app/component/base/sw-icon-deprecated/src/sw-icon-deprecated.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -338,7 +338,7 @@
       "count": 1
     }
   },
-  "src/app/component/base/sw-price-preview/index.js": {
+  "src/app/component/base/sw-price-preview/src/sw-price-preview.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -523,12 +523,12 @@
       "count": 8
     }
   },
-  "src/app/component/entity/sw-entity-listing/index.js": {
+  "src/app/component/entity/sw-entity-listing/src/sw-entity-listing.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/entity/sw-entity-listing/sw-entity-listing.spec.js": {
+  "src/app/component/entity/sw-entity-listing/tests/sw-entity-listing.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 23
     }
@@ -548,7 +548,7 @@
       "count": 4
     }
   },
-  "src/app/component/entity/sw-one-to-many-grid/index.js": {
+  "src/app/component/entity/sw-one-to-many-grid/src/sw-one-to-many-grid.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -586,12 +586,12 @@
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-iframe-renderer/index.ts": {
+  "src/app/component/extension-api/sw-iframe-renderer/src/sw-iframe-renderer.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-iframe-renderer/sw-iframe-renderer.spec.js": {
+  "src/app/component/extension-api/sw-iframe-renderer/tests/sw-iframe-renderer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
@@ -726,7 +726,7 @@
       "count": 1
     }
   },
-  "src/app/component/form/select/base/sw-grouped-single-select/index.js": {
+  "src/app/component/form/select/base/sw-grouped-single-select/src/sw-grouped-single-select.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -741,12 +741,12 @@
       "count": 1
     }
   },
-  "src/app/component/form/select/base/sw-multi-tag-ip-select/index.js": {
+  "src/app/component/form/select/base/sw-multi-tag-ip-select/src/sw-multi-tag-ip-select.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/form/select/base/sw-multi-tag-ip-select/sw-multi-tag-ip-select.spec.js": {
+  "src/app/component/form/select/base/sw-multi-tag-ip-select/tests/sw-multi-tag-ip-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
@@ -834,7 +834,7 @@
       "count": 7
     }
   },
-  "src/app/component/form/select/entity/sw-entity-advanced-selection-modal-grid/index.js": {
+  "src/app/component/form/select/entity/sw-entity-advanced-selection-modal-grid/src/sw-entity-advanced-selection-modal-grid.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -905,7 +905,7 @@
       "count": 4
     }
   },
-  "src/app/component/form/sw-code-editor/index.js": {
+  "src/app/component/form/sw-code-editor/src/sw-code-editor.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -916,7 +916,7 @@
       "count": 2
     }
   },
-  "src/app/component/form/sw-code-editor/sw-code-editor.spec.js": {
+  "src/app/component/form/sw-code-editor/tests/sw-code-editor.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 20
     }
@@ -940,7 +940,7 @@
       "count": 83
     }
   },
-  "src/app/component/form/sw-compact-colorpicker/index.js": {
+  "src/app/component/form/sw-compact-colorpicker/src/sw-compact-colorpicker.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -971,7 +971,7 @@
       "count": 51
     }
   },
-  "src/app/component/form/sw-datepicker-deprecated/index.js": {
+  "src/app/component/form/sw-datepicker-deprecated/src/sw-datepicker-deprecated.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -979,7 +979,7 @@
       "count": 1
     }
   },
-  "src/app/component/form/sw-datepicker-deprecated/sw-datepicker-deprecated.spec.js": {
+  "src/app/component/form/sw-datepicker-deprecated/tests/sw-datepicker-deprecated.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
@@ -994,7 +994,7 @@
       "count": 6
     }
   },
-  "src/app/component/form/sw-email-field-deprecated/index.js": {
+  "src/app/component/form/sw-email-field-deprecated/src/sw-email-field-deprecated.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1049,12 +1049,12 @@
       "count": 4
     }
   },
-  "src/app/component/form/sw-number-field-deprecated/index.js": {
+  "src/app/component/form/sw-number-field-deprecated/src/sw-number-field-deprecated.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/form/sw-password-field-deprecated/index.js": {
+  "src/app/component/form/sw-password-field-deprecated/src/sw-password-field-deprecated.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1139,12 +1139,12 @@
       "count": 2
     }
   },
-  "src/app/component/form/sw-switch-field-deprecated/index.js": {
+  "src/app/component/form/sw-switch-field-deprecated/src/sw-switch-field-deprecated.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/form/sw-switch-field-deprecated/sw-switch-field-deprecated.spec.js": {
+  "src/app/component/form/sw-switch-field-deprecated/tests/sw-switch-field-deprecated.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -1229,12 +1229,12 @@
       "count": 1
     }
   },
-  "src/app/component/form/sw-url-field-deprecated/index.js": {
+  "src/app/component/form/sw-url-field-deprecated/src/sw-url-field-deprecated.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/form/sw-url-field-deprecated/sw-url-field-deprecated.spec.js": {
+  "src/app/component/form/sw-url-field-deprecated/tests/sw-url-field-deprecated.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 23
     }
@@ -1521,7 +1521,7 @@
       "count": 10
     }
   },
-  "src/app/component/media/sw-model-editor-collapse/index.ts": {
+  "src/app/component/media/sw-model-editor-collapse/src/sw-model-editor-collapse.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1657,7 +1657,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-billing-zip-code/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-billing-zip-code/src/sw-condition-billing-zip-code.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1665,7 +1665,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-customer-custom-field/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-customer-custom-field/src/sw-condition-customer-custom-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1673,12 +1673,12 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-customer-custom-field/sw-condition-customer-custom-field.spec.js": {
+  "src/app/component/rule/condition-type/sw-condition-customer-custom-field/tests/sw-condition-customer-custom-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-date-range/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-date-range/src/sw-condition-date-range.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1686,7 +1686,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-date-range/sw-condition-date-range.spec.js": {
+  "src/app/component/rule/condition-type/sw-condition-date-range/tests/sw-condition-date-range.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -1699,7 +1699,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-generic/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-generic/src/sw-condition-generic.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1707,12 +1707,12 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-generic/sw-condition-generic.spec.js": {
+  "src/app/component/rule/condition-type/sw-condition-generic/tests/sw-condition-generic.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 19
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-goods-count/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-goods-count/src/sw-condition-goods-count.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1720,7 +1720,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-goods-price/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-goods-price/src/sw-condition-goods-price.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1728,7 +1728,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-is-always-valid/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-is-always-valid/src/sw-condition-is-always-valid.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1736,7 +1736,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item-custom-field/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item-custom-field/src/sw-condition-line-item-custom-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1744,7 +1744,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item-goods-total/src/sw-condition-line-item-goods-total.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1752,7 +1752,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item-in-category/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item-in-category/src/sw-condition-line-item-in-category.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1760,7 +1760,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item-property/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item-property/src/sw-condition-line-item-property.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1768,7 +1768,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/src/sw-condition-line-item-purchase-price.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1776,7 +1776,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/src/sw-condition-line-item-with-quantity.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1784,7 +1784,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-line-item/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-line-item/src/sw-condition-line-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1792,7 +1792,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-not-found/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-not-found/src/sw-condition-not-found.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1800,7 +1800,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-order-custom-field/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-order-custom-field/src/sw-condition-order-custom-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1808,12 +1808,12 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-order-custom-field/sw-condition-order-custom-field.spec.js": {
+  "src/app/component/rule/condition-type/sw-condition-order-custom-field/tests/sw-condition-order-custom-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-script/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-script/src/sw-condition-script.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1821,12 +1821,12 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-script/sw-condition-script.spec.js": {
+  "src/app/component/rule/condition-type/sw-condition-script/tests/sw-condition-script.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 12
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-shipping-zip-code/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-shipping-zip-code/src/sw-condition-shipping-zip-code.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1834,7 +1834,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-time-range/index.js": {
+  "src/app/component/rule/condition-type/sw-condition-time-range/src/sw-condition-time-range.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1862,7 +1862,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/sw-condition-base-line-item/index.js": {
+  "src/app/component/rule/sw-condition-base-line-item/src/sw-condition-base-line-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1974,12 +1974,12 @@
       "count": 1
     }
   },
-  "src/app/component/sidebar/sw-sidebar-collapse/index.js": {
+  "src/app/component/sidebar/sw-sidebar-collapse/src/sw-sidebar-collapse.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/sidebar/sw-sidebar-collapse/sw-sidebar-collapse.spec.js": {
+  "src/app/component/sidebar/sw-sidebar-collapse/tests/sw-sidebar-collapse.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -2546,7 +2546,7 @@
       "count": 1
     }
   },
-  "src/app/component/wizard/sw-wizard-dot-navigation/index.js": {
+  "src/app/component/wizard/sw-wizard-dot-navigation/src/sw-wizard-dot-navigation.js": {
     "filename-rules/not-match": {
       "count": 1
     }

@@ -1,0 +1,373 @@
+/**
+ * @sw-package framework
+ */
+
+import template from './sw-entity-listing.html.twig';
+import { Criteria, featureService } from '../dependencies';
+
+/**
+ * @private
+ */
+export default {
+    template,
+
+    inject: [featureService],
+
+    emits: [
+        'update-records',
+        'delete-item-finish',
+        'delete-item-failed',
+        'delete-items-failed',
+        'items-delete-finish',
+        'inline-edit-save',
+        'inline-edit-cancel',
+        'column-sort',
+        'page-change',
+        'bulk-edit-modal-open',
+        'bulk-edit-modal-close',
+    ],
+
+    props: {
+        detailRoute: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        repository: {
+            type: Object,
+            required: true,
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use `dataSource` prop instead to align with parent component
+         * The `items` prop will be removed in v6.8.0. Please use `dataSource` instead.
+         */
+        items: {
+            type: Array,
+            required: false,
+            default: null,
+        },
+
+        dataSource: {
+            type: [Array, Object],
+            required: false,
+        },
+
+        showSettings: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
+        steps: {
+            type: Array,
+            required: false,
+            default() {
+                return [
+                    10,
+                    25,
+                    50,
+                    75,
+                    100,
+                ];
+            },
+        },
+
+        fullPage: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
+        allowInlineEdit: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
+        allowColumnEdit: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
+        criteriaLimit: {
+            type: Number,
+            required: false,
+            default: 25,
+        },
+
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
+        allowView: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        allowDelete: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
+        disableDataFetching: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        naturalSorting: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        allowBulkEdit: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        showBulkEditModal: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        bulkGridEditColumns: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
+
+        maximumSelectItems: {
+            type: Number,
+            required: false,
+            default: 1000,
+        },
+    },
+
+    data() {
+        return {
+            deleteId: null,
+            showBulkDeleteModal: false,
+            isBulkLoading: false,
+            page: 1,
+            limit: this.criteriaLimit,
+            total: 10,
+            lastSortedColumn: null,
+        };
+    },
+    computed: {
+        detailPageLinkText() {
+            if (!this.allowEdit && this.allowView) {
+                return this.$t('global.default.view');
+            }
+
+            return this.$t('global.default.edit');
+        },
+
+        /**
+         * Internal data source that handles backward compatibility
+         * Prefers dataSource over items for consistency with parent component
+         */
+        internalDataSource() {
+            if (this.dataSource !== undefined && this.dataSource !== null) {
+                return this.dataSource;
+            }
+
+            return this.items;
+        },
+    },
+
+    watch: {
+        items() {
+            this.applyResult(this.internalDataSource);
+        },
+
+        dataSource() {
+            this.applyResult(this.internalDataSource);
+        },
+    },
+
+    methods: {
+        createdComponent() {
+            this.$super('createdComponent');
+
+            // Show deprecation warning if items prop is used
+            if (this.items !== null && this.items !== undefined) {
+                console.warn(
+                    '[Deprecation] sw-entity-listing: The "items" prop is deprecated and will be removed in v6.8.0. ' +
+                        'Please use "dataSource" instead to align with the parent sw-data-grid component. ' +
+                        'Migration: Change :items="data" to :data-source="data"',
+                    this,
+                );
+            }
+
+            if (this.internalDataSource) {
+                this.applyResult(this.internalDataSource);
+            }
+        },
+
+        applyResult(result) {
+            this.records = result;
+            const { total, criteria } = result;
+            this.total = total;
+            this.page = criteria?.page || 1;
+            this.limit = criteria?.limit || this.criteriaLimit;
+            this.loading = false;
+
+            if (criteria?.sortings?.[0]?.field) {
+                this.currentSortBy = criteria.sortings[0].field;
+            }
+
+            this.$emit('update-records', result);
+        },
+
+        deleteItem(id) {
+            this.deleteId = null;
+
+            // send delete request to the server, immediately
+            return this.repository
+                .delete(id, this.internalDataSource.context)
+                .then(() => {
+                    this.resetSelection();
+                    this.$emit('delete-item-finish', id);
+                    return this.doSearch();
+                })
+                .catch((errorResponse) => {
+                    this.$emit('delete-item-failed', { id, errorResponse });
+                });
+        },
+
+        deleteItems() {
+            this.isBulkLoading = true;
+
+            let selectedIds = null;
+
+            selectedIds = Object.keys(this.selection);
+
+            return this.repository
+                .syncDeleted(selectedIds, this.internalDataSource.context)
+                .then(() => {
+                    return this.deleteItemsFinish();
+                })
+                .catch((errorResponse) => {
+                    this.$emit('delete-items-failed', {
+                        selectedIds,
+                        errorResponse,
+                    });
+                    return this.deleteItemsFinish();
+                });
+        },
+
+        deleteItemsFinish() {
+            this.resetSelection();
+            this.isBulkLoading = false;
+            this.showBulkDeleteModal = false;
+            this.$emit('items-delete-finish');
+
+            return this.doSearch();
+        },
+
+        doSearch() {
+            this.loading = true;
+            return this.repository
+                .search(this.internalDataSource.criteria, this.internalDataSource.context)
+                .then(this.applyResult);
+        },
+
+        save(record) {
+            // send save request to the server, immediately
+            const promise = this.repository.save(record, this.internalDataSource.context).then(() => {
+                return this.doSearch();
+            });
+            this.$emit('inline-edit-save', promise, record);
+
+            return promise;
+        },
+
+        revert() {
+            // reloads the grid to revert all changes
+            const promise = this.doSearch();
+            this.$emit('inline-edit-cancel', promise);
+
+            return promise;
+        },
+
+        sort(column) {
+            this.lastSortedColumn = column;
+            this.internalDataSource.criteria.resetSorting();
+
+            let direction = 'ASC';
+            if (this.currentSortBy === this.lastSortedColumn.dataIndex) {
+                if (this.currentSortDirection === direction) {
+                    direction = 'DESC';
+                }
+            }
+
+            this.lastSortedColumn.dataIndex.split(',').forEach((field) => {
+                this.internalDataSource.criteria.addSorting(
+                    Criteria.sort(field, direction, this.lastSortedColumn.naturalSorting),
+                );
+            });
+
+            this.currentSortBy = this.lastSortedColumn.dataIndex;
+            this.currentSortDirection = direction;
+            this.currentNaturalSorting = this.lastSortedColumn.naturalSorting;
+
+            this.$emit('column-sort', this.lastSortedColumn, this.currentSortDirection);
+
+            if (this.lastSortedColumn.useCustomSort) {
+                return false;
+            }
+
+            if (this.disableDataFetching) {
+                return false;
+            }
+
+            return this.doSearch();
+        },
+
+        paginate({ page = 1, limit = 25 }) {
+            this.internalDataSource.criteria.setPage(page);
+            this.internalDataSource.criteria.setLimit(limit);
+
+            this.$emit('page-change', { page, limit });
+
+            if (this.lastSortedColumn && this.lastSortedColumn.useCustomSort) {
+                return false;
+            }
+
+            if (this.disableDataFetching) {
+                return false;
+            }
+
+            return this.doSearch();
+        },
+
+        showDelete(id) {
+            this.deleteId = id;
+        },
+
+        closeModal() {
+            this.deleteId = null;
+        },
+
+        onClickBulkEdit() {
+            this.$emit('bulk-edit-modal-open');
+        },
+
+        onCloseBulkEditModal() {
+            this.$emit('bulk-edit-modal-close');
+        },
+    },
+};

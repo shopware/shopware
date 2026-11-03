@@ -59,6 +59,7 @@ export {
     syncService,
     systemConfigApiService,
     tagApiService,
+    timezoneService,
     translationService,
     updateService,
     userActivityApiService,

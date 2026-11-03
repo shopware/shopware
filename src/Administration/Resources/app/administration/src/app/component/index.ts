@@ -236,16 +236,53 @@ import 'src/app/component/utils/sw-time-ago/register';
 import 'src/app/component/utils/sw-verify-user-modal/register';
 import 'src/app/component/wizard/sw-wizard/register';
 import 'src/app/component/wizard/sw-wizard-page/register';
+import 'src/app/component/base/sw-icon-deprecated/register';
+import './base/sw-price-preview/register';
+import './entity/sw-entity-listing/register';
+import './entity/sw-one-to-many-grid/register';
+import 'src/app/component/extension-api/sw-iframe-renderer/register';
+import './form/select/base/sw-grouped-single-select/register';
+import './form/select/base/sw-multi-tag-ip-select/register';
+import './form/select/entity/sw-entity-advanced-selection-modal-grid/register';
+import 'src/app/component/form/sw-code-editor/register';
+import './form/sw-compact-colorpicker/register';
+import 'src/app/component/form/sw-datepicker-deprecated/register';
+import './form/sw-email-field-deprecated/register';
+import './form/sw-number-field-deprecated/register';
+import './form/sw-password-field-deprecated/register';
+import './form/sw-switch-field-deprecated/register';
+import './form/sw-url-field-deprecated/register';
+import 'src/app/component/media/sw-model-editor-collapse/register';
+import './rule/condition-type/sw-condition-billing-zip-code/register';
+import './rule/condition-type/sw-condition-customer-custom-field/register';
+import './rule/condition-type/sw-condition-date-range/register';
+import './rule/condition-type/sw-condition-generic/register';
+import './rule/condition-type/sw-condition-goods-count/register';
+import './rule/condition-type/sw-condition-goods-price/register';
+import './rule/condition-type/sw-condition-is-always-valid/register';
+import './rule/sw-condition-base-line-item/register';
+import './rule/condition-type/sw-condition-line-item/register';
+import './rule/condition-type/sw-condition-line-item-custom-field/register';
+import './rule/condition-type/sw-condition-line-item-goods-total/register';
+import './rule/condition-type/sw-condition-line-item-in-category/register';
+import './rule/condition-type/sw-condition-line-item-property/register';
+import './rule/condition-type/sw-condition-line-item-purchase-price/register';
+import './rule/condition-type/sw-condition-line-item-with-quantity/register';
+import './rule/condition-type/sw-condition-not-found/register';
+import './rule/condition-type/sw-condition-order-custom-field/register';
+import './rule/condition-type/sw-condition-script/register';
+import './rule/condition-type/sw-condition-shipping-zip-code/register';
+import './rule/condition-type/sw-condition-time-range/register';
+import './sidebar/sw-sidebar-collapse/register';
+import 'src/app/component/structure/sw-admin/register';
+import 'src/app/component/utils/sw-help-center/register';
+import 'src/app/component/wizard/sw-wizard-dot-navigation/register';
 /**
  * @sw-package framework
  * @private
  */
 export default () => {
     /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-    Shopware.Component.register(
-        'sw-wizard-dot-navigation',
-        () => import('src/app/component/wizard/sw-wizard-dot-navigation/index'),
-    );
     Shopware.Component.register('sw-vnode-renderer', () => import('src/app/component/utils/sw-vnode-renderer/index'));
     Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
     Shopware.Component.register('sw-provide', () => import('src/app/component/utils/sw-provide/index'));
@@ -259,7 +296,6 @@ export default () => {
     );
     Shopware.Component.register('sw-block', () => import('src/app/component/structure/sw-block-override/sw-block/index'));
     Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
-    Shopware.Component.register('sw-admin', () => import('src/app/component/structure/sw-admin/index'));
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
@@ -267,109 +303,15 @@ export default () => {
         'sw-boolean-radio-group',
         () => import('src/app/component/form/sw-boolean-radio-group/index'),
     );
-    Shopware.Component.register(
-        'sw-iframe-renderer',
-        () => import('src/app/component/extension-api/sw-iframe-renderer/index'),
-    );
-    Shopware.Component.register('sw-icon-deprecated', () => import('src/app/component/base/sw-icon-deprecated/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
-    Shopware.Component.register('sw-datepicker-deprecated', () => import('src/app/component/form/sw-datepicker-deprecated'));
-    Shopware.Component.register('sw-code-editor', () => import('src/app/component/form/sw-code-editor'));
-    Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
     Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
-    Shopware.Component.extend(
-        'sw-model-editor-collapse',
-        'sw-collapse',
-        () => import('src/app/component/media/sw-model-editor-collapse'),
-    );
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
     // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
-    Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',
         'sw-condition-operator-select',
         () => import('./rule/sw-condition-is-net-select/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-base-line-item',
-        'sw-condition-base',
-        () => import('./rule/sw-condition-base-line-item/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-time-range',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-time-range/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-shipping-zip-code',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-shipping-zip-code/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-script',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-script/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-order-custom-field',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-order-custom-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-not-found',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-not-found/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-with-quantity',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-with-quantity/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-purchase-price',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-purchase-price/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-property',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-property/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-in-category',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-in-category/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-goods-total',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-line-item-goods-total/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-custom-field',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-custom-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-is-always-valid',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-is-always-valid/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-goods-price',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-goods-price/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-goods-count',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-goods-count/index'),
     );
     Shopware.Component.extend(
         'sw-condition-generic-line-item',
@@ -377,82 +319,14 @@ export default () => {
         () => import('./rule/condition-type/sw-condition-generic-line-item/index'),
     );
     Shopware.Component.extend(
-        'sw-condition-generic',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-generic/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-date-range',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-date-range/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-customer-custom-field',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-customer-custom-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-billing-zip-code',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-billing-zip-code/index'),
-    );
-    Shopware.Component.extend(
-        'sw-url-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-url-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-switch-field-deprecated',
-        'sw-checkbox-field-deprecated',
-        () => import('./form/sw-switch-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
         'sw-select-number-field',
         'sw-select-field-deprecated',
         () => import('./form/sw-select-number-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-password-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-password-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-number-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-number-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-email-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-email-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-compact-colorpicker',
-        'sw-colorpicker-deprecated',
-        () => import('./form/sw-compact-colorpicker/index'),
     );
     Shopware.Component.extend(
         'sw-entity-tag-select',
         'sw-entity-multi-select',
         () => import('./form/select/entity/sw-entity-tag-select/index'),
     );
-    Shopware.Component.extend(
-        'sw-entity-advanced-selection-modal-grid',
-        'sw-entity-listing',
-        () => import('./form/select/entity/sw-entity-advanced-selection-modal-grid/index'),
-    );
-    Shopware.Component.extend(
-        'sw-multi-tag-ip-select',
-        'sw-multi-tag-select',
-        () => import('./form/select/base/sw-multi-tag-ip-select/index'),
-    );
-    Shopware.Component.extend(
-        'sw-grouped-single-select',
-        'sw-single-select',
-        () => import('./form/select/base/sw-grouped-single-select/index'),
-    );
-    Shopware.Component.extend('sw-one-to-many-grid', 'sw-data-grid', () => import('./entity/sw-one-to-many-grid/index'));
-    Shopware.Component.extend('sw-entity-listing', 'sw-data-grid', () => import('./entity/sw-entity-listing/index'));
-    Shopware.Component.extend('sw-price-preview', 'sw-price-field', () => import('./base/sw-price-preview/index'));
     /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 };

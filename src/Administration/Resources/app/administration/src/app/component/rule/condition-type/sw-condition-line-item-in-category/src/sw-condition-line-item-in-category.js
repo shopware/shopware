@@ -1,0 +1,87 @@
+import template from './sw-condition-line-item-in-category.html.twig';
+import './sw-condition-line-item-in-category.scss';
+import { Criteria, EntityCollection, featureService, getApiContext, repositoryFactoryService } from '../dependencies';
+
+/**
+ * @sw-package fundamentals@after-sales
+ * @deprecated tag:v6.8.0 - Will be removed. Use sw-condition-generic instead.
+ *
+ * @public
+ */
+export default {
+    template,
+    inheritAttrs: false,
+
+    inject: [repositoryFactoryService, featureService],
+
+    data() {
+        return {
+            categories: null,
+            inputKey: 'categoryIds',
+        };
+    },
+
+    computed: {
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
+        },
+
+        operators() {
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
+        },
+
+        categoryIds: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.categoryIds || [];
+            },
+            set(categoryIds) {
+                this.ensureValueExist();
+                this.condition.value = {
+                    ...this.condition.value,
+                    categoryIds,
+                };
+            },
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.categories = new EntityCollection(
+                this.categoryRepository.route,
+                this.categoryRepository.entityName,
+                getApiContext(),
+            );
+
+            if (this.categoryIds.length <= 0) {
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria(1, 25);
+            criteria.setIds(this.categoryIds);
+
+            return this.categoryRepository.search(criteria, getApiContext()).then((categories) => {
+                this.categories = categories;
+            });
+        },
+
+        setCategoryIds(categories) {
+            this.categoryIds = categories.getIds();
+            this.categories = categories;
+        },
+
+        getCategoryBreadcrumb(category) {
+            if (!category.breadcrumb || Object.keys(category.breadcrumb).length === 0) {
+                return category.name;
+            }
+
+            return Object.values(category.breadcrumb).join(' / ');
+        },
+    },
+};

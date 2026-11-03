@@ -23,7 +23,8 @@ import 'src/app/component/form/field-base/sw-base-field/private';
 import 'src/app/component/form/sw-colorpicker/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
 import 'src/app/component/form/sw-colorpicker-deprecated/private';
-import 'src/app/component/form/sw-compact-colorpicker';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-compact-colorpicker/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
 import 'src/app/component/form/sw-switch-field/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved

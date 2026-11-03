@@ -493,6 +493,16 @@ export const systemConfigApiService = 'systemConfigApiService';
 export const tagApiService = 'tagApiService';
 
 /**
+ * The name the timezoneService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [timezoneService] };
+ *
+ * @public
+ */
+export const timezoneService = 'timezoneService';
+
+/**
  * The name the translationService service is registered and injected under.
  *
  * @example

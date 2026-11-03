@@ -62,13 +62,10 @@ trait OutputFormatTrait
      */
     protected function renderFormattedTable(SymfonyStyle $io, string $format, array $headers, array $rows): void
     {
-        $table = $io->createTable()->setHeaders($headers);
+        $table = $io->createTable()->setHeaders($headers)->setRows($rows);
         if ($format === self::FORMAT_MARKDOWN) {
             $table->setStyle('markdown');
-            // Pipes and line breaks would otherwise split cells and rows
-            $rows = array_map(static fn (array $row) => array_map(static fn (mixed $cell) => \is_string($cell) ? str_replace(['|', "\r\n", "\n"], ['\|', '<br>', '<br>'], $cell) : $cell, $row), $rows);
         }
-        $table->setRows($rows);
 
         $table->render();
         $io->newLine();

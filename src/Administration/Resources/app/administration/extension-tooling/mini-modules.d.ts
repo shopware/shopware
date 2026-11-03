@@ -377,3 +377,9 @@ import '../src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-se
 import '../src/module/sw-promotion-v2/page/sw-promotion-v2-list/global';
 import '../src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/global';
 import '../src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/global';
+import '../src/module/sw-property/component/sw-property-detail-base/global';
+import '../src/module/sw-property/component/sw-property-option-detail/global';
+import '../src/module/sw-property/component/sw-property-option-list/global';
+import '../src/module/sw-property/page/sw-property-detail/global';
+import '../src/module/sw-property/page/sw-property-create/global';
+import '../src/module/sw-property/page/sw-property-list/global';

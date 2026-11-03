@@ -4,16 +4,16 @@
 
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './component/sw-property-detail-base/register';
+import './component/sw-property-option-detail/register';
+import './component/sw-property-option-list/register';
+import './page/sw-property-detail/register';
+import './page/sw-property-create/register';
+import './page/sw-property-list/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-property-list', () => import('./page/sw-property-list'));
-Shopware.Component.register('sw-property-detail', () => import('./page/sw-property-detail'));
-Shopware.Component.extend('sw-property-create', 'sw-property-detail', () => import('./page/sw-property-create'));
-Shopware.Component.register('sw-property-option-detail', () => import('./component/sw-property-option-detail'));
-Shopware.Component.register('sw-property-detail-base', () => import('./component/sw-property-detail-base'));
-Shopware.Component.register('sw-property-option-list', () => import('./component/sw-property-option-list'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

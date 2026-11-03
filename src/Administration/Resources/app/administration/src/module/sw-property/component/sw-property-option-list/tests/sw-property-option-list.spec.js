@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import findByText from '../../../../../test/_helper_/find-by-text';
+import findByText from '../../../../../../test/_helper_/find-by-text';
 
 function getOptions() {
     const options = [

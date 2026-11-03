@@ -4,14 +4,15 @@
 
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
+import { aclService, repositoryFactoryService, useContextStore } from '../dependencies';
 
-const { Store } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     props: {
         propertyGroup: {
@@ -42,11 +43,11 @@ export default {
 
     computed: {
         isSystemLanguage() {
-            return Store.get('context').api.systemLanguageId === this.currentLanguage;
+            return useContextStore().api.systemLanguageId === this.currentLanguage;
         },
 
         currentLanguage() {
-            return Store.get('context').api.languageId;
+            return useContextStore().api.languageId;
         },
 
         allowInlineEdit() {

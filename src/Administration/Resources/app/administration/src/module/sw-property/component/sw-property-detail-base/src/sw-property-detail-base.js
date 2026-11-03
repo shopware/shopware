@@ -3,15 +3,15 @@
  */
 
 import template from './sw-property-detail-base.html.twig';
+import { mapPropertyErrors, placeholderMixin } from '../dependencies';
 
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         propertyGroup: {

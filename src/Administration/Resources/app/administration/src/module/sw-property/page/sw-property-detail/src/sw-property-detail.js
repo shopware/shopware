@@ -3,17 +3,26 @@
  */
 
 import template from './sw-property-detail.html.twig';
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    getApiContext,
+    notificationMixin,
+    placeholderMixin,
+    publishData,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [repositoryFactoryService, aclService, customFieldDataProviderService],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -113,7 +122,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-property-group-detail__propertyGroup',
                 path: 'propertyGroup',
                 scope: this,
@@ -126,7 +135,7 @@ export default {
             this.isLoading = true;
 
             this.propertyRepository
-                .get(this.groupId, Shopware.Context.api, this.defaultCriteria)
+                .get(this.groupId, getApiContext(), this.defaultCriteria)
                 .then((currentGroup) => {
                     this.propertyGroup = currentGroup;
                     this.isLoading = false;

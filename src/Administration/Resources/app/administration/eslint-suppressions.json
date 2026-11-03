@@ -10376,7 +10376,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/component/sw-property-detail-base/index.js": {
+  "src/module/sw-property/component/sw-property-detail-base/src/sw-property-detail-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10384,7 +10384,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/component/sw-property-option-detail/index.js": {
+  "src/module/sw-property/component/sw-property-option-detail/src/sw-property-option-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10392,7 +10392,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/component/sw-property-option-list/index.js": {
+  "src/module/sw-property/component/sw-property-option-list/src/sw-property-option-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10400,7 +10400,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/component/sw-property-option-list/sw-property-option-list.spec.js": {
+  "src/module/sw-property/component/sw-property-option-list/tests/sw-property-option-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }
@@ -10421,7 +10421,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/page/sw-property-create/index.js": {
+  "src/module/sw-property/page/sw-property-create/src/sw-property-create.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10429,7 +10429,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/page/sw-property-detail/index.js": {
+  "src/module/sw-property/page/sw-property-detail/src/sw-property-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10437,7 +10437,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/page/sw-property-list/index.js": {
+  "src/module/sw-property/page/sw-property-list/src/sw-property-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10445,7 +10445,7 @@
       "count": 1
     }
   },
-  "src/module/sw-property/page/sw-property-list/sw-property-list.spec.js": {
+  "src/module/sw-property/page/sw-property-list/tests/sw-property-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 31
     }

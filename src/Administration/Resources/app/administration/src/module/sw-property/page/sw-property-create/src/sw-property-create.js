@@ -3,8 +3,11 @@
  */
 
 import template from './sw-property-create.html.twig';
+import { getApiContext, getAssetFilter, useContextStore } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -16,14 +19,14 @@ export default {
 
     computed: {
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
+            if (!useContextStore().isSystemDefaultLanguage) {
+                getApiContext().languageId = getApiContext().systemLanguageId;
             }
 
             this.propertyGroup = this.propertyRepository.create();

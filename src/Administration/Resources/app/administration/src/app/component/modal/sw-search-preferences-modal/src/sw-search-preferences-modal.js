@@ -2,11 +2,18 @@
  * @sw-package framework
  */
 
-import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-search-preferences-modal.html.twig';
 import './sw-search-preferences-modal.scss';
+import {
+    EventBus,
+    getUserConfigService,
+    KEY_USER_SEARCH_PREFERENCE,
+    notificationMixin,
+    searchPreferencesService,
+    searchRankingService,
+} from '../dependencies';
 
-const { Mixin, Module } = Shopware;
+const { Module } = Shopware;
 
 /**
  * @private
@@ -14,11 +21,11 @@ const { Mixin, Module } = Shopware;
 export default {
     template,
 
-    inject: ['searchPreferencesService', 'searchRankingService'],
+    inject: [searchPreferencesService, searchRankingService],
 
     emits: ['modal-close'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -165,14 +172,14 @@ export default {
             this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
-            return Shopware.Service('userConfigService')
+            return getUserConfigService()
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })
                 .then(() => {
                     this.isLoading = false;
                     this.$emit('modal-close');
-                    Shopware.Utils.EventBus.emit('sw-search-preferences-modal-close');
+                    EventBus.emit('sw-search-preferences-modal-close');
                 })
                 .catch((error) => {
                     this.isLoading = false;

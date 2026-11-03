@@ -166,6 +166,9 @@ import 'src/app/component/meteor/sw-meteor-card/register';
 import 'src/app/component/meteor/sw-meteor-navigation/register';
 import 'src/app/component/meteor/sw-meteor-page/register';
 import 'src/app/component/meteor/sw-meteor-single-select/register';
+import 'src/app/component/modal/sw-confirm-modal/register';
+import 'src/app/component/modal/sw-image-preview-modal/register';
+import 'src/app/component/modal/sw-search-preferences-modal/register';
 /**
  * @sw-package framework
  * @private
@@ -330,15 +333,6 @@ export default () => {
         () => import('src/app/component/rule/sw-condition-all-line-items-container/index'),
     );
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
-    Shopware.Component.register(
-        'sw-search-preferences-modal',
-        () => import('src/app/component/modal/sw-search-preferences-modal/index'),
-    );
-    Shopware.Component.register(
-        'sw-image-preview-modal',
-        () => import('src/app/component/modal/sw-image-preview-modal/index'),
-    );
-    Shopware.Component.register('sw-confirm-modal', () => import('src/app/component/modal/sw-confirm-modal/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
     Shopware.Component.register(

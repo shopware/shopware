@@ -37,6 +37,8 @@ export {
     repositoryFactory,
     ruleConditionDataProviderService,
     ruleConditionsConfigApiService,
+    searchPreferencesService,
+    searchRankingService,
     seoUrlTemplateService,
     serviceRegistryClient,
     shopIdChangeService,

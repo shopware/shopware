@@ -17,7 +17,6 @@ import template from './sw-confirm-modal.html.twig';
  *     \@cancel="onCloseDeleteModal">
  * </sw-confirm-modal>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

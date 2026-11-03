@@ -1616,7 +1616,7 @@
       "count": 1
     }
   },
-  "src/app/component/modal/sw-confirm-modal/index.js": {
+  "src/app/component/modal/sw-confirm-modal/src/sw-confirm-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1624,22 +1624,22 @@
       "count": 1
     }
   },
-  "src/app/component/modal/sw-image-preview-modal/index.js": {
+  "src/app/component/modal/sw-image-preview-modal/src/sw-image-preview-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/modal/sw-image-preview-modal/sw-image-preview-modal.spec.js": {
+  "src/app/component/modal/sw-image-preview-modal/tests/sw-image-preview-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 35
     }
   },
-  "src/app/component/modal/sw-search-preferences-modal/index.js": {
+  "src/app/component/modal/sw-search-preferences-modal/src/sw-search-preferences-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/modal/sw-search-preferences-modal/sw-search-preferences-modal.spec.js": {
+  "src/app/component/modal/sw-search-preferences-modal/tests/sw-search-preferences-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 12
     }

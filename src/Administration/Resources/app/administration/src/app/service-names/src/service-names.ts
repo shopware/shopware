@@ -253,6 +253,26 @@ export const ruleConditionDataProviderService = 'ruleConditionDataProviderServic
 export const ruleConditionsConfigApiService = 'ruleConditionsConfigApiService';
 
 /**
+ * The name the searchPreferencesService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [searchPreferencesService] };
+ *
+ * @public
+ */
+export const searchPreferencesService = 'searchPreferencesService';
+
+/**
+ * The name the searchRankingService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [searchRankingService] };
+ *
+ * @public
+ */
+export const searchRankingService = 'searchRankingService';
+
+/**
  * The name the seoUrlTemplateService service is registered and injected under.
  *
  * @example

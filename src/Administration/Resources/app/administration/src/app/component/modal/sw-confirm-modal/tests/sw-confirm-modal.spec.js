@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-import 'src/app/component/modal/sw-confirm-modal';
+import 'src/app/component/modal/sw-confirm-modal/src/sw-confirm-modal';
 import 'src/app/component/base/sw-modal/src/sw-modal';
 
 describe('src/app/component/modal/sw-confirm-modal', () => {

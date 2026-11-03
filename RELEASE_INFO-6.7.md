@@ -136,6 +136,12 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Deleting a tree reports every level as deleted
+
+Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted.
+Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them.
+Webhook and app consumers now receive these additional deletes.
+
 ### Sync requests report products deleted earlier in the request as deleted
 
 A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.

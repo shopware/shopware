@@ -297,7 +297,8 @@
             ],
             "service-names": [
                 "repositoryFactory",
-                "ruleConditionDataProviderService"
+                "ruleConditionDataProviderService",
+                "shopwareServicesService"
             ]
         },
         "sources": {

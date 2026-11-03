@@ -21,3 +21,13 @@ export const repositoryFactory = 'repositoryFactory';
  * @public
  */
 export const ruleConditionDataProviderService = 'ruleConditionDataProviderService';
+
+/**
+ * Activates and deactivates Shopware services and reads the permissions they ask for.
+ *
+ * @example
+ * const servicesService = Shopware.Service(shopwareServicesService);
+ *
+ * @public
+ */
+export const shopwareServicesService = 'shopwareServicesService';

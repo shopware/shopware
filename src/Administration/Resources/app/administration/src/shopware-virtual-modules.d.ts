@@ -1031,6 +1031,6 @@ declare module 'shopware:framework/public-component' {
 
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:framework/service-names' {
-    export { repositoryFactory, ruleConditionDataProviderService } from 'src/app/service-names';
+    export { repositoryFactory, ruleConditionDataProviderService, shopwareServicesService } from 'src/app/service-names';
     export type * from 'src/app/service-names';
 }

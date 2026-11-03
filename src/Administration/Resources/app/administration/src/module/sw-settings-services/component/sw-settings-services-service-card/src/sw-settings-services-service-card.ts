@@ -1,11 +1,20 @@
 /**
  * @sw-package framework
  */
-import type { PropType } from 'vue';
-import type { CategorizedPermissions, ServiceDescription, ServiceState } from '../../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
-import extractErrorMessage from '../../../composables/extract-error';
+import {
+    extractErrorMessage,
+    getAssetFilter,
+    getDateFilter,
+    getShopwareServicesService,
+    useNotificationStore,
+    wrapComponentConfig,
+    type CategorizedPermissions,
+    type PropType,
+    type ServiceDescription,
+    type ServiceState,
+} from '../dependencies';
 
 const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = {
     active: {
@@ -25,7 +34,7 @@ const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = 
 /**
  * @public
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     name: 'sw-settings-services-service-card',
 
     template,
@@ -57,7 +66,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return `data:image/png;base64, ${this.service.icon}`;
             }
 
-            const assetFilter = Shopware.Filter.getByName('asset');
+            const assetFilter = getAssetFilter();
 
             return assetFilter('/administration/administration/static/img/services/extension-icon-placeholder.svg');
         },
@@ -86,7 +95,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 
@@ -105,7 +114,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const servicesService = Shopware.Service('shopwareServicesService');
+                const servicesService = getShopwareServicesService();
 
                 if (active) {
                     await servicesService.activateService(this.service.name);
@@ -115,7 +124,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this._reloadPage();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });
@@ -131,7 +140,7 @@ export default Shopware.Component.wrapComponentConfig({
         async openPermissionsModal(toggleFloatingUi: () => void) {
             try {
                 if (this.categorizedPermissions === null) {
-                    const servicesService = Shopware.Service('shopwareServicesService');
+                    const servicesService = getShopwareServicesService();
 
                     const { permissions } = await servicesService.getCategorizedPermissions(this.service.name);
                     this.categorizedPermissions = permissions;
@@ -139,7 +148,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.showPermissionsModal = true;
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });

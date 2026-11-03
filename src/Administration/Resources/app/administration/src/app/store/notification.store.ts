@@ -146,8 +146,14 @@ function _saveNotifications(notifications: Record<string, NotificationType>) {
     localStorage.setItem(storageKey, JSON.stringify(storageNotifications));
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const notificationStoreId = 'notification';
+
 const notificationStore = Shopware.Store.register({
-    id: 'notification',
+    id: notificationStoreId,
 
     state: () => ({
         notifications: {} as Record<string, NotificationType>,

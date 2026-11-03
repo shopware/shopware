@@ -34,13 +34,19 @@ function findSlot(page: null | Entity<'cms_page'>, elementId: string): CmsSlot |
 
 /**
  * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const cmsPageStoreId = 'cmsPage';
+
+/**
+ * @private
  * @sw-package discovery
  *
  * Registered on the store singleton instead of `Shopware.Store`: `src/core/shopware.ts` loads this file
  * through `Shopware.Composables` before the global object exists.
  */
 const cmsPageStore = Store.instance.register({
-    id: 'cmsPage',
+    id: cmsPageStoreId,
 
     state: (): CmsPageState => ({
         currentPage: null,

@@ -260,6 +260,63 @@
             "sw-bulk-edit-product-visibility": [
                 "default"
             ],
+            "sw-condition-base-line-item": [
+                "default"
+            ],
+            "sw-condition-billing-zip-code": [
+                "default"
+            ],
+            "sw-condition-customer-custom-field": [
+                "default"
+            ],
+            "sw-condition-date-range": [
+                "default"
+            ],
+            "sw-condition-generic": [
+                "default"
+            ],
+            "sw-condition-goods-count": [
+                "default"
+            ],
+            "sw-condition-goods-price": [
+                "default"
+            ],
+            "sw-condition-is-always-valid": [
+                "default"
+            ],
+            "sw-condition-line-item": [
+                "default"
+            ],
+            "sw-condition-line-item-custom-field": [
+                "default"
+            ],
+            "sw-condition-line-item-goods-total": [
+                "default"
+            ],
+            "sw-condition-line-item-in-category": [
+                "default"
+            ],
+            "sw-condition-line-item-property": [
+                "default"
+            ],
+            "sw-condition-line-item-purchase-price": [
+                "default"
+            ],
+            "sw-condition-line-item-with-quantity": [
+                "default"
+            ],
+            "sw-condition-not-found": [
+                "default"
+            ],
+            "sw-condition-order-custom-field": [
+                "default"
+            ],
+            "sw-condition-script": [
+                "default"
+            ],
+            "sw-condition-shipping-zip-code": [
+                "default"
+            ],
             "sw-country-state-detail": [
                 "default"
             ],
@@ -288,6 +345,9 @@
                 "default"
             ],
             "sw-custom-field-type-select": [
+                "default"
+            ],
+            "sw-datepicker-deprecated": [
                 "default"
             ],
             "sw-duplicated-media-v2": [
@@ -653,6 +713,25 @@
         },
         "sources": {
             "sw-bulk-edit-product-visibility": "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility",
+            "sw-condition-base-line-item": "src/app/component/rule/sw-condition-base-line-item",
+            "sw-condition-billing-zip-code": "src/app/component/rule/condition-type/sw-condition-billing-zip-code",
+            "sw-condition-customer-custom-field": "src/app/component/rule/condition-type/sw-condition-customer-custom-field",
+            "sw-condition-date-range": "src/app/component/rule/condition-type/sw-condition-date-range",
+            "sw-condition-generic": "src/app/component/rule/condition-type/sw-condition-generic",
+            "sw-condition-goods-count": "src/app/component/rule/condition-type/sw-condition-goods-count",
+            "sw-condition-goods-price": "src/app/component/rule/condition-type/sw-condition-goods-price",
+            "sw-condition-is-always-valid": "src/app/component/rule/condition-type/sw-condition-is-always-valid",
+            "sw-condition-line-item": "src/app/component/rule/condition-type/sw-condition-line-item",
+            "sw-condition-line-item-custom-field": "src/app/component/rule/condition-type/sw-condition-line-item-custom-field",
+            "sw-condition-line-item-goods-total": "src/app/component/rule/condition-type/sw-condition-line-item-goods-total",
+            "sw-condition-line-item-in-category": "src/app/component/rule/condition-type/sw-condition-line-item-in-category",
+            "sw-condition-line-item-property": "src/app/component/rule/condition-type/sw-condition-line-item-property",
+            "sw-condition-line-item-purchase-price": "src/app/component/rule/condition-type/sw-condition-line-item-purchase-price",
+            "sw-condition-line-item-with-quantity": "src/app/component/rule/condition-type/sw-condition-line-item-with-quantity",
+            "sw-condition-not-found": "src/app/component/rule/condition-type/sw-condition-not-found",
+            "sw-condition-order-custom-field": "src/app/component/rule/condition-type/sw-condition-order-custom-field",
+            "sw-condition-script": "src/app/component/rule/condition-type/sw-condition-script",
+            "sw-condition-shipping-zip-code": "src/app/component/rule/condition-type/sw-condition-shipping-zip-code",
             "sw-country-state-detail": "src/module/sw-settings-country/component/sw-country-state-detail",
             "sw-custom-field-detail": "src/module/sw-settings-custom-field/component/sw-custom-field-detail",
             "sw-custom-field-list": "src/module/sw-settings-custom-field/component/sw-custom-field-list",
@@ -663,6 +742,7 @@
             "sw-custom-field-type-entity": "src/module/sw-settings-custom-field/component/sw-custom-field-type-entity",
             "sw-custom-field-type-number": "src/module/sw-settings-custom-field/component/sw-custom-field-type-number",
             "sw-custom-field-type-select": "src/module/sw-settings-custom-field/component/sw-custom-field-type-select",
+            "sw-datepicker-deprecated": "src/app/component/form/sw-datepicker-deprecated",
             "sw-duplicated-media-v2": "src/app/component/utils/sw-duplicated-media-v2",
             "sw-image-slider": "src/app/component/media/sw-image-slider",
             "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
@@ -842,6 +922,7 @@
                 "syncService",
                 "systemConfigApiService",
                 "tagApiService",
+                "timezoneService",
                 "translationService",
                 "updateService",
                 "userActivityApiService",

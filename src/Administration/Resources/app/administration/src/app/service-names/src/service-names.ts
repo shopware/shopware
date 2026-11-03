@@ -49,6 +49,26 @@ export const cacheService = 'cacheService';
 export const captchaService = 'captchaService';
 
 /**
+ * The name the cmsService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [cmsService] };
+ *
+ * @public
+ */
+export const cmsService = 'cmsService';
+
+/**
+ * The name the configService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [configService] };
+ *
+ * @public
+ */
+export const configService = 'configService';
+
+/**
  * The name the customEntityDefinitionService service is registered and injected under.
  *
  * @example
@@ -203,6 +223,16 @@ export const liveSearchService = 'liveSearchService';
 export const loginService = 'loginService';
 
 /**
+ * The name the mediaDefaultFolderService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [mediaDefaultFolderService] };
+ *
+ * @public
+ */
+export const mediaDefaultFolderService = 'mediaDefaultFolderService';
+
+/**
  * The name the mediaFolderService service is registered and injected under.
  *
  * @example
@@ -271,6 +301,16 @@ export const numberRangeService = 'numberRangeService';
  * @public
  */
 export const productIndexService = 'productIndexService';
+
+/**
+ * The name the productStreamConditionService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [productStreamConditionService] };
+ *
+ * @public
+ */
+export const productStreamConditionService = 'productStreamConditionService';
 
 /**
  * The name the productStreamPreviewService service is registered and injected under.

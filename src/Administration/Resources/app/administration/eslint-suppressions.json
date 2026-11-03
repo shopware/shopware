@@ -9498,7 +9498,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-add-properties-modal/index.js": {
+  "src/module/sw-product/component/sw-product-add-properties-modal/src/sw-product-add-properties-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9506,12 +9506,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-add-properties-modal/sw-product-add-properties-modal.spec.js": {
+  "src/module/sw-product/component/sw-product-add-properties-modal/tests/sw-product-add-properties-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-product/component/sw-product-basic-form/index.js": {
+  "src/module/sw-product/component/sw-product-basic-form/src/sw-product-basic-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9519,7 +9519,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-category-form/index.js": {
+  "src/module/sw-product/component/sw-product-category-form/src/sw-product-category-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9527,7 +9527,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-clone-modal/index.js": {
+  "src/module/sw-product/component/sw-product-clone-modal/src/sw-product-clone-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9535,12 +9535,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-clone-modal/sw-product-clone-modal.spec.js": {
+  "src/module/sw-product/component/sw-product-clone-modal/tests/sw-product-clone-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/module/sw-product/component/sw-product-cross-selling-assignment/index.js": {
+  "src/module/sw-product/component/sw-product-cross-selling-assignment/src/sw-product-cross-selling-assignment.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9548,12 +9548,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-cross-selling-assignment/sw-product-cross-selling-assignment.spec.js": {
+  "src/module/sw-product/component/sw-product-cross-selling-assignment/tests/sw-product-cross-selling-assignment.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-product/component/sw-product-cross-selling-form/index.js": {
+  "src/module/sw-product/component/sw-product-cross-selling-form/src/sw-product-cross-selling-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9561,17 +9561,17 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-cross-selling-form/sw-product-cross-selling-form.spec.js": {
+  "src/module/sw-product/component/sw-product-cross-selling-form/tests/sw-product-cross-selling-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-deliverability-downloadable-form/index.js": {
+  "src/module/sw-product/component/sw-product-deliverability-downloadable-form/src/sw-product-deliverability-downloadable-form.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-deliverability-form/index.js": {
+  "src/module/sw-product/component/sw-product-deliverability-form/src/sw-product-deliverability-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9579,17 +9579,17 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-download-form/index.js": {
+  "src/module/sw-product/component/sw-product-download-form/src/sw-product-download-form.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-download-form/sw-product-download-form.spec.js": {
+  "src/module/sw-product/component/sw-product-download-form/tests/sw-product-download-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/module/sw-product/component/sw-product-feature-set-form/index.js": {
+  "src/module/sw-product/component/sw-product-feature-set-form/src/sw-product-feature-set-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9597,7 +9597,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-guarantee-form/index.js": {
+  "src/module/sw-product/component/sw-product-guarantee-form/src/sw-product-guarantee-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9605,12 +9605,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-guarantee-form/sw-product-guarantee-form.spec.js": {
+  "src/module/sw-product/component/sw-product-guarantee-form/tests/sw-product-guarantee-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-product/component/sw-product-layout-assignment/index.js": {
+  "src/module/sw-product/component/sw-product-layout-assignment/src/sw-product-layout-assignment.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9618,12 +9618,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-layout-assignment/sw-product-layout-assignment.spec.js": {
+  "src/module/sw-product/component/sw-product-layout-assignment/tests/sw-product-layout-assignment.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-product/component/sw-product-measurement-form/index.js": {
+  "src/module/sw-product/component/sw-product-measurement-form/src/sw-product-measurement-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9631,7 +9631,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-measurement-form/sw-product-measurement-form.spec.js": {
+  "src/module/sw-product/component/sw-product-measurement-form/tests/sw-product-measurement-form.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -9639,7 +9639,7 @@
       "count": 4
     }
   },
-  "src/module/sw-product/component/sw-product-media-form/index.js": {
+  "src/module/sw-product/component/sw-product-media-form/src/sw-product-media-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9647,12 +9647,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-media-form/sw-product-media-form.spec.js": {
+  "src/module/sw-product/component/sw-product-media-form/tests/sw-product-media-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 19
     }
   },
-  "src/module/sw-product/component/sw-product-packaging-form/index.js": {
+  "src/module/sw-product/component/sw-product-packaging-form/src/sw-product-packaging-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9660,7 +9660,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-price-form/index.js": {
+  "src/module/sw-product/component/sw-product-price-form/src/sw-product-price-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9668,12 +9668,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-price-form/sw-product-price-form.spec.js": {
+  "src/module/sw-product/component/sw-product-price-form/tests/sw-product-price-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
   },
-  "src/module/sw-product/component/sw-product-properties/index.js": {
+  "src/module/sw-product/component/sw-product-properties/src/sw-product-properties.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9681,7 +9681,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-properties/sw-product-properties.spec.js": {
+  "src/module/sw-product/component/sw-product-properties/tests/sw-product-properties.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9689,7 +9689,7 @@
       "count": 90
     }
   },
-  "src/module/sw-product/component/sw-product-seo-form/index.js": {
+  "src/module/sw-product/component/sw-product-seo-form/src/sw-product-seo-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9697,12 +9697,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-seo-form/sw-product-seo-form.spec.js": {
+  "src/module/sw-product/component/sw-product-seo-form/tests/sw-product-seo-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-product/component/sw-product-settings-form/index.js": {
+  "src/module/sw-product/component/sw-product-settings-form/src/sw-product-settings-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9710,7 +9710,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-settings-mode/index.js": {
+  "src/module/sw-product/component/sw-product-settings-mode/src/sw-product-settings-mode.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9718,7 +9718,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variant-modal/index.js": {
+  "src/module/sw-product/component/sw-product-variant-modal/src/sw-product-variant-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9729,7 +9729,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variant-modal/sw-product-variant-modal.spec.js": {
+  "src/module/sw-product/component/sw-product-variant-modal/tests/sw-product-variant-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9737,7 +9737,7 @@
       "count": 14
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/src/sw-product-modal-delivery.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9745,12 +9745,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/sw-product-modal-delivery.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/tests/sw-product-modal-delivery.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/src/sw-product-modal-variant-generation.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9758,7 +9758,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/sw-product-modal-variant-generation.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/tests/sw-product-modal-variant-generation.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9766,7 +9766,7 @@
       "count": 64
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/src/sw-product-restriction-selection.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9774,7 +9774,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/src/sw-product-variants-configurator-prices.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9782,12 +9782,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/sw-product-variants-configurator-prices.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/tests/sw-product-variants-configurator-prices.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/src/sw-product-variants-configurator-restrictions.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9798,12 +9798,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/sw-product-variants-configurator-restrictions.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/tests/sw-product-variants-configurator-restrictions.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 21
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/src/sw-product-variants-configurator-selection.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9811,12 +9811,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/sw-product-variants-configurator-selection.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/tests/sw-product-variants-configurator-selection.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/src/sw-product-variants-price-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9824,7 +9824,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/src/sw-product-variants-delivery-listing.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9832,7 +9832,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/src/sw-product-variants-delivery-media.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9840,7 +9840,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/src/sw-product-variants-delivery-order.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9848,12 +9848,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/sw-product-variants-delivery-order.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/tests/sw-product-variants-delivery-order.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/src/sw-product-variants-media-upload.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9861,7 +9861,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/sw-product-variants-media-upload.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/tests/sw-product-variants-media-upload.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9869,7 +9869,7 @@
       "count": 30
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/src/sw-product-variants-overview.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9880,7 +9880,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/sw-product-variants-overview.spec.js": {
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/tests/sw-product-variants-overview.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9888,7 +9888,7 @@
       "count": 35
     }
   },
-  "src/module/sw-product/component/sw-product-visibility-detail/index.js": {
+  "src/module/sw-product/component/sw-product-visibility-detail/src/sw-product-visibility-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9896,7 +9896,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-visibility-select/index.js": {
+  "src/module/sw-product/component/sw-product-visibility-select/src/sw-product-visibility-select.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9972,7 +9972,7 @@
       "count": 152
     }
   },
-  "src/module/sw-product/page/sw-product-list/index.js": {
+  "src/module/sw-product/page/sw-product-list/src/sw-product-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9983,7 +9983,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/page/sw-product-list/sw-product-list.spec.js": {
+  "src/module/sw-product/page/sw-product-list/tests/sw-product-list.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -9991,7 +9991,7 @@
       "count": 65
     }
   },
-  "src/module/sw-product/view/sw-product-detail-base/index.js": {
+  "src/module/sw-product/view/sw-product-detail-base/src/sw-product-detail-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9999,7 +9999,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-base/sw-product-detail-base.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-base/tests/sw-product-detail-base.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10007,7 +10007,7 @@
       "count": 21
     }
   },
-  "src/module/sw-product/view/sw-product-detail-context-prices/index.js": {
+  "src/module/sw-product/view/sw-product-detail-context-prices/src/sw-product-detail-context-prices.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10015,12 +10015,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-context-prices/sw-product-detail-context-prices.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-context-prices/tests/sw-product-detail-context-prices.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-product/view/sw-product-detail-cross-selling/index.js": {
+  "src/module/sw-product/view/sw-product-detail-cross-selling/src/sw-product-detail-cross-selling.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10028,12 +10028,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-cross-selling/sw-product-detail-cross-selling.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-cross-selling/tests/sw-product-detail-cross-selling.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/module/sw-product/view/sw-product-detail-layout/index.js": {
+  "src/module/sw-product/view/sw-product-detail-layout/src/sw-product-detail-layout.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10041,12 +10041,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-layout/sw-product-detail-layout.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-layout/tests/sw-product-detail-layout.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 24
     }
   },
-  "src/module/sw-product/view/sw-product-detail-reviews/index.js": {
+  "src/module/sw-product/view/sw-product-detail-reviews/src/sw-product-detail-reviews.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10054,7 +10054,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-reviews/sw-product-detail-reviews.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-reviews/tests/sw-product-detail-reviews.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10062,7 +10062,7 @@
       "count": 26
     }
   },
-  "src/module/sw-product/view/sw-product-detail-seo/index.js": {
+  "src/module/sw-product/view/sw-product-detail-seo/src/sw-product-detail-seo.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10070,12 +10070,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-seo/sw-product-detail-seo.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-seo/tests/sw-product-detail-seo.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
   },
-  "src/module/sw-product/view/sw-product-detail-specifications/index.js": {
+  "src/module/sw-product/view/sw-product-detail-specifications/src/sw-product-detail-specifications.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10083,7 +10083,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-specifications/sw-product-detail-specifications.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-specifications/tests/sw-product-detail-specifications.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10091,7 +10091,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-variants/index.js": {
+  "src/module/sw-product/view/sw-product-detail-variants/src/sw-product-detail-variants.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10099,7 +10099,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/view/sw-product-detail-variants/sw-product-detail-variants.spec.js": {
+  "src/module/sw-product/view/sw-product-detail-variants/tests/sw-product-detail-variants.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

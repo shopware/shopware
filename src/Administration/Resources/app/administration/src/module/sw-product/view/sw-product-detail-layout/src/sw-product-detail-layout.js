@@ -1,0 +1,196 @@
+/*
+ * @sw-package inventory
+ */
+
+import template from './sw-product-detail-layout.html.twig';
+import './sw-product-detail-layout.scss';
+import {
+    aclService,
+    cmsService,
+    Criteria,
+    featureService,
+    get,
+    getApiContext,
+    repositoryFactoryService,
+    useCmsPageStore,
+    useProductDetailStore,
+} from '../dependencies';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: [
+        repositoryFactoryService,
+        cmsService,
+        featureService,
+        aclService,
+    ],
+
+    data() {
+        return {
+            showLayoutModal: false,
+            isConfigLoading: false,
+        };
+    },
+
+    computed: {
+        cmsPageRepository() {
+            return this.repositoryFactory.create('cms_page');
+        },
+
+        cmsPageId() {
+            return get(this.product, 'cmsPageId', null);
+        },
+
+        showCmsForm() {
+            return (!this.isLoading || !this.isConfigLoading) && !this.currentPage.locked;
+        },
+
+        product() {
+            return useProductDetailStore().product;
+        },
+
+        isLoading() {
+            return useProductDetailStore().isLoading;
+        },
+
+        cmsPageCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addAssociation('previewMedia');
+            criteria.addAssociation('sections');
+            criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
+
+            criteria.addAssociation('sections.blocks');
+            criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
+
+            return criteria;
+        },
+
+        languageId() {
+            return getApiContext().languageId;
+        },
+
+        currentPage() {
+            return useCmsPageStore().currentPage;
+        },
+
+        cmsPageState() {
+            return useCmsPageStore();
+        },
+    },
+
+    watch: {
+        cmsPageId() {
+            this.cmsPageState.resetCmsPageState();
+            this.handleGetCmsPage();
+        },
+
+        product: {
+            deep: true,
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.updateCmsPageDataMapping();
+            },
+        },
+
+        languageId() {
+            this.cmsPageState.resetCmsPageState();
+            this.handleGetCmsPage();
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            // Keep current layout configuration if page sections exist
+            const sections = this.currentPage?.sections ?? [];
+
+            if (sections.length) {
+                return;
+            }
+
+            this.handleGetCmsPage();
+        },
+
+        onOpenLayoutModal() {
+            if (!this.acl.can('product.editor')) {
+                return;
+            }
+
+            this.showLayoutModal = true;
+        },
+
+        onCloseLayoutModal() {
+            this.showLayoutModal = false;
+        },
+
+        onOpenInPageBuilder() {
+            if (!this.currentPage) {
+                this.$router.push({ name: 'sw.cms.create' });
+            } else {
+                this.$router.push({
+                    name: 'sw.cms.detail',
+                    params: { id: this.currentPage.id },
+                });
+            }
+        },
+
+        onSelectLayout(cmsPageId) {
+            if (!this.product) {
+                return;
+            }
+
+            this.product.cmsPageId = cmsPageId;
+            this.resetSlotConfig();
+            useProductDetailStore().product = this.product;
+        },
+
+        handleGetCmsPage() {
+            if (!this.cmsPageId) {
+                return;
+            }
+
+            this.isConfigLoading = true;
+
+            this.cmsPageRepository.get(this.cmsPageId, getApiContext(), this.cmsPageCriteria).then((cmsPage) => {
+                this.cmsPageState.setCurrentPage(cmsPage);
+                this.updateCmsPageDataMapping();
+                this.isConfigLoading = false;
+            });
+        },
+
+        updateCmsPageDataMapping() {
+            this.cmsPageState.setCurrentMappingEntity('product');
+            this.cmsPageState.setCurrentMappingTypes(this.cmsService.getEntityMappingTypes('product'));
+            this.cmsPageState.setCurrentDemoEntity(this.product);
+        },
+
+        onResetLayout() {
+            this.onSelectLayout(null);
+        },
+
+        elementUpdate(element) {
+            const slotContent = this.product.slotConfig[element.id]?.content;
+            if (slotContent && slotContent.value) {
+                slotContent.value = element.config.content.value;
+            }
+        },
+
+        resetSlotConfig() {
+            this.product.slotConfig = null;
+
+            this.product.translations?.forEach((translation) => {
+                translation.slotConfig = null;
+            });
+        },
+    },
+};

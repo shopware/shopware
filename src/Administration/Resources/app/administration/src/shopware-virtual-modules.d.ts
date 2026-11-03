@@ -988,6 +988,120 @@ declare module 'shopware:components/sw-bulk-edit-product-visibility' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-base-line-item' {
+    export { default } from 'src/app/component/rule/sw-condition-base-line-item';
+    export type * from 'src/app/component/rule/sw-condition-base-line-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-billing-zip-code' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-billing-zip-code';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-billing-zip-code';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-customer-custom-field' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-customer-custom-field';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-customer-custom-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-date-range' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-date-range';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-date-range';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-generic' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-generic';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-generic';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-goods-count' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-goods-count';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-goods-count';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-goods-price' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-goods-price';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-goods-price';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-is-always-valid' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-is-always-valid';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-is-always-valid';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item-custom-field' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item-custom-field';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item-custom-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item-goods-total' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item-goods-total';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item-goods-total';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item-in-category' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item-in-category';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item-in-category';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item-property' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item-property';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item-property';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item-purchase-price' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item-purchase-price';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item-purchase-price';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-line-item-with-quantity' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-line-item-with-quantity';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-line-item-with-quantity';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-not-found' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-not-found';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-not-found';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-order-custom-field' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-order-custom-field';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-order-custom-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-script' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-script';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-script';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-condition-shipping-zip-code' {
+    export { default } from 'src/app/component/rule/condition-type/sw-condition-shipping-zip-code';
+    export type * from 'src/app/component/rule/condition-type/sw-condition-shipping-zip-code';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-country-state-detail' {
     export { default } from 'src/module/sw-settings-country/component/sw-country-state-detail';
     export type * from 'src/module/sw-settings-country/component/sw-country-state-detail';
@@ -1045,6 +1159,12 @@ declare module 'shopware:components/sw-custom-field-type-number' {
 declare module 'shopware:components/sw-custom-field-type-select' {
     export { default } from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
     export type * from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-datepicker-deprecated' {
+    export { default } from 'src/app/component/form/sw-datepicker-deprecated';
+    export type * from 'src/app/component/form/sw-datepicker-deprecated';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1825,6 +1945,7 @@ declare module 'shopware:framework/service-names' {
         syncService,
         systemConfigApiService,
         tagApiService,
+        timezoneService,
         translationService,
         updateService,
         userActivityApiService,

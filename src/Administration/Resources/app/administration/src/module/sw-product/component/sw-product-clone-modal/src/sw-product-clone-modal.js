@@ -1,0 +1,147 @@
+/*
+ * @sw-package inventory
+ */
+
+import template from './sw-product-clone-modal.html.twig';
+import './sw-product-clone-modal.scss';
+import { cloneDeep, Criteria, getApiContext, numberRangeService, repositoryFactoryService } from '../dependencies';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: [repositoryFactoryService, numberRangeService],
+
+    emits: ['clone-finish'],
+
+    props: {
+        product: {
+            type: Object,
+            required: true,
+        },
+        productNumberPreview: {
+            type: String,
+            required: false,
+            default: '',
+        },
+    },
+
+    data() {
+        return {
+            cloningVariants: false,
+            cloneMaxProgress: 0,
+            cloneProgress: 0,
+        };
+    },
+
+    computed: {
+        // @deprecated tag:v6.8.0 - Will be removed, no longer needed
+        progressInPercentage() {
+            return 100 / (this.cloneMaxProgress * this.cloneProgress);
+        },
+
+        repository() {
+            return this.repositoryFactory.create('product');
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.duplicate();
+        },
+
+        async duplicate() {
+            if (this.productNumberPreview === this.product.productNumber) {
+                const number = await this.numberRangeService.reserve('product');
+                this.product.productNumber = number.number;
+            }
+
+            await this.repository.save(this.product);
+
+            const number = await this.numberRangeService.reserve('product');
+            const duplicate = await this.cloneParent(number);
+
+            this.verifyVariants(duplicate);
+        },
+
+        async cloneParent(number) {
+            // Create shallow copy to prevent changing the original product
+            const variantListingConfigOverwrite = cloneDeep(this.product.variantListingConfig);
+            if (variantListingConfigOverwrite && variantListingConfigOverwrite.mainVariantId) {
+                variantListingConfigOverwrite.mainVariantId = null;
+            }
+
+            const behavior = {
+                cloneChildren: false,
+                overwrites: {
+                    productNumber: number.number,
+                    name: `${this.product.name} ${this.$t('global.default.copy')}`,
+                    active: false,
+                    mainVariantId: null,
+                    canonicalProductId: null,
+                    variantListingConfig: variantListingConfigOverwrite,
+                },
+            };
+
+            const clone = await this.repository.clone(this.product.id, behavior, getApiContext());
+
+            return { id: clone.id, productNumber: number.number };
+        },
+
+        verifyVariants(duplicate) {
+            this.getChildrenIds().then((ids) => {
+                if (ids.length <= 0) {
+                    this.$emit('clone-finish', { id: duplicate.id });
+                    return;
+                }
+
+                this.cloningVariants = true;
+
+                this.cloneProgress = 1;
+                this.cloneMaxProgress = ids.length;
+
+                this.duplicateVariant(duplicate, ids, () => {
+                    this.cloningVariants = false;
+                    this.$emit('clone-finish', { id: duplicate.id });
+                });
+            });
+        },
+
+        getChildrenIds() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('parentId', this.product.id));
+
+            return this.repository.searchIds(criteria).then((response) => {
+                return response.data;
+            });
+        },
+
+        duplicateVariant(duplicate, ids, callback) {
+            if (ids.length <= 0) {
+                callback();
+                return;
+            }
+            const id = ids.shift();
+
+            const behavior = {
+                overwrites: {
+                    parentId: duplicate.id,
+                    productNumber: `${duplicate.productNumber}.${this.cloneProgress}`,
+                    canonicalProductId: null,
+                },
+                cloneChildren: false,
+            };
+
+            this.repository.clone(id, behavior, getApiContext()).then(() => {
+                this.cloneProgress += 1;
+                this.duplicateVariant(duplicate, ids, callback);
+            });
+        },
+    },
+};

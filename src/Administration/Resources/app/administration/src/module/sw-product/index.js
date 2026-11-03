@@ -4,113 +4,59 @@
 
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './component/sw-product-media-form/register';
+import './page/sw-product-list/register';
+import './component/sw-product-add-properties-modal/register';
+import './component/sw-product-basic-form/register';
+import './component/sw-product-category-form/register';
+import './component/sw-product-clone-modal/register';
+import './component/sw-product-cross-selling-assignment/register';
+import './component/sw-product-cross-selling-form/register';
+import './component/sw-product-deliverability-downloadable-form/register';
+import './component/sw-product-deliverability-form/register';
+import './component/sw-product-download-form/register';
+import './component/sw-product-feature-set-form/register';
+import './component/sw-product-guarantee-form/register';
+import './component/sw-product-layout-assignment/register';
+import './component/sw-product-measurement-form/register';
+import './component/sw-product-packaging-form/register';
+import './component/sw-product-price-form/register';
+import './component/sw-product-properties/register';
+import './component/sw-product-seo-form/register';
+import './component/sw-product-settings-form/register';
+import './component/sw-product-settings-mode/register';
+import './component/sw-product-variant-modal/register';
+import './component/sw-product-variants/sw-product-modal-delivery/register';
+import './component/sw-product-variants/sw-product-modal-variant-generation/register';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/register';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/register';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/register';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/register';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/register';
+import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/register';
+import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/register';
+import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/register';
+import './component/sw-product-variants/sw-product-variants-media-upload/register';
+import './component/sw-product-variants/sw-product-variants-overview/register';
+import './component/sw-product-visibility-detail/register';
+import './component/sw-product-visibility-select/register';
+import './view/sw-product-detail-base/register';
+import './view/sw-product-detail-context-prices/register';
+import './view/sw-product-detail-cross-selling/register';
+import './view/sw-product-detail-layout/register';
+import './view/sw-product-detail-reviews/register';
+import './view/sw-product-detail-seo/register';
+import './view/sw-product-detail-specifications/register';
+import './view/sw-product-detail-variants/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-product-basic-form', () => import('./component/sw-product-basic-form'));
-Shopware.Component.register('sw-product-deliverability-form', () => import('./component/sw-product-deliverability-form'));
-Shopware.Component.register(
-    'sw-product-deliverability-downloadable-form',
-    () => import('./component/sw-product-deliverability-downloadable-form'),
-);
-Shopware.Component.register('sw-product-feature-set-form', () => import('./component/sw-product-feature-set-form'));
-Shopware.Component.register('sw-product-category-form', () => import('./component/sw-product-category-form'));
-Shopware.Component.register('sw-product-clone-modal', () => import('./component/sw-product-clone-modal'));
-Shopware.Component.register(
-    'sw-product-modal-variant-generation',
-    () => import('./component/sw-product-variants/sw-product-modal-variant-generation'),
-);
-Shopware.Component.register(
-    'sw-product-modal-delivery',
-    () => import('./component/sw-product-variants/sw-product-modal-delivery'),
-);
-Shopware.Component.register('sw-product-price-form', () => import('./component/sw-product-price-form'));
-Shopware.Component.register('sw-product-settings-form', () => import('./component/sw-product-settings-form'));
-Shopware.Component.register('sw-product-guarantee-form', () => import('./component/sw-product-guarantee-form'));
-Shopware.Component.register('sw-product-measurement-form', () => import('./component/sw-product-measurement-form'));
-Shopware.Component.register('sw-product-packaging-form', () => import('./component/sw-product-packaging-form'));
-Shopware.Component.register('sw-product-seo-form', () => import('./component/sw-product-seo-form'));
-Shopware.Component.extend(
-    'sw-product-visibility-select',
-    'sw-entity-multi-select',
-    () => import('./component/sw-product-visibility-select'),
-);
-Shopware.Component.register('sw-product-media-form', () => import('./component/sw-product-media-form'));
-Shopware.Component.register('sw-product-download-form', () => import('./component/sw-product-download-form'));
-Shopware.Component.register('sw-product-visibility-detail', () => import('./component/sw-product-visibility-detail'));
-Shopware.Component.register(
-    'sw-product-restriction-selection',
-    () => import('./component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection'),
-);
-Shopware.Component.extend(
-    'sw-product-variants-configurator-selection',
-    'sw-property-search',
-    () =>
-        import(
-            './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection'
-        ),
-);
-Shopware.Component.register(
-    'sw-product-variants-configurator-prices',
-    () => import('./component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices'),
-);
-Shopware.Component.register(
-    'sw-product-variants-configurator-restrictions',
-    () =>
-        import(
-            './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions'
-        ),
-);
-Shopware.Component.register(
-    'sw-product-variants-delivery-order',
-    () => import('./component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order'),
-);
-Shopware.Component.register(
-    'sw-product-variants-delivery-media',
-    () => import('./component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media'),
-);
-Shopware.Component.register(
-    'sw-product-variants-delivery-listing',
-    () => import('./component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing'),
-);
-Shopware.Component.register(
-    'sw-product-variants-overview',
-    () => import('./component/sw-product-variants/sw-product-variants-overview'),
-);
-Shopware.Component.register(
-    'sw-product-variants-price-field',
-    () => import('./component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field'),
-);
-Shopware.Component.extend(
-    'sw-product-variants-media-upload',
-    'sw-media-upload-v2',
-    () => import('./component/sw-product-variants/sw-product-variants-media-upload'),
-);
-Shopware.Component.register('sw-product-cross-selling-form', () => import('./component/sw-product-cross-selling-form'));
-Shopware.Component.register('sw-product-variant-modal', () => import('./component/sw-product-variant-modal'));
-Shopware.Component.register(
-    'sw-product-cross-selling-assignment',
-    () => import('./component/sw-product-cross-selling-assignment'),
-);
-Shopware.Component.register('sw-product-layout-assignment', () => import('./component/sw-product-layout-assignment'));
 /**
  * @deprecated tag:v6.8.0 - File will be removed. No longer used.
  */
 if (!Shopware.Feature.isActive('v6.8.0.0')) {
-    Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
 }
-Shopware.Component.register('sw-product-properties', () => import('./component/sw-product-properties'));
-Shopware.Component.register('sw-product-add-properties-modal', () => import('./component/sw-product-add-properties-modal'));
-Shopware.Component.register('sw-product-detail-base', () => import('./view/sw-product-detail-base'));
-Shopware.Component.register('sw-product-detail-specifications', () => import('./view/sw-product-detail-specifications'));
-Shopware.Component.register('sw-product-detail-context-prices', () => import('./view/sw-product-detail-context-prices'));
-Shopware.Component.register('sw-product-detail-variants', () => import('./view/sw-product-detail-variants'));
-Shopware.Component.register('sw-product-detail-layout', () => import('./view/sw-product-detail-layout'));
-Shopware.Component.register('sw-product-detail-seo', () => import('./view/sw-product-detail-seo'));
-Shopware.Component.register('sw-product-detail-cross-selling', () => import('./view/sw-product-detail-cross-selling'));
-Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw-product-detail-reviews'));
-Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 

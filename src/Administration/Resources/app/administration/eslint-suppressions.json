@@ -563,7 +563,7 @@
       "count": 8
     }
   },
-  "src/app/component/extension-api/sw-extension-component-section/index.ts": {
+  "src/app/component/extension-api/sw-extension-component-section/src/sw-extension-component-section.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -571,27 +571,27 @@
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-extension-component-section/sw-extension-component-section.spec.js": {
+  "src/app/component/extension-api/sw-extension-component-section/tests/sw-extension-component-section.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/app/component/extension-api/sw-extension-teaser-popover/sw-extension-teaser-popover.spec.js": {
+  "src/app/component/extension-api/sw-extension-teaser-popover/tests/sw-extension-teaser-popover.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/component/extension-api/sw-extension-teaser-sales-channel/sw-extension-teaser-sales-channel.spec.js": {
+  "src/app/component/extension-api/sw-extension-teaser-sales-channel/tests/sw-extension-teaser-sales-channel.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-iframe-renderer/index.ts": {
+  "src/app/component/extension-api/sw-iframe-renderer/src/sw-iframe-renderer.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-iframe-renderer/sw-iframe-renderer.spec.js": {
+  "src/app/component/extension-api/sw-iframe-renderer/tests/sw-iframe-renderer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }

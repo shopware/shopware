@@ -16,8 +16,14 @@ interface ExtensionComponentSectionsState {
     };
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const extensionComponentSectionsStoreId = 'extensionComponentSections';
+
 const ExtensionComponentSectionsStore = Shopware.Store.register({
-    id: 'extensionComponentSections',
+    id: extensionComponentSectionsStoreId,
 
     state: (): ExtensionComponentSectionsState => ({
         identifier: {},

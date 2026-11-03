@@ -114,6 +114,10 @@ import 'src/app/component/entity/sw-bulk-edit-modal/register';
 import 'src/app/component/entity/sw-category-tree-field/register';
 import 'src/app/component/entity/sw-many-to-many-assignment-card/register';
 import 'src/app/component/entity/sw-product-stream-grid-preview/register';
+import 'src/app/component/extension-api/sw-extension-component-section/register';
+import 'src/app/component/extension-api/sw-extension-teaser-popover/register';
+import 'src/app/component/extension-api/sw-extension-teaser-sales-channel/register';
+import 'src/app/component/extension-api/sw-iframe-renderer/register';
 /**
  * @sw-package framework
  * @private
@@ -323,14 +327,6 @@ export default () => {
     Shopware.Component.register('sw-date-filter', () => import('src/app/component/filter/sw-date-filter/index'));
     Shopware.Component.register('sw-boolean-filter', () => import('src/app/component/filter/sw-boolean-filter/index'));
     Shopware.Component.register('sw-base-filter', () => import('src/app/component/filter/sw-base-filter/index'));
-        'sw-iframe-renderer',
-        () => import('src/app/component/extension-api/sw-iframe-renderer/index'),
-        'sw-extension-teaser-sales-channel',
-        () => import('src/app/component/extension-api/sw-extension-teaser-sales-channel/index'),
-        'sw-extension-teaser-popover',
-        () => import('src/app/component/extension-api/sw-extension-teaser-popover/index'),
-        'sw-extension-component-section',
-        () => import('src/app/component/extension-api/sw-extension-component-section/index'),
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));

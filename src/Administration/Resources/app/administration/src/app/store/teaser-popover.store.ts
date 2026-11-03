@@ -37,8 +37,14 @@ export type TeaserSalesChannelConfig = {
     };
 };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const teaserPopoverStoreId = 'teaserPopover';
+
 const teaserPopoverStore = Shopware.Store.register({
-    id: 'teaserPopover',
+    id: teaserPopoverStoreId,
 
     state: () => ({
         identifier: {} as Record<string, TeaserPopoverConfig>,

@@ -1,6 +1,14 @@
-import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
-import type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
 import template from './sw-extension-component-section.html.twig';
+import {
+    type ComponentSectionEntry,
+    error,
+    featureService,
+    type TabItem,
+    useExtensionComponentSectionsStore,
+    useExtensionsStore,
+    warn,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @sw-package framework
@@ -12,10 +20,10 @@ import template from './sw-extension-component-section.html.twig';
  * @component-example
  * <sw-extension-component-section positionId="my-special-position" />
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     extensionApiDevtoolInformation: {
         property: 'ui.componentSection',
@@ -55,7 +63,7 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         componentSections(): ComponentSectionEntry[] {
             const sections = this.sortSections(
-                Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [],
+                useExtensionComponentSectionsStore().identifier[this.positionIdentifier] ?? [],
             );
             if (sections.length && this.deprecated) {
                 sections.forEach((section) => {
@@ -65,9 +73,9 @@ export default Shopware.Component.wrapComponentConfig({
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
-                        Shopware.Utils.debug.error(...debugArgs);
+                        error(...debugArgs);
                     } else {
-                        Shopware.Utils.debug.warn(...debugArgs);
+                        warn(...debugArgs);
                     }
                 });
             }
@@ -109,7 +117,7 @@ export default Shopware.Component.wrapComponentConfig({
          *    stable, so returning `0` preserves the array index — no extension is favoured by name.
          */
         sortSections(sections: ComponentSectionEntry[]): ComponentSectionEntry[] {
-            const extensionsState = Shopware.Store.get('extensions').extensionsState;
+            const extensionsState = useExtensionsStore().extensionsState;
 
             const isService = (entry: ComponentSectionEntry): boolean =>
                 extensionsState[entry.extensionName]?.sourceType === 'service';

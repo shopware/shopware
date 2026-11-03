@@ -1,7 +1,14 @@
-import type { Extension } from '../../../store/extensions.store';
-import useTheme from '../../../composables/use-theme';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
+import {
+    type Extension,
+    extensionSdkService,
+    handle,
+    useExtensionsStore,
+    useSdkLocationStore,
+    useTheme,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @sw-package framework
@@ -13,10 +20,10 @@ import './sw-iframe-renderer.scss';
  * @component-example
  * <sw-iframe-renderer src="https://www.my-source.com" locationId="my-special-location" />
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['extensionSdkService'],
+    inject: [extensionSdkService],
 
     props: {
         src: {
@@ -53,7 +60,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
+        this.heightHandler = handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion -- extensions post the height, so it can arrive as a string
                 const parsed = Number(height);
@@ -61,39 +68,36 @@ export default Shopware.Component.wrapComponentConfig({
             }
         });
 
-        this.urlHandler = Shopware.ExtensionAPI.handle(
-            'locationUpdateUrl',
-            async ({ hash, pathname, searchParams, locationId }) => {
-                if (locationId !== this.locationId) {
-                    return;
-                }
+        this.urlHandler = handle('locationUpdateUrl', async ({ hash, pathname, searchParams, locationId }) => {
+            if (locationId !== this.locationId) {
+                return;
+            }
 
-                const filteredSearchParams = JSON.stringify(
-                    searchParams.filter(([key]) => {
-                        return ![
-                            'location-id',
-                            'color-scheme',
-                            'privileges',
-                            'shop-id',
-                            'shop-url',
-                            'timestamp',
-                            'sw-version',
-                            'sw-context-language',
-                            'sw-user-language',
-                            'shopware-shop-signature',
-                        ].includes(key);
-                    }),
-                );
+            const filteredSearchParams = JSON.stringify(
+                searchParams.filter(([key]) => {
+                    return ![
+                        'location-id',
+                        'color-scheme',
+                        'privileges',
+                        'shop-id',
+                        'shop-url',
+                        'timestamp',
+                        'sw-version',
+                        'sw-context-language',
+                        'sw-user-language',
+                        'shopware-shop-signature',
+                    ].includes(key);
+                }),
+            );
 
-                await this.$router.replace({
-                    query: {
-                        [this.locationIdHashQueryKey]: hash,
-                        [this.locationIdPathnameQueryKey]: pathname,
-                        [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
-                    },
-                });
-            },
-        );
+            await this.$router.replace({
+                query: {
+                    [this.locationIdHashQueryKey]: hash,
+                    [this.locationIdPathnameQueryKey]: pathname,
+                    [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
+                },
+            });
+        });
     },
 
     beforeUnmount() {
@@ -120,11 +124,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         componentName(): string | undefined {
-            return Shopware.Store.get('sdkLocation').locations[this.locationId];
+            return useSdkLocationStore().locations[this.locationId];
         },
 
         extension(): Extension | undefined {
-            const extensions = Shopware.Store.get('extensions').extensionsState;
+            const extensions = useExtensionsStore().extensionsState;
             const srcWithoutSearchParameters = new URL(this.src).origin + new URL(this.src).pathname;
 
             return Object.values(extensions).find((ext) => {

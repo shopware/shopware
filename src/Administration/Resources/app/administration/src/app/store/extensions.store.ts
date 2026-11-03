@@ -26,8 +26,14 @@ export interface ExtensionsState {
     [key: string]: Extension;
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const extensionsStoreId = 'extensions';
+
 const extensions = Shopware.Store.register({
-    id: 'extensions',
+    id: extensionsStoreId,
 
     state: (): { extensionsState: ExtensionsState } => ({
         extensionsState: {},

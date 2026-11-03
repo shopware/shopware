@@ -1,19 +1,15 @@
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './component/sw-product-stream-field-select/register';
+import './component/sw-product-stream-filter/register';
+import './component/sw-product-stream-modal-preview/register';
+import './component/sw-product-stream-value/register';
+import './page/sw-product-stream-detail/register';
+import './page/sw-product-stream-list/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-product-stream-list', () => import('./page/sw-product-stream-list'));
-Shopware.Component.register('sw-product-stream-detail', () => import('./page/sw-product-stream-detail'));
-Shopware.Component.register('sw-product-stream-field-select', () => import('./component/sw-product-stream-field-select'));
-Shopware.Component.register('sw-product-stream-value', () => import('./component/sw-product-stream-value'));
-Shopware.Component.register('sw-product-stream-modal-preview', () => import('./component/sw-product-stream-modal-preview'));
-Shopware.Component.extend(
-    'sw-product-stream-filter',
-    'sw-condition-base',
-    () => import('./component/sw-product-stream-filter'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**

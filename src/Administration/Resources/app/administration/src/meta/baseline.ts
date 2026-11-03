@@ -171,7 +171,6 @@ const missingTests = [
     'src/module/sw-product/index.js',
     'src/module/sw-product-stream/default-search-configuration.js',
     'src/module/sw-product-stream/index.js',
-    'src/module/sw-product-stream/page/sw-product-stream-list/index.js',
     'src/module/sw-profile/extension/sw-admin-menu/index.js',
     'src/module/sw-profile/index.js',
     'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/index.js',

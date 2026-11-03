@@ -1,8 +1,14 @@
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    getApiContext,
+    getDateFilter,
+    listingMixin,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package inventory
@@ -11,9 +17,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {
@@ -41,7 +47,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 
@@ -203,7 +209,7 @@ export default {
             this.isLoading = true;
 
             this.productStreamRepository
-                .clone(item.id, behavior, Shopware.Context.api)
+                .clone(item.id, behavior, getApiContext())
                 .then((clone) => {
                     const route = {
                         name: 'sw.product.stream.detail',

@@ -1,7 +1,6 @@
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria, featureService, getApiContext, isFeatureActive, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package inventory
@@ -11,11 +10,11 @@ export default {
     template,
 
     inject: [
-        'repositoryFactory',
+        repositoryFactoryService,
         'conditionDataProviderService',
         'productCustomFields',
         'productTypes',
-        'feature',
+        featureService,
     ],
 
     emits: ['empty-change', 'type-change', 'boolean-change'],
@@ -183,11 +182,7 @@ export default {
                 return null;
             }
 
-            if (
-                !Shopware.Feature.isActive('v6.8.0.0') &&
-                this.fieldDefinition.type === 'json_list' &&
-                this.fieldName === 'states'
-            ) {
+            if (!isFeatureActive('v6.8.0.0') && this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
                 return 'product_state_list';
             }
 
@@ -339,7 +334,7 @@ export default {
         },
 
         context() {
-            return { ...Shopware.Context.api, inheritance: true };
+            return { ...getApiContext(), inheritance: true };
         },
 
         productCriteria() {

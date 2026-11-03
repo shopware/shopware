@@ -9412,52 +9412,52 @@
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-field-select/index.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-field-select/src/sw-product-stream-field-select.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-field-select/sw-product-stream-field-select.spec.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-field-select/tests/sw-product-stream-field-select.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-filter/index.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-filter/src/sw-product-stream-filter.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-filter/sw-product-stream-filter.spec.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-filter/src/type-provider.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-filter/tests/sw-product-stream-filter.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 12
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-filter/type-provider.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-modal-preview/src/sw-product-stream-modal-preview.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-modal-preview/index.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-product-stream/component/sw-product-stream-modal-preview/sw-product-stream-modal-preview.spec.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-modal-preview/tests/sw-product-stream-modal-preview.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 20
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-value/index.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-value/src/sw-product-stream-value.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-value/sw-product-stream-value.custom-field-label.spec.ts": {
+  "src/module/sw-product-stream/component/sw-product-stream-value/tests/sw-product-stream-value.custom-field-label.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-value/sw-product-stream-value.spec.js": {
+  "src/module/sw-product-stream/component/sw-product-stream-value/tests/sw-product-stream-value.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
@@ -9475,7 +9475,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product-stream/page/sw-product-stream-detail/index.js": {
+  "src/module/sw-product-stream/page/sw-product-stream-detail/src/sw-product-stream-detail.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -9483,12 +9483,12 @@
       "count": 1
     }
   },
-  "src/module/sw-product-stream/page/sw-product-stream-detail/sw-product-stream-detail.spec.js": {
+  "src/module/sw-product-stream/page/sw-product-stream-detail/tests/sw-product-stream-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/module/sw-product-stream/page/sw-product-stream-list/index.js": {
+  "src/module/sw-product-stream/page/sw-product-stream-list/src/sw-product-stream-list.js": {
     "filename-rules/not-match": {
       "count": 1
     }

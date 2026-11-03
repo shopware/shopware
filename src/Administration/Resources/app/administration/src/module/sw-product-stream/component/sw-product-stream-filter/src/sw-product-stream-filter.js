@@ -1,5 +1,6 @@
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
+import { aclService } from '../dependencies';
 
 const { EntityDefinition } = Shopware;
 
@@ -15,7 +16,7 @@ export default {
         'insertNodeIntoTree',
         'removeNodeFromTree',
         'productCustomFields',
-        'acl',
+        aclService,
         'conditionDataProviderService',
     ],
 

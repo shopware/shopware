@@ -1,9 +1,16 @@
-import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
+import {
+    Criteria,
+    getApiContext,
+    getAppContext,
+    getCurrencyFilter,
+    getStockColorVariantFilter,
+    productStreamPreviewService,
+    repositoryFactoryService,
+    shuffle,
+} from '../dependencies';
 
-const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
 const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**
@@ -13,7 +20,7 @@ const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e2688
 export default {
     template,
 
-    inject: ['repositoryFactory', 'productStreamPreviewService'],
+    inject: [repositoryFactoryService, productStreamPreviewService],
 
     emits: ['modal-close'],
 
@@ -52,7 +59,7 @@ export default {
             sorting: this.defaultSorting,
             isLoading: false,
             selectedCurrencyIsoCode: 'EUR',
-            selectedCurrencyId: Context.app.systemCurrencyId,
+            selectedCurrencyId: getAppContext().systemCurrencyId,
         };
     },
 
@@ -119,11 +126,11 @@ export default {
         },
 
         currencyFilter() {
-            return Shopware.Filter.getByName('currency');
+            return getCurrencyFilter();
         },
 
         stockColorVariantFilter() {
-            return Shopware.Filter.getByName('stockColorVariant');
+            return getStockColorVariantFilter();
         },
     },
 
@@ -263,7 +270,7 @@ export default {
             criteria.addAssociation('currency');
 
             return this.salesChannelRepository
-                .get(this.selectedSalesChannel, Shopware.Context.api, this.salesChannelCriteria)
+                .get(this.selectedSalesChannel, getApiContext(), this.salesChannelCriteria)
                 .then((salesChannel) => {
                     this.selectedCurrencyIsoCode = salesChannel.currency.isoCode;
                     this.selectedCurrencyId = salesChannel.currencyId;

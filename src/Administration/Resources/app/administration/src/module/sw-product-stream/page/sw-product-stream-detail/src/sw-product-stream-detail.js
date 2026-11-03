@@ -1,11 +1,22 @@
-import { computed } from 'vue';
-
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
-
-const { Mixin, Context } = Shopware;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    computed,
+    Criteria,
+    customFieldDataProviderService,
+    discardDetailPageChangesMixin,
+    getApiContext,
+    getAppContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    productStreamConditionService,
+    productTypeService,
+    publishData,
+    repositoryFactoryService,
+    swInlineSnippetMixin,
+} from '../dependencies';
 
 /**
  * @sw-package inventory
@@ -15,11 +26,11 @@ export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'productStreamConditionService',
-        'acl',
-        'customFieldDataProviderService',
-        'productTypeService',
+        repositoryFactoryService,
+        productStreamConditionService,
+        aclService,
+        customFieldDataProviderService,
+        productTypeService,
     ],
 
     provide() {
@@ -40,10 +51,10 @@ export default {
     },
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('productStream'),
-        Mixin.getByName('sw-inline-snippet'),
+        placeholderMixin,
+        notificationMixin,
+        discardDetailPageChangesMixin('productStream'),
+        swInlineSnippetMixin,
     ],
 
     shortcuts: {
@@ -132,7 +143,7 @@ export default {
         },
 
         isSystemLanguage() {
-            return this.languageId === Context.api.systemLanguageId;
+            return this.languageId === getApiContext().systemLanguageId;
         },
 
         nameRequired() {
@@ -146,7 +157,7 @@ export default {
         },
 
         productStreamIndexingEnabled() {
-            return Context.app.productStreamIndexingEnabled ?? true;
+            return getAppContext().productStreamIndexingEnabled ?? true;
         },
 
         deprecatedFiltersInUse() {
@@ -181,12 +192,12 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-product-stream-detail__productStream',
                 path: 'productStream',
                 scope: this,
             });
-            this.languageId = Context.api.languageId;
+            this.languageId = getApiContext().languageId;
 
             const promises = [this.loadCustomFieldSets(), this.loadProductTypes()];
 
@@ -213,15 +224,15 @@ export default {
 
         createProductStream() {
             this.getProductCustomFields().then(() => {
-                Context.api.languageId = Context.api.systemLanguageId;
-                this.productStream = this.productStreamRepository.create(Context.api);
+                getApiContext().languageId = getApiContext().systemLanguageId;
+                this.productStream = this.productStreamRepository.create(getApiContext());
                 this.productStream.displayAsGroup = true;
                 this.productStreamFilters = this.productStream.filters;
             });
         },
 
         loadEntityData(productStreamId) {
-            return this.productStreamRepository.get(productStreamId, Context.api).then((productStream) => {
+            return this.productStreamRepository.get(productStreamId, getApiContext()).then((productStream) => {
                 this.productStream = productStream;
                 return this.loadFilters();
             });
@@ -232,7 +243,7 @@ export default {
                 const filterCriteria = new Criteria(1, 25);
                 filterCriteria.addFilter(Criteria.equals('productStreamId', this.productStreamId));
 
-                return this.productStreamFiltersRepository.search(filterCriteria, Context.api).then((productFilter) => {
+                return this.productStreamFiltersRepository.search(filterCriteria, getApiContext()).then((productFilter) => {
                     return this.loadFilters(productFilter);
                 });
             }
@@ -283,7 +294,7 @@ export default {
                 this.isLoading = true;
 
                 return this.productStreamRepository
-                    .clone(this.productStream.id, behavior, Shopware.Context.api)
+                    .clone(this.productStream.id, behavior, getApiContext())
                     .then((clone) => {
                         const route = {
                             name: 'sw.product.stream.detail',
@@ -324,7 +335,7 @@ export default {
             }
 
             return this.productStreamRepository
-                .save(this.productStream, Context.api)
+                .save(this.productStream, getApiContext())
                 .then(this.syncProductStreamFilters)
                 .then(() => {
                     return this.loadEntityData(this.productStream.id);
@@ -346,14 +357,14 @@ export default {
         },
 
         saveProductStream() {
-            return this.productStreamRepository.save(this.productStream, Context.api);
+            return this.productStreamRepository.save(this.productStream, getApiContext());
         },
 
         syncProductStreamFilters() {
-            return this.productStreamFiltersRepository.sync(this.productStreamFiltersTree, Context.api).then(() => {
+            return this.productStreamFiltersRepository.sync(this.productStreamFiltersTree, getApiContext()).then(() => {
                 if (this.deletedProductStreamFilters.length > 0) {
                     return this.productStreamFiltersRepository
-                        .syncDeleted(this.deletedProductStreamFilters, Context.api)
+                        .syncDeleted(this.deletedProductStreamFilters, getApiContext())
                         .then(() => {
                             this.deletedProductStreamFilters = [];
                         });
@@ -380,13 +391,13 @@ export default {
             customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'));
 
             const loadingPromises = [];
-            return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+            return this.customFieldSetRepository.search(customFieldsCriteria, getApiContext()).then((customFieldSets) => {
                 const singleCriteria = new Criteria(1, null);
                 singleCriteria.addAssociation('customFields').addAssociation('relations');
 
                 customFieldSets.forEach((customFieldSet) => {
                     loadingPromises.push(
-                        this.customFieldSetRepository.get(customFieldSet.id, Context.api, singleCriteria).then((set) => {
+                        this.customFieldSetRepository.get(customFieldSet.id, getApiContext(), singleCriteria).then((set) => {
                             const customFields = set.customFields.reduce((acc, customField) => {
                                 acc[customField.name] = this.mapCustomFieldType({
                                     type: customField.type,

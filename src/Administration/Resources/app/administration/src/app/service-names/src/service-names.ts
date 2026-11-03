@@ -623,6 +623,16 @@ export const productStreamConditionService = 'productStreamConditionService';
 export const productStreamPreviewService = 'productStreamPreviewService';
 
 /**
+ * The name the productTypeService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [productTypeService] };
+ *
+ * @public
+ */
+export const productTypeService = 'productTypeService';
+
+/**
  * The name the recentlySearchService service is registered and injected under.
  *
  * @example

@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
 import { findImports, findRegistration } from './find-registration';
+import { markPublic } from './mark-public';
 import { renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
 
 const adminRoot = path.resolve(__dirname, '../../..');
@@ -110,27 +111,6 @@ const addImport = (source: string, specifier: string) => {
     const at = imports.length > 0 ? imports[imports.length - 1].index + imports[imports.length - 1][0].length + 1 : 0;
 
     return `${source.slice(0, at)}import '${specifier}';\n${source.slice(at)}`;
-};
-
-/**
- * Marks the component's export `@public`, because index.ts exposes it through `load`.
- * A `@private` tag it had before becomes `@public`, so the export never carries both.
- */
-const markPublic = (source: string) => {
-    const withoutSuppression = source.replace(
-        /^\/\/ eslint-disable-next-line sw-deprecation-rules\/private-feature-declarations\n(?=export default)/m,
-        '',
-    );
-    const docComment = /^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(?=export default)/m.exec(withoutSuppression);
-    if (docComment && /^ \* @private$/m.test(docComment[1])) {
-        const marked = docComment[0].replace(/^ \* @private$/m, ' * @public');
-        return withoutSuppression.replace(docComment[0], marked);
-    }
-
-    return withoutSuppression.replace(
-        /^(\/\*\*(?:(?!\*\/)[\s\S])*?)\n \*\/\n(export default)/m,
-        '$1\n *\n * @public\n */\n$2',
-    );
 };
 
 const SCRIPT_EXTENSION = /\.[jt]s$/;
@@ -405,7 +385,10 @@ register.ts only publishes the module, so there is no global.d.ts, and the publi
 };
 
 function printSweepChecklist(root: string, name: string, packageName: string, api: ComponentApi, shape: Shape) {
-    const outside = findLines(path.join(adminRoot, root, 'src'), /Shopware\.|= Shopware;|inject:|getByName\(|from 'src\//);
+    const outside = findLines(
+        path.join(adminRoot, root, 'src'),
+        /Shopware\.|= Shopware;|inject:|getByName\(|(from|import) 'src\//,
+    );
 
     console.log(`# Sweep ${root}
 

@@ -306,6 +306,12 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Product sorting criteria list custom fields of all product custom field sets
+
+The custom field selection of the product sorting criteria grid (`sw-settings-listing-option-criteria-grid`) loads the custom fields with one request filtered by `customFieldSet.relations.entityName`.
+It no longer stops at the first 25 custom field sets related to products.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method are deprecated and no longer used by the component, so overriding them has no effect anymore.
+
 ### CMS layout overview places the page type navigation in a grid
 
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.

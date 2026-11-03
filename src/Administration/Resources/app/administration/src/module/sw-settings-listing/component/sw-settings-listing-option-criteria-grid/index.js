@@ -56,6 +56,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
         customFieldSetRelationsRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-criteria-grid.customFieldSetRelationsRepository is deprecated.',
+            );
+
             return this.repositoryFactory.create('custom_field_set_relation');
         },
 
@@ -75,6 +80,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
         customFieldsRelationsCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-criteria-grid.customFieldsRelationsCriteria is deprecated.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('entityName', 'product'));
@@ -224,6 +234,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
         fetchCustomFieldSetIds() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-criteria-grid.fetchCustomFieldSetIds() is deprecated.',
+            );
+
             return this.customFieldSetRelationsRepository.search(this.customFieldsRelationsCriteria).then((response) => {
                 this.customFieldSetIDs = response.map((currentField) => {
                     return currentField.customFieldSetId;

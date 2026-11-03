@@ -62,44 +62,22 @@ src/Administration/Resources/app/administration/extension-tooling/eslint.mjs @sh
 # ctrl-alt-elite
 src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 
-# checkout: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
-# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
+# mini-modules: generated from src/Administration/Resources/app/administration/mini-module-owners.json by `composer admin:generate-mini-module-owners`
+# A change to the public API (`index.ts`), the requirements, the regressions or the public-api tests needs the owning team.
 # Changes to `src/` and to pinned tests do not.
-src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.ts @shopware/product-cc-checkout
-src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/global.d.ts @shopware/product-cc-checkout
-src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/requirements.spec.ts @shopware/product-cc-checkout
-src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/public-api.spec.ts @shopware/product-cc-checkout
-src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/regressions.spec.ts @shopware/product-cc-checkout
+? src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/index.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/global.d.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/tests/requirements.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/tests/regressions.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/tests/public-api.spec.ts @shopware/product-cc-discovery
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/requirements.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/regressions.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/public-api.spec.ts @shopware/product-cc-checkout
-
-# discovery: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
-# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
-# Changes to `src/` and to pinned tests do not.
-src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/index.ts @shopware/product-cc-discovery
-src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/global.d.ts @shopware/product-cc-discovery
-src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-collapse/tests/requirements.spec.ts @shopware/product-cc-discovery
-
-# framework: Administration mini-modules (same rules as above)
-src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.ts @shopware/product-cc-framework
-src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/global.d.ts @shopware/product-cc-framework
-src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/tests/requirements.spec.ts @shopware/product-cc-framework
-
-# inventory: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
-# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
-# Changes to `src/` and to pinned tests do not.
-src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.ts @shopware/product-cc-inventory
-src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/global.d.ts @shopware/product-cc-inventory
-src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/tests/requirements.spec.ts @shopware/product-cc-inventory
-
-# framework: Administration mini-modules
-src/Administration/Resources/app/administration/src/module/sw-settings-services/component/sw-settings-services-service-card/index.ts @shopware/product-cc-framework
-src/Administration/Resources/app/administration/src/module/sw-settings-services/component/sw-settings-services-service-card/tests/requirements.spec.ts @shopware/product-cc-framework
-
-# after-sales: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
-src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/index.ts @shopware/product-cc-after-sales
-src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/global.d.ts @shopware/product-cc-after-sales
-src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/tests/requirements.spec.ts @shopware/product-cc-after-sales
-src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/tests/public-api.spec.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/global.d.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/requirements.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/regressions.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/tests/public-api.spec.ts @shopware/product-cc-checkout
+# end of the generated mini-modules

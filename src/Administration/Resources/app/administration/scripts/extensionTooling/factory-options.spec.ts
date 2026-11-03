@@ -80,6 +80,9 @@ describe('extension-tooling eslint factory host options', () => {
             'error',
         );
         expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'no-restricted-imports')).toBe('error');
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'plugin-rules/no-private-components')).toBe(
+            'warn',
+        );
         expect(ruleSeverity(blocks, 'shopware/admin-extension/api-boundary', '@typescript-eslint/no-deprecated')).toBe(
             'error',
         );
@@ -221,6 +224,9 @@ describe('extension-tooling eslint factory host options', () => {
         expect(blocks.map((block) => block.name)).toContain('shopware/admin-extension/runtime-contract');
         expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'plugin-rules/no-src-imports')).toBe('off');
         expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'no-restricted-imports')).toBe('off');
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'plugin-rules/no-private-components')).toBe(
+            'off',
+        );
         expect(ruleSeverity(blocks, 'shopware/admin-extension/api-boundary', '@typescript-eslint/no-deprecated')).toBe(
             'error',
         );

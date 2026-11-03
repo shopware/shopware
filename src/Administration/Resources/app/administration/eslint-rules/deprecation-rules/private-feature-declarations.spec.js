@@ -148,7 +148,10 @@ export default definePublicComponent({ name: 'sw-example', load: () => import('.
 describe('private-feature-declarations in mini-modules', () => {
     beforeEach(() => {
         jest.spyOn(fs, 'existsSync').mockImplementation(
-            (file) => /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) || realExistsSync(file),
+            (file) =>
+                /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) ||
+                /(^|\/)src\/core\/example-module\/src\/example-card\/(private\.ts|src|tests)$/.test(file) ||
+                realExistsSync(file),
         );
         jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...options) =>
             /src\/core\/example-module\/index\.ts$/.test(file) ? exampleIndex : realReadFileSync(file, ...options),
@@ -204,6 +207,22 @@ describe('private-feature-declarations in mini-modules', () => {
                 `,
             },
             {
+                name: 'The private.ts of a nested module declares its component @private',
+                filename: `${moduleRoot}/src/example-card/private.ts`,
+                code: `
+                    /** @private */
+                    export default definePrivateComponent({ load: () => import('./src/example-card') });
+                `,
+            },
+            {
+                name: 'The component of a nested module is @private, because nothing exposes it publicly',
+                filename: `${moduleRoot}/src/example-card/src/example-card.js`,
+                code: `
+                    /** @private */
+                    export default {};
+                `,
+            },
+            {
                 name: 'The exports of dependencies.ts are @private',
                 filename: `${moduleRoot}/dependencies.ts`,
                 code: `
@@ -225,6 +244,15 @@ describe('private-feature-declarations in mini-modules', () => {
                 code: `
                     /** @private */
                     export { helper } from './src/helper';
+                `,
+                errors: 1,
+            },
+            {
+                name: 'The component of a nested module marked @public',
+                filename: `${moduleRoot}/src/example-card/src/example-card.js`,
+                code: `
+                    /** @public */
+                    export default {};
                 `,
                 errors: 1,
             },

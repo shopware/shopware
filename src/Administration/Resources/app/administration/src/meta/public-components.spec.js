@@ -8,10 +8,10 @@ import { globSync } from 'glob';
 import { findMissingPublicNames } from 'src/core/public-component/private';
 import componentImports from '../../test/_helper_/componentWrapper/component-imports';
 
-/** The index.ts of every mini-module that declares a component. */
+/** The index.ts of every mini-module that declares a component, and the private.ts of every nested one. */
 // eslint-disable-next-line no-undef -- adminPath is a global of the Jest environment
-const declarations = globSync(path.join(adminPath, 'src/**/index.ts')).filter((file) =>
-    fs.readFileSync(file, 'utf-8').includes('definePublicComponent('),
+const declarations = globSync(path.join(adminPath, 'src/**/{index,private}.ts')).filter((file) =>
+    /define(Public|Private)Component\(/.test(fs.readFileSync(file, 'utf-8')),
 );
 
 /**
@@ -45,7 +45,8 @@ describe('public components', () => {
                 const extended = { ...component, extends: await loadBase(declaration.extends) };
 
                 return findMissingPublicNames(declaration.public ?? {}, extended).map(
-                    (name) => `${declaration.name} ${name}`,
+                    // eslint-disable-next-line no-undef -- adminPath is a global of the Jest environment
+                    (name) => `${declaration.name ?? path.relative(adminPath, file)} ${name}`,
                 );
             }),
         );

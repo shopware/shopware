@@ -10,7 +10,13 @@ describe('findRegistration', () => {
         const registration = findRegistration(source, 'sw-a');
 
         // ASSERT
-        expect(registration).toEqual({ kind: 'register', specifier: './component/sw-a', start: 16, end: 87 });
+        expect(registration).toEqual({
+            kind: 'register',
+            specifier: './component/sw-a',
+            isPrivate: false,
+            start: 16,
+            end: 87,
+        });
         expect(source.slice(0, registration?.start) + source.slice(registration?.end)).toBe(
             "import './acl';\nconst x = 1;\n",
         );
@@ -35,6 +41,7 @@ Shopware.Component.register('sw-other', () => import('./component/sw-other'));
         expect(registration).toMatchObject({
             kind: 'register',
             specifier: './component/product/sw-bulk-edit-product-visibility',
+            isPrivate: true,
         });
         expect(source.slice(0, registration?.start) + source.slice(registration?.end)).toBe(
             "Shopware.Component.register('sw-other', () => import('./component/sw-other'));\n",
@@ -58,6 +65,7 @@ Shopware.Component.register('sw-other', () => import('./component/sw-other'));
             kind: 'extend',
             base: 'sw-settings-logging-entry-info',
             specifier: './component/sw-settings-logging-mail-sent-info',
+            isPrivate: false,
             start: 0,
             end: source.length,
         });

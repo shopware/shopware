@@ -79,7 +79,10 @@ describe('scripts/generate-shopware-modules', () => {
         }
 
         it('publishes each mini-module under its kind and directory name, with the value exports of its index.ts', () => {
-            expect(registry['shopware:framework'].subpaths['public-component']).toEqual(['definePublicComponent']);
+            expect(registry['shopware:framework'].subpaths['public-component']).toEqual([
+            'definePrivateComponent',
+            'definePublicComponent',
+        ]);
             expect(registry['shopware:framework'].sources?.['public-component']).toBe('src/core/public-component');
         });
 
@@ -142,7 +145,7 @@ describe('scripts/generate-shopware-modules', () => {
             expect(declarations).toContain(
                 [
                     "declare module 'shopware:framework/public-component' {",
-                    "    export { definePublicComponent } from 'src/core/public-component';",
+                    "    export { definePrivateComponent, definePublicComponent } from 'src/core/public-component';",
                     "    export type * from 'src/core/public-component';",
                     '}',
                 ].join('\n'),

@@ -1,4 +1,3 @@
-import 'src/app/component/base/sw-collapse';
 import template from './sw-model-editor-collapse.html.twig';
 import './sw-model-editor-collapse.scss';
 

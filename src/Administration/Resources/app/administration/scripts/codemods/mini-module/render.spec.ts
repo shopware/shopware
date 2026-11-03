@@ -14,14 +14,14 @@ const api: ComponentApi = {
 describe('render', () => {
     it('writes the entry files of a registered component', () => {
         // ARRANGE
-        const target: Target = { name: 'sw-card', packageName: 'framework', shape: { kind: 'register' } };
+        const target: Target = { name: 'sw-card', packageName: 'framework', shape: { kind: 'register', isPrivate: false } };
 
         // ACT
         const files = [
             renderIndex(target, api),
             renderRegister(target),
             renderGlobalTypes(target),
-            renderPrivate(target),
+            renderPrivate(target, api),
         ];
 
         // ASSERT
@@ -40,7 +40,7 @@ describe('render', () => {
         const target: Target = {
             name: 'sw-media-collapse',
             packageName: 'discovery',
-            shape: { kind: 'extend', base: 'sw-collapse' },
+            shape: { kind: 'extend', base: 'sw-collapse', isPrivate: false },
         };
 
         // ACT
@@ -48,7 +48,7 @@ describe('render', () => {
             renderIndex(target, api),
             renderRegister(target),
             renderGlobalTypes(target),
-            renderPrivate(target),
+            renderPrivate(target, api),
         ];
 
         // ASSERT
@@ -63,31 +63,67 @@ describe('render', () => {
         expect(files[3]).toBeNull();
     });
 
-    it('writes the entry files of a component that its parent imports, without a global name', () => {
+    it('writes only a private.ts for a component that its parent imports, without a global name', () => {
         // ARRANGE
-        const target: Target = { name: 'sw-card', packageName: 'framework', shape: { kind: 'local' } };
+        const target: Target = {
+            name: 'sw-card',
+            packageName: 'framework',
+            shape: { kind: 'nested', parent: 'src/module/sw-x/page/sw-x-index' },
+        };
 
         // ACT
         const files = [
             renderIndex(target, api),
             renderRegister(target),
             renderGlobalTypes(target),
-            renderPrivate(target),
+            renderPrivate(target, api),
         ];
 
         // ASSERT
-        expect(files[0]).toContain("props: [\n            'title',\n        ],");
-        expect(files[0]).not.toContain('methods:');
-        expect(files[0]).not.toContain('blocks:');
-        expect(files[1]).toBe(`import * as Module from './index';
+        expect(files.slice(0, 3)).toEqual([
+            null,
+            null,
+            null,
+        ]);
+        expect(files[3]).toContain("import { definePrivateComponent } from 'src/core/public-component';");
+        expect(files[3]).toContain(
+            "/** @private */\nexport default definePrivateComponent({\n    name: 'sw-card',\n    load: () => import('./src/sw-card'),",
+        );
+        expect(files[3]).toContain("props: [\n            'title',\n        ],");
+        expect(files[3]).not.toContain('methods:');
+    });
+
+    it('writes a private.ts, register.ts and private global.d.ts for a component registered @private', () => {
+        // ARRANGE
+        const target: Target = {
+            name: 'sw-cms-detail',
+            packageName: 'discovery',
+            shape: { kind: 'extend', base: 'sw-cms-base', isPrivate: true },
+        };
+
+        // ACT
+        const files = [
+            renderIndex(target, api),
+            renderRegister(target),
+            renderGlobalTypes(target),
+            renderPrivate(target, api),
+        ];
+
+        // ASSERT
+        expect(files[0]).toBeNull();
+        expect(files[1]).toBe(`import Component from './private';
 
 /**
- * @sw-package framework
+ * @sw-package discovery
  */
 
-Shopware._private.publish('components', 'sw-card', Module);
+Shopware.Component.extend(Component);
 `);
-        expect(files[2]).toBeNull();
-        expect(files[3]).toContain("/** @private */\nexport { default } from './src/sw-card';");
+        expect(files[2]).toContain("import type Component from './private';");
+        expect(files[2]).toContain("interface PrivateComponents {\n        'sw-cms-detail': typeof Component;");
+        expect(files[3]).toContain(
+            "export default definePrivateComponent({\n    name: 'sw-cms-detail',\n    extends: 'sw-cms-base',\n    load:",
+        );
+        expect(files[3]).toContain("methods: [\n            'save',\n        ],");
     });
 });

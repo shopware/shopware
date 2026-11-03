@@ -57,6 +57,22 @@ describe('extension-tooling type surface', () => {
         expect(notImported).toEqual([]);
     });
 
+    it('leaves the private components out, so an extension program types their names loosely', () => {
+        const surface = ['admin-types.d.ts', 'mini-modules.d.ts']
+            .map((file) => fs.readFileSync(path.join(adminRoot, 'extension-tooling', file), 'utf8'))
+            .join('\n');
+
+        // A private module's global.d.ts adds its name to PrivateComponents; with none of them in the surface,
+        // `Component.override()` falls back to the untyped configuration for every private name.
+        const privateTypes = (fs.readdirSync(srcDir, { recursive: true }) as string[])
+            .filter((file) => path.basename(file) === 'global.d.ts')
+            .filter((file) => fs.readFileSync(path.join(srcDir, file), 'utf8').includes('interface PrivateComponents'))
+            .map((file) => `src/${toPosix(file).replace(/\.d\.ts$/, '')}`)
+            .filter((specifier) => surface.includes(`'../${specifier}'`));
+
+        expect(privateTypes).toEqual([]);
+    });
+
     it('declares a shopware:<kind> module for every mini-module so extensions can import its index.ts', () => {
         const declarations = fs.readFileSync(path.join(srcDir, 'shopware-virtual-modules.d.ts'), 'utf8');
 

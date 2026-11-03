@@ -1,4 +1,11 @@
-import { definePublicComponent, type PublicInstance, type PublicOverride } from '../index';
+import {
+    definePrivateComponent,
+    definePublicComponent,
+    type PrivateInstance,
+    type PublicComponent,
+    type PublicInstance,
+    type PublicOverride,
+} from '../index';
 
 /**
  * @sw-package framework
@@ -98,6 +105,54 @@ describe('public-component types', () => {
         expect(SwExample.public?.methods).toEqual(['save']);
         expect(saved).toBe(true);
         expect(secret).toBeUndefined();
+    });
+
+    it('rejects a name a private component does not have, also without a component name', () => {
+        // ACT
+        const declaration = definePrivateComponent({
+            load: () => Promise.resolve({ default: { props: { service: { type: Object } } } }),
+            // @ts-expect-error 'servce' is not a prop of the component
+            public: { props: ['servce'] },
+        });
+
+        // ASSERT
+        expect(declaration.name).toBeUndefined();
+    });
+
+    it('types the private instance with the listed members only', () => {
+        // ARRANGE
+        const SwPrivateExample = definePrivateComponent({
+            name: 'sw-private-example',
+            load: SwExample.load,
+            public: { props: ['label'], methods: ['save'] },
+        });
+
+        // ACT
+        const instance = { label: 'Label', save: (force: boolean) => force } satisfies PrivateInstance<
+            typeof SwPrivateExample
+        >;
+        // @ts-expect-error title is not listed
+        const title: PrivateInstance<typeof SwPrivateExample>['title'] = undefined;
+
+        // ASSERT
+        expect(SwPrivateExample.name).toBe('sw-private-example');
+        expect(instance.save(true)).toBe(true);
+        expect(title).toBeUndefined();
+    });
+
+    it('keeps the name and base of a registered private component, so register.ts can register or extend it', () => {
+        // ACT
+        const declaration = definePrivateComponent({
+            name: 'sw-private-detail',
+            extends: 'sw-example',
+            load: () => Promise.resolve({ default: { methods: { save(): void {} } } }),
+            public: { methods: ['save', 'inheritedReset'] },
+        });
+        const registrable: PublicComponent & { extends: string } = declaration;
+
+        // ASSERT
+        expect(registrable.name).toBe('sw-private-detail');
+        expect(registrable.extends).toBe('sw-example');
     });
 
     it('lets an override replace public members and add its own, but not replace private ones', () => {

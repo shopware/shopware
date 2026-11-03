@@ -55,6 +55,7 @@
     "./scripts/codemods/**/*.ts",
     "./scripts/extensionTooling/**/*.ts",
     "./scripts/generate-shopware-modules/**/*.ts",
+    "./scripts/mini-module-owners/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",
     "./twigVuePlugin/**/*.ts"

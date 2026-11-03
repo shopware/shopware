@@ -1025,7 +1025,7 @@ declare module 'shopware:components/sw-settings-shipping-price-matrix' {
 
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:framework/public-component' {
-    export { definePublicComponent } from 'src/core/public-component';
+    export { definePrivateComponent, definePublicComponent } from 'src/core/public-component';
     export type * from 'src/core/public-component';
 }
 

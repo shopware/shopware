@@ -339,10 +339,12 @@ function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
 }
 
 /**
+ * @private
+ *
  * Every mini-module below `src/`: a directory with an `index.ts`, its own `src/` and `tests/`, as
  * `eslint-rules/core-rules/mini-module.js` defines it. Paths are relative to the Administration root.
  */
-function findMiniModules(administrationRoot: string): string[] {
+export function findMiniModules(administrationRoot: string): string[] {
     const srcDir = path.join(administrationRoot, 'src');
 
     return (fs.readdirSync(srcDir, { recursive: true }) as string[])

@@ -5,8 +5,14 @@
 const path = require('path');
 const { findMiniModule, readPublicMembers } = require('../core-rules/mini-module');
 
-/** The spec of a mini-module that pins public members no user path reaches, so it may read them through `.vm`. */
-const PUBLIC_API_SPEC = /(^|\/)public-api\.spec\.[jt]s$/;
+/**
+ * The specs of a mini-module that pin members no user path reaches, so they may read them through `.vm`:
+ * `public-api` for those `index.ts` lists, `private-api` for those the `private.ts` of a nested module lists.
+ */
+const API_SPECS = [
+    { file: /(^|\/)public-api\.spec\.[jt]s$/, spec: 'public-api', entry: 'index.ts' },
+    { file: /(^|\/)private-api\.spec\.[jt]s$/, spec: 'private-api', entry: 'private.ts' },
+];
 
 const CHILD_LOOKUPS = ['findComponent', 'findAllComponents', 'getComponent'];
 
@@ -66,27 +72,28 @@ module.exports = {
         type: 'problem',
         docs: {
             description:
-                "Disallow reaching into component instances through `.vm` in tests, except for the public members in a mini-module's public-api spec",
+                "Disallow reaching into component instances through `.vm` in tests, except for the listed members in a mini-module's public-api or private-api spec",
         },
         schema: [],
         messages: {
             vmAccess: 'Test what the user sees. `.vm` reaches into component internals.',
-            notPublic: '`{{member}}` is not public. A public-api spec reads only the members index.ts lists: {{allowed}}.',
-            childAccess: "A public-api spec reads the public members of its module's component only, not of a child.",
+            notPublic: '`{{member}}` is not listed. A {{spec}} spec reads only the members {{entry}} lists: {{allowed}}.',
+            childAccess: "A {{spec}} spec reads the listed members of its module's component only, not of a child.",
             notARead:
-                'A public-api spec reads one public member at a time and never writes it, as in `wrapper.vm.{{example}}`. Arrange state through the harness or `setProps()`.',
+                'A {{spec}} spec reads one listed member at a time and never writes it, as in `wrapper.vm.{{example}}`. Arrange state through the harness or `setProps()`.',
         },
     },
 
     create(context) {
         const filename = (context.filename ?? context.getFilename()).split('\\').join('/');
+        const apiSpec = API_SPECS.find(({ file }) => file.test(filename));
         let publicMembers = null;
 
-        if (PUBLIC_API_SPEC.test(filename)) {
+        if (apiSpec) {
             const cwd = context.cwd ?? process.cwd();
             const relative = path.relative(cwd, path.resolve(cwd, filename)).split(path.sep).join('/');
             const miniModule = findMiniModule(relative, cwd);
-            const lists = miniModule?.part === 'tests' ? readPublicMembers(miniModule.root, cwd) : null;
+            const lists = miniModule?.part === 'tests' ? readPublicMembers(miniModule.root, cwd, apiSpec.entry) : null;
             publicMembers = new Set(lists ? Object.values(lists).flat() : []);
         }
 
@@ -102,7 +109,7 @@ module.exports = {
                 }
 
                 if (isOnChildLookup(node)) {
-                    context.report({ node, messageId: 'childAccess' });
+                    context.report({ node, messageId: 'childAccess', data: apiSpec });
                     return;
                 }
 
@@ -111,7 +118,7 @@ module.exports = {
                     context.report({
                         node,
                         messageId: 'notARead',
-                        data: { example: [...publicMembers][0] ?? '<public member>' },
+                        data: { ...apiSpec, example: [...publicMembers][0] ?? '<listed member>' },
                     });
                     return;
                 }
@@ -120,7 +127,7 @@ module.exports = {
                     context.report({
                         node: node.parent,
                         messageId: 'notPublic',
-                        data: { member, allowed: [...publicMembers].join(', ') || 'none' },
+                        data: { ...apiSpec, member, allowed: [...publicMembers].join(', ') || 'none' },
                     });
                 }
             },

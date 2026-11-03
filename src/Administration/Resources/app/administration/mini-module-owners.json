@@ -1,0 +1,5 @@
+{
+    "src/module/sw-media/component/sw-media-collapse": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices": "@shopware/product-cc-checkout",
+    "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix": "@shopware/product-cc-checkout"
+}

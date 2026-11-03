@@ -62,15 +62,16 @@ export function findRegistrations(source: string): Registrations {
 }
 
 /**
- * Reads the component name from a mini-module's `index.ts`, which declares it with `definePublicComponent()`.
- * Returns null when the module is no component.
+ * Reads the component name from a mini-module's `index.ts`, which declares it with `definePublicComponent()`,
+ * or from the `private.ts` of a registered private module, which uses `definePrivateComponent()`.
+ * Returns null when the module is no component, or a nested one without a name.
  *
  * @example
  * findPublicComponentName("export default definePublicComponent({ name: 'sw-example', load: ... });");
  * // → 'sw-example'
  */
 export function findPublicComponentName(indexSource: string): string | null {
-    return /definePublicComponent\(\s*\{[\s\S]*?\bname:\s*(['"])([^'"]+)\1/.exec(indexSource)?.[2] ?? null;
+    return /define(?:Public|Private)Component\(\s*\{[\s\S]*?\bname:\s*(['"])([^'"]+)\1/.exec(indexSource)?.[2] ?? null;
 }
 
 /**

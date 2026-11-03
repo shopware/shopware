@@ -8,12 +8,13 @@ const { parse } = require('@typescript-eslint/parser');
 
 /**
  * The spec files in a mini-module's `tests/` that test what other code sees, so they import only `../index`.
+ * A nested private module's specs reach it through a harness that imports `../private`.
  *
  * @example
  * CONTRACT_SPEC.test('src/core/order/primary-delivery/tests/pinned.spec.ts') // → true
  * CONTRACT_SPEC.test('src/core/order/primary-delivery/tests/pinned.spec/search.spec.ts') // → true, a split spec
  */
-const CONTRACT_SPEC = /(^|\/)(requirements|pinned|regressions|public-api)\.spec(\/[^/]+\.spec)?\.[jt]s$/;
+const CONTRACT_SPEC = /(^|\/)(requirements|pinned|regressions|public-api|private-api)\.spec(\/[^/]+\.spec)?\.[jt]s$/;
 
 /**
  * The kinds of members a `public` list of `definePublicComponent()` names, that a component instance carries.
@@ -27,9 +28,26 @@ const INSTANCE_MEMBER_KINDS = [
 ];
 
 /**
- * Finds the mini-module a path belongs to and the part of it the path points at.
- * A mini-module is a directory below the Administration `src/` with an `index.ts`, its own `src/` and `tests/`,
- * and optionally a `private.ts`, `register.ts` and `dependencies.ts`.
+ * Whether a directory is a mini-module: below the Administration `src/`, with its own `src/` and `tests/`,
+ * and an `index.ts`, or only a `private.ts` for a nested private module.
+ *
+ * @param {string} directory - posix path relative to `cwd`
+ * @param {string} cwd - the Administration root
+ * @returns {boolean}
+ */
+function isMiniModuleRoot(directory, cwd) {
+    return (
+        directory.startsWith('src/') &&
+        ['index.ts', 'private.ts'].some((entry) => fs.existsSync(path.join(cwd, directory, entry))) &&
+        ['src', 'tests'].every((folder) => fs.existsSync(path.join(cwd, directory, folder)))
+    );
+}
+
+/**
+ * Finds the innermost mini-module a path belongs to and the part of it the path points at.
+ * A mini-module is a directory below the Administration `src/` with an `index.ts` or only a `private.ts`,
+ * its own `src/` and `tests/`, and optionally a `private.ts`, `register.ts` and `dependencies.ts`.
+ * A nested private module lives in the `src/` of the module that mounts its component.
  *
  * @example
  * findMiniModule('src/core/order/primary-delivery/src/primary-delivery.ts', cwd)
@@ -42,17 +60,36 @@ const INSTANCE_MEMBER_KINDS = [
  * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'register'|'dependencies', rest: string } | null}
  */
 function findMiniModule(relativePath, cwd) {
-    const inside = /^(src\/.+?)\/(src|tests)\/(.+)$/.exec(relativePath);
-    if (inside) {
-        return { root: inside[1], part: inside[2], rest: inside[3] };
-    }
-
     const entry = /^(src\/.+)\/(index|private|register|dependencies)(\.[jt]s)?$/.exec(relativePath);
-    if (entry && fs.existsSync(path.join(cwd, entry[1], 'tests'))) {
+    if (entry && isMiniModuleRoot(entry[1], cwd)) {
         return { root: entry[1], part: entry[2], rest: '' };
     }
 
+    const segments = relativePath.split('/');
+    for (let at = segments.length - 2; at > 0; at -= 1) {
+        const root = segments.slice(0, at).join('/');
+        if (['src', 'tests'].includes(segments[at]) && isMiniModuleRoot(root, cwd)) {
+            return { root, part: segments[at], rest: segments.slice(at + 1).join('/') };
+        }
+    }
+
     return null;
+}
+
+/**
+ * The module whose `src/` holds a nested private module, which is the only code that may import its `private.ts`.
+ *
+ * @example
+ * findEnclosingModule('src/module/sw-x/page/sw-x-index/src/sw-x-card', cwd) // → 'src/module/sw-x/page/sw-x-index'
+ *
+ * @param {string} root - the nested module's root, relative to `cwd`
+ * @param {string} cwd - the Administration root
+ * @returns {string|null}
+ */
+function findEnclosingModule(root, cwd) {
+    const enclosing = findMiniModule(root, cwd);
+
+    return enclosing?.part === 'src' ? enclosing.root : null;
 }
 
 /**
@@ -87,7 +124,8 @@ function findNode(node, matches) {
 }
 
 /**
- * Reads the instance members a mini-module's `index.ts` lists in `definePublicComponent({ public: { … } })`:
+ * Reads the instance members a mini-module's `index.ts` lists in `definePublicComponent({ public: { … } })`,
+ * or its `private.ts` in `definePrivateComponent({ public: { … } })`:
  * the props, computed values, methods and native-setup bindings that other code and extensions may use on the component.
  * Use it to check code against the public API without loading the component.
  *
@@ -97,18 +135,20 @@ function findNode(node, matches) {
  *
  * @param {string} root - the module's root, relative to `cwd`
  * @param {string} cwd - the Administration root
- * @returns {{ props: string[], computed: string[], methods: string[], setup: string[] }} empty lists when index.ts declares none
+ * @param {'index.ts'|'private.ts'} [entry] - the file that declares the component
+ * @returns {{ props: string[], computed: string[], methods: string[], setup: string[] }} empty lists when the file declares none
  */
-function readPublicMembers(root, cwd) {
+function readPublicMembers(root, cwd, entry = 'index.ts') {
     const members = Object.fromEntries(INSTANCE_MEMBER_KINDS.map((kind) => [kind, []]));
-    const index = path.join(cwd, root, 'index.ts');
+    const index = path.join(cwd, root, entry);
     if (!fs.existsSync(index)) {
         return members;
     }
 
     const declaration = findNode(
         parse(fs.readFileSync(index, 'utf-8')),
-        (node) => node.type === 'CallExpression' && node.callee.name === 'definePublicComponent',
+        (node) =>
+            node.type === 'CallExpression' && ['definePublicComponent', 'definePrivateComponent'].includes(node.callee.name),
     );
     const publicApi = declaration?.arguments[0]?.properties?.find((property) => property.key?.name === 'public');
 
@@ -123,4 +163,4 @@ function readPublicMembers(root, cwd) {
     return members;
 }
 
-module.exports = { CONTRACT_SPEC, findMiniModule, readPublicMembers };
+module.exports = { CONTRACT_SPEC, findEnclosingModule, findMiniModule, readPublicMembers };

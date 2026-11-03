@@ -3,11 +3,7 @@ import './component/templates/form-newsletter/register';
 import './component/templates/form-revocation-request/register';
 import './config/register';
 import './preview/register';
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-form', () => import('./component'));
+import './component/register';
 
 /**
  * @private

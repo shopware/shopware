@@ -1,10 +1,20 @@
 import template from './sw-cms-el-config-product-listing.html.twig';
 import './sw-cms-el-config-product-listing.scss';
-
-const { Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
-const { isEmpty } = Shopware.Utils.types;
+import {
+    cloneDeep,
+    cmsElementMixin,
+    Criteria,
+    EntityCollection,
+    featureService,
+    get,
+    getApiContext,
+    getAssetFilter,
+    has,
+    isEmpty,
+    repositoryFactoryService,
+    set,
+    unset,
+} from '../dependencies';
 
 /**
  * @private
@@ -13,14 +23,14 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [repositoryFactoryService, featureService],
 
-    mixins: [Mixin.getByName('cms-element')],
+    mixins: [cmsElementMixin],
 
     data() {
         return {
             activeTab: 'content',
-            productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
+            productSortings: new EntityCollection('/product-sorting', 'product_sorting', getApiContext()),
             defaultSorting: {},
             defaultSortingId: null,
             filters: [],
@@ -187,7 +197,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         boxLayoutOptions() {
@@ -305,7 +315,7 @@ export default {
 
         async initProductSorting() {
             if (Object.keys(this.productSortingsConfigValue).length === 0) {
-                this.productSortings = new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api);
+                this.productSortings = new EntityCollection('/product-sorting', 'product_sorting', getApiContext());
 
                 return;
             }

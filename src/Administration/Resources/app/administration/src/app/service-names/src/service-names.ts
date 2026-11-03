@@ -109,6 +109,16 @@ export const captchaService = 'captchaService';
 export const cartStoreService = 'cartStoreService';
 
 /**
+ * The name the cmsBlockFavorites service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [cmsBlockFavorites] };
+ *
+ * @public
+ */
+export const cmsBlockFavorites = 'cmsBlockFavorites';
+
+/**
  * The name the cmsDataResolverService service is registered and injected under.
  *
  * @example

@@ -6,7 +6,8 @@
 
 import { mount } from '@vue/test-utils';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
-import 'src/app/component/form/sw-text-editor';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-text-editor/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/private';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved

@@ -397,3 +397,5 @@ import '../src/module/sw-users-permissions/page/sw-users-permissions-user-detail
 import '../src/module/sw-users-permissions/page/sw-users-permissions-user-create/global';
 import '../src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed/global';
 import '../src/module/sw-users-permissions/view/sw-users-permissions-role-view-general/global';
+import '../src/module/sw-cms/component/sw-cms-block/global';
+import '../src/module/sw-order/component/sw-order-state-change-modal/global';

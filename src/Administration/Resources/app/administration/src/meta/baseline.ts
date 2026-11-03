@@ -161,7 +161,6 @@ const missingTests = [
     'src/module/sw-media/mixin/media-sidebar-modal.mixin.js',
     'src/module/sw-newsletter-recipient/default-search-configuration.js',
     'src/module/sw-newsletter-recipient/index.js',
-    'src/module/sw-order/component/sw-order-state-change-modal/index.js',
     'src/module/sw-order/default-search-configuration.js',
     'src/module/sw-order/index.js',
     'src/module/sw-order/mixin/cart-notification.mixin.ts',

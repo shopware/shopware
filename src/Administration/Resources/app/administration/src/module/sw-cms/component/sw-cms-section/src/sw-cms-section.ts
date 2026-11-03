@@ -1,9 +1,15 @@
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
-import type CmsVisibility from '../../shared/CmsVisibility';
-
-const { Component, Mixin, Filter } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+import {
+    cmsService,
+    cmsStateMixin,
+    type CmsVisibility,
+    getAssetFilter,
+    mapPropertyErrors,
+    repositoryFactoryService,
+    useCmsPageStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 type SlotsErrorObject = {
     parameters?: {
@@ -25,10 +31,10 @@ type SlotConfigErrorObject = {
  * @private
  * @sw-package discovery
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['cmsService', 'repositoryFactory'],
+    inject: [cmsService, repositoryFactoryService],
 
     provide() {
         return {
@@ -38,7 +44,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['page-config-open', 'block-duplicate'],
 
-    mixins: [Mixin.getByName('cms-state')],
+    mixins: [cmsStateMixin],
 
     props: {
         page: {
@@ -127,7 +133,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         sectionMobileAndHidden() {
-            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
+            const view = useCmsPageStore().currentCmsDeviceView;
             return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
@@ -162,7 +168,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         assetFilter() {
-            return Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         blockTypes() {
@@ -170,7 +176,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVisible() {
-            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
+            const view = useCmsPageStore().currentCmsDeviceView;
 
             const visibility = this.section.visibility as CmsVisibility;
 
@@ -228,7 +234,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onBlockSelection(block: Entity<'cms_block'>) {
-            Shopware.Store.get('cmsPage').setBlock(block);
+            useCmsPageStore().setBlock(block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
@@ -240,7 +246,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.blocks!.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
-                Shopware.Store.get('cmsPage').removeSelectedBlock();
+                useCmsPageStore().removeSelectedBlock();
             }
 
             this.updateBlockPositions();

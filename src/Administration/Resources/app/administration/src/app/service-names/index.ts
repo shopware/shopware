@@ -22,6 +22,7 @@ export {
     cacheService,
     captchaService,
     cartStoreService,
+    cmsBlockFavorites,
     cmsDataResolverService,
     cmsElementFavorites,
     cmsPageTypeService,

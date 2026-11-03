@@ -1,14 +1,26 @@
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
-import { type PageType } from '../../service/cms-page-type.service';
-import type MediaUploadResult from '../../shared/MediaUploadResult';
+import {
+    aclService,
+    cloneDeep,
+    CMS,
+    cmsBlockFavoritesService,
+    cmsPageTypeService,
+    cmsService,
+    cmsStateMixin,
+    Criteria,
+    featureService,
+    getApiContext,
+    mapPropertyErrors,
+    type MediaUploadResult,
+    type PageType,
+    placeholderMixin,
+    repositoryFactoryService,
+    useCmsPageStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
-const { CMS } = Shopware.Constants;
 
 type DraggableBlock = Entity<'cms_block'> & {
     isDragging?: boolean;
@@ -44,18 +56,19 @@ type DropObject = {
 
 /**
  * @sw-package discovery
+ *
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     inject: [
-        'acl',
-        'cmsService',
-        'repositoryFactory',
-        'feature',
-        'cmsBlockFavorites',
-        'cmsPageTypeService',
+        aclService,
+        cmsService,
+        repositoryFactoryService,
+        featureService,
+        cmsBlockFavoritesService,
+        cmsPageTypeService,
     ],
 
     emits: [
@@ -71,7 +84,7 @@ export default Shopware.Component.wrapComponentConfig({
         'open-layout-set-as-default',
     ],
 
-    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('placeholder')],
+    mixins: [cmsStateMixin, placeholderMixin],
 
     props: {
         page: {
@@ -139,7 +152,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsBlocks() {
-            const currentPageType = Shopware.Store.get('cmsPage').currentPageType;
+            const currentPageType = useCmsPageStore().currentPageType;
 
             if (!currentPageType) {
                 return {};
@@ -276,10 +289,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         demoContext() {
             if (this.demoEntity === 'product') {
-                return { ...Shopware.Context.api, inheritance: true };
+                return { ...getApiContext(), inheritance: true };
             }
 
-            return Shopware.Context.api;
+            return getApiContext();
         },
 
         blockTypes() {
@@ -348,7 +361,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseBlockConfig() {
-            const store = Shopware.Store.get('cmsPage');
+            const store = useCmsPageStore();
             store.removeSelectedBlock();
             store.removeSelectedSection();
         },
@@ -366,7 +379,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openSectionSettings(sectionIndex: number) {
-            Shopware.Store.get('cmsPage').setSection(this.page.sections![sectionIndex]);
+            useCmsPageStore().setSection(this.page.sections![sectionIndex]);
 
             const itemConfigSidebar = this.$refs.itemConfigSidebar as {
                 openContent: () => void;
@@ -620,7 +633,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSectionDelete(sectionId: EntityKey<'cms_section'>) {
-            Shopware.Store.get('cmsPage').removeSelectedSection();
+            useCmsPageStore().removeSelectedSection();
             this.page.sections!.remove(sectionId);
         },
 
@@ -637,7 +650,7 @@ export default Shopware.Component.wrapComponentConfig({
             section?.blocks?.remove(block.id);
 
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
-                Shopware.Store.get('cmsPage').removeSelectedBlock();
+                useCmsPageStore().removeSelectedBlock();
             }
         },
 

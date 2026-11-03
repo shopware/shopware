@@ -22,37 +22,13 @@ import './sw-cms-stage-section-selection/register';
 import './sw-cms-toolbar/register';
 import './sw-cms-visibility-config/register';
 import './sw-cms-visibility-toggle/register';
+import './sw-cms-block/register';
+import './sw-cms-section/register';
+import './sw-cms-sidebar/register';
 /*
  * @sw-package discovery
  */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-cms-block', () => import('./sw-cms-block'));
 /*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @private
  * @sw-package discovery
  */
 /*
@@ -68,71 +44,17 @@ Shopware.Component.register('sw-cms-block', () => import('./sw-cms-block'));
  * @sw-package discovery
  */
 /*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-section', () => import('./sw-cms-section'));
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @private
  * @sw-package discovery
  */
 /*
  * @sw-package discovery
  */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
 /*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-cms-sidebar', () => import('./sw-cms-sidebar'));
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
- * @sw-package discovery
- */
-/*
- * @private
  * @sw-package discovery
  */
 /*
  * @sw-package discovery
  */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
-/*
- * @sw-package discovery
- */
-/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
 /*
  * @sw-package discovery
  */

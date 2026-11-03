@@ -275,6 +275,7 @@ import './sidebar/sw-sidebar-collapse/register';
 import 'src/app/component/structure/sw-admin/register';
 import 'src/app/component/utils/sw-help-center/register';
 import 'src/app/component/wizard/sw-wizard-dot-navigation/register';
+import 'src/app/component/form/sw-text-editor/register';
 /**
  * @sw-package framework
  * @private
@@ -296,7 +297,6 @@ export default () => {
     Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
-    Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
     Shopware.Component.register(
         'sw-boolean-radio-group',
         () => import('src/app/component/form/sw-boolean-radio-group/index'),

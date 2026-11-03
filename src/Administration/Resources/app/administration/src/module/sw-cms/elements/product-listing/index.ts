@@ -1,11 +1,7 @@
 import './component/register';
 import './config/components/sw-cms-el-config-product-listing-config-sorting-grid/register';
 import './preview/register';
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register('sw-cms-el-config-product-listing', () => import('./config'));
+import './config/register';
 
 /**
  * @private

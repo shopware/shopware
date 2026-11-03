@@ -56,6 +56,7 @@ import './view/sw-order-create-initial/register';
 import './view/sw-order-detail-details/register';
 import './view/sw-order-detail-documents/register';
 import './view/sw-order-detail-general/register';
+import './component/sw-order-state-change-modal/register';
 
 /**
  * @sw-package checkout
@@ -66,7 +67,6 @@ const { Application, Module } = Shopware;
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-order-list', () => import('./page/sw-order-list'));
 Shopware.Component.register('sw-order-detail', () => import('./page/sw-order-detail'));
-Shopware.Component.register('sw-order-state-change-modal', () => import('./component/sw-order-state-change-modal'));
 
 Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */

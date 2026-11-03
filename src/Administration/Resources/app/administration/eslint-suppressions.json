@@ -2546,17 +2546,17 @@
       "count": 1
     }
   },
-  "src/app/component/wizard/sw-wizard-dot-navigation/index.js": {
+  "src/app/component/wizard/sw-wizard-dot-navigation/src/sw-wizard-dot-navigation.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/wizard/sw-wizard-page/index.js": {
+  "src/app/component/wizard/sw-wizard-page/src/sw-wizard-page.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/wizard/sw-wizard/index.js": {
+  "src/app/component/wizard/sw-wizard/src/sw-wizard.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -2564,7 +2564,7 @@
       "count": 1
     }
   },
-  "src/app/component/wizard/sw-wizard/sw-wizard.spec.js": {
+  "src/app/component/wizard/sw-wizard/tests/sw-wizard.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 12
     }

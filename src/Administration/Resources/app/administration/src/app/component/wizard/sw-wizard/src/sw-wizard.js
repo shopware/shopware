@@ -1,5 +1,6 @@
 import './sw-wizard.scss';
 import template from './sw-wizard.html.twig';
+import { featureService } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -24,11 +25,10 @@ import template from './sw-wizard.html.twig';
  *     </sw-wizard-page>
  * </sw-wizard>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     provide() {
         return {

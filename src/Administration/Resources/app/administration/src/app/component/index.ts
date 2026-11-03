@@ -239,18 +239,15 @@ import 'src/app/component/utils/sw-step-item/register';
 import 'src/app/component/utils/sw-text-preview/register';
 import 'src/app/component/utils/sw-time-ago/register';
 import 'src/app/component/utils/sw-verify-user-modal/register';
+import 'src/app/component/wizard/sw-wizard/register';
+import 'src/app/component/wizard/sw-wizard-dot-navigation/register';
+import 'src/app/component/wizard/sw-wizard-page/register';
 /**
  * @sw-package framework
  * @private
  */
 export default () => {
     /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-    Shopware.Component.register('sw-wizard-page', () => import('src/app/component/wizard/sw-wizard-page/index'));
-    Shopware.Component.register(
-        'sw-wizard-dot-navigation',
-        () => import('src/app/component/wizard/sw-wizard-dot-navigation/index'),
-    );
-    Shopware.Component.register('sw-wizard', () => import('src/app/component/wizard/sw-wizard/index'));
     Shopware.Component.register('sw-vnode-renderer', () => import('src/app/component/utils/sw-vnode-renderer/index'));
     Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
     Shopware.Component.register('sw-provide', () => import('src/app/component/utils/sw-provide/index'));

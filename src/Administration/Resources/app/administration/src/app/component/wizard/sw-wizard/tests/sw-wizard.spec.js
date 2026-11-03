@@ -3,8 +3,8 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/wizard/sw-wizard';
-import 'src/app/component/wizard/sw-wizard-page';
+import 'src/app/component/wizard/sw-wizard/src/sw-wizard';
+import 'src/app/component/wizard/sw-wizard-page/src/sw-wizard-page';
 
 async function createWrapper(options = {}) {
     const pages = [];

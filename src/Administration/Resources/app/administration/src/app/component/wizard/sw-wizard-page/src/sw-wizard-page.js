@@ -4,6 +4,7 @@
 
 import './sw-wizard-page.scss';
 import template from './sw-wizard-page.html.twig';
+import { featureService } from '../dependencies';
 
 /**
  * See `sw-wizard` for an example.
@@ -13,7 +14,7 @@ import template from './sw-wizard-page.html.twig';
 export default {
     template,
 
-    inject: ['feature', 'swWizardPageAdd', 'swWizardPageRemove'],
+    inject: [featureService, 'swWizardPageAdd', 'swWizardPageRemove'],
 
     props: {
         isActive: {

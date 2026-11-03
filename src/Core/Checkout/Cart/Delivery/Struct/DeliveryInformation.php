@@ -105,18 +105,18 @@ class DeliveryInformation extends Struct
         return \max($this->getLength() ?? 0, $this->getWidth() ?? 0, $this->getHeight() ?? 0);
     }
 
-    public function getGirth(): float
+    public function getGirth(): ?float
     {
         if ($this->getLength() === null || $this->getLength() <= 0.0) {
-            return 0;
+            return null;
         }
 
         if ($this->getWidth() === null || $this->getWidth() <= 0.0) {
-            return 0;
+            return null;
         }
 
         if ($this->getHeight() === null || $this->getHeight() <= 0.0) {
-            return 0;
+            return null;
         }
 
         return 2 * ($this->getLength() + $this->getWidth() + $this->getHeight() - $this->getLongestDimension());

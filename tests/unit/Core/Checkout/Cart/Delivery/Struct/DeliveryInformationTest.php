@@ -83,7 +83,7 @@ class DeliveryInformationTest extends TestCase
     }
 
     #[DataProvider('getGirthTestData')]
-    public function testGetGirth(?float $height, ?float $width, ?float $length, float $expected): void
+    public function testGetGirth(?float $height, ?float $width, ?float $length, ?float $expected): void
     {
         $info = new DeliveryInformation(1, null, false, null, null, $height, $width, $length);
 
@@ -91,19 +91,19 @@ class DeliveryInformationTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array{0: ?float, 1: ?float, 2: ?float, 3: float}>
+     * @return \Traversable<string, array{0: ?float, 1: ?float, 2: ?float, 3: ?float}>
      */
     public static function getGirthTestData(): \Traversable
     {
         // girth = 2 * (sum of the two shorter dimensions) = 2 * (25 + 10) = 70, excluding length (1000)
         // as the longest dimension.
         yield 'all dimensions present' => [25.0, 10.0, 1000.0, 70.0];
-        yield 'missing length returns zero' => [10.0, 10.0, null, 0.0];
-        yield 'missing width returns zero' => [10.0, null, 1000.0, 0.0];
-        yield 'missing height returns zero' => [null, 10.0, 1000.0, 0.0];
-        yield 'zero length returns zero' => [10.0, 10.0, 0.0, 0.0];
-        yield 'zero width returns zero' => [10.0, 0.0, 1000.0, 0.0];
-        yield 'zero height returns zero' => [0.0, 10.0, 1000.0, 0.0];
+        yield 'missing length returns null' => [10.0, 10.0, null, null];
+        yield 'missing width returns null' => [10.0, null, 1000.0, null];
+        yield 'missing height returns null' => [null, 10.0, 1000.0, null];
+        yield 'zero length returns null' => [10.0, 10.0, 0.0, null];
+        yield 'zero width returns null' => [10.0, 0.0, 1000.0, null];
+        yield 'zero height returns null' => [0.0, 10.0, 1000.0, null];
     }
 
     #[DataProvider('getVolumeTestData')]

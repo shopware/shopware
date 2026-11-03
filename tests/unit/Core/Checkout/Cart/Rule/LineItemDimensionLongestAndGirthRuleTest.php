@@ -548,18 +548,28 @@ class LineItemDimensionLongestAndGirthRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
-    public function testMatchWithIncompleteDimensionsComparesAgainstZero(): void
+    #[DataProvider('getIncompleteDimensionsTestData')]
+    public function testMatchWithIncompleteDimensionsIsTreatedAsMissingLongestAndGirth(string $operator, bool $expected): void
     {
-        // Only height is set; width/length are missing, so DeliveryInformation::hasAllDimensions()
-        // is false and the rule compares against 0 instead of the (otherwise large) height value.
+        // Only height is set; width/length are missing, so getGirth() returns null, regardless of
+        // the height value, and the rule falls back to isNegativeOperator() semantics.
         $lineItem = CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, 500.0, null, null);
         $context = static::createStub(SalesChannelContext::class);
 
-        $ruleMatchingZero = new LineItemDimensionLongestAndGirthRule(Rule::OPERATOR_EQ, 0.0);
-        static::assertTrue($ruleMatchingZero->match(new LineItemScope($lineItem, $context)));
+        $rule = new LineItemDimensionLongestAndGirthRule($operator, 0.0);
 
-        $ruleNotGreaterThanZero = new LineItemDimensionLongestAndGirthRule(Rule::OPERATOR_GT, 0.0);
-        static::assertFalse($ruleNotGreaterThanZero->match(new LineItemScope($lineItem, $context)));
+        static::assertSame($expected, $rule->match(new LineItemScope($lineItem, $context)));
+    }
+
+    /**
+     * @return \Traversable<string, array{0: string, 1: bool}>
+     */
+    public static function getIncompleteDimensionsTestData(): \Traversable
+    {
+        yield 'operator equals does not match' => [Rule::OPERATOR_EQ, false];
+        yield 'operator greater than does not match' => [Rule::OPERATOR_GT, false];
+        yield 'operator not equals matches' => [Rule::OPERATOR_NEQ, true];
+        yield 'operator empty matches' => [Rule::OPERATOR_EMPTY, true];
     }
 
     #[DataProvider('getLongestDimensionRotationTestData')]

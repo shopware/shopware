@@ -549,17 +549,28 @@ class LineItemDimensionGirthRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
-    public function testMatchWithIncompleteDimensionsComparesAgainstZeroGirth(): void
+    #[DataProvider('getIncompleteDimensionsTestData')]
+    public function testMatchWithIncompleteDimensionsIsTreatedAsMissingGirth(string $operator, bool $expected): void
     {
-        $rule = new LineItemDimensionGirthRule(Rule::OPERATOR_EQ, 0.0);
-        // Only height is set; width/length are missing, so DeliveryInformation::hasAllDimensions()
-        // is false and getGirth() returns 0, regardless of the height value.
+        $rule = new LineItemDimensionGirthRule($operator, 0.0);
+        // Only height is set; width/length are missing, so getGirth() returns null, regardless of
+        // the height value, and the rule falls back to isNegativeOperator() semantics.
         $lineItem = CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, 500.0, null, null);
 
-        static::assertTrue($rule->match(new LineItemScope(
+        static::assertSame($expected, $rule->match(new LineItemScope(
             $lineItem,
             static::createStub(SalesChannelContext::class)
         )));
+    }
+
+    /**
+     * @return \Traversable<string, array{0: string, 1: bool}>
+     */
+    public static function getIncompleteDimensionsTestData(): \Traversable
+    {
+        yield 'operator equals does not match' => [Rule::OPERATOR_EQ, false];
+        yield 'operator not equals matches' => [Rule::OPERATOR_NEQ, true];
+        yield 'operator empty matches' => [Rule::OPERATOR_EMPTY, true];
     }
 
     #[DataProvider('getLongestDimensionRotationTestData')]

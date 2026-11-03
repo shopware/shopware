@@ -99,7 +99,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $injectedAddress = $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
                 ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS);
             if ($injectedAddress === null) {
-                $prospectiveCustomer = $this->createProspectiveCustomer($options, $base);
+                $prospectiveCustomer = $this->createProspectiveCustomer($token, $options, $base);
                 $injectedAddress = $prospectiveCustomer?->getRuleCustomer()->getActiveShippingAddress();
             }
 
@@ -325,7 +325,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @param array<string, mixed> $options
      */
-    private function createProspectiveCustomer(array $options, BaseSalesChannelContext $base): ?ProspectiveCustomer
+    private function createProspectiveCustomer(string $token, array $options, BaseSalesChannelContext $base): ?ProspectiveCustomer
     {
         $payload = $options[SalesChannelContextService::PROSPECTIVE_CUSTOMER] ?? null;
         if (!\is_array($payload)) {
@@ -347,7 +347,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $customer = new CustomerEntity();
         $customer->assign([
-            'id' => Uuid::randomHex(),
+            // derived from the token, so that the serialized shipping location does not get new ids on every request
+            'id' => Uuid::fromStringToHex($token . '-prospective-customer'),
             'groupId' => $base->getCurrentCustomerGroup()->getId(),
             'group' => $base->getCurrentCustomerGroup(),
             'salesChannelId' => $base->getSalesChannelId(),
@@ -367,7 +368,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             'autoIncrement' => 0,
         ]);
 
-        $shippingAddress = $this->createProspectiveAddress($shipping, $customer->getId(), $location->getCountry(), $location->getState());
+        $shippingAddress = $this->createProspectiveAddress($shipping, Uuid::fromStringToHex($customer->getId() . '-shipping-address'), $customer->getId(), $location->getCountry(), $location->getState());
         $billingAddress = $billing === null ? $shippingAddress : $this->createProspectiveBillingAddress($billing, $customer->getId(), $shippingAddress, $base->getContext());
 
         $customer->assign([
@@ -406,17 +407,17 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             return $shippingAddress;
         }
 
-        return $this->createProspectiveAddress($billing, $customerId, $country, $state);
+        return $this->createProspectiveAddress($billing, Uuid::fromStringToHex($customerId . '-billing-address'), $customerId, $country, $state);
     }
 
     /**
      * @param ProspectiveAddress $address
      */
-    private function createProspectiveAddress(array $address, string $customerId, CountryEntity $country, ?CountryStateEntity $state): CustomerAddressEntity
+    private function createProspectiveAddress(array $address, string $id, string $customerId, CountryEntity $country, ?CountryStateEntity $state): CustomerAddressEntity
     {
         $entity = new CustomerAddressEntity();
         $entity->assign([
-            'id' => Uuid::randomHex(),
+            'id' => $id,
             'customerId' => $customerId,
             'countryId' => $country->getId(),
             'countryStateId' => $state?->getId(),

@@ -116,6 +116,16 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             }
 
             $address = $data->get($field);
+
+            // the context country follows the shipping address, a second country in the same request would be ignored
+            if ($field === self::SHIPPING_ADDRESS && $address instanceof DataBag) {
+                foreach ([self::COUNTRY_ID, self::STATE_ID] as $countryField) {
+                    if ($data->has($countryField)) {
+                        throw SalesChannelException::prospectiveAddressWithCountry($countryField);
+                    }
+                }
+            }
+
             $parameters[$field] = $address instanceof DataBag ? $address->only(...ProspectiveCustomer::ADDRESS_FIELDS) : $address;
             $definition->add($field, new Type('array'));
 
@@ -126,7 +136,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         }
 
         // a billing address alone does not locate the visitor
-        if ($data->has(self::BILLING_ADDRESS) && !$data->has(self::SHIPPING_ADDRESS) && $context->getProspectiveCustomer() === null) {
+        if ($data->get(self::BILLING_ADDRESS) instanceof DataBag && !$data->has(self::SHIPPING_ADDRESS) && $context->getProspectiveCustomer() === null) {
             $definition->add(self::SHIPPING_ADDRESS, new NotNull());
         }
 
@@ -191,9 +201,14 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
         $this->validator->validate($parameters, $definition);
 
-        if ($addressDefinitions !== []) {
+        if (\array_key_exists(self::SHIPPING_ADDRESS, $parameters) || \array_key_exists(self::BILLING_ADDRESS, $parameters)) {
             $this->validateZipCodes($parameters);
             $parameters = $this->toProspectiveCustomer($parameters);
+        }
+
+        if (!$data->has(self::SHIPPING_ADDRESS) && $this->movesAwayFromProspectiveAddress($parameters, $context)) {
+            // the stored address would no longer be used, so it is removed instead of reappearing after switching back
+            $parameters[SalesChannelContextService::PROSPECTIVE_CUSTOMER] = null;
         }
 
         $customer = $context->getCustomer();
@@ -249,6 +264,23 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         }
 
         $this->validator->validate($parameters, $definition);
+    }
+
+    /**
+     * @param array<mixed> $parameters
+     */
+    private function movesAwayFromProspectiveAddress(array $parameters, SalesChannelContext $context): bool
+    {
+        $address = $context->getProspectiveCustomer()?->getShippingAddress();
+        if ($address === null) {
+            return false;
+        }
+
+        if (\array_key_exists(self::COUNTRY_ID, $parameters) && $parameters[self::COUNTRY_ID] !== $address['countryId']) {
+            return true;
+        }
+
+        return \array_key_exists(self::STATE_ID, $parameters) && ($parameters[self::STATE_ID] ?: null) !== $address['countryStateId'];
     }
 
     /**

@@ -676,6 +676,30 @@ class SalesChannelContextFactoryTest extends TestCase
         static::assertSame($address, $ruleCustomer->getActiveBillingAddress(), 'Without a billing address, the visitor is billed at the shipping address');
     }
 
+    public function testProspectiveAddressIdsStayTheSameForAToken(): void
+    {
+        $country = $this->createCountry();
+        $options = [
+            SalesChannelContextService::PROSPECTIVE_CUSTOMER => [
+                'shippingAddress' => ['countryId' => $country->getId(), 'zipcode' => '48624'],
+                'billingAddress' => ['countryId' => $country->getId(), 'zipcode' => '48619'],
+            ],
+        ];
+
+        $first = $this->createContext($options, withCustomer: false, salesChannelCountry: $country, token: 'token')->getProspectiveCustomer()?->getRuleCustomer();
+        $second = $this->createContext($options, withCustomer: false, salesChannelCountry: $country, token: 'token')->getProspectiveCustomer()?->getRuleCustomer();
+        $otherToken = $this->createContext($options, withCustomer: false, salesChannelCountry: $country, token: 'other-token')->getProspectiveCustomer()?->getRuleCustomer();
+
+        static::assertNotNull($first);
+        static::assertNotNull($second);
+        static::assertNotNull($otherToken);
+        static::assertSame($first->getId(), $second->getId());
+        static::assertSame($first->getActiveShippingAddress()?->getId(), $second->getActiveShippingAddress()?->getId());
+        static::assertSame($first->getActiveBillingAddress()?->getId(), $second->getActiveBillingAddress()?->getId());
+        static::assertNotSame($first->getActiveShippingAddress()?->getId(), $first->getActiveBillingAddress()?->getId());
+        static::assertNotSame($first->getActiveShippingAddress()?->getId(), $otherToken->getActiveShippingAddress()?->getId());
+    }
+
     public function testProspectiveCustomerIsIgnoredForALoggedInCustomer(): void
     {
         $country = $this->createCountry();
@@ -769,7 +793,7 @@ class SalesChannelContextFactoryTest extends TestCase
      * @param array<string, mixed> $options
      * @param EntityRepository<CountryCollection>|null $countryRepository
      */
-    private function createContext(array $options, bool $withCustomer = true, ?CountryEntity $salesChannelCountry = null, ?EntityRepository $countryRepository = null): SalesChannelContext
+    private function createContext(array $options, bool $withCustomer = true, ?CountryEntity $salesChannelCountry = null, ?EntityRepository $countryRepository = null, ?string $token = null): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
@@ -838,6 +862,6 @@ class SalesChannelContextFactoryTest extends TestCase
             $options[SalesChannelContextService::CUSTOMER_ID] = $customer->getId();
         }
 
-        return $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+        return $factory->create($token ?? Uuid::randomHex(), $salesChannel->getId(), $options);
     }
 }

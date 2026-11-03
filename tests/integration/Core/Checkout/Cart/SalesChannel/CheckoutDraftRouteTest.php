@@ -71,6 +71,17 @@ class CheckoutDraftRouteTest extends TestCase
         static::assertContains($this->ids->get('zip-shipping'), array_column($draft['shippingMethods'], 'id'));
     }
 
+    public function testSendingNullAsShippingAddressRemovesTheStoredAddress(): void
+    {
+        $this->request('PATCH', ['shippingAddress' => ['countryId' => $this->germanyId, 'zipcode' => '48624']]);
+
+        $draft = $this->request('PATCH', ['shippingAddress' => null]);
+
+        static::assertNull($draft['prospectiveCustomer']);
+        static::assertNotContains($this->ids->get('zip-shipping'), array_column($draft['shippingMethods'], 'id'));
+        static::assertNull($this->request('GET')['prospectiveCustomer']);
+    }
+
     public function testInvalidZipCodeIsReportedAtItsField(): void
     {
         static::getContainer()->get('country.repository')->update([

@@ -33,5 +33,7 @@ final class CoreCorsHeaderProvider implements CorsHeaderProviderInterface
     {
         $headers->addAllowed(...self::DEFAULT_HEADERS);
         $headers->addExposed(...self::DEFAULT_HEADERS);
+        // not CORS-safelisted, so a browser client could not read the wait time of a 429 response otherwise
+        $headers->addExposed('Retry-After');
     }
 }

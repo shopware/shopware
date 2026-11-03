@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -270,6 +272,115 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame([SalesChannelContextService::PROSPECTIVE_CUSTOMER => null], $saved);
     }
 
+    public function testRemovingOnlyTheShippingAddressRemovesTheProspectiveCustomer(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['shippingAddress' => null]), $this->createProspectiveCustomer('de'));
+
+        static::assertSame([SalesChannelContextService::PROSPECTIVE_CUSTOMER => null], $saved);
+    }
+
+    public function testRemovingTheBillingAddressKeepsTheShippingAddress(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['billingAddress' => null]), $this->createProspectiveCustomer('de'));
+
+        static::assertSame([SalesChannelContextService::PROSPECTIVE_CUSTOMER => ['billingAddress' => null]], $saved);
+    }
+
+    public function testRemovingTheBillingAddressDoesNotRequireAShippingAddress(): void
+    {
+        $definitions = [];
+        $validator = static::createStub(DataValidator::class);
+        $validator->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use (&$definitions): void {
+            $definitions[] = $definition;
+        });
+
+        $this->switchAnonymousContext(new RequestDataBag(['billingAddress' => null]), null, $validator);
+
+        foreach ($definitions as $definition) {
+            static::assertArrayNotHasKey('shippingAddress', $definition->getProperties());
+        }
+    }
+
+    public function testChangingTheCountryRemovesTheProspectiveCustomer(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['countryId' => 'at']), $this->createProspectiveCustomer('de'));
+
+        static::assertSame([
+            SalesChannelContextService::COUNTRY_ID => 'at',
+            SalesChannelContextService::PROSPECTIVE_CUSTOMER => null,
+        ], $saved);
+    }
+
+    public function testChangingTheCountryStateRemovesTheProspectiveCustomer(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['countryStateId' => 'by']), $this->createProspectiveCustomer('de', 'nw'));
+
+        static::assertSame([
+            SalesChannelContextService::COUNTRY_STATE_ID => 'by',
+            SalesChannelContextService::PROSPECTIVE_CUSTOMER => null,
+        ], $saved);
+    }
+
+    public function testChangingTheCountryWhileUpdatingTheBillingAddressRemovesTheProspectiveCustomer(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['countryId' => 'at', 'billingAddress' => ['countryId' => 'de']]), $this->createProspectiveCustomer('de'));
+
+        static::assertArrayHasKey(SalesChannelContextService::PROSPECTIVE_CUSTOMER, $saved);
+        static::assertNull($saved[SalesChannelContextService::PROSPECTIVE_CUSTOMER]);
+    }
+
+    public function testTheCountryOfTheStoredAddressKeepsTheProspectiveCustomer(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['countryId' => 'de', 'countryStateId' => '']), $this->createProspectiveCustomer('de'));
+
+        static::assertArrayNotHasKey(SalesChannelContextService::PROSPECTIVE_CUSTOMER, $saved);
+    }
+
+    public function testCountryWithoutShippingAddressKeepsThePayloadOfOtherVisitors(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['countryId' => 'at']));
+
+        static::assertSame([SalesChannelContextService::COUNTRY_ID => 'at'], $saved);
+    }
+
+    #[DataProvider('countryFieldProvider')]
+    public function testCountryIsRejectedTogetherWithAShippingAddress(string $field): void
+    {
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->expects($this->never())->method('save');
+
+        $route = new ContextSwitchRoute(
+            static::createStub(DataValidator::class),
+            $persister,
+            $this->createEventDispatcher(),
+            static::createStub(SalesChannelContextServiceInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $this->expectExceptionObject(SalesChannelException::prospectiveAddressWithCountry($field));
+
+        $route->switchContext(
+            new RequestDataBag([$field => Uuid::randomHex(), 'shippingAddress' => ['countryId' => Uuid::randomHex()]]),
+            $this->createSalesChannelContext('token', Uuid::randomHex(), Context::createDefaultContext())
+        );
+    }
+
+    public static function countryFieldProvider(): \Generator
+    {
+        yield 'country' => ['countryId'];
+        yield 'country state' => ['countryStateId'];
+    }
+
+    public function testCountryIsAllowedWhileRemovingTheShippingAddress(): void
+    {
+        $saved = $this->switchAnonymousContext(new RequestDataBag(['countryId' => 'at', 'shippingAddress' => null]), $this->createProspectiveCustomer('de'));
+
+        static::assertSame([
+            SalesChannelContextService::COUNTRY_ID => 'at',
+            SalesChannelContextService::PROSPECTIVE_CUSTOMER => null,
+        ], $saved);
+    }
+
     #[DataProvider('prospectiveAddressProvider')]
     public function testProspectiveAddressIsRejectedForALoggedInCustomer(string $field): void
     {
@@ -304,7 +415,7 @@ class ContextSwitchRouteTest extends TestCase
     /**
      * @return array<string, mixed> the parameters the context is saved with
      */
-    private function switchAnonymousContext(RequestDataBag $data): array
+    private function switchAnonymousContext(RequestDataBag $data, ?ProspectiveCustomer $prospectiveCustomer = null, ?DataValidator $validator = null): array
     {
         $saved = null;
         $persister = static::createStub(SalesChannelContextPersister::class);
@@ -312,12 +423,12 @@ class ContextSwitchRouteTest extends TestCase
             $saved = $parameters;
         });
 
-        $context = $this->createSalesChannelContext('token', Uuid::randomHex(), Context::createDefaultContext());
+        $context = $this->createSalesChannelContext('token', Uuid::randomHex(), Context::createDefaultContext(), null, $prospectiveCustomer);
         $contextService = static::createStub(SalesChannelContextServiceInterface::class);
         $contextService->method('get')->willReturn($context);
 
         $route = new ContextSwitchRoute(
-            static::createStub(DataValidator::class),
+            $validator ?? static::createStub(DataValidator::class),
             $persister,
             $this->createEventDispatcher(),
             $contextService,
@@ -334,9 +445,13 @@ class ContextSwitchRouteTest extends TestCase
         string $token,
         string $salesChannelId,
         Context $frameworkContext,
-        ?CustomerEntity $customer = null
+        ?CustomerEntity $customer = null,
+        ?ProspectiveCustomer $prospectiveCustomer = null,
     ): SalesChannelContext {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext
+            ->method('getProspectiveCustomer')
+            ->willReturn($prospectiveCustomer);
         $salesChannelContext
             ->method('getCustomer')
             ->willReturn($customer);
@@ -357,6 +472,15 @@ class ContextSwitchRouteTest extends TestCase
             ->willReturn([]);
 
         return $salesChannelContext;
+    }
+
+    private function createProspectiveCustomer(string $countryId, ?string $countryStateId = null): ProspectiveCustomer
+    {
+        return new ProspectiveCustomer(
+            ['countryId' => $countryId, 'countryStateId' => $countryStateId, 'zipcode' => '48624', 'city' => null, 'street' => null],
+            null,
+            new CustomerEntity(),
+        );
     }
 
     private function createEventDispatcher(): EventDispatcherInterface

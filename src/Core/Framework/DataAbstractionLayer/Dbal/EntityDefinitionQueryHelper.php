@@ -93,11 +93,24 @@ class EntityDefinitionQueryHelper
     }
 
     /**
+     * Removes whole `extensions` path segments from a field accessor. A segment that only contains the
+     * text as a substring is left unchanged. Field-access validation and SQL construction must share this
+     * normalization so an accessor is interpreted consistently.
+     */
+    public static function removeExtensionPathSegments(string $accessor): string
+    {
+        return implode('.', array_filter(
+            explode('.', $accessor),
+            static fn (string $segment): bool => $segment !== 'extensions',
+        ));
+    }
+
+    /**
      * @return array<Field>
      */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
-        $parts = explode('.', $accessor);
+        $parts = explode('.', self::removeExtensionPathSegments($accessor));
         if ($definition->getEntityName() === $parts[0]) {
             array_shift($parts);
         }
@@ -107,10 +120,6 @@ class EntityDefinitionQueryHelper
         $source = $definition;
 
         foreach ($parts as $part) {
-            if ($part === 'extensions') {
-                continue;
-            }
-
             $fields = $source->getFields();
             $field = $fields->get($part);
 
@@ -256,7 +265,7 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = self::removeExtensionPathSegments($fieldName);
 
         $original = $fieldName;
         $prefix = $root . '.';
@@ -277,11 +286,7 @@ class EntityDefinitionQueryHelper
         $parts = explode('.', $fieldName);
         $associationKey = array_shift($parts);
 
-        if ($associationKey === 'extensions') {
-            $associationKey = array_shift($parts);
-        }
-
-        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
+        if (!$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
         }
 
@@ -385,7 +390,7 @@ class EntityDefinitionQueryHelper
         Context $context,
         ?CriteriaPartInterface $criteriaPart = null
     ): void {
-        $accessor = str_replace('extensions.', '', $accessor);
+        $accessor = self::removeExtensionPathSegments($accessor);
 
         $parts = explode('.', $accessor);
 

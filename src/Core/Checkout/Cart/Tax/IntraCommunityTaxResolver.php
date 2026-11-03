@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -150,16 +151,12 @@ class IntraCommunityTaxResolver implements ResetInterface
         return $lineItems->count() > 0;
     }
 
-    /**
-     * Every product type other than digital is taxed like physical goods
-     */
     private function getProductLineItems(OrderEntity $order, string $productType): OrderLineItemCollection
     {
         return ($order->getLineItems() ?? new OrderLineItemCollection())->filter(static function (OrderLineItemEntity $lineItem) use ($productType): bool {
             $lineItemType = ($lineItem->getPayload() ?? [])[LineItem::PAYLOAD_PRODUCT_TYPE] ?? null;
-            $taxProductType = $lineItemType === ProductDefinition::TYPE_DIGITAL ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
 
-            return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE && $taxProductType === $productType;
+            return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE && SalesChannelContext::getTaxProductType($lineItemType) === $productType;
         });
     }
 

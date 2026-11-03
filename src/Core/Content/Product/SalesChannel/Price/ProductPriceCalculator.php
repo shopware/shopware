@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -195,8 +194,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         ReferencePriceDto $reference,
         int $quantity = 1
     ): QuantityPriceDefinition {
-        // A partially loaded product without its type is priced like physical goods
-        $productType = $product->get('type') ?? ProductDefinition::TYPE_PHYSICAL;
+        $productType = $product->get('type');
         $price = $this->getPriceValue($prices, $context, $productType);
 
         $taxId = $product->get('taxId');
@@ -214,7 +212,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $definition;
     }
 
-    private function getPriceValue(PriceCollection $price, SalesChannelContext $context, string $productType): float
+    private function getPriceValue(PriceCollection $price, SalesChannelContext $context, ?string $productType): float
     {
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
         if ($currency === null) {
@@ -230,7 +228,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $value;
     }
 
-    private function getPriceForTaxState(Price $price, SalesChannelContext $context, string $productType): float
+    private function getPriceForTaxState(Price $price, SalesChannelContext $context, ?string $productType): float
     {
         if ($context->getProductTaxState($productType) === CartPrice::TAX_STATE_GROSS) {
             return $price->getGross();
@@ -239,7 +237,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $price->getNet();
     }
 
-    private function getListPrice(PriceCollection $prices, SalesChannelContext $context, string $productType): ?float
+    private function getListPrice(PriceCollection $prices, SalesChannelContext $context, ?string $productType): ?float
     {
         $price = $prices->getCurrencyPrice($context->getCurrencyId());
         if ($price === null || $price->getListPrice() === null) {
@@ -255,7 +253,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $value;
     }
 
-    private function getRegulationPrice(PriceCollection $prices, SalesChannelContext $context, string $productType): ?float
+    private function getRegulationPrice(PriceCollection $prices, SalesChannelContext $context, ?string $productType): ?float
     {
         $price = $prices->getCurrencyPrice($context->getCurrencyId());
         if ($price === null || $price->getRegulationPrice() === null) {

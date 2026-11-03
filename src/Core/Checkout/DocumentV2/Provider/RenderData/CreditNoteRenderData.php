@@ -48,12 +48,14 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
 
     /**
      * @param list<LineItemView> $lineItems
+     * @param list<TaxBreakdownView> $taxBreakdown
      */
     public static function fromInvoice(
         InvoiceRenderData $invoice,
         ?string $creditNoteNumber,
         string $referencedInvoiceNumber,
         array $lineItems,
+        array $taxBreakdown,
         MonetarySummationView $monetarySummation,
     ): self {
         return new self(
@@ -63,7 +65,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
             deliveryDate: $invoice->deliveryDate,
             lineItems: $lineItems,
             allowanceCharges: [],
-            taxBreakdown: $invoice->taxBreakdown,
+            taxBreakdown: $taxBreakdown,
             monetarySummation: $monetarySummation,
             paymentMeans: $invoice->paymentMeans,
             paymentDueDate: null,

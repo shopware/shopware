@@ -210,18 +210,23 @@ class SalesChannelContextTest extends TestCase
         static::assertSame($context->getTaxRules(), $context->getDigitalTaxRules());
     }
 
-    public function testBillingLocationIsUsedWhenGiven(): void
+    public function testBillingLocationDecidesTheDigitalProducts(): void
     {
         $billingLocation = ShippingLocation::createFromCountry(new CountryEntity());
+        $context = $this->createContext(billingLocation: $billingLocation);
 
-        static::assertSame($billingLocation, $this->createContext(billingLocation: $billingLocation)->getBillingLocation());
+        static::assertSame($billingLocation, $context->getBillingLocation());
+        static::assertSame($billingLocation, $context->getProductLocation(ProductDefinition::TYPE_DIGITAL));
+        static::assertSame($context->getShippingLocation(), $context->getProductLocation(ProductDefinition::TYPE_PHYSICAL));
+        static::assertSame($context->getShippingLocation(), $context->getProductLocation('custom-type'));
+        static::assertSame($context->getShippingLocation(), $context->getProductLocation(null));
     }
 
     /**
      * @param list<string> $taxFreeProductTypes
      */
     #[DataProvider('taxFreeProductTypeProvider')]
-    public function testTaxFreeProductTypeIsTaxedAtZeroPercent(array $taxFreeProductTypes, string $productType, bool $isTaxFree): void
+    public function testTaxFreeProductTypeIsTaxedAtZeroPercent(array $taxFreeProductTypes, ?string $productType, bool $isTaxFree): void
     {
         $context = $this->createContext(digitalTaxRules: $this->createTaxes(21.0));
         $context->setTaxState(CartPrice::TAX_STATE_GROSS);
@@ -238,7 +243,7 @@ class SalesChannelContextTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{list<string>, string, bool}>
+     * @return iterable<string, array{list<string>, ?string, bool}>
      */
     public static function taxFreeProductTypeProvider(): iterable
     {
@@ -246,6 +251,7 @@ class SalesChannelContextTest extends TestCase
         yield 'physical product next to exempt digital products' => [[ProductDefinition::TYPE_DIGITAL], ProductDefinition::TYPE_PHYSICAL, false];
         yield 'exempt physical product' => [[ProductDefinition::TYPE_PHYSICAL], ProductDefinition::TYPE_PHYSICAL, true];
         yield 'custom product type is exempted like physical goods' => [[ProductDefinition::TYPE_PHYSICAL], 'custom-type', true];
+        yield 'missing product type is exempted like physical goods' => [[ProductDefinition::TYPE_PHYSICAL], null, true];
         yield 'digital product next to exempt physical products' => [[ProductDefinition::TYPE_PHYSICAL], ProductDefinition::TYPE_DIGITAL, false];
         yield 'nothing exempt' => [[], ProductDefinition::TYPE_DIGITAL, false];
     }

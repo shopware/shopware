@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceC
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -231,14 +230,11 @@ class PriceFacade
         return $currency->getNet();
     }
 
-    private function getProductType(): string
+    private function getProductType(): ?string
     {
-        $productType = $this->item instanceof LineItem
+        return $this->item instanceof LineItem
             ? $this->item->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)
             : ($this->item->has('type') ? $this->item->get('type') : null);
-
-        // Items without a product type, like custom line items, are priced like physical goods
-        return \is_string($productType) ? $productType : ProductDefinition::TYPE_PHYSICAL;
     }
 
     private function overwrite(QuantityPriceDefinition $definition): void

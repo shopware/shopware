@@ -262,14 +262,9 @@ class CartRuleLoader implements ResetInterface
         return \count($timestamps) !== $cart->getLineItems()->count();
     }
 
-    /**
-     * Digital products are exempted by the billing country, all other products by the delivery country
-     */
     private function isTaxFree(SalesChannelContext $context, string $productType, float $cartNetAmount): bool
     {
-        $country = $productType === ProductDefinition::TYPE_DIGITAL
-            ? $context->getBillingLocation()->getCountry()
-            : $context->getShippingLocation()->getCountry();
+        $country = $context->getProductLocation($productType)->getCountry();
 
         if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             return $this->taxDetector->isCompanyTaxFree($context, $country)
@@ -286,7 +281,7 @@ class CartRuleLoader implements ResetInterface
     {
         $productTypes = [];
         foreach ($cart->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $lineItem) {
-            $productType = $lineItem->isProductType(ProductDefinition::TYPE_DIGITAL) ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
+            $productType = SalesChannelContext::getTaxProductType($lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE));
             $productTypes[$productType] = $productType;
         }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\Calculation\CreditOrderReducer;
 use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -51,9 +52,11 @@ final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider
 
         $creditItems = $this->creditItemResolver->resolve($input->order, $resolvedReference->id);
 
+        // The tax notes depend on the order's products, the credit note itself only bills the credit items
+        $invoice = $this->invoiceDataProvider->provideRenderingData($input, $context);
+
         CreditOrderReducer::reduce($input->order, $creditItems);
 
-        $invoice = $this->invoiceDataProvider->provideRenderingData($input, $context);
         $lineItems = LineItemView::listFromCreditItems($input->order);
 
         return CreditNoteRenderData::fromInvoice(
@@ -61,6 +64,7 @@ final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider
             $input->generationRequest->documentNumber,
             $resolvedReference->documentNumber,
             $lineItems,
+            TaxBreakdownView::listFromOrder($input->order),
             MonetarySummationView::fromOrder($input->order, $lineItems, []),
         );
     }

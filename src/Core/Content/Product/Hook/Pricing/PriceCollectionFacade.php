@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -74,7 +73,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
 
         $this->prices->clear();
 
-        $productType = $this->product->get('type') ?? ProductDefinition::TYPE_PHYSICAL;
+        $productType = $this->product->get('type');
         $rules = $this->context->buildProductTaxRules($this->product->get('taxId'), $productType);
 
         foreach ($mapped as $quantity => $price) {
@@ -110,7 +109,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
         return $this->prices->count();
     }
 
-    private function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context, string $productType): float
+    private function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context, ?string $productType): float
     {
         $currency = $price->getCurrencyPrice($this->context->getCurrencyId());
 

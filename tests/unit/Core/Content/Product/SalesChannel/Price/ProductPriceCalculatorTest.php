@@ -166,10 +166,10 @@ class ProductPriceCalculatorTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
         $context->method('getProductTaxState')->willReturnCallback(
-            static fn (string $productType) => $productType === ProductDefinition::TYPE_DIGITAL ? CartPrice::TAX_STATE_FREE : CartPrice::TAX_STATE_GROSS
+            static fn (?string $productType) => $productType === ProductDefinition::TYPE_DIGITAL ? CartPrice::TAX_STATE_FREE : CartPrice::TAX_STATE_GROSS
         );
         $context->method('buildProductTaxRules')->willReturnCallback(
-            static fn (string $taxId, string $productType) => new TaxRuleCollection([new TaxRule($productType === ProductDefinition::TYPE_DIGITAL ? 0.0 : 19.0)])
+            static fn (string $taxId, ?string $productType) => new TaxRuleCollection([new TaxRule($productType === ProductDefinition::TYPE_DIGITAL ? 0.0 : 19.0)])
         );
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 

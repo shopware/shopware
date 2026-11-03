@@ -131,13 +131,13 @@ class SalesChannelContext extends Struct
      * Digital products are taxed by the billing location, every other product type by the shipping location.
      * A product type that a taxed cart exempts is taxed at 0 %, so tax breakdowns still cover its net amount.
      */
-    public function buildProductTaxRules(string $taxId, string $productType): TaxRuleCollection
+    public function buildProductTaxRules(string $taxId, ?string $productType): TaxRuleCollection
     {
         if ($this->isTaxFreeProductType($productType)) {
             return new TaxRuleCollection([new TaxRule(0.0, 100)]);
         }
 
-        $taxRules = $productType === ProductDefinition::TYPE_DIGITAL ? $this->getDigitalTaxRules() : $this->taxRules;
+        $taxRules = self::getTaxProductType($productType) === ProductDefinition::TYPE_DIGITAL ? $this->getDigitalTaxRules() : $this->taxRules;
         $tax = $taxRules->get($taxId);
 
         if ($tax?->getRules() === null) {
@@ -162,7 +162,7 @@ class SalesChannelContext extends Struct
     /**
      * The tax state of a product type, tax-free when a taxed cart exempts it
      */
-    public function getProductTaxState(string $productType): string
+    public function getProductTaxState(?string $productType): string
     {
         return $this->isTaxFreeProductType($productType) ? CartPrice::TAX_STATE_FREE : $this->getTaxState();
     }
@@ -185,12 +185,29 @@ class SalesChannelContext extends Struct
         $this->taxFreeProductTypes = $productTypes;
     }
 
-    /**
-     * Digital products are taxed by the billing location, which falls back to the shipping location
-     */
-    public function getBillingLocation(): ShippingLocation
+    public function getBillingLocation(): ?ShippingLocation
     {
-        return $this->billingLocation ?? $this->shippingLocation;
+        return $this->billingLocation;
+    }
+
+    /**
+     * Decides the taxes of a product type, the billing location for digital products and the shipping location for all others
+     *
+     * @internal
+     */
+    public function getProductLocation(?string $productType): ShippingLocation
+    {
+        return self::getTaxProductType($productType) === ProductDefinition::TYPE_DIGITAL ? $this->getBillingLocation() : $this->shippingLocation;
+    }
+
+    /**
+     * The product type whose taxes apply
+     *
+     * @internal
+     */
+    public static function getTaxProductType(?string $productType): string
+    {
+        return $productType === ProductDefinition::TYPE_DIGITAL ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
     }
 
     public function getCustomer(): ?CustomerEntity
@@ -569,10 +586,8 @@ class SalesChannelContext extends Struct
         $this->cartLock = $cartLock;
     }
 
-    private function isTaxFreeProductType(string $productType): bool
+    private function isTaxFreeProductType(?string $productType): bool
     {
-        $taxProductType = $productType === ProductDefinition::TYPE_DIGITAL ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
-
-        return \in_array($taxProductType, $this->taxFreeProductTypes, true);
+        return \in_array(self::getTaxProductType($productType), $this->taxFreeProductTypes, true);
     }
 }

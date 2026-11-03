@@ -29,5 +29,6 @@ class UnmetRequirementErrorTest extends TestCase
         static::assertSame('The app requirements are not met: ' . $violations, $error->getMessage());
         static::assertSame(AppException::APP_REQUIREMENTS_NOT_MET, $error->getErrorCode());
         static::assertSame(['violations' => $violations], $error->getParameters());
+        static::assertFalse($error->isBlocking());
     }
 }

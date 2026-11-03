@@ -37,4 +37,9 @@ class AppNameError implements Error
     {
         return [];
     }
+
+    public function isBlocking(): bool
+    {
+        return true;
+    }
 }

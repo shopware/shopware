@@ -22,5 +22,6 @@ class IncompatibleAppErrorTest extends TestCase
         static::assertSame('App SwagExample is not compatible with this Shopware version', $error->getMessage());
         static::assertSame(AppException::NOT_COMPATIBLE, $error->getErrorCode());
         static::assertSame(['name' => 'SwagExample'], $error->getParameters());
+        static::assertTrue($error->isBlocking());
     }
 }

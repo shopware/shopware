@@ -54,6 +54,7 @@ class AppContextCreator
 
         $privileges = $this->fetchPrivileges($scriptAppInformation->getAppId());
         $source = new AdminApiSource(null, $scriptAppInformation->getIntegrationId());
+        $source->setAppId($scriptAppInformation->getAppId());
         $source->setIsAdmin(false);
         $source->setPermissions($privileges);
 

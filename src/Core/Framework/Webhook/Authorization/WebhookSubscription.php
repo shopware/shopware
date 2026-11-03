@@ -31,7 +31,7 @@ final readonly class WebhookSubscription
     }
 
     /**
-     * The owner is the app, else the integration, else the user.
+     * The owner is the app, else the integration, else the user, of the type stored with the webhook.
      *
      * @param array<string, mixed> $row the webhook's columns in storage format, keyed by column name
      *
@@ -40,19 +40,13 @@ final readonly class WebhookSubscription
     public static function fromRow(array $row): ?self
     {
         $ownerId = $row['app_id'] ?? $row['owner_integration_id'] ?? $row['owner_user_id'];
-        if ($ownerId === null) {
+        if ($ownerId === null || $row['owner_type'] === null) {
             return null;
         }
 
-        $ownerType = match (true) {
-            $row['app_id'] !== null => IdentityType::App,
-            $row['owner_integration_id'] !== null => IdentityType::Integration,
-            default => IdentityType::User,
-        };
-
         return new self(
             Uuid::fromBytesToHex($row['id']),
-            $ownerType,
+            IdentityType::from($row['owner_type']),
             Uuid::fromBytesToHex($ownerId),
             $row['event_name'],
             $row['acl_role_ids'] !== null ? Json::decodeToList($row['acl_role_ids']) : null,

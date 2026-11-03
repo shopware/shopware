@@ -95,7 +95,12 @@ export default class FormValidation {
         this.addValidator('email', this.validateEmail, window.validationMessages['email']);
         this.addValidator('confirmation', this.validateConfirmation, window.validationMessages['confirmation']);
         this.addValidator('minLength', this.validateMinLength, window.validationMessages['minLength']);
-        this.addValidator('grecaptcha', this.validateGrecaptcha, window.validationMessages['grecaptcha']);
+        // Same key as in 6.7. Falls back to the required message for themes that replace the `form_validation_config` block.
+        this.addValidator(
+            'grecaptcha',
+            this.validateGrecaptcha,
+            window.validationMessages['grecaptchaToken'] ?? window.validationMessages['required']
+        );
     }
 
     /**

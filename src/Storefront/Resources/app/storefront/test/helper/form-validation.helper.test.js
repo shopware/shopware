@@ -10,7 +10,7 @@ describe('form-validation', () => {
             email: 'Invalid email address.',
             confirmation: 'Confirmation field does not match.',
             minLength: 'Input is too short.',
-            grecaptcha: 'The reCAPTCHA verification could not be completed. Please try again.',
+            grecaptchaToken: 'The reCAPTCHA verification could not be completed. Please try again.',
         };
 
         formValidation = new FormValidation();
@@ -413,6 +413,13 @@ describe('form-validation', () => {
 
         expect(invalidFields.length).toBe(0);
         expect(feedback.textContent.trim()).toBe('');
+    });
+
+    test('should fall back to the required message when no reCAPTCHA message is configured', () => {
+        delete window.validationMessages.grecaptchaToken;
+        formValidation = new FormValidation();
+
+        expect(formValidation.errorMessages.get('grecaptcha')).toBe('Input should not be empty.');
     });
 
     test('should accept the pending value the reCAPTCHA v3 plugin sets while it fetches the token', () => {

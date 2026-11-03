@@ -203,7 +203,7 @@ class ProductSerializer extends EntitySerializer
     /**
      * @param list<string> $names
      *
-     * @return array<string, string>
+     * @return array<string, list<string>>
      */
     private function mapSalesChannelNamesToIds(array $names, Context $context): array
     {
@@ -219,7 +219,7 @@ class ProductSerializer extends EntitySerializer
         $idsByName = [];
 
         foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $salesChannel) {
-            $idsByName[(string) $salesChannel->getName()] = $salesChannel->getId();
+            $idsByName[(string) $salesChannel->getName()][] = $salesChannel->getId();
         }
 
         return $idsByName;
@@ -227,7 +227,7 @@ class ProductSerializer extends EntitySerializer
 
     /**
      * @param array<string> $values
-     * @param array<string, string> $idsByName
+     * @param array<string, list<string>> $idsByName
      *
      * @return array<string>
      */
@@ -243,8 +243,8 @@ class ProductSerializer extends EntitySerializer
                 continue;
             }
 
-            if (isset($idsByName[$value])) {
-                $resolved[] = $idsByName[$value];
+            foreach ($idsByName[$value] ?? [] as $id) {
+                $resolved[] = $id;
             }
         }
 

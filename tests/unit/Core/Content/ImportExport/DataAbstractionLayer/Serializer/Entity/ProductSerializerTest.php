@@ -227,6 +227,36 @@ class ProductSerializerTest extends TestCase
         static::assertSame(array_values($channels), array_column($result['visibilities'], 'salesChannelId'));
     }
 
+    public function testEverySalesChannelSharingAVisibilityNameIsResolved(): void
+    {
+        $salesChannelIds = [Uuid::randomHex(), Uuid::randomHex()];
+
+        $salesChannels = new SalesChannelCollection(array_map(
+            static fn (string $id) => (new SalesChannelEntity())->assign(['id' => $id, 'name' => 'Storefront']),
+            $salesChannelIds
+        ));
+
+        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = new StaticEntityRepository([$salesChannels], new SalesChannelDefinition());
+
+        $serializer = new ProductSerializer(
+            StaticEntityRepository::of(ProductVisibilityCollection::class),
+            $salesChannelRepository,
+            StaticEntityRepository::of(ProductMediaCollection::class),
+            StaticEntityRepository::of(ProductConfiguratorSettingCollection::class)
+        );
+        $serializer->setRegistry(new SerializerRegistry([], [new FieldSerializer()]));
+
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $record = ['visibilities' => ['all' => 'Storefront']];
+
+        $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
+
+        static::assertSame($salesChannelIds, array_column($result['visibilities'], 'salesChannelId'));
+    }
+
     public function testTheMediaOfARecordAreLookedUpInOneSearch(): void
     {
         $productId = Uuid::randomHex();

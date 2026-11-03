@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-mailer.html.twig';
 import './sw-settings-mailer.scss';
+import { systemConfigApiService } from '../dependencies';
 
 const defaultMailerSettings = {
     'core.mailerSettings.emailAgent': null,
@@ -17,11 +18,13 @@ const defaultMailerSettings = {
     'core.mailerSettings.sendMailOptions': null,
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['systemConfigApiService'],
+    inject: [systemConfigApiService],
 
     mixins: ['notification'],
 

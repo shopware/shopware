@@ -1,0 +1,8 @@
+import Component, * as Module from './index';
+
+/**
+ * @sw-package after-sales
+ */
+
+Shopware.Component.register(Component);
+Shopware._private.publish('components', 'sw-settings-mailer-smtp', Module);

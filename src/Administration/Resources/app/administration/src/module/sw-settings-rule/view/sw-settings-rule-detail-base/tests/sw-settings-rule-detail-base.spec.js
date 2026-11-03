@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 import { DOMWrapper, mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
-import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
+import { PRODUCT_STREAM_CONDITIONS } from '../../../constant/sw-settings-rule.constant';
 
 /**
  * @sw-package fundamentals@after-sales

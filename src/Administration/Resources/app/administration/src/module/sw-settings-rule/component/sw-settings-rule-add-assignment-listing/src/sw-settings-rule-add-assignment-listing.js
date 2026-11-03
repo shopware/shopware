@@ -1,12 +1,9 @@
 import template from './sw-settings-rule-add-assignment-listing.html.twig';
 import './sw-settings-rule-add-assignment-listing.scss';
-
-const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
+import { cloneDeep, Criteria, getApiContext } from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
 export default {
@@ -106,7 +103,7 @@ export default {
 
         doSearch(term) {
             this.loading = true;
-            const api = this.entityContext.api ? this.entityContext.api() : Context.api;
+            const api = this.entityContext.api ? this.entityContext.api() : getApiContext();
             const criteria = cloneDeep(this.criteria);
 
             if (term) {

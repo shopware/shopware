@@ -1,25 +1,34 @@
-import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
-
-const { Mixin, Context, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    featureService,
+    get,
+    getApiContext,
+    getAssetFilter,
+    notificationMixin,
+    repositoryFactoryService,
+    RuleAssignmentConfigurationService,
+    ruleConditionDataProviderService,
+    set,
+} from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'ruleConditionDataProviderService',
-        'feature',
-        'acl',
+        repositoryFactoryService,
+        ruleConditionDataProviderService,
+        featureService,
+        aclService,
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         rule: {
@@ -77,7 +86,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
@@ -173,13 +182,13 @@ export default {
         },
 
         doDeleteItem() {
-            const api = this.deleteEntity.api ? this.deleteEntity.api() : Context.api;
+            const api = this.deleteEntity.api ? this.deleteEntity.api() : getApiContext();
             const repository = this.repositoryFactory.create(this.deleteItem.getEntityName());
 
             if (this.deleteEntity.deleteContext.type === 'one-to-many') {
-                Utils.object.set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
+                set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
             } else {
-                Utils.object.get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
+                get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
             }
 
             this.isLoading = true;
@@ -190,7 +199,7 @@ export default {
 
         async refreshAssignmentData(entity) {
             this.isLoading = true;
-            const api = entity.api ? entity.api() : Context.api;
+            const api = entity.api ? entity.api() : getApiContext();
             const result = await entity.repository.search(entity.criteria(), api);
             const total = await this.loadNotAssignedDataTotals(entity, api);
 
@@ -204,7 +213,7 @@ export default {
         },
 
         onFilterEntity(item, term) {
-            const api = item.api ? item.api() : Context.api;
+            const api = item.api ? item.api() : getApiContext();
             const criteria = item.criteria();
 
             criteria.setPage(1);
@@ -259,7 +268,7 @@ export default {
                     return acc;
                 }
 
-                const value = Utils.object.get(item, path);
+                const value = get(item, path);
 
                 if (value) {
                     acc[key] = value;
@@ -281,7 +290,7 @@ export default {
             }
 
             return column.routerParameters.every(({ path }) => {
-                return path && !!Utils.object.get(item, path);
+                return path && !!get(item, path);
             });
         },
 
@@ -290,7 +299,7 @@ export default {
 
             return Promise.all(
                 this.associationEntities.map((item) => {
-                    const api = item.api ? item.api() : Context.api;
+                    const api = item.api ? item.api() : getApiContext();
 
                     return item.repository.search(item.criteria(), api).then(async (result) => {
                         item.loadedData = result;

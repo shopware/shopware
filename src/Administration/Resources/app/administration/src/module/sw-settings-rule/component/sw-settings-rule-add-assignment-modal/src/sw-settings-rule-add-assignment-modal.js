@@ -1,18 +1,15 @@
-import EntityCollection from 'src/core/data/entity-collection.data';
 import template from './sw-settings-rule-add-assignment-modal.html.twig';
 import './sw-settings-rule-assignment-modal.scss';
-
-const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria, EntityCollection, getApiContext, repositoryFactoryService } from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['close-add-modal', 'entities-saved'],
 
@@ -34,7 +31,7 @@ export default {
             isLoading: true,
             selection: {},
             criteriaLimit: 10,
-            currentLanguageId: Shopware.Context.api.languageId,
+            currentLanguageId: getApiContext().languageId,
         };
     },
 
@@ -51,7 +48,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.entityContext.entityName === 'category') {
-                this.entities = new EntityCollection('/category', 'category', Context.api);
+                this.entities = new EntityCollection('/category', 'category', getApiContext());
             } else {
                 this.repository = this.entityContext.repository;
                 this.loadEntities();
@@ -59,7 +56,7 @@ export default {
         },
 
         loadEntities() {
-            const api = this.entityContext.api ? this.entityContext.api() : Context.api;
+            const api = this.entityContext.api ? this.entityContext.api() : getApiContext();
             const criteria = new Criteria(1, this.criteriaLimit);
 
             this.repository.search(criteria, api).then((result) => {
@@ -82,7 +79,7 @@ export default {
         },
 
         updateEntities() {
-            const api = this.entityContext.api ? this.entityContext.api() : Context.api;
+            const api = this.entityContext.api ? this.entityContext.api() : getApiContext();
             const repository = this.repositoryFactory.create(this.entityContext.addContext.entity);
 
             Object.values(this.selection).forEach((item) => {
@@ -93,7 +90,7 @@ export default {
         },
 
         insertEntities() {
-            const api = this.entityContext.api ? this.entityContext.api() : Context.api;
+            const api = this.entityContext.api ? this.entityContext.api() : getApiContext();
             const repository = this.repositoryFactory.create(this.entityContext.addContext.entity);
 
             const inserts = [];

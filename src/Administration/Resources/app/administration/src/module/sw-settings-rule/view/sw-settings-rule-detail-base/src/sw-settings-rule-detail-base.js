@@ -1,15 +1,21 @@
 import template from './sw-settings-rule-detail-base.html.twig';
 import './sw-settings-rule-detail-base.scss';
-import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
+import {
+    aclService,
+    customFieldDataProviderService,
+    getAppContext,
+    PRODUCT_STREAM_CONDITIONS,
+    ruleConditionDataProviderService,
+} from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
 export default {
     template,
 
-    inject: ['ruleConditionDataProviderService', 'acl', 'customFieldDataProviderService'],
+    inject: [ruleConditionDataProviderService, aclService, customFieldDataProviderService],
 
     emits: ['conditions-changed', 'tree-finished-loading'],
 
@@ -75,7 +81,7 @@ export default {
         },
 
         productStreamIndexingEnabled() {
-            return Shopware.Context.app.productStreamIndexingEnabled ?? true;
+            return getAppContext().productStreamIndexingEnabled ?? true;
         },
 
         showProductStreamIndexingWarning() {

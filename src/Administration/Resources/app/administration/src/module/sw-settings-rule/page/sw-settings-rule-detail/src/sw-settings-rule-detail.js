@@ -1,27 +1,38 @@
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
-
-const { Component, Mixin, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria, EntityCollection } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    EntityCollection,
+    featureService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+    ruleConditionDataProviderService,
+    ruleConditionsConfigApiService,
+    ShopwareError,
+    useContextStore,
+    useErrorStore,
+    useSessionStore,
+} from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'feature',
-        'ruleConditionDataProviderService',
-        'ruleConditionsConfigApiService',
-        'repositoryFactory',
-        'acl',
+        featureService,
+        ruleConditionDataProviderService,
+        ruleConditionsConfigApiService,
+        repositoryFactoryService,
+        aclService,
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -246,8 +257,8 @@ export default {
 
         loadConditionData() {
             const context = {
-                ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                ...getApiContext(),
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria();
 
@@ -260,7 +271,7 @@ export default {
         },
 
         createRule() {
-            this.rule = this.ruleRepository.create(Context.api);
+            this.rule = this.ruleRepository.create(getApiContext());
             this.conditions = this.rule.conditions;
         },
 
@@ -359,7 +370,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const context = { ...Context.api, inheritance: true };
+            const context = { ...getApiContext(), inheritance: true };
 
             if (conditions === null) {
                 return this.conditionRepository.search(this.createConditionCriteria(1), context).then((searchResult) => {
@@ -420,7 +431,7 @@ export default {
                     new EntityCollection(
                         this.conditionRepository.route,
                         this.conditionRepository.entityName,
-                        Context.api,
+                        getApiContext(),
                         null,
                         conditions,
                     ),
@@ -492,12 +503,12 @@ export default {
             const reversedRanges = this.invalidDateRangeConditions();
 
             if (reversedRanges.length > 0) {
-                const errorStore = Shopware.Store.get('error');
+                const errorStore = useErrorStore();
 
                 reversedRanges.forEach((condition) => {
                     errorStore.addApiError({
                         expression: `rule_condition.${condition.id}.value.toDate`,
-                        error: new Shopware.Classes.ShopwareError({
+                        error: new ShopwareError({
                             detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
                             code: 'INVALID_DATE_RANGE',
                         }),
@@ -574,7 +585,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
 
             this.isLoading = true;
             this.loadEntityData(this.ruleId).then(() => {
@@ -584,13 +595,13 @@ export default {
         },
 
         saveRule() {
-            return this.ruleRepository.save(this.rule, Context.api);
+            return this.ruleRepository.save(this.rule, getApiContext());
         },
 
         syncConditions() {
-            return this.conditionRepository.sync(this.conditionTree, Context.api).then(() => {
+            return this.conditionRepository.sync(this.conditionTree, getApiContext()).then(() => {
                 if (this.deletedIds.length > 0) {
-                    return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
+                    return this.conditionRepository.syncDeleted(this.deletedIds, getApiContext()).then(() => {
                         this.deletedIds = [];
                     });
                 }
@@ -633,7 +644,7 @@ export default {
                 };
 
                 return this.ruleRepository
-                    .clone(this.rule.id, behaviour, Shopware.Context.api)
+                    .clone(this.rule.id, behaviour, getApiContext())
                     .then((duplicatedData) => {
                         return this.$router.push({
                             name: 'sw.settings.rule.detail.base',

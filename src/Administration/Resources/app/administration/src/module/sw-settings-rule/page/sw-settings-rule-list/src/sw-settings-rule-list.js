@@ -1,25 +1,35 @@
 import './sw-settings-rule-list.scss';
 import template from './sw-settings-rule-list.html.twig';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    filterFactoryService,
+    filterService,
+    getApiContext,
+    getDateFilter,
+    listingMixin,
+    notificationMixin,
+    repositoryFactoryService,
+    ruleConditionDataProviderService,
+    useContextStore,
+} from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'filterFactory',
-        'ruleConditionDataProviderService',
-        'filterService',
+        repositoryFactoryService,
+        aclService,
+        filterFactoryService,
+        ruleConditionDataProviderService,
+        filterService,
     ],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {
@@ -175,7 +185,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 
@@ -202,7 +212,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 
@@ -215,7 +225,7 @@ export default {
                 },
             };
 
-            this.ruleRepository.clone(referenceRule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
+            this.ruleRepository.clone(referenceRule.id, behaviour, getApiContext()).then((duplicatedData) => {
                 this.$router.push({
                     name: 'sw.settings.rule.detail.base',
                     params: { id: duplicatedData.id },

@@ -1,16 +1,15 @@
 import template from './sw-settings-rule-category-tree.html.twig';
 import './sw-settings-rule-category-tree.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria, getApiContext, repositoryFactoryService } from '../dependencies';
 
 /**
- * @private
+ * @public
  * @sw-package fundamentals@after-sales
  */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['on-selection'],
 
@@ -104,7 +103,7 @@ export default {
             }
 
             // search for categories
-            return this.categoryRepository.search(categoryCriteria, Shopware.Context.api).then((searchResult) => {
+            return this.categoryRepository.search(categoryCriteria, getApiContext()).then((searchResult) => {
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;

@@ -616,37 +616,37 @@
       "count": 1
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/calendar-month-and-week.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/calendar-month-and-week.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/calendar-quarter-and-year.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/calendar-quarter-and-year.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/last-n-months.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/last-n-months.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/legacy-and-invalid.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/legacy-and-invalid.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/range-and-rendering.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/range-and-rendering.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/relative-day-and-week.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/relative-day-and-week.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/component/filter/sw-date-filter/sw-date-filter.spec/timeframe-presets.spec.js": {
+  "src/app/component/filter/sw-date-filter/tests/sw-date-filter.spec/timeframe-presets.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
@@ -1699,7 +1699,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-generic/src/sw-condition-generic.js": {
+  "src/app/component/rule/condition-type/sw-condition-generic/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1707,7 +1707,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-generic/tests/sw-condition-generic.spec.js": {
+  "src/app/component/rule/condition-type/sw-condition-generic/sw-condition-generic.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 19
     }
@@ -2041,24 +2041,24 @@
       "count": 1
     }
   },
-  "src/app/component/structure/sw-admin-menu/sw-admin-menu.spec/branch-expansion.spec.js": {
+  "src/app/component/structure/sw-admin-menu/tests/sw-admin-menu.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 132
+    }
+  },
+  "src/app/component/structure/sw-admin-menu/tests/sw-admin-menu.spec/branch-expansion.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 24
     }
   },
-  "src/app/component/structure/sw-admin-menu/sw-admin-menu.spec/flyout-module-colors.spec.js": {
+  "src/app/component/structure/sw-admin-menu/tests/sw-admin-menu.spec/flyout-module-colors.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 5
     }
   },
-  "src/app/component/structure/sw-admin-menu/sw-admin-menu.spec/shortcuts.spec.js": {
+  "src/app/component/structure/sw-admin-menu/tests/sw-admin-menu.spec/shortcuts.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 10
-    }
-  },
-  "src/app/component/structure/sw-admin-menu/tests/sw-admin-menu.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 132
     }
   },
   "src/app/component/structure/sw-block-override/shim/twig-block-shim-adapter.spec.ts": {
@@ -2258,22 +2258,22 @@
       "count": 1
     }
   },
-  "src/app/component/structure/sw-sidebar-renderer/sw-sidebar-renderer.spec/overlay-focus-trap.spec.ts": {
-    "sw-test-rules/no-vm-access": {
-      "count": 2
-    }
-  },
   "src/app/component/structure/sw-sidebar-renderer/tests/sw-sidebar-renderer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 26
     }
   },
-  "src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/theme-select.spec.ts": {
+  "src/app/component/structure/sw-sidebar-renderer/tests/sw-sidebar-renderer.spec/overlay-focus-trap.spec.ts": {
+    "sw-test-rules/no-vm-access": {
+      "count": 2
+    }
+  },
+  "src/app/component/structure/sw-ui-shell-update-2026-modal/tests/sw-ui-shell-update-2026-modal.spec/theme-select.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/visibility.spec.ts": {
+  "src/app/component/structure/sw-ui-shell-update-2026-modal/tests/sw-ui-shell-update-2026-modal.spec/visibility.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
@@ -5354,17 +5354,17 @@
       "count": 1
     }
   },
-  "src/module/sw-category/component/sw-landing-page-tree/sw-landing-page-tree.spec/duplicate.spec.js": {
+  "src/module/sw-category/component/sw-landing-page-tree/tests/sw-landing-page-tree.spec/duplicate.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }
   },
-  "src/module/sw-category/component/sw-landing-page-tree/sw-landing-page-tree.spec/paging.spec.js": {
+  "src/module/sw-category/component/sw-landing-page-tree/tests/sw-landing-page-tree.spec/paging.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 31
     }
   },
-  "src/module/sw-category/component/sw-landing-page-tree/sw-landing-page-tree.spec/tree-actions.spec.js": {
+  "src/module/sw-category/component/sw-landing-page-tree/tests/sw-landing-page-tree.spec/tree-actions.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -7183,12 +7183,12 @@
       "count": 3
     }
   },
-  "src/module/sw-extension/component/sw-extension-permissions-details-modal/src/sw-extension-permissions-details-modal.js": {
+  "src/module/sw-extension/component/sw-extension-permissions-details-modal/index.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-extension/component/sw-extension-permissions-details-modal/tests/sw-extension-permissions-details-modal.spec.js": {
+  "src/module/sw-extension/component/sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -7354,32 +7354,32 @@
       "count": 1
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/sw-extension-my-extensions-listing.spec/bulk-actions.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/tests/sw-extension-my-extensions-listing.spec/bulk-actions.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 62
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/sw-extension-my-extensions-listing.spec/confirmation-modals.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/tests/sw-extension-my-extensions-listing.spec/confirmation-modals.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 55
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/sw-extension-my-extensions-listing.spec/consent.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/tests/sw-extension-my-extensions-listing.spec/consent.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 72
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/sw-extension-my-extensions-listing.spec/listing.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/tests/sw-extension-my-extensions-listing.spec/listing.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 17
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/sw-extension-my-extensions-listing.spec/selection.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/tests/sw-extension-my-extensions-listing.spec/selection.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 40
     }
   },
-  "src/module/sw-extension/page/sw-extension-my-extensions-listing/sw-extension-my-extensions-listing.spec/template-wiring.spec.js": {
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/tests/sw-extension-my-extensions-listing.spec/template-wiring.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 44
     }
@@ -8985,17 +8985,17 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.spec/add-line-item.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 3
-    }
-  },
   "src/module/sw-order/component/sw-order-line-items-grid/tests/sw-order-line-items-grid.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
       "count": 16
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid/tests/sw-order-line-items-grid.spec/add-line-item.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 3
     }
   },
   "src/module/sw-order/component/sw-order-nested-line-items-modal/src/sw-order-nested-line-items-modal.js": {
@@ -9156,17 +9156,17 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.spec/pagination.spec.js": {
+  "src/module/sw-order/component/sw-order-state-history-modal/tests/sw-order-state-history-modal.spec/pagination.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }
   },
-  "src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.spec/rendering.spec.js": {
+  "src/module/sw-order/component/sw-order-state-history-modal/tests/sw-order-state-history-modal.spec/rendering.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.spec/transaction-rows.spec.js": {
+  "src/module/sw-order/component/sw-order-state-history-modal/tests/sw-order-state-history-modal.spec/transaction-rows.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 9
     }

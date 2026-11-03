@@ -1,6 +1,8 @@
 import template from './sw-condition-generic.html.twig';
 import './sw-condition-generic.scss';
-import { genericConditionMixin, getPlaceholderSnippet } from '../dependencies';
+
+const { Mixin } = Shopware;
+const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
 
 /**
  * @public
@@ -11,11 +13,12 @@ import { genericConditionMixin, getPlaceholderSnippet } from '../dependencies';
  * @component-example
  * <sw-condition-generic :condition="condition" :level="0"></sw-condition-generic>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
     inheritAttrs: false,
 
-    mixins: [genericConditionMixin],
+    mixins: [Mixin.getByName('generic-condition')],
 
     data() {
         return {

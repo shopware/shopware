@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
-import ruleConditionsConfig from '../../_mocks/ruleConditionsConfig.json';
+import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
 
 const responses = global.repositoryFactoryMock.responses;
 

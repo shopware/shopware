@@ -357,6 +357,14 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
+## Plain JSON is the default Admin API response format
+
+Admin API entity responses switched to plain JSON when the `Accept` header is missing or contains only `*/*`.
+Integrations that parse JSON:API responses must explicitly send `Accept: application/vnd.api+json`.
+This header also works on earlier Shopware 6 versions.
+Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
+Listing responses contain `data`, `total`, and `aggregations`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.

@@ -136,6 +136,12 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Deleting a tree reports every level as deleted
+
+Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted.
+Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them.
+Webhook and app consumers now receive these additional deletes.
+
 ### Sync requests report products deleted earlier in the request as deleted
 
 A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
@@ -220,6 +226,13 @@ Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
 ## API
+
+### Plain JSON becomes the default Admin API response format in 6.8
+
+Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
+With the `v6.8.0.0` feature flag enabled, Admin API entity responses use plain JSON when the `Accept` header is missing or contains only `*/*`.
+Clients that expect JSON:API should explicitly send `Accept: application/vnd.api+json`; this header also works on earlier Shopware 6 versions.
+Clients can already opt into plain JSON with `Accept: application/json`.
 
 ### Usernames with surrounding whitespace
 
@@ -434,6 +447,16 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
+### Meteor Component Library updated to 5.9.0
+
+The Administration now uses Meteor Component Library `5.9.0`, Meteor Admin SDK `6.16.0` and Meteor Icon Kit `5.12.0`.
+
+Check your Administration extensions for these changes:
+
+- Clicks on links, buttons and form controls inside `mt-radio-group-custom-item` no longer select it.
+- `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
+- `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -465,6 +488,10 @@ The webpack hot proxy (`composer watch:storefront`) does not use it.
 ```bash
 SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
 ```
+### CMS sliders and image galleries respect vertical alignment
+
+Image gallery, image slider, and product slider CMS elements now apply their configured vertical alignment in the Storefront.
+Themes overriding their alignment blocks should preserve the alignment wrapper when vertical alignment is configured.
 
 ### CMS buy boxes select the configured variant
 
@@ -643,6 +670,13 @@ Shops that sell goods to consumers in the EU should enable "Show legal guarantee
 Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
 This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
 
+### FTP sources for media upload by URL are accepted again
+
+`POST /api/_action/media/{mediaId}/upload` and `POST /api/_action/media/upload_by_url` accept `ftp://` URLs again, which were rejected since 6.7.13.1.
+All connections of the download go to the checked address, so `shopware.media.enable_url_validation` and `shopware.media.url_upload_max_size` apply to FTP as they do to HTTP.
+FTP transfers credentials unencrypted, so HTTPS remains the recommended source.
+The accepted schemes are configured with `shopware.media.allowed_protocols`, which defaults to `['http', 'https', 'ftp']`.
+
 ### Storefront readiness checks skip pages restricted by extensions
 
 The `ProductDetailReadiness` and `ProductListingReadiness` system checks only probe product and listing pages an anonymous visitor can see.
@@ -655,6 +689,8 @@ A sales channel whose domain cannot be resolved is now reported as its own failu
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
+
+`bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
 
 ### Elasticsearch errors no longer fail `system:update:finish`
 

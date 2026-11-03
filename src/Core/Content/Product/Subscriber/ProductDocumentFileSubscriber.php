@@ -37,14 +37,15 @@ class ProductDocumentFileSubscriber implements EventSubscriberInterface
         foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
             $primaryKey = $command->getPrimaryKey();
             $documentId = Uuid::fromBytesToHex($primaryKey['product_document_id']);
+            $isDefaultVersion = Uuid::fromBytesToHex($primaryKey['language_id']) === Defaults::LANGUAGE_SYSTEM;
             $fileId = $command->getPayload()['media_id'] ?? null;
 
-            if (Uuid::fromBytesToHex($primaryKey['language_id']) === Defaults::LANGUAGE_SYSTEM) {
-                if (\is_string($fileId)) {
-                    $defaultFiles[$documentId] = $fileId;
-                }
-            } elseif ($fileId === null && ($command instanceof InsertCommand || $command->hasField('media_id'))) {
-                // new versions without a file, and versions whose file is removed
+            if ($isDefaultVersion && \is_string($fileId)) {
+                $defaultFiles[$documentId] = $fileId;
+            }
+
+            // new versions without a file, and versions whose file is removed
+            if (!$isDefaultVersion && $fileId === null && ($command instanceof InsertCommand || $command->hasField('media_id'))) {
                 $versionsWithoutFile[$documentId][] = $command;
             }
         }

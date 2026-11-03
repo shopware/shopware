@@ -1,9 +1,4 @@
-/**
- * @sw-package framework
- */
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-message-stats', () => import('./page/sw-settings-message-stats/index'));
+import './page/sw-settings-message-stats/register';
 
 Shopware.Module.register('sw-settings-message-stats', {
     type: 'core',

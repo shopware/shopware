@@ -3,7 +3,8 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/structure/sw-admin-menu/src/sw-admin-menu';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/structure/sw-admin-menu/private';
 import swAdminMenuExtension from 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
 import createMenuService from 'src/app/service/menu.service';
 

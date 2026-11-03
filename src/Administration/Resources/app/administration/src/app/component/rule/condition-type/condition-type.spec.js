@@ -3,7 +3,8 @@
  */
 /* global adminPath */
 import { mount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-base/src/sw-condition-base';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/rule/sw-condition-base/private';
 import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import fs from 'fs';

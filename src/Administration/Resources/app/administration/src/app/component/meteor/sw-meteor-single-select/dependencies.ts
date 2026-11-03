@@ -9,7 +9,9 @@ export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error.m
 export { feature as featureService } from 'src/app/service-names';
 
 /** @private */
-export const debounce = (...args: Parameters<typeof Shopware.Utils.debounce>) => Shopware.Utils.debounce(...args);
+export const debounce = ((...args: unknown[]) =>
+    (Shopware.Utils.debounce as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debounce;
 
 /** @private */
-export const get = (...args: Parameters<typeof Shopware.Utils.get>) => Shopware.Utils.get(...args);
+export const get = ((...args: unknown[]) =>
+    (Shopware.Utils.get as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.get;

@@ -27,18 +27,21 @@ export const getMediaNameFilter = () => Shopware.Filter.getByName(mediaNameFilte
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const fileSize = (...args: Parameters<typeof Shopware.Utils.format.fileSize>) =>
-    Shopware.Utils.format.fileSize(...args);
+export const fileSize = ((...args: unknown[]) =>
+    (Shopware.Utils.format.fileSize as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.format.fileSize;
 
 /** @private */
-export const getNameAndExtensionFromFile = (
-    ...args: Parameters<typeof Shopware.Utils.fileReader.getNameAndExtensionFromFile>
-) => Shopware.Utils.fileReader.getNameAndExtensionFromFile(...args);
+export const getNameAndExtensionFromFile = ((...args: unknown[]) =>
+    (Shopware.Utils.fileReader.getNameAndExtensionFromFile as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.fileReader.getNameAndExtensionFromFile;
 
 /** @private */
-export const getNameAndExtensionFromUrl = (
-    ...args: Parameters<typeof Shopware.Utils.fileReader.getNameAndExtensionFromUrl>
-) => Shopware.Utils.fileReader.getNameAndExtensionFromUrl(...args);
+export const getNameAndExtensionFromUrl = ((...args: unknown[]) =>
+    (Shopware.Utils.fileReader.getNameAndExtensionFromUrl as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.fileReader.getNameAndExtensionFromUrl;
 
 /** @private */
-export const warn = (...args: Parameters<typeof Shopware.Utils.debug.warn>) => Shopware.Utils.debug.warn(...args);
+export const warn = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.warn as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.warn;

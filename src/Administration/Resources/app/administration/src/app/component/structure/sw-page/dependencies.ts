@@ -13,5 +13,7 @@ export const useErrorStore = () => Shopware.Store.get(errorStoreId);
 export const useSessionStore = () => Shopware.Store.get(sessionStoreId);
 
 /** @private */
-export const getScrollbarWidth = (...args: Parameters<typeof Shopware.Utils.dom.getScrollbarWidth>) =>
-    Shopware.Utils.dom.getScrollbarWidth(...args);
+export const getScrollbarWidth = ((...args: unknown[]) =>
+    (Shopware.Utils.dom.getScrollbarWidth as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.dom.getScrollbarWidth;

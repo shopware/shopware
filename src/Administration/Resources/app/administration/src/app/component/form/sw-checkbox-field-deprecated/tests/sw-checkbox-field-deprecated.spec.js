@@ -3,8 +3,10 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
-import 'src/app/component/form/sw-checkbox-field/src/sw-checkbox-field';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-checkbox-field/private';
 import { ref } from 'vue';
 
 const defaultData = {

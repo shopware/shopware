@@ -2,9 +2,12 @@
  * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-switch-field/src/sw-switch-field';
-import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-switch-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-block-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
 
 async function createWrapper(profile) {
     return mount(await wrapTestComponent('sw-import-export-edit-profile-import-settings', { sync: true }), {

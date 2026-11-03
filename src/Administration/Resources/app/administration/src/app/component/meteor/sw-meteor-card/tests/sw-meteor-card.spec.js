@@ -4,8 +4,10 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-card/src/sw-meteor-card';
-import 'src/app/component/base/sw-tabs/src/sw-tabs';
-import 'src/app/component/base/sw-tabs-item/src/sw-tabs-item';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-tabs/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-tabs-item/private';
 
 function createFeatureMock(featureActive = false) {
     return {

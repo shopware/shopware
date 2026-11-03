@@ -20,5 +20,7 @@ export const useNotificationStore = () => Shopware.Store.get(notificationStoreId
 export const getAssetFilter = () => Shopware.Filter.getByName(assetFilterName);
 
 /** @private */
-export const copyStringToClipboard = (...args: Parameters<typeof Shopware.Utils.dom.copyStringToClipboard>) =>
-    Shopware.Utils.dom.copyStringToClipboard(...args);
+export const copyStringToClipboard = ((...args: unknown[]) =>
+    (Shopware.Utils.dom.copyStringToClipboard as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.dom.copyStringToClipboard;

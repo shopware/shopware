@@ -24,8 +24,11 @@ export const useActionButtonsStore = () => Shopware.Store.get(actionButtonsStore
 export const useShopwareAppsStore = () => Shopware.Store.get(shopwareAppsStoreId);
 
 /** @private */
-export const createId = (...args: Parameters<typeof Shopware.Utils.createId>) => Shopware.Utils.createId(...args);
+export const createId = ((...args: unknown[]) =>
+    (Shopware.Utils.createId as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.createId;
 
 /** @private */
-export const hasOwnProperty = (...args: Parameters<typeof Shopware.Utils.object.hasOwnProperty>) =>
-    Shopware.Utils.object.hasOwnProperty(...args);
+export const hasOwnProperty = ((...args: unknown[]) =>
+    (Shopware.Utils.object.hasOwnProperty as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.object.hasOwnProperty;

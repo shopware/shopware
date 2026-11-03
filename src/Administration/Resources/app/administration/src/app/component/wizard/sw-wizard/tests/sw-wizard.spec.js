@@ -4,7 +4,8 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard/src/sw-wizard';
-import 'src/app/component/wizard/sw-wizard-page/src/sw-wizard-page';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/wizard/sw-wizard-page/private';
 
 async function createWrapper(options = {}) {
     const pages = [];

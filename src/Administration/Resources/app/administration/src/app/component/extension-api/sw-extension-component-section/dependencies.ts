@@ -22,7 +22,9 @@ export const useExtensionComponentSectionsStore = () => Shopware.Store.get(exten
 export const useExtensionsStore = () => Shopware.Store.get(extensionsStoreId);
 
 /** @private */
-export const error = (...args: Parameters<typeof Shopware.Utils.debug.error>) => Shopware.Utils.debug.error(...args);
+export const error = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.error as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.error;
 
 /** @private */
-export const warn = (...args: Parameters<typeof Shopware.Utils.debug.warn>) => Shopware.Utils.debug.warn(...args);
+export const warn = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.warn as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.warn;

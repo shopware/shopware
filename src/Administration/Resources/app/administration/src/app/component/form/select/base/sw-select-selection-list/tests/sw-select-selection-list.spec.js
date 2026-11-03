@@ -3,7 +3,8 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-selection-list/src/sw-select-selection-list';
-import 'src/app/component/base/sw-label/src/sw-label';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-label/private';
 
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-select-selection-list', { sync: true }), {

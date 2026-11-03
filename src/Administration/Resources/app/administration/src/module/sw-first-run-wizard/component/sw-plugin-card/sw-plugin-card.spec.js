@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon/src/sw-extension-icon';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);

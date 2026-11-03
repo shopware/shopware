@@ -15,5 +15,7 @@ export const getApiContext = () => Shopware.Context.api;
 export const getAppContext = () => Shopware.Context.app;
 
 /** @private */
-export const isUndefined = (...args: Parameters<typeof Shopware.Utils.types.isUndefined>) =>
-    Shopware.Utils.types.isUndefined(...args);
+export const isUndefined = ((...args: unknown[]) =>
+    (Shopware.Utils.types.isUndefined as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.types.isUndefined;

@@ -80,15 +80,21 @@ export { feature as featureService } from 'src/app/service-names';
 export const useSessionStore = () => Shopware.Store.get(sessionStoreId);
 
 /** @private */
-export const dateWithUserTimezone = (...args: Parameters<typeof Shopware.Utils.format.dateWithUserTimezone>) =>
-    Shopware.Utils.format.dateWithUserTimezone(...args);
+export const dateWithUserTimezone = ((...args: unknown[]) =>
+    (Shopware.Utils.format.dateWithUserTimezone as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.format.dateWithUserTimezone;
 
 /** @private */
-export const deepCopyObject = (...args: Parameters<typeof Shopware.Utils.object.deepCopyObject>) =>
-    Shopware.Utils.object.deepCopyObject(...args);
+export const deepCopyObject = ((...args: unknown[]) =>
+    (Shopware.Utils.object.deepCopyObject as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.object.deepCopyObject;
 
 /** @private */
-export const merge = (...args: Parameters<typeof Shopware.Utils.object.merge>) => Shopware.Utils.object.merge(...args);
+export const merge = ((...args: unknown[]) =>
+    (Shopware.Utils.object.merge as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.object.merge;
 
 /** @private */
-export const warn = (...args: Parameters<typeof Shopware.Utils.debug.warn>) => Shopware.Utils.debug.warn(...args);
+export const warn = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.warn as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.warn;

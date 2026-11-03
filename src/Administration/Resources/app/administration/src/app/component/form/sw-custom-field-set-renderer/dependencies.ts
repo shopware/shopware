@@ -25,5 +25,5 @@ export const useContextStore = () => Shopware.Store.get(contextStoreId);
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const cloneDeep = (...args: Parameters<typeof Shopware.Utils.object.cloneDeep>) =>
-    Shopware.Utils.object.cloneDeep(...args);
+export const cloneDeep = ((...args: unknown[]) =>
+    (Shopware.Utils.object.cloneDeep as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.object.cloneDeep;

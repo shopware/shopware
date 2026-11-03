@@ -4,7 +4,8 @@
 
 import { mount } from '@vue/test-utils';
 
-import 'src/app/component/form/select/base/sw-single-select/src/sw-single-select';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/select/base/sw-single-select/private';
 
 const createWrapper = async (props = {}, attrs = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {

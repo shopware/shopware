@@ -23,5 +23,7 @@ export const getMediaNameFilter = () => Shopware.Filter.getByName(mediaNameFilte
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const readAsDataURL = (...args: Parameters<typeof Shopware.Utils.fileReader.readAsDataURL>) =>
-    Shopware.Utils.fileReader.readAsDataURL(...args);
+export const readAsDataURL = ((...args: unknown[]) =>
+    (Shopware.Utils.fileReader.readAsDataURL as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.fileReader.readAsDataURL;

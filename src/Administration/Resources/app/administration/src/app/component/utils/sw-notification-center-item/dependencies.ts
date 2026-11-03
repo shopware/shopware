@@ -12,4 +12,5 @@ export { default as notificationTranslationMixin } from 'src/app/mixin/notificat
 export const useNotificationStore = () => Shopware.Store.get(notificationStoreId);
 
 /** @private */
-export const isUrl = (...args: Parameters<typeof Shopware.Utils.string.isUrl>) => Shopware.Utils.string.isUrl(...args);
+export const isUrl = ((...args: unknown[]) =>
+    (Shopware.Utils.string.isUrl as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.string.isUrl;

@@ -20,4 +20,5 @@ export {
 export const getUserConfigService = () => Shopware.Service(userConfigService);
 
 /** @private */
-export const debounce = (...args: Parameters<typeof Shopware.Utils.debounce>) => Shopware.Utils.debounce(...args);
+export const debounce = ((...args: unknown[]) =>
+    (Shopware.Utils.debounce as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debounce;

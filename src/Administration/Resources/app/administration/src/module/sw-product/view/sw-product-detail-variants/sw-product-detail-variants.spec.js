@@ -4,8 +4,10 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import 'src/app/component/utils/sw-loader/src/sw-loader';
-import 'src/app/component/base/sw-button/src/sw-button';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/utils/sw-loader/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-button/private';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 

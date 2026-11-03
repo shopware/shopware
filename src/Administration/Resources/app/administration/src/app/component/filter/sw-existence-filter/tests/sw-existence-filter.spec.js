@@ -3,10 +3,14 @@
  */
 
 import 'src/app/component/filter/sw-existence-filter/src/sw-existence-filter';
-import 'src/app/component/filter/sw-base-filter/src/sw-base-filter';
-import 'src/app/component/form/sw-select-field/src/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/filter/sw-base-filter/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-select-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-block-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
 import { mount } from '@vue/test-utils';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 

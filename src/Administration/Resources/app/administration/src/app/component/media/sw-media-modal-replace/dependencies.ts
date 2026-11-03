@@ -18,9 +18,11 @@ export {
 export const useContextStore = () => Shopware.Store.get(contextStoreId);
 
 /** @private */
-export const createId = (...args: Parameters<typeof Shopware.Utils.createId>) => Shopware.Utils.createId(...args);
+export const createId = ((...args: unknown[]) =>
+    (Shopware.Utils.createId as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.createId;
 
 /** @private */
-export const getNameAndExtensionFromFile = (
-    ...args: Parameters<typeof Shopware.Utils.fileReader.getNameAndExtensionFromFile>
-) => Shopware.Utils.fileReader.getNameAndExtensionFromFile(...args);
+export const getNameAndExtensionFromFile = ((...args: unknown[]) =>
+    (Shopware.Utils.fileReader.getNameAndExtensionFromFile as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.fileReader.getNameAndExtensionFromFile;

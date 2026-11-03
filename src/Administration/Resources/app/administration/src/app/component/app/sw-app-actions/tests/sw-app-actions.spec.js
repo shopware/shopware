@@ -3,16 +3,23 @@
  */
 
 import { config, mount } from '@vue/test-utils';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon/src/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from '../src/_fixtures/app-action.fixtures';
 import 'src/app/component/app/sw-app-actions/src/sw-app-actions';
-import 'src/app/component/base/sw-button/src/sw-button';
-import 'src/app/component/app/sw-app-action-button/src/sw-app-action-button';
-import 'src/app/component/context-menu/sw-context-button/src/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu/src/sw-context-menu';
-import 'src/app/component/context-menu/sw-context-menu-item/src/sw-context-menu-item';
-import 'src/app/component/utils/sw-popover/src/sw-popover';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-button/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/app/sw-app-action-button/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/context-menu/sw-context-button/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/context-menu/sw-context-menu/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/context-menu/sw-context-menu-item/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/utils/sw-popover/private';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 

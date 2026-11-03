@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwStatus from 'src/app/component/utils/sw-status/src/sw-status';
 import {
     MtModalAction,
@@ -10,6 +11,7 @@ import {
     MtButton,
 } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesServiceCard from '../src/sw-settings-services-service-card';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwColorBadge from '../../../../../../../app/component/utils/sw-color-badge/src/sw-color-badge';
 
 const createService = (overrides = {}) => ({

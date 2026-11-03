@@ -12,4 +12,5 @@ export { repositoryFactory as repositoryFactoryService } from 'src/app/service-n
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const debounce = (...args: Parameters<typeof Shopware.Utils.debounce>) => Shopware.Utils.debounce(...args);
+export const debounce = ((...args: unknown[]) =>
+    (Shopware.Utils.debounce as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debounce;

@@ -3,11 +3,16 @@
  */
 
 import 'src/app/component/filter/sw-filter-panel/src/sw-filter-panel';
-import 'src/app/component/filter/sw-boolean-filter/src/sw-boolean-filter';
-import 'src/app/component/filter/sw-existence-filter/src/sw-existence-filter';
-import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
-import 'src/app/component/filter/sw-base-filter/src/sw-base-filter';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/filter/sw-boolean-filter/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/filter/sw-existence-filter/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-block-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/filter/sw-base-filter/private';
 import { mount } from '@vue/test-utils';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 

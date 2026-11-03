@@ -1,8 +1,10 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/data-grid/sw-data-grid/src/sw-data-grid';
-import 'src/app/component/base/sw-button/src/sw-button';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/data-grid/sw-data-grid/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-button/private';
 
 /**
  * @sw-package checkout

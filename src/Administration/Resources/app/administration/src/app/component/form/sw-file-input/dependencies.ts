@@ -11,5 +11,5 @@ export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
 export { feature as featureService } from 'src/app/service-names';
 
 /** @private */
-export const fileSize = (...args: Parameters<typeof Shopware.Utils.format.fileSize>) =>
-    Shopware.Utils.format.fileSize(...args);
+export const fileSize = ((...args: unknown[]) =>
+    (Shopware.Utils.format.fileSize as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.format.fileSize;

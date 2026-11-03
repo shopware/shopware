@@ -4,7 +4,8 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-file-input/src/sw-file-input';
-import 'src/app/component/context-menu/sw-context-menu-item/src/sw-context-menu-item';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/context-menu/sw-context-menu-item/private';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-file-input', { sync: true }), {

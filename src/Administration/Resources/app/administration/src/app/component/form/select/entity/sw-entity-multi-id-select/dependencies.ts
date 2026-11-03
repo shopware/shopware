@@ -18,4 +18,5 @@ export { feature as featureService } from 'src/app/service-names';
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const isEqual = (...args: Parameters<typeof Shopware.Utils.types.isEqual>) => Shopware.Utils.types.isEqual(...args);
+export const isEqual = ((...args: unknown[]) =>
+    (Shopware.Utils.types.isEqual as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.types.isEqual;

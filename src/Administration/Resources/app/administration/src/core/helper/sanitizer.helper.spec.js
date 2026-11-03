@@ -5,7 +5,8 @@
 import { mount } from '@vue/test-utils';
 
 import Sanitizer from 'src/core/helper/sanitizer.helper';
-import 'src/app/component/base/sw-empty-state/src/sw-empty-state';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-empty-state/private';
 import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
 import { deprecations } from 'test/_helper_/deprecations';
 

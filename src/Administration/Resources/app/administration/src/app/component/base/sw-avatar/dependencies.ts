@@ -4,5 +4,5 @@
  * Everything sw-avatar needs from outside its mini-module.
  */
 /** @private */
-export const cloneDeep = (...args: Parameters<typeof Shopware.Utils.object.cloneDeep>) =>
-    Shopware.Utils.object.cloneDeep(...args);
+export const cloneDeep = ((...args: unknown[]) =>
+    (Shopware.Utils.object.cloneDeep as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.object.cloneDeep;

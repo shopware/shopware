@@ -4,13 +4,20 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-select-rule-create/src/sw-select-rule-create';
-import 'src/app/component/form/select/base/sw-single-select/src/sw-single-select';
-import 'src/app/component/form/select/entity/sw-entity-single-select/src/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base/src/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-result-list/src/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result/src/sw-select-result';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/select/base/sw-single-select/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/select/entity/sw-entity-single-select/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/select/base/sw-select-base/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-block-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/select/base/sw-select-result-list/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/select/base/sw-select-result/private';
 
 describe('components/sw-select-rule-create', () => {
     const responses = global.repositoryFactoryMock.responses;

@@ -25,5 +25,7 @@ export const getThumbnailSizeFilter = () => Shopware.Filter.getByName(thumbnailS
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const publishData = (...args: Parameters<typeof Shopware.ExtensionAPI.publishData>) =>
-    Shopware.ExtensionAPI.publishData(...args);
+export const publishData = ((...args: unknown[]) =>
+    (Shopware.ExtensionAPI.publishData as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.ExtensionAPI.publishData;

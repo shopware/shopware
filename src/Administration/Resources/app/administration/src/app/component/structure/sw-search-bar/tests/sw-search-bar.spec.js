@@ -6,7 +6,8 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar/src/sw-search-bar';
-import 'src/app/component/structure/sw-search-bar-item/src/sw-search-bar-item';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/structure/sw-search-bar-item/private';
 import Criteria from 'src/core/data/criteria.data';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 

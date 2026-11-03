@@ -11,9 +11,13 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesIndex from '../src/sw-settings-services-index';
 import { useShopwareServicesStore } from '../../../store/shopware-services.store';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwSettingsServicesHero from '../src/sw-settings-services-hero/src/sw-settings-services-hero';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwSettingsServicesGrantPermissionsCard from '../src/sw-settings-services-grant-permissions-card/src/sw-settings-services-grant-permissions-card';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwSettingsServicesRevokePermissionsModal from '../src/sw-settings-services-revoke-permissions-modal/src/sw-settings-services-revoke-permissions-modal';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwSettingsServicesDeactivateModal from '../src/sw-settings-services-deactivate-modal/src/sw-settings-services-deactivate-modal';
 import * as permissionsComposable from '../../../composables/permissions';
 

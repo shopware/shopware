@@ -18,14 +18,17 @@ export { feature as featureService, repositoryFactory as repositoryFactoryServic
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const camelCase = (...args: Parameters<typeof Shopware.Utils.string.camelCase>) =>
-    Shopware.Utils.string.camelCase(...args);
+export const camelCase = ((...args: unknown[]) =>
+    (Shopware.Utils.string.camelCase as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.string.camelCase;
 
 /** @private */
-export const debounce = (...args: Parameters<typeof Shopware.Utils.debounce>) => Shopware.Utils.debounce(...args);
+export const debounce = ((...args: unknown[]) =>
+    (Shopware.Utils.debounce as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debounce;
 
 /** @private */
-export const error = (...args: Parameters<typeof Shopware.Utils.debug.error>) => Shopware.Utils.debug.error(...args);
+export const error = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.error as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.error;
 
 /** @private */
-export const get = (...args: Parameters<typeof Shopware.Utils.get>) => Shopware.Utils.get(...args);
+export const get = ((...args: unknown[]) =>
+    (Shopware.Utils.get as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.get;

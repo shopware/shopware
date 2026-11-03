@@ -49,11 +49,15 @@ export const useSessionStore = () => Shopware.Store.get(sessionStoreId);
 export const useShopwareAppsStore = () => Shopware.Store.get(shopwareAppsStoreId);
 
 /** @private */
-export const createId = (...args: Parameters<typeof Shopware.Utils.createId>) => Shopware.Utils.createId(...args);
+export const createId = ((...args: unknown[]) =>
+    (Shopware.Utils.createId as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.createId;
 
 /** @private */
-export const error = (...args: Parameters<typeof Shopware.Utils.debug.error>) => Shopware.Utils.debug.error(...args);
+export const error = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.error as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.error;
 
 /** @private */
-export const getScrollbarWidth = (...args: Parameters<typeof Shopware.Utils.dom.getScrollbarWidth>) =>
-    Shopware.Utils.dom.getScrollbarWidth(...args);
+export const getScrollbarWidth = ((...args: unknown[]) =>
+    (Shopware.Utils.dom.getScrollbarWidth as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.dom.getScrollbarWidth;

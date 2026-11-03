@@ -1,7 +1,10 @@
 import { mount } from '@vue/test-utils';
-import 'src/app/component/base/sw-button/src/sw-button';
-import 'src/app/component/form/sw-radio-field/src/sw-radio-field';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-button/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-radio-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { DOCUMENT_TYPES } from '../../order.types';
 import { REQUIRES_INVOICE } from './index';

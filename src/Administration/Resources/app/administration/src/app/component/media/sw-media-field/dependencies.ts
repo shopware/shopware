@@ -12,4 +12,5 @@ export { feature as featureService, repositoryFactory as repositoryFactoryServic
 export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
-export const createId = (...args: Parameters<typeof Shopware.Utils.createId>) => Shopware.Utils.createId(...args);
+export const createId = ((...args: unknown[]) =>
+    (Shopware.Utils.createId as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.createId;

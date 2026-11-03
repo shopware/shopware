@@ -3,11 +3,16 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-text-field/src/sw-text-field';
-import 'src/app/component/form/sw-password-field/src/sw-password-field';
-import 'src/app/component/form/field-base/sw-contextual-field/src/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field/src/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field/src/sw-base-field';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-text-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-password-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-contextual-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-block-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/field-base/sw-base-field/private';
 import { ref } from 'vue';
 
 async function createWrapper({ provide, ...additionalOptions } = {}) {

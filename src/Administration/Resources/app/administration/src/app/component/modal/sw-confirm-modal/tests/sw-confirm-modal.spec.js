@@ -5,7 +5,8 @@
 import { mount } from '@vue/test-utils';
 
 import 'src/app/component/modal/sw-confirm-modal/src/sw-confirm-modal';
-import 'src/app/component/base/sw-modal/src/sw-modal';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-modal/private';
 
 describe('src/app/component/modal/sw-confirm-modal', () => {
     let wrapper = null;

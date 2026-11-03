@@ -18,5 +18,7 @@ export const useContextStore = () => Shopware.Store.get(contextStoreId);
 export const useSessionStore = () => Shopware.Store.get(sessionStoreId);
 
 /** @private */
-export const hasOwnProperty = (...args: Parameters<typeof Shopware.Utils.object.hasOwnProperty>) =>
-    Shopware.Utils.object.hasOwnProperty(...args);
+export const hasOwnProperty = ((...args: unknown[]) =>
+    (Shopware.Utils.object.hasOwnProperty as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.object.hasOwnProperty;

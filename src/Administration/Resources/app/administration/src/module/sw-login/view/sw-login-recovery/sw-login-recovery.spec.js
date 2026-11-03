@@ -5,9 +5,12 @@
 import { config, mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-recovery';
-import 'src/app/component/form/sw-text-field/src/sw-text-field';
-import 'src/app/component/base/sw-button/src/sw-button';
-import 'src/app/component/base/sw-alert/src/sw-alert';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/form/sw-text-field/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-button/private';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/base/sw-alert/private';
 
 async function createWrapper(validateEmailAddress = null) {
     // delete global $router and $routes mocks

@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration
 import SwSettingsUsageDataStoreDataConsent from '../src/sw-settings-usage-data-store-data-consent/src/sw-settings-usage-data-store-data-consent';
 
 /**

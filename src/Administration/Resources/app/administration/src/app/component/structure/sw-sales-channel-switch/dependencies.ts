@@ -7,4 +7,5 @@
 export { default as Criteria } from 'src/core/data/criteria.data';
 
 /** @private */
-export const warn = (...args: Parameters<typeof Shopware.Utils.debug.warn>) => Shopware.Utils.debug.warn(...args);
+export const warn = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.warn as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.warn;

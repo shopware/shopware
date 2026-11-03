@@ -3,7 +3,8 @@
  */
 
 import 'src/app/component/filter/sw-range-filter/src/sw-range-filter';
-import 'src/app/component/filter/sw-base-filter/src/sw-base-filter';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import 'src/app/component/filter/sw-base-filter/private';
 import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;

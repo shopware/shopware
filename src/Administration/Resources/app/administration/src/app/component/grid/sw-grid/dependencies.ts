@@ -7,8 +7,11 @@
 export { computed } from 'vue';
 
 /** @private */
-export const error = (...args: Parameters<typeof Shopware.Utils.debug.error>) => Shopware.Utils.debug.error(...args);
+export const error = ((...args: unknown[]) =>
+    (Shopware.Utils.debug.error as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debug.error;
 
 /** @private */
-export const getScrollbarWidth = (...args: Parameters<typeof Shopware.Utils.dom.getScrollbarWidth>) =>
-    Shopware.Utils.dom.getScrollbarWidth(...args);
+export const getScrollbarWidth = ((...args: unknown[]) =>
+    (Shopware.Utils.dom.getScrollbarWidth as (...args: unknown[]) => unknown)(
+        ...args,
+    )) as typeof Shopware.Utils.dom.getScrollbarWidth;

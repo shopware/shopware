@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -140,6 +141,22 @@ class EntityAggregatorTest extends TestCase
         static::assertFalse($agg->has($ids->get('white')));
         static::assertFalse($agg->has($ids->get('xs')));
         static::assertFalse($agg->has($ids->get('foo')));
+    }
+
+    /**
+     * A segment that only contains `extensions` as a substring stays intact,
+     * so the accessor is unmapped and the query is rejected while it is built.
+     */
+    public function testAggregationFieldIsResolvedPerSegment(): void
+    {
+        $accessor = 'product.mediextensions.a.media';
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('media', $accessor));
+
+        $this->expectExceptionObject(new UnmappedFieldException($accessor, $this->definition));
+
+        $this->aggregator->aggregate($this->definition, $criteria, Context::createDefaultContext());
     }
 
     public function testSingleTermsAggregation(): void

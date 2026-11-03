@@ -21,6 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -177,5 +179,41 @@ class ProductSerializerTest extends TestCase
             ['optionId' => $optionIds[1], 'product' => ['id' => $parentId], 'id' => $existingSettingId],
             ['optionId' => $optionIds[2], 'product' => ['id' => $parentId]],
         ], $result['configuratorSettings']);
+    }
+
+    public function testTheSalesChannelNamesOfEveryVisibilityKeyAreResolvedInOneSearch(): void
+    {
+        $channels = ['Storefront' => Uuid::randomHex(), 'Headless' => Uuid::randomHex(), 'Feed' => Uuid::randomHex()];
+
+        $salesChannels = new SalesChannelCollection(array_map(
+            static fn (string $name, string $id) => (new SalesChannelEntity())->assign(['id' => $id, 'name' => $name]),
+            array_keys($channels),
+            array_values($channels)
+        ));
+
+        // one result per visibility key, so a per-key lookup is counted rather than running the queue dry
+        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = new StaticEntityRepository(
+            [$salesChannels, $salesChannels, $salesChannels],
+            new SalesChannelDefinition()
+        );
+
+        $serializer = new ProductSerializer(
+            StaticEntityRepository::of(ProductVisibilityCollection::class),
+            $salesChannelRepository,
+            StaticEntityRepository::of(ProductMediaCollection::class),
+            StaticEntityRepository::of(ProductConfiguratorSettingCollection::class)
+        );
+        $serializer->setRegistry(new SerializerRegistry([], [new FieldSerializer()]));
+
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $record = ['visibilities' => ['all' => 'Storefront', 'link' => 'Headless', 'search' => 'Feed']];
+
+        $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
+
+        static::assertCount(1, $salesChannelRepository->searchedCriteria);
+        static::assertSame(array_values($channels), array_column($result['visibilities'], 'salesChannelId'));
     }
 }

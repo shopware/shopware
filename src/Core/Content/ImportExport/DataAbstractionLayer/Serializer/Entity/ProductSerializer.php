@@ -114,16 +114,28 @@ class ProductSerializer extends EntitySerializer
 
         $context = Context::createDefaultContext();
 
+        $valuesByType = [];
+        $salesChannelNames = [];
+
         foreach ($mapping as $key => $type) {
             if (!isset($entity['visibilities'][$key])) {
                 continue;
             }
 
-            $ids = array_filter(explode('|', (string) $entity['visibilities'][$key]));
+            $values = array_filter(explode('|', (string) $entity['visibilities'][$key]));
+            $valuesByType[$type] = $values;
 
-            $ids = $this->convertSalesChannelNamesToIds($ids, $context);
+            foreach ($values as $value) {
+                if (!Uuid::isValid($value)) {
+                    $salesChannelNames[] = $value;
+                }
+            }
+        }
 
-            foreach ($ids as $salesChannelId) {
+        $idsByName = $this->mapSalesChannelNamesToIds($salesChannelNames, $context);
+
+        foreach ($valuesByType as $type => $values) {
+            foreach ($this->toSalesChannelIds($values, $idsByName) as $salesChannelId) {
                 $visibility = [
                     'salesChannelId' => $salesChannelId,
                     'visibility' => $type,
@@ -190,41 +202,60 @@ class ProductSerializer extends EntitySerializer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $names
      *
-     * @return array<string>
+     * @return array<string, string>
      */
-    private function convertSalesChannelNamesToIds(array $ids, Context $context): array
+    private function mapSalesChannelNamesToIds(array $names, Context $context): array
     {
-        $salesChannelNames = [];
+        $names = array_unique($names);
 
-        foreach ($ids as $key => $id) {
-            if (!Uuid::isValid($id)) {
-                $salesChannelNames[] = $id;
-                unset($ids[$key]);
-            }
+        if ($names === []) {
+            return [];
         }
 
-        if ($salesChannelNames === []) {
-            return $ids;
-        }
-
-        $salesChannelNames = array_unique($salesChannelNames);
         $filters = [];
 
-        foreach ($salesChannelNames as $salesChannelName) {
-            $filters[] = new EqualsFilter('name', $salesChannelName);
+        foreach ($names as $name) {
+            $filters[] = new EqualsFilter('name', $name);
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
 
-        $additionalIds = $this->salesChannelRepository->searchIds(
-            $criteria,
-            $context
-        )->getIds();
+        $idsByName = [];
 
-        return array_unique(array_merge($ids, $additionalIds));
+        foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $salesChannel) {
+            $idsByName[(string) $salesChannel->getName()] = $salesChannel->getId();
+        }
+
+        return $idsByName;
+    }
+
+    /**
+     * @param array<string> $values
+     * @param array<string, string> $idsByName
+     *
+     * @return array<string>
+     */
+    private function toSalesChannelIds(array $values, array $idsByName): array
+    {
+        $ids = [];
+        $resolved = [];
+
+        foreach ($values as $value) {
+            if (Uuid::isValid($value)) {
+                $ids[] = $value;
+
+                continue;
+            }
+
+            if (isset($idsByName[$value])) {
+                $resolved[] = $idsByName[$value];
+            }
+        }
+
+        return array_unique(array_merge($ids, $resolved));
     }
 
     /**

@@ -381,7 +381,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDocumentFileStorage::class)
         ->args([
             service(Connection::class),
-            service(ClockInterface::class),
         ]);
 
     $services->set(ProductDocumentFileSubscriber::class)

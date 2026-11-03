@@ -31,10 +31,10 @@ class ProductDocumentApiTest extends TestCase
         static::getContainer()->get('media.repository')->create([$this->file('manual')], Context::createDefaultContext());
     }
 
-    public function testLanguageVersionsWithoutTheirOwnFileFollowTheFileOfTheDefaultLanguage(): void
+    public function testLanguageVersionsWithoutAFileGetTheFileOfTheDefaultLanguage(): void
     {
         $germanId = $this->getDeDeLanguageId();
-        static::getContainer()->get('media.repository')->create([$this->file('datasheet'), $this->file('handbuch')], Context::createDefaultContext());
+        static::getContainer()->get('media.repository')->create([$this->file('datasheet')], Context::createDefaultContext());
         $this->createDrillWithBlueVariant();
         $documents = static::getContainer()->get('product_document.repository');
         $document = ['id' => $this->ids->create('document'), 'productId' => $this->ids->get('drill'), ...$this->manual(), 'translations' => [$germanId => ['title' => 'Handbuch']]];
@@ -43,11 +43,10 @@ class ProductDocumentApiTest extends TestCase
         static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('manual'), $germanId => $this->ids->get('manual')], $this->getFiles());
 
         $documents->update([['id' => $this->ids->get('document'), 'mediaId' => $this->ids->get('datasheet')]], Context::createDefaultContext());
-        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('datasheet'), $germanId => $this->ids->get('datasheet')], $this->getFiles());
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('datasheet'), $germanId => $this->ids->get('manual')], $this->getFiles());
 
-        $documents->update([['id' => $this->ids->get('document'), 'translations' => [$germanId => ['mediaId' => $this->ids->get('handbuch')]]]], Context::createDefaultContext());
-        $documents->update([['id' => $this->ids->get('document'), 'mediaId' => $this->ids->get('manual')]], Context::createDefaultContext());
-        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('manual'), $germanId => $this->ids->get('handbuch')], $this->getFiles());
+        $documents->update([['id' => $this->ids->get('document'), 'translations' => [$germanId => ['mediaId' => null]]]], Context::createDefaultContext());
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => $this->ids->get('datasheet'), $germanId => $this->ids->get('datasheet')], $this->getFiles());
     }
 
     public function testDocumentRoutesOfTheAdminApiInvalidateTheProductAndItsVariants(): void

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentFileStorage;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
@@ -13,7 +12,6 @@ use Shopware\Core\Content\Product\Subscriber\ProductDocumentFileSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -36,17 +34,11 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
     private const GERMAN = 'dededededededededededededededede';
 
-    private const FRENCH = 'f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0';
-
     private const DEFAULT_FILE = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
     private const NEW_DEFAULT_FILE = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 
     private const GERMAN_FILE = 'cccccccccccccccccccccccccccccccc';
-
-    private const NEW_GERMAN_FILE = 'dddddddddddddddddddddddddddddddd';
-
-    private const FRENCH_FILE = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
     private ProductDocumentTranslationDefinition $definition;
 
@@ -63,27 +55,29 @@ class ProductDocumentFileSubscriberTest extends TestCase
     {
         $command = $this->insert(self::GERMAN);
 
-        $this->write([$command], $this->storage([Defaults::LANGUAGE_SYSTEM => self::DEFAULT_FILE, self::FRENCH => self::FRENCH_FILE]));
+        $this->write([$command], $this->storage(self::DEFAULT_FILE));
 
         static::assertSame(self::DEFAULT_FILE, self::fileOf($command));
     }
 
-    public function testRemovingTheFileOfAVersionGivesItTheFileAgain(): void
+    public function testRemovingTheFileOfAVersionGivesItTheDefaultFile(): void
     {
         $command = $this->update(self::GERMAN, ['media_id' => null]);
 
-        $this->write([$command], $this->storage([Defaults::LANGUAGE_SYSTEM => self::DEFAULT_FILE, self::GERMAN => self::GERMAN_FILE]));
+        $this->write([$command], $this->storage(self::DEFAULT_FILE));
 
         static::assertSame(self::DEFAULT_FILE, self::fileOf($command));
     }
 
     public function testAVersionGetsTheFileOfTheDefaultVersionWrittenWithIt(): void
     {
+        $storage = $this->storage(self::DEFAULT_FILE);
         $german = $this->insert(self::GERMAN);
 
-        $this->write([$this->insert(Defaults::LANGUAGE_SYSTEM, self::DEFAULT_FILE), $german], $this->storage());
+        $this->write([$german, $this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)])], $storage);
 
-        static::assertSame(self::DEFAULT_FILE, self::fileOf($german));
+        static::assertSame(self::NEW_DEFAULT_FILE, self::fileOf($german));
+        static::assertSame(0, $storage->reads);
     }
 
     public function testVersionsWithTheirOwnFileAndTheDefaultVersionStayAsWritten(): void
@@ -91,80 +85,42 @@ class ProductDocumentFileSubscriberTest extends TestCase
         $german = $this->insert(self::GERMAN, self::GERMAN_FILE);
         $default = $this->insert(Defaults::LANGUAGE_SYSTEM);
 
-        $this->write([$default, $german], $this->storage());
+        $this->write([$default, $german], $this->storage(self::DEFAULT_FILE));
 
         static::assertSame(self::GERMAN_FILE, self::fileOf($german));
         static::assertNull(self::fileOf($default));
     }
 
-    public function testVersionsThatStillHaveTheOldFileGetTheNewOneAfterTheWrite(): void
+    public function testVersionsKeepTheirFileWhenTheDefaultLanguageGetsAnotherOne(): void
     {
-        $storage = $this->storage([Defaults::LANGUAGE_SYSTEM => self::DEFAULT_FILE, self::GERMAN => self::DEFAULT_FILE, self::FRENCH => self::FRENCH_FILE]);
-
-        $event = $this->write([$this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)])], $storage);
-
-        static::assertSame([], $storage->moves);
-        $event->success();
-        static::assertSame([self::move(self::GERMAN, self::DEFAULT_FILE, self::NEW_DEFAULT_FILE)], $storage->moves);
-    }
-
-    public function testOnlyANewDefaultFileMovesOtherVersions(): void
-    {
-        $storage = $this->storage([Defaults::LANGUAGE_SYSTEM => self::DEFAULT_FILE, self::GERMAN => self::GERMAN_FILE, self::FRENCH => self::GERMAN_FILE]);
-
-        $this->write([$this->update(self::GERMAN, ['media_id' => Uuid::fromHexToBytes(self::NEW_GERMAN_FILE)])], $storage)->success();
-
-        static::assertSame([], $storage->moves);
-    }
-
-    public function testAFollowingVersionInTheSameWriteGetsTheNewFileInItsWrite(): void
-    {
-        $storage = $this->storage([Defaults::LANGUAGE_SYSTEM => self::DEFAULT_FILE, self::GERMAN => self::DEFAULT_FILE]);
         $german = $this->update(self::GERMAN, ['title' => 'Handbuch']);
 
-        $this->write([$this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]), $german], $storage)->success();
-
-        static::assertSame(self::NEW_DEFAULT_FILE, self::fileOf($german));
-        static::assertSame([], $storage->moves);
-    }
-
-    public function testADeletedVersionIsLeftAlone(): void
-    {
-        $storage = $this->storage([Defaults::LANGUAGE_SYSTEM => self::DEFAULT_FILE, self::GERMAN => self::DEFAULT_FILE]);
-        $german = new DeleteCommand($this->definition, self::primaryKey(self::GERMAN), static::createStub(EntityExistence::class));
-
-        $this->write([$this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]), $german], $storage)->success();
+        $this->write([$this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]), $german], $this->storage(self::DEFAULT_FILE));
 
         static::assertNull(self::fileOf($german));
-        static::assertSame([], $storage->moves);
     }
 
-    public function testNothingIsReadWithoutLanguageVersions(): void
+    public function testNothingIsReadWhenNoVersionIsWithoutAFile(): void
     {
-        $storage = $this->storage();
+        $storage = $this->storage(self::DEFAULT_FILE);
 
-        $this->write([], $storage);
+        $this->write([$this->update(self::GERMAN, ['title' => 'Handbuch'])], $storage);
 
         static::assertSame(0, $storage->reads);
     }
 
-    /**
-     * @param array<string, string> $files
-     */
-    private function storage(array $files = []): FakeProductDocumentFileStorage
+    private function storage(string $defaultFile): FakeProductDocumentFileStorage
     {
-        return new FakeProductDocumentFileStorage(static::createStub(Connection::class), static::createStub(ClockInterface::class), $files);
+        return new FakeProductDocumentFileStorage(static::createStub(Connection::class), $defaultFile);
     }
 
     /**
      * @param list<WriteCommand> $commands
      */
-    private function write(array $commands, FakeProductDocumentFileStorage $storage): EntityWriteEvent
+    private function write(array $commands, FakeProductDocumentFileStorage $storage): void
     {
         $event = EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
         (new ProductDocumentFileSubscriber($storage))->beforeWrite($event);
-
-        return $event;
     }
 
     private function insert(string $languageId, ?string $fileId = null): InsertCommand
@@ -204,50 +160,28 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
         return \is_string($fileId) ? Uuid::fromBytesToHex($fileId) : null;
     }
-
-    /**
-     * @return array{documentId: string, versionId: string, languageId: string, oldFileId: string, newFileId: string}
-     */
-    private static function move(string $languageId, string $oldFileId, string $newFileId): array
-    {
-        return ['documentId' => self::DOCUMENT, 'versionId' => Defaults::LIVE_VERSION, 'languageId' => $languageId, 'oldFileId' => $oldFileId, 'newFileId' => $newFileId];
-    }
 }
 
 /**
- * Keeps the files of one document version in memory and records the moves.
+ * Returns the same default file for every document and counts the reads.
  *
  * @internal
  */
 class FakeProductDocumentFileStorage extends ProductDocumentFileStorage
 {
-    /**
-     * @var list<array{documentId: string, versionId: string, languageId: string, oldFileId: string, newFileId: string}>
-     */
-    public array $moves = [];
-
     public int $reads = 0;
 
-    /**
-     * @param array<string, string> $files file id per language id
-     */
     public function __construct(
         Connection $connection,
-        ClockInterface $clock,
-        private readonly array $files = [],
+        private readonly string $defaultFile,
     ) {
-        parent::__construct($connection, $clock);
+        parent::__construct($connection);
     }
 
-    public function getFiles(array $documentIds, array $versionIds): array
+    public function getDefaultFiles(array $documentIds, string $versionId): array
     {
         ++$this->reads;
 
-        return $this->files === [] ? [] : [$documentIds[0] => [$versionIds[0] => $this->files]];
-    }
-
-    public function moveFiles(array $moves): void
-    {
-        array_push($this->moves, ...$moves);
+        return array_fill_keys($documentIds, $this->defaultFile);
     }
 }

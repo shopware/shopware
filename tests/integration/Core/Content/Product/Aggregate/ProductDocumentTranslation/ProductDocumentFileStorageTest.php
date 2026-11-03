@@ -33,7 +33,7 @@ class ProductDocumentFileStorageTest extends TestCase
         $this->storage = static::getContainer()->get(ProductDocumentFileStorage::class);
 
         static::getContainer()->get('media.repository')->create(
-            array_map(fn (string $name): array => ['id' => $this->ids->create($name), 'fileName' => $name, 'fileExtension' => 'pdf', 'mimeType' => 'application/pdf'], ['manual', 'handbuch', 'datasheet']),
+            array_map(fn (string $name): array => ['id' => $this->ids->create($name), 'fileName' => $name, 'fileExtension' => 'pdf', 'mimeType' => 'application/pdf'], ['manual', 'handbuch']),
             Context::createDefaultContext(),
         );
         $product = (new ProductBuilder($this->ids, 'drill'))->price(10)->build();
@@ -46,26 +46,11 @@ class ProductDocumentFileStorageTest extends TestCase
         static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
     }
 
-    public function testReadsTheFileOfEachLanguageVersion(): void
+    public function testReadsTheDefaultFileOfEachDocument(): void
     {
-        static::assertEquals(
-            [$this->ids->get('document') => [Defaults::LIVE_VERSION => [Defaults::LANGUAGE_SYSTEM => $this->ids->get('manual'), $this->getDeDeLanguageId() => $this->ids->get('handbuch')]]],
-            $this->storage->getFiles([$this->ids->get('document')], [Defaults::LIVE_VERSION]),
-        );
-    }
-
-    public function testMovesOnlyTheVersionsThatStillHaveTheOldFile(): void
-    {
-        $move = ['documentId' => $this->ids->get('document'), 'versionId' => Defaults::LIVE_VERSION, 'oldFileId' => $this->ids->get('manual'), 'newFileId' => $this->ids->get('datasheet')];
-
-        $this->storage->moveFiles([
-            ['languageId' => Defaults::LANGUAGE_SYSTEM, ...$move],
-            ['languageId' => $this->getDeDeLanguageId(), ...$move],
-        ]);
-
-        static::assertEquals(
-            [Defaults::LANGUAGE_SYSTEM => $this->ids->get('datasheet'), $this->getDeDeLanguageId() => $this->ids->get('handbuch')],
-            $this->storage->getFiles([$this->ids->get('document')], [Defaults::LIVE_VERSION])[$this->ids->get('document')][Defaults::LIVE_VERSION],
+        static::assertSame(
+            [$this->ids->get('document') => $this->ids->get('manual')],
+            $this->storage->getDefaultFiles([$this->ids->get('document')], Defaults::LIVE_VERSION),
         );
     }
 }

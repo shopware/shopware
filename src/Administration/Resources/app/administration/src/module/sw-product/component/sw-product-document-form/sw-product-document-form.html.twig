@@ -147,7 +147,10 @@
             {% endblock %}
             {% block sw_product_document_form_actions %}
                 <template #actions="{ item }">
-                    <sw-context-menu-item :disabled="!canEdit || isInherited" @click="editDocument(item)">
+                    <sw-context-menu-item
+                        :disabled="!canEdit || isInherited"
+                        @click="editDocument(item)"
+                    >
                         {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% block sw_product_document_form_action_download %}
@@ -159,7 +162,11 @@
                         {{ $t('sw-product.documentForm.contextDownload') }}
                     </sw-context-menu-item>
                     {% endblock %}
-                    <sw-context-menu-item variant="danger" :disabled="!canEdit || isInherited" @click="confirmRemoveDocument(item)">
+                    <sw-context-menu-item
+                        variant="danger"
+                        :disabled="!canEdit || isInherited"
+                        @click="confirmRemoveDocument(item)"
+                    >
                         {{ $t('global.default.remove') }}
                     </sw-context-menu-item>
                 </template>
@@ -243,6 +250,7 @@
     <sw-product-document-edit-modal
         v-if="editingDocument"
         v-model:document-title="documentTitle"
+        v-model:apply-to-variants="applyToVariants"
         :document-id="editingDocument.id"
         :editing-media="editingMedia"
         :document-name-error="documentNameError"
@@ -253,6 +261,7 @@
         :max-file-size="maxFileSize"
         :can-edit="canEdit"
         :is-saving-document="isSavingDocument"
+        :has-variants="hasVariants"
         @close="editingDocument = null"
         @save="saveDocument"
         @upload="successfulUpload($event, editingDocument)"
@@ -264,9 +273,11 @@
 {% block sw_product_document_form_remove_modal %}
     <sw-product-document-remove-modal
         v-if="removingDocument"
+        v-model:remove-from-variants="removeFromVariants"
         :document-title="getTitle(removingDocument)"
         :can-edit="canEdit"
         :is-removing-document="isRemovingDocument"
+        :has-variants="hasVariants"
         @close="removingDocument = null"
         @remove="removeDocument"
     />

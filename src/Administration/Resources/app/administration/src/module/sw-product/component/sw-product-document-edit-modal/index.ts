@@ -22,6 +22,8 @@ export default Shopware.Component.wrapComponentConfig({
         maxFileSize: { type: Number, required: true },
         canEdit: { type: Boolean, default: false },
         isSavingDocument: { type: Boolean, default: false },
+        hasVariants: { type: Boolean, default: false },
+        applyToVariants: { type: Boolean, default: false },
     },
 
     emits: [
@@ -31,6 +33,7 @@ export default Shopware.Component.wrapComponentConfig({
         'remove-file',
         'select-media',
         'update:documentTitle',
+        'update:applyToVariants',
     ],
 
     computed: {

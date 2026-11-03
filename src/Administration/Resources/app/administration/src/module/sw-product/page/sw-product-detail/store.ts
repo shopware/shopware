@@ -38,6 +38,7 @@ const swProductDetail = Shopware.Store.register({
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
+            documentSaveNotifications: [] as { documentId: string; name: string; variantIds: string[] }[],
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],
@@ -201,6 +202,15 @@ const swProductDetail = Shopware.Store.register({
     },
 
     actions: {
+        queueDocumentSaveNotification(documentId: string, name: string, variantIds: string[]): void {
+            this.documentSaveNotifications = this.documentSaveNotifications.filter(
+                (entry) => entry.documentId !== documentId,
+            );
+            if (variantIds.length) {
+                this.documentSaveNotifications.push({ documentId, name, variantIds: [...new Set(variantIds)] });
+            }
+        },
+
         showProductCard(key: string) {
             if (this.product?.parentId) {
                 return true;

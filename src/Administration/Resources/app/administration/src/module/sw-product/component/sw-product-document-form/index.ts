@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import useProductDocumentVariants from '../../composables/use-product-document-variants';
 import useNotification from 'src/app/composables/use-notification';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
@@ -26,16 +27,23 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    setup() {
+        return useProductDocumentVariants();
+    },
+
     data() {
         return {
             showUploadModal: false,
             showMediaModal: false,
             editingDocument: null as ProductDocument | null,
             removingDocument: null as ProductDocument | null,
+            removeFromVariants: false,
             isRemovingDocument: false,
+            removeModalVersion: 0,
             documentTitle: '',
             replacementMedia: null as Entity<'media'> | null,
             documentFileRemoved: false,
+            applyToVariants: false,
             isSavingDocument: false,
             documentValidationSubmitted: false,
             uploadedMedia: {} as Record<string, Entity<'media'>>,
@@ -107,6 +115,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.documentValidationSubmitted && !this.editingMedia
                 ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
                 : null;
+        },
+
+        hasVariants(): boolean {
+            return !this.product.parentId && !!this.product.childCount;
         },
 
         documentColumns() {
@@ -318,6 +330,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentTitle = this.getTitle(document);
             this.replacementMedia = null;
             this.documentFileRemoved = false;
+            this.applyToVariants = false;
             this.documentValidationSubmitted = false;
         },
 
@@ -326,16 +339,46 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentFileRemoved = true;
         },
 
-        saveDocument(): void {
+        async saveDocument(): Promise<void> {
             this.documentValidationSubmitted = true;
             const media = this.editingMedia;
             if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument || !media) {
                 return;
             }
-            this.editingDocument.mediaId = media.id;
-            this.editingDocument.title = this.documentTitle.trim();
-            this.uploadedMedia[media.id] = media;
-            this.editingDocument = null;
+
+            const product = this.product;
+            const document = this.editingDocument;
+            const context = { ...Shopware.Context.api, languageId: Shopware.Context.api.languageId, inheritance: false };
+            const originalMediaId = document.mediaId || document.translated?.mediaId;
+            const title = this.documentTitle.trim();
+            const matchingMediaId = this.applyToVariants && this.hasVariants ? originalMediaId : null;
+            this.isSavingDocument = true;
+
+            try {
+                const variants = matchingMediaId
+                    ? await this.loadDocumentVariants(product.id, matchingMediaId, context)
+                    : [];
+                if (
+                    product !== this.product ||
+                    document !== this.editingDocument ||
+                    context.languageId !== Shopware.Context.api.languageId
+                ) {
+                    return;
+                }
+
+                const updatedVariantIds = matchingMediaId
+                    ? this.stageVariantDocumentChanges(variants, matchingMediaId, media.id, title)
+                    : [];
+                document.mediaId = media.id;
+                this.uploadedMedia[media.id] = media;
+                document.title = title;
+                Shopware.Store.get('swProductDetail').queueDocumentSaveNotification(document.id, title, updatedVariantIds);
+                this.editingDocument = null;
+            } catch {
+                useNotification().createNotificationError({ message: this.$t('sw-product.documentForm.errorLoadVariants') });
+            } finally {
+                this.isSavingDocument = false;
+            }
         },
 
         confirmRemoveDocument(document: ProductDocument): void {
@@ -344,15 +387,47 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.removingDocument = document;
+            this.removeFromVariants = false;
+            this.removeModalVersion += 1;
         },
 
-        removeDocument(): void {
-            if (!this.canChangeDocuments() || !this.removingDocument) {
+        async removeDocument(): Promise<void> {
+            if (!this.canChangeDocuments() || !this.removingDocument || this.isRemovingDocument) {
                 return;
             }
-            this.documents.remove(this.removingDocument.id);
-            this.updatePositions();
-            this.removingDocument = null;
+
+            const product = this.product;
+            const document = this.removingDocument;
+            const modalVersion = this.removeModalVersion;
+            const context = { ...Shopware.Context.api, languageId: Shopware.Context.api.languageId, inheritance: false };
+            const mediaId =
+                this.removeFromVariants && this.hasVariants ? document.mediaId || document.translated?.mediaId : null;
+            this.isRemovingDocument = true;
+            try {
+                const variants = mediaId ? await this.loadDocumentVariants(product.id, mediaId, context) : [];
+                if (
+                    modalVersion !== this.removeModalVersion ||
+                    product !== this.product ||
+                    document !== this.removingDocument ||
+                    context.languageId !== Shopware.Context.api.languageId
+                ) {
+                    return;
+                }
+                if (mediaId) {
+                    this.stageVariantDocumentRemovals(variants, mediaId);
+                }
+                this.documents.remove(document.id);
+                const store = Shopware.Store.get('swProductDetail');
+                store.documentSaveNotifications = store.documentSaveNotifications.filter(
+                    (entry) => entry.documentId !== document.id,
+                );
+                this.updatePositions();
+                this.removingDocument = null;
+            } catch {
+                useNotification().createNotificationError({ message: this.$t('sw-product.documentForm.errorLoadVariants') });
+            } finally {
+                this.isRemovingDocument = false;
+            }
         },
 
         updatePositions(): void {

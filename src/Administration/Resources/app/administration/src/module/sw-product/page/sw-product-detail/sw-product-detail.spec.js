@@ -857,6 +857,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it.each(['success', 'empty'])('should announce a save that finished with "%s"', async (response) => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.documentSaveNotifications = [
+            { documentId: 'document', name: 'Battery safety data sheet', variantIds: ['first', 'second'] },
+        ];
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.updateSeoPromises = [];
 
@@ -866,9 +871,18 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.saveSuccess' }),
+        );
+        expect(store.documentSaveNotifications).toHaveLength(0);
     });
 
     it('should not announce a save that failed', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.documentSaveNotifications = [
+            { documentId: 'document', name: 'Battery safety data sheet', variantIds: ['first', 'second'] },
+        ];
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.updateSeoPromises = [];
@@ -879,6 +893,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+        expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+        expect(store.documentSaveNotifications).toHaveLength(1);
     });
 
     it('should handle success response correctly', async () => {

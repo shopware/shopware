@@ -14,7 +14,17 @@
                 {{ $t('sw-product.documentForm.removeDescription') }}
             </mt-text>
         {% endblock %}
-        
+        {% block sw_product_document_form_remove_from_variants %}
+            <mt-checkbox
+                v-if="hasVariants"
+                :checked="removeFromVariants"
+                @update:checked="$emit('update:removeFromVariants', $event)"
+                class="sw-product-document-form__remove-from-variants"
+                :label="$t('sw-product.documentForm.removeFromVariants')"
+                :help-text="$t('sw-product.documentForm.removeFromVariantsHelp')"
+                :disabled="!canEdit || isRemovingDocument"
+            />
+        {% endblock %}
             <mt-text
                 size="xs"
                 color="color-text-secondary-default"

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import './init/services.init';
+import './component/product/sw-bulk-edit-product-visibility/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-bulk-edit-product', () => import('./page/sw-bulk-edit-product'));
@@ -52,10 +53,6 @@ Shopware.Component.extend(
     'sw-bulk-edit-form-field-renderer',
     'sw-form-field-renderer',
     () => import('./component/sw-bulk-edit-form-field-renderer'),
-);
-Shopware.Component.register(
-    'sw-bulk-edit-product-visibility',
-    () => import('./component/product/sw-bulk-edit-product-visibility'),
 );
 Shopware.Component.register('sw-bulk-edit-product-media', () => import('./component/product/sw-bulk-edit-product-media'));
 Shopware.Component.extend(

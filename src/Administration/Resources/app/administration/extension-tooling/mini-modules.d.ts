@@ -8,3 +8,4 @@
 import '../src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/global';
 import '../src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global';
 import '../src/module/sw-media/component/sw-media-collapse/global';
+import '../src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/global';

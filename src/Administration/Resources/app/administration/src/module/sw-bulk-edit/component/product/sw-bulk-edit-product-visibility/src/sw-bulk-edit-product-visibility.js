@@ -5,7 +5,9 @@ import template from './sw-bulk-edit-product-visibility.html.twig';
 
 const { Context } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

@@ -3,18 +3,25 @@
  */
 import template from './sw-settings-search-excluded-search-terms.html.twig';
 import './sw-settings-search-excluded-search-terms.scss';
+import {
+    aclService,
+    excludedSearchTermService,
+    getAssetFilter,
+    notificationMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['excludedSearchTermService', 'repositoryFactory', 'acl'],
+    inject: [excludedSearchTermService, repositoryFactoryService, aclService],
 
     emits: ['edit-change', 'data-load'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         searchConfigs: {
@@ -62,7 +69,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 

@@ -2,15 +2,22 @@
  * @sw-package inventory
  */
 import template from './sw-settings-search-searchable-content-customfields.html.twig';
+import {
+    aclService,
+    Criteria,
+    getAssetFilter,
+    notificationMixin,
+    repositoryFactoryService,
+    swInlineSnippetMixin,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     emits: [
         'config-add',
@@ -19,7 +26,7 @@ export default {
         'config-delete',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
+    mixins: [notificationMixin, swInlineSnippetMixin],
 
     props: {
         isEmpty: {
@@ -98,7 +105,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 

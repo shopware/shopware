@@ -2,18 +2,19 @@
  * @sw-package inventory
  */
 import template from './sw-settings-search-searchable-content-general.html.twig';
+import { aclService, getAssetFilter, listingMixin, notificationMixin } from '../dependencies';
 
-const { Mixin } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     emits: ['data-load', 'config-save'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     props: {
         isEmpty: {
@@ -53,7 +54,7 @@ export default {
 
     computed: {
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 

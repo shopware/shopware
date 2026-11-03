@@ -2,8 +2,11 @@
  * @sw-package inventory
  */
 import template from './sw-settings-search-view-live-search.html.twig';
+import { getAppContext } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -37,7 +40,7 @@ export default {
 
     computed: {
         storefrontEsEnable() {
-            return Shopware.Context.app.storefrontEsEnable ?? false;
+            return getAppContext().storefrontEsEnable ?? false;
         },
     },
 };

@@ -3,22 +3,28 @@
  */
 import template from './sw-settings-search-search-index.html.twig';
 import './sw-settings-search-search-index.scss';
+import {
+    aclService,
+    Criteria,
+    getApiContext,
+    notificationMixin,
+    productIndexService,
+    repositoryFactoryService,
+} from '../dependencies';
 
 const PRODUCT_INDEXER_INTERVAL = 3000;
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
 
 /**
- * @private
+ * @public
  */
 export default {
     template,
 
-    inject: ['productIndexService', 'repositoryFactory', 'acl'],
+    inject: [productIndexService, repositoryFactoryService, aclService],
 
     emits: ['edit-change'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -77,7 +83,7 @@ export default {
         getLatestProductKeywordIndexed() {
             this.isLoading = true;
             this.productSearchKeywordRepository
-                .search(this.productSearchKeywordsCriteria, Context.api)
+                .search(this.productSearchKeywordsCriteria, getApiContext())
                 .then((result) => {
                     if (!result.total) {
                         return;
@@ -100,7 +106,7 @@ export default {
         getTotalProduct() {
             this.isLoading = true;
             this.productRepository
-                .search(this.productCriteria, Context.api)
+                .search(this.productCriteria, getApiContext())
                 .then((result) => {
                     this.totalProduct = result?.total;
                 })

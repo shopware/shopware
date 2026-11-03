@@ -3,20 +3,20 @@
  */
 import template from './sw-settings-search-live-search.html.twig';
 import './sw-settings-search-live-search.scss';
-import '../sw-settings-search-live-search-keyword';
+import '../../sw-settings-search-live-search-keyword';
+import { Criteria, getApiContext, liveSearchService, notificationMixin, repositoryFactoryService } from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'liveSearchService'],
+    inject: [repositoryFactoryService, liveSearchService],
 
     emits: ['live-search-results-change', 'sales-channel-change'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         currentSalesChannelId: {
@@ -124,7 +124,7 @@ export default {
             this.searchInProgress = true;
 
             this.liveSearchService
-                .search(this.searchParams, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId })
+                .search(this.searchParams, {}, {}, { 'sw-language-id': getApiContext().languageId })
                 .then((data) => {
                     this.liveSearchResults = data.data;
                     this.searchInProgress = false;

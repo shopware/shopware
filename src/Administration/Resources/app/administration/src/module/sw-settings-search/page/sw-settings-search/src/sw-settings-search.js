@@ -2,17 +2,26 @@
  * @sw-package inventory
  */
 import template from './sw-settings-search.html.twig';
+import {
+    aclService,
+    Criteria,
+    EntityCollection,
+    featureService,
+    getApiContext,
+    notificationMixin,
+    publishData,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: [repositoryFactoryService, aclService, featureService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -55,14 +64,14 @@ export default {
         productSearchConfigsCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('configFields');
-            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
+            criteria.addFilter(Criteria.equals('languageId', getApiContext().languageId));
             return criteria;
         },
 
         productDefaultConfigsCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('configFields');
-            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.systemLanguageId));
+            criteria.addFilter(Criteria.equals('languageId', getApiContext().systemLanguageId));
             return criteria;
         },
 
@@ -129,13 +138,13 @@ export default {
             this.getDefaultSearchConfig();
             this.getProductSearchConfigs();
 
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-settings-search__defaultConfig',
                 path: 'defaultConfig',
                 scope: this,
             });
 
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-settings-search__productSearchConfigs',
                 path: 'productSearchConfigs',
                 scope: this,
@@ -181,7 +190,7 @@ export default {
             defaultConfig.andLogic = this.defaultConfig.andLogic;
             defaultConfig.minSearchLength = this.defaultConfig.minSearchLength;
             defaultConfig.excludedTerms = [];
-            defaultConfig.languageId = Shopware.Context.api.languageId;
+            defaultConfig.languageId = getApiContext().languageId;
             return defaultConfig;
         },
 
@@ -193,7 +202,7 @@ export default {
             const configFieldCollection = new EntityCollection(
                 this.productSearchFieldRepository.route,
                 this.productSearchFieldRepository.entityName,
-                Shopware.Context.api,
+                getApiContext(),
             );
             this.defaultConfig.configFields.forEach((item) => {
                 const newConfigField = this.productSearchFieldRepository.create();

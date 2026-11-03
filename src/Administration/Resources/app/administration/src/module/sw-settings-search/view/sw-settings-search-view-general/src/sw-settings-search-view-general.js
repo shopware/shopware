@@ -3,7 +3,9 @@
  */
 import template from './sw-settings-search-view-general.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

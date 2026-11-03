@@ -3,12 +3,15 @@
  */
 import template from './sw-settings-search-search-behaviour.html.twig';
 import './sw-settings-search-search-behaviour.scss';
+import { aclService } from '../dependencies';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     props: {
         searchBehaviourConfigs: {

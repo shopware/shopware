@@ -1964,12 +1964,12 @@
       "count": 4
     }
   },
-  "src/app/component/sidebar/sw-help-sidebar/index.ts": {
+  "src/app/component/sidebar/sw-help-sidebar/src/sw-help-sidebar.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
     }
   },
-  "src/app/component/sidebar/sw-help-sidebar/sw-help-sidebar.spec.js": {
+  "src/app/component/sidebar/sw-help-sidebar/tests/sw-help-sidebar.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
@@ -1984,7 +1984,7 @@
       "count": 2
     }
   },
-  "src/app/component/sidebar/sw-sidebar-item/index.js": {
+  "src/app/component/sidebar/sw-sidebar-item/src/sw-sidebar-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1992,12 +1992,12 @@
       "count": 1
     }
   },
-  "src/app/component/sidebar/sw-sidebar-navigation-item/index.js": {
+  "src/app/component/sidebar/sw-sidebar-navigation-item/src/sw-sidebar-navigation-item.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/sidebar/sw-sidebar/index.js": {
+  "src/app/component/sidebar/sw-sidebar/src/sw-sidebar.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

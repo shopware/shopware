@@ -1,6 +1,13 @@
-import { classifyPlatform, formatShortcutKey, type ShortcutKeyLabel } from 'src/core/helper/shortcut-key.helper';
 import template from './sw-help-sidebar.html.twig';
 import './sw-help-sidebar.scss';
+import {
+    classifyPlatform,
+    formatShortcutKey,
+    type ShortcutKeyLabel,
+    shortcutService,
+    useAdminHelpCenterStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 const MOBILE_VIEWPORT_WIDTH = 500;
 
@@ -14,10 +21,10 @@ const MOBILE_VIEWPORT_WIDTH = 500;
  * @deprecated tag:v6.8.0 - Will be removed without replacement. The help center content
  * now lives directly in sw-help-center, rendered as an mt-popover instead of a sidebar.
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['shortcutService'],
+    inject: [shortcutService],
 
     data(): {
         viewportWidth: number;
@@ -50,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         showHelpSidebar(): boolean {
-            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
+            return useAdminHelpCenterStore().showHelpSidebar;
         },
 
         showShortcutButton(): boolean {
@@ -220,11 +227,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         closeHelpSidebar(): void {
-            Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
+            useAdminHelpCenterStore().showHelpSidebar = false;
         },
 
         openShortcutModal(): void {
-            Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
+            useAdminHelpCenterStore().showShortcutModal = true;
         },
     },
 });

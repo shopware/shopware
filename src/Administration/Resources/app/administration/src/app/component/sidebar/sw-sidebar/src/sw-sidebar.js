@@ -12,7 +12,6 @@ import './sw-sidebar.scss';
  *     <sw-sidebar-item title="Refresh" icon="regular-undo"></sw-sidebar-item>
  * </sw-sidebar>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

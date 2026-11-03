@@ -182,6 +182,10 @@ import 'src/app/component/rule/sw-condition-type-select/register';
 import 'src/app/component/rule/sw-condition-unit-menu/register';
 import 'src/app/component/rule/sw-condition-value-between-date/register';
 import 'src/app/component/rule/sw-rule-modal/register';
+import 'src/app/component/sidebar/sw-help-sidebar/register';
+import 'src/app/component/sidebar/sw-sidebar/register';
+import 'src/app/component/sidebar/sw-sidebar-item/register';
+import 'src/app/component/sidebar/sw-sidebar-navigation-item/register';
 /**
  * @sw-package framework
  * @private
@@ -299,12 +303,6 @@ export default () => {
     Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
     Shopware.Component.register('sw-admin-menu', () => import('src/app/component/structure/sw-admin-menu/index'));
     Shopware.Component.register('sw-admin', () => import('src/app/component/structure/sw-admin/index'));
-    Shopware.Component.register(
-        'sw-sidebar-navigation-item',
-        () => import('src/app/component/sidebar/sw-sidebar-navigation-item/index'),
-    );
-    Shopware.Component.register('sw-sidebar-item', () => import('src/app/component/sidebar/sw-sidebar-item/index'));
-    Shopware.Component.register('sw-sidebar', () => import('src/app/component/sidebar/sw-sidebar/index'));
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
@@ -314,7 +312,6 @@ export default () => {
     );
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
-    Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
     Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
     Shopware.Component.extend(

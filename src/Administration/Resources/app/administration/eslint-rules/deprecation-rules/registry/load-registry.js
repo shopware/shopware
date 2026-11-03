@@ -23,12 +23,7 @@ function loadRegistry() {
         return cachedRegistry;
     }
 
-    cachedRegistry = {
-        ...require(getRegistryPath()),
-        getComponentApiMigration(componentName) {
-            return cachedRegistry.componentApiMigrations.find((migration) => migration.component === componentName) ?? null;
-        },
-    };
+    cachedRegistry = require(getRegistryPath());
 
     return cachedRegistry;
 }

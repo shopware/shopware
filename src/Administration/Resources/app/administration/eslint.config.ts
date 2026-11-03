@@ -659,9 +659,7 @@ export default [
                     ],
                 },
             ],
-            // Core templates still pass removed mt-banner props (`show-icon`, `notification-index`);
-            // `npm run deprecation:migrate` runs these checks on demand.
-            'sw-deprecation-rules/no-deprecated-component-usage': 'off',
+            'sw-deprecation-rules/no-deprecated-component-usage': 'error',
             'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
             'sw-deprecation-rules/no-sw-empty-state-usage': 'error',

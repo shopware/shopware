@@ -11,7 +11,7 @@ export default globalApiMigration({
     removedIn: '6.9.0',
     description: 'The $tc translation helper is deprecated. Use $t and pass count interpolation explicitly.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#removal-of-tc-function' }),
+        reference({ type: 'upgrade', target: 'UPGRADE-6.9.md#tc-and-the-vue-i18n-8-argument-order-removed' }),
     ],
     usage: [
         renameCall({

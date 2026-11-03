@@ -6,7 +6,7 @@ import { expectWellFormedMigrations } from '../helpers/test-utils';
 
 const COMPONENT_LEVEL_KINDS = [
     'rename-component',
-    'manual-component-replacement',
+    'codemod-rule',
 ];
 
 describe('src/app/deprecation-registry/definitions/components', () => {

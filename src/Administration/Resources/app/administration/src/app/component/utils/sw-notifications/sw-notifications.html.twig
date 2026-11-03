@@ -18,7 +18,7 @@
                 :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
                 :title="getTranslatedTitle(notification)"
                 :variant="getNotificationVariant(notification)"
-                :notification-index="notification.uuid"
+                :banner-index="notification.uuid"
                 :closable="true"
                 @close="onClose(notification)"
             >

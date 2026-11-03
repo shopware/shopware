@@ -4,6 +4,7 @@
 
 const { RuleTester } = require('eslint');
 const rule = require('./no-sw-empty-state-usage');
+const { describeWithSelectedDeprecationIds } = require('./registry/selected-deprecation-ids');
 
 const ruleTester = new RuleTester({
     languageOptions: {
@@ -492,4 +493,17 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             errors: [{ message: MIGRATE_MESSAGE }],
         },
     ],
+});
+
+describeWithSelectedDeprecationIds('component.sw-alert', () => {
+    ruleTester.run('no-sw-empty-state-usage with an unrelated deprecation id selected', rule, {
+        valid: [
+            {
+                name: 'sw-empty-state is not reported when only another migration is selected',
+                filename: 'test.html.twig',
+                code: '<template><sw-empty-state title="Title" /></template>',
+            },
+        ],
+        invalid: [],
+    });
 });

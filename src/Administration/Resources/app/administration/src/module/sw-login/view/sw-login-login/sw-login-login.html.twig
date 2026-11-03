@@ -17,7 +17,6 @@
             v-if="showLoginAlert"
             class="sw-login__alert-banner"
             variant="attention"
-            :show-icon="true"
             :closable="false"
         >
             {{ loginAlertMessage }}
@@ -91,7 +90,6 @@
                 v-if="loginErrorMessage"
                 class="sw-login__error-banner"
                 variant="critical"
-                :show-icon="true"
                 :closable="false"
             >
                 {{ loginErrorMessage }}

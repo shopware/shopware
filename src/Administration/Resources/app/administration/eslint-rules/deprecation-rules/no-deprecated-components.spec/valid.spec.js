@@ -152,15 +152,6 @@ tester.run('no-deprecated-components (valid)', rule, {
             </template>`,
         },
         {
-            name: '"sw-data-grid" usage is not allowed',
-            filename: 'test.html.twig',
-            code: `
-<template>
-    <!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->
-    <sw-data-grid />
-</template>`,
-        },
-        {
             name: '"mt-floating-ui" usage is allowed',
             filename: 'test.html.twig',
             code: `

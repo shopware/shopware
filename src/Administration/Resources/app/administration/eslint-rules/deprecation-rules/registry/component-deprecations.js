@@ -12,7 +12,7 @@ const COMPONENT_FACTORIES = new Set([
 
 const COMPONENT_CODEMOD_KINDS = new Set([
     'rename-component',
-    'manual-component-replacement',
+    'codemod-rule',
 ]);
 
 const PROP_CODEMOD_KINDS = new Set([

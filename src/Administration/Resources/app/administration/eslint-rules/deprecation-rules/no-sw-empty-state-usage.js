@@ -7,6 +7,10 @@
  * or default slot templates, dynamic bindings) are reported without a fix and stay `sw-empty-state` until they are migrated manually.
  */
 
+const { isMigrationSelected } = require('./registry/filter-migrations');
+
+// The deprecation registry delegates this migration to this rule through a `codemodRule` step.
+const MIGRATION_ID = 'component.sw-empty-state';
 const OLD_COMPONENT = 'sw-empty-state';
 const NEW_COMPONENT = 'mt-empty-state';
 
@@ -579,6 +583,10 @@ module.exports = {
 
     /** @param {import('eslint').Rule.RuleContext} context */
     create(context) {
+        if (!isMigrationSelected({ id: MIGRATION_ID })) {
+            return {};
+        }
+
         const sourceCode = context.sourceCode;
 
         const templateVisitor = {

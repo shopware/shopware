@@ -66,18 +66,27 @@ export function renameComponent({
     return usage('rename-component', { from, to, fix, message });
 }
 
-export function manualComponentReplacement({
+/**
+ * Hands the whole component conversion to a dedicated ESLint rule, for migrations too involved for the
+ * declarative steps. The registry still owns the metadata; `deprecation:migrate` enables the rule.
+ *
+ * @example
+ * codemodRule({ rule: 'sw-deprecation-rules/no-sw-empty-state-usage', from: 'sw-empty-state', to: 'mt-empty-state' });
+ */
+export function codemodRule({
+    rule,
     from,
     to,
-    fix = 'manual',
+    fix = 'unsafe-auto',
     message,
 }: {
+    rule: string;
     from: string;
     to: string;
     fix?: FixLevel;
     message?: string;
 }): DeprecationUsage {
-    return usage('manual-component-replacement', { from, to, fix, message });
+    return usage('codemod-rule', { rule, from, to, fix, message });
 }
 
 export function replaceObjectOption({

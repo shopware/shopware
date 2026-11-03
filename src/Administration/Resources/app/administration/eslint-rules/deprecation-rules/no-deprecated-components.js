@@ -1,5 +1,5 @@
 const { loadRegistry } = require('./registry/load-registry');
-const { filterMigrations, isMigrationSelected } = require('./registry/filter-migrations');
+const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { findObjectVBindAttribute } = require('./registry/template-ast');
 
@@ -146,64 +146,6 @@ module.exports = {
                                 yield fixer.insertTextBeforeRange(
                                     startTagRange,
                                     `${codemodComment}\n${' '.repeat(indentation)}`,
-                                );
-                            },
-                        });
-                    }
-
-                    // Handle special sw-data-grid component
-                    const swDatagridName = 'sw-data-grid';
-                    if (node.name === swDatagridName && activatedComponents.includes(swDatagridName)) {
-                        const dataGridMigration = registry.getComponentApiMigration(swDatagridName);
-
-                        if (dataGridMigration && !isMigrationSelected(dataGridMigration)) {
-                            return;
-                        }
-
-                        // Check if comment a line before the sw-data-grid component exists
-                        const commentBeforeNode =
-                            context.getSourceCode().getText().split('\n')[node.loc.start.line - 2] ?? '';
-
-                        // Do not add comment if it already exists
-                        if (
-                            commentBeforeNode.includes(
-                                '<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->',
-                            )
-                        ) {
-                            return;
-                        }
-                        const replacementUsage = dataGridMigration?.usage.find((usage) => {
-                            return usage.kind === 'manual-component-replacement';
-                        });
-
-                        // Add comment a line before the sw-data-grid component
-                        context.report({
-                            loc: node.loc,
-                            message: dataGridMigration
-                                ? appendRegistryContext(
-                                      [
-                                          `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
-                                          replacementUsage?.message ?? '',
-                                      ],
-                                      dataGridMigration,
-                                  )
-                                : `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
-                            *fix(fixer) {
-                                if (!enableFix || !usageFixesAutomatically(replacementUsage)) return;
-
-                                // Get the range of the start tag
-                                const startTagRange = [
-                                    node.startTag.range[0],
-                                    swDatagridName.length + node.startTag.range[0] + 1,
-                                ];
-
-                                // Save indentation of the old component
-                                const indentation = node.loc.start.column;
-
-                                // Add comment to the converted component
-                                yield fixer.insertTextBeforeRange(
-                                    startTagRange,
-                                    `<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->\n${' '.repeat(indentation)}`,
                                 );
                             },
                         });

@@ -182,49 +182,6 @@ tester.run('no-deprecated-components (invalid layout and feedback components)', 
                 ],
             },
             {
-                name: '"sw-data-grid" usage is not allowed',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-data-grid />
-</template>`,
-                output: null,
-                errors: [
-                    {
-                        message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-data-grid" usage on first line is not allowed',
-                filename: 'test.html.twig',
-                code: '<template><sw-data-grid /></template>',
-                output: null,
-                errors: [
-                    {
-                        message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-data-grid" usage is not allowed [disableFix]',
-                filename: 'test.html.twig',
-                options: [
-                    {
-                        fix: false,
-                    },
-                ],
-                code: `
-<template>
-    <sw-data-grid />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
-                    },
-                ],
-            },
-            {
                 name: '"sw-popover" usage is not allowed',
                 filename: 'test.html.twig',
                 code: `
@@ -333,17 +290,5 @@ tester.run('no-deprecated-components (invalid layout and feedback components)', 
                 ],
             },
         ]),
-        {
-            name: '"sw-data-grid" reports its manual migration hint without a fix',
-            filename: 'test.html.twig',
-            code: '<template><sw-data-grid /></template>',
-            output: null,
-            errors: [
-                {
-                    message:
-                        /^"sw-data-grid" is deprecated\. Please use "mt-data-table" instead\.\nRebuild the table configuration for mt-data-table/,
-                },
-            ],
-        },
     ],
 });

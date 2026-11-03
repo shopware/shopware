@@ -26,8 +26,6 @@ const utils = Shopware.Utils;
  *          { property: 'company', label: 'Company' }
  *     ]">
  * </sw-data-grid>
- *
- * @deprecated tag:v6.8.0 - Will be removed, use mt-data-table instead.
  */
 export default {
     template,

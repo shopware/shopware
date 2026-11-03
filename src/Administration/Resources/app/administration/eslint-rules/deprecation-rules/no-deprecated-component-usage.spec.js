@@ -78,7 +78,7 @@ describe('registry helper ownership', () => {
         const registry = loadRegistry();
         const componentLevelKinds = new Set([
             'rename-component',
-            'manual-component-replacement',
+            'codemod-rule',
         ]);
         const usagesWithoutHelperEslint = registry.componentApiMigrations.flatMap((migration) => {
             return migration.usage
@@ -172,15 +172,6 @@ const duplicateReplacementInvalidTests = [
 
 const registryDrivenValidTests = [
     {
-        name: 'registry-driven mt-empty-state converted from sw-empty-state keeps a bound icon',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->
-                <mt-empty-state headline="T" description="D" :icon="icon" />
-            </template>`,
-    },
-    {
         name: 'registry-driven mt-checkbox converted from sw-checkbox-field keeps its label slot',
         filename: 'test.html.twig',
         code: `
@@ -204,86 +195,6 @@ const registryDrivenValidTests = [
 ];
 
 const registryDrivenInvalidTests = [
-    {
-        name: 'registry-driven mt-empty-state converted from sw-empty-state gets the route module icon and a review hint',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->
-                <mt-empty-state headline="T" description="D" />
-            </template>`,
-        output: `
-            <template>
-                <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->
-                <!-- TODO Codemod: sw-empty-state took its icon from the route module; check the icon -->
-                <mt-empty-state headline="T" description="D" :icon="$route.meta.$module.icon" />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-empty-state] Add an icon because mt-empty-state requires one.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-empty-state reports the actions slot without changing it',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-empty-state headline="T" description="D" icon="regular-products">
-                    <template #actions>
-                        <a href="#">Add</a>
-                    </template>
-                </mt-empty-state>
-            </template>`,
-        output: null,
-        errors: [
-            {
-                message: '[mt-empty-state] The "actions" slot is not supported by mt-empty-state. Use the "button" slot, or the button-text prop with @button-click, or link-text with link-href.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-empty-state reports props mt-empty-state does not support',
-        filename: 'test.html.twig',
-        code: '<template><mt-empty-state headline="T" description="D" icon="regular-products" absolute :empty-module="true" /></template>',
-        output: null,
-        errors: [
-            {
-                message: '[mt-empty-state] The "absolute" prop is not supported by mt-empty-state. Remove it and check the layout.',
-            },
-            {
-                message: '[mt-empty-state] The "empty-module" prop is not supported by mt-empty-state. Remove it and check the layout.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-empty-state renames title to headline and subline to description',
-        filename: 'test.html.twig',
-        code: '<template><mt-empty-state title="T" subline="S" /></template>',
-        output: '<template><mt-empty-state headline="T" description="S" /></template>',
-        errors: [
-            {
-                message: '[mt-empty-state] The "title" API is deprecated. Use "headline" instead.',
-            },
-            {
-                message: '[mt-empty-state] The "subline" API is deprecated. Use "description" instead.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-empty-state renames bound title to headline and bound subline to description',
-        filename: 'test.html.twig',
-        code: '<template><mt-empty-state :title="title" :subline="subline" /></template>',
-        output: '<template><mt-empty-state :headline="title" :description="subline" /></template>',
-        errors: [
-            {
-                message: '[mt-empty-state] The "title" API is deprecated. Use "headline" instead.',
-            },
-            {
-                message: '[mt-empty-state] The "subline" API is deprecated. Use "description" instead.',
-            },
-        ],
-    },
     {
         name: 'registry-driven mt-text-field keeps v-model modifiers when v-model:value becomes v-model',
         filename: 'test.html.twig',

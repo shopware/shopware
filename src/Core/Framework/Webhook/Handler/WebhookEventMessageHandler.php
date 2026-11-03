@@ -187,13 +187,17 @@ final class WebhookEventMessageHandler
             $curlOptions = [];
         }
 
-        $resolvePins = $curlOptions[\CURLOPT_RESOLVE] ?? [];
-        if (!\is_array($resolvePins)) {
-            $resolvePins = [];
+        // The target has no IP when URL validation is disabled (dev), so there is nothing to pin.
+        if ($target->ip !== null) {
+            $resolvePins = $curlOptions[\CURLOPT_RESOLVE] ?? [];
+            if (!\is_array($resolvePins)) {
+                $resolvePins = [];
+            }
+
+            $resolvePins[] = \sprintf('%s:%d:%s', $target->host, $target->port, $this->formatCurlResolveAddress($target->ip));
+            $curlOptions[\CURLOPT_RESOLVE] = $resolvePins;
         }
 
-        $resolvePins[] = \sprintf('%s:%d:%s', $target->host, $target->port, $this->formatCurlResolveAddress($target->ip));
-        $curlOptions[\CURLOPT_RESOLVE] = $resolvePins;
         $requestContent['curl'] = $curlOptions;
 
         $response = $this->client->request($method, $url, $requestContent);

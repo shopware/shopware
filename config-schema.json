@@ -1246,6 +1246,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "enable_url_validation": {
+                    "type": "boolean"
+                },
                 "allow_unencrypted_traffic": {
                     "type": "boolean"
                 },

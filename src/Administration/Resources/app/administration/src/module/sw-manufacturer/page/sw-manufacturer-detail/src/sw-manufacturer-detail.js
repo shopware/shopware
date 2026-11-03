@@ -4,24 +4,34 @@
 
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
+import {
+    aclService,
+    customFieldDataProviderService,
+    featureService,
+    mapPropertyErrors,
+    mediaDefaultFolderService,
+    publishData,
+    repositoryFactoryService,
+    useContextStore,
+} from '../dependencies';
 
 const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
 
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'mediaDefaultFolderService',
-        'feature',
-        'customFieldDataProviderService',
+        repositoryFactoryService,
+        aclService,
+        mediaDefaultFolderService,
+        featureService,
+        customFieldDataProviderService,
     ],
 
     mixins: [
@@ -134,7 +144,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-manufacturer-detail__manufacturer',
                 path: 'manufacturer',
                 scope: this,
@@ -145,7 +155,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.manufacturer = this.manufacturerRepository.create();
         },
 

@@ -8391,7 +8391,7 @@
       "count": 1
     }
   },
-  "src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js": {
+  "src/module/sw-manufacturer/page/sw-manufacturer-detail/src/sw-manufacturer-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8399,12 +8399,12 @@
       "count": 1
     }
   },
-  "src/module/sw-manufacturer/page/sw-manufacturer-detail/sw-manufacturer-detail.spec.js": {
+  "src/module/sw-manufacturer/page/sw-manufacturer-detail/tests/sw-manufacturer-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 14
     }
   },
-  "src/module/sw-manufacturer/page/sw-manufacturer-list/index.js": {
+  "src/module/sw-manufacturer/page/sw-manufacturer-list/src/sw-manufacturer-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8412,7 +8412,7 @@
       "count": 1
     }
   },
-  "src/module/sw-manufacturer/page/sw-manufacturer-list/sw-manufacturer-list.spec.js": {
+  "src/module/sw-manufacturer/page/sw-manufacturer-list/tests/sw-manufacturer-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 27
     }

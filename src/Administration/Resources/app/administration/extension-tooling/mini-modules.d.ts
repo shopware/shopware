@@ -352,3 +352,5 @@ import '../src/module/sw-mail-template/page/sw-mail-header-footer-create/global'
 import '../src/module/sw-mail-template/page/sw-mail-template-detail/global';
 import '../src/module/sw-mail-template/page/sw-mail-template-create/global';
 import '../src/module/sw-mail-template/page/sw-mail-template-index/global';
+import '../src/module/sw-manufacturer/page/sw-manufacturer-detail/global';
+import '../src/module/sw-manufacturer/page/sw-manufacturer-list/global';

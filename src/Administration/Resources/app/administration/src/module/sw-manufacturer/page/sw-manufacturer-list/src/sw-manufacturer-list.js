@@ -4,17 +4,24 @@
 
 import template from './sw-manufacturer-list.html.twig';
 import './sw-manufacturer-list.scss';
+import {
+    aclService,
+    Criteria,
+    getAppContext,
+    isFeatureActive,
+    listingMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     data() {
         return {
@@ -67,11 +74,11 @@ export default {
         },
 
         adminEsEnable() {
-            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            if (!isFeatureActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 return false;
             }
 
-            return Context.app.adminEsEnable ?? false;
+            return getAppContext().adminEsEnable ?? false;
         },
     },
 

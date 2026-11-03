@@ -104,6 +104,12 @@ import 'src/app/component/context-menu/sw-context-button/register';
 import 'src/app/component/context-menu/sw-context-menu/register';
 import 'src/app/component/context-menu/sw-context-menu-divider/register';
 import 'src/app/component/context-menu/sw-context-menu-item/register';
+import 'src/app/component/data-grid/sw-data-grid/register';
+import 'src/app/component/data-grid/sw-data-grid-column-boolean/register';
+import 'src/app/component/data-grid/sw-data-grid-column-position/register';
+import 'src/app/component/data-grid/sw-data-grid-inline-edit/register';
+import 'src/app/component/data-grid/sw-data-grid-settings/register';
+import 'src/app/component/data-grid/sw-data-grid-skeleton/register';
 /**
  * @sw-package framework
  * @private
@@ -328,17 +334,6 @@ export default () => {
         'sw-category-tree-field',
         () => import('src/app/component/entity/sw-category-tree-field/index'),
     Shopware.Component.register('sw-bulk-edit-modal', () => import('src/app/component/entity/sw-bulk-edit-modal/index'));
-        'sw-data-grid-skeleton',
-        () => import('src/app/component/data-grid/sw-data-grid-skeleton/index'),
-        'sw-data-grid-settings',
-        () => import('src/app/component/data-grid/sw-data-grid-settings/index'),
-        'sw-data-grid-inline-edit',
-        () => import('src/app/component/data-grid/sw-data-grid-inline-edit/index'),
-        'sw-data-grid-column-position',
-        () => import('src/app/component/data-grid/sw-data-grid-column-position/index'),
-        'sw-data-grid-column-boolean',
-        () => import('src/app/component/data-grid/sw-data-grid-column-boolean/index'),
-    Shopware.Component.register('sw-data-grid', () => import('src/app/component/data-grid/sw-data-grid/index'));
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));

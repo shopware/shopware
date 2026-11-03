@@ -451,37 +451,42 @@
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid-column-boolean/index.js": {
+  "src/app/component/data-grid/sw-data-grid-column-boolean/src/sw-data-grid-column-boolean.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid-column-position/index.js": {
+  "src/app/component/data-grid/sw-data-grid-column-position/src/sw-data-grid-column-position.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid-inline-edit/index.js": {
+  "src/app/component/data-grid/sw-data-grid-inline-edit/src/sw-data-grid-inline-edit.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid-settings/index.js": {
+  "src/app/component/data-grid/sw-data-grid-settings/src/sw-data-grid-settings.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid-settings/sw-data-grid-settings.spec.js": {
+  "src/app/component/data-grid/sw-data-grid-settings/tests/sw-data-grid-settings.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/component/data-grid/sw-data-grid-skeleton/index.js": {
+  "src/app/component/data-grid/sw-data-grid-skeleton/src/sw-data-grid-skeleton.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid/index.js": {
+  "src/app/component/data-grid/sw-data-grid/src/sw-data-grid.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/src/sw-data-grid.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -489,12 +494,7 @@
       "count": 1
     }
   },
-  "src/app/component/data-grid/sw-data-grid/sw-data-grid.html.twig": {
-    "vue/max-template-depth": {
-      "count": 6
-    }
-  },
-  "src/app/component/data-grid/sw-data-grid/sw-data-grid.spec.js": {
+  "src/app/component/data-grid/sw-data-grid/tests/sw-data-grid.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

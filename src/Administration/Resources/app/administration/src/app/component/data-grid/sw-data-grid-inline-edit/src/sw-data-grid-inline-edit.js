@@ -1,5 +1,6 @@
 import template from './sw-data-grid-inline-edit.html.twig';
 import './sw-data-grid-inline-edit.scss';
+import { featureService } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -9,7 +10,7 @@ import './sw-data-grid-inline-edit.scss';
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['update:value'],
 

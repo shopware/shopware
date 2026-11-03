@@ -3,14 +3,15 @@
  */
 import template from './sw-profile-index-general.html.twig';
 import './sw-profile-index-general.scss';
+import { aclService, mapPropertyErrors, ssoSettingsService } from '../dependencies';
 
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl', 'ssoSettingsService'],
+    inject: [aclService, ssoSettingsService],
 
     emits: [
         'new-password-change',

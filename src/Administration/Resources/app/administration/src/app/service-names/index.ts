@@ -46,6 +46,7 @@ export {
     importExport,
     licenseViolationService,
     liveSearchService,
+    localeHelper,
     loginService,
     mailService,
     mediaDefaultFolderService,
@@ -78,6 +79,7 @@ export {
     snackbarService,
     snippetService,
     snippetSetService,
+    ssoSettingsService,
     stateMachineService,
     stateStyleDataProviderService,
     storeService,
@@ -92,4 +94,5 @@ export {
     userConfigService,
     userInputSanitizeService,
     userService,
+    validationApiService,
 } from './src/service-names';

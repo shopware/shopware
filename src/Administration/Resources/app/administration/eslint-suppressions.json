@@ -10125,7 +10125,7 @@
       "count": 1
     }
   },
-  "src/module/sw-profile/page/sw-profile-index/index.js": {
+  "src/module/sw-profile/page/sw-profile-index/src/sw-profile-index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10133,7 +10133,7 @@
       "count": 1
     }
   },
-  "src/module/sw-profile/page/sw-profile-index/sw-profile-index.spec.js": {
+  "src/module/sw-profile/page/sw-profile-index/tests/sw-profile-index.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10141,7 +10141,7 @@
       "count": 79
     }
   },
-  "src/module/sw-profile/view/sw-profile-index-general/index.js": {
+  "src/module/sw-profile/view/sw-profile-index-general/src/sw-profile-index-general.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10149,12 +10149,12 @@
       "count": 1
     }
   },
-  "src/module/sw-profile/view/sw-profile-index-general/sw-profile-index-general.spec.js": {
+  "src/module/sw-profile/view/sw-profile-index-general/tests/sw-profile-index-general.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-profile/view/sw-profile-index-search-preferences/index.js": {
+  "src/module/sw-profile/view/sw-profile-index-search-preferences/src/sw-profile-index-search-preferences.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10162,7 +10162,7 @@
       "count": 1
     }
   },
-  "src/module/sw-profile/view/sw-profile-index-search-preferences/sw-profile-index-search-preferences.spec.js": {
+  "src/module/sw-profile/view/sw-profile-index-search-preferences/tests/sw-profile-index-search-preferences.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

@@ -6,30 +6,51 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-profile-index.html.twig';
-import '../../store/sw-profile.store';
+import '../../../store/sw-profile.store';
+import {
+    aclService,
+    Criteria,
+    featureService,
+    getAppContext,
+    getLocaleHelper,
+    getTimezoneService,
+    getUserConfigService,
+    loginService,
+    mapPropertyErrors,
+    mediaDefaultFolderService,
+    notificationMixin,
+    repositoryFactoryService,
+    searchPreferencesService,
+    searchRankingService,
+    ShopwareError,
+    ssoSettingsService,
+    useErrorStore,
+    useProfileStore,
+    userService,
+    useSessionStore,
+    validationApiService,
+} from '../dependencies';
 
-const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'userService',
-        'loginService',
-        'mediaDefaultFolderService',
-        'repositoryFactory',
-        'acl',
-        'searchPreferencesService',
-        'searchRankingService',
-        'ssoSettingsService',
-        'validationApiService',
-        'feature',
+        userService,
+        loginService,
+        mediaDefaultFolderService,
+        repositoryFactoryService,
+        aclService,
+        searchPreferencesService,
+        searchRankingService,
+        ssoSettingsService,
+        validationApiService,
+        featureService,
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -65,21 +86,21 @@ export default {
         },
 
         minSearchTermLength() {
-            return Store.get('swProfile').minSearchTermLength;
+            return useProfileStore().minSearchTermLength;
         },
 
         searchPreferences() {
-            return Store.get('swProfile').searchPreferences;
+            return useProfileStore().searchPreferences;
         },
 
         ...mapPropertyErrors('user', ['email', 'timeZone']),
 
         userSearchPreferences: {
             get() {
-                return Store.get('swProfile').userSearchPreferences;
+                return useProfileStore().userSearchPreferences;
             },
             set(userSearchPreferences) {
-                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
+                useProfileStore().userSearchPreferences = userSearchPreferences;
             },
         },
 
@@ -104,7 +125,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.Store.get('session').languageId;
+            return useSessionStore().languageId;
         },
 
         profileTabs() {
@@ -172,7 +193,7 @@ export default {
             });
 
             this.userPromise = this.getUserData();
-            this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
+            this.timezoneOptions = getTimezoneService().getTimezoneOptions();
 
             const promises = [languagePromise, this.userPromise];
 
@@ -226,7 +247,7 @@ export default {
                     this.languages.push(lang);
 
                     localeIds.push(lang.localeId);
-                    if (lang.locale.code === Shopware.Context.app.fallbackLocale) {
+                    if (lang.locale.code === getAppContext().fallbackLocale) {
                         fallbackId = lang.localeId;
                     }
                 });
@@ -357,13 +378,13 @@ export default {
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
 
-                        Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                        getLocaleHelper().setLocaleWithId(this.user.localeId);
                     })
                     .catch((error) => {
                         if (error?.response?.data?.errors?.[0]) {
-                            Shopware.Store.get('error').addApiError({
+                            useErrorStore().addApiError({
                                 expression: `user.${this.user?.id}.password`,
-                                error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                                error: new ShopwareError(error.response.data.errors[0]),
                             });
                         }
                         this.createNotificationError({
@@ -391,7 +412,7 @@ export default {
                     await this.updateCurrentUser();
                     await this.saveUserTheme();
                     await this.saveUserModuleIconColors();
-                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                    getLocaleHelper().setLocaleWithId(this.user.localeId);
 
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
@@ -412,7 +433,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.Store.get('session').setCurrentUser(data);
+                return useSessionStore().setCurrentUser(data);
             });
         },
 
@@ -518,7 +539,7 @@ export default {
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return Shopware.Service('userConfigService')
+            return getUserConfigService()
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

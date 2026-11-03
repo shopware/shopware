@@ -343,6 +343,16 @@ export const licenseViolationService = 'licenseViolationService';
 export const liveSearchService = 'liveSearchService';
 
 /**
+ * The name the localeHelper service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [localeHelper] };
+ *
+ * @public
+ */
+export const localeHelper = 'localeHelper';
+
+/**
  * The name the loginService service is registered and injected under.
  *
  * @example
@@ -683,6 +693,16 @@ export const snippetService = 'snippetService';
 export const snippetSetService = 'snippetSetService';
 
 /**
+ * The name the ssoSettingsService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [ssoSettingsService] };
+ *
+ * @public
+ */
+export const ssoSettingsService = 'ssoSettingsService';
+
+/**
  * The name the stateMachineService service is registered and injected under.
  *
  * @example
@@ -821,3 +841,13 @@ export const userInputSanitizeService = 'userInputSanitizeService';
  * @public
  */
 export const userService = 'userService';
+
+/**
+ * The name the validationApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [validationApiService] };
+ *
+ * @public
+ */
+export const validationApiService = 'validationApiService';

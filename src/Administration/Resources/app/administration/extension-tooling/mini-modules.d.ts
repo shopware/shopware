@@ -299,3 +299,6 @@ import '../src/module/sw-order/view/sw-order-create-initial/global';
 import '../src/module/sw-order/view/sw-order-detail-details/global';
 import '../src/module/sw-order/view/sw-order-detail-documents/global';
 import '../src/module/sw-order/view/sw-order-detail-general/global';
+import '../src/module/sw-profile/page/sw-profile-index/global';
+import '../src/module/sw-profile/view/sw-profile-index-general/global';
+import '../src/module/sw-profile/view/sw-profile-index-search-preferences/global';

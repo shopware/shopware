@@ -1,7 +1,13 @@
 /**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swProfileStoreId = 'swProfile';
+
+/**
  * @sw-package fundamentals@framework
  */
-const swProfileStore = Shopware.Store.register('swProfile', {
+const swProfileStore = Shopware.Store.register(swProfileStoreId, {
     state() {
         return {
             minSearchTermLength: 2,

@@ -3,25 +3,15 @@
  */
 import './extension/sw-admin-menu';
 import './acl';
+import './view/sw-profile-index-privacy-preferences/register';
+import './page/sw-profile-index/register';
+import './view/sw-profile-index-general/register';
+import './view/sw-profile-index-search-preferences/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-profile-index', () => import('./page/sw-profile-index'));
-Shopware.Component.register('sw-profile-index-general', () => import('./view/sw-profile-index-general'));
-Shopware.Component.register(
-    'sw-profile-index-search-preferences',
-    () => import('./view/sw-profile-index-search-preferences'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-profile-index-privacy-preferences',
-    () => import('./view/sw-profile-index-privacy-preferences'),
-);
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-profile', {

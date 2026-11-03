@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentFileStorage;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Subscriber\ProductDocumentFileSubscriber;
 use Shopware\Core\Defaults;
@@ -42,6 +41,8 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
     private ProductDocumentTranslationDefinition $definition;
 
+    private ProductDocumentFileSubscriber $subscriber;
+
     protected function setUp(): void
     {
         new StaticDefinitionInstanceRegistry(
@@ -49,13 +50,17 @@ class ProductDocumentFileSubscriberTest extends TestCase
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
         );
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn([self::DOCUMENT => Uuid::fromHexToBytes(self::DEFAULT_FILE)]);
+        $this->subscriber = new ProductDocumentFileSubscriber($connection);
     }
 
     public function testAVersionWrittenWithoutAFileGetsTheDefaultFile(): void
     {
         $command = $this->insert(self::GERMAN);
 
-        $this->write([$command], $this->storage(self::DEFAULT_FILE));
+        $this->write($command);
 
         static::assertSame(self::DEFAULT_FILE, self::fileOf($command));
     }
@@ -64,20 +69,18 @@ class ProductDocumentFileSubscriberTest extends TestCase
     {
         $command = $this->update(self::GERMAN, ['media_id' => null]);
 
-        $this->write([$command], $this->storage(self::DEFAULT_FILE));
+        $this->write($command);
 
         static::assertSame(self::DEFAULT_FILE, self::fileOf($command));
     }
 
     public function testAVersionGetsTheFileOfTheDefaultVersionWrittenWithIt(): void
     {
-        $storage = $this->storage(self::DEFAULT_FILE);
         $german = $this->insert(self::GERMAN);
 
-        $this->write([$german, $this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)])], $storage);
+        $this->write($german, $this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]));
 
         static::assertSame(self::NEW_DEFAULT_FILE, self::fileOf($german));
-        static::assertSame(0, $storage->reads);
     }
 
     public function testVersionsWithTheirOwnFileAndTheDefaultVersionStayAsWritten(): void
@@ -85,7 +88,7 @@ class ProductDocumentFileSubscriberTest extends TestCase
         $german = $this->insert(self::GERMAN, self::GERMAN_FILE);
         $default = $this->insert(Defaults::LANGUAGE_SYSTEM);
 
-        $this->write([$default, $german], $this->storage(self::DEFAULT_FILE));
+        $this->write($default, $german);
 
         static::assertSame(self::GERMAN_FILE, self::fileOf($german));
         static::assertNull(self::fileOf($default));
@@ -95,32 +98,14 @@ class ProductDocumentFileSubscriberTest extends TestCase
     {
         $german = $this->update(self::GERMAN, ['title' => 'Handbuch']);
 
-        $this->write([$this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]), $german], $this->storage(self::DEFAULT_FILE));
+        $this->write($this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]), $german);
 
         static::assertNull(self::fileOf($german));
     }
 
-    public function testNothingIsReadWhenNoVersionIsWithoutAFile(): void
+    private function write(WriteCommand ...$commands): void
     {
-        $storage = $this->storage(self::DEFAULT_FILE);
-
-        $this->write([$this->update(self::GERMAN, ['title' => 'Handbuch'])], $storage);
-
-        static::assertSame(0, $storage->reads);
-    }
-
-    private function storage(string $defaultFile): FakeProductDocumentFileStorage
-    {
-        return new FakeProductDocumentFileStorage(static::createStub(Connection::class), $defaultFile);
-    }
-
-    /**
-     * @param list<WriteCommand> $commands
-     */
-    private function write(array $commands, FakeProductDocumentFileStorage $storage): void
-    {
-        $event = EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
-        (new ProductDocumentFileSubscriber($storage))->beforeWrite($event);
+        $this->subscriber->beforeWrite(EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), array_values($commands)));
     }
 
     private function insert(string $languageId, ?string $fileId = null): InsertCommand
@@ -159,29 +144,5 @@ class ProductDocumentFileSubscriberTest extends TestCase
         $fileId = $command->getPayload()['media_id'] ?? null;
 
         return \is_string($fileId) ? Uuid::fromBytesToHex($fileId) : null;
-    }
-}
-
-/**
- * Returns the same default file for every document and counts the reads.
- *
- * @internal
- */
-class FakeProductDocumentFileStorage extends ProductDocumentFileStorage
-{
-    public int $reads = 0;
-
-    public function __construct(
-        Connection $connection,
-        private readonly string $defaultFile,
-    ) {
-        parent::__construct($connection);
-    }
-
-    public function getDefaultFiles(array $documentIds, string $versionId): array
-    {
-        ++$this->reads;
-
-        return array_fill_keys($documentIds, $this->defaultFile);
     }
 }

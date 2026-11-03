@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
-use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentFileStorage;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
@@ -20,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('inventory')]
 class ProductDocumentFileSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly ProductDocumentFileStorage $storage)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -40,16 +41,17 @@ class ProductDocumentFileSubscriber implements EventSubscriberInterface
 
             if (Uuid::fromBytesToHex($primaryKey['language_id']) === Defaults::LANGUAGE_SYSTEM) {
                 if (\is_string($fileId)) {
-                    $defaultFiles[$documentId] = Uuid::fromBytesToHex($fileId);
+                    $defaultFiles[$documentId] = $fileId;
                 }
             } elseif ($fileId === null && ($command instanceof InsertCommand || $command->hasField('media_id'))) {
+                // new versions without a file, and versions whose file is removed
                 $versionsWithoutFile[$documentId][] = $command;
             }
         }
 
         $documentIds = array_keys(array_diff_key($versionsWithoutFile, $defaultFiles));
         if ($documentIds !== []) {
-            $defaultFiles += $this->storage->getDefaultFiles($documentIds, $event->getContext()->getVersionId());
+            $defaultFiles += $this->getDefaultFiles($documentIds, $event->getContext()->getVersionId());
         }
 
         foreach ($versionsWithoutFile as $documentId => $commands) {
@@ -58,8 +60,30 @@ class ProductDocumentFileSubscriber implements EventSubscriberInterface
             }
 
             foreach ($commands as $command) {
-                $command->addPayload('media_id', Uuid::fromHexToBytes($defaultFiles[$documentId]));
+                $command->addPayload('media_id', $defaultFiles[$documentId]);
             }
         }
+    }
+
+    /**
+     * @param list<string> $documentIds
+     *
+     * @return array<string, string> file id per document id
+     */
+    private function getDefaultFiles(array $documentIds, string $versionId): array
+    {
+        /** @var array<string, string> */
+        return $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(`product_document_id`)), `media_id`
+             FROM `product_document_translation`
+             WHERE `product_document_id` IN (:documentIds) AND `product_document_version_id` = :versionId
+               AND `language_id` = :languageId AND `media_id` IS NOT NULL',
+            [
+                'documentIds' => Uuid::fromHexToBytesList($documentIds),
+                'versionId' => Uuid::fromHexToBytes($versionId),
+                'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            ],
+            ['documentIds' => ArrayParameterType::BINARY],
+        );
     }
 }

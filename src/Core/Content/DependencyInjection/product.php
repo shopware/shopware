@@ -25,7 +25,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentFileStorage;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -378,14 +377,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(ProductDocumentFileStorage::class)
-        ->args([
-            service(Connection::class),
-        ]);
-
     $services->set(ProductDocumentFileSubscriber::class)
         ->args([
-            service(ProductDocumentFileStorage::class),
+            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

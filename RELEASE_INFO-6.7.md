@@ -217,44 +217,25 @@ shopware:
 
 ## Administration
 
-### Experimental: `Feature.silence()` and `sw-silence-deprecations` keep the pre-major path of an extension quiet
+### Experimental: `Feature.silence()` and `sw-silence-deprecations`
 
-`Shopware.Feature.silence()` runs a callback with the deprecations of a major silenced, like the PHP `Feature::silent()`.
-Use it on the pre-major side of a feature-flag branch to stay compatible with both sides of a major without reporting the deprecated APIs the old path still needs:
+Both silence the deprecations of a major on the pre-major side of a feature-flag branch, so an extension can support both sides of a major without warnings:
 
 ```js
 if (!Shopware.Feature.isActive('V6_8_0_0')) {
     Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
-} else {
-    this.load();
 }
 ```
 
-In templates, the renderless `sw-silence-deprecations` component does the same for the first level of components inside of it, ignoring plain HTML elements and `<template>`.
-Those components are silenced with everything they render themselves, while everything below them in the same template reports:
-
-```html
-<sw-silence-deprecations flag="V6_9_0_0">
-    <div>
-        <sw-tabs>          <!-- level 1: silenced, including all of sw-tabs' own insides -->
-            <sw-card />    <!-- level 2: reports -->
-        </sw-tabs>
-    </div>
-</sw-silence-deprecations>
-```
-
-So a wrapper component silences its deprecated implementation, but not what its users put into its `<slot />`:
-
 ```html
 <sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
-    <sw-popover-deprecated v-bind="$attrs"><slot /></sw-popover-deprecated>
+    <sw-deprecated-component />
 </sw-silence-deprecations>
-<mt-floating-ui v-else v-bind="$attrs"><slot /></mt-floating-ui>
 ```
 
-Both silence nothing once the major is active, and an unknown flag silences nothing and logs an error.
-The callback of `Feature.silence()` has to be synchronous.
-The component covers `setup`, `data`, lifecycle hooks and rendering, so event handlers, watchers that are not `immediate`, and code after an `await` wrap their deprecated calls in `Feature.silence()`.
+The component silences the first level of components inside of it, ignoring plain HTML, and everything they render themselves.
+Event handlers, watchers and code after an `await` need `Feature.silence()`.
+Once the major is active, both silence nothing.
 
 ### Extension tooling reports redundant code
 

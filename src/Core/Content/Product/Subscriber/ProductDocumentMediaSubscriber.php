@@ -40,7 +40,7 @@ final class ProductDocumentMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Loads the files the DAL resolved for the documents (`translated.mediaId`) in one search,
+     * Loads the public files the DAL resolved for the documents (`translated.mediaId`) in one search,
      * and adds each file with its language.
      *
      * @param SalesChannelEntityLoadedEvent<ProductDocumentEntity> $event
@@ -59,8 +59,12 @@ final class ProductDocumentMediaSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $criteria = new Criteria(array_values(array_unique(array_column($documentsWithFile, 1))));
+        // media searches still return the private files of product downloads
+        $criteria->addFilter(new EqualsFilter('private', false));
+
         $context = $event->getContext();
-        $files = $this->mediaRepository->search(new Criteria(array_values(array_unique(array_column($documentsWithFile, 1)))), $context)->getEntities();
+        $files = $this->mediaRepository->search($criteria, $context)->getEntities();
         $fileLanguages = $this->getFileLanguages(array_column($documentsWithFile, 0), $context);
 
         foreach ($documentsWithFile as [$document, $mediaId]) {

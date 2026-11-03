@@ -63,7 +63,7 @@ class ProductDocumentMediaSubscriberTest extends TestCase
         yield 'the file of the default language when it is also the parent' => [[self::SWISS_GERMAN, Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM], false, null, Defaults::LANGUAGE_SYSTEM];
     }
 
-    public function testOneSearchLoadsTheFilesOfAllDocuments(): void
+    public function testOneSearchLoadsThePublicFilesOfAllDocuments(): void
     {
         $manual = self::document(id: 'manual', file: 'file-a', ownFile: true);
         $datasheet = self::document(id: 'datasheet', file: 'file-b', ownFile: true);
@@ -74,6 +74,7 @@ class ProductDocumentMediaSubscriberTest extends TestCase
 
         static::assertCount(1, $mediaRepository->searchedCriteria);
         static::assertSame(['file-a', 'file-b'], $mediaRepository->searchedCriteria[0]->getIds());
+        static::assertEquals([new EqualsFilter('private', false)], $mediaRepository->searchedCriteria[0]->getFilters());
         static::assertSame(['file-a', 'file-b', 'file-a'], [$manual->getMedia()?->getId(), $datasheet->getMedia()?->getId(), $certificate->getMedia()?->getId()]);
     }
 
@@ -100,7 +101,7 @@ class ProductDocumentMediaSubscriberTest extends TestCase
 
     public function testADocumentWhoseFileIsNotFoundStaysWithoutFile(): void
     {
-        $document = self::document(id: 'manual', file: 'private-file', ownFile: true);
+        $document = self::document(id: 'manual', file: 'missing-file', ownFile: true);
 
         $this->dispatch([$document], new StaticEntityRepository([new MediaCollection()]), StaticEntityRepository::of(ProductDocumentTranslationCollection::class), [Defaults::LANGUAGE_SYSTEM]);
 

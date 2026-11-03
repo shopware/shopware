@@ -1,5 +1,13 @@
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
+import {
+    aclService,
+    getApiContext,
+    getDateFilter,
+    getDecodeIdnEmailFilter,
+    isFeatureActive,
+    repositoryFactoryService,
+} from '../dependencies';
 
 const {
     Mixin,
@@ -11,12 +19,13 @@ const {
  * @sw-package after-sales
  *
  * @deprecated tag:v6.8.0 - Will be private
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     mixins: [Mixin.getByName('listing')],
 
@@ -78,11 +87,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
 
         emailIdnFilter() {
-            return Shopware.Filter.getByName('decode-idn-email');
+            return getDecodeIdnEmailFilter();
         },
 
         statusData() {
@@ -95,7 +104,7 @@ export default {
         },
 
         adminEsEnable() {
-            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            if (!isFeatureActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 return false;
             }
 
@@ -114,7 +123,7 @@ export default {
             const criteria = new Criteria(1, 100);
             try {
                 const [languages, salesChannels, tags] = await Promise.all([
-                    this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
+                    this.repositoryFactory.create('language').search(criteria, getApiContext()),
                     this.salesChannelRepository.search(criteria),
                     this.tagRepository.search(criteria),
                 ]);

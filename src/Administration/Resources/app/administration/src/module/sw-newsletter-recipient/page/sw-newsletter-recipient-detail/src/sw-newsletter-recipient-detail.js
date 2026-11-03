@@ -1,16 +1,22 @@
 import template from './sw-newsletter-recipient-detail.html.twig';
 import './sw-newsletter-recipient-detail.scss';
-
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    publishData,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [repositoryFactoryService, aclService, customFieldDataProviderService],
 
     mixins: ['notification', 'salutation'],
 
@@ -50,7 +56,7 @@ export default {
         createdComponent() {
             this.isLoading = true;
 
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-newsletter-recipient-detail__newsletterRecipient',
                 path: 'newsletterRecipient',
                 scope: this,

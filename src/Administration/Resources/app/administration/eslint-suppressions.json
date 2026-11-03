@@ -8634,7 +8634,7 @@
       "count": 1
     }
   },
-  "src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/index.js": {
+  "src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/src/sw-newsletter-recipient-filter-switch.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8658,7 +8658,7 @@
       "count": 1
     }
   },
-  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/index.js": {
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/src/sw-newsletter-recipient-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8666,7 +8666,7 @@
       "count": 1
     }
   },
-  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js": {
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/src/sw-newsletter-recipient-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8674,7 +8674,7 @@
       "count": 1
     }
   },
-  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/sw-newsletter-recipient-list.spec.js": {
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/tests/sw-newsletter-recipient-list.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

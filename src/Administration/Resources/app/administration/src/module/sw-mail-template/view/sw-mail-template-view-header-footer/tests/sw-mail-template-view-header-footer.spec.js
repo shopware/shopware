@@ -2,7 +2,7 @@
  * @sw-package after-sales
  */
 import { shallowMount } from '@vue/test-utils';
-import swMailTemplateViewHeaderFooter from 'src/module/sw-mail-template/view/sw-mail-template-view-header-footer';
+import swMailTemplateViewHeaderFooter from 'src/module/sw-mail-template/view/sw-mail-template-view-header-footer/src/sw-mail-template-view-header-footer';
 
 Shopware.Component.register('sw-mail-template-view-header-footer', swMailTemplateViewHeaderFooter);
 

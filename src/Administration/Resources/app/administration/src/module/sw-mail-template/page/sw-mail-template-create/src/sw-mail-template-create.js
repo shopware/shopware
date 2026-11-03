@@ -1,11 +1,13 @@
 import template from './sw-mail-template-create.html.twig';
+import { getApiContext, useContextStore, Utils } from '../dependencies';
 
-const utils = Shopware.Utils;
+const utils = Utils;
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -19,12 +21,12 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             if (this.$route.params.id) {
-                this.mailTemplate = this.mailTemplateRepository.create(Shopware.Context.api, this.$route.params.id);
+                this.mailTemplate = this.mailTemplateRepository.create(getApiContext(), this.$route.params.id);
             } else {
                 this.mailTemplate = this.mailTemplateRepository.create();
             }

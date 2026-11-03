@@ -1,25 +1,32 @@
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
 
 import template from './sw-mail-header-footer-detail.html.twig';
 import './sw-mail-header-footer-detail.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+import {
+    aclService,
+    Criteria,
+    entityMappingService as entityMappingServiceName,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    warn,
+} from '../dependencies';
 
 /**
  * @sw-package after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
+    inject: [entityMappingServiceName, repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -147,7 +154,7 @@ export default {
 
             this.mailHeaderFooter = await this.mailHeaderFooterRepository.get(
                 this.mailHeaderFooterId,
-                Shopware.Context.api,
+                getApiContext(),
                 this.mailHeaderFooterCriteria,
             );
 

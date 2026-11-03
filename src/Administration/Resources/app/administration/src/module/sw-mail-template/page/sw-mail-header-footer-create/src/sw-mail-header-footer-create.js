@@ -1,26 +1,25 @@
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
 
 import template from './sw-mail-header-footer-create.html.twig';
+import { getApiContext, useContextStore } from '../dependencies';
 
 /**
  * @sw-package after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
-            this.mailHeaderFooter = this.mailHeaderFooterRepository.create(
-                Shopware.Context.api,
-                this.$route.params.id ?? null,
-            );
+            this.mailHeaderFooter = this.mailHeaderFooterRepository.create(getApiContext(), this.$route.params.id ?? null);
             this.mailHeaderFooterId = this.mailHeaderFooter.id;
 
             this.isLoading = false;

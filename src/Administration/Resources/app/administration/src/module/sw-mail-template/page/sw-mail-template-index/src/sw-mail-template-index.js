@@ -3,20 +3,21 @@
  */
 
 import template from './sw-mail-template-index.html.twig';
+import { aclService, featureService, isFeatureActive, listingMixin, useContextStore } from '../dependencies';
 
-const { Mixin, Feature } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: [aclService, featureService],
 
     mixins: [
         /**
          * @deprecated tag:v6.8.0 - Will be removed.
          */
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     data() {
@@ -66,9 +67,9 @@ export default {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
 
-            if (Feature.isActive('V6_8_0_0')) {
+            if (isFeatureActive('V6_8_0_0')) {
                 this.$refs.tabContent?.getList();
             } else {
                 this.$refs.mailHeaderFooterList?.getList();

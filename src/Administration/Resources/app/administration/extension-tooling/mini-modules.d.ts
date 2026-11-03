@@ -345,3 +345,10 @@ import '../src/module/sw-import-export/component/sw-import-export-edit-profile-g
 import '../src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/global';
 import '../src/module/sw-integration/component/sw-integration-mcp-allowlist/global';
 import '../src/module/sw-integration/page/sw-integration-list/global';
+import '../src/module/sw-mail-template/component/sw-mail-header-footer-list/global';
+import '../src/module/sw-mail-template/component/sw-mail-template-list/global';
+import '../src/module/sw-mail-template/page/sw-mail-header-footer-detail/global';
+import '../src/module/sw-mail-template/page/sw-mail-header-footer-create/global';
+import '../src/module/sw-mail-template/page/sw-mail-template-detail/global';
+import '../src/module/sw-mail-template/page/sw-mail-template-create/global';
+import '../src/module/sw-mail-template/page/sw-mail-template-index/global';

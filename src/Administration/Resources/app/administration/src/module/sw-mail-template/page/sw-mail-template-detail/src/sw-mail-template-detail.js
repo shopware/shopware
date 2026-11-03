@@ -1,30 +1,44 @@
-import camelCase from 'lodash-es/camelCase';
-import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
-
-const { Mixin, Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+import {
+    aclService,
+    businessEventService,
+    camelCase,
+    Criteria,
+    dom,
+    EntityCollection,
+    entityMappingService as entityMappingServiceName,
+    featureService,
+    get,
+    getApiContext,
+    mailService,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    publishData,
+    repositoryFactoryService,
+    useContextStore,
+    warn,
+} from '../dependencies';
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'mailService',
-        'entityMappingService',
-        'repositoryFactory',
-        'acl',
-        'feature',
-        'businessEventService',
+        mailService,
+        entityMappingServiceName,
+        repositoryFactoryService,
+        aclService,
+        featureService,
+        businessEventService,
     ],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -210,42 +224,42 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__mailTemplate',
                 path: 'mailTemplate',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__mailTemplateMedia',
                 path: 'mailTemplateMedia',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__mailTemplateMediaSelected',
                 path: 'mailTemplateMediaSelected',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__mailTemplateType',
                 path: 'mailTemplateType',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__availableVariables',
                 path: 'availableVariables',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__testMailSalesChannelId',
                 path: 'testMailSalesChannelId',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__previewSalesChannelId',
                 path: 'testMailSalesChannelId',
                 scope: this,
             });
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-mail-template-detail__testerMail',
                 path: 'testerMail',
                 scope: this,
@@ -264,7 +278,7 @@ export default {
             criteria.addAssociation('mailTemplateType');
             criteria.addAssociation('media.media');
             this.isLoading = true;
-            this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, criteria).then((item) => {
+            this.mailTemplateRepository.get(this.mailTemplateId, getApiContext(), criteria).then((item) => {
                 this.mailTemplate = item;
                 if (!this.mailTemplate.mailTemplateType?.id) {
                     this.isLoading = false;
@@ -355,14 +369,14 @@ export default {
         },
 
         createMediaCollection() {
-            return new EntityCollection('/media', 'media', Shopware.Context.api);
+            return new EntityCollection('/media', 'media', getApiContext());
         },
 
         getMailTemplateMedia() {
             this.mailTemplateMedia = this.createMediaCollection();
 
             this.mailTemplate.media.forEach((mediaAssoc) => {
-                if (mediaAssoc.languageId === Shopware.Context.api.languageId) {
+                if (mediaAssoc.languageId === getApiContext().languageId) {
                     this.mailTemplateMedia.push(mediaAssoc.media);
                 }
             });
@@ -377,7 +391,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.loadEntityData();
         },
 
@@ -446,9 +460,13 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('languages');
 
-            const salesChannel = await this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria);
+            const salesChannel = await this.salesChannelRepository.get(
+                this.testMailSalesChannelId,
+                getApiContext(),
+                criteria,
+            );
 
-            if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
+            if (!salesChannel.languages.has(getApiContext().languageId)) {
                 this.showLanguageNotAssignedToSalesChannelWarning = true;
 
                 return;
@@ -631,7 +649,11 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('mailHeaderFooter');
 
-            const salesChannel = await this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria);
+            const salesChannel = await this.salesChannelRepository.get(
+                this.testMailSalesChannelId,
+                getApiContext(),
+                criteria,
+            );
             const mailHeaderFooter = salesChannel?.mailHeaderFooter;
 
             return {
@@ -722,7 +744,7 @@ export default {
         createMailTemplateMediaAssoc(mediaItem) {
             const mailTemplateMedia = this.mailTemplateMediaRepository.create();
             mailTemplateMedia.mailTemplateId = this.mailTemplateId;
-            mailTemplateMedia.languageId = Shopware.Context.api.languageId;
+            mailTemplateMedia.languageId = getApiContext().languageId;
             mailTemplateMedia.mediaId = mediaItem.id;
             if (this.mailTemplate.media.length <= 0) {
                 mailTemplateMedia.position = 0;
@@ -741,7 +763,7 @@ export default {
             const foundItem = this.mailTemplate.media.find(
                 (mailTemplateMedia) =>
                     mailTemplateMedia.mediaId === mailTemplateMediaId &&
-                    mailTemplateMedia.languageId === Shopware.Context.api.languageId,
+                    mailTemplateMedia.languageId === getApiContext().languageId,
             );
 
             if (foundItem) {
@@ -762,9 +784,7 @@ export default {
 
         _checkIfMediaIsAlreadyUsed(mediaId) {
             return this.mailTemplate.media.some((mailTemplateMedia) => {
-                return (
-                    mailTemplateMedia.mediaId === mediaId && mailTemplateMedia.languageId === Shopware.Context.api.languageId
-                );
+                return mailTemplateMedia.mediaId === mediaId && mailTemplateMedia.languageId === getApiContext().languageId;
             });
         },
 
@@ -808,7 +828,7 @@ export default {
 
             const variables = variable.split('.');
             variables.splice(1, 0, 'properties');
-            const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
+            const field = get(this.entitySchema, `${variables.join('.')}`);
 
             return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
         },

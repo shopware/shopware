@@ -8252,7 +8252,7 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/component/sw-mail-header-footer-list/index.js": {
+  "src/module/sw-mail-template/component/sw-mail-header-footer-list/src/sw-mail-header-footer-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8260,12 +8260,12 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/component/sw-mail-header-footer-list/sw-mail-header-footer-list.spec.js": {
+  "src/module/sw-mail-template/component/sw-mail-header-footer-list/tests/sw-mail-header-footer-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 17
     }
   },
-  "src/module/sw-mail-template/component/sw-mail-template-list/index.js": {
+  "src/module/sw-mail-template/component/sw-mail-template-list/src/sw-mail-template-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8273,12 +8273,12 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/component/sw-mail-template-list/sw-mail-template-list.spec.js": {
+  "src/module/sw-mail-template/component/sw-mail-template-list/tests/sw-mail-template-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-mail-template/component/sw-mail-template-preview-modal/index.js": {
+  "src/module/sw-mail-template/component/sw-mail-template-preview-modal/src/sw-mail-template-preview-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8291,7 +8291,7 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js": {
+  "src/module/sw-mail-template/page/sw-mail-header-footer-create/src/sw-mail-header-footer-create.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8299,12 +8299,12 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-header-footer-create/sw-mail-header-footer-create.spec.ts": {
+  "src/module/sw-mail-template/page/sw-mail-header-footer-create/tests/sw-mail-header-footer-create.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-header-footer-detail/index.js": {
+  "src/module/sw-mail-template/page/sw-mail-header-footer-detail/src/sw-mail-header-footer-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8312,12 +8312,12 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-header-footer-detail/sw-mail-header-footer-detail.spec.js": {
+  "src/module/sw-mail-template/page/sw-mail-header-footer-detail/tests/sw-mail-header-footer-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-template-create/index.js": {
+  "src/module/sw-mail-template/page/sw-mail-template-create/src/sw-mail-template-create.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8325,7 +8325,12 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-template-detail/index.js": {
+  "src/module/sw-mail-template/page/sw-mail-template-detail/src/sw-mail-template-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/src/sw-mail-template-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8339,12 +8344,7 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.html.twig": {
-    "vue/max-template-depth": {
-      "count": 2
-    }
-  },
-  "src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.spec.js": {
+  "src/module/sw-mail-template/page/sw-mail-template-detail/tests/sw-mail-template-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8352,7 +8352,7 @@
       "count": 69
     }
   },
-  "src/module/sw-mail-template/page/sw-mail-template-index/index.js": {
+  "src/module/sw-mail-template/page/sw-mail-template-index/src/sw-mail-template-index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8360,12 +8360,12 @@
       "count": 1
     }
   },
-  "src/module/sw-mail-template/view/sw-mail-template-view-header-footer/index.js": {
+  "src/module/sw-mail-template/view/sw-mail-template-view-header-footer/src/sw-mail-template-view-header-footer.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-mail-template/view/sw-mail-template-view-templates/index.js": {
+  "src/module/sw-mail-template/view/sw-mail-template-view-templates/src/sw-mail-template-view-templates.js": {
     "filename-rules/not-match": {
       "count": 1
     }

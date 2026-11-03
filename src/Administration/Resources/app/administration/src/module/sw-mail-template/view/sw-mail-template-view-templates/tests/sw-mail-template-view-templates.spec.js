@@ -2,7 +2,7 @@
  * @sw-package after-sales
  */
 import { shallowMount } from '@vue/test-utils';
-import swMailTemplateViewTemplates from 'src/module/sw-mail-template/view/sw-mail-template-view-templates';
+import swMailTemplateViewTemplates from 'src/module/sw-mail-template/view/sw-mail-template-view-templates/src/sw-mail-template-view-templates';
 
 Shopware.Component.register('sw-mail-template-view-templates', swMailTemplateViewTemplates);
 

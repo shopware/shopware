@@ -1,30 +1,19 @@
 import './acl';
+import './component/sw-mail-header-footer-list/register';
+import './component/sw-mail-template-list/register';
+import './component/sw-mail-template-preview-modal/register';
+import './page/sw-mail-header-footer-detail/register';
+import './page/sw-mail-header-footer-create/register';
+import './page/sw-mail-template-detail/register';
+import './page/sw-mail-template-create/register';
+import './page/sw-mail-template-index/register';
+import './view/sw-mail-template-view-header-footer/register';
+import './view/sw-mail-template-view-templates/register';
 
 const { Module, Feature } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
-Shopware.Component.register('sw-mail-header-footer-list', () => import('./component/sw-mail-header-footer-list'));
-Shopware.Component.register('sw-mail-template-preview-modal', () => import('./component/sw-mail-template-preview-modal'));
-Shopware.Component.register('sw-mail-template-detail', () => import('./page/sw-mail-template-detail'));
-Shopware.Component.extend(
-    'sw-mail-template-create',
-    'sw-mail-template-detail',
-    () => import('./page/sw-mail-template-create'),
-);
-Shopware.Component.register('sw-mail-template-index', () => import('./page/sw-mail-template-index'));
-Shopware.Component.register('sw-mail-header-footer-detail', () => import('./page/sw-mail-header-footer-detail'));
-Shopware.Component.extend(
-    'sw-mail-header-footer-create',
-    'sw-mail-header-footer-detail',
-    () => import('./page/sw-mail-header-footer-create'),
-);
 
-Shopware.Component.register('sw-mail-template-view-templates', () => import('./view/sw-mail-template-view-templates'));
-Shopware.Component.register(
-    'sw-mail-template-view-header-footer',
-    () => import('./view/sw-mail-template-view-header-footer'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**

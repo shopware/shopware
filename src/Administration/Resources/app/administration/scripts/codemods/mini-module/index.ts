@@ -537,14 +537,19 @@ function run(directory: string) {
         }
     }
 
+    // The moved files whose import paths changed, for Prettier: a longer path may need another line break.
+    const rewrittenMoves: string[] = [];
     for (const [from, to] of moves) {
         if (SCRIPT_EXTENSION.test(to)) {
-            rewriteFileImports(moves, from, to);
+            if (rewriteFileImports(moves, from, to)) {
+                rewrittenMoves.push(to);
+            }
         } else if (fs.statSync(path.join(adminRoot, to)).isDirectory()) {
             // A spec split into a directory, such as `sw-x.spec/`, moved with every file in it.
             fs.readdirSync(path.join(adminRoot, to), { recursive: true, encoding: 'utf8' })
                 .filter((file) => SCRIPT_EXTENSION.test(file))
-                .forEach((file) => rewriteFileImports(moves, `${from}/${file}`, `${to}/${file}`));
+                .filter((file) => rewriteFileImports(moves, `${from}/${file}`, `${to}/${file}`))
+                .forEach((file) => rewrittenMoves.push(`${to}/${file}`));
         }
     }
 
@@ -615,6 +620,7 @@ function run(directory: string) {
             ...routed.changed,
             ...routed.outsideFiles,
             ...outsideFiles,
+            ...rewrittenMoves.filter((file) => fs.existsSync(path.join(adminRoot, file))),
         ],
         { cwd: adminRoot },
     );

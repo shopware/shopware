@@ -3077,6 +3077,10 @@ If your theme overrides `component_privacy_dpi` with a copy that contains these 
 Styles for `.privacy-notice .legal-guarantee-notice` have to target `.legal-guarantee-notice` directly.
 </details>
 
+## Affiliate tracking constants of `AffiliateTrackingListener` removed
+
+`AffiliateTrackingListener::AFFILIATE_CODE_KEY` and `AffiliateTrackingListener::CAMPAIGN_CODE_KEY` were removed, use `OrderService::AFFILIATE_CODE_KEY` and `OrderService::CAMPAIGN_CODE_KEY` instead.
+
 # App System
 
 <details>

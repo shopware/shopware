@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
-use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
@@ -56,8 +56,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends TestCase
 {
-    private RegisterControllerStub $controller;
-
     private AccountLoginPageLoader&Stub $accountLoginPageLoader;
 
     private CheckoutRegisterPageLoader&Stub $checkoutRegisterPageLoader;
@@ -78,8 +76,6 @@ class RegisterControllerTest extends TestCase
         $this->checkoutRegisterPageLoader = static::createStub(CheckoutRegisterPageLoader::class);
         $this->systemConfigService = new StaticSystemConfigService();
         $this->customerGroupRegistrationPageLoader = static::createStub(CustomerGroupRegistrationPageLoader::class);
-
-        $this->controller = $this->createController();
     }
 
     public function testAccountRegister(): void
@@ -364,19 +360,16 @@ class RegisterControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
-        $request = new Request();
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
-        $session = new Session(new MockArraySessionStorage());
-        $session->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, 'affiliate-code');
-        $session->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, 'affiliate-campaign');
-        $request->setSession($session);
+        $request = $this->createRegisterRequest();
+        $request->getSession()->set(OrderService::AFFILIATE_CODE_KEY, 'affiliate-code');
+        $request->getSession()->set(OrderService::CAMPAIGN_CODE_KEY, 'affiliate-campaign');
 
         $dataBag = new RequestDataBag();
 
-        $this->controller->register($request, $dataBag, $context);
+        $this->createController()->register($request, $dataBag, $context);
 
-        static::assertSame('affiliate-code', $dataBag->get('affiliateCode'));
-        static::assertSame('affiliate-campaign', $dataBag->get('campaignCode'));
+        static::assertSame('affiliate-code', $dataBag->get(OrderService::AFFILIATE_CODE_KEY));
+        static::assertSame('affiliate-campaign', $dataBag->get(OrderService::CAMPAIGN_CODE_KEY));
     }
 
     private function createController(

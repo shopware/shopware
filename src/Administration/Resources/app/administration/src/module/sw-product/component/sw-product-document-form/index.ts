@@ -16,6 +16,7 @@ export default Shopware.Component.wrapComponentConfig({
     inject: [
         'repositoryFactory',
         'acl',
+        'mediaService',
     ],
 
     props: {
@@ -92,6 +93,7 @@ export default Shopware.Component.wrapComponentConfig({
         documentColumns() {
             return [
                 { property: 'number', label: '#', width: '56px', align: 'center' },
+                { property: 'position', label: this.$t('sw-product.documentForm.columnPosition'), width: '110px' },
                 { property: 'title', label: this.$t('sw-product.documentForm.columnTitle'), primary: true, width: '300px' },
                 { property: 'fileName', label: this.$t('sw-product.documentForm.columnFileName'), width: '190px' },
                 { property: 'fileType', label: this.$t('sw-product.documentForm.columnFileType'), width: '104px' },
@@ -154,6 +156,48 @@ export default Shopware.Component.wrapComponentConfig({
         getFileName(document: ProductDocument): string {
             const media = this.getMedia(document);
             return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
+        },
+
+        async downloadDocument(document: ProductDocument): Promise<void> {
+            const media = this.getMedia(document);
+            if (!this.acl.can('media.viewer') || !media) {
+                return;
+            }
+
+            try {
+                const downloadConfig = (await this.mediaService.prepareDownloadMedia(media.id)) as
+                    | { type: 'external'; url: string }
+                    | { type: 'blob' };
+                if (downloadConfig.type === 'external') {
+                    this.triggerDownload(downloadConfig.url);
+                    return;
+                }
+
+                const data = (await this.mediaService.downloadMedia(media.id)) as Blob;
+                const url = URL.createObjectURL(data);
+                try {
+                    this.triggerDownload(url, this.getFileName(document));
+                } finally {
+                    URL.revokeObjectURL(url);
+                }
+            } catch {
+                useNotification().createNotificationError({
+                    message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                });
+            }
+        },
+
+        triggerDownload(url: string, fileName?: string): void {
+            const link = document.createElement('a');
+            link.href = url;
+            if (fileName) {
+                link.download = fileName;
+            } else {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
+            link.dispatchEvent(new MouseEvent('click'));
+            link.remove();
         },
 
         async successfulUpload(
@@ -233,6 +277,27 @@ export default Shopware.Component.wrapComponentConfig({
                 this.documents.add(document);
             }
             this.showMediaModal = false;
+        },
+
+        moveDocument(document: ProductDocument, offset: number): void {
+            if (!this.canChangeDocuments()) {
+                return;
+            }
+
+            const oldIndex = this.documents.indexOf(document);
+            const newIndex = oldIndex + offset;
+            if (oldIndex < 0 || newIndex < 0 || newIndex >= this.documents.length) {
+                return;
+            }
+
+            this.documents.moveItem(oldIndex, newIndex);
+            this.updatePositions();
+        },
+
+        updatePositions(): void {
+            this.documents.forEach((document, index) => {
+                document.position = index;
+            });
         },
     },
 });

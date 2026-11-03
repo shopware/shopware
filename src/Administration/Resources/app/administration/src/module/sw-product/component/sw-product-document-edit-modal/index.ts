@@ -55,6 +55,14 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             default: false,
         },
+        hasVariants: {
+            type: Boolean,
+            default: false,
+        },
+        applyToVariants: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: [
@@ -64,6 +72,7 @@ export default Shopware.Component.wrapComponentConfig({
         'remove-file',
         'select-media',
         'update:documentTitle',
+        'update:applyToVariants',
     ],
 
     computed: {

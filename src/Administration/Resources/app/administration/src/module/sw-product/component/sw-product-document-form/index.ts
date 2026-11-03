@@ -38,11 +38,14 @@ export default Shopware.Component.wrapComponentConfig({
             showMediaModal: false,
             editingDocument: null as ProductDocument | null,
             removingDocument: null as ProductDocument | null,
+            removeFromVariants: false,
             isRemovingDocument: false,
+            removeModalVersion: 0,
             documentTitle: '',
             documentEditSession: 0,
             replacementMedia: null as Entity<'media'> | null,
             documentFileRemoved: false,
+            applyToVariants: false,
             isSavingDocument: false,
             documentValidationSubmitted: false,
             uploadedMedia: {} as Record<string, Entity<'media'>>,
@@ -119,6 +122,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.documentValidationSubmitted && !this.editingMedia
                 ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
                 : null;
+        },
+
+        hasVariants(): boolean {
+            return !this.product.parentId && !!this.product.childCount;
         },
 
         documentColumns() {
@@ -341,6 +348,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentTitle = this.getTitle(document);
             this.replacementMedia = null;
             this.documentFileRemoved = false;
+            this.applyToVariants = false;
             this.documentValidationSubmitted = false;
         },
 
@@ -349,20 +357,55 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentFileRemoved = true;
         },
 
-        saveDocument(): void {
+        async saveDocument(): Promise<void> {
             this.documentValidationSubmitted = true;
-            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) {
+            const media = this.editingMedia;
+            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument || !media) {
                 return;
             }
+
+            const product = this.product;
+            const document = this.editingDocument;
+            const session = this.documentEditSession;
+            const replacementMedia = this.replacementMedia;
+            const context = { ...Shopware.Context.api, languageId: Shopware.Context.api.languageId, inheritance: false };
+            const isCurrentEdit = () =>
+                session === this.documentEditSession &&
+                product === this.product &&
+                document === this.editingDocument &&
+                context.languageId === Shopware.Context.api.languageId;
+            const originalMediaId = document.mediaId || document.translated?.mediaId;
             const title = this.documentTitle.trim();
-            if (title !== this.getTitle(this.editingDocument).trim()) {
-                this.editingDocument.title = title;
+            const matchingMediaId = this.applyToVariants && this.hasVariants ? originalMediaId : null;
+            this.isSavingDocument = true;
+
+            try {
+                let updatedVariantIds: string[] = [];
+                if (matchingMediaId) {
+                    const variants = await this.loadDocumentVariants(product.id, matchingMediaId, context);
+                    if (!isCurrentEdit()) {
+                        return;
+                    }
+                    updatedVariantIds = this.stageVariantDocumentChanges(variants, matchingMediaId, media.id, title);
+                }
+                if (title !== this.getTitle(document).trim()) {
+                    document.title = title;
+                }
+                if (replacementMedia) {
+                    document.mediaId = replacementMedia.id;
+                    this.uploadedMedia[replacementMedia.id] = replacementMedia;
+                }
+                Shopware.Store.get('swProductDetail').queueDocumentSaveNotification(document.id, title, updatedVariantIds);
+                this.closeDocumentEditor();
+            } catch {
+                if (isCurrentEdit()) {
+                    useNotification().createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorLoadVariants'),
+                    });
+                }
+            } finally {
+                this.isSavingDocument = false;
             }
-            if (this.replacementMedia) {
-                this.editingDocument.mediaId = this.replacementMedia.id;
-                this.uploadedMedia[this.replacementMedia.id] = this.replacementMedia;
-            }
-            this.closeDocumentEditor();
         },
 
         closeDocumentEditor(): void {
@@ -378,15 +421,144 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.removingDocument = document;
+            this.removeFromVariants = false;
+            this.removeModalVersion += 1;
         },
 
-        removeDocument(): void {
-            if (!this.canChangeDocuments() || !this.removingDocument) {
+        async removeDocument(): Promise<void> {
+            if (!this.canChangeDocuments() || !this.removingDocument || this.isRemovingDocument) {
                 return;
             }
-            this.documents.remove(this.removingDocument.id);
-            this.updatePositions();
-            this.removingDocument = null;
+
+            const product = this.product;
+            const document = this.removingDocument;
+            const modalVersion = this.removeModalVersion;
+            const context = { ...Shopware.Context.api, languageId: Shopware.Context.api.languageId, inheritance: false };
+            const mediaId =
+                this.removeFromVariants && this.hasVariants ? document.mediaId || document.translated?.mediaId : null;
+            this.isRemovingDocument = true;
+            try {
+                const variants = mediaId ? await this.loadDocumentVariants(product.id, mediaId, context) : [];
+                if (
+                    modalVersion !== this.removeModalVersion ||
+                    product !== this.product ||
+                    document !== this.removingDocument ||
+                    context.languageId !== Shopware.Context.api.languageId
+                ) {
+                    return;
+                }
+                if (mediaId) {
+                    this.stageVariantDocumentRemovals(variants, mediaId);
+                }
+                this.documents.remove(document.id);
+                const store = Shopware.Store.get('swProductDetail');
+                store.documentSaveNotifications = store.documentSaveNotifications.filter(
+                    (entry) => entry.documentId !== document.id,
+                );
+                this.updatePositions();
+                this.removingDocument = null;
+            } catch {
+                useNotification().createNotificationError({ message: this.$t('sw-product.documentForm.errorLoadVariants') });
+            } finally {
+                this.isRemovingDocument = false;
+            }
+        },
+
+        async loadDocumentVariants(
+            productId: string,
+            mediaId: string,
+            context: typeof Shopware.Context.api,
+        ): Promise<Entity<'product'>[]> {
+            const productRepository = this.repositoryFactory.create('product');
+            const { Criteria } = Shopware.Data;
+            const variants: Entity<'product'>[] = [];
+            let page = 1;
+            let result: EntityCollection<'product'>;
+            do {
+                const criteria = new Criteria(page, 100);
+                criteria.setTotalCountMode(0);
+                criteria.addSorting(Criteria.sort('id'));
+                criteria.addFilter(Criteria.equals('parentId', productId));
+                criteria.addFilter(Criteria.equals('documents.mediaId', mediaId));
+                criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
+                result = await productRepository.search(criteria, context);
+                variants.push(...result);
+                page += 1;
+            } while (result.length === 100);
+            return variants;
+        },
+
+        stageVariantDocumentChanges(
+            variants: Entity<'product'>[],
+            originalMediaId: EntityKey<'media'>,
+            mediaId: EntityKey<'media'>,
+            title: string,
+        ): string[] {
+            const product = this.product;
+            const children =
+                product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const candidates = new Map(variants.map((variant) => [variant.id, variant]));
+            children.forEach((variant) => candidates.set(variant.id, variant));
+            const updatedVariantIds: string[] = [];
+            candidates.forEach((variant) => {
+                let changed = false;
+                variant.documents?.forEach((copy) => {
+                    if (copy.productId !== variant.id || (copy.mediaId || copy.translated?.mediaId) !== originalMediaId) {
+                        return;
+                    }
+                    if (title !== (copy.title ?? copy.translated?.title ?? '').trim()) {
+                        copy.title = title;
+                    }
+                    if (mediaId !== (copy.mediaId || copy.translated?.mediaId)) {
+                        copy.mediaId = mediaId;
+                    }
+                    const origin = copy.getOrigin();
+                    if (origin.title !== copy.title || origin.mediaId !== copy.mediaId) {
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    if (!children.has(variant.id)) {
+                        children.add(variant);
+                    }
+                    updatedVariantIds.push(variant.id);
+                }
+            });
+            product.children = children;
+            return updatedVariantIds;
+        },
+
+        stageVariantDocumentRemovals(variants: Entity<'product'>[], mediaId: EntityKey<'media'>): void {
+            const product = this.product;
+            const children =
+                product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const origin = product.getOrigin();
+            const originChildren =
+                origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const candidates = new Map(variants.map((variant) => [variant.id, variant]));
+            children.forEach((variant) => candidates.set(variant.id, variant));
+            candidates.forEach((variant) => {
+                const documents = variant.documents;
+                const matching = documents?.filter(
+                    (copy) => copy.productId === variant.id && (copy.mediaId || copy.translated?.mediaId) === mediaId,
+                );
+                if (!documents || !matching?.length) {
+                    return;
+                }
+                // Register loaded children in the origin so the changeset includes nested document deletions.
+                if (!variant.isNew() && !originChildren.has(variant.id)) {
+                    originChildren.add(variant);
+                }
+                if (!children.has(variant.id)) {
+                    children.add(variant);
+                }
+                matching.forEach((copy) => documents.remove(copy.id));
+                documents.forEach((copy, index) => {
+                    copy.position = index;
+                });
+            });
+            product.children = children;
+            origin.children = originChildren;
         },
 
         updatePositions(): void {

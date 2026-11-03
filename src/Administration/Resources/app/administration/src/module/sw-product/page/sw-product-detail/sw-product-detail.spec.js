@@ -63,7 +63,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
+        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), hasChanges = true } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -117,7 +117,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                                 return product;
                             },
-                            hasChanges: () => true,
+                            hasChanges: () => hasChanges,
                             save: () => Promise.resolve({}),
                         }),
                     },
@@ -146,6 +146,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-page': {
                         template: `<div class="sw-page">
                             <slot name="smart-bar-actions"></slot>
+                            <slot name="language-switch"></slot>
                             <slot name="content">
                                 <div class="sw-tabs"></div>
                             </slot>
@@ -153,7 +154,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         </div>`,
                     },
                     'sw-product-variant-info': true,
-                    'sw-button-group': true,
+                    'sw-button-group': { template: '<div><slot /></div>' },
                     'sw-button-process': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
@@ -857,6 +858,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it.each(['success', 'empty'])('should announce a save that finished with "%s"', async (response) => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.documentSaveNotifications = [
+            { documentId: 'document', name: 'Battery safety data sheet', variantIds: ['first', 'second'] },
+        ];
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.updateSeoPromises = [];
 
@@ -866,9 +872,18 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.saveSuccess' }),
+        );
+        expect(store.documentSaveNotifications).toHaveLength(0);
     });
 
     it('should not announce a save that failed', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.documentSaveNotifications = [
+            { documentId: 'document', name: 'Battery safety data sheet', variantIds: ['first', 'second'] },
+        ];
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.updateSeoPromises = [];
@@ -879,6 +894,40 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+        expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+        expect(store.documentSaveNotifications).toHaveLength(1);
+    });
+
+    it('does not announce discarded variant edits after changing language and saving again', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, undefined, undefined, { hasChanges: false });
+        await flushPromises();
+        const store = Shopware.Store.get('swProductDetail');
+        const originalLanguage = Shopware.Context.api.languageId;
+        const draft = store.product;
+        store.documentSaveNotifications = [
+            { documentId: 'document', name: 'Discarded manual', variantIds: ['variant'] },
+        ];
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const saveEventSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        try {
+            // The language switch emits this change after the merchant chooses Discard changes.
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'another-language');
+            await flushPromises();
+            expect(store.product).not.toBe(draft);
+            expect(store.documentSaveNotifications).toHaveLength(0);
+
+            Object.assign(store.product, { prices: [], price: [], slotConfig: null });
+            await wrapper.get('.sw-product-detail__save-action').trigger('click');
+            await flushPromises();
+            expect(saveEventSpy).toHaveBeenCalledWith('sw-product-detail-save-success');
+            expect(notificationSpy).not.toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.saveSuccess' }),
+            );
+        } finally {
+            Shopware.Store.get('context').setApiLanguageId(originalLanguage);
+        }
     });
 
     it('should handle success response correctly', async () => {

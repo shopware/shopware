@@ -251,6 +251,7 @@
     <sw-product-document-edit-modal
         v-if="editingDocument"
         v-model:document-title="documentTitle"
+        v-model:apply-to-variants="applyToVariants"
         :document-id="editingDocument.id"
         :editing-media="editingMedia"
         :document-name-error="documentNameError"
@@ -261,6 +262,7 @@
         :max-file-size="maxFileSize"
         :can-edit="canEdit"
         :is-saving-document="isSavingDocument"
+        :has-variants="hasVariants"
         @close="closeDocumentEditor"
         @save="saveDocument"
         @upload="successfulUpload($event, editingDocument)"
@@ -272,9 +274,11 @@
 {% block sw_product_document_form_remove_modal %}
     <sw-product-document-remove-modal
         v-if="removingDocument"
+        v-model:remove-from-variants="removeFromVariants"
         :document-title="getTitle(removingDocument)"
         :can-edit="canEdit"
         :is-removing-document="isRemovingDocument"
+        :has-variants="hasVariants"
         @close="removingDocument = null"
         @remove="removeDocument"
     />

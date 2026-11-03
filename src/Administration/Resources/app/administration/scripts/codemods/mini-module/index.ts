@@ -443,6 +443,12 @@ function run(directory: string) {
         }
     }
 
+    // Specs elsewhere, such as a parent's, may import the moved files: point them at the new places.
+    const outsideSpecs = sourceFiles(path.basename(origin)).filter(
+        (file) => /\.spec\.[jt]s$/.test(file) && !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`),
+    );
+    outsideSpecs.forEach((file) => rewriteMovedImports(moves, file, file));
+
     const baseline = path.join(adminRoot, 'src/meta/baseline.ts');
     fs.writeFileSync(baseline, dropUntestedFiles(fs.readFileSync(baseline, 'utf8'), [...moves.keys()]));
 

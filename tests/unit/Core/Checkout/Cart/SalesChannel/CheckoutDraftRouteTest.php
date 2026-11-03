@@ -306,6 +306,22 @@ class CheckoutDraftRouteTest extends TestCase
         static::assertSame('new-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    public function testContextGatewayWithoutChangesKeepsTheToken(): void
+    {
+        // the command executor removes the token header when no command changes the context
+        $gatewayResponse = new ContextTokenResponse('token');
+        $gatewayResponse->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $this->contextGatewayRoute->method('load')->willReturn($gatewayResponse);
+
+        $this->contextService = $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService->expects($this->never())->method('get');
+
+        $response = $this->createRoute()->draft($this->createPatchRequest(['contextGateway' => true, 'appName' => 'App']), $this->context);
+
+        static::assertSame($this->context->getToken(), $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->context->getToken());
+    }
+
     /**
      * @param array<string, mixed> $body
      */

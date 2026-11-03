@@ -194,8 +194,11 @@ class CheckoutDraftRoute
             $gatewayRequest = new Request(request: [...$body, 'appName' => RequestParamHelper::get($request, 'appName')]);
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            $token = $this->contextGatewayRoute->load($gatewayRequest, $cart, $context)->getToken();
-            $context = $this->reloadContext($request, $context, $token);
+            // without commands that change the context, the gateway response has no token and the context stays as it is
+            $token = $this->contextGatewayRoute->load($gatewayRequest, $cart, $context)->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+            if ($token !== null && $token !== '') {
+                $context = $this->reloadContext($request, $context, $token);
+            }
         }
 
         return $context;

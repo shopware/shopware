@@ -164,63 +164,29 @@ class ElementTypeSpecificationSerializerTest extends TestCase
     }
 
     /**
-     * `mappable` survives the app round-trip, which is what lets an app declare a mappable property: the flag
-     * is read from the YAML, stored in the DB schema, and read back as the same flag.
+     * @param 'mappable'|'inlineMappable' $flag
      */
-    #[TestDox('round-trips the mappable opt-in and omits it when false')]
-    public function testRoundTripsTheMappableOptIn(): void
+    #[DataProvider('mappingFlagProvider')]
+    public function testRoundTripsTheMappingOptIn(string $flag): void
     {
-        $data = [
+        $dto = $this->serializer->denormalize([
             'meta' => $this->buildMinimalMeta(),
-            'properties' => [
-                'text' => ['type' => 'string', 'mappable' => true],
-                'height' => ['type' => 'string'],
-            ],
-        ];
-
-        $dto = $this->serializer->denormalize($data);
-
-        static::assertTrue($dto->properties['text']->mappable);
-        static::assertFalse($dto->properties['height']->mappable);
-
+            'properties' => ['text' => ['type' => 'string', $flag => true], 'height' => ['type' => 'string']],
+        ]);
+        static::assertTrue($dto->properties['text']->{$flag});
+        static::assertFalse($dto->properties['height']->{$flag});
         $normalized = $this->serializer->normalize($dto);
-
-        static::assertTrue($normalized['properties']['text']['mappable']);
-        static::assertArrayNotHasKey(
-            'mappable',
-            $normalized['properties']['height'],
-            'An absent opt-in must stay absent, like every other falsy property flag.'
-        );
+        static::assertTrue($normalized['properties']['text'][$flag]);
+        static::assertArrayNotHasKey($flag, $normalized['properties']['height']);
     }
 
     /**
-     * The inline flag follows `mappable` through the same round trip, so an app can declare a property whose text
-     * accepts `{{map:path}}` tokens.
+     * @return iterable<string, array{'mappable'|'inlineMappable'}>
      */
-    #[TestDox('round-trips the inlineMappable opt-in and omits it when false')]
-    public function testRoundTripsTheInlineMappableOptIn(): void
+    public static function mappingFlagProvider(): iterable
     {
-        $data = [
-            'meta' => $this->buildMinimalMeta(),
-            'properties' => [
-                'text' => ['type' => 'string', 'inlineMappable' => true],
-                'height' => ['type' => 'string'],
-            ],
-        ];
-
-        $dto = $this->serializer->denormalize($data);
-
-        static::assertTrue($dto->properties['text']->inlineMappable);
-        static::assertFalse($dto->properties['height']->inlineMappable);
-
-        $normalized = $this->serializer->normalize($dto);
-
-        static::assertTrue($normalized['properties']['text']['inlineMappable']);
-        static::assertArrayNotHasKey(
-            'inlineMappable',
-            $normalized['properties']['height'],
-            'An absent opt-in must stay absent, like every other falsy property flag.'
-        );
+        yield 'whole-field mapping' => ['mappable'];
+        yield 'inline mapping' => ['inlineMappable'];
     }
 
     #[TestDox('round-trips a typed default mapping declaration')]
@@ -240,7 +206,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
 
         static::assertSame($source, $dto->properties['product']->defaultMapping);
         static::assertSame($source, $this->serializer->normalize($dto)['properties']['product']['defaultMapping']);
-        static::assertSame($source, $dto->toContentSystemElementTypeSpecification('test', 'core')->toSchema()['properties']['product']['defaultMapping']);
     }
 
     #[TestDox('denormalizes and normalizes nested object property schemas')]

@@ -21,11 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
-use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
@@ -41,6 +37,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\MappingTestFactory;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -202,7 +199,7 @@ class MutationPipelineTest extends TestCase
         $registry = $this->typeRegistry();
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([]);
-        $inspector = new StoredMappingInspector($registry, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser());
+        $inspector = MappingTestFactory::inspector($registry, $candidates);
         $replace = new ReplaceElement(
             $registry,
             'el-1',
@@ -329,13 +326,7 @@ class MutationPipelineTest extends TestCase
         $typeRegistry = $this->typeRegistry();
         $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidateRegistry->method('forRootSource')->willReturn([]);
-        $inspector = new StoredMappingInspector(
-            $typeRegistry,
-            $candidateRegistry,
-            new MappingTypeCompatibility(),
-            new MappingConsumers(),
-            new InlineMappingTokenParser(),
-        );
+        $inspector = MappingTestFactory::inspector($typeRegistry, $candidateRegistry);
 
         return new MutationPipeline(
             $diagnostics,

@@ -28,6 +28,89 @@ describe('Experience Studio settings panel resizing', () => {
         },
     });
 
+    it('resizes the element settings panel while preserving a minimum preview width', () => {
+        const vm = {
+            isResizingElementSettings: true,
+            resizeStartX: 500,
+            resizeStartWidth: 320,
+            elementSettingsWidth: 320,
+            getElementSettingsMaxWidth: methods.getElementSettingsMaxWidth,
+            setElementSettingsWidth: methods.setElementSettingsWidth,
+            $refs: {
+                workspace: {
+                    getBoundingClientRect: () => ({ width: 1200 }),
+                },
+            },
+        };
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: 200 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(592);
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: -500 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(592);
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: 1000 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(320);
+    });
+
+    it('captures the pointer for the entire resize gesture', () => {
+        const removeDocumentListener = jest.spyOn(document, 'removeEventListener');
+        const removeWindowListener = jest.spyOn(window, 'removeEventListener');
+        const vm = {
+            elementSettingsWidth: 320,
+            resizeStartX: 500,
+            resizeStartWidth: 320,
+            isResizingElementSettings: false,
+            resizeMoveHandler: null,
+            resizeEndHandler: null,
+            resizeHandle: null,
+            resizePointerId: null,
+            onElementSettingsResizeMove: methods.onElementSettingsResizeMove,
+            stopElementSettingsResize: methods.stopElementSettingsResize,
+        };
+        const event = {
+            clientX: 500,
+            pointerId: 1,
+            currentTarget: {
+                setPointerCapture: jest.fn(),
+                hasPointerCapture: jest.fn().mockReturnValue(true),
+                releasePointerCapture: jest.fn(),
+            },
+            preventDefault: jest.fn(),
+        } as unknown as PointerEvent;
+
+        methods.onElementSettingsResizeStart.call(vm, event);
+        expect(vm.isResizingElementSettings).toBe(true);
+        const setPointerCapture = Reflect.get(event.currentTarget as HTMLElement, 'setPointerCapture') as jest.Mock;
+        expect(setPointerCapture).toHaveBeenCalledWith(1);
+
+        const resizeMoveHandler = vm.resizeMoveHandler;
+        const resizeEndHandler = vm.resizeEndHandler as unknown as () => void;
+        resizeEndHandler();
+        expect(Reflect.get(event.currentTarget as HTMLElement, 'releasePointerCapture')).toHaveBeenCalledWith(1);
+        expect(removeDocumentListener).toHaveBeenCalledWith('pointermove', resizeMoveHandler);
+        expect(removeDocumentListener).toHaveBeenCalledWith('pointerup', resizeEndHandler);
+        expect(removeDocumentListener).toHaveBeenCalledWith('pointercancel', resizeEndHandler);
+        expect(removeWindowListener).toHaveBeenCalledWith('blur', resizeEndHandler);
+
+        expect(vm.isResizingElementSettings).toBe(false);
+        expect(vm.resizeEndHandler).toBeNull();
+    });
+
+    it('grows the settings panel for elements with rich-text properties', () => {
+        const vm = {
+            selectedElementHasRichText: true,
+            elementSettingsWidth: 320,
+            getElementSettingsMaxWidth: methods.getElementSettingsMaxWidth,
+            setElementSettingsWidth: methods.setElementSettingsWidth,
+            $refs: {},
+        };
+
+        methods.adjustElementSettingsWidth.call(vm);
+
+        expect(vm.elementSettingsWidth).toBe(640);
+    });
+
     it.each([
         [
             1600,

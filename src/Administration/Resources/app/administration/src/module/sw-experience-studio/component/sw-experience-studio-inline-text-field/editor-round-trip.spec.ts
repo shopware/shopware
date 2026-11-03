@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { tokensToEditorHtml } from '../../util/inline-mapping.util';
 import { createMappingTokenNode } from '../../util/mapping-token-node';
-import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import parserResponses from './fixtures/parser-responses.json';
 
 /**
  * The one invariant that makes the inline mapping field usable: markup handed to `mt-text-editor` must survive being
@@ -24,30 +24,10 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         wrappers.length = 0;
     });
 
-    const parseFixture = (text: string): ContentSystemInlineMappingToken[] => {
-        const tokens: ContentSystemInlineMappingToken[] = [];
-        const tokenPattern = /\{\{\s*map:([A-Za-z0-9_.:-]+)\s*\}\}/g;
-        for (const result of text.matchAll(tokenPattern)) {
-            const path = result[1];
-            if (!path || !path.includes('.')) {
-                continue;
-            }
-
-            tokens.push({
-                path,
-                match: result[0],
-                canonicalToken: `{{map:${path}}}`,
-                offset: result.index,
-                insideMarkup: false,
-                malformed: false,
-            });
-        }
-
-        return tokens;
-    };
-
     const mountEditor = async (storedValue: string) => {
-        const tokens = parseFixture(storedValue);
+        const response = parserResponses.find((entry) => entry.text === storedValue);
+        if (!response) throw new Error('Missing literal server response fixture');
+        const tokens = response.tokens;
         const { html: modelValue } = tokensToEditorHtml(storedValue, tokens);
 
         const wrapper = mount(await wrapTestComponent('mt-text-editor', { sync: true }), {
@@ -117,6 +97,16 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         const wrapper = await mountEditor(storedValue);
 
         expect(wrapper.find('.mt-text-editor__gate').exists()).toBe(false);
+    });
+
+    it('shows the review gate when parsing changes the supplied markup', async () => {
+        const wrapper = mount(await wrapTestComponent('mt-text-editor', { sync: true }), {
+            props: { modelValue: '<p>Text<unsupported-element>lost markup</unsupported-element></p>' },
+            global: { stubs: { 'sw-text-editor-toolbar-button-link': true } },
+        });
+        wrappers.push(wrapper);
+        await flushPromises();
+        expect(wrapper.find('.mt-text-editor__gate').exists()).toBe(true);
     });
 
     it('draws the mapped value as a chip with its catalogue label', async () => {

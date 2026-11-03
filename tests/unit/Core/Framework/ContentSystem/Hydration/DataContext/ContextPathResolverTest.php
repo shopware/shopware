@@ -73,17 +73,6 @@ class ContextPathResolverTest extends TestCase
         static::assertSame('child-name', $result);
     }
 
-    #[TestDox('resolves a catalogued mapping through the array-backed customFields member')]
-    public function testResolveMappingPathWithPresenceResolvesCustomField(): void
-    {
-        $struct = new StubPathStruct(customFields: ['material' => 'Leather']);
-
-        static::assertSame(
-            ['found' => true, 'value' => 'Leather'],
-            $this->resolver->resolveMappingPathWithPresence($struct, ['customFields', 'material'])
-        );
-    }
-
     #[TestDox('does not expose array traversal to ordinary context wiring')]
     public function testResolvePathKeepsCustomFieldsOpaqueForOrdinaryConsumers(): void
     {
@@ -91,32 +80,6 @@ class ContextPathResolverTest extends TestCase
 
         static::assertNull(
             $this->resolver->resolvePath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
-        );
-    }
-
-    #[TestDox('does not permit custom-field array traversal below the root entity')]
-    public function testResolveMappingPathWithPresenceRejectsNestedCustomFieldArrays(): void
-    {
-        $child = new StubPathStruct(customFields: ['secret' => 'hidden']);
-        $struct = new StubPathStruct(child: $child);
-
-        static::assertSame(
-            ['found' => false, 'value' => null],
-            $this->resolver->resolveMappingPathWithPresence(
-                $struct,
-                ['child', 'customFields', 'secret'],
-            )
-        );
-    }
-
-    #[TestDox('reports missing when a catalogued custom field has no value on the entity')]
-    public function testResolveMappingPathWithPresenceReportsMissingCustomField(): void
-    {
-        $struct = new StubPathStruct(customFields: []);
-
-        static::assertSame(
-            ['found' => false, 'value' => null],
-            $this->resolver->resolveMappingPathWithPresence($struct, ['customFields', 'material'])
         );
     }
 
@@ -137,6 +100,9 @@ class ContextPathResolverTest extends TestCase
         $whole = new StubPathStruct(name: 'Whole source');
         yield 'whole source preserves its instance' => [$whole, [], true, $whole];
         yield 'missing whole source' => [null, [], false, null];
+        yield 'non-empty custom field' => [new StubPathStruct(customFields: ['material' => 'Leather']), ['customFields', 'material'], true, 'Leather'];
+        yield 'custom fields below the root stay opaque' => [new StubPathStruct(child: new StubPathStruct(customFields: ['secret' => 'hidden'])), ['child', 'customFields', 'secret'], false, null];
+        yield 'absent custom field' => [new StubPathStruct(customFields: []), ['customFields', 'material'], false, null];
         yield 'present terminal null' => [new StubPathStruct(name: null), ['name'], true, null];
         yield 'present null custom field' => [new StubPathStruct(customFields: ['material' => null]), ['customFields', 'material'], true, null];
         yield 'present empty custom field' => [new StubPathStruct(customFields: ['material' => '']), ['customFields', 'material'], true, ''];

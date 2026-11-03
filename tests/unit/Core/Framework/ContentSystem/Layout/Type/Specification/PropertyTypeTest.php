@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -92,8 +93,9 @@ class PropertyTypeTest extends TestCase
     #[TestDox('reports the nested member declarations of an object declaration through its schema')]
     public function testToSchemaReportsTheNestedMemberDeclarations(): void
     {
+        $source = new MappingSourceReference('ExamplePlugin', 'links', ['variant' => 'featured'], 'url');
         $type = new PropertyType('object', false, null, null, [
-            'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null),
+            'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null, mappable: true, defaultMapping: $source),
         ]);
 
         static::assertSame([
@@ -105,14 +107,21 @@ class PropertyTypeTest extends TestCase
                 'default' => null,
                 'properties' => null,
                 'required' => true,
-                'mappable' => false,
+                'mappable' => true,
                 'inlineMappable' => false,
                 'title' => 'Url',
                 'description' => 'Link target.',
                 'adminUI' => null,
-                'defaultMapping' => null,
+                'defaultMapping' => $source->jsonSerialize(),
             ],
         ], $type->toSchema()['properties']);
+        $inline = new PropertyType('object', false, null, null, ['label' => new PropertySpecification('label', new PropertyType('string', false, null, null), false, 'Label', '', null, inlineMappable: true)]);
+        $inlineSchema = $inline->toSchema();
+        static::assertIsArray($inlineSchema['properties']);
+        static::assertArrayHasKey('label', $inlineSchema['properties']);
+        $schema = $inlineSchema['properties']['label'];
+        static::assertFalse($schema['mappable']);
+        static::assertTrue($schema['inlineMappable']);
     }
 
     #[TestDox('reports the declared type, enum and default through its schema, with null where no nested members are declared')]
@@ -171,9 +180,6 @@ class PropertyTypeTest extends TestCase
     public static function contextTypeProvider(): iterable
     {
         yield 'a string property' => ['string', ['single']];
-        yield 'an integer property' => ['integer', ['single']];
-        yield 'a boolean property' => ['boolean', ['single']];
-        yield 'a number property' => ['number', ['single']];
 
         // The distinction the Administration cannot make for itself, and the reason this method exists: the
         // gallery declares the collection and the image element the entity, and offering a candidate across

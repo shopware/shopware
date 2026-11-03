@@ -40,10 +40,19 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         'sw-experience-studio.createWizard.layoutTypes.product': 'Product',
     };
 
+    let previousLocale: string | null;
+    beforeEach(() => {
+        const session = Shopware.Store.get('session');
+        previousLocale = session.currentLocale;
+        session.currentLocale = 'de-DE';
+    });
+    afterEach(() => {
+        Shopware.Store.get('session').currentLocale = previousLocale;
+    });
+
     const i18n = {
         $te: (key: string): boolean => Object.prototype.hasOwnProperty.call(translations, key),
         $t: (key: string): string => translations[key] ?? key,
-        getCandidateTranslation: (): string => '',
     };
 
     it('renders a snippet label, falling back to the key when no snippet is shipped', () => {
@@ -58,28 +67,12 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
 
     it('prefers labels and descriptions supplied by dynamic candidate configuration', () => {
         const configuredCandidate = candidate({
-            labelTranslations: { 'en-GB': 'Material' },
-            descriptionTranslations: { 'en-GB': 'The product material' },
+            labelTranslations: { 'en-GB': 'Material', 'de-DE': 'Werkstoff' },
+            descriptionTranslations: { 'en-GB': 'The product material', 'de-DE': 'Der Werkstoff' },
         });
 
-        expect(
-            methods.getCandidateLabel.call(
-                {
-                    ...i18n,
-                    getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
-                },
-                configuredCandidate,
-            ),
-        ).toBe('Material');
-        expect(
-            methods.getCandidateDescription.call(
-                {
-                    ...i18n,
-                    getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
-                },
-                configuredCandidate,
-            ),
-        ).toBe('The product material');
+        expect(methods.getCandidateLabel.call(i18n, configuredCandidate)).toBe('Werkstoff');
+        expect(methods.getCandidateDescription.call(i18n, configuredCandidate)).toBe('Der Werkstoff');
     });
 
     it('falls back to the raw group name when the group has no snippet', () => {
@@ -93,7 +86,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             candidate({ path: 'category.name' }),
             candidate({
                 path: 'category.metaTitle',
-                label: 'sw-experience-studio.mapping.category.metaTitle.label',
+                label: 'SEO heading',
                 group: 'seo',
             }),
         ];
@@ -191,14 +184,14 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         const configuredCandidate = candidate({
             path: 'product.customFields.material',
             label: 'material',
-            labelTranslations: { 'en-GB': 'Material' },
+            labelTranslations: { 'en-GB': 'Material', 'de-DE': 'Werkstoff' },
             group: 'customFields',
         });
 
         const matching = computed.matchingCandidates.call({
             ...i18n,
             candidates: [configuredCandidate],
-            searchTerm: 'material',
+            searchTerm: 'werkstoff',
             getCandidateLabel: methods.getCandidateLabel,
             getSourceLabel: methods.getSourceLabel,
         }) as ContentSystemMappingCandidate[];

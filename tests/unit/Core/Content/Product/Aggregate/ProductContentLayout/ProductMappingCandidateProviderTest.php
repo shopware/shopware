@@ -129,30 +129,59 @@ class ProductMappingCandidateProviderTest extends TestCase
         static::assertSame($product, $provider->resolveRootSource(MappingSourceReference::root('product'), $context)->value);
     }
 
-    public function testResolvesMediaWithoutAProjectionAndPreservesTheProductCollection(): void
+    public function testCoverUnwrapsTheMediaAssignment(): void
+    {
+        $cover = $this->assignment(0);
+        $product = new SalesChannelProductEntity();
+        $product->setCover($cover);
+        static::assertSame($cover->getMedia(), $this->resolveMedia($product, 'cover'));
+    }
+
+    public function testMediaIsSortedByPositionAndSkipsUnloadedAssignments(): void
     {
         $first = $this->assignment(0);
         $second = $this->assignment(1);
         $unloaded = new ProductMediaEntity();
         $unloaded->setUniqueIdentifier(Uuid::randomHex());
         $unloaded->setPosition(2);
-
-        $assignments = new ProductMediaCollection([$second, $unloaded, $first]);
         $product = new SalesChannelProductEntity();
-        $product->setCover($first);
+        $product->setMedia(new ProductMediaCollection([$second, $unloaded, $first]));
+
+        $media = $this->resolveMedia($product, 'media');
+
+        static::assertInstanceOf(MediaCollection::class, $media);
+        static::assertSame([$first->getMedia(), $second->getMedia()], array_values($media->getElements()));
+    }
+
+    public function testResolvingMediaDoesNotReorderTheAuthoredAssignmentCollection(): void
+    {
+        $assignments = new ProductMediaCollection([$this->assignment(1), $this->assignment(0)]);
+        $before = $assignments->getElements();
+        $product = new SalesChannelProductEntity();
         $product->setMedia($assignments);
 
+        $this->resolveMedia($product, 'media');
+
+        static::assertSame($before, $assignments->getElements());
+    }
+
+    public function testAnEmptyAssignmentCollectionResolvesToAnEmptyMediaCollection(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setMedia(new ProductMediaCollection());
+
+        $media = $this->resolveMedia($product, 'media');
+
+        static::assertInstanceOf(MediaCollection::class, $media);
+        static::assertCount(0, $media);
+    }
+
+    private function resolveMedia(SalesChannelProductEntity $product, string $member): mixed
+    {
         $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
         $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], new RenderingCacheContext());
 
-        static::assertSame($first->getMedia(), $provider->resolveRootSource(MappingSourceReference::root('product', 'cover'), $context)->value);
-        $media = $provider->resolveRootSource(MappingSourceReference::root('product', 'media'), $context)->value;
-        static::assertInstanceOf(MediaCollection::class, $media);
-        static::assertSame([$first->getMedia(), $second->getMedia()], array_values($media->getElements()));
-        static::assertSame([$second, $unloaded, $first], array_values($assignments->getElements()));
-
-        $product->setMedia(new ProductMediaCollection());
-        static::assertCount(0, $provider->resolveRootSource(MappingSourceReference::root('product', 'media'), $context)->value);
+        return $provider->resolveRootSource(MappingSourceReference::root('product', $member), $context)->value;
     }
 
     private function assignment(int $position): ProductMediaEntity

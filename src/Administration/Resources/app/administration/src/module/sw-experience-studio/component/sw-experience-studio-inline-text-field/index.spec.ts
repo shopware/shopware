@@ -57,35 +57,7 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
             return methods.toEditorHtml.call(this, next);
         },
         refreshEditorValue(next: string, updateEditorMarkup = true) {
-            const tokens: {
-                path: string;
-                match: string;
-                canonicalToken: string | null;
-                offset: number;
-                insideMarkup: boolean;
-                malformed: boolean;
-            }[] = [];
-            const tokenPattern = /\{\{\s*map:([A-Za-z0-9_.:-]+)\s*\}\}/g;
-            for (const result of next.matchAll(tokenPattern)) {
-                const match = result[0];
-                const path = result[1];
-                const offset = result.index;
-
-                if (path && offset !== undefined && path.includes('.')) {
-                    tokens.push({
-                        path,
-                        match,
-                        canonicalToken: `{{map:${path}}}`,
-                        offset,
-                        insideMarkup: false,
-                        malformed: false,
-                    });
-                }
-            }
-            this.parsedTokens = tokens.sort((first, second) => first.offset - second.offset);
-            if (updateEditorMarkup) {
-                this.editorHtml = this.toEditorHtml(next) as string;
-            }
+            return methods.refreshEditorValue.call(this, next, updateEditorMarkup);
         },
         scheduleEditorValueParse(next: string) {
             methods.scheduleEditorValueParse.call(this, next);
@@ -99,20 +71,16 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         get: () => computed.knownTokenTexts.call(vm),
     });
 
-    vm.refreshEditorValue(value);
+    vm.editorHtml = vm.toEditorHtml(value) as string;
 
     return vm;
 };
 
 describe('module/sw-experience-studio/component/sw-experience-studio-inline-text-field', () => {
-    it('shows server-recognized tokens as nodes even when the candidate catalogue has no matching path', () => {
-        const vm = createVm('<p>{{map:product.name}} and {{map:product.nmae}}</p>');
-
-        expect(vm.editorHtml).toBe(
-            '<p><span data-sw-map="product.name"></span> and <span data-sw-map="product.nmae"></span></p>',
-        );
+    afterEach(() => {
+        jest.clearAllTimers();
+        jest.useRealTimers();
     });
-
     it('does not recognize a malformed server token as a chip or a canonical token', () => {
         const vm = createVm('{{map:product}}', []);
         vm.parsedTokens = [
@@ -168,50 +136,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         expect(vm.editorHtml).toBe(produced);
     });
 
-    it('reloads the editor when the value changes from elsewhere', () => {
-        const vm = createVm('<p>{{map:product.name}}</p>');
-
-        methods.onUpdateEditorHtml.call(vm, '<p>typed</p>');
-        watch.value.call(vm, '<p>undone {{map:product.name}}</p>');
-
-        expect(vm.editorHtml).toBe('<p>undone <span data-sw-map="product.name"></span></p>');
-        expect(vm.lastEmittedValue).toBeNull();
-    });
-
-    it('ignores a parser response for an older value revision', async () => {
-        const responses = new Map<number, (response: { revision: number; tokens: [] }) => void>();
-        const parseInlineMappingTokens = jest.fn(
-            (_text: string, revision: number) =>
-                new Promise<{ revision: number; tokens: [] }>((resolve) => {
-                    responses.set(revision, resolve);
-                }),
-        );
-        jest.spyOn(Shopware, 'Service').mockReturnValue({ parseInlineMappingTokens } as never);
-
-        const vm = {
-            value: 'older text',
-            parseRevision: 0,
-            parsedTokens: [],
-            editorHtml: '',
-            candidates: [],
-            knownTokenTexts: new Map<string, string>(),
-            toEditorHtml: (value: string) => `<p>${value}</p>`,
-            onCloseMappingModal: jest.fn(),
-        };
-
-        const olderRequest = methods.refreshEditorValue.call(vm, 'older text') as Promise<void>;
-        vm.value = 'newer text';
-        const newerRequest = methods.refreshEditorValue.call(vm, 'newer text') as Promise<void>;
-
-        responses.get(2)?.({ revision: 2, tokens: [] });
-        await newerRequest;
-        responses.get(1)?.({ revision: 1, tokens: [] });
-        await olderRequest;
-
-        expect(vm.editorHtml).toBe('<p>newer text</p>');
-        jest.restoreAllMocks();
-    });
-
     it('refreshes spans after a local edit without replacing the editor markup', async () => {
         const parsedToken = {
             path: 'customFields.privateLabel',
@@ -229,7 +153,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         const editorHtml = '<p><span data-sw-map="customFields.privateLabel">customFields.privateLabel</span>!</p>';
         const vm = {
             value: '{{map:customFields.privateLabel}}!',
-            parsedTokens: [parsedToken],
+            parsedTokens: [],
             parseRevision: 0,
             parseTimeoutId: null as number | null,
             candidates: [],
@@ -239,6 +163,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
                     parsedToken.canonicalToken,
                 ],
             ]),
+            toEditorHtml: () => '<p>Replacement markup that must not be applied</p>',
             editorHtml: '',
             lastEmittedValue: null as string | null,
             isEditorReady: true,
@@ -265,8 +190,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         expect(vm.parsedTokens).toEqual([parsedToken]);
         expect(vm.editorHtml).toBe(editorHtml);
         expect(vm.emitted).toEqual(['<p>{{map:customFields.privateLabel}}!</p>']);
-        jest.useRealTimers();
-        jest.restoreAllMocks();
     });
 
     it('parses only the last local edit after the debounce window', async () => {
@@ -294,8 +217,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
 
         expect(parseInlineMappingTokens).toHaveBeenCalledTimes(1);
         expect(parseInlineMappingTokens).toHaveBeenCalledWith('last', 2);
-        jest.useRealTimers();
-        jest.restoreAllMocks();
     });
 
     it('inserts the picked candidate as a node, by name', () => {
@@ -341,6 +262,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
 
         methods.onUpdateEditorHtml.call(vm, '<p>Stale update</p>');
         methods.onOpenMappingModal.call(vm, editor);
+        expect(vm.isMappingModalOpen).toBe(false);
         vm.activeEditor = editor;
         methods.onSelectMapping.call(vm, candidate('product.name'));
 

@@ -95,7 +95,7 @@ describe('data mapping', () => {
         const candidates = methods.getMappingCandidatesForField.call(
             {
                 mappingCandidates: [
-                    mediaCandidate,
+                    { ...mediaCandidate, compatibleTypes: ['Shopware\\Core\\Content\\Media\\MediaCollection'] },
                     {
                         ...mediaCandidate,
                         path: 'product.media',
@@ -257,17 +257,22 @@ describe('data mapping', () => {
         expect(methods.getFieldMappingLabel.call(context, mappableTextField)).toBe(path);
     });
 
+    it('forwards a mapping candidate retry request from the modal', () => {
+        const $emit = jest.fn();
+
+        methods.onRetryMappingCandidates.call({ $emit });
+
+        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
+    });
+
     it('emits the chosen source together with its context type and closes the modal', () => {
-        const emitted: unknown[] = [];
+        const $emit = jest.fn();
+        const emitted = $emit.mock.calls;
         const context = {
             allowEdit: true,
             mappingModalFieldKey: 'text',
             mappingModalField: mappableTextField,
-            $emit: (event: string, payload: unknown) =>
-                emitted.push([
-                    event,
-                    payload,
-                ]),
+            $emit,
         };
 
         methods.onSelectMapping.call(context, categoryNameCandidate);
@@ -286,16 +291,13 @@ describe('data mapping', () => {
     });
 
     it('emits a null source to unmap', () => {
-        const emitted: unknown[] = [];
+        const $emit = jest.fn();
+        const emitted = $emit.mock.calls;
 
         methods.onUnmapField.call(
             {
                 allowEdit: true,
-                $emit: (event: string, payload: unknown) =>
-                    emitted.push([
-                        event,
-                        payload,
-                    ]),
+                $emit,
             },
             mappableTextField,
         );
@@ -313,19 +315,17 @@ describe('data mapping', () => {
     });
 
     it('stays silent on a read-only layout', () => {
-        const emitted: unknown[] = [];
+        const $emit = jest.fn();
+        const emitted = $emit.mock.calls;
         const context = {
             allowEdit: false,
             mappingModalFieldKey: null as string | null,
             mappingModalField: mappableTextField,
-            $emit: (event: string, payload: unknown) =>
-                emitted.push([
-                    event,
-                    payload,
-                ]),
+            $emit,
         };
 
         methods.onOpenMappingModal.call(context, mappableTextField);
+        expect(context.mappingModalFieldKey).toBeNull();
         methods.onUnmapField.call(context, mappableTextField);
         methods.onSelectMapping.call(context, categoryNameCandidate);
 

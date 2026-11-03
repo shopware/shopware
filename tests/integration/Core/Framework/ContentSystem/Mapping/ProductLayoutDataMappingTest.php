@@ -147,9 +147,9 @@ class ProductLayoutDataMappingTest extends TestCase
      * `Sw:Media:Gallery.mediaItems` is a `MediaCollection`; the provider turns product assignments into
      * its media entries.
      *
-     * The order assertion is not incidental: the gallery is the storefront's picture order, and the
-     * association comes back in no guaranteed order, so the provider sorts by the positions the merchant
-     * authored in the product's media tab. The fixture assigns them in the reverse of that order.
+     * This integration check serves picture ids rather than assignment ids. Database association order is not
+     * controlled here; ProductMappingCandidateProviderTest::testMediaIsSortedByPositionAndSkipsUnloadedAssignments
+     * pins the provider's position sort with a deterministic input collection.
      */
     #[TestDox('serves the product images in their authored order when the gallery is mapped to product.media')]
     public function testAMappedMediaCollectionServesTheImagesInPositionOrder(): void

@@ -220,8 +220,8 @@ class InfoControllerTest extends TestCase
 
         static::assertSame('context:example', $catalogueCandidate['path']);
         static::assertFalse($catalogueCandidate['inlineMappable']);
+        static::assertArrayHasKey('canonicalToken', $catalogueCandidate);
         static::assertNull($catalogueCandidate['canonicalToken']);
-        static::assertTrue((new InlineMappingTokenParser())->parse('{{map:context:example}}')[0]->malformed);
     }
 
     #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]

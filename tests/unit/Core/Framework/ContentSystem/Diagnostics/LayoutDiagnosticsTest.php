@@ -1517,7 +1517,7 @@ class LayoutDiagnosticsTest extends TestCase
     private function mappingInspector(AbstractContentSystemElementTypeRegistry $registry, array $candidates): StoredMappingInspector
     {
         $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidateRegistry->method('forRootSource')->willReturn($candidates);
+        $candidateRegistry->method('forRootSource')->willReturnCallback(static fn (string $rootSource): array => array_filter($candidates, static fn (MappingCandidate $candidate): bool => $candidate->source->type !== 'root' || $candidate->source->id === $rootSource));
 
         return new StoredMappingInspector(
             $registry,

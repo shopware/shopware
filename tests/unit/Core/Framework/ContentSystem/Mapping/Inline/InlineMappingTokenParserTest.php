@@ -22,6 +22,33 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(InlineMappingTokenParser::class)]
 class InlineMappingTokenParserTest extends TestCase
 {
+    public function testPathlessTypedSourceIsMalformedMappingIntent(): void
+    {
+        $tokens = $this->parser()->parse('{{map:context:example}}');
+        static::assertCount(1, $tokens);
+        static::assertSame('context:example', $tokens[0]->path);
+        static::assertTrue($tokens[0]->malformed);
+    }
+
+    public function testEditorResponseFixturesMatchTheServerParser(): void
+    {
+        $file = \dirname(__DIR__, 7) . '/src/Administration/Resources/app/administration/src/module/sw-experience-studio/component/sw-experience-studio-inline-text-field/fixtures/parser-responses.json';
+        $contents = file_get_contents($file);
+        static::assertNotFalse($contents);
+        $fixtures = json_decode($contents, true, flags: \JSON_THROW_ON_ERROR);
+        foreach ($fixtures as $fixture) {
+            $actual = [];
+            foreach ($this->parser()->parse($fixture['text']) as $token) {
+                $actual[] = [
+                    'path' => $token->path, 'match' => $token->match,
+                    'canonicalToken' => $token->malformed ? null : $this->parser()->canonicalToken($token->path),
+                    'offset' => $token->offset, 'insideMarkup' => $token->insideMarkup, 'malformed' => $token->malformed,
+                ];
+            }
+            static::assertSame($fixture['tokens'], $actual, $fixture['text']);
+        }
+    }
+
     /**
      * @return iterable<string, array{string, list<string>}>
      */
@@ -45,6 +72,7 @@ class InlineMappingTokenParserTest extends TestCase
 
         // A marker with an invalid path is still recognized so diagnostics can report it and rendering can remove it.
         yield 'no prefix, so it is an ordinary placeholder' => ['{{product.name}}', []];
+        yield 'ordinary placeholder with inner spaces' => ['{{ product.name }}', []];
         yield 'an unclosed marker is an ordinary no-match result' => ['{{map:product.name', []];
         yield 'no member path is malformed mapping intent' => ['{{map:product}}', ['product']];
         yield 'empty path is malformed mapping intent' => ['{{map:}}', ['']];

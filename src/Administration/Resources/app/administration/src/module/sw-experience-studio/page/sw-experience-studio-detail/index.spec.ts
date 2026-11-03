@@ -4,15 +4,6 @@ import detailComponent from './index';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
-    const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
-
-    it('offers layout assignments only for saved product and category layouts', () => {
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'product' })).toBe(true);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'category' })).toBe(true);
-        expect(computed.canManageAssignments.call({ isCreateMode: true, layoutRootSource: 'category' })).toBe(false);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'landing_page' })).toBe(false);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: null })).toBe(false);
-    });
 
     it('uses layout rootSource for draft mutation payloads', () => {
         const vm = {
@@ -23,83 +14,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
 
         expect(methods.resolveMutationRootSource.call(vm)).toBe('product');
-    });
-
-    it('resizes the element settings panel while preserving a minimum preview width', () => {
-        const vm = {
-            isResizingElementSettings: true,
-            resizeStartX: 500,
-            resizeStartWidth: 320,
-            elementSettingsWidth: 320,
-            getElementSettingsMaxWidth: methods.getElementSettingsMaxWidth,
-            setElementSettingsWidth: methods.setElementSettingsWidth,
-            $refs: {
-                workspace: {
-                    getBoundingClientRect: () => ({ width: 1200 }),
-                },
-            },
-        };
-
-        methods.onElementSettingsResizeMove.call(vm, { clientX: 200 } as PointerEvent);
-        expect(vm.elementSettingsWidth).toBe(592);
-
-        methods.onElementSettingsResizeMove.call(vm, { clientX: -500 } as PointerEvent);
-        expect(vm.elementSettingsWidth).toBe(592);
-
-        methods.onElementSettingsResizeMove.call(vm, { clientX: 1000 } as PointerEvent);
-        expect(vm.elementSettingsWidth).toBe(320);
-    });
-
-    it('captures the pointer for the entire resize gesture', () => {
-        const vm = {
-            elementSettingsWidth: 320,
-            resizeStartX: 500,
-            resizeStartWidth: 320,
-            isResizingElementSettings: false,
-            resizeMoveHandler: null,
-            resizeEndHandler: null,
-            resizeHandle: null,
-            resizePointerId: null,
-            onElementSettingsResizeMove: methods.onElementSettingsResizeMove,
-            stopElementSettingsResize: methods.stopElementSettingsResize,
-        };
-        const event = {
-            clientX: 500,
-            pointerId: 1,
-            currentTarget: {
-                setPointerCapture: jest.fn(),
-                hasPointerCapture: jest.fn().mockReturnValue(true),
-                releasePointerCapture: jest.fn(),
-            },
-            preventDefault: jest.fn(),
-        } as unknown as PointerEvent;
-
-        methods.onElementSettingsResizeStart.call(vm, event);
-        expect(vm.isResizingElementSettings).toBe(true);
-        const setPointerCapture = Reflect.get(event.currentTarget as HTMLElement, 'setPointerCapture') as jest.Mock;
-        expect(setPointerCapture).toHaveBeenCalledWith(1);
-
-        const resizeEndHandler = vm.resizeEndHandler as (() => void) | null;
-        if (resizeEndHandler) {
-            Reflect.apply(resizeEndHandler, vm, []);
-        }
-
-        expect(vm.isResizingElementSettings).toBe(false);
-        expect(vm.resizeEndHandler).toBeNull();
-    });
-
-    it('grows the settings panel for elements with rich-text properties', () => {
-        const vm = {
-            selectedElementHasRichText: true,
-            elementSettingsWidth: 320,
-            getElementSettingsMaxWidth: methods.getElementSettingsMaxWidth,
-            setElementSettingsWidth: methods.setElementSettingsWidth,
-            $refs: {},
-        };
-
-        methods.adjustElementSettingsWidth.call(vm);
-
-        expect(vm.elementSettingsWidth).toBe(640);
     });
 
     it('returns null rootSource when no rootSource is set', () => {
@@ -573,80 +487,5 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
 
         expect(normalizedIndex).toBe(1);
-    });
-
-    it('adopts the server-canonical layout returned by the save reload without client-side re-normalization', async () => {
-        // Authored client-side: style as a bare scalar, no seeded default, keys in author order.
-        const authoredElement: ContentElementNode = {
-            component: 'Sw:Filter:Panel',
-            style: { 'col-span': 6 },
-            id: 'element-1',
-            properties: { visibleFilterCount: 5 },
-        };
-        // Server-canonical: `ElementStyleNormalizer::normalizeValue()` broadcasts a breakpoint-aware
-        // scalar across every `Breakpoint::values()` entry, `LayoutDefaultSeeder::seedElement()` appends
-        // the `showLayoutSwitch: true` default the type declares and the author left out, and
-        // `StoredElement::jsonSerialize()` fixes the key order.
-        const canonicalElement: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Filter:Panel',
-            properties: { visibleFilterCount: 5, showLayoutSwitch: true },
-            style: { 'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 } },
-        };
-        const reloadedLayout = {
-            id: 'layout-1',
-            name: 'Landing page',
-            layout: [canonicalElement],
-        };
-        const save = jest.fn().mockResolvedValue(undefined);
-        const get = jest.fn().mockResolvedValue(reloadedLayout);
-        const vm = {
-            layout: {
-                id: 'layout-1',
-                name: 'Landing page',
-                layout: [authoredElement],
-            } as unknown as typeof reloadedLayout,
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutLoadCriteria: {},
-            layoutRepository: { save, get },
-            applyPreviewContextDefaults: jest.fn(),
-            createNotificationSuccess: jest.fn(),
-            $t: jest.fn().mockReturnValue('saved'),
-            isCreateMode: false,
-            isLoading: false,
-            showDiagnostics: true,
-        };
-
-        await methods.onSave.call(vm);
-
-        const saveCalls = save.mock.calls as unknown[][];
-
-        expect(saveCalls[0][0]).toEqual({
-            id: 'layout-1',
-            name: 'Landing page',
-            layout: [
-                {
-                    component: 'Sw:Filter:Panel',
-                    style: { 'col-span': 6 },
-                    id: 'element-1',
-                    properties: { visibleFilterCount: 5 },
-                },
-            ],
-        });
-        expect(vm.layout).toBe(reloadedLayout);
-        expect(vm.layout.layout[0]).toBe(canonicalElement);
-        expect(Object.keys(vm.layout.layout[0])).toEqual([
-            'id',
-            'component',
-            'properties',
-            'style',
-        ]);
-        expect(vm.layout.layout[0].style).toEqual({
-            'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 },
-        });
-        expect(vm.layout.layout[0].properties).toEqual({ visibleFilterCount: 5, showLayoutSwitch: true });
-        expect(vm.showDiagnostics).toBe(false);
-        expect(vm.isLoading).toBe(false);
     });
 });

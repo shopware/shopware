@@ -111,15 +111,28 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
-    it('reports a mapping candidate load error and emits a retry request', () => {
-        const hasLoadError = computed.hasMappingCandidateLoadError.call({
-            mappingCandidateLoadError: 'catalogue unavailable',
-        });
+    it.each([
+        [
+            'catalogue unavailable',
+            true,
+        ],
+        [
+            null,
+            false,
+        ],
+        [
+            '',
+            false,
+        ],
+    ])('reports load-error state for %s', (message, expected) => {
+        expect(computed.hasMappingCandidateLoadError.call({ mappingCandidateLoadError: message })).toBe(expected);
+    });
+
+    it('emits a mapping-candidate retry request', () => {
         const $emit = jest.fn();
 
         methods.onRetryMappingCandidates.call({ $emit });
 
-        expect(hasLoadError).toBe(true);
         expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
     });
 
@@ -191,15 +204,15 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
             });
         });
 
-        it('ignores a consumer that does not alias a declared property', () => {
+        it('ignores ordinary wiring under a declared property key', () => {
             const mappings = computed.elementMappings.call({
                 selectedElement: {
                     id: 'text-element',
                     acceptsContext: {
-                        product: {
+                        text: {
                             type: 'single',
                             required: true,
-                            scope: 'parent',
+                            scope: 'root',
                         },
                     },
                 },
@@ -250,7 +263,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                 },
                 {
                     key: 'text',
-                    path: 'category.name',
+                    source: { type: 'root', id: 'category', path: 'name' },
                     contextType: 'single',
                 },
             );

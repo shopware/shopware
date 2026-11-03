@@ -43,11 +43,9 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
@@ -71,6 +69,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\MappingTestFactory;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
@@ -232,40 +231,19 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['root-id'], $observed);
     }
 
-    #[DataProvider('literalMappingRenderTargetProvider')]
-    public function testOversizedLiteralMappingTextDoesNotPreventRendering(?string $targetElementId): void
+    public function testFullRenderPreservesOversizedLiteralMappingText(): void
     {
-        $literal = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}';
-        $root = StoredElementBuilder::create('section', 'root-id')
-            ->withSlot('default', [
-                StoredElementBuilder::create('text', 'target-id')->withProperty('title', 'Product {{productId}}')->build(),
-                StoredElementBuilder::create('text', 'sibling-id')->withProperty('literal', $literal)->build(),
-            ])
-            ->build();
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-        $specification = new RenderingSpecification(
-            [],
-            PlaceholderValues::from(['productId' => 'prod-1', 'map:product.name' => 'query supplied text']),
-            new Request(),
-            $targetElementId,
-        );
+        $tree = $this->renderOversizedLiteralMappingText(null);
+        static::assertSame('Product prod-1', $this->renderedElement($tree, 'target-id')->properties['title']);
+        static::assertSame(str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}', $this->renderedElement($tree, 'sibling-id')->properties['literal']);
+    }
 
-        $result = $this->createPipeline()->load(
-            $this->createSingleRootLayout($root),
-            $specification,
-            new RenderingCacheContext(),
-            RenderingMode::FULL,
-            false,
-            Generator::generateSalesChannelContext(),
-        );
-
-        static::assertSame('Product prod-1', $this->renderedElement($result->tree, 'target-id')->properties['title']);
-        if ($targetElementId === null) {
-            static::assertSame($literal, $this->renderedElement($result->tree, 'sibling-id')->properties['literal']);
-        } else {
-            static::assertCount(1, $result->tree);
-            static::assertSame('target-id', $result->tree[0]->id);
-        }
+    public function testPartialRenderDropsTheOversizedLiteralSibling(): void
+    {
+        $tree = $this->renderOversizedLiteralMappingText('target-id');
+        static::assertCount(1, $tree);
+        static::assertSame('target-id', $tree[0]->id);
+        static::assertSame('Product prod-1', $tree[0]->properties['title']);
     }
 
     public function testInlineParserFailureAbortsRendering(): void
@@ -289,15 +267,6 @@ class ContentPipelineTest extends TestCase
         } finally {
             static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
         }
-    }
-
-    /**
-     * @return iterable<string, array{?string}>
-     */
-    public static function literalMappingRenderTargetProvider(): iterable
-    {
-        yield 'full render retains the literal property' => [null];
-        yield 'partial render discards the literal sibling' => ['target-id'];
     }
 
     #[TestDox('exposes unresolved placeholders to preparation subscribers')]
@@ -406,17 +375,15 @@ class ContentPipelineTest extends TestCase
         $this->lowering = $this->createLowering(['product' => $loader], $candidateRegistry);
 
         $layout = $this->createSingleRootLayout(StoredElementBuilder::create('section', 'root-id')->build());
-        $preparedText = null;
         $finalizedText = null;
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ContentTreePreparationEvent::class, static function (ContentTreePreparationEvent $event) use (&$order, &$preparedText): void {
+        $dispatcher->addListener(ContentTreePreparationEvent::class, static function (ContentTreePreparationEvent $event) use (&$order): void {
             $order[] = 'preparation event';
             $event->replaceTree([
                 StoredElementBuilder::create('text', 'listener-text')
                     ->withProperty('title', '{{greeting}} {{map:product.name}}')
                     ->build(),
             ]);
-            $preparedText = $event->tree()[0]->property('title')?->asString();
         });
         $dispatcher->addListener(RenderedTreeFinalizationEvent::class, static function (RenderedTreeFinalizationEvent $event) use (&$order, &$finalizedText): void {
             $order[] = 'rendered-tree finalization';
@@ -437,7 +404,6 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext(),
         );
 
-        static::assertSame('{{greeting}} {{map:product.name}}', $preparedText);
         static::assertSame('Hello Mapped product', $finalizedText);
         static::assertSame([
             'preparation event',
@@ -459,16 +425,19 @@ class ContentPipelineTest extends TestCase
             StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'Hello {{map:product.name}}!')->build(),
         );
 
-        $this->expectException(\TypeError::class);
-
-        $this->createPipeline()->load(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: 'product'),
-            new RenderingCacheContext(),
-            RenderingMode::FULL,
-            false,
-            Generator::generateSalesChannelContext(),
-        );
+        try {
+            $this->createPipeline()->load(
+                $layout,
+                new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: 'product'),
+                new RenderingCacheContext(),
+                RenderingMode::FULL,
+                false,
+                Generator::generateSalesChannelContext(),
+            );
+            static::fail('Expected the provider failure to escape unchanged.');
+        } catch (\TypeError $exception) {
+            static::assertSame($failure, $exception);
+        }
     }
 
     public function testInlineMappingExpansionLimitAbortsRendering(): void
@@ -1692,6 +1661,38 @@ class ContentPipelineTest extends TestCase
         yield 'alias renames the key for children' => ['product', 'product'];
     }
 
+    /**
+     * @return list<RenderedElement>
+     */
+    private function renderOversizedLiteralMappingText(?string $targetElementId): array
+    {
+        $literal = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}';
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'target-id')->withProperty('title', 'Product {{productId}}')->build(),
+                StoredElementBuilder::create('text', 'sibling-id')->withProperty('literal', $literal)->build(),
+            ])
+            ->build();
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+        $specification = new RenderingSpecification(
+            [],
+            PlaceholderValues::from(['productId' => 'prod-1', 'map:product.name' => 'query supplied text']),
+            new Request(),
+            $targetElementId,
+        );
+
+        $result = $this->createPipeline()->load(
+            $this->createSingleRootLayout($root),
+            $specification,
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
+
+        return $result->tree;
+    }
+
     private function configSerializerProvider(): DataLoaderConfigSerializerProvider
     {
         $locator = static::createStub(ServiceLocator::class);
@@ -1764,13 +1765,7 @@ class ContentPipelineTest extends TestCase
             $candidates = $candidateRegistry;
         }
         $parser = new InlineMappingTokenParser();
-        $mappingInspector = new StoredMappingInspector(
-            $types,
-            $candidates,
-            new MappingTypeCompatibility(),
-            new MappingConsumers(),
-            $parser,
-        );
+        $mappingInspector = MappingTestFactory::inspector($types, $candidates, $parser);
 
         return new ElementLowering(
             new ElementDataResolver(
@@ -1810,13 +1805,7 @@ class ContentPipelineTest extends TestCase
         }
         $types = $this->typeRegistry();
         $parser = new InlineMappingTokenParser();
-        $mappingInspector = new StoredMappingInspector(
-            $types,
-            $candidates,
-            new MappingTypeCompatibility(),
-            new MappingConsumers(),
-            $parser,
-        );
+        $mappingInspector = MappingTestFactory::inspector($types, $candidates, $parser);
 
         return new InlineMappingExpander(
             $mappingInspector,

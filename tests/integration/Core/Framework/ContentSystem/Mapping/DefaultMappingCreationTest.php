@@ -85,39 +85,47 @@ class DefaultMappingCreationTest extends TestCase
         yield 'Sync API creation' => [true];
     }
 
-    public function testPersistedInsertionSeedsOnceAndUnmappingSurvivesSaveAndReload(): void
+    public function testPersistedInsertionSeedsTheRootMapping(): void
     {
         $id = Uuid::randomHex();
-        $this->repository()->create([$this->layoutPayload($id, [[
-            'id' => 'container',
-            'component' => 'Sw:Grid:Container',
-        ]])], Context::createDefaultContext());
+        $this->repository()->create([$this->layoutPayload($id, [['id' => 'container', 'component' => 'Sw:Grid:Container']])], Context::createDefaultContext());
 
-        $body = $this->mutate($id . '/insert-element', ['type' => self::COMPONENT]);
-        $mapped = $this->reload($id);
-        static::assertSame(
-            ['type' => 'root', 'id' => 'product'],
-            $mapped->getLayout()[1]->contextDefinitions->getAllConsumers()['product']->source?->jsonSerialize(),
-        );
+        $this->mutate($id . '/insert-element', ['type' => self::COMPONENT]);
 
-        $this->mutate($id . '/unmap-property', [
-            'elementId' => $body['layout'][1]['id'],
-            'propertyKey' => 'product',
-            'expectedVersion' => $mapped->getUpdatedAt()?->format(\DateTimeInterface::RFC3339_EXTENDED),
-        ]);
-        $unmapped = $this->reload($id);
-        static::assertSame([], $unmapped->getLayout()[1]->contextDefinitions->getAllConsumers());
-        static::assertArrayHasKey('product', $unmapped->getLayout()[1]->dataRequirements);
-
-        $this->repository()->update([['id' => $id, 'layout' => $unmapped->getLayout()]], Context::createDefaultContext());
-
-        $saved = $this->reload($id)->getLayout()[1];
-        static::assertSame([], $saved->contextDefinitions->getAllConsumers());
-        static::assertEquals($unmapped->getLayout()[1]->dataRequirements, $saved->dataRequirements);
+        $element = $this->reload($id)->getLayout()[1];
+        static::assertSame(['type' => 'root', 'id' => 'product'], $element->contextDefinitions->getAllConsumers()['product']->source?->jsonSerialize());
     }
 
+    public function testPersistedUnmappingKeepsTheManualDataRequirement(): void
+    {
+        $layout = $this->persistedProductElement(['product' => [
+            'type' => 'single', 'required' => false, 'scope' => 'root', 'source' => ['type' => 'root', 'id' => 'product'],
+        ]]);
+
+        $this->mutate($layout->getId() . '/unmap-property', ['elementId' => 'product-element', 'propertyKey' => 'product', 'expectedVersion' => null]);
+
+        $element = $this->reload($layout->getId())->getLayout()[0];
+        static::assertSame([], $element->contextDefinitions->getAllConsumers());
+        static::assertArrayHasKey('product', $element->dataRequirements);
+    }
+
+    public function testPlainSaveAndReloadDoesNotReseedADeliberatelyUnmappedElement(): void
+    {
+        $layout = $this->persistedProductElement([]);
+        $requirements = $layout->getLayout()[0]->dataRequirements;
+
+        $this->repository()->update([['id' => $layout->getId(), 'layout' => $layout->getLayout()]], Context::createDefaultContext());
+
+        $saved = $this->reload($layout->getId())->getLayout()[0];
+        static::assertSame([], $saved->contextDefinitions->getAllConsumers());
+        static::assertEquals($requirements, $saved->dataRequirements);
+    }
+
+    /**
+     * @param array{type: string, id: string}|null $expectedSource
+     */
     #[DataProvider('copiedMappingStates')]
-    public function testDuplicationPreservesMappingStateThroughSaveAndReload(bool $mapped): void
+    public function testDuplicationPreservesMappingStateThroughSaveAndReload(bool $mapped, ?array $expectedSource): void
     {
         $body = $this->mutate('insert-element', ['layout' => [], 'rootSource' => 'product', 'type' => self::COMPONENT]);
         $elementId = $body['layout'][0]['id'];
@@ -148,17 +156,33 @@ class DefaultMappingCreationTest extends TestCase
         static::assertCount(2, $stored);
         foreach ($stored as $element) {
             $source = $element->contextDefinitions->getAllConsumers()['product']->source ?? null;
-            static::assertSame($mapped ? ['type' => 'root', 'id' => 'product'] : null, $source?->jsonSerialize());
+            static::assertSame($expectedSource, $source?->jsonSerialize());
         }
     }
 
     /**
-     * @return iterable<string, array{bool}>
+     * @return iterable<string, array{bool, array{type: string, id: string}|null}>
      */
     public static function copiedMappingStates(): iterable
     {
-        yield 'default mapping is copied' => [true];
-        yield 'deliberate unmapping is copied' => [false];
+        yield 'default mapping is copied' => [true, ['type' => 'root', 'id' => 'product']];
+        yield 'deliberate unmapping is copied' => [false, null];
+    }
+
+    /**
+     * @param array<string, mixed> $consumers
+     */
+    private function persistedProductElement(array $consumers): ContentLayoutEntity
+    {
+        $id = Uuid::randomHex();
+        $this->repository()->create([$this->layoutPayload($id, [[
+            'id' => 'product-element', 'component' => self::COMPONENT,
+            'properties' => ['productId' => Uuid::randomHex()],
+            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['entity' => 'product', 'property' => 'productId']]],
+            'acceptsContext' => $consumers,
+        ]])], Context::createDefaultContext());
+
+        return $this->reload($id);
     }
 
     /**

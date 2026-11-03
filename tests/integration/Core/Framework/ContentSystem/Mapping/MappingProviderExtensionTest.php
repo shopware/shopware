@@ -78,20 +78,28 @@ class MappingProviderExtensionTest extends TestCase
         KernelLifecycleManager::bootKernel();
     }
 
-    public function testBundleOwnedSourcesStayDistinctAcrossCatalogueWritesAndRendering(): void
+    #[DataProvider('bundleNameProvider')]
+    public function testBundleOwnedSourcesStayDistinctAcrossCatalogueWritesAndRendering(string $bundleName): void
     {
         $this->installRegistry([
             new BundleMappingProvider('AcmePlugin'),
             new BundleMappingProvider('OtherPlugin'),
         ]);
         $catalogue = $this->catalogue();
-        foreach (['AcmePlugin', 'OtherPlugin'] as $bundleName) {
-            $path = $bundleName . ':recommendations.title';
-            static::assertSame('{{map:' . $path . '}}', $catalogue[$path]['canonicalToken']);
-            $elements = [$this->element('mapped', new MappingSourceReference($bundleName, 'recommendations', path: 'title'))];
-            $this->save($elements);
-            static::assertSame($bundleName, $this->render($elements)[0]['text']);
-        }
+        $path = $bundleName . ':recommendations.title';
+        static::assertSame('{{map:' . $path . '}}', $catalogue[$path]['canonicalToken']);
+        $elements = [$this->element('mapped', new MappingSourceReference($bundleName, 'recommendations', path: 'title'))];
+        $this->save($elements);
+        static::assertSame($bundleName, $this->render($elements)[0]['text']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function bundleNameProvider(): iterable
+    {
+        yield 'AcmePlugin' => ['AcmePlugin'];
+        yield 'OtherPlugin' => ['OtherPlugin'];
     }
 
     public function testReorderedPluginConfigurationSurvivesWritingReloadingAndRendering(): void
@@ -361,7 +369,10 @@ class MappingProviderExtensionTest extends TestCase
         static::assertSame('Custom Shirt / Description', $rendered[1]['text']);
         static::assertContains('acme-product-name', $cache->getTags());
 
+        $beforeReset = $registry->forRootSource('product')['product.description'];
+        static::assertSame($beforeReset, $registry->forRootSource('product')['product.description']);
         $registry->reset();
+        static::assertNotSame($beforeReset, $registry->forRootSource('product')['product.description']);
         $candidateAfterReset = $registry->forRootSource('product')['product.name'];
         static::assertInstanceOf(MappingCandidate::class, $candidateAfterReset);
         static::assertSame('Custom product name', $candidateAfterReset->label);
@@ -417,7 +428,10 @@ class MappingProviderExtensionTest extends TestCase
             new MappingSourceReference('root', 'product', ['unlisted' => true], 'name'),
             new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], new RenderingCacheContext()),
         )->isNoValue());
+        $beforeReset = $registry->forRootSource('product')['product.description'];
+        static::assertSame($beforeReset, $registry->forRootSource('product')['product.description']);
         $registry->reset();
+        static::assertNotSame($beforeReset, $registry->forRootSource('product')['product.description']);
         static::assertArrayHasKey('product.name', $registry->forRootSource('product'));
     }
 

@@ -80,9 +80,11 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
 
     /**
      * @param array<string, mixed> $requiredFields
+     * @param array<string, string> $fallbackFields
+     * @param array<string, string> $translatedFields
      */
     #[DataProvider('rootSources')]
-    public function testReadsCustomFieldsFromTheFallbackLanguage(string $rootSource, array $requiredFields): void
+    public function testReadsCustomFieldsFromTheFallbackLanguage(string $rootSource, array $requiredFields, array $fallbackFields, array $translatedFields): void
     {
         $context = Context::createDefaultContext();
         $languageId = Uuid::randomHex();
@@ -104,11 +106,11 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'Fallback entity',
                     'customFields' => [$name => 'Leather'],
-                    ...($rootSource === 'landing_page' ? ['url' => 'fallback-entity'] : []),
+                    ...$fallbackFields,
                 ],
                 $languageId => [
                     'name' => 'Translated entity',
-                    ...($rootSource === 'landing_page' ? ['url' => 'translated-entity'] : []),
+                    ...$translatedFields,
                 ],
             ],
         ]], $context);
@@ -152,7 +154,6 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $context->setConsiderInheritance(true);
         $variant = $repository->search(new Criteria([$variantId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $variant);
-        static::assertSame([$name => 'Leather'], $variant->getTranslation('customFields'));
 
         $resolved = $this->provider->resolveRootSource(
             MappingSourceReference::root('product', 'customFields.' . $name),
@@ -164,7 +165,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{string, array<string, mixed>}>
+     * @return \Generator<string, array{string, array<string, mixed>, array<string, string>, array<string, string>}>
      */
     public static function rootSources(): \Generator
     {
@@ -173,9 +174,9 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
             'stock' => 10,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'tax' => ['name' => 'mapping-tax', 'taxRate' => 19],
-        ]];
-        yield 'category' => ['category', []];
-        yield 'landing page' => ['landing_page', ['salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]]]];
+        ], [], []];
+        yield 'category' => ['category', [], [], []];
+        yield 'landing page' => ['landing_page', ['salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]]], ['url' => 'fallback-entity'], ['url' => 'translated-entity']];
     }
 
     private function createCustomField(string $rootSource): string

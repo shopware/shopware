@@ -126,7 +126,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $rootContext = $rooted ? [$this->providedContext()] : [];
 
         $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->expects($this->once())->method('resolveGated')->with($rootSource)->willReturn($rootContext);
+        $registry->expects($this->once())->method('resolveGated')->with($rootSource, static::identicalTo($context))->willReturn($rootContext);
 
         $report = new DiagnosticsReport([]);
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
@@ -141,6 +141,7 @@ class PersistedLayoutMutatorTest extends TestCase
                     return true;
                 }),
                 static::identicalTo($rootContext),
+                $rootSource,
             )
             ->willReturn(new LayoutAnalysis($report, []));
 

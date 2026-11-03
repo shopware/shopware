@@ -121,7 +121,12 @@ describe('contentSystemMappingCandidateService', () => {
             ],
         };
 
-        clientMock.onPost('/_action/content-system/inline-mapping/parse').reply(200, parsed);
+        clientMock
+            .onPost('/_action/content-system/inline-mapping/parse', {
+                text: '<p>{{  map:product.name  }} {{map:product}}</p>',
+                revision: 4,
+            })
+            .reply(200, parsed);
 
         await expect(
             service.parseInlineMappingTokens('<p>{{  map:product.name  }} {{map:product}}</p>', 4),

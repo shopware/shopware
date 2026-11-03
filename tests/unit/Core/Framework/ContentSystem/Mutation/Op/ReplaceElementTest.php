@@ -56,7 +56,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry())))->apply($tree);
+        $result = $this->replacement()->apply($tree);
 
         static::assertSame('el', $result->roots[0]->id);
         static::assertSame('Sw:New', $result->roots[0]->component);
@@ -71,7 +71,7 @@ class ReplaceElementTest extends TestCase
             'content' => [new StoredElement('child', 'Sw:Block')],
         ])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $replace->apply($tree);
 
         static::assertSame(['el'], $replace->created());
@@ -84,7 +84,7 @@ class ReplaceElementTest extends TestCase
         $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['product' => $requirement])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame(['product' => $requirement], $result->roots[0]->dataRequirements);
@@ -98,7 +98,7 @@ class ReplaceElementTest extends TestCase
             'content' => [new StoredElement('child', 'Sw:Block')],
         ])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame('child', $result->roots[0]->slots['content'][0]->id);
@@ -114,7 +114,7 @@ class ReplaceElementTest extends TestCase
         $definitions = new ContextDefinitions(['legacy' => $dropped, 'product' => $keptProvider], ['product' => $kept]);
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], $definitions)]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame(['product' => $kept], $result->roots[0]->contextDefinitions->getAllConsumers());
@@ -151,7 +151,7 @@ class ReplaceElementTest extends TestCase
         $style = new ElementStyle(['col-span' => ['md' => 6], 'display' => ['xs' => false]]);
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], new ContextDefinitions([], []), $style)]);
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry())))->apply($tree);
+        $result = $this->replacement()->apply($tree);
 
         static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
@@ -166,7 +166,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperties($oldProperties)->build()]);
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry())))->apply($tree);
+        $result = $this->replacement()->apply($tree);
 
         static::assertSame($expectedKept, $this->rawProperties($result->roots[0]));
     }
@@ -227,7 +227,7 @@ class ReplaceElementTest extends TestCase
             'count' => 'not-an-int',
         ])->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame(['headline' => 'Hi'], $this->rawProperties($result->roots[0]));
@@ -245,7 +245,7 @@ class ReplaceElementTest extends TestCase
         // which that provider's two-column shape cannot express.
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', ['a', 'b'])->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertNull($result->roots[0]->property('headline'));
@@ -255,7 +255,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('resets droppedProperties on re-apply so a second run does not accumulate the first run drops')]
     public function testReplaceResetsDroppedPropertiesOnReapply(): void
     {
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
 
         $replace->apply(new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('ghost', 'first-run')->build()]));
         $replace->apply(new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('count', 'second-run')->build()]));
@@ -300,7 +300,7 @@ class ReplaceElementTest extends TestCase
         $requirement = new DataRequirement('legacy', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['legacy' => $requirement])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame([], $result->roots[0]->dataRequirements);
@@ -316,7 +316,7 @@ class ReplaceElementTest extends TestCase
         );
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], $definitions)]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $replace->apply($tree);
 
         static::assertSame(['legacyProvider', 'legacyConsumer'], $replace->droppedWiring());
@@ -334,7 +334,7 @@ class ReplaceElementTest extends TestCase
         $definitions = new ContextDefinitions([], ['legacy' => new ContextConsumer(ContextType::Single, true)]);
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['legacy' => $requirement], [], [], $definitions)]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $replace->apply($tree);
 
         static::assertSame(['legacy'], $replace->droppedWiring());
@@ -347,7 +347,7 @@ class ReplaceElementTest extends TestCase
             'legacy' => [new StoredElement('child', 'Sw:Block')],
         ])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame([], $result->roots[0]->slots);
@@ -361,7 +361,7 @@ class ReplaceElementTest extends TestCase
             'content' => [new StoredElement('child', 'Sw:Block')],
         ])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $replace->apply($tree);
 
         static::assertSame(['el', 'child'], $replace->affected());
@@ -379,7 +379,7 @@ class ReplaceElementTest extends TestCase
             'legacy' => [new StoredElement('child', 'Sw:Block')],
         ])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $replace->apply($tree);
 
         static::assertSame(['el'], $replace->affected());
@@ -441,7 +441,7 @@ class ReplaceElementTest extends TestCase
             ->withAttributedSpecification('legacy', 'spec-legacy')
             ->build();
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry())))->apply(new StoredTree([$old]));
+        $result = $this->replacement()->apply(new StoredTree([$old]));
 
         static::assertSame(['product' => 'spec-product'], $result->roots[0]->attributedSpecifications);
     }
@@ -454,7 +454,7 @@ class ReplaceElementTest extends TestCase
             ->withAttributedSpecification('product', 'spec-product')
             ->build();
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply(new StoredTree([$old], 'product'));
 
         static::assertSame([], $result->roots[0]->attributedSpecifications);
@@ -472,7 +472,7 @@ class ReplaceElementTest extends TestCase
         $requirement = new DataRequirement('headline', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['headline' => $requirement])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame([], $result->roots[0]->dataRequirements);
@@ -487,7 +487,7 @@ class ReplaceElementTest extends TestCase
         $requirement = new DataRequirement('flexible', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['flexible' => $requirement])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame([], $result->roots[0]->dataRequirements);
@@ -499,7 +499,7 @@ class ReplaceElementTest extends TestCase
     {
         $consumer = new ContextConsumer(ContextType::Single, false);
         $old = new StoredElement('el', 'Sw:Old', contextDefinitions: new ContextDefinitions([], ['flexible' => $consumer]));
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
 
         $result = $replace->apply(new StoredTree([$old], 'product'));
 
@@ -512,7 +512,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertTrue($result->roots[0]->property('headline')?->isNull());
@@ -526,7 +526,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', $value)->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertSame($value, $result->roots[0]->property('flexible')?->jsonSerialize());
@@ -540,7 +540,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', $value)->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertNull($result->roots[0]->property('flexible'));
@@ -552,7 +552,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('payload', ['a' => 1])->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertNull($result->roots[0]->property('payload'));
@@ -564,7 +564,7 @@ class ReplaceElementTest extends TestCase
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('product', 'some-id')->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($this->registry()));
+        $replace = $this->replacement();
         $result = $replace->apply($tree);
 
         static::assertNull($result->roots[0]->property('product'));
@@ -842,6 +842,13 @@ class ReplaceElementTest extends TestCase
             new MappingConsumers(),
             new InlineMappingTokenParser(),
         );
+    }
+
+    private function replacement(): ReplaceElement
+    {
+        $registry = $this->registry();
+
+        return new ReplaceElement($registry, 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator(), mappingInspector: $this->mappingInspector($registry));
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

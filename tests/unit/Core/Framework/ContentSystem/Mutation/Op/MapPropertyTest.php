@@ -186,11 +186,11 @@ class MapPropertyTest extends TestCase
         );
 
         $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidateRegistry->method('forRootSource')->willReturn([
+        $candidateRegistry->method('forRootSource')->willReturnCallback(fn (string $rootSource): array => $rootSource === 'product' ? [
             'product.name' => $this->candidate('product.name'),
             'product.metaTitle' => $this->candidate('product.metaTitle'),
             'product.cover' => new MappingCandidate('product.cover', 'label', 'description', 'media', MediaEntity::class),
-        ]);
+        ] : []);
 
         return new MapProperty(
             $typeRegistry,

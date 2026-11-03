@@ -150,27 +150,27 @@ describe('Experience Studio detail mutation errors', () => {
     });
 
     it.each([
-        [
-            'map-property',
-            'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
-            'sw-experience-studio.detail.mappingMutationErrors.propertyAliasCollision',
-        ],
-        [
-            'map-property',
-            'CONTENT_SYSTEM__INVALID_MAPPING_SOURCE',
-            'sw-experience-studio.detail.mappingMutationErrors.invalidMappingSource',
-        ],
-        [
-            'map-property',
-            'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
-            'sw-experience-studio.detail.mutationErrors.unknownRootSource',
-        ],
-        [
-            'unmap-property',
-            'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND',
-            'sw-experience-studio.detail.mutationErrors.targetNotFound',
-        ],
-    ])('reports a failed %s request with %s and preserves the draft', async (operation, code, snippetKey) => {
+        'map-property',
+        'unmap-property',
+    ])('dispatches %s to its actual service method', async (operation) => {
+        const mapProperty = jest.fn().mockResolvedValue({});
+        const unmapProperty = jest.fn().mockResolvedValue({});
+        const payload = { elementId: 'element-1', propertyKey: 'media', rootSource: 'product', layout: [] };
+        const vm = {
+            draftMutationService: () => ({ mapProperty, unmapProperty }),
+            createDraftMutationPayload: jest.fn(() => payload),
+        };
+
+        await methods.requestDraftMutation.call(vm, operation, [], {});
+
+        expect(operation === 'map-property' ? mapProperty : unmapProperty).toHaveBeenCalledWith(payload);
+        expect(operation === 'map-property' ? unmapProperty : mapProperty).not.toHaveBeenCalled();
+    });
+
+    it('preserves the draft after a rejected mapping request', async () => {
+        const operation = 'map-property';
+        const code = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
+        const snippetKey = 'sw-experience-studio.detail.mappingMutationErrors.propertyAliasCollision';
         const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];
         const vm = {
             layout: { layout },

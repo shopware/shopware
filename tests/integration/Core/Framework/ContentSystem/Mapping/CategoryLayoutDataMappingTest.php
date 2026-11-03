@@ -94,14 +94,14 @@ class CategoryLayoutDataMappingTest extends TestCase
     public function testMappingShadowsTheAuthoredValueWithoutErasingIt(): void
     {
         $this->createCategory();
-        $element = $this->textElement(mappedTo: 'category.name');
-        $element['properties']['text'] = 'Authored copy {{map:category.name}}';
+        $element = $this->textElement(mappedTo: null, text: 'Authored copy {{map:category.name}}');
         $this->persistLayout($element);
 
         $stored = $this->rawStoredRoots()[0]['slots']['content'][0];
 
         static::assertSame('Authored copy {{map:category.name}}', $stored['properties']['text']);
         static::assertArrayNotHasKey('acceptsContext', $stored);
+        static::assertSame('Authored copy ' . self::CATEGORY_NAME, $this->servedText());
     }
 
     #[TestDox('rejects a mapping onto a path the category catalogue does not offer')]
@@ -250,12 +250,12 @@ class CategoryLayoutDataMappingTest extends TestCase
      *
      * @return array<string, mixed>
      */
-    private function textElement(?string $mappedTo): array
+    private function textElement(?string $mappedTo, ?string $text = null): array
     {
         $element = [
             'id' => $this->ids->create('text'),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => $mappedTo === null ? self::AUTHORED_TEXT : '{{map:' . $mappedTo . '}}'],
+            'properties' => ['text' => $text ?? ($mappedTo === null ? self::AUTHORED_TEXT : '{{map:' . $mappedTo . '}}')],
         ];
 
         return $element;

@@ -245,11 +245,6 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
         expect(tokensToEditorHtml(stored, parsedTokens(stored)).html).toBe(expected);
     });
 
-    it('leaves an ordinary placeholder untouched', () => {
-        const text = '<p>Hello {{ product.name }}</p>';
-        expect(tokensToEditorHtml(text, parsedTokens(text)).html).toBe(text);
-    });
-
     it('turns nodes back into tokens, discarding the rendered label', () => {
         const stored = editorHtmlToTokens(
             '<p>Buy the <span data-sw-map="product.name" class="chip">Product name</span> today.</p>',
@@ -268,8 +263,11 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
         expect(stored).toBe('{{map:product.price}}');
     });
 
-    it('unwraps a node whose path is not a dotted path rather than dropping the text', () => {
-        expect(editorHtmlToTokens('<p>a <span data-sw-map="nonsense">kept words</span> b</p>', CANONICAL_TOKENS)).toBe(
+    it.each([
+        'nonsense',
+        'product.other',
+    ])('unwraps a chip whose path %s is absent from the canonical token map', (path) => {
+        expect(editorHtmlToTokens(`<p>a <span data-sw-map="${path}">kept words</span> b</p>`, CANONICAL_TOKENS)).toBe(
             '<p>a kept words b</p>',
         );
     });

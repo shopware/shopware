@@ -123,9 +123,9 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             methods.getFieldViolation.call(
                 {
                     violations: [
+                        { code: 'invalid_mapping', severity: 'error', key: 'media' },
                         warning,
                         error,
-                        { code: 'invalid_mapping', severity: 'error', key: 'media' },
                     ],
                 },
                 { key: 'text' },

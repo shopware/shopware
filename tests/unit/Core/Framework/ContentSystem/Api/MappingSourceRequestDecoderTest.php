@@ -27,7 +27,7 @@ class MappingSourceRequestDecoderTest extends TestCase
     /**
      * @param array<string, mixed> $source
      */
-    #[DataProvider('malformedSources')]
+    #[DataProvider('malformedSourceProvider')]
     public function testMalformedSourceIsAClientError(array $source): void
     {
         try {
@@ -36,13 +36,15 @@ class MappingSourceRequestDecoderTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_MAPPING_SOURCE, $exception->getErrorCode());
             static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+            static::assertInstanceOf(ContentSystemException::class, $exception->getPrevious());
+            static::assertSame(ContentSystemException::INVALID_FIELD_VALUE_TYPE, $exception->getPrevious()->getErrorCode());
         }
     }
 
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function malformedSources(): iterable
+    public static function malformedSourceProvider(): iterable
     {
         yield 'missing type' => [['id' => 'product']];
         yield 'missing id' => [['type' => 'root']];

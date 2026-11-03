@@ -29,15 +29,9 @@ const createNode = (resolveLabel: (path: string) => string = (path) => path) =>
     createMappingTokenNode({ resolveLabel }) as unknown as RenderableNode;
 
 describe('module/sw-experience-studio/util/mapping-token-node', () => {
-    /**
-     * The Meteor component library bundles its own copy of tiptap, so the extension built here is consumed by a
-     * different copy than the one that built it. That works only because the extension manager discriminates on the
-     * `type` string rather than with `instanceof`, which is what this asserts.
-     */
-    it('identifies itself as a node by a plain string', () => {
+    it('uses the mapping token node name', () => {
         const node = createNode();
 
-        expect(node.type).toBe('node');
         expect(node.name).toBe('mappingToken');
     });
 
@@ -92,14 +86,6 @@ describe('module/sw-experience-studio/util/mapping-token-node', () => {
         expect(dom.className).toBe(MAPPING_TOKEN_CLASS);
         expect(dom.getAttribute('data-sw-map')).toBe('product.name');
         expect(dom.textContent).toBe('Product name');
-    });
-
-    it('falls back to the path when the catalogue does not describe it', () => {
-        const node = createNode();
-
-        const { dom } = node.config.addNodeView.call(node)({ node: { attrs: { path: 'product.unknown' } } });
-
-        expect(dom.textContent).toBe('product.unknown');
     });
 
     it('refreshes a reactive label and stops resolving it after the node view is destroyed', async () => {

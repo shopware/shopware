@@ -104,6 +104,9 @@ class StoredTreePreparerTest extends TestCase
         $token = $result->inlineMappings->tokensFor('root-id', 'text')[0];
         static::assertSame(9, $token->offset);
         static::assertSame('{{map:product.name}}', $token->match);
+        static::assertSame('product.name', $token->path);
+        static::assertFalse($token->insideMarkup);
+        static::assertFalse($token->malformed);
     }
 
     public function testPrepareShiftsMultipleTokensPastALongerPlaceholderReplacement(): void
@@ -139,7 +142,12 @@ class StoredTreePreparerTest extends TestCase
             ->withProperty('text', '{{map:product.name}} / {{query}}')
             ->build();
 
-        $prepared = $this->prepare([$element], ['query' => '{{map:product.name}}']);
+        $result = $this->preparer()->prepare([$element], $this->specification(['query' => '{{map:product.name}}']), RenderingMode::FULL);
+        $prepared = $result->tree;
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'text');
+        static::assertCount(1, $tokens);
+        static::assertSame(0, $tokens[0]->offset);
+        static::assertSame('product.name', $tokens[0]->path);
 
         static::assertSame(
             '{{map:product.name}} / {{map:product.name}}',
@@ -154,12 +162,43 @@ class StoredTreePreparerTest extends TestCase
             ->withProperty('text', '{{query}}product.name}}')
             ->build();
 
-        $prepared = $this->prepare([$element], ['query' => '{{map:']);
+        $result = $this->preparer()->prepare([$element], $this->specification(['query' => '{{map:']), RenderingMode::FULL);
+        $prepared = $result->tree;
+        static::assertSame([], $result->inlineMappings->tokens);
 
         static::assertSame(
             '{{map:product.name}}',
             $prepared[0]->property('text')?->asString(),
         );
+    }
+
+    public function testCapturesInlineMetadataForNestedElements(): void
+    {
+        $child = StoredElementBuilder::create('text', 'nested')->withProperty('text', 'Hi {{name}} {{map:product.name}}')->build();
+        $parent = StoredElementBuilder::create('section', 'parent')->withSlot('content', [$child])->build();
+        $result = $this->preparer()->prepare([$parent], $this->specification(['name' => 'X']), RenderingMode::FULL);
+        $tokens = $result->inlineMappings->tokensFor('nested', 'text');
+        static::assertCount(1, $tokens);
+        static::assertSame('product.name', $tokens[0]->path);
+        static::assertSame(5, $tokens[0]->offset);
+        static::assertSame([], $result->inlineMappings->tokensFor('parent', 'text'));
+    }
+
+    public function testRebuiltTokenMetadataPreservesMarkupAndMalformedFlags(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{prefix}} <a title="{{map:product.name}}">{{map:product}}</a>')->build();
+        $result = $this->preparer()->prepare([$element], $this->specification(['prefix' => 'Longer prefix replacement']), RenderingMode::FULL);
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'text');
+        static::assertCount(2, $tokens);
+        static::assertSame(['product.name', 'product'], array_column($tokens, 'path'));
+        static::assertSame([true, false], array_column($tokens, 'insideMarkup'));
+        static::assertSame([false, true], array_column($tokens, 'malformed'));
+        $text = $result->tree[0]->property('text')?->asString();
+        static::assertNotNull($text);
+        foreach ($tokens as $token) {
+            static::assertSame($token->match, substr($text, $token->offset, \strlen($token->match)));
+        }
     }
 
     #[TestDox('substitutes tokens in slot children at every depth')]
@@ -377,7 +416,7 @@ class StoredTreePreparerTest extends TestCase
     {
         yield 'no declared value matches it' => ['Category {{categoryId}}', ['productId' => 'prod-1']];
         yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
-        yield 'mapping syntax without a dotted path remains literal' => ['{{map:product}}', []];
+        yield 'a lone unresolved token containing a colon stays verbatim' => ['{{map:product}}', []];
     }
 
     #[TestDox('collapses a lone unresolved token to null')]
@@ -497,6 +536,7 @@ class StoredTreePreparerTest extends TestCase
     }
 
     #[DataProvider('literalPropertyProvider')]
+    #[TestDox('preserves oversized literal text for $_dataName')]
     public function testPreparePreservesOversizedMappingLookingLiteralText(string $component, string $property): void
     {
         $prefix = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES);
@@ -553,6 +593,7 @@ class StoredTreePreparerTest extends TestCase
     }
 
     #[DataProvider('reservedMappingPlaceholderProvider')]
+    #[TestDox('keeps a reserved mapping name unsubstituted for a $_dataName')]
     public function testPrepareDoesNotSubstituteReservedMappingNamesInLiteralProperties(string $key): void
     {
         $literal = '{{' . $key . '}}';

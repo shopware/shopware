@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCacheTags;
@@ -91,7 +92,8 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         yield 'plugin-owned source' => ['product', 'AcmePlugin:product.customFields.material', false];
     }
 
-    public function testOffersConfiguredScalarCustomFieldsForEveryRootSource(): void
+    #[DataProvider('supportedRootSourceProvider')]
+    public function testOffersConfiguredScalarCustomFieldsForEveryRootSource(string $rootSource): void
     {
         $material = $this->customField('material', CustomFieldTypes::TEXT, [
             'label' => ['en-GB' => 'Material', 'de-DE' => 'Material'],
@@ -100,16 +102,20 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $weight = $this->customField('weight', CustomFieldTypes::FLOAT);
 
         $provider = new CustomFieldMappingCandidateProvider(
-            new StaticEntityRepository([new CustomFieldCollection([$material, $weight])]),
+            StaticEntityRepository::of(CustomFieldCollection::class, [static function (Criteria $criteria) use ($rootSource, $material, $weight): CustomFieldCollection {
+                static::assertEqualsCanonicalizing([new EqualsFilter('active', true), new EqualsFilter('storeApiAware', true), new EqualsFilter('customFieldSet.active', true), new EqualsFilter('customFieldSet.relations.entityName', $rootSource)], array_values($criteria->getFilters()));
+
+                return new CustomFieldCollection([$material, $weight]);
+            }]),
             new TagAwareAdapter(new ArrayAdapter()),
         );
 
-        static::assertTrue($provider->supports('product'));
+        static::assertTrue($provider->supports($rootSource));
 
-        $candidates = $provider->provide('product');
+        $candidates = $provider->provide($rootSource);
 
         static::assertSame(
-            ['product.customFields.material', 'product.customFields.weight'],
+            [$rootSource . '.customFields.material', $rootSource . '.customFields.weight'],
             array_column($candidates, 'path')
         );
         static::assertSame('customFields', $candidates[0]->group);
@@ -117,6 +123,16 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         static::assertSame(['en-GB' => 'Material', 'de-DE' => 'Material'], $candidates[0]->labelTranslations);
         static::assertSame(['en-GB' => 'The product material'], $candidates[0]->descriptionTranslations);
         static::assertSame('number', $candidates[1]->valueType);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function supportedRootSourceProvider(): iterable
+    {
+        yield 'product root' => ['product'];
+        yield 'category root' => ['category'];
+        yield 'landing page root' => ['landing_page'];
     }
 
     public function testPagesThroughBoundedSearchesWithoutTruncatingTheCandidateCatalogue(): void

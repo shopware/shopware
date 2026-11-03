@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import type { Component, ComponentPublicInstance } from 'vue';
+import type { Component } from 'vue';
 import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import inlineTextFieldComponent from './index';
 
@@ -81,28 +81,32 @@ describe('Experience Studio inline text parse feedback', () => {
     const getEditor = (): TextEditor =>
         wrapper!.findComponent({ name: 'mt-text-editor-toolbar' }).props('editor') as TextEditor;
 
-    it('shows initial loading and a translated error with Retry without emitting or opening an unparsed editor', async () => {
+    it('shows loading without opening an unparsed editor', () => {
         const field = mountField();
         expect(field.find('[role="status"]').text()).toContain('mapping.loadingText');
         expect(field.findComponent({ name: 'mt-text-editor' }).exists()).toBe(false);
+        expect(field.emitted('update:value')).toBeUndefined();
+    });
 
+    it('shows a translated failure and Retry without changing the authored value', async () => {
+        const field = mountField();
         await rejectParse(0);
-
         expect(field.find('[role="status"]').exists()).toBe(false);
         expect(field.find('[role="alert"]').text()).toContain('mapping.parseError');
         expect(field.find('[role="alert"] button').text()).toContain('mapping.retryAction');
         expect(field.findComponent({ name: 'mt-text-editor' }).exists()).toBe(false);
         expect(field.emitted('update:value')).toBeUndefined();
         expect((field.props() as { value: string }).value).toBe(value);
+    });
 
+    it('recovers the parsed editor after Retry', async () => {
+        const field = mountField();
+        await rejectParse(0);
         await field.find('[role="alert"] button').trigger('click');
         expect(requests[1].value).toBe(value);
-        expect(field.find('[role="status"]').exists()).toBe(true);
         await resolveParse(1, tokens);
-
         expect(field.find('[role="alert"]').exists()).toBe(false);
         expect(field.find('.sw-experience-studio-mapping-token').text()).toBe('category.description');
-        expect(field.find('.mt-text-editor__gate').exists()).toBe(false);
         expect(field.emitted('update:value')).toBeUndefined();
     });
 
@@ -183,7 +187,6 @@ describe('Experience Studio inline text parse feedback', () => {
     it('blocks stale edits immediately after undo and keeps the restored value on parse failure', async () => {
         const field = mountField();
         await resolveParse(0, tokens);
-        const oldEditor = field.findComponent({ name: 'mt-text-editor' });
         const editor = getEditor();
         editor.commands.insertContent('Local edit');
         const emittedCount = field.emitted('update:value')!.length;
@@ -192,7 +195,7 @@ describe('Experience Studio inline text parse feedback', () => {
         await field.setProps({ value: restoredValue });
         expect(requests[1].value).toBe(restoredValue);
         expect(field.findComponent({ name: 'mt-text-editor' }).exists()).toBe(false);
-        (oldEditor.vm as ComponentPublicInstance).$emit('update:modelValue', '<p>Stale typing</p>');
+        (field.vm as unknown as { onUpdateEditorHtml: (html: string) => void }).onUpdateEditorHtml('<p>Stale typing</p>');
         expect(field.emitted('update:value')).toHaveLength(emittedCount);
         jest.advanceTimersByTime(800);
         expect(requests).toHaveLength(2);

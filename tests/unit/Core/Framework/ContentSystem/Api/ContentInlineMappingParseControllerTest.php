@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseRequest;
@@ -34,36 +35,36 @@ class ContentInlineMappingParseControllerTest extends TestCase
         }
     }
 
-    public function testReturnsServerParsedTokenSpansAndEchoesTheRevision(): void
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('parseResponseProvider')]
+    public function testReturnsParsedTokensAndEchoesTheRevision(string $text, int $revision, array $expected): void
     {
         $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-
-        $response = $controller->parse(new ContentInlineMappingParseRequest(
-            '<p>🙂 Buy {{ map:product.name }}.</p>',
-            17,
-        ));
-
+        $response = $controller->parse(new ContentInlineMappingParseRequest($text, $revision));
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame([
-            'revision' => 17,
-            'tokens' => [[
-                'path' => 'product.name',
-                'match' => '{{ map:product.name }}',
-                'canonicalToken' => '{{map:product.name}}',
-                'offset' => 12,
-                'insideMarkup' => false,
-                'malformed' => false,
-            ]],
-        ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
+        static::assertSame($expected, json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
     }
 
-    public function testForwardsTheInsideMarkupFlagForAttributeTokens(): void
+    /**
+     * @return iterable<string, array{string, int, array<string, mixed>}>
+     */
+    public static function parseResponseProvider(): iterable
     {
-        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-
-        $response = $controller->parse(new ContentInlineMappingParseRequest('<a title="{{ map:product.name }}">', 6));
-
-        static::assertSame([
+        yield 'ReturnsServerParsedTokenSpansAndEchoesTheRevision' => ['<p>🙂 Buy {{ map:product.name }}.</p>',
+            17, [
+                'revision' => 17,
+                'tokens' => [[
+                    'path' => 'product.name',
+                    'match' => '{{ map:product.name }}',
+                    'canonicalToken' => '{{map:product.name}}',
+                    'offset' => 12,
+                    'insideMarkup' => false,
+                    'malformed' => false,
+                ]],
+            ]];
+        yield 'ForwardsTheInsideMarkupFlagForAttributeTokens' => ['<a title="{{ map:product.name }}">', 6, [
             'revision' => 6,
             'tokens' => [[
                 'path' => 'product.name',
@@ -73,16 +74,8 @@ class ContentInlineMappingParseControllerTest extends TestCase
                 'insideMarkup' => true,
                 'malformed' => false,
             ]],
-        ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
-    }
-
-    public function testMarksMalformedMappingMarkersForTheEditorToLeaveAsText(): void
-    {
-        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-
-        $response = $controller->parse(new ContentInlineMappingParseRequest('Buy {{map:product}} today', 4));
-
-        static::assertSame([
+        ]];
+        yield 'MarksMalformedMappingMarkersForTheEditorToLeaveAsText' => ['Buy {{map:product}} today', 4, [
             'revision' => 4,
             'tokens' => [[
                 'path' => 'product',
@@ -92,16 +85,8 @@ class ContentInlineMappingParseControllerTest extends TestCase
                 'insideMarkup' => false,
                 'malformed' => true,
             ]],
-        ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
-    }
-
-    public function testMarksMarkupBearingPathAsMalformed(): void
-    {
-        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-
-        $response = $controller->parse(new ContentInlineMappingParseRequest('{{map:x" onmouseover="alert(1)}}', 5));
-
-        static::assertSame([
+        ]];
+        yield 'MarksMarkupBearingPathAsMalformed' => ['{{map:x" onmouseover="alert(1)}}', 5, [
             'revision' => 5,
             'tokens' => [[
                 'path' => 'x" onmouseover="alert(1)',
@@ -111,6 +96,6 @@ class ContentInlineMappingParseControllerTest extends TestCase
                 'insideMarkup' => false,
                 'malformed' => true,
             ]],
-        ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
+        ]];
     }
 }

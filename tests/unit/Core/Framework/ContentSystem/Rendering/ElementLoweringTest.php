@@ -35,6 +35,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
@@ -42,9 +43,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
@@ -60,6 +59,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\MappingTestFactory;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
@@ -253,69 +253,79 @@ class ElementLoweringTest extends TestCase
     /**
      * @param array<string, mixed> $expectedWholeField
      */
+    /**
+     * @param array<string, mixed> $expectedWholeField
+     */
     #[DataProvider('mappingOutputProvider')]
-    public function testWholeFieldAndInlineMappingKeepTheirOutputRules(
-        MappingSourceResolution $resolution,
-        bool $available,
-        string $valueType,
-        string $component,
-        string|int|float|bool $fallback,
-        array $expectedWholeField,
-        string $expectedInline,
-    ): void {
-        $path = match ($valueType) {
-            'boolean' => 'product.active',
-            'integer' => 'product.stock',
-            'number' => 'product.price',
-            default => 'product.name',
-        };
+    public function testWholeFieldMappingOutput(MappingSourceResolution $resolution, string $path, string $valueType, string $component, string|int|float|bool $fallback, array $expectedWholeField, string $_expectedInline): void
+    {
         $source = MappingSourceReference::fromRootPath($path);
         $candidate = new MappingCandidate($path, 'Value', '', 'basic', $valueType, source: $source);
         $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidates->method('forRootSource')->willReturn($available ? [$path => $candidate] : []);
-        $candidates->expects($available ? $this->exactly(2) : $this->never())->method('resolveSource')->willReturn($resolution);
-        $wholeField = StoredElementBuilder::create($component, 'mapped-1')
-            ->withProperty('text', $fallback)
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
-            ->build();
-        $text = 'Hi {{map:' . $path . '}}!';
-        $inline = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
-        $loader = $this->loader();
-        $loader->expects($this->never())->method('load');
+        $candidates->method('forRootSource')->willReturn([$path => $candidate]);
+        $candidates->expects($this->once())->method('resolveSource')->willReturn($resolution);
+        $element = StoredElementBuilder::create($component, 'mapped-1')->withProperty('text', $fallback)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)->build();
 
-        $result = $this->lowering($loader, candidates: $candidates)->lower(
-            [$wholeField, $inline],
-            RenderingMode::FULL,
-            Generator::generateSalesChannelContext(),
-            new Request(),
-            new RenderingCacheContext(),
-            [],
-            virtualRoot: null,
-            rootSource: 'product',
-            inlineMappings: new InlineMappingMetadata([
-                'inline-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
-            ]),
-        );
+        $properties = $this->lowerMappingFixture($element, $candidates);
 
-        static::assertSame($expectedWholeField, $result->tree[0]->properties);
-        static::assertSame(['text' => $expectedInline], $result->tree[1]->properties);
+        static::assertSame($expectedWholeField, $properties);
     }
 
     /**
-     * @return iterable<string, array{MappingSourceResolution, bool, string, string, string|int|float|bool, array<string, mixed>, string}>
+     * @param array<string, mixed> $_expectedWholeField
+     */
+    #[DataProvider('mappingOutputProvider')]
+    public function testInlineMappingOutput(MappingSourceResolution $resolution, string $path, string $valueType, string $_component, string|int|float|bool $_fallback, array $_expectedWholeField, string $expectedInline): void
+    {
+        $candidate = new MappingCandidate($path, 'Value', '', 'basic', $valueType);
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([$path => $candidate]);
+        $candidates->expects($this->once())->method('resolveSource')->willReturn($resolution);
+        $text = 'Hi {{map:' . $path . '}}!';
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
+
+        $properties = $this->lowerMappingFixture($element, $candidates, ['inline-1' => ['text' => (new InlineMappingTokenParser())->parse($text)]]);
+
+        static::assertSame(['text' => $expectedInline], $properties);
+    }
+
+    public function testWithdrawnWholeFieldMappingIsOmittedWithoutResolvingTheSource(): void
+    {
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([]);
+        $candidates->expects($this->never())->method('resolveSource');
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'mapped-1')->withProperty('text', 'Fallback')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))->build();
+
+        static::assertSame([], $this->lowerMappingFixture($element, $candidates));
+    }
+
+    public function testWithdrawnInlineMappingIsOmittedWithoutResolvingTheSource(): void
+    {
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([]);
+        $candidates->expects($this->never())->method('resolveSource');
+        $text = 'Hi {{map:product.name}}!';
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
+
+        static::assertSame(['text' => 'Hi !'], $this->lowerMappingFixture($element, $candidates, ['inline-1' => ['text' => (new InlineMappingTokenParser())->parse($text)]]));
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceResolution, string, string, string, string|int|float|bool, array<string, mixed>, string}>
      */
     public static function mappingOutputProvider(): iterable
     {
-        yield 'value' => [MappingSourceResolution::resolved('Shirt'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Shirt'], 'Hi Shirt!'];
-        yield 'missing value' => [MappingSourceResolution::noValue(), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
-        yield 'empty string' => [MappingSourceResolution::resolved(''), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
-        yield 'explicit null' => [MappingSourceResolution::resolved(null), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => null], 'Hi !'];
-        yield 'incompatible runtime value' => [MappingSourceResolution::resolved(42), true, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
-        yield 'withdrawn candidate' => [MappingSourceResolution::resolved('Shirt'), false, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
-        yield 'false is a value' => [MappingSourceResolution::resolved(false), true, 'boolean', 'Sw:MappedBoolean', true, ['text' => false], 'Hi 0!'];
-        yield 'integer zero is a value' => [MappingSourceResolution::resolved(0), true, 'integer', 'Sw:MappedInteger', 7, ['text' => 0], 'Hi 0!'];
-        yield 'number zero is a value' => [MappingSourceResolution::resolved(0.0), true, 'number', 'Sw:MappedNumber', 1.0, ['text' => 0.0], 'Hi 0!'];
-        yield 'inline escaping' => [MappingSourceResolution::resolved('<b>&"'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => '<b>&"'], 'Hi &lt;b&gt;&amp;&quot;!'];
+        yield 'value' => [MappingSourceResolution::resolved('Shirt'), 'product.name', 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Shirt'], 'Hi Shirt!'];
+        yield 'missing value' => [MappingSourceResolution::noValue(), 'product.name', 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
+        yield 'empty string' => [MappingSourceResolution::resolved(''), 'product.name', 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
+        yield 'explicit null' => [MappingSourceResolution::resolved(null), 'product.name', 'string', 'Sw:Content:Text', 'Fallback', ['text' => null], 'Hi !'];
+        yield 'incompatible runtime value' => [MappingSourceResolution::resolved(42), 'product.name', 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
+        yield 'false is a value' => [MappingSourceResolution::resolved(false), 'product.active', 'boolean', 'Sw:MappedBoolean', true, ['text' => false], 'Hi 0!'];
+        yield 'integer zero is a value' => [MappingSourceResolution::resolved(0), 'product.stock', 'integer', 'Sw:MappedInteger', 7, ['text' => 0], 'Hi 0!'];
+        yield 'number zero is a value' => [MappingSourceResolution::resolved(0.0), 'product.price', 'number', 'Sw:MappedNumber', 1.0, ['text' => 0.0], 'Hi 0!'];
+        yield 'inline escaping' => [MappingSourceResolution::resolved('<b>&"'), 'product.name', 'string', 'Sw:Content:Text', 'Fallback', ['text' => '<b>&"'], 'Hi &lt;b&gt;&amp;&quot;!'];
     }
 
     public function testUnknownInlineSourceDoesNotLoadDataOrDisableCaching(): void
@@ -777,6 +787,30 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
+     * @param array<string, array<string, list<InlineMappingToken>>> $metadata
+     *
+     * @return array<string, mixed>
+     */
+    private function lowerMappingFixture(StoredElement $element, AbstractContentSystemMappingCandidateRegistry $candidates, array $metadata = []): array
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+        $result = $this->lowering($loader, candidates: $candidates)->lower(
+            [$element],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            new RenderingCacheContext(),
+            [],
+            virtualRoot: null,
+            rootSource: 'product',
+            inlineMappings: new InlineMappingMetadata($metadata),
+        );
+
+        return $result->tree[0]->properties;
+    }
+
+    /**
      * The page-level requirements are what the pipeline supplies from the rendering specification, and the
      * wrapper is the element their loader inputs dereference against. A run with no page-level data passes
      * the empty list and no wrapper, which is what a layout without page-level requirements produces.
@@ -860,13 +894,7 @@ class ElementLoweringTest extends TestCase
             $candidates->method('forRootSource')->willReturn([]);
         }
         $parser = new InlineMappingTokenParser();
-        $mappingInspector = new StoredMappingInspector(
-            $types,
-            $candidates,
-            new MappingTypeCompatibility(),
-            new MappingConsumers(),
-            $parser,
-        );
+        $mappingInspector = MappingTestFactory::inspector($types, $candidates, $parser);
 
         return new ElementLowering(
             new ElementDataResolver(
@@ -901,13 +929,7 @@ class ElementLoweringTest extends TestCase
     private function inlineMappingExpander(AbstractContentSystemMappingCandidateRegistry $candidates): InlineMappingExpander
     {
         $parser = new InlineMappingTokenParser();
-        $mappingInspector = new StoredMappingInspector(
-            $this->typeRegistry(),
-            $candidates,
-            new MappingTypeCompatibility(),
-            new MappingConsumers(),
-            $parser,
-        );
+        $mappingInspector = MappingTestFactory::inspector($this->typeRegistry(), $candidates, $parser);
 
         return new InlineMappingExpander(
             $mappingInspector,

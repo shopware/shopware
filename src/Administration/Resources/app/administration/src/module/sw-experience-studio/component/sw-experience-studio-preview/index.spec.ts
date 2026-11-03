@@ -4,6 +4,12 @@ import previewComponent from './index';
 describe('module/sw-experience-studio/component/sw-experience-studio-preview', () => {
     const methods = (previewComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
 
+    const messageHandlers: EventListener[] = [];
+    afterEach(() => {
+        messageHandlers.forEach((handler) => window.removeEventListener('message', handler));
+        messageHandlers.length = 0;
+    });
+
     it('schedules a debounced reload', () => {
         const debouncedLoadPreview = jest.fn();
 
@@ -24,10 +30,8 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
         };
 
         (previewComponent as unknown as { created: () => void }).created.call(vm);
+        messageHandlers.push(vm.previewMessageHandler as EventListener);
         expect(debounceSpy).toHaveBeenCalledWith(expect.any(Function), 800);
-
-        window.removeEventListener('message', vm.previewMessageHandler as EventListener);
-        debounceSpy.mockRestore();
     });
 
     it('relays element selection but ignores inline edit messages from the preview', () => {
@@ -42,6 +46,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
         };
 
         created.call(vm);
+        messageHandlers.push(vm.previewMessageHandler as EventListener);
 
         const dispatch = (data: unknown) => {
             vm.previewMessageHandler?.({ data } as MessageEvent);
@@ -58,8 +63,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
 
         expect(emit).toHaveBeenCalledTimes(1);
         expect(emit).toHaveBeenCalledWith('select-element', 'element-1');
-
-        window.removeEventListener('message', vm.previewMessageHandler as EventListener);
     });
 
     it('validates preview origin and source frame', () => {

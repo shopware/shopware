@@ -23,14 +23,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Ke
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -42,6 +39,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\MappingTestFactory;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
@@ -734,6 +732,7 @@ class ContextDeliveryResolverTest extends TestCase
         $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), candidatePaths: []);
 
         static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame([], $index->all()['child-1']->mappingFallbackKeys);
     }
 
     #[TestDox('omits a mapping whose live candidate declares a different effective value type')]
@@ -741,9 +740,17 @@ class ContextDeliveryResolverTest extends TestCase
     {
         $child = $this->mappedChild();
 
-        $index = $this->resolve($child, new StubContextStruct('page-cover'), candidateValueType: 'boolean');
+        $index = $this->resolve($child, new StubContextStruct('page-cover'), candidateValueType: 'boolean', propertyValueType: 'string');
 
         static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame([], $index->all()['child-1']->mappingFallbackKeys);
+    }
+
+    public function testIncompatibleRuntimeValueOmitsMappingWithoutFallback(): void
+    {
+        $index = $this->resolve($this->mappedChild(), new StubContextStruct('page-cover'), candidateValueType: 'boolean');
+        static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame([], $index->all()['child-1']->mappingFallbackKeys);
     }
 
     #[TestDox('does not resolve a stored mapping whose target property is no longer mappable')]
@@ -905,7 +912,7 @@ class ContextDeliveryResolverTest extends TestCase
         'product.cover',
         'product.customFields.material',
         'product.child',
-    ], string $candidateValueType = 'string'): ContextDeliveryResolver
+    ], string $candidateValueType = 'string', ?string $propertyValueType = null): ContextDeliveryResolver
     {
         $candidates = [];
         foreach ($candidatePaths as $path) {
@@ -945,7 +952,7 @@ class ContextDeliveryResolverTest extends TestCase
             new ContextPathResolver(),
             new MappingRuntimeResolver(
                 $mappingSources,
-                $this->mappingInspector($mappingSources, $candidateValueType),
+                $this->mappingInspector($mappingSources, $propertyValueType ?? $candidateValueType),
             ),
         );
     }
@@ -975,7 +982,7 @@ class ContextDeliveryResolverTest extends TestCase
         $types->method('has')->willReturnCallback(static fn (string $name): bool => isset($specifications[$name]));
         $types->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specifications[$name]);
 
-        return new StoredMappingInspector($types, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser());
+        return MappingTestFactory::inspector($types, $candidates);
     }
 
     /**
@@ -988,13 +995,13 @@ class ContextDeliveryResolverTest extends TestCase
         'product.cover',
         'product.customFields.material',
         'product.child',
-    ], string $candidateValueType = 'string'): ContextDeliveryIndex
+    ], string $candidateValueType = 'string', ?string $propertyValueType = null): ContextDeliveryIndex
     {
         $root = StoredElementBuilder::create('Sw:Section', 'root-1')
             ->withSlot('main', [$child])
             ->build();
 
-        return $this->resolverWith($candidatePaths, $candidateValueType)
+        return $this->resolverWith($candidatePaths, $candidateValueType, $propertyValueType)
             ->resolve(
                 [$root],
                 [],

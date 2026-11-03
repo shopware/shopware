@@ -73,32 +73,46 @@ class RootSourceMutationSequenceTest extends TestCase
         ), $tree);
         $elementId = $inserted->affectedElementIds[0];
         $tree = $inserted->layout;
-        static::assertSame('product', $tree->rootSource);
+        static::assertSame('product', $tree->rootSource, 'after insert');
         static::assertSame('product', $tree->find($elementId)?->contextDefinitions->getAllConsumers()['product']->source?->displayName());
 
         $tree = static::getContainer()->get(StoredTreeStyleNormalizer::class)->normalize($tree);
         $tree = static::getContainer()->get(LayoutWriteBoundary::class)->apply($tree);
-        static::assertSame('product', $tree->rootSource);
+        static::assertSame('product', $tree->rootSource, 'after normalization/write boundary');
 
         $replaced = $this->mutateTree($this->replace($elementId), $tree);
         $tree = $replaced->layout;
-        static::assertSame('product', $tree->rootSource);
+        static::assertSame('product', $tree->rootSource, 'after replace');
         static::assertSame('product', $tree->find($elementId)?->contextDefinitions->getAllConsumers()['product']->source?->displayName());
         static::assertNotContains('product', $replaced->droppedWiring);
 
         $bound = $this->mutateTree(new BindElement($this->bindings, 'core:Sw:Product:Manufacturer', $elementId, $this->bindingApplicator), $tree);
-        static::assertSame('product', $bound->layout->rootSource);
+        static::assertSame('product', $bound->layout->rootSource, 'after bind');
         static::assertSame('core:Sw:Product:Manufacturer', $bound->layout->find($elementId)?->attributedSpecifications['product']);
-        $mapped = $this->mutateTree($this->mappingMutations->map($elementId, 'product', MappingSourceReference::root('product')), $bound->layout);
+        $beforeMap = $this->mutateTree($this->mappingMutations->unmap($elementId, 'product'), $bound->layout)->layout;
+        static::assertArrayNotHasKey('product', $beforeMap->find($elementId)?->contextDefinitions->getAllConsumers() ?? [], 'before map');
+        $mapped = $this->mutateTree($this->mappingMutations->map($elementId, 'product', MappingSourceReference::root('product')), $beforeMap);
+        static::assertSame('product', $mapped->layout->rootSource, 'after map');
+        $mappedElement = $mapped->layout->find($elementId);
+        static::assertNotNull($mappedElement, 'after map');
+        $consumer = $mappedElement->contextDefinitions->getAllConsumers()['product'];
+        static::assertSame('product', $consumer->source?->displayName(), 'after map');
+        static::assertSame(ContextType::Single, $consumer->type, 'after map');
+        static::assertSame(ConsumerScope::Root, $consumer->scope, 'after map');
         $duplicated = $this->mutateTree(new DuplicateElement($elementId), $mapped->layout);
+        static::assertSame('product', $duplicated->layout->rootSource, 'after duplicate');
         $copyId = $duplicated->affectedElementIds[0];
 
         $unmapped = $this->mutateTree($this->mappingMutations->unmap($elementId, 'product'), $duplicated->layout);
+        static::assertSame('product', $unmapped->layout->rootSource, 'after unmap');
         $moved = $this->mutateTree(new MoveElement($elementId), $unmapped->layout);
+        static::assertSame('product', $moved->layout->rootSource, 'after move');
         $tree = static::getContainer()->get(LayoutWriteBoundary::class)->apply($moved->layout);
 
-        static::assertSame('product', $tree->rootSource);
-        static::assertArrayNotHasKey('product', $tree->find($elementId)?->contextDefinitions->getAllConsumers() ?? []);
+        static::assertSame('product', $tree->rootSource, 'after final write boundary');
+        $original = $tree->find($elementId);
+        static::assertNotNull($original, 'original after final write boundary');
+        static::assertArrayNotHasKey('product', $original->contextDefinitions->getAllConsumers(), 'original remains unmapped after final write boundary');
         static::assertSame('product', $tree->find($copyId)?->contextDefinitions->getAllConsumers()['product']->source?->displayName());
     }
 

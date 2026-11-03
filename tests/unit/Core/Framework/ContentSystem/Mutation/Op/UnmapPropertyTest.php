@@ -9,6 +9,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -34,6 +36,7 @@ class UnmapPropertyTest extends TestCase
             source: MappingSourceReference::fromRootPath('product.name'),
         );
         $other = new ContextConsumer(ContextType::Single, required: false);
+        $provider = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
         $element = new StoredElement(
             'element-1',
             'Sw:Text',
@@ -42,7 +45,7 @@ class UnmapPropertyTest extends TestCase
                 'headline' => StoredValue::ofString('Headline fallback'),
             ],
             dataRequirements: ['selectedProduct' => new DataRequirement('selectedProduct', 'entity', new StubLoaderConfig())],
-            contextDefinitions: new ContextDefinitions(consumers: ['text' => $mapped, 'headline' => $other]),
+            contextDefinitions: new ContextDefinitions(providers: ['headline' => $provider], consumers: ['text' => $mapped, 'headline' => $other]),
         );
         $tree = new StoredTree([$element]);
 
@@ -52,6 +55,7 @@ class UnmapPropertyTest extends TestCase
         $consumers = $unmapped->roots[0]->contextDefinitions->getAllConsumers();
         static::assertArrayNotHasKey('text', $consumers);
         static::assertSame($other, $consumers['headline']);
+        static::assertSame(['headline' => $provider], $unmapped->roots[0]->contextDefinitions->getAllProviders());
         static::assertSame('Text fallback', $unmapped->roots[0]->property('text')?->asString());
         static::assertSame($element->dataRequirements, $unmapped->roots[0]->dataRequirements);
         static::assertSame(['element-1'], $mutation->affected());

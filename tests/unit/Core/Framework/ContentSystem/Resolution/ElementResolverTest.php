@@ -152,7 +152,7 @@ class ElementResolverTest extends TestCase
     public function testMirroredWiringDoesNotResolveAPrimitive(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withConsumer('productListing', ContextType::Single, propertyAlias: 'headline', scope: ConsumerScope::Root)
+            ->withConsumer('headline', ContextType::Single, propertyAlias: 'headline', scope: ConsumerScope::Root)
             ->build();
 
         $resolutions = $this->resolveElement(

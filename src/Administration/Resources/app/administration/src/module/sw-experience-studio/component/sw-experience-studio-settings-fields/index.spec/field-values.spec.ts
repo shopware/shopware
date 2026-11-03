@@ -6,6 +6,15 @@ const methods = (
     }
 ).methods;
 
+function makeEntityMultiSpecifications(isDefault: boolean) {
+    return {
+        productListing: {
+            default: isDefault,
+            resolves: { products: { loader: 'entity_collection', config: { property: 'productIds' } } },
+        },
+    };
+}
+
 describe('module/sw-experience-studio/component/sw-experience-studio-settings-fields field controls', () => {
     it('prefers declared options for select controls', () => {
         expect(
@@ -145,19 +154,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         };
         const vm = {
             selectedElementType: {
-                bindingSpecifications: {
-                    productListing: {
-                        default: true,
-                        resolves: {
-                            products: {
-                                loader: 'entity_collection',
-                                config: {
-                                    property: 'productIds',
-                                },
-                            },
-                        },
-                    },
-                },
+                bindingSpecifications: makeEntityMultiSpecifications(true),
             },
             values: {
                 products: [
@@ -191,19 +188,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             $emit,
             allowEdit: true,
             selectedElementType: {
-                bindingSpecifications: {
-                    productListing: {
-                        default: true,
-                        resolves: {
-                            products: {
-                                loader: 'entity_collection',
-                                config: {
-                                    property: 'productIds',
-                                },
-                            },
-                        },
-                    },
-                },
+                bindingSpecifications: makeEntityMultiSpecifications(true),
             },
             getEntityMultiCodec: methods.getEntityMultiCodec,
             onUpdateField: methods.onUpdateField,
@@ -223,14 +208,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         });
     });
 
-    it('forwards a mapping candidate retry request from the modal', () => {
-        const $emit = jest.fn();
-
-        methods.onRetryMappingCandidates.call({ $emit });
-
-        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
-    });
-
     it('resolves no codec for an entity-multi property matching neither stored shape', () => {
         const field = {
             key: 'products',
@@ -244,19 +221,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         };
         const vm = {
             selectedElementType: {
-                bindingSpecifications: {
-                    productListing: {
-                        default: false,
-                        resolves: {
-                            products: {
-                                loader: 'entity_collection',
-                                config: {
-                                    property: 'productIds',
-                                },
-                            },
-                        },
-                    },
-                },
+                bindingSpecifications: makeEntityMultiSpecifications(false),
             },
         };
 

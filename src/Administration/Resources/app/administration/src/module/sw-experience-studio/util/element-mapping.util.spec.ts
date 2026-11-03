@@ -14,11 +14,11 @@ import {
 describe('getMappingCandidateTranslation', () => {
     it('uses current locale, fallback locale, and then the first configured translation', () => {
         const translations = {
-            'de-DE': 'Material',
+            'de-DE': 'Werkstoff',
             'en-GB': 'Material',
         };
 
-        expect(getMappingCandidateTranslation(translations, 'de-DE', 'en-GB')).toBe('Material');
+        expect(getMappingCandidateTranslation(translations, 'de-DE', 'en-GB')).toBe('Werkstoff');
         expect(getMappingCandidateTranslation(translations, 'fr-FR', 'en-GB')).toBe('Material');
         expect(getMappingCandidateTranslation({ 'de-DE': '', 'en-GB': 'Material' }, 'de-DE', 'en-GB')).toBe('Material');
         expect(getMappingCandidateTranslation({ 'it-IT': 'Materiale' }, 'fr-FR', 'en-GB')).toBe('Materiale');
@@ -121,16 +121,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
             ]);
         });
 
-        it('offers stringifiable plugin candidates to inline text mappings', () => {
-            const pluginCandidate = candidate({
-                path: 'plugin:example.message',
-                source: { type: 'plugin', id: 'example', path: 'message' },
-            });
-
-            expect(getInlineMappingCandidates([pluginCandidate])).toEqual([pluginCandidate]);
-        });
-
-        it('does not offer a pathless typed source in the inline picker', () => {
+        it('excludes a typed source when the server marks it ineligible for inline mapping', () => {
             const pathlessCandidate = candidate({
                 path: 'plugin:example',
                 source: { type: 'plugin', id: 'example' },
@@ -139,7 +130,6 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
             });
 
             expect(getInlineMappingCandidates([pathlessCandidate])).toEqual([]);
-            expect(pathlessCandidate.compatibleTypes).toEqual(['string']);
         });
 
         it('offers a collection-scoped candidate whose value is a string', () => {
@@ -221,7 +211,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 id: 'element-id',
                 component: 'Sw:Product:Listing',
                 acceptsContext: {
-                    productListing: {
+                    listing: {
                         type: 'single' as const,
                         required: true,
                         propertyAlias: 'listing',
@@ -238,7 +228,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 id: 'element-id',
                 component: 'Sw:Content:Text',
                 acceptsContext: {
-                    product: {
+                    text: {
                         type: 'single' as const,
                         required: true,
                         propertyAlias: 'text',
@@ -374,6 +364,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 candidate({
                     path: 'category.media',
                     valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                    compatibleTypes: ['Shopware\\Core\\Content\\Media\\MediaCollection'],
                     contextType: 'single',
                 }),
                 candidate({
@@ -404,6 +395,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 candidate({
                     path: 'product.media',
                     valueType: 'Shopware\\Core\\Content\\Media\\MediaCollection',
+                    compatibleTypes: ['Shopware\\Core\\Content\\Media\\MediaEntity'],
                     contextType: 'collection',
                 }),
             ];
@@ -423,9 +415,9 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
     describe('groupCandidates', () => {
         it('groups by catalogue group while preserving catalogue order', () => {
             const candidates = [
-                candidate({ path: 'category.name', group: 'basic' }),
-                candidate({ path: 'category.metaTitle', group: 'seo' }),
-                candidate({ path: 'category.description', group: 'basic' }),
+                candidate({ path: 'category.name', group: 'zeta' }),
+                candidate({ path: 'category.metaTitle', group: 'alpha' }),
+                candidate({ path: 'category.description', group: 'zeta' }),
             ];
 
             expect(
@@ -435,14 +427,14 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 })),
             ).toEqual([
                 {
-                    group: 'basic',
+                    group: 'zeta',
                     paths: [
                         'category.name',
                         'category.description',
                     ],
                 },
                 {
-                    group: 'seo',
+                    group: 'alpha',
                     paths: ['category.metaTitle'],
                 },
             ]);

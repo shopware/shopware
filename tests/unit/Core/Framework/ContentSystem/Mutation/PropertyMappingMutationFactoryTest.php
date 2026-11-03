@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -28,7 +30,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(PropertyMappingMutationFactory::class)]
 class PropertyMappingMutationFactoryTest extends TestCase
 {
-    public function testBuildsMappingMutationsFromTheSuppliedSourceAndTarget(): void
+    public function testBuildsAMapMutationFromTheSuppliedSourceAndTarget(): void
     {
         $factory = $this->factory();
         $tree = new StoredTree([
@@ -47,12 +49,19 @@ class PropertyMappingMutationFactoryTest extends TestCase
 
         $tree = $mapped->apply($tree);
         static::assertSame('product.name', $tree->roots[0]->contextDefinitions->getAllConsumers()['text']->source?->displayName());
+    }
 
-        $unmapped = $factory->unmap('element-1', 'text');
+    public function testBuildsAnUnmapMutationFromTheSuppliedTarget(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('text', 'fallback')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))->build();
+        $tree = new StoredTree([$element], 'product');
 
-        $tree = $unmapped->apply($tree);
-        static::assertArrayNotHasKey('text', $tree->roots[0]->contextDefinitions->getAllConsumers());
-        static::assertSame('fallback', $tree->roots[0]->property('text')?->asString());
+        $result = $this->factory()->unmap('element-1', 'text')->apply($tree);
+
+        static::assertArrayNotHasKey('text', $result->roots[0]->contextDefinitions->getAllConsumers());
+        static::assertSame('fallback', $result->roots[0]->property('text')?->asString());
     }
 
     private function factory(): PropertyMappingMutationFactory

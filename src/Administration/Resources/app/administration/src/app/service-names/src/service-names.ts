@@ -623,6 +623,16 @@ export const snippetService = 'snippetService';
 export const snippetSetService = 'snippetSetService';
 
 /**
+ * The name the stateStyleDataProviderService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [stateStyleDataProviderService] };
+ *
+ * @public
+ */
+export const stateStyleDataProviderService = 'stateStyleDataProviderService';
+
+/**
  * The name the syncService service is registered and injected under.
  *
  * @example

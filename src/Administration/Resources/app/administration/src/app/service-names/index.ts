@@ -72,6 +72,7 @@ export {
     snackbarService,
     snippetService,
     snippetSetService,
+    stateStyleDataProviderService,
     syncService,
     systemConfigApiService,
     tagApiService,

@@ -1,12 +1,13 @@
 import template from './sw-dashboard-index.html.twig';
 import './sw-dashboard-index.scss';
+import { useSessionStore, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package after-sales
  *
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     data() {
@@ -48,7 +49,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         greetingName() {
-            const { currentUser } = Shopware.Store.get('session');
+            const { currentUser } = useSessionStore();
 
             // if currentUser?.firstName returns a loose falsy value
             // like `""`, `0`, `false`, `null`, `undefined`

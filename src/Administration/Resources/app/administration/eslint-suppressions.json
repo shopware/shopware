@@ -7003,7 +7003,7 @@
       "count": 1
     }
   },
-  "src/module/sw-dashboard/component/sw-dashboard-statistics/sw-dashboard-statistics.spec.js": {
+  "src/module/sw-dashboard/component/sw-dashboard-statistics/tests/sw-dashboard-statistics.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -7013,12 +7013,12 @@
       "count": 1
     }
   },
-  "src/module/sw-dashboard/page/sw-dashboard-index/index.js": {
+  "src/module/sw-dashboard/page/sw-dashboard-index/src/sw-dashboard-index.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-dashboard/page/sw-dashboard-index/sw-dashboard-index.spec.js": {
+  "src/module/sw-dashboard/page/sw-dashboard-index/tests/sw-dashboard-index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }

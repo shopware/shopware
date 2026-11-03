@@ -1,7 +1,19 @@
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
-
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    currency,
+    dateWithUserTimezone,
+    getAppContext,
+    getCurrencyFilter,
+    getDateFilter,
+    repositoryFactoryService,
+    stateStyleDataProviderService,
+    toISODate,
+    useSessionStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 type OrderEntity = Entity<'order'>;
 
@@ -50,11 +62,13 @@ interface ComponentData {
  * @sw-package after-sales
  *
  * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
+ *
+ * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory', 'stateStyleDataProviderService', 'acl'],
+    inject: [repositoryFactoryService, stateStyleDataProviderService, aclService],
 
     data(): ComponentData {
         return {
@@ -156,11 +170,7 @@ export default Shopware.Component.wrapComponentConfig({
                     labels: {
                         // price aggregations do not support currencies yet, see NEXT-5069
                         formatter: (value: string) =>
-                            Shopware.Utils.format.currency(
-                                Number.parseFloat(value),
-                                Shopware.Context.app.systemCurrencyISOCode as string,
-                                2,
-                            ),
+                            currency(Number.parseFloat(value), getAppContext().systemCurrencyISOCode as string, 2),
                     },
                 },
             };
@@ -246,7 +256,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         today() {
-            const today = Shopware.Utils.format.dateWithUserTimezone();
+            const today = dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
             return today;
         },
@@ -260,22 +270,22 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         systemCurrencyISOCode() {
-            return Shopware.Context.app.systemCurrencyISOCode;
+            return getAppContext().systemCurrencyISOCode;
         },
 
         isSessionLoaded() {
-            return !Shopware.Store.get('session')?.userPending;
+            return !useSessionStore()?.userPending;
         },
 
         currencyFilter() {
-            return Shopware.Filter.getByName('currency');
+            return getCurrencyFilter();
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 
@@ -357,7 +367,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const timezone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+            const timezone = useSessionStore().currentUser?.timeZone ?? 'UTC';
 
             return httpClient
                 .get<
@@ -406,7 +416,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         formatDateToISO(date: Date) {
-            return Shopware.Utils.format.toISODate(date, false);
+            return toISODate(date, false);
         },
 
         formatChartHeadlineDate(date: Date) {
@@ -502,7 +512,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getDateAgo(range: HistoryDateRange): Date {
-            const date = Shopware.Utils.format.dateWithUserTimezone();
+            const date = dateWithUserTimezone();
 
             if (range.interval === 'hour') {
                 date.setHours(date.getHours() - range.range);

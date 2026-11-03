@@ -160,8 +160,8 @@ export function rewriteMovedImports(
 
             const moved = movedPath(moves, target);
             const written = SCRIPT_EXTENSION.test(pathPart) ? moved : moved.replace(SCRIPT_EXTENSION, '');
-            if (isAlias) {
-                return moved === target ? statement : rewrite(`${written}${query}`);
+            if (isAlias || from === to) {
+                return moved === target ? statement : rewrite(`${isAlias ? written : importPath(to, written)}${query}`);
             }
 
             return rewrite(`${importPath(to, written)}${query}`);

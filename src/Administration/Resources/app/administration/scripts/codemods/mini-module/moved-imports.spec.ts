@@ -105,6 +105,20 @@ const load = (variant, name) => import(\`../../../../../../node_modules/kit/icon
         );
     });
 
+    it('leaves the paths of a file that stays in place as written, unless their target moved', () => {
+        // ARRANGE
+        const source = "import a from './../../core/a';\nimport template from './../../app/component/base/sw-icon/sw-icon.html.twig';\n";
+        const file = 'src/module/sw-x/sw-x.spec.js';
+
+        // ACT
+        const rewritten = rewriteMovedImports(source, { moves, from: file, to: file });
+
+        // ASSERT
+        expect(rewritten).toBe(
+            "import a from './../../core/a';\nimport template from '../../app/component/base/sw-icon/src/sw-icon.html.twig';\n",
+        );
+    });
+
     it('imports the private.ts of a private module for a bare import of its directory elsewhere, saying why', () => {
         // ARRANGE
         const source = `import 'src/app/component/base/sw-icon';

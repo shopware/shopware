@@ -19,6 +19,58 @@
         gap: var(--scale-size-8);
     }
 
+    &__edit-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-24);
+    }
+
+    &__name-input {
+        margin-bottom: 0;
+    }
+
+    &__file-label {
+        margin-bottom: var(--scale-size-8);
+    }
+
+    &__required {
+        color: var(--color-text-brand-default);
+    }
+
+    &__selected-file {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-12);
+        min-height: 5.5rem;
+        padding-right: var(--scale-size-16);
+        border: 1px dashed var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        background: var(--color-elevation-surface-sunken);
+    }
+
+    &__file-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 4.5rem;
+        height: 5.5rem;
+        border-right: 1px dashed var(--color-border-primary-default);
+        color: var(--color-icon-secondary-default);
+    }
+
+    &__file-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__remove-file {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
     .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
         height: var(--scale-size-48);
     }

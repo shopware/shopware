@@ -31,6 +31,11 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             editingDocument: null as ProductDocument | null,
+            documentTitle: '',
+            replacementMedia: null as Entity<'media'> | null,
+            documentFileRemoved: false,
+            isSavingDocument: false,
+            documentValidationSubmitted: false,
             uploadedMedia: {} as Record<string, Entity<'media'>>,
             // Use the epic defaults until the product-document configuration is exposed by the backend.
             allowedExtensions: [
@@ -77,6 +82,29 @@ export default Shopware.Component.wrapComponentConfig({
 
         isDefaultLanguage(): boolean {
             return Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
+        },
+
+        editingMedia(): Entity<'media'> | undefined {
+            return (
+                this.replacementMedia ||
+                (!this.documentFileRemoved && this.editingDocument ? this.getMedia(this.editingDocument) : undefined)
+            );
+        },
+
+        canSaveDocument(): boolean {
+            return this.canEdit && !this.isSavingDocument && !!this.documentTitle.trim() && !!this.editingMedia;
+        },
+
+        documentNameError(): { code: string; detail: string } | null {
+            return this.documentValidationSubmitted && !this.documentTitle.trim()
+                ? { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: this.$t('sw-product.documentForm.errorNameRequired') }
+                : null;
+        },
+
+        documentFileError(): { code: string; detail: string } | null {
+            return this.documentValidationSubmitted && !this.editingMedia
+                ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
+                : null;
         },
 
         documentColumns() {
@@ -247,6 +275,8 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 if (editingDocument) {
+                    this.replacementMedia = media;
+                    this.documentFileRemoved = false;
                     return;
                 }
 
@@ -274,6 +304,35 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.documents.moveItem(oldIndex, newIndex);
             this.updatePositions();
+        },
+
+        editDocument(document: ProductDocument): void {
+            if (!this.canChangeDocuments()) {
+                return;
+            }
+
+            this.editingDocument = document;
+            this.documentTitle = this.getTitle(document);
+            this.replacementMedia = null;
+            this.documentFileRemoved = false;
+            this.documentValidationSubmitted = false;
+        },
+
+        removeEditingFile(): void {
+            this.replacementMedia = null;
+            this.documentFileRemoved = true;
+        },
+
+        saveDocument(): void {
+            this.documentValidationSubmitted = true;
+            const media = this.editingMedia;
+            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument || !media) {
+                return;
+            }
+            this.editingDocument.mediaId = media.id;
+            this.editingDocument.title = this.documentTitle.trim();
+            this.uploadedMedia[media.id] = media;
+            this.editingDocument = null;
         },
 
         updatePositions(): void {

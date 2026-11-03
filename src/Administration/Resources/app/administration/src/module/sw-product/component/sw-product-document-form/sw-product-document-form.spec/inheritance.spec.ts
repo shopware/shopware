@@ -2,10 +2,11 @@
  * @sw-package inventory
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
+import type { ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, getDocuments } from './helpers';
+import { createWrapper, createMedia, clickButton, getDocuments } from './helpers';
 
 describe('sw-product-detail-base document inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -47,8 +48,9 @@ describe('sw-product-detail-base document inheritance', () => {
             .get('.sw-product-detail-base__documents .sw-inheritance-switch--is-inherited .mt-icon')
             .trigger('click');
         expect(getDocuments()?.[0].id).not.toBe(parentDocument.id);
-        getDocuments()![0].title = 'Variant manual';
-        await flushPromises();
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Variant manual');
+        await clickButton(wrapper, 'global.default.save');
         expect(parentDocument.title).toBe('Parent manual');
         expect(wrapper.text()).toContain('Variant manual');
 

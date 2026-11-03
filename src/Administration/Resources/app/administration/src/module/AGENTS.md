@@ -132,9 +132,16 @@ The parent mounts it with `defineAsyncComponent(SwExampleCard.load)` and types a
 Only the `src/` of the enclosing module may import its `private.ts`, without a disabled lint line; anything else fails the lint.
 It is never published to extensions and has no code owner of its own.
 
+A component registered by its name but marked `@private` becomes a private mini-module too, in its own directory:
+`private.ts` declares it with a named `definePrivateComponent()`, `register.ts` registers or extends it, and it has no `index.ts`.
+Its `global.d.ts` adds it to `PrivateComponents` instead of `PublicComponents`, so `Shopware.Component.override()` is typed inside the Administration.
+The extension type surface imports none of these, so for an extension the name stays untyped, and `plugin-rules/no-private-components` warns that an update can change or remove the component without deprecation.
+It is not published as `shopware:components/<name>` and has no code owner entry.
+
 `npm run codemod:mini-module -- <component directory>` does the mechanical part of moving an Options API component into a mini-module,
 whether it is registered, extends another component, or is imported by its parent.
 A component its parent imports moves nested into the parent's module; while the parent is no mini-module yet, the codemod skips it.
+A component whose registration is marked `@private` becomes a registered private module.
 It takes the code owner from what `.codeowners` already says about the directory, at the same level, and never guesses one.
 It prints a checklist of what is left for the sweep after it: `dependencies.ts`, contract tests, a missing code owner.
 

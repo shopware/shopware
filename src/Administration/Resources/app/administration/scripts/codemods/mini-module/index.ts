@@ -28,7 +28,7 @@ import {
     writeManifest,
     type Owner,
 } from '../../mini-module-owners/owners';
-import { renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
+import { isPrivateShape, renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
 
 const adminRoot = path.resolve(__dirname, '../../..');
 const relative = (file: string) => path.relative(adminRoot, file).split(path.sep).join('/');
@@ -265,8 +265,8 @@ const readShape = (componentDirectory: string, name: string): Reading | string =
     if (registration) {
         const shape: Shape =
             registration.registration.kind === 'extend'
-                ? { kind: 'extend', base: registration.registration.base }
-                : { kind: 'register' };
+                ? { kind: 'extend', base: registration.registration.base, isPrivate: registration.registration.isPrivate }
+                : { kind: 'register', isPrivate: registration.registration.isPrivate };
 
         return { shape, registration, importers: [] };
     }
@@ -335,7 +335,7 @@ function run(directory: string) {
     }
 
     const sourceFile = path.join(adminRoot, root, 'src', `${name}${path.extname(entry)}`);
-    const source = markExport(fs.readFileSync(sourceFile, 'utf8'), shape.kind === 'nested' ? '@private' : '@public');
+    const source = markExport(fs.readFileSync(sourceFile, 'utf8'), isPrivateShape(shape) ? '@private' : '@public');
     fs.writeFileSync(sourceFile, shape.kind === 'extend' ? dropBaseImport(source, shape.base) : source);
     keepTestsDirectory(moduleDirectory);
 
@@ -356,7 +356,7 @@ function run(directory: string) {
 
     const changed = registration ? [replaceRegistration(registration)] : importThroughPrivate(importers, root);
 
-    if (entryFiles['global.d.ts'] !== null) {
+    if (entryFiles['global.d.ts'] !== null && !isPrivateShape(shape)) {
         const miniModuleTypes = path.join(adminRoot, 'extension-tooling', 'mini-modules.d.ts');
         fs.writeFileSync(
             miniModuleTypes,
@@ -365,7 +365,7 @@ function run(directory: string) {
     }
 
     moveSuppressions(moves);
-    const owner = shape.kind === 'nested' ? null : addOwner(root);
+    const owner = isPrivateShape(shape) ? null : addOwner(root);
     execFileSync(path.join(adminRoot, 'node_modules', '.bin', 'prettier'), ['--write', ...written, ...changed], {
         cwd: adminRoot,
     });
@@ -424,11 +424,23 @@ const findLines = (directory: string, pattern: RegExp) =>
 
 /** What the sweep must know about how the component reaches the page, for the checklist. */
 const describeShape = (name: string, shape: Shape) => {
+    const privateNote =
+        shape.kind !== 'nested' && shape.isPrivate
+            ? `${name} is registered @private, so it is a private module: private.ts declares it with definePrivateComponent(),
+and global.d.ts adds it to PrivateComponents, which types Component.override() inside the Administration only.
+It is not published to extensions and has no code owner entry.
+`
+            : '';
+
     if (shape.kind === 'extend') {
         return `
-${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the public lists include what it inherits.
+${privateNote}${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the lists include what it inherits.
 TypeScript cannot check inherited names; the meta test src/meta/public-components.spec.js checks them against the base.
 `;
+    }
+
+    if (shape.kind === 'register' && shape.isPrivate) {
+        return `\n${privateNote}`;
     }
 
     if (shape.kind === 'nested') {
@@ -447,8 +459,8 @@ The parent now imports the declaration, so mount it lazily in its components unt
 
 /** What the sweep must do about the code owner, for the checklist. */
 const describeOwner = (root: string, shape: Shape, owner: Owner | null) =>
-    shape.kind === 'nested'
-        ? 'A nested module has no code owner of its own.'
+    isPrivateShape(shape)
+        ? 'A private module has no code owner entry: nothing outside the Administration relies on it.'
         : owner === null
           ? `.codeowners states no owner for ${root}, so the module is not in mini-module-owners.json.
    Ask which team owns it, add it there (a "? " in front keeps the team optional), and run composer admin:generate-mini-module-owners.`
@@ -461,11 +473,10 @@ function printSweepChecklist(root: string, name: string, api: ComponentApi, shap
         /Shopware\.|= Shopware;|inject:|getByName\(|(from|import) 'src\//,
     );
 
-    const entryFile = shape.kind === 'nested' ? 'private.ts' : 'index.ts';
-    const apiSpec =
-        shape.kind === 'nested'
-            ? 'If present, members only the parent reaches go into private-api.spec.ts, which may read them through wrapper.vm; each test names its member with @private-api.'
-            : 'If present, public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.';
+    const entryFile = isPrivateShape(shape) ? 'private.ts' : 'index.ts';
+    const apiSpec = isPrivateShape(shape)
+        ? 'If present, members only other Administration code reaches go into private-api.spec.ts, which may read them through wrapper.vm; each test names its member with @private-api.'
+        : 'If present, public members that no user path reaches go into public-api.spec.ts, which may read them through wrapper.vm; each test names its member with @public-api.';
 
     console.log(`# Sweep ${root}
 
@@ -498,7 +509,9 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
 5. ${
         shape.kind === 'nested'
             ? 'Jest knows no name for a nested component, so the harness mounts (await SwExample.load()).default from ../private.'
-            : `Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
+            : shape.isPrivate
+              ? 'Run npm run unit-setup, so Jest finds the moved component by its name.'
+              : `Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.
    Run npm run unit-setup, so Jest finds the moved component by its name.`
     }
    Then run eslint with --prune-suppressions on the module, tsc, and the module's tests: npm run unit:mini-module -- ${root} --contracts

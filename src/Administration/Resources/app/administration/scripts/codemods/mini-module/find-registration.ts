@@ -9,11 +9,13 @@ import ts from 'typescript';
  * How a component reaches the component registry today, and where in its file that happens.
  * `start` and `end` span the whole statement with its doc comment and line break, so cutting them out leaves no gap.
  * `specifier` is the path the lazy `import()` loads, as written.
+ * `isPrivate` tells whether the doc comment of the statement marks the component `@private`.
  */
 export type Registration = {
     start: number;
     end: number;
     specifier: string;
+    isPrivate: boolean;
 } & ({ kind: 'register' } | { kind: 'extend'; base: string });
 
 const CALLEES: Record<string, Registration['kind']> = {
@@ -55,7 +57,7 @@ const expressionStatements = (node: ts.Node): ts.ExpressionStatement[] =>
  *
  * @example
  * findRegistration("Shopware.Component.extend('sw-b', 'sw-a', () => import('./b'));\n", 'sw-b');
- * // → { kind: 'extend', base: 'sw-a', specifier: './b', start: 0, end: 63 }
+ * // → { kind: 'extend', base: 'sw-a', specifier: './b', isPrivate: false, start: 0, end: 63 }
  */
 export function findRegistration(code: string, name: string): Registration | null {
     const source = ts.createSourceFile('registration.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
@@ -79,9 +81,10 @@ export function findRegistration(code: string, name: string): Registration | nul
         }
 
         const range = statementRange(source, statement);
+        const isPrivate = /@private\b/.test(source.text.slice(range.start, statement.getStart(source)));
         return kind === 'extend'
-            ? { kind, base: (base as ts.StringLiteral).text, specifier, ...range }
-            : { kind, specifier, ...range };
+            ? { kind, base: (base as ts.StringLiteral).text, specifier, isPrivate, ...range }
+            : { kind, specifier, isPrivate, ...range };
     }
 
     return null;

@@ -32,36 +32,36 @@ class ProductDocumentFileSubscriber implements EventSubscriberInterface
 
     public function beforeWrite(EntityWriteEvent $event): void
     {
-        $defaultFiles = [];
-        $versionsWithoutFile = [];
+        $defaultMediaIds = [];
+        $versionsWithoutMedia = [];
         foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
             $primaryKey = $command->getPrimaryKey();
             $documentId = Uuid::fromBytesToHex($primaryKey['product_document_id']);
             $isDefaultVersion = Uuid::fromBytesToHex($primaryKey['language_id']) === Defaults::LANGUAGE_SYSTEM;
-            $fileId = $command->getPayload()['media_id'] ?? null;
+            $mediaId = $command->getPayload()['media_id'] ?? null;
 
-            if ($isDefaultVersion && \is_string($fileId)) {
-                $defaultFiles[$documentId] = $fileId;
+            if ($isDefaultVersion && \is_string($mediaId)) {
+                $defaultMediaIds[$documentId] = $mediaId;
             }
 
-            // new versions without a file, and versions whose file is removed
-            if (!$isDefaultVersion && $fileId === null && ($command instanceof InsertCommand || $command->hasField('media_id'))) {
-                $versionsWithoutFile[$documentId][] = $command;
+            // new versions without a file, and updates that remove the file (other updates don't carry media_id)
+            if (!$isDefaultVersion && $mediaId === null && ($command instanceof InsertCommand || $command->hasField('media_id'))) {
+                $versionsWithoutMedia[$documentId][] = $command;
             }
         }
 
-        $documentIds = array_keys(array_diff_key($versionsWithoutFile, $defaultFiles));
+        $documentIds = array_keys(array_diff_key($versionsWithoutMedia, $defaultMediaIds));
         if ($documentIds !== []) {
-            $defaultFiles += $this->getDefaultFiles($documentIds, $event->getContext()->getVersionId());
+            $defaultMediaIds += $this->getDefaultMediaIds($documentIds, $event->getContext()->getVersionId());
         }
 
-        foreach ($versionsWithoutFile as $documentId => $commands) {
-            if (!isset($defaultFiles[$documentId])) {
+        foreach ($versionsWithoutMedia as $documentId => $commands) {
+            if (!isset($defaultMediaIds[$documentId])) {
                 continue;
             }
 
             foreach ($commands as $command) {
-                $command->addPayload('media_id', $defaultFiles[$documentId]);
+                $command->addPayload('media_id', $defaultMediaIds[$documentId]);
             }
         }
     }
@@ -69,9 +69,9 @@ class ProductDocumentFileSubscriber implements EventSubscriberInterface
     /**
      * @param list<string> $documentIds
      *
-     * @return array<string, string> file id per document id
+     * @return array<string, string> media id per document id
      */
-    private function getDefaultFiles(array $documentIds, string $versionId): array
+    private function getDefaultMediaIds(array $documentIds, string $versionId): array
     {
         /** @var array<string, string> */
         return $this->connection->fetchAllKeyValue(

@@ -62,7 +62,7 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
         $this->write($command);
 
-        static::assertSame(self::DEFAULT_FILE, self::fileOf($command));
+        static::assertSame(self::DEFAULT_FILE, self::mediaIdOf($command));
     }
 
     public function testRemovingTheFileOfAVersionGivesItTheDefaultFile(): void
@@ -71,7 +71,7 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
         $this->write($command);
 
-        static::assertSame(self::DEFAULT_FILE, self::fileOf($command));
+        static::assertSame(self::DEFAULT_FILE, self::mediaIdOf($command));
     }
 
     public function testAVersionGetsTheFileOfTheDefaultVersionWrittenWithIt(): void
@@ -80,7 +80,7 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
         $this->write($german, $this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]));
 
-        static::assertSame(self::NEW_DEFAULT_FILE, self::fileOf($german));
+        static::assertSame(self::NEW_DEFAULT_FILE, self::mediaIdOf($german));
     }
 
     public function testVersionsWithTheirOwnFileAndTheDefaultVersionStayAsWritten(): void
@@ -90,8 +90,8 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
         $this->write($default, $german);
 
-        static::assertSame(self::GERMAN_FILE, self::fileOf($german));
-        static::assertNull(self::fileOf($default));
+        static::assertSame(self::GERMAN_FILE, self::mediaIdOf($german));
+        static::assertNull(self::mediaIdOf($default));
     }
 
     public function testVersionsKeepTheirFileWhenTheDefaultLanguageGetsAnotherOne(): void
@@ -100,7 +100,7 @@ class ProductDocumentFileSubscriberTest extends TestCase
 
         $this->write($this->update(Defaults::LANGUAGE_SYSTEM, ['media_id' => Uuid::fromHexToBytes(self::NEW_DEFAULT_FILE)]), $german);
 
-        static::assertNull(self::fileOf($german));
+        static::assertNull(self::mediaIdOf($german));
     }
 
     private function write(WriteCommand ...$commands): void
@@ -108,11 +108,11 @@ class ProductDocumentFileSubscriberTest extends TestCase
         $this->subscriber->beforeWrite(EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), array_values($commands)));
     }
 
-    private function insert(string $languageId, ?string $fileId = null): InsertCommand
+    private function insert(string $languageId, ?string $mediaId = null): InsertCommand
     {
         return new InsertCommand(
             $this->definition,
-            $fileId === null ? ['title' => 'Manual'] : ['title' => 'Manual', 'media_id' => Uuid::fromHexToBytes($fileId)],
+            $mediaId === null ? ['title' => 'Manual'] : ['title' => 'Manual', 'media_id' => Uuid::fromHexToBytes($mediaId)],
             self::primaryKey($languageId),
             static::createStub(EntityExistence::class),
             '/0',
@@ -139,10 +139,10 @@ class ProductDocumentFileSubscriberTest extends TestCase
         ];
     }
 
-    private static function fileOf(WriteCommand $command): ?string
+    private static function mediaIdOf(WriteCommand $command): ?string
     {
-        $fileId = $command->getPayload()['media_id'] ?? null;
+        $mediaId = $command->getPayload()['media_id'] ?? null;
 
-        return \is_string($fileId) ? Uuid::fromBytesToHex($fileId) : null;
+        return \is_string($mediaId) ? Uuid::fromBytesToHex($mediaId) : null;
     }
 }

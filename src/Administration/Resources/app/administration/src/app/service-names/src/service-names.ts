@@ -1,4 +1,24 @@
 /**
+ * The name the aclApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [aclApiService] };
+ *
+ * @public
+ */
+export const aclApiService = 'aclApiService';
+
+/**
+ * The name the appAclService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [appAclService] };
+ *
+ * @public
+ */
+export const appAclService = 'appAclService';
+
+/**
  * The name the appActionButtonService service is registered and injected under.
  *
  * @example
@@ -583,6 +603,16 @@ export const orderService = 'orderService';
 export const orderStateMachineService = 'orderStateMachineService';
 
 /**
+ * The name the privileges service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [privileges] };
+ *
+ * @public
+ */
+export const privileges = 'privileges';
+
+/**
  * The name the productExportService service is registered and injected under.
  *
  * @example
@@ -883,6 +913,16 @@ export const snippetService = 'snippetService';
 export const snippetSetService = 'snippetSetService';
 
 /**
+ * The name the ssoInvitationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [ssoInvitationService] };
+ *
+ * @public
+ */
+export const ssoInvitationService = 'ssoInvitationService';
+
+/**
  * The name the ssoSettingsService service is registered and injected under.
  *
  * @example
@@ -1041,6 +1081,16 @@ export const userRecoveryService = 'userRecoveryService';
  * @public
  */
 export const userService = 'userService';
+
+/**
+ * The name the userValidationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [userValidationService] };
+ *
+ * @public
+ */
+export const userValidationService = 'userValidationService';
 
 /**
  * The name the validationApiService service is registered and injected under.

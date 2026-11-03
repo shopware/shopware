@@ -11,6 +11,8 @@
  */
 export {
     acl,
+    aclApiService,
+    appAclService,
     appActionButtonService,
     appCmsService,
     appModulesService,
@@ -70,6 +72,7 @@ export {
     orderDocumentApiService,
     orderService,
     orderStateMachineService,
+    privileges,
     productExportService,
     productIndexService,
     productStreamConditionService,
@@ -98,6 +101,7 @@ export {
     snackbarService,
     snippetService,
     snippetSetService,
+    ssoInvitationService,
     ssoSettingsService,
     stateMachineService,
     stateStyleDataProviderService,
@@ -114,5 +118,6 @@ export {
     userInputSanitizeService,
     userRecoveryService,
     userService,
+    userValidationService,
     validationApiService,
 } from './src/service-names';

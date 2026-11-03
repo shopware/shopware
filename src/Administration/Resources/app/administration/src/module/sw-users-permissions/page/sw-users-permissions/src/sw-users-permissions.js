@@ -1,0 +1,65 @@
+/**
+ * @sw-package fundamentals@framework
+ */
+import template from './sw-users-permissions.html.twig';
+import { aclService, featureService, notificationMixin } from '../dependencies';
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: [featureService, aclService],
+
+    mixins: [notificationMixin],
+
+    data() {
+        return {
+            isLoading: true,
+            isSaveSuccessful: false,
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
+    methods: {
+        reloadUserListing() {
+            if (this.$refs.userListing) {
+                this.$refs.userListing.getList();
+            }
+
+            if (this.$refs.roleListing) {
+                this.$refs.roleListing.getList();
+            }
+        },
+
+        onChangeLoading(loading) {
+            this.isLoading = loading;
+        },
+
+        async onSave() {
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+
+            try {
+                await this.$refs.configuration.$refs.systemConfig.saveAll();
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: error.message,
+                });
+            }
+        },
+
+        onSaveFinish() {
+            this.isSaveSuccessful = false;
+        },
+    },
+};

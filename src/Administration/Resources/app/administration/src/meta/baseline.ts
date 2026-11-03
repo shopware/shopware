@@ -237,7 +237,6 @@ const missingTests = [
     'src/module/sw-settings-tag/index.js',
     'src/module/sw-settings-tax/index.js',
     'src/module/sw-settings-units/index.js',
-    'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js',
     'src/module/sw-users-permissions/index.js',
     // unable to test because of es module <-> cjs conflicts lazy import statements
     'src/app/init/component.init.ts',

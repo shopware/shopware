@@ -1,0 +1,80 @@
+import { definePrivateComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package framework
+ *
+ * The component is registered by its name for the Administration only: it never reaches extensions.
+ * The lists hold everything it offered before it became a mini-module,
+ * because Component.override inside the Administration could reach all of it. The files in `./src` are private to this module.
+ */
+/** @private */
+export default definePrivateComponent({
+    name: 'sw-sso-users-permission-user-detail',
+    load: () => import('./src/sw-sso-users-permission-user-detail'),
+    public: {
+        blocks: [
+            'sw_settings_sso_user_detail',
+            'sw_settings_sso_user_detail_header',
+            'sw_settings_sso_user_detail_actions',
+            'sw_settings_sso_user_detail_actions_cancel',
+            'sw_settings_sso_user_detail_actions_save',
+            'sw_settings_sso_user_detail_content',
+            'sw_settings_sso_user_detail_content_details',
+            'sw_settings_sso_user_detail_content_details_first_name',
+            'sw_settings_sso_user_detail_content_details_last_name',
+            'sw_settings_sso_user_detail_content_details_email',
+            'sw_settings_sso_user_detail_grid_content_active',
+            'sw_settings_sso_user_detail_content_media_upload',
+            'sw_settings_sso_user_detail_content_details_language',
+            'sw_settings_sso_user_detail_grid_content_timezone',
+            'sw_settings_sso_user_detail_grid_content_theme',
+            'sw_settings_sso_user_detail_grid_content_acl_roles',
+            'sw_settings_sso_user_detail_grid_content_job_title',
+            'sw_settings_sso_user_detail_grid_content_acl_is_admin',
+            'sw_settings_sso_user_detail_grid_toolbar',
+            'sw_settings_sso_user_detail_grid_add_key',
+            'sw_settings_sso_user_detail_key_grid',
+            'sw_settings_sso_user_detail_key_grid_content',
+            'sw_settings_sso_user_detail_grid_columns_actions',
+            'sw_settings_sso_user_detail_grid_columns_actions_edit',
+            'sw_settings_sso_user_detail_grid_columns_actions_delete',
+            'sw_settings_sso_user_detail_grid_inner_slot_delete_modal',
+            'sw_settings_sso_user_detail_grid_inner_slot_delete_modal_confirm_text',
+            'sw_settings_sso_user_detail_grid_inner_slot_delete_modal_footer',
+        ],
+        computed: [
+            'fullName',
+            'tooltipCancel',
+            'tooltipSave',
+            'integrationColumns',
+            'aclRoleCriteria',
+            'isInvited',
+            'isCurrentUser',
+            'userRepository',
+            'languageRepository',
+            'keyRepository',
+            'userTheme',
+        ],
+        methods: [
+            'createdComponent',
+            'loadUser',
+            'loadCurrentUser',
+            'loadLanguages',
+            'onCancel',
+            'onSave',
+            'saveUserTheme',
+            'setMediaItem',
+            'onRemoveMedia',
+            'onDropMedia',
+            'onCreateAccessKey',
+            'generateKey',
+            'onAccessKeyCreateCancel',
+            'onSaveAccessKey',
+            'onEditAccessKey',
+            'onGenerateNewKey',
+            'onDeleteAccessKey',
+            'onCloseAccessKeyDeleteModal',
+            'onConfirmDeleteAccessKey',
+        ],
+    },
+});

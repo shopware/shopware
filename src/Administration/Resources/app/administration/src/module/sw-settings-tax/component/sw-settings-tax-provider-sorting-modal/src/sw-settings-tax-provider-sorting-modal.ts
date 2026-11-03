@@ -1,0 +1,85 @@
+import template from './sw-settings-tax-provider-sorting-modal.html.twig';
+import './sw-settings-tax-provider-sorting-modal.scss';
+import {
+    aclService,
+    notificationMixin,
+    type Repository,
+    repositoryFactoryService,
+    wrapComponentConfig,
+} from '../dependencies';
+
+/**
+ * @sw-package checkout
+ *
+ * @public
+ */
+export default wrapComponentConfig({
+    template,
+
+    inject: [aclService, repositoryFactoryService],
+
+    emits: ['modal-close', 'modal-save'],
+
+    mixins: [notificationMixin],
+
+    props: {
+        taxProviders: {
+            type: Array as unknown as PropType<EntityCollection<'tax_provider'>>,
+            required: true,
+        },
+    },
+
+    data(): {
+        isSaving: boolean;
+        originalTaxProviders: EntityCollection<'tax_provider'>;
+        sortedTaxProviders: EntityCollection<'tax_provider'>;
+    } {
+        return {
+            isSaving: false,
+            originalTaxProviders: this.taxProviders,
+            sortedTaxProviders: this.taxProviders,
+        };
+    },
+
+    computed: {
+        taxProviderRepository(): Repository<'tax_provider'> {
+            return this.repositoryFactory.create('tax_provider');
+        },
+    },
+
+    methods: {
+        closeModal(): void {
+            this.$emit('modal-close');
+        },
+
+        applyChanges(): void {
+            this.isSaving = true;
+
+            this.sortedTaxProviders.map((taxProvider: Entity<'tax_provider'>, index: number) => {
+                taxProvider.priority = this.sortedTaxProviders.length - index;
+                return taxProvider;
+            });
+
+            this.taxProviderRepository
+                .saveAll(this.sortedTaxProviders)
+                .then(() => {
+                    this.isSaving = false;
+                    this.$emit('modal-close');
+                    this.$emit('modal-save');
+
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-settings-tax.list.taxProvider.sorting-modal.saveSuccessful'),
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-tax.list.taxProvider.sorting-modal.errorMessage'),
+                    });
+                });
+        },
+
+        onSort(sortedItems: EntityCollection<'tax_provider'>): void {
+            this.sortedTaxProviders = sortedItems;
+        },
+    },
+});

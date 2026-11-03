@@ -1,18 +1,17 @@
 import template from './sw-settings-tax-rule-modal.html.twig';
+import { Criteria, getApiContext, mapPropertyErrors, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package checkout
  */
 
-const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['modal-close'],
 
@@ -78,7 +77,7 @@ export default {
 
     methods: {
         changeRuleType(id) {
-            this.taxRuleTypeRepository.get(id, Context.api).then((item) => {
+            this.taxRuleTypeRepository.get(id, getApiContext()).then((item) => {
                 this.currentTaxRuleType = item;
             });
         },
@@ -96,7 +95,7 @@ export default {
 
         onConfirm() {
             this.taxRuleRepository
-                .save(this.taxRule, Context.api)
+                .save(this.taxRule, getApiContext())
                 .then(() => {
                     this.isSaveSuccessful = true;
 

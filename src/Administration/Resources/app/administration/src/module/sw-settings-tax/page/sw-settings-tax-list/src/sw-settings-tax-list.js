@@ -1,20 +1,30 @@
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    getApiContext,
+    getCacheService,
+    listingMixin,
+    notificationMixin,
+    repositoryFactoryService,
+    systemConfigApiService,
+    useContextStore,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
  */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
+    inject: [repositoryFactoryService, aclService, systemConfigApiService],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {
@@ -103,7 +113,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 
@@ -126,7 +136,7 @@ export default {
                         })
                         .then(() => {
                             this.defaultTaxRateId = this.selectedDefaultTaxRateId;
-                            Shopware.Service('cacheService').invalidateCaches({
+                            getCacheService().invalidateCaches({
                                 cacheKey: ['shared-data', 'default-tax-rate-id'],
                             });
 
@@ -177,7 +187,7 @@ export default {
         },
 
         invalidateTaxCaches() {
-            const cacheService = Shopware.Service('cacheService');
+            const cacheService = getCacheService();
 
             cacheService.invalidateCaches({
                 cacheKey: ['shared-data', 'taxes'],
@@ -250,7 +260,7 @@ export default {
         onChangeTaxProviderActive(taxProvider) {
             taxProvider.active = !taxProvider.active;
 
-            this.taxProviderRepository.save(taxProvider, Shopware.Context.api).then(() => {
+            this.taxProviderRepository.save(taxProvider, getApiContext()).then(() => {
                 const state = taxProvider.active ? 'active' : 'inactive';
 
                 this.createNotificationSuccess({

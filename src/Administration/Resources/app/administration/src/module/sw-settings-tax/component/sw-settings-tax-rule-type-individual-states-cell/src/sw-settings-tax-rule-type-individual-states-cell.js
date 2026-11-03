@@ -1,17 +1,17 @@
 import template from './sw-settings-tax-rule-type-individual-states-cell.html.twig';
+import { Criteria, getApiContext, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package checkout
  */
 
-const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     props: {
         taxRule: {
@@ -55,7 +55,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.setIds(this.taxRule.data.states);
 
-            this.stateRepository.search(criteria, Context.api).then((states) => {
+            this.stateRepository.search(criteria, getApiContext()).then((states) => {
                 this.individualStates = states.map((state) => state.name);
             });
         },

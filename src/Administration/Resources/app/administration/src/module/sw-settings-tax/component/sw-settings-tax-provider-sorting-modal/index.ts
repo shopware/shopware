@@ -1,81 +1,34 @@
-import type Repository from 'src/core/data/repository.data';
-import template from './sw-settings-tax-provider-sorting-modal.html.twig';
-import './sw-settings-tax-provider-sorting-modal.scss';
-
-const { Component, Mixin } = Shopware;
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
  * @sw-package checkout
  *
- * @private
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-export default Component.wrapComponentConfig({
-    template,
-
-    inject: ['acl', 'repositoryFactory'],
-
-    emits: ['modal-close', 'modal-save'],
-
-    mixins: [Mixin.getByName('notification')],
-
-    props: {
-        taxProviders: {
-            type: Array as unknown as PropType<EntityCollection<'tax_provider'>>,
-            required: true,
-        },
-    },
-
-    data(): {
-        isSaving: boolean;
-        originalTaxProviders: EntityCollection<'tax_provider'>;
-        sortedTaxProviders: EntityCollection<'tax_provider'>;
-    } {
-        return {
-            isSaving: false,
-            originalTaxProviders: this.taxProviders,
-            sortedTaxProviders: this.taxProviders,
-        };
-    },
-
-    computed: {
-        taxProviderRepository(): Repository<'tax_provider'> {
-            return this.repositoryFactory.create('tax_provider');
-        },
-    },
-
-    methods: {
-        closeModal(): void {
-            this.$emit('modal-close');
-        },
-
-        applyChanges(): void {
-            this.isSaving = true;
-
-            this.sortedTaxProviders.map((taxProvider: Entity<'tax_provider'>, index: number) => {
-                taxProvider.priority = this.sortedTaxProviders.length - index;
-                return taxProvider;
-            });
-
-            this.taxProviderRepository
-                .saveAll(this.sortedTaxProviders)
-                .then(() => {
-                    this.isSaving = false;
-                    this.$emit('modal-close');
-                    this.$emit('modal-save');
-
-                    this.createNotificationSuccess({
-                        message: this.$t('sw-settings-tax.list.taxProvider.sorting-modal.saveSuccessful'),
-                    });
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$t('sw-settings-tax.list.taxProvider.sorting-modal.errorMessage'),
-                    });
-                });
-        },
-
-        onSort(sortedItems: EntityCollection<'tax_provider'>): void {
-            this.sortedTaxProviders = sortedItems;
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-settings-tax-provider-sorting-modal',
+    load: () => import('./src/sw-settings-tax-provider-sorting-modal'),
+    public: {
+        props: [
+            'taxProviders',
+        ],
+        emits: [
+            'modal-close',
+            'modal-save',
+        ],
+        blocks: [
+            'sw_settings_tax_provider_sorting_modal',
+        ],
+        computed: [
+            'taxProviderRepository',
+        ],
+        methods: [
+            'closeModal',
+            'applyChanges',
+            'onSort',
+        ],
     },
 });

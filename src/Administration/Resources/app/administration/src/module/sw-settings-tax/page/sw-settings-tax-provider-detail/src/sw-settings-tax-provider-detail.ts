@@ -1,0 +1,162 @@
+import template from './sw-settings-tax-provider-detail.html.twig';
+import './sw-settings-tax-provider-detail.scss';
+import {
+    aclService,
+    Criteria,
+    type CriteriaType,
+    notificationMixin,
+    type Repository,
+    repositoryFactoryService,
+    wrapComponentConfig,
+} from '../dependencies';
+
+/**
+ * @sw-package checkout
+ *
+ * @public
+ */
+export default wrapComponentConfig({
+    template,
+
+    inject: [repositoryFactoryService, aclService],
+
+    mixins: [notificationMixin],
+
+    props: {
+        taxProviderId: {
+            type: String as unknown as PropType<EntityKey<'tax_provider'>>,
+            required: false,
+            default: '',
+        },
+    },
+
+    data(): {
+        isLoading: boolean;
+        isSaveSuccessful: boolean;
+        taxProvider?: Entity<'tax_provider'> | undefined;
+    } {
+        return {
+            taxProvider: undefined,
+            isLoading: false,
+            isSaveSuccessful: false,
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
+    computed: {
+        label(): string {
+            return this.taxProvider?.translated?.name || '';
+        },
+
+        taxProviderRepository(): Repository<'tax_provider'> {
+            return this.repositoryFactory.create('tax_provider');
+        },
+
+        allowSave(): boolean {
+            return this.acl.can('tax.editor');
+        },
+
+        ruleFilter(): CriteriaType {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('rule.moduleTypes.types', 'tax_provider'),
+                    Criteria.equals('rule.moduleTypes', null),
+                ]),
+            );
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
+        },
+
+        hasIdentifier(): boolean {
+            return !!this.taxProvider?.identifier;
+        },
+
+        positionIdentifier(): string | undefined {
+            if (!this.hasIdentifier) {
+                return '';
+            }
+
+            const identifier = this.taxProvider?.identifier || '';
+
+            return `sw-settings-tax-tax-provider-detail-custom-${identifier}`;
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent(): void {
+            void this.loadTaxProvider();
+        },
+
+        loadTaxProvider(): Promise<void> {
+            this.isLoading = true;
+
+            if (this.taxProviderId) {
+                return this.taxProviderRepository.get(this.taxProviderId).then((taxProvider) => {
+                    this.taxProvider = taxProvider as Entity<'tax_provider'>;
+                    this.isLoading = false;
+                });
+            }
+
+            this.isLoading = false;
+
+            return Promise.resolve();
+        },
+
+        onSave(): Promise<void> {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            if (!this.taxProvider) {
+                return Promise.resolve();
+            }
+
+            return this.taxProviderRepository
+                .save(this.taxProvider)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+
+                    return this.loadTaxProvider();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
+                    });
+
+                    this.isLoading = false;
+                });
+        },
+
+        onCancel(): void {
+            void this.$router.push({ name: 'sw.settings.tax.index' });
+        },
+
+        onSaveRule(ruleId: EntityKey<'rule'>): void {
+            if (!this.taxProvider) {
+                return;
+            }
+
+            this.taxProvider.availabilityRuleId = ruleId;
+        },
+
+        onDismissRule(): void {
+            if (!this.taxProvider) {
+                return;
+            }
+
+            this.taxProvider.availabilityRuleId = undefined;
+        },
+    },
+});

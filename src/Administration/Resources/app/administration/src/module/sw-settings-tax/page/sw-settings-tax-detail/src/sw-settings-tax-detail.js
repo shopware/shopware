@@ -1,25 +1,34 @@
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
+import {
+    aclService,
+    customFieldDataProviderService,
+    getCacheService,
+    mapPropertyErrors,
+    notificationMixin,
+    repositoryFactoryService,
+    systemConfigApiService,
+    useContextStore,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-        'systemConfigApiService',
+        repositoryFactoryService,
+        aclService,
+        customFieldDataProviderService,
+        systemConfigApiService,
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -195,7 +204,7 @@ export default {
         },
 
         invalidateTaxCaches() {
-            const cacheService = Shopware.Service('cacheService');
+            const cacheService = getCacheService();
 
             cacheService.invalidateCaches({
                 cacheKey: ['shared-data', 'taxes'],
@@ -214,7 +223,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.createdComponent();
         },
 

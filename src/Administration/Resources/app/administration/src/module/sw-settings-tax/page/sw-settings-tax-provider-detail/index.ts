@@ -1,158 +1,38 @@
-import type Repository from 'src/core/data/repository.data';
-import type CriteriaType from 'src/core/data/criteria.data';
-import template from './sw-settings-tax-provider-detail.html.twig';
-import './sw-settings-tax-provider-detail.scss';
-
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
  * @sw-package checkout
  *
- * @private
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-export default Component.wrapComponentConfig({
-    template,
-
-    inject: ['repositoryFactory', 'acl'],
-
-    mixins: [Mixin.getByName('notification')],
-
-    props: {
-        taxProviderId: {
-            type: String as unknown as PropType<EntityKey<'tax_provider'>>,
-            required: false,
-            default: '',
-        },
-    },
-
-    data(): {
-        isLoading: boolean;
-        isSaveSuccessful: boolean;
-        taxProvider?: Entity<'tax_provider'> | undefined;
-    } {
-        return {
-            taxProvider: undefined,
-            isLoading: false,
-            isSaveSuccessful: false,
-        };
-    },
-
-    metaInfo() {
-        return {
-            title: this.$createTitle(),
-        };
-    },
-
-    computed: {
-        label(): string {
-            return this.taxProvider?.translated?.name || '';
-        },
-
-        taxProviderRepository(): Repository<'tax_provider'> {
-            return this.repositoryFactory.create('tax_provider');
-        },
-
-        allowSave(): boolean {
-            return this.acl.can('tax.editor');
-        },
-
-        ruleFilter(): CriteriaType {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(
-                Criteria.multi('OR', [
-                    Criteria.contains('rule.moduleTypes.types', 'tax_provider'),
-                    Criteria.equals('rule.moduleTypes', null),
-                ]),
-            );
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-
-            return criteria;
-        },
-
-        hasIdentifier(): boolean {
-            return !!this.taxProvider?.identifier;
-        },
-
-        positionIdentifier(): string | undefined {
-            if (!this.hasIdentifier) {
-                return '';
-            }
-
-            const identifier = this.taxProvider?.identifier || '';
-
-            return `sw-settings-tax-tax-provider-detail-custom-${identifier}`;
-        },
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent(): void {
-            void this.loadTaxProvider();
-        },
-
-        loadTaxProvider(): Promise<void> {
-            this.isLoading = true;
-
-            if (this.taxProviderId) {
-                return this.taxProviderRepository.get(this.taxProviderId).then((taxProvider) => {
-                    this.taxProvider = taxProvider as Entity<'tax_provider'>;
-                    this.isLoading = false;
-                });
-            }
-
-            this.isLoading = false;
-
-            return Promise.resolve();
-        },
-
-        onSave(): Promise<void> {
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
-
-            if (!this.taxProvider) {
-                return Promise.resolve();
-            }
-
-            return this.taxProviderRepository
-                .save(this.taxProvider)
-                .then(() => {
-                    this.isSaveSuccessful = true;
-
-                    return this.loadTaxProvider();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
-                    });
-
-                    this.isLoading = false;
-                });
-        },
-
-        onCancel(): void {
-            void this.$router.push({ name: 'sw.settings.tax.index' });
-        },
-
-        onSaveRule(ruleId: EntityKey<'rule'>): void {
-            if (!this.taxProvider) {
-                return;
-            }
-
-            this.taxProvider.availabilityRuleId = ruleId;
-        },
-
-        onDismissRule(): void {
-            if (!this.taxProvider) {
-                return;
-            }
-
-            this.taxProvider.availabilityRuleId = undefined;
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-settings-tax-provider-detail',
+    load: () => import('./src/sw-settings-tax-provider-detail'),
+    public: {
+        props: [
+            'taxProviderId',
+        ],
+        blocks: [
+            'sw_settings_tax_provider',
+        ],
+        computed: [
+            'label',
+            'taxProviderRepository',
+            'allowSave',
+            'ruleFilter',
+            'hasIdentifier',
+            'positionIdentifier',
+        ],
+        methods: [
+            'createdComponent',
+            'loadTaxProvider',
+            'onSave',
+            'onCancel',
+            'onSaveRule',
+            'onDismissRule',
+        ],
     },
 });

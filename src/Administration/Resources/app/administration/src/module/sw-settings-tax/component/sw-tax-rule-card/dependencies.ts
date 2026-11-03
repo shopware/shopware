@@ -1,0 +1,18 @@
+/**
+ * @sw-package checkout
+ *
+ * Everything sw-tax-rule-card needs from outside its mini-module.
+ */
+import { assetFilterName } from 'src/app/filter/asset.filter';
+import { dateFilterName } from 'src/app/filter/date.filter';
+
+/** @private */
+export { default as Criteria } from 'src/core/data/criteria.data';
+/** @private */
+export { acl as aclService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
+
+/** @private */
+export const getAssetFilter = () => Shopware.Filter.getByName(assetFilterName);
+
+/** @private */
+export const getDateFilter = () => Shopware.Filter.getByName(dateFilterName);

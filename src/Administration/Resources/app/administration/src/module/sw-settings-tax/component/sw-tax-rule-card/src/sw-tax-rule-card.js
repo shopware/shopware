@@ -1,17 +1,18 @@
 import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
+import { aclService, Criteria, getAssetFilter, getDateFilter, repositoryFactoryService } from '../dependencies';
 
 /**
  * @sw-package checkout
  */
 
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     props: {
         tax: {
@@ -112,11 +113,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 

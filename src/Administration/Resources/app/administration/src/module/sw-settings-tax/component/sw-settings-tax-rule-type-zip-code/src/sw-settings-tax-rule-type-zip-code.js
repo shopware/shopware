@@ -1,10 +1,12 @@
-import template from './sw-settings-tax-rule-type-zip-code-range.html.twig';
+import template from './sw-settings-tax-rule-type-zip-code.html.twig';
 
 /**
  * @sw-package checkout
  */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
@@ -23,8 +25,7 @@ export default {
         createdComponent() {
             if (!this.taxRule.data) {
                 this.taxRule.data = {
-                    fromZipCode: '',
-                    toZipCode: '',
+                    zipCode: '',
                 };
             }
         },

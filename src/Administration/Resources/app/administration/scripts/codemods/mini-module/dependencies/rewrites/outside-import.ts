@@ -79,17 +79,30 @@ const readBindings = (statement: ts.ImportDeclaration, module: string): Reexport
 };
 
 /**
+ * Whether an import runs a module only for its side effects, such as `import 'flatpickr/dist/l10n';`,
+ * apart from the template and styles a component imports.
+ */
+export const isSideEffectImport = (statement: ts.Statement): statement is ts.ImportDeclaration =>
+    ts.isImportDeclaration(statement) &&
+    !statement.importClause &&
+    ts.isStringLiteral(statement.moduleSpecifier) &&
+    !ASSET_IMPORT.test(statement.moduleSpecifier.text);
+
+/**
  * An import from outside the module moves into dependencies.ts as a re-export under the same name,
  * so `src/` keeps its code and imports the name from `../dependencies`.
- * An import only for its side effects stays for the sweep, because dependencies.ts has none.
+ * An import only for its side effects stays for the sweep, because dependencies.ts has none,
+ * and so does every import above it: the side effect may need them loaded first, as an Ace mode needs Ace.
  *
  * @example
  * // import { mapState } from 'pinia';
  * // → import { mapState } from '../dependencies';
  * // dependencies.ts: export { mapState } from 'pinia';
  */
-export const rewriteOutsideImports: FileRewrite = (context) =>
-    context.source.statements.flatMap((statement): Rewrite[] => {
+export const rewriteOutsideImports: FileRewrite = (context) => {
+    const lastSideEffect = context.source.statements.findLastIndex(isSideEffectImport);
+
+    return context.source.statements.slice(lastSideEffect + 1).flatMap((statement): Rewrite[] => {
         if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
             return [];
         }
@@ -112,3 +125,4 @@ export const rewriteOutsideImports: FileRewrite = (context) =>
             },
         ];
     });
+};

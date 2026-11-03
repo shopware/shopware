@@ -6,7 +6,7 @@
 import path from 'node:path';
 import ts from 'typescript';
 import { isReference } from './global-uses';
-import { staysInside } from './rewrites/outside-import';
+import { isSideEffectImport, staysInside } from './rewrites/outside-import';
 
 /** The lookups by a written name that `sw-core-rules/mini-module-dependencies` reports. */
 const NAMED_LOOKUPS = new Set([
@@ -40,8 +40,9 @@ const calleeName = (callee: ts.Expression): string | null => {
 export function findLeftovers(code: string, fileName: string, moduleRoot: string): string[] {
     const source = ts.createSourceFile(fileName, code, ts.ScriptTarget.Latest, true);
     const context = { fileName, moduleRoot, dependenciesFile: path.join(moduleRoot, 'dependencies.ts') };
-    const lines = new Set<number>();
-    const mark = (node: ts.Node) => lines.add(source.getLineAndCharacterOfPosition(node.getStart(source)).line);
+    const lines = new Map<number, string>();
+    const mark = (node: ts.Node, note = '') =>
+        lines.set(source.getLineAndCharacterOfPosition(node.getStart(source)).line, note);
 
     const visit = (node: ts.Node) => {
         if (ts.isIdentifier(node) && node.text === 'Shopware' && isReference(node)) {
@@ -68,7 +69,10 @@ export function findLeftovers(code: string, fileName: string, moduleRoot: string
             ts.isStringLiteral(node.moduleSpecifier) &&
             !staysInside(node.moduleSpecifier.text, context)
         ) {
-            mark(node);
+            mark(
+                node,
+                isSideEffectImport(node) ? ' (a side effect: it stays in this file, below the imports it needs)' : '',
+            );
         }
 
         node.forEachChild(visit);
@@ -76,5 +80,5 @@ export function findLeftovers(code: string, fileName: string, moduleRoot: string
     visit(source);
 
     const text = code.split('\n');
-    return [...lines].sort((a, b) => a - b).map((line) => `${line + 1}: ${text[line].trim()}`);
+    return [...lines].sort(([a], [b]) => a - b).map(([line, note]) => `${line + 1}: ${text[line].trim()}${note}`);
 }

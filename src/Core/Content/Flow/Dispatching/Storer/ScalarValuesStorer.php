@@ -4,7 +4,10 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Event\SensitiveMail;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -17,15 +20,20 @@ class ScalarValuesStorer extends FlowStorer
      */
     public function store(FlowEventAware $event, array $stored): array
     {
-        if (!$event instanceof ScalarValuesAware) {
+        $sensitive = $this->isSensitiveMail($event);
+        if (!$event instanceof ScalarValuesAware && !$sensitive) {
             return $stored;
         }
 
         if (isset($stored[ScalarValuesAware::STORE_VALUES])) {
-            throw new \RuntimeException('Can not store generic values twice.');
+            throw FlowException::scalarValuesAlreadyStored();
         }
 
-        $stored[ScalarValuesAware::STORE_VALUES] = $event->getValues();
+        $values = $event instanceof ScalarValuesAware ? $event->getValues() : [];
+        if ($sensitive) {
+            $values['sensitive'] = true;
+        }
+        $stored[ScalarValuesAware::STORE_VALUES] = $values;
 
         return $stored;
     }
@@ -40,5 +48,21 @@ class ScalarValuesStorer extends FlowStorer
         foreach ($values as $key => $value) {
             $storable->setData($key, $value);
         }
+    }
+
+    private function isSensitiveMail(FlowEventAware $event): bool
+    {
+        if (!$event instanceof MailAware) {
+            return false;
+        }
+
+        $class = new \ReflectionClass($event);
+        do {
+            if ($class->getAttributes(SensitiveMail::class) !== []) {
+                return true;
+            }
+        } while ($class = $class->getParentClass());
+
+        return false;
     }
 }

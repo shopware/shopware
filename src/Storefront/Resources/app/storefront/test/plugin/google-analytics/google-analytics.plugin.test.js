@@ -1,6 +1,7 @@
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AddPaymentInfoEvent from 'src/plugin/google-analytics/events/add-payment-info.event';
 import AddShippingInfoEvent from 'src/plugin/google-analytics/events/add-shipping-info.event';
+import AddShippingInfoOnRegisterEvent from 'src/plugin/google-analytics/events/add-shipping-info-on-register.event';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 import AddToCartByNumberEvent from 'src/plugin/google-analytics/events/add-to-cart-by-number.event';
 import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
@@ -11,6 +12,7 @@ import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
 import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
+import SelectItemEvent from 'src/plugin/google-analytics/events/select-item.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
 import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
@@ -133,6 +135,7 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
         const expectedEventTypes = [
             AddPaymentInfoEvent,
             AddShippingInfoEvent,
+            AddShippingInfoOnRegisterEvent,
             AddToCartEvent,
             AddToCartByNumberEvent,
             BeginCheckoutEvent,
@@ -141,6 +144,7 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
             PurchaseEvent,
             RemoveFromCartEvent,
             SearchAjaxEvent,
+            SelectItemEvent,
             SignUpEvent,
             ViewItemEvent,
             ViewItemListEvent,
@@ -155,6 +159,38 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
         expectedEventTypes.forEach((EventType, index) => {
             expect(googleAnalyticsPlugin.events[index]).toBeInstanceOf(EventType);
         });
+    });
+
+    test('saving the cookie preferences again keeps a single set of events', () => {
+        Object.defineProperty(document, 'cookie', {
+            writable: true,
+            value: 'google-analytics-enabled=1',
+        });
+
+        const plugin = new GoogleAnalyticsPlugin(document);
+        const events = plugin.events;
+        const scripts = document.head.querySelectorAll('script').length;
+
+        // a second set of events would add a second document listener for every interaction
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, { 'google-analytics-enabled': true });
+
+        expect(plugin.events).toBe(events);
+        expect(document.head.querySelectorAll('script')).toHaveLength(scripts);
+    });
+
+    test('granting consent again re-enables the events of the first start', () => {
+        Object.defineProperty(document, 'cookie', {
+            writable: true,
+            value: 'google-analytics-enabled=1',
+        });
+
+        const plugin = new GoogleAnalyticsPlugin(document);
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, { 'google-analytics-enabled': false });
+        expect(plugin.events.every(event => !event.active)).toBe(true);
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, { 'google-analytics-enabled': true });
+        expect(plugin.events.every(event => event.active)).toBe(true);
     });
 
     test('starts Google Analytics via cookie update event when only the Google Ads cookie is accepted', () => {
@@ -206,7 +242,7 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
             value: 'google-analytics-enabled=1',
         });
 
-        new GoogleAnalyticsPlugin(document)
+        new GoogleAnalyticsPlugin(document);
 
         // Simulate cookie update event
         document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, {

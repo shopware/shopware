@@ -12,12 +12,13 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 
 - Use TypeScript for new code.
 - Do not introduce public API breaks without prior discussion.
-- Follow existing component, module, service, repository, and store patterns.
+- Model new code on the reference implementations listed in `src/Administration/Resources/app/administration/AGENTS.md`, not on the code next to it.
 - For Admin UI that reads or persists DAL entities or associations, update matching ACL privilege mapping and migrations for existing roles when needed.
 
 ## Tests
 
-- Write Jest tests for new features and bug fixes.
+- Write Jest tests for new frontend behavior and bug fixes.
+- For snippet-only changes or new translations using an existing error-rendering path, run snippet linting instead of adding tests that only assert translated text.
 - Keep tests next to the code under test with `.spec.ts` when adding new TypeScript tests.
 - Split very large specs into a `.spec/` directory by behavior group.
 

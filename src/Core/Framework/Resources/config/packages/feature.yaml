@@ -122,6 +122,11 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      - name: LONGRUNNING_ENVIRONMENT
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Resets services between requests handled by the same process, as needed by long running runtimes like FrankenPHP worker mode, RoadRunner or Swoole. Symfony's own `http_cache` service is disabled with this flag.\nThis feature will be standard as of v6.8.0"
       # No `major: v6.8.0.0` yet: setup-shopware caches only the admin node_modules, so major CI lanes would miss build/vite-8/node_modules
       - name: ADMIN_VITE_8
         default: false

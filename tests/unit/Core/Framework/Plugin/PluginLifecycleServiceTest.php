@@ -352,6 +352,29 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
     }
 
+    public function testUninstallPluginStaysInstalledWhenCustomFieldCleanupFails(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+
+        $this->pluginMock->expects($this->once())->method('uninstall');
+
+        $exception = new \RuntimeException('Custom field cleanup failed');
+
+        $customFieldSetPersister = static::createStub(CustomFieldSetPersister::class);
+        $customFieldSetPersister->method('sync')->willThrowException($exception);
+
+        $pluginRepo = $this->createMock(EntityRepository::class);
+        $pluginRepo->expects($this->never())->method('update');
+
+        $this->pluginLifecycleService = $this->createService(pluginRepo: $pluginRepo, customFieldSetPersister: $customFieldSetPersister);
+
+        $this->expectExceptionObject($exception);
+
+        $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, Context::createDefaultContext());
+    }
+
     public function testUninstallPluginNotInstalled(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();

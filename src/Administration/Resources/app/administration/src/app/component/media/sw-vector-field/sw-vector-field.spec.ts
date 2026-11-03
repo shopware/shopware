@@ -59,11 +59,6 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
 
 describe('src/app/component/media/sw-vector-field', () => {
     describe('Component Initialization', () => {
-        it('should mount successfully', async () => {
-            const wrapper = await createWrapper();
-            expect(wrapper.exists()).toBe(true);
-        });
-
         it('should initialize currentValue from value prop', async () => {
             const wrapper = await createWrapper({
                 props: { value: { x: 1, y: 2, z: 3 } },

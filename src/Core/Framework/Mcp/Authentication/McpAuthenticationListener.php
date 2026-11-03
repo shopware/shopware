@@ -73,13 +73,15 @@ class McpAuthenticationListener implements EventSubscriberInterface
             throw McpException::unsupportedKeyType();
         }
 
-        $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $accessKey);
+        $limiterKey = mb_strtolower(mb_trim($accessKey));
+
+        $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $limiterKey);
 
         if (!$this->clientRepository->validateClient($accessKey, $secretKey, 'client_credentials')) {
             throw McpException::invalidCredentials();
         }
 
-        $this->rateLimiter->reset(RateLimiter::OAUTH, $accessKey);
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $limiterKey);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'mcp-' . $accessKey);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $accessKey);

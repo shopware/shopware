@@ -74,3 +74,9 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/requirements.spec.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/public-api.spec.ts @shopware/product-cc-checkout
+
+# after-sales: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/index.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/global.d.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/tests/requirements.spec.ts @shopware/product-cc-after-sales
+src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-activity/tests/public-api.spec.ts @shopware/product-cc-after-sales

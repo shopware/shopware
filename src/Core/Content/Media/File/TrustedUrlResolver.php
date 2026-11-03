@@ -85,18 +85,13 @@ class TrustedUrlResolver implements ResetInterface
 
         if ($this->rejectPrivateRanges) {
             foreach ($addresses as $ip) {
-                if (IpUtils::checkIp($ip, self::BLOCKED_SUBNETS) && !$this->isAllowedPrivateIp($ip)) {
+                if (IpUtils::checkIp($ip, self::BLOCKED_SUBNETS) && !\in_array($ip, $this->allowedPrivateIps, true)) {
                     throw MediaException::illegalUrl($url);
                 }
             }
         }
 
         return new ResolvedUrl($host, $addresses[0]);
-    }
-
-    public function isAllowedPrivateIp(string $ip): bool
-    {
-        return \in_array($ip, $this->allowedPrivateIps, true);
     }
 
     public function isValid(string $url): bool

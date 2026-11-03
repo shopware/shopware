@@ -458,7 +458,6 @@ shopware:
         url_upload_timeout: 0.0
         external_link_timeout: 0.0
         allowed_protocols: ['http', 'https', 'ftp']
-        allowed_private_ip_addresses: []
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'

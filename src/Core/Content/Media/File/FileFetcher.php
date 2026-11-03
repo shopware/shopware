@@ -175,7 +175,7 @@ class FileFetcher
             $options['max_duration'] = $this->urlUploadTimeout;
         }
 
-        if ($this->enableUrlValidation && !$this->trustedUrlResolver->isAllowedPrivateIp($resolved->ip)) {
+        if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 

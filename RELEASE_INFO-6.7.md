@@ -423,7 +423,6 @@ This prevents theme and Twig context from leaking between probes and failed prob
 All connections of the download go to the checked address, so `shopware.media.enable_url_validation` and `shopware.media.url_upload_max_size` apply to FTP as they do to HTTP.
 FTP transfers credentials unencrypted, so HTTPS remains the recommended source.
 The accepted schemes are configured with `shopware.media.allowed_protocols`, which defaults to `['http', 'https', 'ftp']`.
-Private IP addresses that media uploads by URL and external media links may reach can be allowed with `shopware.media.allowed_private_ip_addresses`.
 
 ### Storefront readiness checks skip pages restricted by extensions
 

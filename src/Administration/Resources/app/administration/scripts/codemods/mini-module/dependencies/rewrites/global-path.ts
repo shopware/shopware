@@ -22,10 +22,19 @@ const STATIC_ROOTS = new Set([
 ]);
 
 /**
+ * A function that calls the function at a path of the global when it runs, typed as that function.
+ * The parentheses around the cast keep the call on its object, as `Shopware.Utils.format.fileSize(...args)` does.
+ */
+const lateBound = (global: string) =>
+    `((...args: unknown[]) => (${global} as (...args: unknown[]) => unknown)(...args)) as typeof ${global}`;
+
+/**
  * `Shopware.Data.Criteria` and the other classes and objects of the global become imports of the module that
  * holds the same value, as deep along the path as an export reaches.
  * A function becomes a function in dependencies.ts that calls it through the global, so a spy or a replacement
  * on the global still applies, and the call keeps the object it was called on.
+ * The function has the type of the original, also when that is generic, overloaded or returns `any`:
+ * the wrapper itself passes `unknown` only, which TypeScript and typescript-eslint accept for every function.
  *
  * @example
  * // const { Criteria } = Shopware.Data; … new Criteria(1, 25)
@@ -33,8 +42,8 @@ const STATIC_ROOTS = new Set([
  * // dependencies.ts: export { default as Criteria } from 'src/core/data/criteria.data';
  * // Shopware.Utils.format.localeName(locale)
  * // → localeName(locale)
- * // dependencies.ts: export const localeName = (...args: Parameters<typeof Shopware.Utils.format.localeName>) =>
- * //     Shopware.Utils.format.localeName(...args);
+ * // dependencies.ts: export const localeName = ((...args: unknown[]) =>
+ * //     (Shopware.Utils.format.localeName as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.format.localeName;
  */
 export const rewriteGlobalPath: UseRewrite = (use, context) => {
     if (!STATIC_ROOTS.has(use.path[0])) {
@@ -63,7 +72,7 @@ export const rewriteGlobalPath: UseRewrite = (use, context) => {
                 kind: 'accessor',
                 name: source.name,
                 order: 5,
-                body: `(...args: Parameters<typeof ${global}>) => ${global}(...args)`,
+                body: lateBound(global),
                 imports: [],
             },
         ]);

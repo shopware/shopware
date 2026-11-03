@@ -72,7 +72,7 @@ class RepositoryFacadeTest extends TestCase
             $registry,
             static::createStub(RequestCriteriaBuilder::class),
             $criteriaValidator,
-            AppContextFactory::forApp($hookContext, $integrationId, ['product:read']),
+            AppContextFactory::forApp($hookContext, Uuid::randomHex(), $integrationId, ['product:read']),
         );
 
         $read($facade);

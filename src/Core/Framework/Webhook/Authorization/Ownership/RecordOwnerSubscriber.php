@@ -42,6 +42,7 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
         foreach ($inserts as $insert) {
             if ($owner !== null) {
                 $insert->addPayload(self::ownerColumn($owner), Uuid::fromHexToBytes($owner->id));
+                $insert->addPayload('owner_type', $owner->type->value);
 
                 continue;
             }
@@ -57,7 +58,7 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
     {
         return match ($owner->type) {
             IdentityType::User => 'owner_user_id',
-            IdentityType::Integration => 'owner_integration_id',
+            IdentityType::Integration, IdentityType::AppIntegration => 'owner_integration_id',
         };
     }
 }

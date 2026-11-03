@@ -10,10 +10,11 @@ import type { ComponentApi } from './extract-component-api';
  * `register` and `extend` put it into the component registry by its name, as a public module, or as a private one
  * when its registration is marked `@private`. `nested` leaves it to the parent that imports it and lists it in its
  * `components`, so it becomes a private module in the `src/` of the parent's module.
+ * `privateBase` names the first private component an `extend` inherits from, which decides whether it is private too.
  */
 export type Shape =
     | { kind: 'register'; isPrivate: boolean }
-    | { kind: 'extend'; base: string; isPrivate: boolean }
+    | { kind: 'extend'; base: string; isPrivate: boolean; privateBase?: string }
     | { kind: 'nested'; parent: string };
 
 /** Whether the module gets only a private.ts, no index.ts, and never reaches extensions. */

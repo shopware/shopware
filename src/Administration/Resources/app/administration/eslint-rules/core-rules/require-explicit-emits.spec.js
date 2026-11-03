@@ -147,6 +147,37 @@ emits: ['my-awesome-event'],
             }],
         },
         {
+            name: 'component wrapped in wrapComponentConfig imported from the dependencies.ts of a mini-module',
+            filename: 'test.ts',
+            code: `
+                import { wrapComponentConfig } from '../dependencies';
+
+                export default wrapComponentConfig({
+                    methods: {
+                        myMethod() {
+                            this.$emit('my-awesome-event');
+                        },
+                    },
+                });
+            `,
+            output: `
+                import { wrapComponentConfig } from '../dependencies';
+
+                export default wrapComponentConfig({
+emits: ['my-awesome-event'],
+
+                    methods: {
+                        myMethod() {
+                            this.$emit('my-awesome-event');
+                        },
+                    },
+                });
+            `,
+            errors: [{
+                message: 'Event(s) \'my-awesome-event\' not defined in the emits option.',
+            }],
+        },
+        {
             name: '`emits` field inserted after `inject` when a spread follows it',
             filename: 'test.js',
             languageOptions: { ecmaVersion: 2018 },

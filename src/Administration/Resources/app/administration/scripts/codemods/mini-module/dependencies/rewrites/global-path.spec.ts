@@ -41,7 +41,7 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 export { default as Utils } from 'src/core/service/util.service';
 
 /** @private */
-export const fileSize = (...args: Parameters<typeof Shopware.Utils.format.fileSize>) => Shopware.Utils.format.fileSize(...args);
+export const fileSize = ((...args: unknown[]) => (Shopware.Utils.format.fileSize as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.format.fileSize;
 `,
         );
     });
@@ -83,7 +83,7 @@ const criteria = new Criteria();
 const Klass = Shopware.Data.Criteria;
 `);
         expect(dependencies).toContain(
-            'export const debounce = (...args: Parameters<typeof Shopware.Utils.debounce>) => Shopware.Utils.debounce(...args);',
+            'export const debounce = ((...args: unknown[]) => (Shopware.Utils.debounce as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.debounce;',
         );
     });
 

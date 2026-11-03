@@ -1,4 +1,4 @@
-import { isDocumentedPrivate, markExport } from './mark-export';
+import { isDocumentedPrivate, isDocumentedPublic, markExport } from './mark-export';
 
 describe('markExport', () => {
     it('adds @public to the doc comment of the export and drops the suppression', () => {
@@ -88,6 +88,27 @@ describe('isDocumentedPrivate', () => {
         // ASSERT
         expect(results).toEqual([
             true,
+            true,
+            false,
+            false,
+        ]);
+    });
+});
+
+describe('isDocumentedPublic', () => {
+    it('reads @public from the doc comment of the default export only', () => {
+        // ARRANGE
+        const sources = [
+            '/**\n * @public\n * @sw-package fundamentals@after-sales\n */\n// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations\nexport default {};\n',
+            '/**\n * @private\n */\nexport default {};\n',
+            '/**\n * @public\n */\nimport template from "./x.html.twig";\n\nexport default { template };\n',
+        ];
+
+        // ACT
+        const results = sources.map(isDocumentedPublic);
+
+        // ASSERT
+        expect(results).toEqual([
             true,
             false,
             false,

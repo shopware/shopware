@@ -20,7 +20,9 @@ import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
 import { findImports, findRegistration, findRegistrationByPath } from './find-registration';
 import { isDocumentedPrivate, markExport } from './mark-export';
+import { readDeclarationKind, readExtendShape } from './inherit-privacy';
 import { dropBaseImport } from './drop-base-import';
+import { findSpecifiers, importedName, rewriteMovedImports, type MovedEntry } from './moved-imports';
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
@@ -78,11 +80,12 @@ const locateRegistration = (name: string) => {
 
 /**
  * The name of the component in a directory: the directory's name, or, for a directory that is not named after
- * its component such as the `component/` of a CMS element, the name its lazy registration gives it.
+ * its component such as the `component/` of a CMS element or `sw-help-center` registered as `sw-help-center-v2`,
+ * the name its lazy registration gives it.
  */
 const readComponentName = (componentDirectory: string) => {
     const directoryName = path.basename(componentDirectory);
-    if (fs.existsSync(path.join(componentDirectory, `${directoryName}.html.twig`)) || locateRegistration(directoryName)) {
+    if (locateRegistration(directoryName)) {
         return directoryName;
     }
 
@@ -99,11 +102,25 @@ const readComponentName = (componentDirectory: string) => {
     return directoryName;
 };
 
-/** The directory of a component that is already a mini-module, found by the name its index.ts declares. */
-const locateMiniModule = (name: string) =>
-    sourceFiles(`name: '${name}'`)
-        .filter((file) => file.endsWith('/index.ts'))
-        .find((file) => fs.readFileSync(path.join(adminRoot, file), 'utf8').includes('definePublicComponent('));
+/**
+ * The declaration of a registered component that is already a mini-module, found by its name:
+ * the index.ts of a public module, or the private.ts next to the register.ts of a private one.
+ */
+const locateMiniModule = (name: string) => {
+    for (const file of sourceFiles(`name: '${name}'`)) {
+        const absolute = path.join(adminRoot, file);
+        const kind = readDeclarationKind(
+            file,
+            fs.readFileSync(absolute, 'utf8'),
+            fs.existsSync(path.join(path.dirname(absolute), 'register.ts')),
+        );
+        if (kind) {
+            return { file, isPrivate: kind === 'private' };
+        }
+    }
+
+    return null;
+};
 
 /** The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`. */
 const withoutIndex = (specifier: string) => specifier.replace(/\/index(\.[jt]s)?$/, '');
@@ -114,22 +131,28 @@ const readComponentSource = (componentDirectory: string, name: string) => {
         throw new Error(`${relative(componentDirectory)} has no index.js or index.ts.`);
     }
 
-    const templateFile = path.join(componentDirectory, `${name}.html.twig`);
+    // The template is named after the component, or after its directory when the registration renames it.
+    const templateFile = [name, path.basename(componentDirectory)]
+        .map((base) => path.join(componentDirectory, `${base}.html.twig`))
+        .find((file) => fs.existsSync(file));
     return {
         entry,
         componentSource: fs.readFileSync(path.join(componentDirectory, entry), 'utf8'),
-        templateSource: fs.existsSync(templateFile) ? fs.readFileSync(templateFile, 'utf8') : '',
+        templateSource: templateFile ? fs.readFileSync(templateFile, 'utf8') : '',
     };
 };
 
 /**
- * Reads what the named component offers, including what it inherits from the components it extends.
- * A component that is a mini-module already offers the lists of its index.ts.
+ * What the named component offers, including what it inherits from the components it extends,
+ * and the first private component on that chain, or null. A mini-module already offers the lists of its declaration.
  */
-const readInheritedApi = (name: string): ComponentApi => {
+const readInheritedApi = (name: string): { api: ComponentApi; privateBase: string | null } => {
     const miniModule = locateMiniModule(name);
     if (miniModule) {
-        return readDeclaredApi(fs.readFileSync(path.join(adminRoot, miniModule), 'utf8'));
+        return {
+            api: readDeclaredApi(fs.readFileSync(path.join(adminRoot, miniModule.file), 'utf8')),
+            privateBase: miniModule.isPrivate ? name : null,
+        };
     }
 
     const located = locateRegistration(name);
@@ -144,10 +167,17 @@ const readInheritedApi = (name: string): ComponentApi => {
     const { componentSource, templateSource } = readComponentSource(directory, name);
     const api = extractComponentApi(componentSource, templateSource);
     api.unresolved = api.unresolved.map((item) => `${item} (inherited from ${name})`);
+    const isPrivate = located.registration.isPrivate || isDocumentedPrivate(componentSource);
 
-    return located.registration.kind === 'extend'
-        ? mergeComponentApi(api, readInheritedApi(located.registration.base))
-        : api;
+    if (located.registration.kind !== 'extend') {
+        return { api, privateBase: isPrivate ? name : null };
+    }
+
+    const inherited = readInheritedApi(located.registration.base);
+    return {
+        api: mergeComponentApi(api, inherited.api),
+        privateBase: isPrivate ? name : inherited.privateBase,
+    };
 };
 
 const addImport = (source: string, specifier: string) => {
@@ -159,64 +189,18 @@ const addImport = (source: string, specifier: string) => {
 
 const SCRIPT_EXTENSION = /\.[jt]s$/;
 
-/**
- * Where a path relative to the Administration root ends up after the moves, or itself when it did not move.
- * It tries the extensions and `index` files an import may leave out.
- */
-const movedPath = (moves: Map<string, string>, target: string) => {
-    const candidates = [
-        target,
-        ...[
-            '.js',
-            '.ts',
-            '/index.js',
-            '/index.ts',
-        ].map((suffix) => `${target}${suffix}`),
-    ];
-
-    for (const candidate of candidates) {
-        for (const [from, to] of moves) {
-            if (candidate === from || candidate.startsWith(`${from}/`)) {
-                return `${to}${candidate.slice(from.length)}`;
-            }
-        }
-    }
-
-    return target;
-};
-
-/**
- * Rewrites the relative imports of a moved file, so they still reach their target from the file's new place,
- * also when the target moved: a spec in tests/ that imported './index' now imports '../src/<name>'.
- * An import through the `src/…` alias stays one, and changes only when its target moved.
- * It covers `from`, bare side-effect imports, `import()`, `require()` and `jest.mock()`.
- *
- * @example
- * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
- * // tests/sw-x.spec.js: 'src/app/component/sw-x/sw-x.helper' → 'src/app/component/sw-x/src/sw-x.helper'
- */
-const rewriteMovedImports = (moves: Map<string, string>, from: string, to: string) => {
+/** Rewrites the import paths of a file at `to` that was at `from`, see `rewriteMovedImports()`, and says whether it changed. */
+const rewriteFileImports = (moves: Map<string, string>, from: string, to: string, entry?: MovedEntry) => {
     const file = path.join(adminRoot, to);
     const source = fs.readFileSync(file, 'utf8');
-    const rewritten = source.replace(
-        /((?:from|import\(|import|require\(|jest\.mock\()\s*')((?:\.\.?\/|src\/)[^']+)'/g,
-        (statement, prefix: string, specifier: string) => {
-            const isAlias = specifier.startsWith('src/');
-            const target = isAlias ? specifier : relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
-            const moved = movedPath(moves, target);
-            const written = SCRIPT_EXTENSION.test(specifier) ? moved : moved.replace(SCRIPT_EXTENSION, '');
+    const rewritten = rewriteMovedImports(source, { moves, from, to, entry });
 
-            if (isAlias) {
-                return moved === target ? statement : `${prefix}${written}'`;
-            }
-
-            return `${prefix}${importPath(file, path.join(adminRoot, written))}'`;
-        },
-    );
-
-    if (rewritten !== source) {
-        fs.writeFileSync(file, rewritten);
+    if (rewritten === source) {
+        return false;
     }
+
+    fs.writeFileSync(file, rewritten);
+    return true;
 };
 
 /** Whether an import path leads to the component's entry file, from the directory of the importing file. */
@@ -383,7 +367,8 @@ const filesMentioning = (text: string) => {
 
 /**
  * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store,
- * that code outside the directory imports would break, and a mixin only the registry reaches cannot be imported.
+ * that code outside the directory imports would break, also when only another module's dependencies.ts or spec
+ * imports it, and a mixin only the registry reaches cannot be imported.
  */
 const findBlocker = (componentDirectory: string, entry: string, index: AdminIndex): string | null => {
     const files = scriptFilesBelow(componentDirectory).filter(
@@ -391,14 +376,12 @@ const findBlocker = (componentDirectory: string, entry: string, index: AdminInde
     );
 
     for (const file of files) {
-        const importers = filesMentioning(path.basename(file).replace(SCRIPT_EXTENSION, ''))
+        const importers = filesMentioning(importedName(file))
             .filter((importer) => !path.join(adminRoot, importer).startsWith(`${componentDirectory}${path.sep}`))
             .filter((importer) => {
                 const absolute = path.join(adminRoot, importer);
-                return (
-                    findImports(fs.readFileSync(absolute, 'utf8'), (specifier) =>
-                        leadsToFile(path.dirname(absolute), specifier, file),
-                    ).length > 0
+                return findSpecifiers(fs.readFileSync(absolute, 'utf8')).some((specifier) =>
+                    leadsToFile(path.dirname(absolute), specifier, file),
                 );
             });
 
@@ -426,24 +409,33 @@ type Reading = {
     shape: Shape;
     registration: ReturnType<typeof locateRegistration>;
     importers: ReturnType<typeof findImporters>;
+    inheritedApi?: ComponentApi;
     nesting?: Map<string, string>;
 };
 
 /**
  * How the component reaches the page today: the statement that registers or extends it, or, without one,
  * the parent that imports it. A string says why the component cannot move yet.
- * A component is private when its registration or the doc comment of its own default export says `@private`.
+ * A component is private when its registration or the doc comment of its own default export says `@private`,
+ * and an extending one also when it inherits from a private component, see `readExtendShape()`.
  */
 const readShape = (componentDirectory: string, name: string, componentSource: string): Reading | string => {
     const registration = locateRegistration(name);
+    if (registration?.registration.kind === 'extend') {
+        const { base, isPrivate: isRegistrationPrivate } = registration.registration;
+        const inherited = readInheritedApi(base);
+
+        return {
+            shape: readExtendShape({ base, isRegistrationPrivate, componentSource, privateBase: inherited.privateBase }),
+            registration,
+            importers: [],
+            inheritedApi: inherited.api,
+        };
+    }
+
     if (registration) {
         const isPrivate = registration.registration.isPrivate || isDocumentedPrivate(componentSource);
-        const shape: Shape =
-            registration.registration.kind === 'extend'
-                ? { kind: 'extend', base: registration.registration.base, isPrivate }
-                : { kind: 'register', isPrivate };
-
-        return { shape, registration, importers: [] };
+        return { shape: { kind: 'register', isPrivate }, registration, importers: [] };
     }
 
     const importers = findImporters(componentDirectory, name);
@@ -483,7 +475,7 @@ function run(directory: string) {
         return;
     }
 
-    const { shape, registration, importers, nesting } = reading;
+    const { shape, registration, importers, inheritedApi, nesting } = reading;
     const root = shape.kind === 'nested' ? `${shape.parent}/src/${name}` : origin;
     const moduleDirectory = path.join(adminRoot, root);
     const adminIndex = createAdminIndex(adminRoot, moduleDirectory);
@@ -494,7 +486,7 @@ function run(directory: string) {
     }
 
     const ownApi = extractComponentApi(componentSource, templateSource);
-    const api = shape.kind === 'extend' ? mergeComponentApi(ownApi, readInheritedApi(shape.base)) : ownApi;
+    const api = inheritedApi ? mergeComponentApi(ownApi, inheritedApi) : ownApi;
     const target = { name, packageName, shape };
 
     const moves = new Map<string, string>();
@@ -517,20 +509,26 @@ function run(directory: string) {
 
     for (const [from, to] of moves) {
         if (SCRIPT_EXTENSION.test(to)) {
-            rewriteMovedImports(moves, from, to);
+            rewriteFileImports(moves, from, to);
         } else if (fs.statSync(path.join(adminRoot, to)).isDirectory()) {
             // A spec split into a directory, such as `sw-x.spec/`, moved with every file in it.
             fs.readdirSync(path.join(adminRoot, to), { recursive: true, encoding: 'utf8' })
                 .filter((file) => SCRIPT_EXTENSION.test(file))
-                .forEach((file) => rewriteMovedImports(moves, `${from}/${file}`, `${to}/${file}`));
+                .forEach((file) => rewriteFileImports(moves, `${from}/${file}`, `${to}/${file}`));
         }
     }
 
-    // Specs elsewhere, such as a parent's, may import the moved files: point them at the new places.
-    const outsideSpecs = sourceFiles(path.basename(origin)).filter(
-        (file) => /\.spec\.[jt]s$/.test(file) && !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`),
-    );
-    outsideSpecs.forEach((file) => rewriteMovedImports(moves, file, file));
+    // Other files, such as the specs of other modules, may import the moved files: point them at the new places.
+    // The registration and the importers of a nested component change below.
+    const changedLater = new Set([
+        registration?.file,
+        ...importers.map(({ file }) => file),
+        ...[...(nesting?.keys() ?? [])].map(relative),
+    ]);
+    const movedEntry = shape.kind === 'nested' ? undefined : { directory: origin, name, isPrivate: shape.isPrivate };
+    const outsideFiles = filesMentioning(path.basename(origin))
+        .filter((file) => !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`) && !changedLater.has(file))
+        .filter((file) => rewriteFileImports(moves, file, file, movedEntry));
 
     const baseline = path.join(adminRoot, 'src/meta/baseline.ts');
     fs.writeFileSync(baseline, dropUntestedFiles(fs.readFileSync(baseline, 'utf8'), [...moves.keys()]));
@@ -586,6 +584,7 @@ function run(directory: string) {
             ...changed,
             ...routed.changed,
             ...routed.outsideFiles,
+            ...outsideFiles,
         ],
         { cwd: adminRoot },
     );
@@ -651,11 +650,23 @@ const describeOutsideEdits = ({ outside }: RoutedModule) => {
         : '';
 };
 
+/** Why an extending component is private, or what its public lists publish, when it inherits from a private one. */
+const describePrivateBase = (name: string, shape: Extract<Shape, { kind: 'extend' }>) => {
+    if (!shape.privateBase) {
+        return '';
+    }
+
+    return shape.isPrivate
+        ? `${name} inherits from the private ${shape.privateBase}, so it is private too: an override of it reaches what it inherits.\n`
+        : `${name} is marked @public but inherits from the private ${shape.privateBase}, so its lists publish what it inherits.
+   Ask the owning team whether that is intended; if not, undo the run, mark ${name} @private and run the codemod again.\n`;
+};
+
 /** What the sweep must know about how the component reaches the page, for the checklist. */
 const describeShape = (name: string, shape: Shape) => {
     const privateNote =
         shape.kind !== 'nested' && shape.isPrivate
-            ? `${name} is marked @private, so it is a private module: private.ts declares it with definePrivateComponent(),
+            ? `${name} is private, so it is a private module: private.ts declares it with definePrivateComponent(),
 and global.d.ts adds it to PrivateComponents, which types Component.override() inside the Administration only.
 It is not published to extensions and has no code owner entry.
 `
@@ -663,7 +674,7 @@ It is not published to extensions and has no code owner entry.
 
     if (shape.kind === 'extend') {
         return `
-${privateNote}${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the lists include what it inherits.
+${privateNote}${describePrivateBase(name, shape)}${name} extends ${shape.base}: register.ts calls Shopware.Component.extend(), and the lists include what it inherits.
 TypeScript cannot check inherited names; the meta test src/meta/public-components.spec.js checks them against the base.
 `;
     }

@@ -80,9 +80,9 @@ describe('scripts/generate-shopware-modules', () => {
 
         it('publishes each mini-module under its kind and directory name, with the value exports of its index.ts', () => {
             expect(registry['shopware:framework'].subpaths['public-component']).toEqual([
-            'definePrivateComponent',
-            'definePublicComponent',
-        ]);
+                'definePrivateComponent',
+                'definePublicComponent',
+            ]);
             expect(registry['shopware:framework'].sources?.['public-component']).toBe('src/core/public-component');
         });
 
@@ -126,15 +126,13 @@ describe('scripts/generate-shopware-modules', () => {
             );
         });
 
-        it('refuses a component module whose directory is not named after the component', () => {
+        it('publishes a component module under the name it declares, also when its directory is named otherwise', () => {
             const extract = extractFrom(
-                'src/module/sw-example/component/sw-renamed',
-                "export default definePublicComponent({ name: 'sw-example-detail', load: () => import('./src/x') });\n",
+                'src/module/sw-cms/elements/text/component',
+                "export default definePublicComponent({ name: 'sw-cms-el-text', load: () => import('./src/x') });\n",
             );
 
-            expect(extract).toThrow(
-                '"src/module/sw-example/component/sw-renamed" declares the component "sw-example-detail".',
-            );
+            expect(Object.keys(extract()['shopware:components'].subpaths)).toEqual(['sw-cms-el-text']);
         });
     });
 

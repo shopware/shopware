@@ -18,7 +18,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
-import { findImports, findRegistration } from './find-registration';
+import { findImports, findRegistration, findRegistrationByPath } from './find-registration';
 import { isDocumentedPrivate, markExport } from './mark-export';
 import { dropBaseImport } from './drop-base-import';
 import {
@@ -70,6 +70,29 @@ const locateRegistration = (name: string) => {
     }
 
     return null;
+};
+
+/**
+ * The name of the component in a directory: the directory's name, or, for a directory that is not named after
+ * its component such as the `component/` of a CMS element, the name its lazy registration gives it.
+ */
+const readComponentName = (componentDirectory: string) => {
+    const directoryName = path.basename(componentDirectory);
+    if (fs.existsSync(path.join(componentDirectory, `${directoryName}.html.twig`)) || locateRegistration(directoryName)) {
+        return directoryName;
+    }
+
+    for (const file of sourceFiles(`${directoryName}'`)) {
+        const absolute = path.join(adminRoot, file);
+        const found = findRegistrationByPath(fs.readFileSync(absolute, 'utf8'), (specifier) =>
+            leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
+        );
+        if (found) {
+            return found.name;
+        }
+    }
+
+    return directoryName;
 };
 
 /** The directory of a component that is already a mini-module, found by the name its index.ts declares. */
@@ -304,7 +327,7 @@ It moves with ${files} when the parent is migrated: run the codemod on the paren
 
 function run(directory: string) {
     const componentDirectory = path.resolve(adminRoot, directory);
-    const name = path.basename(componentDirectory);
+    const name = readComponentName(componentDirectory);
     const origin = relative(componentDirectory);
 
     if (git('status', '--porcelain', '--', origin).trim()) {

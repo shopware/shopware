@@ -137,8 +137,10 @@ Anything that has a module to import is imported, not looked up by a written nam
 Where a name stays necessary, like `inject`, the name is imported from the module that owns it.
 `dependencies.ts` has no side effects: anything that must run, or read state that changes, is a function that runs when it is used.
 
-Requirement tests stay rough.
-They describe what a merchant expects, in a few tests whose titles read like sentences, and each one has a `@requirement` doc comment that says why.
+Requirement tests stay rough, and `requirements.spec.ts` is the first file a newcomer reads, so it tells the module's story.
+A comment above the `describe` says in two to four sentences what the module is for and where its things come from.
+The tests follow in the order a user meets them, the everyday case first and the safety nets last, each title a plain sentence about what someone can do or what they see.
+Each test has a `@requirement` doc comment that says why, from the point of view of the people who use the module.
 Details and edge cases go into pinned tests.
 They need no comment, and an agent may write them by freezing the current behaviour.
 Each regression test has a `@regression` doc comment with the issue and what users saw.
@@ -148,6 +150,7 @@ Pin it in `public-api.spec.ts`, the only spec that may read the component throug
 It may read or call only the props, computed values and methods that the `public` lists of `index.ts` name, so it cannot pin a private detail:
 
 ```ts
+/** @public-api usedRules */
 it('lists the rules the price matrices use', async () => {
     // ARRANGE
     const wrapper = await mountPriceMatrices();
@@ -160,7 +163,7 @@ it('lists the rules the price matrices use', async () => {
 });
 ```
 
-Its tests need no comment, like pinned tests.
+Each of its tests names the member it pins in a `@public-api` doc comment, because a change to that behaviour can break an extension.
 
 A test that the next major removes (`it.deprecated(...)`) also has `@deprecated tag:vX.Y.Z` in its doc comment, in every kind of spec file.
 
@@ -186,7 +189,7 @@ Requirements, pinned, regressions and public-api specs import the module only th
 They may arrange state through a harness in `tests/`, and the harness may import from `../dependencies`.
 A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
 A changed pin only asks whether the change was intended.
-A changed public-api test is a changed pin too: which members are public is already owned through `index.ts`, and the test only freezes what they do today.
+A change to `public-api.spec.ts` needs the owning team as well, because extensions rely on what those members do.
 
 Put a requirement into the smallest module that owns it, and let the code that uses the module rely on its requirements.
 Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.

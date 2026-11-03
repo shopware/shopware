@@ -117,7 +117,7 @@ async function createWrapper(
                             getSyncChangeset: () => ({
                                 changeset,
                             }),
-                            save: () => Promise.resolve(),
+                            save: saveFunction,
                         };
                     },
                 },
@@ -730,12 +730,16 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('should show an error and not succeed when save fails (non-user:editor path)', async () => {
+    it.each([
+        [[], 'OTHER_ERROR', 'sw-profile.index.notificationSaveErrorMessage'],
+        [[], 'USER__USERNAME_NOT_UNIQUE', 'global.error-codes.USER__USERNAME_NOT_UNIQUE'],
+        [['user:editor'], 'USER__USERNAME_NOT_UNIQUE', 'global.error-codes.USER__USERNAME_NOT_UNIQUE'],
+    ])('shows the expected save error for privileges %j and code %s', async (privileges, code, message) => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };
-        const updateUser = jest.fn(() => Promise.reject(new Error('Save failed')));
+        const updateUser = jest.fn(() => Promise.reject({ response: { data: { errors: [{ code }] } } }));
 
-        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        const wrapper = await createWrapper(privileges, { isSso: false }, updateUser, loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -756,7 +760,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(loginByUsername).not.toHaveBeenCalled();
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message });
     });
 
     it('should log out and not show a save error when re-login fails after password change (user:editor path)', async () => {

@@ -507,6 +507,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
+                    additionalFilters: [
+                        Criteria.equals('lineItems.type', 'promotion'),
+                    ],
                 }),
             }),
         );

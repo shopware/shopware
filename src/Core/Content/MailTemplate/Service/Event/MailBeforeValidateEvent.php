@@ -6,6 +6,7 @@ use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -76,7 +77,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @param float|int|string|array<mixed>|object $value
+     * @param bool|float|int|string|array<mixed>|object $value
      */
     public function addData(string $key, $value): void
     {
@@ -115,6 +116,13 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
 
     public function getLogData(): array
     {
+        if (MailLogData::isSensitive($this->data, $this->templateData)) {
+            return MailLogData::create([
+                ...$this->data,
+                'eventName' => $this->templateData['eventName'] ?? null,
+            ]);
+        }
+
         $data = $this->data;
         unset($data['binAttachments']);
 

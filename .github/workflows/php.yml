@@ -127,7 +127,8 @@ jobs:
             phpstan-result-cache-
 
       - name: PHPStan
-        run: composer run phpstan -- --error-format=table --no-progress
+        # Without GITHUB_ACTIONS the table format skips its GitHub annotations, so each error is listed once.
+        run: env -u GITHUB_ACTIONS composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

@@ -1,5 +1,6 @@
 import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 describe('plugin/google-analytics/events/purchase.event', () => {
     beforeEach(() => {
@@ -41,6 +42,27 @@ describe('plugin/google-analytics/events/purchase.event', () => {
 
         expect(CheckoutStepHelper.hasReported('add_shipping_info')).toBe(false);
         expect(CheckoutStepHelper.hasReported('add_payment_info')).toBe(false);
+    });
+
+    test('reports and then forgets the requested categories of the ordered products', () => {
+        window.localStorage.clear();
+        ProductCategoryHelper.remember('product-1', { item_category: 'Requested' });
+        ProductCategoryHelper.remember('product-2', { item_category: 'Still in another cart' });
+
+        document.body.innerHTML = `
+            <div class="finish-ordernumber" data-order-number="10001"></div>
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item" data-id="product-1" data-sku="SW1"></span>
+            </div>
+        `;
+
+        new PurchaseEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'purchase', expect.objectContaining({
+            'items': [expect.objectContaining({ 'item_category': 'Requested' })],
+        }));
+        expect(ProductCategoryHelper.get('product-1')).toEqual({});
+        expect(ProductCategoryHelper.get('product-2')).toEqual({ item_category: 'Still in another cart' });
     });
 
     test('fires purchase event with order number and line items', () => {

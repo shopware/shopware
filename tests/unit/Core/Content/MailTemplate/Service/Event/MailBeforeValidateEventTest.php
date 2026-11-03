@@ -73,9 +73,7 @@ class MailBeforeValidateEventTest extends TestCase
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
         ], $event->getTemplateData());
         static::assertSame([
-            'data' => [
-                'customerId' => $customerId,
-            ],
+            'data' => ['customerId' => $customerId],
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
             'templateData' => [
                 'user' => 'admin',

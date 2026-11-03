@@ -25,6 +25,8 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
 
     protected string $orderLineItemId;
 
+    protected string $orderLineItemVersionId;
+
     protected ?string $reason = null;
 
     protected int $quantity;
@@ -125,5 +127,15 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
     public function setRefundVersionId(string $refundVersionId): void
     {
         $this->refundVersionId = $refundVersionId;
+    }
+
+    public function getOrderLineItemVersionId(): string
+    {
+        return $this->orderLineItemVersionId;
+    }
+
+    public function setOrderLineItemVersionId(string $orderLineItemVersionId): void
+    {
+        $this->orderLineItemVersionId = $orderLineItemVersionId;
     }
 }

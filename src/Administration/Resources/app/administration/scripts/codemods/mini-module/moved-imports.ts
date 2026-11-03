@@ -91,8 +91,11 @@ const importPath = (fromFile: string, target: string) => {
 const resolve = (file: string, specifier: string) =>
     specifier.startsWith('src/') ? posix.normalize(specifier) : posix.join(posix.dirname(file), specifier);
 
-const DISABLE_BOUNDARY =
-    '// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- it uses the component itself, not its declaration';
+/** Why a file outside the module may import the moved component, for the boundaries' disable line. */
+const DISABLE_REASONS = {
+    component: 'it uses the component itself, not its declaration',
+    bare: 'a bare import that registers nothing, as before the module moved',
+};
 
 /**
  * Rewrites the relative and `src/…` import paths of a file whose place or targets moved, so they still reach
@@ -100,18 +103,20 @@ const DISABLE_BOUNDARY =
  * An import through the alias stays one, and changes only when its target moved; a query such as `?raw` stays,
  * and of a template literal it rewrites the directory before the first `${`.
  * Given the moved `entry`, a file outside the module imports the module instead of the old entry:
- * a bare import of a private module imports its register.ts, a bare import of a public one stays,
- * and any other import takes the component from src/, with a disabled lint line that says why.
+ * a bare import of a public module stays, as its index.ts has no side effects either;
+ * a bare import of a private module imports its private.ts, because its register.ts would register the component
+ * a second time in a spec; and any other import takes the component from src/.
+ * Both of the latter get a disabled lint line that says why.
  *
  * @example
  * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
- * // in another module's spec: import 'src/app/component/sw-x'; → import 'src/app/component/sw-x/register';
+ * // in another module's spec: import 'src/app/component/sw-x'; → import 'src/app/component/sw-x/private';
  */
 export function rewriteMovedImports(
     source: string,
     { moves, from, to, entry }: { moves: Map<string, string>; from: string; to: string; entry?: MovedEntry },
 ): string {
-    const disabledLines = new Set<number>();
+    const disabledLines = new Map<number, string>();
     const rewritten = source.replace(
         SPECIFIER,
         (statement, prefix: string, quoted: string | undefined, template: string | undefined, offset: number) => {
@@ -136,12 +141,18 @@ export function rewriteMovedImports(
                 const lineStart = source.lastIndexOf('\n', offset) + 1;
                 const isBare = /^import\s*$/.test(source.slice(lineStart, offset + prefix.length));
 
+                const literalLine = source.lastIndexOf('\n', offset + prefix.length) + 1;
+                if (isBare && !entry.isPrivate) {
+                    return statement;
+                }
+
                 if (isBare) {
-                    return entry.isPrivate ? rewrite(`${written}/register`) : statement;
+                    disabledLines.set(literalLine, DISABLE_REASONS.bare);
+                    return rewrite(`${written}/private`);
                 }
 
                 if (!prefix.startsWith('require') && !prefix.startsWith('jest')) {
-                    disabledLines.add(source.lastIndexOf('\n', offset + prefix.length) + 1);
+                    disabledLines.set(literalLine, DISABLE_REASONS.component);
                 }
 
                 return rewrite(`${written}/src/${entry.name}`);
@@ -161,20 +172,22 @@ export function rewriteMovedImports(
 }
 
 /**
- * Puts the boundaries' disable line above each line of the original source that starts at one of the offsets.
- * The rewrite changed only import paths, so the lines are the same in both and are found by their number.
+ * Puts the boundaries' disable line with its reason above each line of the original source that starts at one
+ * of the offsets. The rewrite changed only import paths, so the lines are the same in both and found by their number.
  */
-const addDisableLines = (original: string, rewritten: string, lineStarts: Set<number>) => {
-    const lineNumbers = new Set([...lineStarts].map((start) => original.slice(0, start).split('\n').length - 1));
+const addDisableLines = (original: string, rewritten: string, reasons: Map<number, string>) => {
+    const byLine = new Map([...reasons].map(([start, reason]) => [original.slice(0, start).split('\n').length - 1, reason]));
     const lines = rewritten.split('\n');
 
     return lines
         .flatMap((line, number) => {
-            if (!lineNumbers.has(number) || lines[number - 1]?.includes('sw-core-rules/mini-module-boundaries')) {
+            const reason = byLine.get(number);
+            if (!reason || lines[number - 1]?.includes('sw-core-rules/mini-module-boundaries')) {
                 return [line];
             }
 
-            return [`${/^\s*/.exec(line)?.[0] ?? ''}${DISABLE_BOUNDARY}`, line];
+            const indent = /^\s*/.exec(line)?.[0] ?? '';
+            return [`${indent}// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- ${reason}`, line];
         })
         .join('\n');
 };

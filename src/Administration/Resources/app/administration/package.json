@@ -10,6 +10,7 @@
     "codemod:js-vue3-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/js-vue3-feature-flag-removal/index.ts",
     "codemod:twig-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/twig-feature-flag-removal/index.ts",
     "codemod:twig-remove-blocks": "ts-node --transpileOnly ./scripts/codemods/twig-block-removal/index.ts",
+    "codemod:set-data-to-vm": "ts-node --transpileOnly ./scripts/codemods/set-data-to-vm/index.ts",
     "codemod:sfc-migration": "ts-node --transpileOnly ./scripts/codemods/sfc-migration/run-sfc-migration.ts",
     "convert-entity-schema": "ts-node --transpileOnly ./scripts/entitySchemaConverter/convert-schema.ts",
     "create-test": "node ./scripts/create-spec-file/index.mjs",

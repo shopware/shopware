@@ -62,9 +62,10 @@ class CheckoutFinishPageLoader
             $page->setOrder($this->getOrder($request, $salesChannelContext));
         });
 
-        $page->setChangedPayment((bool) $request->query->get('changedPayment', ''));
+        // A failed payment forwards to this page and passes these values as request attributes
+        $page->setChangedPayment((bool) ($request->attributes->get('changedPayment') ?? $request->query->get('changedPayment', '')));
 
-        $page->setPaymentFailed((bool) $request->query->get('paymentFailed', ''));
+        $page->setPaymentFailed((bool) ($request->attributes->get('paymentFailed') ?? $request->query->get('paymentFailed', '')));
 
         $page->setLogoutCustomer($salesChannelContext->getCustomer()?->getGuest() && $this->systemConfigService->get('core.cart.logoutGuestAfterCheckout', $salesChannelContext->getSalesChannelId()));
 
@@ -104,7 +105,7 @@ class CheckoutFinishPageLoader
             throw CartException::customerNotLoggedIn();
         }
 
-        $orderId = $request->query->get('orderId');
+        $orderId = $request->attributes->getString('orderId') ?: $request->query->getString('orderId');
         if (!$orderId) {
             throw RoutingException::missingRequestParameter('orderId', '/orderId');
         }

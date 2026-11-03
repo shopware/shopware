@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/meteor/sw-meteor-page';
+import 'src/app/component/meteor/sw-meteor-page/src/sw-meteor-page';
 import 'src/app/component/base/sw-tabs/src/sw-tabs';
 import 'src/app/component/base/sw-tabs-item/src/sw-tabs-item';
 

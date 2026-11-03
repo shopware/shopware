@@ -1,13 +1,13 @@
-import type { RouteLocationNamedRaw } from 'vue-router';
 import template from './sw-meteor-navigation.html.twig';
 import './sw-meteor-navigation.scss';
+import { type RouteLocationNamedRaw, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package framework
  *
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     props: {

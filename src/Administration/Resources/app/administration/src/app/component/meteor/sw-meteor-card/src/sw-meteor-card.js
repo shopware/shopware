@@ -1,6 +1,6 @@
-import { getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../tab-slot-parser';
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
+import { featureService, getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -27,7 +27,7 @@ import './sw-meteor-card.scss';
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     props: {
         title: {

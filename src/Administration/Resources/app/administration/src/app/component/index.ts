@@ -162,6 +162,10 @@ import 'src/app/component/meteor-wrapper/mt-card/register';
 import 'src/app/component/meteor-wrapper/mt-datepicker/register';
 import 'src/app/component/meteor-wrapper/mt-tabs/register';
 import 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/register';
+import 'src/app/component/meteor/sw-meteor-card/register';
+import 'src/app/component/meteor/sw-meteor-navigation/register';
+import 'src/app/component/meteor/sw-meteor-page/register';
+import 'src/app/component/meteor/sw-meteor-single-select/register';
 /**
  * @sw-package framework
  * @private
@@ -336,13 +340,6 @@ export default () => {
     );
     Shopware.Component.register('sw-confirm-modal', () => import('src/app/component/modal/sw-confirm-modal/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
-    Shopware.Component.register(
-        'sw-meteor-single-select',
-        () => import('src/app/component/meteor/sw-meteor-single-select/index'),
-    );
-    Shopware.Component.register('sw-meteor-page', () => import('src/app/component/meteor/sw-meteor-page/index'));
-    Shopware.Component.register('sw-meteor-navigation', () => import('src/app/component/meteor/sw-meteor-navigation/index'));
-    Shopware.Component.register('sw-meteor-card', () => import('src/app/component/meteor/sw-meteor-card/index'));
     Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
     Shopware.Component.register(
         'sw-boolean-radio-group',

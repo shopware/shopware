@@ -1601,17 +1601,17 @@
       "count": 1
     }
   },
-  "src/app/component/meteor/sw-meteor-card/index.js": {
+  "src/app/component/meteor/sw-meteor-card/src/sw-meteor-card.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/meteor/sw-meteor-page/sw-meteor-page.spec.js": {
+  "src/app/component/meteor/sw-meteor-page/tests/sw-meteor-page.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/app/component/meteor/sw-meteor-single-select/index.js": {
+  "src/app/component/meteor/sw-meteor-single-select/src/sw-meteor-single-select.js": {
     "filename-rules/not-match": {
       "count": 1
     }

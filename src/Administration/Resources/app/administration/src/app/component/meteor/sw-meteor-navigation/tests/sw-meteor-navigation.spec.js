@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/meteor/sw-meteor-navigation';
+import 'src/app/component/meteor/sw-meteor-navigation/src/sw-meteor-navigation';
 
 async function createWrapper(customRoute, fromLink = null) {
     return mount(await wrapTestComponent('sw-meteor-navigation', { sync: true }), {

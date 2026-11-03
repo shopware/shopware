@@ -1,10 +1,18 @@
-import { type VNode } from 'vue';
-import type { RouteLocationNamedRaw, RouteLocationRaw } from 'vue-router';
-import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
-import type { ModuleManifest } from 'src/core/factory/module.factory';
-import { getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../tab-slot-parser';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
+import {
+    featureService,
+    getTabItemsFromSlotContent,
+    getTextFromSlotItem,
+    type ModuleManifest,
+    type RouteLocationNamedRaw,
+    type RouteLocationRaw,
+    type TabItem,
+    triggerTabItemClick,
+    useErrorStore,
+    type VNode,
+    wrapComponentConfig,
+} from '../dependencies';
 
 type ComponentData = {
     module: ModuleManifest | null;
@@ -34,10 +42,10 @@ type VNodeChildrenWithDefaultSlot = {
  *
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['new-item-active'],
 
@@ -110,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     beforeUnmount(): void {
-        void Shopware.Store.get('error').resetApiErrors();
+        void useErrorStore().resetApiErrors();
     },
 
     mounted(): void {

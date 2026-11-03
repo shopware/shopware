@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 
-import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
+import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/src/sw-generic-custom-entity-detail';
 // eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
 import 'src/app/component/base/sw-button-process/private';
 

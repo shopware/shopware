@@ -1,16 +1,21 @@
-import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
-import type {
-    AdminTabsDefinition,
-    CustomEntityDefinition,
-    CustomEntityProperties,
-    AdminUiDefinition,
-} from 'src/app/service/custom-entity-definition.service';
-import type Repository from 'src/core/data/repository.data';
-
 import template from './sw-generic-custom-entity-detail.html.twig';
 import './sw-generic-custom-entity-detail.scss';
-
-const { Mixin } = Shopware;
+import {
+    aclService,
+    type AdminTabsDefinition,
+    type AdminUiDefinition,
+    type CustomEntityDefinition,
+    customEntityDefinitionService,
+    type CustomEntityProperties,
+    featureService,
+    notificationMixin,
+    placeholderMixin,
+    type Repository,
+    repositoryFactoryService,
+    type TabItem,
+    useContextStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 type GenericCustomEntityDetailData = {
     isLoading: boolean;
@@ -24,17 +29,17 @@ type GenericCustomEntityDetailData = {
  * @private
  * @sw-package framework
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     inject: [
-        'customEntityDefinitionService',
-        'repositoryFactory',
-        'acl',
-        'feature',
+        customEntityDefinitionService,
+        repositoryFactoryService,
+        aclService,
+        featureService,
     ],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     data(): GenericCustomEntityDetailData {
         return {
@@ -210,7 +215,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             void this.loadData();
         },
 

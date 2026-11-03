@@ -1,13 +1,14 @@
 import template from './sw-custom-entity-input-field.html.twig';
+import { featureService, wrapComponentConfig } from '../dependencies';
 
 /**
  * @private
  * @sw-package framework
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['feature'],
+    inject: [featureService],
 
     emits: ['update:value'],
 

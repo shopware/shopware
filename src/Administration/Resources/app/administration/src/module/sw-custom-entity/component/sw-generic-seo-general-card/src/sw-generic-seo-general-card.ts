@@ -4,14 +4,15 @@
 
 import template from './sw-generic-seo-general-card.html.twig';
 import './sw-generic-seo-general-card.scss';
+import { repositoryFactoryService, wrapComponentConfig } from '../dependencies';
 
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['update:seo-meta-title', 'update:seo-meta-description', 'update:seo-url'],
 

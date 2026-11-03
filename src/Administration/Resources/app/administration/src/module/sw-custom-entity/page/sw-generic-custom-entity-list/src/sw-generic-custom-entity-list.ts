@@ -1,10 +1,18 @@
-import type { AdminUiDefinition, CustomEntityDefinition } from 'src/app/service/custom-entity-definition.service';
-import type CriteriaType from 'src/core/data/criteria.data';
-import type Repository from 'src/core/data/repository.data';
-
 import template from './sw-generic-custom-entity-list.html.twig';
+import {
+    aclService,
+    type AdminUiDefinition,
+    Criteria,
+    type CriteriaType,
+    type CustomEntityDefinition,
+    customEntityDefinitionService,
+    getAssetFilter,
+    type Repository,
+    repositoryFactoryService,
+    useContextStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
-const { Criteria } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 interface EntityListingColumnConfig {
@@ -43,10 +51,10 @@ interface RouteParseOptions {
  * @private
  * @sw-package framework
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['customEntityDefinitionService', 'repositoryFactory', 'acl'],
+    inject: [customEntityDefinitionService, repositoryFactoryService, aclService],
 
     data() {
         return {
@@ -146,7 +154,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
@@ -188,7 +196,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             void this.getList();
         },
 

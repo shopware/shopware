@@ -6732,12 +6732,12 @@
       "count": 1
     }
   },
-  "src/module/sw-custom-entity/component/sw-custom-entity-input-field/index.ts": {
+  "src/module/sw-custom-entity/component/sw-custom-entity-input-field/src/sw-custom-entity-input-field.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/index.ts": {
+  "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/src/sw-generic-cms-page-assignment.ts": {
     "max-nested-callbacks": {
       "count": 1
     },
@@ -6745,22 +6745,27 @@
       "count": 1
     }
   },
-  "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/sw-generic-cms-page-assignment.spec.js": {
+  "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/tests/sw-generic-cms-page-assignment.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-custom-entity/component/sw-generic-social-media-card/index.ts": {
+  "src/module/sw-custom-entity/component/sw-generic-social-media-card/src/sw-generic-social-media-card.ts": {
     "no-restricted-syntax": {
       "count": 1
     }
   },
-  "src/module/sw-custom-entity/component/sw-generic-social-media-card/sw-generic-social-media-card.spec.js": {
+  "src/module/sw-custom-entity/component/sw-generic-social-media-card/tests/sw-generic-social-media-card.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/index.ts": {
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/src/sw-generic-custom-entity-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/src/sw-generic-custom-entity-detail.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -6768,22 +6773,17 @@
       "count": 1
     }
   },
-  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/sw-generic-custom-entity-detail.html.twig": {
-    "vue/max-template-depth": {
-      "count": 1
-    }
-  },
-  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/sw-generic-custom-entity-detail.spec.js": {
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/tests/sw-generic-custom-entity-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 15
     }
   },
-  "src/module/sw-custom-entity/page/sw-generic-custom-entity-list/index.ts": {
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-list/src/sw-generic-custom-entity-list.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
     }
   },
-  "src/module/sw-custom-entity/page/sw-generic-custom-entity-list/sw-generic-custom-entity-list.spec.js": {
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-list/tests/sw-generic-custom-entity-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }

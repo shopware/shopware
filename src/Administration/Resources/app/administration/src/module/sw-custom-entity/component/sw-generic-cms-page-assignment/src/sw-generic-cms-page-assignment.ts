@@ -1,11 +1,17 @@
-import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import type Repository from 'src/core/data/repository.data';
-
-import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-generic-cms-page-assignment.html.twig';
 import './sw-generic-cms-page-assignment.scss';
+import {
+    type ChangesetGenerator,
+    cmsPageTypeService,
+    Criteria,
+    object,
+    type Repository,
+    repositoryFactoryService,
+    useCmsPageStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
-const objectUtils = Shopware.Utils.object;
+const objectUtils = object;
 
 interface CmsSlotOverrides {
     [key: string]: unknown;
@@ -15,10 +21,10 @@ interface CmsSlotOverrides {
  * @private
  * @sw-package discovery
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory', 'cmsPageTypeService'],
+    inject: [repositoryFactoryService, cmsPageTypeService],
 
     emits: ['update:cms-page-id', 'create-layout', 'update:slot-overrides'],
 
@@ -170,7 +176,7 @@ export default Shopware.Component.wrapComponentConfig({
             const response = await this.cmsPageRepository.search(criteria);
             const cmsPage = this.applySlotOverrides(response[0]);
 
-            Shopware.Store.get('cmsPage').setCurrentPage(cmsPage);
+            useCmsPageStore().setCurrentPage(cmsPage);
             this.cmsPage = cmsPage;
 
             this.isLoading = false;

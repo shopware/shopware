@@ -3,18 +3,18 @@
  */
 
 import './sw-generic-social-media-card.scss';
-import type Repository from 'src/core/data/repository.data';
 import template from './sw-generic-social-media-card.html.twig';
+import { type Repository, repositoryFactoryService, wrapComponentConfig } from '../dependencies';
 
 const createId = Shopware.Utils.createId;
 
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['update:og-image-id', 'update:og-title', 'update:og-description'],
 

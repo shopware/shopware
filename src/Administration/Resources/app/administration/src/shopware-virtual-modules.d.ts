@@ -1168,6 +1168,12 @@ declare module 'shopware:components/sw-category-view' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-block' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-block';
+    export type * from 'src/module/sw-cms/component/sw-cms-block';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-cms-create-wizard' {
     export { default } from 'src/module/sw-cms/component/sw-cms-create-wizard';
     export type * from 'src/module/sw-cms/component/sw-cms-create-wizard';
@@ -1237,12 +1243,6 @@ declare module 'shopware:components/sw-condition-customer-custom-field' {
 declare module 'shopware:components/sw-condition-date-range' {
     export { default } from 'src/app/component/rule/condition-type/sw-condition-date-range';
     export type * from 'src/app/component/rule/condition-type/sw-condition-date-range';
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:components/sw-condition-generic' {
-    export { default } from 'src/app/component/rule/condition-type/sw-condition-generic';
-    export type * from 'src/app/component/rule/condition-type/sw-condition-generic';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -2098,6 +2098,12 @@ declare module 'shopware:components/sw-order-send-document-modal' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-state-change-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-state-change-modal';
+    export type * from 'src/module/sw-order/component/sw-order-state-change-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-order-state-change-modal-attach-documents' {
     export { default } from 'src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
     export type * from 'src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
@@ -2335,12 +2341,6 @@ declare module 'shopware:components/sw-product-seo-form' {
 declare module 'shopware:components/sw-product-settings-form' {
     export { default } from 'src/module/sw-product/component/sw-product-settings-form';
     export type * from 'src/module/sw-product/component/sw-product-settings-form';
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:components/sw-product-settings-mode' {
-    export { default } from 'src/module/sw-product/component/sw-product-settings-mode';
-    export type * from 'src/module/sw-product/component/sw-product-settings-mode';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -3280,6 +3280,12 @@ declare module 'shopware:components/sw-users-permissions-detailed-additional-per
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-detailed-permissions-grid' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-users-permissions-permissions-grid' {
     export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
     export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
@@ -3360,6 +3366,7 @@ declare module 'shopware:framework/service-names' {
         cacheService,
         captchaService,
         cartStoreService,
+        cmsBlockFavorites,
         cmsDataResolverService,
         cmsElementFavorites,
         cmsPageTypeService,
@@ -3407,6 +3414,7 @@ declare module 'shopware:framework/service-names' {
         menuService,
         messageStatsService,
         numberRangeService,
+        oauthAuthorizeApiService,
         orderDocumentApiService,
         orderService,
         orderStateMachineService,

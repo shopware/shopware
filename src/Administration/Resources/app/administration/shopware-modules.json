@@ -350,6 +350,9 @@
             "sw-category-view": [
                 "default"
             ],
+            "sw-cms-block": [
+                "default"
+            ],
             "sw-cms-create-wizard": [
                 "default"
             ],
@@ -384,9 +387,6 @@
                 "default"
             ],
             "sw-condition-date-range": [
-                "default"
-            ],
-            "sw-condition-generic": [
                 "default"
             ],
             "sw-condition-goods-count": [
@@ -815,6 +815,9 @@
             "sw-order-send-document-modal": [
                 "default"
             ],
+            "sw-order-state-change-modal": [
+                "default"
+            ],
             "sw-order-state-change-modal-attach-documents": [
                 "default"
             ],
@@ -933,9 +936,6 @@
                 "default"
             ],
             "sw-product-settings-form": [
-                "default"
-            ],
-            "sw-product-settings-mode": [
                 "default"
             ],
             "sw-product-variant-modal": [
@@ -1406,6 +1406,9 @@
             "sw-users-permissions-detailed-additional-permissions": [
                 "default"
             ],
+            "sw-users-permissions-detailed-permissions-grid": [
+                "default"
+            ],
             "sw-users-permissions-permissions-grid": [
                 "default"
             ],
@@ -1469,6 +1472,7 @@
             "sw-category-seo-form": "src/module/sw-category/component/sw-category-seo-form",
             "sw-category-tree": "src/module/sw-category/component/sw-category-tree",
             "sw-category-view": "src/module/sw-category/component/sw-category-view",
+            "sw-cms-block": "src/module/sw-cms/component/sw-cms-block",
             "sw-cms-create-wizard": "src/module/sw-cms/component/sw-cms-create-wizard",
             "sw-cms-list": "src/module/sw-cms/page/sw-cms-list",
             "sw-cms-list-item": "src/module/sw-cms/component/sw-cms-list-item",
@@ -1481,7 +1485,6 @@
             "sw-condition-billing-zip-code": "src/app/component/rule/condition-type/sw-condition-billing-zip-code",
             "sw-condition-customer-custom-field": "src/app/component/rule/condition-type/sw-condition-customer-custom-field",
             "sw-condition-date-range": "src/app/component/rule/condition-type/sw-condition-date-range",
-            "sw-condition-generic": "src/app/component/rule/condition-type/sw-condition-generic",
             "sw-condition-goods-count": "src/app/component/rule/condition-type/sw-condition-goods-count",
             "sw-condition-goods-price": "src/app/component/rule/condition-type/sw-condition-goods-price",
             "sw-condition-is-always-valid": "src/app/component/rule/condition-type/sw-condition-is-always-valid",
@@ -1624,6 +1627,7 @@
             "sw-order-saveable-field": "src/module/sw-order/component/sw-order-saveable-field",
             "sw-order-select-document-type-modal": "src/module/sw-order/component/sw-order-select-document-type-modal",
             "sw-order-send-document-modal": "src/module/sw-order/component/sw-order-send-document-modal",
+            "sw-order-state-change-modal": "src/module/sw-order/component/sw-order-state-change-modal",
             "sw-order-state-change-modal-attach-documents": "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents",
             "sw-order-state-history-card": "src/module/sw-order/component/sw-order-state-history-card",
             "sw-order-state-history-card-entry": "src/module/sw-order/component/sw-order-state-history-card-entry",
@@ -1664,7 +1668,6 @@
             "sw-product-restriction-selection": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection",
             "sw-product-seo-form": "src/module/sw-product/component/sw-product-seo-form",
             "sw-product-settings-form": "src/module/sw-product/component/sw-product-settings-form",
-            "sw-product-settings-mode": "src/module/sw-product/component/sw-product-settings-mode",
             "sw-product-variant-modal": "src/module/sw-product/component/sw-product-variant-modal",
             "sw-product-variants-configurator-prices": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices",
             "sw-product-variants-configurator-restrictions": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions",
@@ -1821,6 +1824,7 @@
             "sw-users-permissions-additional-permissions": "src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions",
             "sw-users-permissions-configuration": "src/module/sw-users-permissions/components/sw-users-permissions-configuration",
             "sw-users-permissions-detailed-additional-permissions": "src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions",
+            "sw-users-permissions-detailed-permissions-grid": "src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid",
             "sw-users-permissions-permissions-grid": "src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid",
             "sw-users-permissions-role-detail": "src/module/sw-users-permissions/page/sw-users-permissions-role-detail",
             "sw-users-permissions-role-listing": "src/module/sw-users-permissions/components/sw-users-permissions-role-listing",
@@ -1853,6 +1857,7 @@
                 "cacheService",
                 "captchaService",
                 "cartStoreService",
+                "cmsBlockFavorites",
                 "cmsDataResolverService",
                 "cmsElementFavorites",
                 "cmsPageTypeService",
@@ -1900,6 +1905,7 @@
                 "menuService",
                 "messageStatsService",
                 "numberRangeService",
+                "oauthAuthorizeApiService",
                 "orderDocumentApiService",
                 "orderService",
                 "orderStateMachineService",

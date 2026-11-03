@@ -163,6 +163,13 @@
                         {{ $t('sw-product.documentForm.contextDownload') }}
                     </sw-context-menu-item>
                     {% endblock %}
+                    <sw-context-menu-item
+                        variant="danger"
+                        :disabled="!canEdit || isInherited"
+                        @click="confirmRemoveDocument(item)"
+                    >
+                        {{ $t('global.default.remove') }}
+                    </sw-context-menu-item>
                 </template>
             {% endblock %}
             </sw-data-grid>
@@ -259,6 +266,17 @@
         @upload="successfulUpload($event, editingDocument)"
         @remove-file="removeEditingFile"
         @select-media="showMediaModal = true"
+    />
+{% endblock %}
+
+{% block sw_product_document_form_remove_modal %}
+    <sw-product-document-remove-modal
+        v-if="removingDocument"
+        :document-title="getTitle(removingDocument)"
+        :can-edit="canEdit"
+        :is-removing-document="isRemovingDocument"
+        @close="removingDocument = null"
+        @remove="removeDocument"
     />
 {% endblock %}
 

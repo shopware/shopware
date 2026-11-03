@@ -37,6 +37,8 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             editingDocument: null as ProductDocument | null,
+            removingDocument: null as ProductDocument | null,
+            isRemovingDocument: false,
             documentTitle: '',
             documentEditSession: 0,
             replacementMedia: null as Entity<'media'> | null,
@@ -153,6 +155,7 @@ export default Shopware.Component.wrapComponentConfig({
         product() {
             this.showUploadModal = false;
             this.closeDocumentEditor();
+            this.removingDocument = null;
             this.uploadedMedia = {};
         },
     },
@@ -367,6 +370,23 @@ export default Shopware.Component.wrapComponentConfig({
             this.editingDocument = null;
             this.replacementMedia = null;
             this.showMediaModal = false;
+        },
+
+        confirmRemoveDocument(document: ProductDocument): void {
+            if (!this.canChangeDocuments()) {
+                return;
+            }
+
+            this.removingDocument = document;
+        },
+
+        removeDocument(): void {
+            if (!this.canChangeDocuments() || !this.removingDocument) {
+                return;
+            }
+            this.documents.remove(this.removingDocument.id);
+            this.updatePositions();
+            this.removingDocument = null;
         },
 
         updatePositions(): void {

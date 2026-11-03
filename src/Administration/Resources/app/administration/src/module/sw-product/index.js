@@ -40,6 +40,10 @@ Shopware.Component.register('sw-product-media-form', () => import('./component/s
 Shopware.Component.register('sw-product-download-form', () => import('./component/sw-product-download-form'));
 Shopware.Component.register('sw-product-document-form', () => import('./component/sw-product-document-form'));
 Shopware.Component.register('sw-product-document-edit-modal', () => import('./component/sw-product-document-edit-modal'));
+Shopware.Component.register(
+    'sw-product-document-remove-modal',
+    () => import('./component/sw-product-document-remove-modal'),
+);
 Shopware.Component.register('sw-product-visibility-detail', () => import('./component/sw-product-visibility-detail'));
 Shopware.Component.register(
     'sw-product-restriction-selection',

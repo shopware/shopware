@@ -133,6 +133,19 @@ Shopware.Component.register('sw-cms-el-text', () => import('./component'));
         expect(found?.name).toBe('sw-cms-el-text');
         expect(found?.registration).toMatchObject({ kind: 'register', specifier: './component', isPrivate: false });
     });
+
+    it('finds the name a component is registered under when it differs from its directory', () => {
+        // ARRANGE
+        const source = `Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
+Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
+`;
+
+        // ACT
+        const found = findRegistrationByPath(source, (specifier) => specifier === 'src/app/component/utils/sw-help-center');
+
+        // ASSERT
+        expect(found?.name).toBe('sw-help-center-v2');
+    });
 });
 
 describe('findImports', () => {

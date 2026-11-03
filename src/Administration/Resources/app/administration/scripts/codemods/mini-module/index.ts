@@ -80,11 +80,12 @@ const locateRegistration = (name: string) => {
 
 /**
  * The name of the component in a directory: the directory's name, or, for a directory that is not named after
- * its component such as the `component/` of a CMS element, the name its lazy registration gives it.
+ * its component such as the `component/` of a CMS element or `sw-help-center` registered as `sw-help-center-v2`,
+ * the name its lazy registration gives it.
  */
 const readComponentName = (componentDirectory: string) => {
     const directoryName = path.basename(componentDirectory);
-    if (fs.existsSync(path.join(componentDirectory, `${directoryName}.html.twig`)) || locateRegistration(directoryName)) {
+    if (locateRegistration(directoryName)) {
         return directoryName;
     }
 
@@ -130,11 +131,14 @@ const readComponentSource = (componentDirectory: string, name: string) => {
         throw new Error(`${relative(componentDirectory)} has no index.js or index.ts.`);
     }
 
-    const templateFile = path.join(componentDirectory, `${name}.html.twig`);
+    // The template is named after the component, or after its directory when the registration renames it.
+    const templateFile = [name, path.basename(componentDirectory)]
+        .map((base) => path.join(componentDirectory, `${base}.html.twig`))
+        .find((file) => fs.existsSync(file));
     return {
         entry,
         componentSource: fs.readFileSync(path.join(componentDirectory, entry), 'utf8'),
-        templateSource: fs.existsSync(templateFile) ? fs.readFileSync(templateFile, 'utf8') : '',
+        templateSource: templateFile ? fs.readFileSync(templateFile, 'utf8') : '',
     };
 };
 

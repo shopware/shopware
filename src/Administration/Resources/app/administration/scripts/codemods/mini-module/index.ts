@@ -22,6 +22,7 @@ import { findImports, findRegistration, findRegistrationByPath } from './find-re
 import { isDocumentedPrivate, markExport } from './mark-export';
 import { readDeclarationKind, readExtendShape } from './inherit-privacy';
 import { dropBaseImport } from './drop-base-import';
+import { rewriteMovedImports, type MovedEntry } from './moved-imports';
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
@@ -184,64 +185,18 @@ const addImport = (source: string, specifier: string) => {
 
 const SCRIPT_EXTENSION = /\.[jt]s$/;
 
-/**
- * Where a path relative to the Administration root ends up after the moves, or itself when it did not move.
- * It tries the extensions and `index` files an import may leave out.
- */
-const movedPath = (moves: Map<string, string>, target: string) => {
-    const candidates = [
-        target,
-        ...[
-            '.js',
-            '.ts',
-            '/index.js',
-            '/index.ts',
-        ].map((suffix) => `${target}${suffix}`),
-    ];
-
-    for (const candidate of candidates) {
-        for (const [from, to] of moves) {
-            if (candidate === from || candidate.startsWith(`${from}/`)) {
-                return `${to}${candidate.slice(from.length)}`;
-            }
-        }
-    }
-
-    return target;
-};
-
-/**
- * Rewrites the relative imports of a moved file, so they still reach their target from the file's new place,
- * also when the target moved: a spec in tests/ that imported './index' now imports '../src/<name>'.
- * An import through the `src/…` alias stays one, and changes only when its target moved.
- * It covers `from`, bare side-effect imports, `import()`, `require()` and `jest.mock()`.
- *
- * @example
- * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
- * // tests/sw-x.spec.js: 'src/app/component/sw-x/sw-x.helper' → 'src/app/component/sw-x/src/sw-x.helper'
- */
-const rewriteMovedImports = (moves: Map<string, string>, from: string, to: string) => {
+/** Rewrites the import paths of a file at `to` that was at `from`, see `rewriteMovedImports()`, and says whether it changed. */
+const rewriteFileImports = (moves: Map<string, string>, from: string, to: string, entry?: MovedEntry) => {
     const file = path.join(adminRoot, to);
     const source = fs.readFileSync(file, 'utf8');
-    const rewritten = source.replace(
-        /((?:from|import\(|import|require\(|jest\.mock\()\s*')((?:\.\.?\/|src\/)[^']+)'/g,
-        (statement, prefix: string, specifier: string) => {
-            const isAlias = specifier.startsWith('src/');
-            const target = isAlias ? specifier : relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
-            const moved = movedPath(moves, target);
-            const written = SCRIPT_EXTENSION.test(specifier) ? moved : moved.replace(SCRIPT_EXTENSION, '');
+    const rewritten = rewriteMovedImports(source, { moves, from, to, entry });
 
-            if (isAlias) {
-                return moved === target ? statement : `${prefix}${written}'`;
-            }
-
-            return `${prefix}${importPath(file, path.join(adminRoot, written))}'`;
-        },
-    );
-
-    if (rewritten !== source) {
-        fs.writeFileSync(file, rewritten);
+    if (rewritten === source) {
+        return false;
     }
+
+    fs.writeFileSync(file, rewritten);
+    return true;
 };
 
 /** Whether an import path leads to the component's entry file, from the directory of the importing file. */
@@ -551,20 +506,26 @@ function run(directory: string) {
 
     for (const [from, to] of moves) {
         if (SCRIPT_EXTENSION.test(to)) {
-            rewriteMovedImports(moves, from, to);
+            rewriteFileImports(moves, from, to);
         } else if (fs.statSync(path.join(adminRoot, to)).isDirectory()) {
             // A spec split into a directory, such as `sw-x.spec/`, moved with every file in it.
             fs.readdirSync(path.join(adminRoot, to), { recursive: true, encoding: 'utf8' })
                 .filter((file) => SCRIPT_EXTENSION.test(file))
-                .forEach((file) => rewriteMovedImports(moves, `${from}/${file}`, `${to}/${file}`));
+                .forEach((file) => rewriteFileImports(moves, `${from}/${file}`, `${to}/${file}`));
         }
     }
 
-    // Specs elsewhere, such as a parent's, may import the moved files: point them at the new places.
-    const outsideSpecs = sourceFiles(path.basename(origin)).filter(
-        (file) => /\.spec\.[jt]s$/.test(file) && !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`),
-    );
-    outsideSpecs.forEach((file) => rewriteMovedImports(moves, file, file));
+    // Other files, such as the specs of other modules, may import the moved files: point them at the new places.
+    // The registration and the importers of a nested component change below.
+    const changedLater = new Set([
+        registration?.file,
+        ...importers.map(({ file }) => file),
+        ...[...(nesting?.keys() ?? [])].map(relative),
+    ]);
+    const movedEntry = shape.kind === 'nested' ? undefined : { directory: origin, name, isPrivate: shape.isPrivate };
+    const outsideFiles = filesMentioning(path.basename(origin))
+        .filter((file) => !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`) && !changedLater.has(file))
+        .filter((file) => rewriteFileImports(moves, file, file, movedEntry));
 
     const baseline = path.join(adminRoot, 'src/meta/baseline.ts');
     fs.writeFileSync(baseline, dropUntestedFiles(fs.readFileSync(baseline, 'utf8'), [...moves.keys()]));
@@ -620,6 +581,7 @@ function run(directory: string) {
             ...changed,
             ...routed.changed,
             ...routed.outsideFiles,
+            ...outsideFiles,
         ],
         { cwd: adminRoot },
     );

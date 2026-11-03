@@ -25,7 +25,7 @@ interface ScalarValuesAware
 This event can be used in different events which needs a simple storage logic:
 
 ```php
-class SomeFlowAwareEvent extends Event implements ScalarStoreAware, FlowEventAware
+class SomeFlowAwareEvent extends Event implements ScalarValuesAware, FlowEventAware
 {
     public function __construct(private readonly string $url) { }
 
@@ -80,7 +80,7 @@ class ScalarValuesStorer extends FlowStorer
     - SubjectStorer > SubjectAware
     - TemplateDataStorer  > TemplateDataAware
     - UrlStorer > UrlAware
-- Affected events will be updated to use the new `ScalarStoreAware` interface. 
+- Affected events will be updated to use the new `ScalarValuesAware` interface. 
 - Existing `*Aware` events will stay in the event implementation and will be marked as deprecated.
 - Developers can much easier store and restore values without providing a lot of boilerplate code.
 - Deprecated classes will be removed in v6.6.0.0

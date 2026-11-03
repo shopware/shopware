@@ -7,19 +7,18 @@ use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Acl\ApiCaller;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
-use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -32,10 +31,12 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class WriteAuthorizer
 {
+    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id'];
+
     public function __construct(
         private readonly SubscriptionValidator $subscriptionValidator,
-        private readonly WebhookLoader $webhookLoader,
         private readonly AclRoleLoader $aclRoleLoader,
+        private readonly WriteOutcome $writeOutcome,
     ) {
     }
 
@@ -53,23 +54,16 @@ class WriteAuthorizer
             return [];
         }
 
-        $modifications = array_filter($commands, self::isModification(...));
-
-        // the stored webhooks that are changed or deleted, used by the first and the last check
-        $stored = $this->webhookLoader->getSubscriptions(array_values(array_unique(array_map(static fn (WriteCommand $command): string => $command->getDecodedPrimaryKey()['id'], $modifications))));
-
-        $violations = $this->getModificationViolations($modifications, $stored, $context);
-
-        // each webhook as it will be after the write: its last insert or update
-        $written = [];
-        foreach ($commands as $command) {
-            if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {
-                $written[$command->getDecodedPrimaryKey()['id']] = $command;
-            }
+        $rows = [];
+        foreach ($this->writeOutcome->touchedRows($commands, self::COLUMNS) as $row) {
+            $rows[Uuid::fromBytesToHex($row->primaryKey['id'])] = $row;
         }
 
+        $violations = $this->getModificationViolations(array_filter($rows, $this->changesStoredWebhook(...)), $context);
+
+        $written = array_filter($rows, static fn (OutcomeRow $row): bool => $row->payloadContainsAny('event_name', 'acl_role_ids'));
         $violations += $this->getAclRoleIdsViolations(array_diff_key($written, $violations));
-        $violations += $this->getSubscriptionViolations(array_diff_key($written, $violations), $stored, $context);
+        $violations += $this->getSubscriptionViolations(array_diff_key($written, $violations), $context);
 
         return array_values($violations);
     }
@@ -77,31 +71,27 @@ class WriteAuthorizer
     /**
      * Only the owner, or an admin, may change or delete an app-less webhook, and nobody may change an app's webhook.
      *
-     * @param array<WriteCommand> $modifications every update and delete of the write
-     * @param array<string, WebhookSubscription> $stored keyed by webhook id
+     * @param array<string, OutcomeRow> $rows the stored webhooks the write changes or deletes, keyed by webhook id
      *
      * @return array<string, HttpException> keyed by webhook id
      */
-    private function getModificationViolations(array $modifications, array $stored, Context $context): array
+    private function getModificationViolations(array $rows, Context $context): array
     {
         $source = $context->getSource();
         $violations = [];
 
-        foreach ($modifications as $command) {
-            $webhookId = $command->getDecodedPrimaryKey()['id'];
-            $subscription = $stored[$webhookId] ?? null;
+        foreach ($rows as $webhookId => $row) {
+            $subscription = WebhookSubscription::fromRow($row->toStoredArray());
             if ($subscription?->belongsToApp()) {
                 // an admin may still switch an app's webhook on or off, e.g. after it was disabled for failing
-                $onlyActive = $command instanceof UpdateCommand
-                    && array_diff(array_keys($command->getPayload()), ['active', 'updated_at']) === [];
-                if (!$onlyActive || !$source instanceof AdminApiSource || !$source->isAdmin()) {
+                if (!$row->payloadContainsOnly('active', 'updated_at') || !$source instanceof AdminApiSource || !$source->isAdmin()) {
                     $violations[$webhookId] = WebhookException::appWebhookNotModifiable($webhookId);
                 }
 
                 continue;
             }
 
-            // a webhook without an app or owner is not loaded, so only an admin may change it
+            // a webhook without an app or owner has no subscription, so only an admin may change it
             if (!$source instanceof AdminApiSource || $source->isAdmin() || $subscription?->isOwnedBy($source)) {
                 continue;
             }
@@ -115,15 +105,15 @@ class WriteAuthorizer
     /**
      * aclRoleIds is either left out, to use all of the owner's roles, or a list of role ids.
      *
-     * @param array<string, WriteCommand> $commands keyed by webhook id
+     * @param array<string, OutcomeRow> $rows keyed by webhook id
      *
      * @return array<string, HttpException> keyed by webhook id
      */
-    private function getAclRoleIdsViolations(array $commands): array
+    private function getAclRoleIdsViolations(array $rows): array
     {
         $violations = [];
-        foreach ($commands as $webhookId => $command) {
-            $aclRoleIds = $command->getPayload()['acl_role_ids'] ?? null;
+        foreach ($rows as $webhookId => $row) {
+            $aclRoleIds = $row->getPayloadValue('acl_role_ids');
             if (!\is_string($aclRoleIds)) {
                 continue;
             }
@@ -139,7 +129,7 @@ class WriteAuthorizer
 
             $violations[$webhookId] = new WriteConstraintViolationException(
                 new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, '/aclRoleIds', $aclRoleIds)]),
-                $command->getPath()
+                $row->path
             );
         }
 
@@ -150,37 +140,30 @@ class WriteAuthorizer
      * For writes through the Admin API, the listed aclRoleIds must exist and be held by the owner, and the subscribed
      * event must be covered by the webhook's roles. An update is judged on the stored webhook with the update applied.
      *
-     * @param array<string, WriteCommand> $commands keyed by webhook id
-     * @param array<string, WebhookSubscription> $stored keyed by webhook id
+     * @param array<string, OutcomeRow> $rows keyed by webhook id
      *
      * @return array<string, HttpException> keyed by webhook id
      */
-    private function getSubscriptionViolations(array $commands, array $stored, Context $context): array
+    private function getSubscriptionViolations(array $rows, Context $context): array
     {
         $caller = ApiCaller::of($context->getSource());
         if ($caller === null) {
             return [];
         }
 
-        $commands = array_filter(
-            $commands,
-            static fn (WriteCommand $command): bool => ($command instanceof InsertCommand || $command instanceof UpdateCommand)
-                && $command->hasAnyField('event_name', 'acl_role_ids')
-        );
-
-        if ($commands === []) {
+        $written = array_filter(array_map(static fn (OutcomeRow $row): ?WebhookSubscription => WebhookSubscription::fromRow($row->toResultingArray()), $rows));
+        if ($written === []) {
             return [];
         }
 
-        $written = $this->toSubscriptions($commands, $stored, $caller);
-        [$webhookRoles, $violations] = $this->resolveRoles($commands, $written);
+        [$webhookRoles, $violations] = $this->resolveRoles($rows, $written);
         $rolePrivileges = $this->aclRoleLoader->getPrivilegesForRoles(array_merge(...array_column($webhookRoles, 'roleIds')));
 
         $subscriptions = [];
         $privileges = [];
         foreach ($webhookRoles as $webhookId => $roles) {
             $subscriptions[$webhookId] = $written[$webhookId]->eventName;
-            $privileges[$webhookId] = self::resolvePrivileges($roles, $rolePrivileges);
+            $privileges[$webhookId] = $this->resolvePrivileges($roles, $rolePrivileges);
         }
 
         $refusals = $this->subscriptionValidator->validate($subscriptions, $privileges, Subscriber::api($caller), $context);
@@ -197,53 +180,15 @@ class WriteAuthorizer
     }
 
     /**
-     * The webhooks as they will be after the write. An API insert is always owned by the caller, see RecordOwnerSubscriber.
-     * Changes to an app's webhook never get here, getModificationViolations() already rejected them.
-     *
-     * @param array<string, WriteCommand> $commands keyed by webhook id
-     * @param array<string, WebhookSubscription> $stored keyed by webhook id
-     *
-     * @return array<string, WebhookSubscription> keyed by webhook id
-     */
-    private function toSubscriptions(array $commands, array $stored, ApiCaller $caller): array
-    {
-        $written = [];
-        foreach ($commands as $webhookId => $command) {
-            $current = $command instanceof UpdateCommand ? $stored[$webhookId] ?? null : null;
-            $ownerType = $current?->ownerType;
-            $ownerId = $current?->ownerId;
-            if ($command instanceof InsertCommand) {
-                $ownerType = SubscriberType::of($caller);
-                $ownerId = $caller->id;
-            }
-
-            $payload = $command->getPayload();
-            $eventName = $payload['event_name'] ?? $current?->eventName;
-            if ($ownerType === null || $ownerId === null || !\is_string($eventName)) {
-                continue;
-            }
-
-            $aclRoleIds = $current?->aclRoleIds;
-            if ($command->hasField('acl_role_ids')) {
-                $aclRoleIds = $payload['acl_role_ids'] !== null ? Json::decodeToList($payload['acl_role_ids']) : null;
-            }
-
-            $written[$webhookId] = new WebhookSubscription($webhookId, $ownerType, $ownerId, $eventName, $aclRoleIds);
-        }
-
-        return $written;
-    }
-
-    /**
      * The roles each webhook will act with: its owner's roles, limited to its aclRoleIds when set. A webhook whose
      * written aclRoleIds lists a role that does not exist or that its owner does not hold is rejected.
      *
-     * @param array<string, WriteCommand> $commands keyed by webhook id
+     * @param array<string, OutcomeRow> $rows keyed by webhook id
      * @param array<string, WebhookSubscription> $written keyed by webhook id
      *
      * @return array{array<string, AclRoles>, array<string, HttpException>} the roles and the violations, both keyed by webhook id
      */
-    private function resolveRoles(array $commands, array $written): array
+    private function resolveRoles(array $rows, array $written): array
     {
         $ownerRoles = $this->loadOwnerRoles($written);
         $listedRoleIds = array_merge(...array_map(
@@ -266,8 +211,8 @@ class WriteAuthorizer
 
             $unknown = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $existingRoleIds)));
             $notHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $roles->roleIds, $unknown)));
-            if (($unknown !== [] || $notHeld !== []) && $commands[$webhookId]->hasField('acl_role_ids')) {
-                $violations[$webhookId] = self::aclRolesRejected($commands[$webhookId], $unknown, $notHeld);
+            if (($unknown !== [] || $notHeld !== []) && $rows[$webhookId]->payloadContainsAny('acl_role_ids')) {
+                $violations[$webhookId] = $this->aclRolesRejected($rows[$webhookId], $unknown, $notHeld);
 
                 continue;
             }
@@ -285,8 +230,8 @@ class WriteAuthorizer
      */
     private function loadOwnerRoles(array $written): array
     {
-        $userRoles = $this->aclRoleLoader->getUserRoles(self::ownerIdsOf($written, SubscriberType::User));
-        $integrationRoles = $this->aclRoleLoader->getIntegrationRoles(self::ownerIdsOf($written, SubscriberType::Integration));
+        $userRoles = $this->aclRoleLoader->getUserRoles($this->ownerIdsOf($written, SubscriberType::User));
+        $integrationRoles = $this->aclRoleLoader->getIntegrationRoles($this->ownerIdsOf($written, SubscriberType::Integration));
 
         $roles = [];
         foreach ($written as $webhookId => $webhook) {
@@ -303,7 +248,7 @@ class WriteAuthorizer
      *
      * @return list<string>
      */
-    private static function ownerIdsOf(array $written, SubscriberType $type): array
+    private function ownerIdsOf(array $written, SubscriberType $type): array
     {
         return array_column(
             array_filter($written, static fn (WebhookSubscription $webhook): bool => $webhook->ownerType === $type),
@@ -315,21 +260,21 @@ class WriteAuthorizer
      * @param list<string> $unknown
      * @param list<string> $notHeld
      */
-    private static function aclRolesRejected(WriteCommand $command, array $unknown, array $notHeld): WriteConstraintViolationException
+    private function aclRolesRejected(OutcomeRow $row, array $unknown, array $notHeld): WriteConstraintViolationException
     {
         $violations = new ConstraintViolationList();
         foreach ($unknown as $roleId) {
-            $violations->add(self::aclRoleViolation('Role "{{ roleId }}" does not exist.', $roleId));
+            $violations->add($this->aclRoleViolation('Role "{{ roleId }}" does not exist.', $roleId));
         }
 
         foreach ($notHeld as $roleId) {
-            $violations->add(self::aclRoleViolation('Role "{{ roleId }}" is not held by the webhook\'s owner.', $roleId));
+            $violations->add($this->aclRoleViolation('Role "{{ roleId }}" is not held by the webhook\'s owner.', $roleId));
         }
 
-        return new WriteConstraintViolationException($violations, $command->getPath());
+        return new WriteConstraintViolationException($violations, $row->path);
     }
 
-    private static function aclRoleViolation(string $template, string $roleId): ConstraintViolation
+    private function aclRoleViolation(string $template, string $roleId): ConstraintViolation
     {
         return new ConstraintViolation(
             str_replace('{{ roleId }}', $roleId, $template),
@@ -341,9 +286,12 @@ class WriteAuthorizer
         );
     }
 
-    private static function isModification(WriteCommand $command): bool
+    /**
+     * A webhook that exists before the write, so the write changes or deletes it.
+     */
+    private function changesStoredWebhook(OutcomeRow $row): bool
     {
-        return $command instanceof UpdateCommand || $command instanceof DeleteCommand;
+        return !$row->isNew || $row->isDeleted;
     }
 
     /**
@@ -351,7 +299,7 @@ class WriteAuthorizer
      *
      * @return list<string>|null null for unrestricted roles, which may subscribe to everything
      */
-    private static function resolvePrivileges(AclRoles $roles, array $rolePrivileges): ?array
+    private function resolvePrivileges(AclRoles $roles, array $rolePrivileges): ?array
     {
         if ($roles->unrestricted) {
             return null;

@@ -30,6 +30,8 @@ class PluginCreateCommand extends Command
 {
     private const PASCAL_CASE_PATTERN = '/^[A-Z][a-zA-Z0-9]*$/D';
 
+    private const NAMESPACE_PATTERN = '/^[A-Z][a-zA-Z0-9]*(?:\\\\[A-Z][a-zA-Z0-9]*)*$/D';
+
     /**
      * @internal
      *
@@ -129,13 +131,13 @@ class PluginCreateCommand extends Command
                     $detailsSection->writeln('<options=bold>Plugin Name: </>' . $name);
                     $detailsSection->writeln('');
                     $detailsSection->writeln('<options=bold>Plugin Namespace</>');
-                    $detailsSection->writeln("<fg=gray>Provide a namespace for your plugin in PascalCase (e.g. MyVendor).</>\n");
+                    $detailsSection->writeln("<fg=gray>Provide a namespace for your plugin with PascalCase segments (e.g. MyVendor\\MyExtension or MyVendorMyExtension).</>\n");
 
                     $namespaceQuestion = new Question('<fg=green>Enter a plugin namespace:</>');
                     $validation = Validation::createCallable(
                         new Assert\NotBlank(message: 'The plugin namespace cannot be empty.'),
                         new Assert\Regex(
-                            pattern: self::PASCAL_CASE_PATTERN,
+                            pattern: self::NAMESPACE_PATTERN,
                             message: 'The plugin namespace must be in PascalCase.',
                         ),
                     );
@@ -287,6 +289,6 @@ class PluginCreateCommand extends Command
 
     private function isValidPluginNamespace(string $pluginNamespace): bool
     {
-        return preg_match(self::PASCAL_CASE_PATTERN, $pluginNamespace) === 1;
+        return preg_match(self::NAMESPACE_PATTERN, $pluginNamespace) === 1;
     }
 }

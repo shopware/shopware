@@ -354,6 +354,8 @@ class ProductSerializer extends EntitySerializer
         $mediaDefinition = $mediaField->getReferenceDefinition();
         $mediaSerializer = $this->serializerRegistry->getEntity($mediaDefinition->getEntityName());
 
+        $mediaIds = [];
+
         foreach ($urls as $url) {
             $deserializedMedia = $mediaSerializer->deserialize($config, $mediaDefinition, [
                 'url' => $url,
@@ -364,27 +366,35 @@ class ProductSerializer extends EntitySerializer
                 throw $deserializedMedia['_error'];
             }
 
-            $productMedia = [
-                'media' => $deserializedMedia,
-            ];
+            $productMedias[] = ['media' => $deserializedMedia];
 
-            if (!isset($deserialized['id'])) {
-                $productMedias[] = $productMedia;
-
-                continue;
+            if (isset($deserializedMedia['id'])) {
+                $mediaIds[] = $deserializedMedia['id'];
             }
+        }
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
-            $criteria->addFilter(new EqualsFilter('media.id', $deserializedMedia['id']));
+        $productId = $deserialized['id'] ?? null;
 
-            $productMediaId = $this->productMediaRepository->searchIds($criteria, $context)->firstId();
+        if ($productId === null || $productId === '' || $mediaIds === []) {
+            return $productMedias;
+        }
 
-            if ($productMediaId) {
-                $productMedia['id'] = $productMediaId;
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsAnyFilter('media.id', $mediaIds));
+
+        $existingIds = [];
+
+        foreach ($this->productMediaRepository->search($criteria, $context)->getEntities() as $existing) {
+            $existingIds[$existing->getMediaId()] = $existing->getId();
+        }
+
+        foreach ($productMedias as $i => $productMedia) {
+            $mediaId = $productMedia['media']['id'] ?? null;
+
+            if ($mediaId !== null && isset($existingIds[$mediaId])) {
+                $productMedias[$i]['id'] = $existingIds[$mediaId];
             }
-
-            $productMedias[] = $productMedia;
         }
 
         return $productMedias;

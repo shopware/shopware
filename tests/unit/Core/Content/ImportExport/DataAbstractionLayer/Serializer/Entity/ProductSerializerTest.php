@@ -5,25 +5,33 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Ser
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityWriterGateway;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -217,5 +225,76 @@ class ProductSerializerTest extends TestCase
 
         static::assertCount(1, $salesChannelRepository->searchedCriteria);
         static::assertSame(array_values($channels), array_column($result['visibilities'], 'salesChannelId'));
+    }
+
+    public function testTheMediaOfARecordAreLookedUpInOneSearch(): void
+    {
+        $productId = Uuid::randomHex();
+        $mediaIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+        $existingProductMediaId = Uuid::randomHex();
+
+        $existing = new ProductMediaCollection([
+            (new ProductMediaEntity())->assign([
+                'id' => $existingProductMediaId,
+                'productId' => $productId,
+                'mediaId' => $mediaIds[1],
+            ]),
+        ]);
+
+        // one result per url, so a per-url lookup is counted rather than running the queue dry
+        /** @var StaticEntityRepository<ProductMediaCollection> $productMediaRepository */
+        $productMediaRepository = new StaticEntityRepository([$existing, $existing, $existing], new ProductMediaDefinition());
+
+        $serializer = new ProductSerializer(
+            StaticEntityRepository::of(ProductVisibilityCollection::class),
+            StaticEntityRepository::of(SalesChannelCollection::class),
+            $productMediaRepository,
+            StaticEntityRepository::of(ProductConfiguratorSettingCollection::class)
+        );
+        $serializer->setRegistry(new SerializerRegistry([new StaticMediaSerializer($mediaIds)], [new FieldSerializer()]));
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class, ProductMediaDefinition::class, MediaDefinition::class],
+            Validation::createValidator(),
+            new StaticEntityWriterGateway()
+        );
+        $definition = $registry->get(ProductDefinition::class);
+
+        $record = [
+            'id' => $productId,
+            'media' => implode('|', array_fill(0, \count($mediaIds), 'https://example.com/image.png')),
+        ];
+
+        $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $definition, $record));
+
+        static::assertCount(1, $productMediaRepository->searchedCriteria);
+        static::assertSame(
+            [null, $existingProductMediaId, null],
+            array_map(static fn (array $productMedia) => $productMedia['id'] ?? null, $result['media'])
+        );
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
+class StaticMediaSerializer extends EntitySerializer
+{
+    /**
+     * @param list<string> $mediaIds
+     */
+    public function __construct(private array $mediaIds)
+    {
+    }
+
+    public function deserialize(Config $config, EntityDefinition $definition, $entity): iterable
+    {
+        yield 'id' => array_shift($this->mediaIds);
+    }
+
+    public function supports(string $entity): bool
+    {
+        return $entity === MediaDefinition::ENTITY_NAME;
     }
 }

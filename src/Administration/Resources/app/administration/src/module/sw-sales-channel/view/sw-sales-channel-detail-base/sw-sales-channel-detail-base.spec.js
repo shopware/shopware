@@ -1666,9 +1666,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        wrapper
-            .getComponent({ name: 'sw-form-field-renderer' })
-            .vm.$emit('update:value', 'https://example.com/returns');
+        wrapper.getComponent({ name: 'sw-form-field-renderer' }).vm.$emit('update:value', 'https://example.com/returns');
 
         expect(configEntry.values).toEqual({
             'core.openAiProductExport.returnPolicyUrl': 'https://example.com/returns',

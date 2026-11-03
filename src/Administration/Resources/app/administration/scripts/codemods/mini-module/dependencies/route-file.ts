@@ -72,7 +72,10 @@ const isTypeOnlyName = (registry: DependencyRegistry, exported: string) =>
         (dependency) => dependency.kind === 'reexport' && dependency.exported === exported && dependency.typeOnly,
     );
 
-/** Adds the names to the file's import of `../dependencies`, after its last import, or to the one it has. */
+/**
+ * Adds the names to the file's import of `../dependencies`, after its last import, or to the one it has.
+ * Without imports it goes below the file's header comment, and above a doc comment that belongs to the first statement.
+ */
 const addDependencyImport = (
     code: string,
     fileName: string,
@@ -92,7 +95,8 @@ const addDependencyImport = (
     const lastImport = [...source.statements].reverse().find(ts.isImportDeclaration);
 
     if (!lastImport) {
-        const leadingComment = /^\/\*\*[\s\S]*?\*\/\n/.exec(code)?.[0] ?? '';
+        // A doc comment heads the file only with a blank line after it; without one it documents the next statement.
+        const leadingComment = /^\/\*\*[\s\S]*?\*\/\n(?=\n)/.exec(code)?.[0] ?? '';
         const rest = code.slice(leadingComment.length);
         return `${leadingComment}${statement}${rest.startsWith('\n') ? '' : '\n'}${rest}`;
     }

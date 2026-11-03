@@ -48,6 +48,42 @@ Shopware.Component.register('sw-other', () => import('./component/sw-other'));
         );
     });
 
+    it('takes the comments right above a registration with it, but not a file header or an eslint-disable block', () => {
+        // ARRANGE
+        const source = `/**
+ * @sw-package framework
+ */
+
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-a', () => import('./sw-a'));
+/*
+ * @private
+ * @sw-package discovery
+ */
+/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-b', () => import('./sw-b'));
+`;
+
+        // ACT
+        const registrations = ['sw-a', 'sw-b'].map((name) => findRegistration(source, name));
+
+        // ASSERT
+        expect(registrations.map((found) => source.slice(found?.start, found?.end))).toEqual([
+            "Shopware.Component.register('sw-a', () => import('./sw-a'));\n",
+            `/*
+ * @private
+ * @sw-package discovery
+ */
+/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-b', () => import('./sw-b'));
+`,
+        ]);
+        expect(registrations.map((found) => found?.isPrivate)).toEqual([
+            false,
+            true,
+        ]);
+    });
+
     it('finds an extension and the component it extends', () => {
         // ARRANGE
         const source = `Component.extend(

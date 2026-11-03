@@ -61,6 +61,24 @@ export default {
         );
     });
 
+    it('adds the import below a file header, but above the doc comment of the first statement', () => {
+        // ARRANGE
+        const component = "export default { mixins: [Shopware.Mixin.getByName('notification')] };\n";
+        const sources = [
+            `/**\n * @sw-package checkout\n */\n\n${component}`,
+            `/**\n * @private\n */\n${component}`,
+        ];
+
+        // ACT
+        const codes = sources.map((source) => routeForSpec(source, { use: USE_REWRITES }).code);
+
+        // ASSERT
+        expect(codes).toEqual([
+            "/**\n * @sw-package checkout\n */\nimport { notificationMixin } from '../dependencies';\n\nexport default { mixins: [notificationMixin] };\n",
+            "import { notificationMixin } from '../dependencies';\n\n/**\n * @private\n */\nexport default { mixins: [notificationMixin] };\n",
+        ]);
+    });
+
     it('leaves a file that declares a Shopware of its own', () => {
         // ARRANGE
         const source = 'const Shopware = {};\nconst id = Shopware.Utils.createId();\n';

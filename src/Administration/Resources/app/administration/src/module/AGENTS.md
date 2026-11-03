@@ -142,6 +142,7 @@ It is not published as `shopware:components/<name>` and has no code owner entry.
 `npm run codemod:mini-module -- <component directory>` does the mechanical part of moving an Options API component into a mini-module,
 whether it is registered, extends another component, or is imported by its parent.
 A component its parent imports moves nested into the parent's module; while the parent is no mini-module yet, the codemod skips it.
+A mini-module inside the component's directory, such as a child that registers on its own, stays where it is.
 A component whose registration, or the doc comment of its own default export, is marked `@private` becomes a registered private module.
 It takes the code owner from what `.codeowners` already says about the directory, at the same level, and never guesses one.
 It writes `dependencies.ts` and routes `src/` through it where that cannot change behaviour:

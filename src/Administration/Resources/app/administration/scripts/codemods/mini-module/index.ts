@@ -25,6 +25,10 @@ import { dropBaseImport } from './drop-base-import';
 import { findSpecifiers, importedName, rewriteMovedImports, type MovedEntry } from './moved-imports';
 import { dropUntestedFiles } from './drop-untested-baseline';
 import { findLocalMixins } from './find-local-mixins';
+import { moveSuppressionKeys } from './move-suppressions';
+import { isTestFixture } from './test-fixtures';
+import { removeRegistration } from './remove-registration';
+import { isMiniModuleDirectory, ownEntries } from './own-entries';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -89,7 +93,9 @@ const readComponentName = (componentDirectory: string) => {
         return directoryName;
     }
 
-    for (const file of sourceFiles(`${directoryName}'`)) {
+    // A registration may name the directory or its index file: `import('./preview')` or `import('./page/index')`.
+    const mentions = [...new Set([...sourceFiles(`${directoryName}'`), ...sourceFiles(`${directoryName}/index'`)])];
+    for (const file of mentions) {
         const absolute = path.join(adminRoot, file);
         const found = findRegistrationByPath(fs.readFileSync(absolute, 'utf8'), (specifier) =>
             leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
@@ -122,8 +128,16 @@ const locateMiniModule = (name: string) => {
     return null;
 };
 
-/** The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`. */
-const withoutIndex = (specifier: string) => specifier.replace(/\/index(\.[jt]s)?$/, '');
+/**
+ * The directory an import path leads to when it names the directory's index file: `./a/index` → `./a`.
+ * A path to a directory that is itself named `index`, as in `./page/index/index.ts`, stays.
+ */
+const withoutIndex = (specifier: string, fromDirectory: string) => {
+    const target = resolveSpecifier(fromDirectory, specifier);
+    return fs.existsSync(target) && fs.statSync(target).isDirectory()
+        ? specifier
+        : specifier.replace(/\/index(\.[jt]s)?$/, '');
+};
 
 const readComponentSource = (componentDirectory: string, name: string) => {
     const entry = ['index.js', 'index.ts'].find((file) => fs.existsSync(path.join(componentDirectory, file)));
@@ -160,9 +174,10 @@ const readInheritedApi = (name: string): { api: ComponentApi; privateBase: strin
         throw new Error(`Found no registration of ${name}, so the codemod cannot read what it offers.`);
     }
 
+    const registrationDirectory = path.dirname(path.join(adminRoot, located.file));
     const directory = resolveSpecifier(
-        path.dirname(path.join(adminRoot, located.file)),
-        withoutIndex(located.registration.specifier),
+        registrationDirectory,
+        withoutIndex(located.registration.specifier, registrationDirectory),
     );
     const { componentSource, templateSource } = readComponentSource(directory, name);
     const api = extractComponentApi(componentSource, templateSource);
@@ -180,9 +195,12 @@ const readInheritedApi = (name: string): { api: ComponentApi; privateBase: strin
     };
 };
 
+/** Adds a bare import after the last import, or, without one, below the doc comment that heads the file. */
 const addImport = (source: string, specifier: string) => {
     const imports = [...source.matchAll(/^import .+;$/gm)];
-    const at = imports.length > 0 ? imports[imports.length - 1].index + imports[imports.length - 1][0].length + 1 : 0;
+    const header = /^\/\*\*?(?:(?!\*\/)[\s\S])*\*\/\n(?=\n)/.exec(source)?.[0] ?? '';
+    const at =
+        imports.length > 0 ? imports[imports.length - 1].index + imports[imports.length - 1][0].length + 1 : header.length;
 
     return `${source.slice(0, at)}import '${specifier}';\n${source.slice(at)}`;
 };
@@ -205,8 +223,8 @@ const rewriteFileImports = (moves: Map<string, string>, from: string, to: string
 
 /** Whether an import path leads to the component's entry file, from the directory of the importing file. */
 const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifier: string) => {
-    const target = resolveSpecifier(fromDirectory, specifier).replace(/\/index(\.[jt]s)?$/, '');
-    return target === componentDirectory;
+    const target = resolveSpecifier(fromDirectory, specifier);
+    return [target, target.replace(/\/index(\.[jt]s)?$/, '')].includes(componentDirectory);
 };
 
 /**
@@ -215,12 +233,7 @@ const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifi
  */
 const findEnclosingModule = (file: string) => {
     for (let directory = path.dirname(file); directory.startsWith('src/'); directory = path.dirname(directory)) {
-        const absolute = path.join(adminRoot, directory);
-        const isMiniModule =
-            ['index.ts', 'private.ts'].some((entry) => fs.existsSync(path.join(absolute, entry))) &&
-            ['src', 'tests'].every((folder) => fs.existsSync(path.join(absolute, folder)));
-
-        if (isMiniModule) {
+        if (isMiniModuleDirectory(path.join(adminRoot, directory))) {
             return file.startsWith(`${directory}/src/`) || file === `${directory}/dependencies.ts` ? directory : null;
         }
     }
@@ -262,17 +275,13 @@ const importThroughPrivate = (importers: ReturnType<typeof findImporters>, root:
         return file;
     });
 
-const moveSuppressions = (moves: Map<string, string>) => {
+/** Moves the ESLint suppressions of the moved files, see `moveSuppressionKeys()`. */
+const moveSuppressions = (moves: Map<string, string>, origin: string) => {
     const file = path.join(adminRoot, 'eslint-suppressions.json');
     const suppressions = JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, unknown>;
-    const moved = Object.fromEntries(Object.entries(suppressions).map(([key, value]) => [moves.get(key) ?? key, value]));
-    const sorted = Object.fromEntries(
-        Object.keys(moved)
-            .sort()
-            .map((key) => [key, moved[key]]),
-    );
+    const moved = moveSuppressionKeys(suppressions, moves, origin, (key) => fs.existsSync(path.join(adminRoot, key)));
 
-    fs.writeFileSync(file, JSON.stringify(sorted, null, 2));
+    fs.writeFileSync(file, JSON.stringify(moved, null, 2));
 };
 
 /** The script files of a module's own `src/`, without specs and without the nested modules in it. */
@@ -332,12 +341,32 @@ const planNestingThroughDependencies = (
     return planned;
 };
 
-/** The script files below a directory, as absolute paths. */
-const scriptFilesBelow = (directory: string) =>
-    fs
-        .readdirSync(directory, { recursive: true, encoding: 'utf8' })
-        .filter((file) => SCRIPT_EXTENSION.test(file))
-        .map((file) => path.join(directory, file));
+/** The text of a file, or of every file below a directory, to search them for the names they mention. */
+const readSources = (fileOrDirectory: string): string[] =>
+    fs.statSync(fileOrDirectory).isDirectory()
+        ? fs
+              .readdirSync(fileOrDirectory, { recursive: true, encoding: 'utf8' })
+              .map((file) => path.join(fileOrDirectory, file))
+              .filter((file) => fs.statSync(file).isFile())
+              .map((file) => fs.readFileSync(file, 'utf8'))
+        : [fs.readFileSync(fileOrDirectory, 'utf8')];
+
+/** The files of a component directory, as absolute paths, without the mini-modules inside it. */
+const ownFilesBelow = (directory: string) =>
+    ownEntries(directory).flatMap((entry) => {
+        const file = path.join(directory, entry);
+        if (!fs.statSync(file).isDirectory()) {
+            return [file];
+        }
+
+        return fs
+            .readdirSync(file, { recursive: true, encoding: 'utf8' })
+            .map((inner) => path.join(file, inner))
+            .filter((inner) => fs.statSync(inner).isFile());
+    });
+
+/** The script files of a component directory, as absolute paths, without the mini-modules inside it. */
+const scriptFilesBelow = (directory: string) => ownFilesBelow(directory).filter((file) => SCRIPT_EXTENSION.test(file));
 
 /** Whether an import path, written in a file of the given directory, leads to the file. */
 const leadsToFile = (fromDirectory: string, specifier: string, file: string) => {
@@ -366,18 +395,19 @@ const filesMentioning = (text: string) => {
 };
 
 /**
- * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store,
- * that code outside the directory imports would break, also when only another module's dependencies.ts or spec
- * imports it, and a mixin only the registry reaches cannot be imported.
+ * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store or
+ * a template another component shares, that code outside the directory imports would break, also when only another
+ * module's dependencies.ts or spec imports it, and a mixin only the registry reaches cannot be imported.
  */
 const findBlocker = (componentDirectory: string, entry: string, index: AdminIndex): string | null => {
-    const files = scriptFilesBelow(componentDirectory).filter(
+    const ownFiles = new Set(ownFilesBelow(componentDirectory));
+    const files = [...ownFiles].filter(
         (file) => file !== path.join(componentDirectory, entry) && !/\.spec\.[jt]s$|\.spec\//.test(file),
     );
 
     for (const file of files) {
         const importers = filesMentioning(importedName(file))
-            .filter((importer) => !path.join(adminRoot, importer).startsWith(`${componentDirectory}${path.sep}`))
+            .filter((importer) => !ownFiles.has(path.join(adminRoot, importer)))
             .filter((importer) => {
                 const absolute = path.join(adminRoot, importer);
                 return findSpecifiers(fs.readFileSync(absolute, 'utf8')).some((specifier) =>
@@ -440,7 +470,8 @@ const readShape = (componentDirectory: string, name: string, componentSource: st
 
     const importers = findImporters(componentDirectory, name);
     if (importers.length === 0) {
-        throw new Error(`Found no registration of ${name} and no file that imports it.`);
+        return `${name} is not moved: nothing registers it and no file but its own specs imports it, so no page can show it.
+Delete it if it is dead code, or register it first.`;
     }
 
     const parents = [...new Set(importers.map(({ file }) => findEnclosingModule(file)))];
@@ -496,25 +527,48 @@ function run(directory: string) {
         moves.set(from, to);
     };
 
-    for (const file of fs.readdirSync(componentDirectory)) {
+    const isSpec = (file: string) => /\.spec(\.[jt]s)?$/.test(file);
+    const entries = ownEntries(componentDirectory);
+    const sources = new Map(entries.map((file) => [file, readSources(path.join(componentDirectory, file))]));
+    const specSources = entries.filter(isSpec).flatMap((file) => sources.get(file) ?? []);
+    const fixtures = new Set(
+        entries.filter((file) => {
+            const others = entries.filter((other) => other !== file && !isSpec(other));
+            return (
+                !isSpec(file) &&
+                isTestFixture(
+                    file,
+                    specSources,
+                    others.flatMap((other) => sources.get(other) ?? []),
+                )
+            );
+        }),
+    );
+
+    for (const file of entries) {
         const from = `${origin}/${file}`;
         if (file === entry) {
             move(from, `${root}/src/${name}${path.extname(entry)}`);
-        } else if (/\.spec(\.[jt]s)?$/.test(file)) {
+        } else if (isSpec(file) || fixtures.has(file)) {
             move(from, `${root}/tests/${file}`);
         } else {
             move(from, `${root}/src/${file}`);
         }
     }
 
+    // The moved files whose import paths changed, for Prettier: a longer path may need another line break.
+    const rewrittenMoves: string[] = [];
     for (const [from, to] of moves) {
         if (SCRIPT_EXTENSION.test(to)) {
-            rewriteFileImports(moves, from, to);
+            if (rewriteFileImports(moves, from, to)) {
+                rewrittenMoves.push(to);
+            }
         } else if (fs.statSync(path.join(adminRoot, to)).isDirectory()) {
             // A spec split into a directory, such as `sw-x.spec/`, moved with every file in it.
             fs.readdirSync(path.join(adminRoot, to), { recursive: true, encoding: 'utf8' })
                 .filter((file) => SCRIPT_EXTENSION.test(file))
-                .forEach((file) => rewriteFileImports(moves, `${from}/${file}`, `${to}/${file}`));
+                .filter((file) => rewriteFileImports(moves, `${from}/${file}`, `${to}/${file}`))
+                .forEach((file) => rewrittenMoves.push(`${to}/${file}`));
         }
     }
 
@@ -526,8 +580,9 @@ function run(directory: string) {
         ...[...(nesting?.keys() ?? [])].map(relative),
     ]);
     const movedEntry = shape.kind === 'nested' ? undefined : { directory: origin, name, isPrivate: shape.isPrivate };
+    const isMoved = (file: string) => [`${root}/src/`, `${root}/tests/`].some((folder) => file.startsWith(folder));
     const outsideFiles = filesMentioning(path.basename(origin))
-        .filter((file) => !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`) && !changedLater.has(file))
+        .filter((file) => !isMoved(file) && !changedLater.has(file))
         .filter((file) => rewriteFileImports(moves, file, file, movedEntry));
 
     const baseline = path.join(adminRoot, 'src/meta/baseline.ts');
@@ -556,7 +611,7 @@ function run(directory: string) {
     nesting?.forEach((code, file) => fs.writeFileSync(file, code));
     const sourceImporters = importers.filter(({ file }) => !file.endsWith('/dependencies.ts'));
     const changed = registration
-        ? [replaceRegistration(registration)]
+        ? [replaceRegistration(registration, moves, movedEntry)]
         : [...importThroughPrivate(sourceImporters, root), ...[...(nesting?.keys() ?? [])].map(relative)];
 
     if (entryFiles['global.d.ts'] !== null && !isPrivateShape(shape)) {
@@ -567,7 +622,7 @@ function run(directory: string) {
         );
     }
 
-    moveSuppressions(moves);
+    moveSuppressions(moves, origin);
     const owner = isPrivateShape(shape) ? null : addOwner(root);
     const routed = routeModule({
         adminRoot,
@@ -585,6 +640,7 @@ function run(directory: string) {
             ...routed.changed,
             ...routed.outsideFiles,
             ...outsideFiles,
+            ...rewrittenMoves.filter((file) => fs.existsSync(path.join(adminRoot, file))),
         ],
         { cwd: adminRoot },
     );
@@ -620,12 +676,21 @@ const addOwner = (root: string): Owner | null => {
     return owner;
 };
 
-/** Replaces the registration statement with an import of the module's register.ts, and returns the file. */
-const replaceRegistration = ({ file, registration }: NonNullable<ReturnType<typeof locateRegistration>>) => {
+/**
+ * Replaces the registration statement with an import of the module's register.ts, points the file's other imports
+ * of the moved files at their new places, see `rewriteMovedImports()`, and returns the file.
+ */
+const replaceRegistration = (
+    { file, registration }: NonNullable<ReturnType<typeof locateRegistration>>,
+    moves: Map<string, string>,
+    entry: MovedEntry | undefined,
+) => {
     const absolute = path.join(adminRoot, file);
     const source = fs.readFileSync(absolute, 'utf8');
-    const withoutRegistration = `${source.slice(0, registration.start)}${source.slice(registration.end)}`;
-    fs.writeFileSync(absolute, addImport(withoutRegistration, `${withoutIndex(registration.specifier)}/register`));
+    const withoutRegistration = removeRegistration(source, registration);
+    const moduleDirectory = withoutIndex(registration.specifier, path.dirname(absolute));
+    const rewritten = rewriteMovedImports(withoutRegistration, { moves, from: file, to: file, entry });
+    fs.writeFileSync(absolute, addImport(rewritten, `${moduleDirectory}/register`));
 
     return file;
 };

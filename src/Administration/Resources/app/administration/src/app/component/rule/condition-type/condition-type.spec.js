@@ -16,10 +16,22 @@ const conditionTypes = fs.readdirSync(path.join(adminPath, conditionTypesRootPat
     return conditionType.match(/^(?!_mocks)[a-z-]*(?<!\.spec)$/);
 });
 
+/**
+ * The file to import for a condition type directory: the directory itself, which resolves to its index file,
+ * or the private.ts of a private mini-module, which has no index file.
+ */
+function entryOf(conditionType) {
+    const directory = path.join(adminPath, conditionTypesRootPath, conditionType);
+    const isPrivateModule =
+        !fs.existsSync(path.join(directory, 'index.ts')) && fs.existsSync(path.join(directory, 'private.ts'));
+
+    return isPrivateModule ? path.join(directory, 'private') : directory;
+}
+
 function importAllConditionTypes() {
     return Promise.all(
         conditionTypes.map((conditionType) => {
-            return import(path.join(adminPath, conditionTypesRootPath, conditionType));
+            return import(entryOf(conditionType));
         }),
     );
 }

@@ -52,4 +52,16 @@ describe('public-component/private: findMissingPublicNames', () => {
         // ASSERT
         expect(missing).toEqual([]);
     });
+
+    it('counts the members of the component it extends', () => {
+        // ARRANGE
+        const api = { props: ['value', 'title'], methods: ['save'], blocks: ['sw_example', 'sw_child'] };
+        const child = { props: { title: {} }, template: '{% block sw_child %}{% endblock %}', extends: component };
+
+        // ACT
+        const missing = findMissingPublicNames(api, child);
+
+        // ASSERT
+        expect(missing).toEqual([]);
+    });
 });

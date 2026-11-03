@@ -37,4 +37,18 @@ describe('core/factory/async-component.factory.ts: components declared with defi
         expect(component).toEqual(expect.objectContaining({ name: 'sw-example' }));
         expect(load).toHaveBeenCalledTimes(1);
     });
+
+    it('extends the component it names on top of that component', async () => {
+        // ARRANGE
+        ComponentFactory.register('sw-base', { template, methods: { reset: () => 'reset' } });
+        const load = jest.fn(() => Promise.resolve({ default: { template: '{% block sw_example %}child{% endblock %}' } }));
+
+        // ACT
+        ComponentFactory.extend(definePublicComponent({ name: 'sw-child', extends: 'sw-base', load }));
+        const component = await ComponentFactory.build('sw-child');
+
+        // ASSERT
+        expect(load).toHaveBeenCalledTimes(1);
+        expect(component.extends.methods.reset()).toBe('reset');
+    });
 });

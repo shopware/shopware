@@ -162,13 +162,24 @@ function processDefinePublicComponentCall(sourceFile: SourceFile, call: CallExpr
 
     throwIfComponentIsAlreadyRegistered(componentName, sourceFile);
 
-    componentImportMap[componentName] = {
-        p: buildAliasPathForArrowFunctionImport(load, sourceFile),
-        r: true,
-    };
+    // `extends: 'sw-base'` makes register.ts call Component.extend(), so the wrapper extends instead of registering
+    const extendedComponentName = properties
+        .getProperty('extends')
+        ?.getFirstDescendantByKind(ts.SyntaxKind.StringLiteral)
+        ?.getLiteralText();
+    const aliasPath = buildAliasPathForArrowFunctionImport(load, sourceFile);
+
+    componentImportMap[componentName] = extendedComponentName
+        ? { p: aliasPath, r: false, en: extendedComponentName, e: true }
+        : { p: aliasPath, r: true };
 }
 
 function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
+    // `extend(SwExample)` extends a mini-module component, which its `definePublicComponent()` call maps
+    if (call.getArguments()[0]?.getKind() !== ts.SyntaxKind.StringLiteral) {
+        return;
+    }
+
     const componentName = getComponentNameFromArgumentNumber(call, 1);
     const extendedComponentName = getComponentNameFromArgumentNumber(call, 2);
 

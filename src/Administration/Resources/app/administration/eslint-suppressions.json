@@ -1834,7 +1834,7 @@
       "count": 1
     }
   },
-  "src/app/component/rule/condition-type/sw-condition-time-range/src/sw-condition-time-range.js": {
+  "src/app/component/rule/condition-type/sw-condition-time-range/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

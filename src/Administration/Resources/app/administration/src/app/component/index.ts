@@ -272,7 +272,6 @@ import './rule/condition-type/sw-condition-not-found/register';
 import './rule/condition-type/sw-condition-order-custom-field/register';
 import './rule/condition-type/sw-condition-script/register';
 import './rule/condition-type/sw-condition-shipping-zip-code/register';
-import './rule/condition-type/sw-condition-time-range/register';
 import './sidebar/sw-sidebar-collapse/register';
 import 'src/app/component/structure/sw-admin/register';
 import 'src/app/component/utils/sw-help-center/register';
@@ -307,6 +306,11 @@ export default () => {
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
     Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
+    Shopware.Component.extend(
+        'sw-condition-time-range',
+        'sw-condition-base',
+        () => import('src/app/component/rule/condition-type/sw-condition-time-range/index'),
+    );
     // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
     Shopware.Component.extend(
         'sw-condition-is-net-select',

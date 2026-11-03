@@ -1,0 +1,121 @@
+import template from './sw-first-run-wizard-paypal-info.html.twig';
+import './sw-first-run-wizard-paypal-info.scss';
+import { extensionStoreActionService, getAssetFilter } from '../dependencies';
+
+/**
+ * @sw-package fundamentals@after-sales
+ *
+ * @public
+ */
+export default {
+    template,
+
+    inject: [extensionStoreActionService],
+
+    emits: ['frw-set-title', 'buttons-update'],
+
+    data() {
+        return {
+            isInstallingPlugin: false,
+            pluginInstallationFailed: false,
+            pluginError: null,
+            pluginName: 'SwagPayPal',
+            installPromise: Promise.resolve(),
+        };
+    },
+
+    computed: {
+        assetFilter() {
+            return getAssetFilter();
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
+        createdComponent() {
+            this.updateButtons();
+            this.setTitle();
+            this.installPromise = this.installPayPal();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.paypalInfo.modalTitle'));
+        },
+
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'back',
+                    label: this.$t('global.default.back'),
+                    position: 'left',
+                    variant: 'secondary',
+                    action: 'sw.first.run.wizard.index.mailer.selection',
+                    disabled: false,
+                },
+                {
+                    key: 'skip',
+                    label: this.$t('sw-first-run-wizard.general.buttonSkip'),
+                    position: 'right',
+                    variant: 'secondary',
+                    action: 'sw.first.run.wizard.index.plugins',
+                    disabled: false,
+                },
+                {
+                    key: 'configure',
+                    label: this.$t('global.default.configure'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.activatePayPalAndRedirect.bind(this),
+                    disabled: false,
+                },
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
+        },
+
+        installPayPal() {
+            return this.extensionStoreActionService.downloadExtension(this.pluginName).then(() => {
+                return this.extensionStoreActionService.installExtension(this.pluginName, 'plugin');
+            });
+        },
+
+        activatePayPalAndRedirect() {
+            this.isInstallingPlugin = true;
+            this.installPromise
+                .then(() => {
+                    return this.extensionStoreActionService.activateExtension(this.pluginName, 'plugin');
+                })
+                .then(async () => {
+                    await this.$router.push({
+                        name: 'sw.first.run.wizard.index.paypal.credentials',
+                    });
+
+                    // need a force reload, after plugin was activated
+                    this._reloadPage();
+
+                    return Promise.resolve(true);
+                })
+                .catch((error) => {
+                    this.isInstallingPlugin = false;
+                    this.pluginInstallationFailed = true;
+
+                    const raw = error?.response?.data?.errors?.pop() || error?.message || error;
+                    const text = raw?.detail;
+
+                    if (typeof text === 'string') {
+                        this.pluginError = text.length <= 200 ? text : `${text.slice(0, 200)}...`;
+                    }
+
+                    return true;
+                });
+        },
+    },
+};

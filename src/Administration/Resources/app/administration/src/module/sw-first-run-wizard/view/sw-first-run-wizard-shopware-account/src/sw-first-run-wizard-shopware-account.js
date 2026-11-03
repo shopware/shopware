@@ -1,0 +1,102 @@
+import template from './sw-first-run-wizard-shopware-account.html.twig';
+import './sw-first-run-wizard-shopware-account.scss';
+import { firstRunWizardService, getAssetFilter, useContextStore } from '../dependencies';
+
+/**
+ * @sw-package fundamentals@after-sales
+ *
+ * @public
+ */
+export default {
+    template,
+
+    inject: [firstRunWizardService],
+
+    emits: ['frw-set-title', 'buttons-update', 'frw-redirect'],
+
+    data() {
+        return {
+            shopwareId: '',
+            password: '',
+            accountError: false,
+        };
+    },
+
+    computed: {
+        assetFilter() {
+            return getAssetFilter();
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.setTitle();
+            this.updateButtons();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.shopwareAccount.modalTitle'));
+        },
+
+        updateButtons() {
+            const disabledExtensionManagement = useContextStore().app.config.settings?.disableExtensionManagement;
+            const prevRoute = disabledExtensionManagement ? 'mailer.selection' : 'plugins';
+            const skipRoute = disabledExtensionManagement ? 'finish' : 'store';
+
+            const buttonConfig = [
+                {
+                    key: 'back',
+                    label: this.$t('global.default.back'),
+                    position: 'left',
+                    variant: 'secondary',
+                    action: `sw.first.run.wizard.index.${prevRoute}`,
+                    disabled: false,
+                },
+                {
+                    key: 'skip',
+                    label: this.$t('sw-first-run-wizard.general.buttonSkip'),
+                    position: 'right',
+                    variant: 'secondary',
+                    action: `sw.first.run.wizard.index.${skipRoute}`,
+                    disabled: false,
+                },
+                {
+                    key: 'next',
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.testCredentials.bind(this),
+                    disabled: false,
+                },
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
+        },
+
+        testCredentials() {
+            const { shopwareId, password } = this;
+
+            return this.firstRunWizardService
+                .checkShopwareId({
+                    shopwareId,
+                    password,
+                })
+                .then(() => {
+                    this.accountError = false;
+
+                    this.$emit('frw-redirect', 'sw.first.run.wizard.index.shopware.domain');
+
+                    return false;
+                })
+                .catch(() => {
+                    this.accountError = true;
+
+                    return true;
+                });
+        },
+    },
+};

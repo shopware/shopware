@@ -7427,7 +7427,7 @@
       "count": 3
     }
   },
-  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js": {
+  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/src/sw-first-run-wizard-modal.js": {
     "filename-rules/not-match": {
       "count": 1
     },
@@ -7435,7 +7435,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/sw-first-run-wizard-modal.spec.js": {
+  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/tests/sw-first-run-wizard-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7443,7 +7443,7 @@
       "count": 27
     }
   },
-  "src/module/sw-first-run-wizard/component/sw-plugin-card/index.ts": {
+  "src/module/sw-first-run-wizard/component/sw-plugin-card/src/sw-plugin-card.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7451,7 +7451,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/component/sw-plugin-card/sw-plugin-card.spec.js": {
+  "src/module/sw-first-run-wizard/component/sw-plugin-card/tests/sw-plugin-card.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
@@ -7469,17 +7469,17 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/src/sw-first-run-wizard-data-import.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/src/sw-first-run-wizard-defaults.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/src/sw-first-run-wizard-finish.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7487,27 +7487,27 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-base/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-base/src/sw-first-run-wizard-mailer-base.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-local/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-local/src/sw-first-run-wizard-mailer-local.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection/src/sw-first-run-wizard-mailer-selection.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection/sw-first-run-wizard-mailer-selection.spec.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection/tests/sw-first-run-wizard-mailer-selection.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/src/sw-first-run-wizard-mailer-smtp.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7515,12 +7515,12 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/sw-first-run-wizard-mailer-smtp.spec.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/tests/sw-first-run-wizard-mailer-smtp.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/src/sw-first-run-wizard-paypal-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7528,7 +7528,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/src/sw-first-run-wizard-paypal-credentials.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7536,7 +7536,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/src/sw-first-run-wizard-paypal-info.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7544,12 +7544,12 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/sw-first-run-wizard-paypal-info.spec.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/tests/sw-first-run-wizard-paypal-info.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/src/sw-first-run-wizard-plugins.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7557,7 +7557,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account/src/sw-first-run-wizard-shopware-account.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7565,7 +7565,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/src/sw-first-run-wizard-shopware-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7573,7 +7573,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/src/sw-first-run-wizard-shopware-domain.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7581,7 +7581,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/src/sw-first-run-wizard-store.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -7589,7 +7589,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/index.js": {
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/src/sw-first-run-wizard-welcome.js": {
     "filename-rules/not-match": {
       "count": 1
     }

@@ -326,3 +326,12 @@ import '../src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file
 import '../src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/global';
 import '../src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/global';
 import '../src/module/sw-sales-channel/view/sw-sales-channel-detail-products/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/global';
+import '../src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/global';

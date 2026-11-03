@@ -343,6 +343,16 @@ export const filterFactory = 'filterFactory';
 export const filterService = 'filterService';
 
 /**
+ * The name the firstRunWizardService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [firstRunWizardService] };
+ *
+ * @public
+ */
+export const firstRunWizardService = 'firstRunWizardService';
+
+/**
  * The name the guestCustomerConvertService service is registered and injected under.
  *
  * @example
@@ -551,6 +561,16 @@ export const productStreamPreviewService = 'productStreamPreviewService';
  * @public
  */
 export const recentlySearchService = 'recentlySearchService';
+
+/**
+ * The name the recommendationsService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [recommendationsService] };
+ *
+ * @public
+ */
+export const recommendationsService = 'recommendationsService';
 
 /**
  * Creates the repositories for entities.

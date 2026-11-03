@@ -25,7 +25,7 @@ SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
 | Value | Twig change in the Vite dev server |
 |---|---|
 | `reload` (default) | `twig-reload.vite.js` reloads the page |
-| `hmr` | `twig-hmr.vite.js` applies the change in place |
+| `hmr` | `twig-hmr.vite.js` applies the change in place and swaps changed component scripts |
 | `manual` | Nothing happens, the views are not watched |
 
 The variable is read from the shell first, then from the `.env.local` and `.env` of the project root, so put it into `.env.local` to keep it.
@@ -168,7 +168,8 @@ The previous render of a fragment is fetched when the fragment opens.
 Without a previous render, every plugin and component element counts as changed.
 
 **Component scripts.**
-In the Vite dev server, a changed component script does not reload the page either.
+With `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`, a changed component script does not reload the page either.
+In `reload` mode Vite reloads the page, and in `manual` mode nothing happens.
 `build/vite/component-hmr-plugin.ts` appends an HMR handler to every script under `Resources/views/components/`.
 Helper modules that a component imports pass their updates up to it.
 The handler calls `window.swComponentHmr.replace()` of `component-hmr.js` with the module URL and the new class.

@@ -132,7 +132,8 @@ export default defineConfig(async ({ command, mode }): Promise<UserConfig> => {
             themeScssWatcherPlugin(projectRoot, { devUpdate }),
             // Manual mode sends nothing to the page, so the Twig views are not watched.
             ...(devUpdate === 'manual' ? [] : [twigHmrPlugin(projectRoot)]),
-            componentHmrPlugin(import.meta.dirname),
+            // Only hmr mode swaps component scripts in place. Otherwise Vite finds no HMR boundary and reloads the page.
+            ...(devUpdate === 'hmr' ? [componentHmrPlugin(import.meta.dirname)] : []),
         ],
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),

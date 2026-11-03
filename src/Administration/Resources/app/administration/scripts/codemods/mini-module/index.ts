@@ -28,6 +28,7 @@ import { findLocalMixins } from './find-local-mixins';
 import { moveSuppressionKeys } from './move-suppressions';
 import { isTestFixture } from './test-fixtures';
 import { removeRegistration } from './remove-registration';
+import { isMiniModuleDirectory, ownEntries } from './own-entries';
 import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
@@ -221,12 +222,7 @@ const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifi
  */
 const findEnclosingModule = (file: string) => {
     for (let directory = path.dirname(file); directory.startsWith('src/'); directory = path.dirname(directory)) {
-        const absolute = path.join(adminRoot, directory);
-        const isMiniModule =
-            ['index.ts', 'private.ts'].some((entry) => fs.existsSync(path.join(absolute, entry))) &&
-            ['src', 'tests'].every((folder) => fs.existsSync(path.join(absolute, folder)));
-
-        if (isMiniModule) {
+        if (isMiniModuleDirectory(path.join(adminRoot, directory))) {
             return file.startsWith(`${directory}/src/`) || file === `${directory}/dependencies.ts` ? directory : null;
         }
     }
@@ -344,12 +340,19 @@ const readSources = (fileOrDirectory: string): string[] =>
               .map((file) => fs.readFileSync(file, 'utf8'))
         : [fs.readFileSync(fileOrDirectory, 'utf8')];
 
-/** The script files below a directory, as absolute paths. */
+/** The script files of a component directory, as absolute paths, without the mini-modules inside it. */
 const scriptFilesBelow = (directory: string) =>
-    fs
-        .readdirSync(directory, { recursive: true, encoding: 'utf8' })
-        .filter((file) => SCRIPT_EXTENSION.test(file))
-        .map((file) => path.join(directory, file));
+    ownEntries(directory).flatMap((entry) => {
+        const file = path.join(directory, entry);
+        if (!fs.statSync(file).isDirectory()) {
+            return SCRIPT_EXTENSION.test(entry) ? [file] : [];
+        }
+
+        return fs
+            .readdirSync(file, { recursive: true, encoding: 'utf8' })
+            .filter((inner) => SCRIPT_EXTENSION.test(inner))
+            .map((inner) => path.join(file, inner));
+    });
 
 /** Whether an import path, written in a file of the given directory, leads to the file. */
 const leadsToFile = (fromDirectory: string, specifier: string, file: string) => {
@@ -509,7 +512,7 @@ function run(directory: string) {
     };
 
     const isSpec = (file: string) => /\.spec(\.[jt]s)?$/.test(file);
-    const entries = fs.readdirSync(componentDirectory);
+    const entries = ownEntries(componentDirectory);
     const sources = new Map(entries.map((file) => [file, readSources(path.join(componentDirectory, file))]));
     const specSources = entries.filter(isSpec).flatMap((file) => sources.get(file) ?? []);
     const fixtures = new Set(
@@ -561,8 +564,9 @@ function run(directory: string) {
         ...[...(nesting?.keys() ?? [])].map(relative),
     ]);
     const movedEntry = shape.kind === 'nested' ? undefined : { directory: origin, name, isPrivate: shape.isPrivate };
+    const isMoved = (file: string) => [`${root}/src/`, `${root}/tests/`].some((folder) => file.startsWith(folder));
     const outsideFiles = filesMentioning(path.basename(origin))
-        .filter((file) => !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`) && !changedLater.has(file))
+        .filter((file) => !isMoved(file) && !changedLater.has(file))
         .filter((file) => rewriteFileImports(moves, file, file, movedEntry));
 
     const baseline = path.join(adminRoot, 'src/meta/baseline.ts');

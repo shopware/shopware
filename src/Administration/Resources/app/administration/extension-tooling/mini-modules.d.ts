@@ -10,3 +10,4 @@ import '../src/module/sw-settings-shipping/component/sw-settings-shipping-price-
 import '../src/module/sw-media/component/sw-media-collapse/global';
 import '../src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/global';
 import '../src/module/sw-import-export/component/sw-import-export-activity/global';
+import '../src/module/sw-settings-logging/component/sw-settings-logging-entry-info/global';

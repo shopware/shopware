@@ -11690,7 +11690,7 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.js": {
+  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/src/sw-settings-logging-entry-info.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -11698,7 +11698,7 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/sw-settings-logging-entry-info.spec.js": {
+  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/tests/sw-settings-logging-entry-info.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }

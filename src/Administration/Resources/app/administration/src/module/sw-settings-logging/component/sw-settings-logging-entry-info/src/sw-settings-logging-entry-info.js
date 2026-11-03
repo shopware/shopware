@@ -4,7 +4,9 @@
 
 import template from './sw-settings-logging-entry-info.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

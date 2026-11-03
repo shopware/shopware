@@ -136,6 +136,12 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Deleting a tree reports every level as deleted
+
+Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted.
+Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them.
+Webhook and app consumers now receive these additional deletes.
+
 ### Sync requests report products deleted earlier in the request as deleted
 
 A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
@@ -221,6 +227,13 @@ Check import files that relied on `0` being ignored.
 
 ## API
 
+### Plain JSON becomes the default Admin API response format in 6.8
+
+Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
+With the `v6.8.0.0` feature flag enabled, Admin API entity responses use plain JSON when the `Accept` header is missing or contains only `*/*`.
+Clients that expect JSON:API should explicitly send `Accept: application/vnd.api+json`; this header also works on earlier Shopware 6 versions.
+Clients can already opt into plain JSON with `Accept: application/json`.
+
 ### Usernames with surrounding whitespace
 
 User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.
@@ -305,6 +318,24 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
 ## Administration
+
+### Apps can add tabs to the media modal they open
+
+`ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).
+They are shown after the built-in tabs of that opening of the media modal only, and each renders the given location of the app that opened the modal.
+The location passes its selection to the modal's `callback` and closes the modal with `ui.mediaModal.select({ selection })`.
+Only the app that opened the modal can select.
+The tabs are shown with the Meteor tabs of the media modal (major feature flag `v6.8.0.0`), in the new Twig block `sw_media_modal_v2_mt_tab_content_extension` of `sw-media-modal-v2`.
+
+```js
+ui.mediaModal.open({
+    tabs: [{ label: 'Primitives', locationId: 'my-app-primitives-tab' }],
+    callback: (selection) => {},
+});
+
+// In the location "my-app-primitives-tab"
+ui.mediaModal.select({ selection: [{ id: 'cube' }] });
+```
 
 ### CMS layout overview places the page type navigation in a grid
 
@@ -434,15 +465,16 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
-### Meteor Component Library updated to 5.9.0
+### Meteor Component Library updated to 5.10.0
 
-The Administration now uses Meteor Component Library `5.9.0`, Meteor Admin SDK `6.16.0` and Meteor Icon Kit `5.12.0`.
+The Administration now uses Meteor Component Library `5.10.0`, Meteor Admin SDK `6.17.0` and Meteor Icon Kit `5.12.0`.
 
 Check your Administration extensions for these changes:
 
 - Clicks on links, buttons and form controls inside `mt-radio-group-custom-item` no longer select it.
 - `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
+- New component `mt-extension-icon`.
 
 ## API
 

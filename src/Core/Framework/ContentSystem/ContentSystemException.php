@@ -976,7 +976,7 @@ class ContentSystemException extends HttpException
     }
 
     // The client-facing 400s of the data-mapping write gate. A mapping is a root-scoped context consumer
-    // whose propertyAlias names a declared property of the element's type, so all four name a defect in a
+    // whose consumer-map key names a declared property of the element's type, so all four name a defect in a
     // stored mapping rather than in context wiring at large.
 
     // The declared property exists but its type did not opt in with `mappable: true`.
@@ -1013,8 +1013,8 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The catalogue offers the path, but the value it yields cannot fill the property it was mapped onto. The
-    // render path cannot catch this for itself: it serves whatever the path resolved to.
+    // The catalogue offers the path, but its effective type cannot fill the declared property. Rendering
+    // rechecks admission and rejects incompatible runtime values too.
     public static function mappingTypeMismatch(string $propertyKey, string $declaredType, string $valueType): self
     {
         return new self(
@@ -1038,7 +1038,7 @@ class ContentSystemException extends HttpException
     // The validation factories of the INLINE mapping gate. An inline mapping is a `{{map:path}}` token inside an
     // `inlineMappable` string property, carrying no `acceptsContext` entry of its own, so whole-field mapping checks
     // cannot see one. Mapping admissibility faults use the shared `Mapping/MappingProblem` channel; a missing root
-    // source is also reported through that channel by diagnostics. These codes are absent from CLIENT_DEFECT_CODES.
+    // source is also reported through that channel by diagnostics.
 
     // The token's path is not in the mapping catalogue of the layout's root source. Rendering removes the token
     // without resolving it; the write error and diagnostics API tell the author why it is unavailable.
@@ -1097,7 +1097,8 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // Expansion depends on live source values, so exceeding its budget is a render fault, not an input-validation 400.
+    // Expansion budgets include authored literal text and escaped source values. Exceeding the output
+    // allowance is a render fault; the separate authored-input limit remains an input-validation 400.
     public static function inlineMappingExpansionTooLarge(int $maximumBytes, string $scope): self
     {
         return new self(
@@ -1129,16 +1130,16 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * A provider offering an undotted path, which would make the write gate mistake every mapping onto it for
-     * the root-scoped consumer `Mutation/ContextConsumerMirror` writes, leaving it unvalidated. Unreachable
-     * from client input: only a `Mapping/Provider/AbstractMappingCandidateProvider` implementation can cause it.
+     * A provider offered an empty candidate key, or an undotted key without an explicit typed source.
+     * Without that source, the constructor requires a dotted root-member path from which to infer one.
+     * Only a provider implementation can cause this definition fault.
      */
     public static function invalidMappingCandidatePath(string $path): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_MAPPING_CANDIDATE_PATH,
-            'Mapping candidate path "{{ path }}" must be a dotted path into a root-ambient context value, e.g. "category.name".',
+            'Mapping candidate path "{{ path }}" must be non-empty. Without an explicit typed source, use a dotted root-member path, e.g. "category.name".',
             ['path' => $path]
         );
     }

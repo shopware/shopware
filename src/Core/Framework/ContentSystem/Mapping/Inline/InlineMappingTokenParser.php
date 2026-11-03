@@ -15,13 +15,11 @@ use Shopware\Core\Framework\Log\Package;
  * the gate's notion of a token and the expansion's notion ever diverge, a token the gate never judged reaches
  * {@see ContextPathResolver}, which traverses `Struct::getVars()` unfiltered.
  *
- * Three properties of the pattern are deliberate:
+ * Two properties of the pattern are deliberate:
  *
  * - **The `map:` prefix** makes a mapping author-declared rather than inferred. Without it the catalogue would be
  *   the only thing separating a mapping from prose, so any dotted brace expression an author typed would be
  *   claimed — and an unknown one could not then be reported as an error, because it might be prose.
- * - **Preparation captures spans before substitution.** Placeholder values can contain the same characters as a
- *   mapping token, but only authored spans are carried into dependency discovery and expansion.
  * - **A mapping marker is captured even when its path is malformed.** The path grammar still requires a member
  *   below its source, even though a typed {@see MappingCandidate} may expose a whole source for field mappings.
  *   Capturing malformed mapping intent lets the write gate diagnose it and the renderer remove it rather than
@@ -125,7 +123,7 @@ final class InlineMappingTokenParser
     /**
      * Replaces tokens using spans captured before placeholder substitution. The caller owns those spans and must
      * preserve their offsets while rewriting the surrounding literal text. A null resolver result leaves a valid
-     * token verbatim; an empty string removes it. Malformed tokens are removed without calling the resolver.
+     * token verbatim; an empty string removes it.
      *
      * @param list<InlineMappingToken> $tokens
      * @param callable(string): ?string $resolve receives the path, answers the replacement or null
@@ -168,9 +166,8 @@ final class InlineMappingTokenParser
     }
 
     /**
-     * Tracks whether parsed spans sit inside markup. A quoted `>` does not close a tag; parse carries the scanner
-     * state between spans rather than rescanning from the start. Tokens in attributes remain literal because
-     * escaping their replacements as text would not make attribute interpolation safe.
+     * Tracks whether parsed spans sit inside markup. A quoted `>` does not close a tag. Tokens in attributes remain
+     * literal because escaping their replacements as text would not make attribute interpolation safe.
      *
      * @return array{bool, ?string}
      */

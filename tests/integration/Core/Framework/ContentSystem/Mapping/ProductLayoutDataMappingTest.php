@@ -23,15 +23,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Proves the half of data mapping a dotted path cannot reach on its own: provider media reshaping. Both media paths a
- * product page can offer hold assignment records rather than pictures — `product.cover` a single
- * `ProductMediaEntity`, `product.media` a `ProductMediaCollection` of them — while every media element
- * declares `MediaEntity` or `MediaCollection`. Walking from the assignment to the picture is a further hop
- * for the one and a loop for the other, and a path can express neither.
+ * Exercises product mappings through persistence and Store API rendering: inline names/custom fields,
+ * expansion-limit errors, media projection, gallery order, and authored-media fallback.
  *
- * These cases assert on what the storefront is served. An unwrapped assignment would still look like a populated
- * media property in a shallow assertion, which is why the collection case pins the ids and their order, and the
- * single case pins that the id is the picture's rather than the assignment's.
+ * Media assertions distinguish pictures from assignment records by their IDs and verify collection order.
  *
  * @internal
  */

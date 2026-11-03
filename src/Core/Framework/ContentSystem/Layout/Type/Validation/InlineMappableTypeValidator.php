@@ -14,10 +14,8 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  * The type rule mirrors {@see TranslatableTypeValidator}: token interpolation writes a string back into a string,
  * so the property must be declared exactly `string`.
  *
- * The exclusivity rule is the more load-bearing of the two. A property declaring both `mappable` and
- * `inlineMappable` would offer two mapping mechanisms for one value — a whole-field mapping shadowing the authored
- * text, and tokens inside that same text — leaving every reader (settings panel, write gate, render path) to invent
- * its own tie-break. Rejecting the declaration makes the conflict unrepresentable instead.
+ * Reject declarations carrying both `mappable` and `inlineMappable`, because they would offer two mapping
+ * mechanisms for one value.
  *
  * @internal only for use by the content-system element types
  */

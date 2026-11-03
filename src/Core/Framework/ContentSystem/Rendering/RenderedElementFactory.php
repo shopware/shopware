@@ -35,10 +35,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * "Delivered" means delivered: a consumer key the element declares but which no ancestor fulfilled is not
  * a member, so it does not appear at all rather than appearing as null. An explicit null on a rendered
- * property means a resolution ran and found nothing, and it has exactly two producers: a loader's
- * {@see ContentDataLoaderResult::notFound()},
- * and a context delivery that resolved to nothing (an under-supplied distribution strategy handing an
- * unmatched consumer null). Neither authoring nor non-delivery is among them — an authored null and an
+ * property can come from a loader's {@see ContentDataLoaderResult::notFound()}, an under-supplied distribution
+ * strategy, an optional ordinary dotted-root consumer whose path cannot be traversed, or a mapping resolving
+ * an explicit null. Neither authoring nor non-delivery is among them — an authored null and an
  * undelivered consumer key are both absent. Keeping present-null and key-absent apart is the point of the
  * distinction.
  *

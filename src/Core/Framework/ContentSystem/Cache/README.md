@@ -36,8 +36,8 @@ the Storefront hands those two to the subscriber through the container parameter
 
 `MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. Other-media and text-only cached pages keep their entries.
 
-Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`.
-It is attached only when a render attempts a custom-field mapping, including an unavailable field, and applies
-to both whole-field and inline mappings. Writes/deletes to custom-field definitions, sets, or set relations
-invalidate those pages. Layouts with only normal core mappings receive no such dependency and remain cached.
-The custom-field provider owns path recognition; general rendering code does not inspect custom-field names.
+Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`. The provider attaches it only when a render attempts a mapping under a supported root's `customFields` path, including an unavailable field. Whole-field and inline mappings share this policy. Literal mapping-looking text outside supported positions creates no dependency.
+
+Writes/deletes to custom-field definitions, sets, or set relations invalidate the tag, including relation deletions whose payload contains only an ID. This deliberately invalidates pages using any custom-field mapping when mapping metadata changes. Layouts with only normal core mappings receive no such dependency and remain cached. The provider owns path recognition; general rendering does not inspect custom-field names.
+
+The provider's separate catalogue cache retains its `custom_field_mapping_candidates` tag. Catalogue entries and rendered pages are invalidated through their respective paths, following the normal immediate/delayed purge policy.

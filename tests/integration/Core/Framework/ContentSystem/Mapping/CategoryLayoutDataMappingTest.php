@@ -118,8 +118,7 @@ class CategoryLayoutDataMappingTest extends TestCase
 
     /**
      * `category.name` is catalogued and resolves fine; it just yields a string where the image's `media`
-     * property declares a `MediaEntity`. Only the write gate can catch this — the render path would serve the
-     * wrong type.
+     * property declares a `MediaEntity`. The write gate rejects this mismatch before the layout is saved.
      */
     #[TestDox('rejects a catalogued path whose value cannot fill the declared property type')]
     public function testTheWriteGateRejectsATypeMismatch(): void

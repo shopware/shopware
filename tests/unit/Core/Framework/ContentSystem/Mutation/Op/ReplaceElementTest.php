@@ -325,7 +325,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('reports a wiring key dropped from two channels only once')]
     public function testReplaceReportsAKeyDroppedFromBothWiringChannelsOnce(): void
     {
-        // droppedWiringKeys() at ReplaceElement.php:216 is array_values(array_unique(array_diff($oldKeys,
+        // ReplaceElement::droppedWiringKeys() is array_values(array_unique(array_diff($oldKeys,
         // $keptKeys))). Every other dropped-wiring test uses distinct key names per channel, so array_diff never
         // produces a duplicate for array_unique to collapse. Wiring 'legacy' as both a data requirement and a
         // context consumer makes it appear twice in $oldKeys; without array_unique(), droppedWiring() would report
@@ -370,7 +370,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('excludes an orphaned slot child from the affected set')]
     public function testReplaceAffectedExcludesOrphanedChildren(): void
     {
-        // $this->affected = $this->subtreeIds($replacement) at ReplaceElement.php:95 walks the REPLACEMENT node.
+        // ReplaceElement::apply() computes affected() from the replacement subtree, excluding orphaned children.
         // testReplaceOrphansAbsentSlotChildren already drops this same 'legacy' child but only asserts orphaned(),
         // never affected(); testReplaceAffectedCoversKeptSubtree uses a slot the new type keeps, so the original
         // node and the replacement are indistinguishable there. Computing affected() over the pre-replace node

@@ -111,11 +111,9 @@ class MappingCandidateTest extends TestCase
     }
 
     /**
-     * An undotted path names a root-ambient value outright, which is the shape
-     * `Mutation/ContextConsumerMirror` writes for resolved reference wiring. `Validation/StoredMappingValidator`
-     * tells the two apart by the dot, so offering one would leave every mapping onto it unvalidated.
+     * Without an explicit typed source, the constructor requires a dotted root-member path from which to infer it.
      */
-    public function testRefusesAnUndottedPathThatWouldEscapeTheWriteGate(): void
+    public function testRefusesAnUndottedPathWithoutAnExplicitSource(): void
     {
         $this->expectExceptionObject(ContentSystemException::invalidMappingCandidatePath('productListing'));
 

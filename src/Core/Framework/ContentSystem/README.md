@@ -64,6 +64,8 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation
 
 ## Subdirectories
 
+### Core directories
+
 - **Adapter/** - [Adapter/README.md](Adapter/README.md) - Specification sources, layout assignment entities, resolution helpers
 - **Api/** - [Api/README.md](Api/README.md) - Admin API controllers (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions)
 - **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
@@ -81,11 +83,17 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation
 - **SalesChannel/** - [SalesChannel/README.md](SalesChannel/README.md) - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation
 - **Validation/** - [Validation/README.md](Validation/README.md) - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)
+
+`Helper/` and `Schema/` carry no documentation surface of their own.
+
+### Reference guides
+
 - [NAMING.md](NAMING.md) - How classes in this module are named, routing on to [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which of the two element models a class is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what each role suffix promises)
 - [docs/product-detail-page.md](docs/product-detail-page.md) - A worked layout combining entity rendering, data loading, and context distribution
 - [docs/service-tags-and-types.md](docs/service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
 - [docs/extending.md](docs/extending.md) - The six extension mechanisms and where each one is authored
 - [docs/data-flow.md](docs/data-flow.md) - A diagram of the rendering pipeline's data flow
-- **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
 
-`Helper/` and `Schema/` carry no documentation surface of their own.
+### Storefront integration
+
+- **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.

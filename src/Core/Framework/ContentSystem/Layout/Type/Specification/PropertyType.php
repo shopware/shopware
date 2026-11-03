@@ -142,8 +142,9 @@ final readonly class PropertyType
     }
 
     /**
-     * Which kinds of mapping candidate can fill this property: a single value, a collection, or — for a
-     * union or a bare `object` — either.
+     * Which cardinalities can fill this property, combining the kinds of its declared union members.
+     * Primitives and non-Collection classes accept single values; Collection classes accept collections.
+     * Bare `object` accepts both, as does a union mixing collection and single-value members.
      *
      * The Administration uses this to filter candidates by cardinality. Declared-type assignability is also
      * supplied by the server as candidate `compatibleTypes`, computed by

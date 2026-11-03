@@ -20,14 +20,11 @@ use Shopware\Core\Framework\Log\Package;
  * authored string and needs to know nothing about mapping. Threading resolution into the factory instead would mean
  * a fifth concern in the one method whose ordering is, as its own docblock puts it, load-bearing twice.
  *
- * The consequence to be aware of is that the value the mint records as DeclaredAuthored is the EXPANDED text, not
- * what the author typed. In eligible text positions, a resolved token is replaced and an unresolved token is removed
- * while surrounding authored text is retained. Valid tokens inside markup stay literal; normal template sanitization
- * still applies. The editing surface reads the original stored elements through the codec.
+ * The mint records the expanded text as DeclaredAuthored. The editing surface reads the original stored
+ * elements through the codec.
  *
- * SHAPE RULE, borrowed verbatim from `Layout/Scaffolding/StoredTreePreparer::resolvePlaceholders()`: top-level
- * string properties only for interpolation. A token is resolved only at a declared, `inlineMappable`-flagged key;
- * containers and other unflagged properties are left as authored text.
+ * Only top-level string properties declared `inlineMappable` are expanded; containers and other unflagged
+ * properties remain authored text.
  *
  * @internal
  */

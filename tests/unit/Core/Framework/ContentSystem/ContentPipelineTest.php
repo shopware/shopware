@@ -1793,9 +1793,8 @@ class ContentPipelineTest extends TestCase
     }
 
     /**
-     * No fixture here declares an inlineMappable property, so expansion is a pass-through. It is wired with a real
-     * expander over an EMPTY catalogue rather than a mock, so that a token in a fixture would be left verbatim —
-     * which is the documented behaviour — instead of quietly satisfying a mock expectation.
+     * Uses the real expander: inline-mappable fixtures can supply a populated registry to exercise expansion.
+     * Without one, the empty catalogue makes authored text tokens unavailable; unflagged properties remain literal.
      */
     private function inlineMappingExpander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
     {

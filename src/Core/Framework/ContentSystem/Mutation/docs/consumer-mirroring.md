@@ -1,7 +1,7 @@
 # Consumer Mirroring
 
 `ContextConsumerMirror` is the creation-time step `MutationPipeline` runs after the diagnostics pass. It mirrors
-onto the created elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
+onto the freshly scaffolded elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
 is `@internal`, `#[Package('framework')]` like everything else here, and absent from `InternalClassRule`'s
 public-surface allowlist. Only the draft pipeline calls it, so a persisted mutation commits without mirrored wiring.
 
@@ -56,11 +56,11 @@ parent-rebuilding recursion over `StoredElement::$slots`, because `StoredTree::l
 Writing no consumer returns the input `StoredTree` instance itself, which is what the pipeline's re-analysis gate
 reads.
 
-Restricting mirroring to freshly scaffolded `created()` ids is what makes an explicit unwiring durable: the ambient offer that proved the
+Restricting mirroring to `freshlyScaffolded()` ids is what makes an explicit unwiring durable: the ambient offer that proved the
 reference does not go away, so mirroring on a non-creating mutation would write back in the same response the
 consumer that was just removed. `DuplicateElement` reports new ids but copies the authored wiring exactly, so the
 pipeline does not mirror or seed defaults on its clone. `ReplaceElement`
-re-scaffolds the target element under the same id, which counts as `created()` (see
+re-scaffolds the target element under the same id, which is reported in `freshlyScaffolded()` (see
 [replace-element.md](replace-element.md)), so mirroring re-applies to it and restores every consumer the node's own
 resolutions still prove, including one an explicit unwiring had just removed. That is wanted: a type swap is a
 fresh scaffold, and the removal applied to the old node, not the new one.

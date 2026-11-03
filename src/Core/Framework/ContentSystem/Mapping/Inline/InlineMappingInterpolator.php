@@ -21,12 +21,8 @@ use Shopware\Core\Framework\Log\Package;
  *   surrounding authored text.
  * - **Resolved value** — answers escaped text, including an empty string when that is the actual value.
  *
- * ESCAPING IS NOT THE BOUNDARY ON EVERY RENDER PATH, and it cannot be. `Util\HtmlSanitizer::sanitize()` opens with
- * `htmlspecialchars_decode()` to undo double encoding, so a property a template renders through `sw_sanitize` — which
- * `Sw:Content:Text` does, being declared sanitized rich text — sees this escaping undone and the value's own markup
- * purified as markup. That is the same treatment the authored text beside it gets, and the same one a whole-field
- * mapping of the value gets, so the sanitizer is the boundary there and this escaping is defence for the properties
- * that have no sanitizer in front of them.
+ * Escaping protects properties rendered without a sanitizer. For rich-text properties rendered through
+ * `sw_sanitize`, see the Rich-text rendering section of `Mapping/README.md`.
  *
  * The live catalogue lookup is the render-time access boundary. A withdrawn path returns null even when an older
  * stored layout still contains its token; the write gate and diagnostics separately report authoring faults.
@@ -94,12 +90,10 @@ final class InlineMappingInterpolator
     }
 
     /**
-     * The candidate already promised a primitive, so this normally just casts. It answers null for anything else
-     * because a promise is not a guarantee: stored data can outlive the code that shaped it, and a provider
-     * returning the wrong type must make the value unavailable rather than raise a cast error mid-page.
+     * Runtime admission already rejects incompatible non-null values. A resolved null reaches this method
+     * but has no text representation, so it makes the token unavailable.
      *
-     * A bool becomes `1`/`0` rather than `true`/`false` to match PHP's own string cast, which is what an author
-     * moving a value between an inline token and a whole-field mapping will have seen.
+     * True renders as `1`, matching PHP's string cast. False deliberately renders as `0` rather than an empty string.
      */
     private function stringify(mixed $value): ?string
     {

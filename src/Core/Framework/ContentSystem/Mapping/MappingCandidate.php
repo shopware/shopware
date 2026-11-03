@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\Log\Package;
 
@@ -13,15 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * One offer in the data-mapping catalogue: a typed source reference that an author may bind a mappable
  * element property to, described in the terms the Administration needs to present it.
  *
- * Root candidates are curated rather than derived from entity definitions, and that is a correctness and a
- * security decision rather than a convenience. Two constraints a derived catalogue could not honour:
- *
- * - The default root reader uses {@see ContextPathResolver} over `Struct` values, with a narrow terminal
- *   lookup into array-backed `customFields`. Providers can override that read with explicit storefront-facing
- *   accessors for translated or inherited values. Only a path a provider has vouched for is offered.
- * - The framework's protection gate (ApiAware, `isProtected`, the customFields blocklist) is applied by
- *   `StructEncoder` to `Struct` leaves only, so a mapped SCALAR leaf is served unfiltered. The catalogue is
- *   the allowlist that keeps an author from reaching one.
+ * Candidates are curated by providers, never derived from entity definitions; see `Mapping/docs/source-providers.md`.
  *
  * `$valueType` is the effective type delivered by the provider. A provider that reads an assignment or
  * another intermediate value reshapes it before returning it to the property.
@@ -39,7 +30,7 @@ final readonly class MappingCandidate
      * @param string $label snippet key for the human-readable name, resolved by the Administration
      * @param string $description snippet key for the supporting line under the name
      * @param string $group grouping id the Administration renders as a section, e.g. `basic` or `media`
-     * @param string $valueType the effective type: a `PropertyType::PRIMITIVE_TYPES` member, or an FQCN
+     * @param string $valueType the effective type: a primitive type name, or an FQCN
      * @param array<string, string> $labelTranslations literal localized labels, preferred over the snippet key
      * @param array<string, string> $descriptionTranslations literal localized descriptions, preferred over the snippet key
      * @param list<string> $cacheTags metadata tags to collect only when this candidate is consulted during rendering
@@ -80,7 +71,7 @@ final readonly class MappingCandidate
             'group' => $this->group,
             'valueType' => $this->valueType,
             'compatibleTypes' => MappingTypeCompatibility::compatibleTypes($this->valueType),
-            'inlineMappable' => \in_array($this->valueType, PropertyType::PRIMITIVE_TYPES, true)
+            'inlineMappable' => \in_array($this->valueType, InlineMappingInterpolator::STRINGIFIABLE_TYPES, true)
                 && InlineMappingTokenParser::isValidPath($this->path),
             'contextType' => $this->contextType->value,
             'labelTranslations' => (object) $this->labelTranslations,

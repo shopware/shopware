@@ -9,11 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Decides whether a candidate's effective value type may fill a declared property type.
  *
- * This is the one rule the render path cannot enforce for itself:
- * `Rendering/ContextDeliveryResolver::overlayRootContext()` writes whatever the path resolved to, and the
- * resolved-value index and the encoders carry it onward, so a mapping from `category.name` onto a
- * `MediaCollection` property would serve a string where a collection belongs without anything raising. The
- * write boundary asks this class instead, before the mapping is ever stored.
+ * Shared by write admission and render-time admission. Runtime resolution also checks that the actual
+ * provider value satisfies its advertised effective type before delivering it.
  *
  * @internal
  */

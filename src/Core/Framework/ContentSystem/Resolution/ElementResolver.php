@@ -78,16 +78,7 @@ class ElementResolver
     }
 
     /**
-     * The configured mapping's selected source, not another candidate-menu entry.
-     *
-     * Root denotes root-scoped mapping delivery for both root and non-root providers. `contextKey` carries
-     * the actual typed source display name, while no ancestor supplies a `providerElementId`. This reports
-     * configured intent: admission remains with StoredMappingInspector, and no source values are read here.
-     *
-     * Static diagnostics still report a required mapped primitive with no authored value as `unresolved_required`;
-     * they do not inspect source values. During rendering, a resolved null is delivered as a present null and
-     * overrides authored or loader-resolved content. Missing or empty source values permit fallback to that
-     * content. A mapping alone therefore does not guarantee that a required property has a value.
+     * Reports an applied mapping as a selected Root source with its typed display name, without reading its value.
      */
     private function mappedCandidate(?string $path): ?ResolutionCandidate
     {

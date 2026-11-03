@@ -756,8 +756,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Data-mapping catalogue: one authority behind both the introspection endpoint and the write gate below
     $services->set(MappingTypeCompatibility::class);
 
-    // Shared mapping-vs-mirrored-wiring test, read by the mapping rules below and by ElementResolver and
-    // LayoutDiagnostics above
+    // Shared mapping-vs-mirrored-wiring test.
     $services->set(MappingConsumers::class);
 
     $services->set(PropertyMappingMutationFactory::class)

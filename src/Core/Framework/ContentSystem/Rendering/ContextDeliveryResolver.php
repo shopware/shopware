@@ -261,7 +261,7 @@ final readonly class ContextDeliveryResolver
      * An exact match hands on the SAME PHP instance, which is what makes the value-index instance map collapse
      * a root delivery onto the ambient loader value's ref. A dot path resolves through the value, which needs
      * a {@see Struct} to traverse: a required consumer that cannot get one fails naming this element, an
-     * optional one yields null. Ordinary consumers receive that null; mapped consumers deliver nothing.
+     * optional one yields null. Ordinary consumers receive that null.
      *
      * Mappings use provider dispatch above. This method only resolves ordinary root wiring.
      */

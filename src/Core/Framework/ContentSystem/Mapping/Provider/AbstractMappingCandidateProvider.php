@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * shape of data for every layout type).
  *
  * Every candidate must be safe to serve publicly. Override {@see resolveRootSource()} for candidate-specific
- * storefront accessors or reshaping; the default reader preserves existing one-hop and Struct-path providers.
- * See {@see MappingCandidate} for why exposure is the provider's responsibility.
+ * storefront accessors or reshaping; the default reader supports Struct paths.
+ * Exposure constraints are documented in `Mapping/docs/source-providers.md`.
  */
 #[Package('framework')]
 abstract class AbstractMappingCandidateProvider

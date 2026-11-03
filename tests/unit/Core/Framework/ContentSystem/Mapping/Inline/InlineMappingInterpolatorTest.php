@@ -213,8 +213,8 @@ class InlineMappingInterpolatorTest extends TestCase
     }
 
     /**
-     * The value reaches a Twig template that renders the property with `|raw`, so escaping here is what stands
-     * between a mapped entity field and stored XSS.
+     * Escaping protects text rendered without a sanitizer. Where a template uses `sw_sanitize`, as
+     * `Sw:Content:Text` does, the sanitizer is the rendering boundary; it may decode the escaped markup first.
      */
     #[DataProvider('escapingProvider')]
     #[TestDox('escapes the resolved value for text context')]

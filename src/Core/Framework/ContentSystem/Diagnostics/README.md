@@ -2,15 +2,6 @@
 
 Produces a `LayoutAnalysis` for a layout element tree: per-element property resolutions plus a `DiagnosticsReport` that classifies every defect by scope and severity. Two predicates on the report gate the two lifecycle transitions — `isWellFormed()` blocks persistence, `isResolvable()` blocks serving.
 
-## Key Classes
-
-- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext, ?string $rootSource = null, bool $reportMappingProblems = true): LayoutAnalysis`. Pass `null` for `$rootContext` to skip binding checks. `$rootSource` is separate and optional because whole-field mapping admissibility is keyed on the source ID rather than on the resolved context. Without it, whole-field mappings remain unjudged, while explicit inline tokens in opted-in properties report that a bound source is required.
-- `LayoutAnalysis` - Output value object. Holds `DiagnosticsReport $report` and `array $resolutions` (element id → `list<PropertyResolution>`).
-- `DiagnosticsReport` - Holds the public readonly `$violations` (`list<Violation>`, the full unfiltered defect set read directly by consumers such as `Api/ContentDiagnoseController`). Gate predicates: `isWellFormed()` (no intrinsic-scope Error violations), `isResolvable()` (no binding-scope Error violations). Also provides `intrinsicErrors()` and `bindingErrors()`.
-- `Violation` - A single defect: `ViolationCode $code`, `string $elementId`, `?string $key`, `string $message`, `list<ResolutionCandidate> $candidates`. Scope and severity derive from the code.
-- `ViolationCode` - Enum, string-backed. The single source of truth for scope and severity.
-- `RootContextMapper` - `map(array<DataRequirement>): list<ProvidedContext>` converts a bound source's data requirements into the root-ambient context fed to `analyze()`. `resolveType(DataRequirement): string` returns the concrete FQCN a requirement's configured loader produces and `@throws ContentSystemException` for an unregistered source or unknown entity; `LayoutDiagnostics` calls it inline and catches the client-defect codes to detect invalid loader config.
-
 ## ViolationCode Reference
 
 | Code | Scope | Severity |
@@ -33,8 +24,14 @@ Produces a `LayoutAnalysis` for a layout element tree: per-element property reso
 
 `UnfilledRequiredInput` flags a required reference resolved by its own stored wiring (a `Resolution/CandidateOrigin::Stored` pick) whose loader config still references an element property that holds no value — the reference resolves, yet the element would serve empty. The rule reads the source's declared config specification and fires per **required** `propertyReference` config key whose configured value is a string naming a property with no stored value (a stored explicit `null` counts as no value). It is keyed on the input property (the control the Admin highlights) and names both keys in the message; when the configured name is not a declared primitive property of the type — stored wiring is never property-name validated — it keys on the reference property instead, still naming both keys with the same neutral "has no value" message: an undeclared storage key with an empty value is the normal pre-fill state of a resolvedBy reference, and a typo'd key is indistinguishable from it. A required reference satisfied by parent context or a loader candidate never reaches this rule, and defaulted (`required: false`) `propertyReference` keys (the navigation shape) never gate. No loader source name appears in the rule; loader-dependence is expressed entirely through the config specification's `propertyReference` kind.
 
-`InvalidMapping` flags a stored data mapping the bound source's candidate catalogue does not admit: a property that does not declare `mappable`, a path the catalogue does not offer, context cardinality different from the candidate's, or a candidate value type the property cannot hold. With no bound source, it also flags explicit inline tokens in opted-in properties because they cannot resolve. Keyed on the mapped property, so the entry names the control the author acted on rather than a wiring key the editor does not render.
+## Mapping checks
 
-The rules live in `Mapping/StoredMappingInspector` and not here, because two surfaces apply them: this one reports, and `Validation/StoredMappingValidator` refuses the write with a specific `CONTENT_SYSTEM__*` code per rule. That split is why the code exists at all — before it, a mapping the gate could already prove wrong was silent in the Experience Studio and only surfaced on save, which is what the gallery-versus-single-media confusion looked like from the author's side.
+`InvalidMapping` flags stored whole-field or inline mappings not admitted by the bound source's catalogue: missing opt-in, an unavailable source, incompatible cardinality, or an incompatible effective type. Findings are keyed on the mapped property.
+
+The catalogue lookup needs a root source ID, which cannot be inferred from the resolved root context. Without a source ID, whole-field mappings remain unjudged. Explicit inline tokens in opted-in properties report that a bound source is required only when the root context is also null. With a supplied root context and no source ID, no mapping checks run.
+
+Mapped references select a `Root` source before stored loader wiring, so they do not require a manual picker input. The shared mapping predicate also guards the Stored-only required-input check. Required primitives still need authored values; diagnostics does not read source values.
+
+Admission rules live in `Mapping/StoredMappingInspector`: diagnostics reports findings, while `Validation/StoredMappingValidator` refuses writes with specific `CONTENT_SYSTEM__*` codes. See [data mapping](../Mapping/README.md) for runtime behavior.
 
 For provider backing, analysis forwards the explicit source ID to `AvailableContextResolver`, which admits mapped reference values from catalogue metadata without reading them. The write gate also supplies the source but sets `reportMappingProblems: false` so the separate `StoredMappingValidator` retains its specific error codes. Editor diagnosis and mutation responses keep mapping-problem reporting enabled.

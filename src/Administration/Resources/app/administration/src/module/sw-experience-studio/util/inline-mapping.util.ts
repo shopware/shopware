@@ -173,9 +173,8 @@ function ensureBlockLevel(html: string): InlineMappingEditorValue {
  * The walk goes through `DOMParser` rather than a regex over the string. The input is browser-produced markup with
  * arbitrary attribute order and nesting, and a regex over it works right up until an author pastes from Word.
  *
- * A node whose attribute is not a valid dotted path is unwrapped to its text rather than dropped. That case should
- * not arise from our own node, but if markup ever arrives from elsewhere, losing the author's words is a worse
- * outcome than losing a mapping they never made.
+ * A node whose path is absent from `canonicalTokens` is unwrapped to its text rather than dropped, because losing
+ * the author's words is a worse outcome than losing the mapping.
  *
  * @private
  */

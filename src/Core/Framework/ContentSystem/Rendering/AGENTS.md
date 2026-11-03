@@ -1,4 +1,4 @@
-> Conceptual overview and rationale live in [README.md](README.md). This file gives the local code map and invariants.
+> Conceptual overview and rationale live in [README.md](README.md).
 
 ## Source Code References
 

@@ -11,7 +11,7 @@ The entity class is the SALES-CHANNEL one wherever the entity has a sales-channe
 | Endpoint                                          | Entity            | Context Key    | Pre-loaded Associations                                                                             |
 |---------------------------------------------------|-------------------|----------------|-----------------------------------------------------------------------------------------------------|
 | `/store-api/content/product/{productId}`          | SalesChannelProductEntity | `product` | `manufacturer.media`, `options.group`, `properties.group`, `mainCategories.category`, `media.media`, `cover.media` |
-| `/store-api/content/category/{categoryId}`        | CategoryEntity    | `category`     | `media`, `translations`                                                                             |
+| `/store-api/content/category/{categoryId}`        | SalesChannelCategoryEntity | `category`     | `media`, `translations`                                                                             |
 | `/store-api/content/landing-page/{landingPageId}` | LandingPageEntity | `landing_page` | (none)                                                                                              |
 
 **Usage example:**

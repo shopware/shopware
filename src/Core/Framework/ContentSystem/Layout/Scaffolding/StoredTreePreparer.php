@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Log\Package;
  * Brings a stored forest into the state the rendering steps require, and hands stored forests back. Its
  * steps are ordered and internal: a caller asks for a prepared tree, never for one of the steps.
  *
- * The order is preparation-event dispatch (owned by the pipeline), authored-token parsing and placeholder
- * resolution, then the virtual-root wrap, the partial prune, and the scaffolding the finishing steps read.
+ * The order is authored-token parsing and placeholder resolution, then the virtual-root wrap, the partial prune,
+ * and the scaffolding the finishing steps read.
  * Placeholder resolution runs in FULL mode only. The skeleton response
  * carries a tree's structure and its style, never a property value, so resolving into values it discards is
  * work no reader can observe.
@@ -266,7 +266,6 @@ final class StoredTreePreparer
     }
 
     /**
-     * Substitutes placeholder values only in literal spans and shifts the authored token offsets to the prepared text.
      * Tokens supplied by placeholder values are never added to this metadata.
      *
      * @param list<InlineMappingToken> $tokens

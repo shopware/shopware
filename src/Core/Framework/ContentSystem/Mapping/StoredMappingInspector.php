@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolat
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\Log\Package;
 
@@ -28,10 +27,7 @@ use Shopware\Core\Framework\Log\Package;
  * source id, and a resolved context cannot supply one. That is the reason this is not simply another check
  * inside the analysis, and the reason both callers have to be handed the source explicitly.
  *
- * WHAT COUNTS AS A MAPPING is the load-bearing decision here. A mapping carries an explicit typed source reference;
- * {@see ContextConsumerMirror} never writes one for the root-scoped reference wiring it derives.
- *
- * That test lives in {@see MappingConsumers}, shared with the diagnostics layer so the two cannot drift.
+ * {@see MappingConsumers} decides what counts as a mapping, shared across admission and its callers.
  *
  * Ordinary root- and parent-scoped consumers remain outside these rules.
  *
@@ -281,9 +277,7 @@ final class StoredMappingInspector
     }
 
     /**
-     * The inline counterpart of {@see inspectElement()}, and it reads a different part of the element: a whole-field
-     * mapping is a CONSUMER, an inline mapping is a `{{map:path}}` token inside a string PROPERTY. Nothing declares
-     * one, which is why this has to scan the text.
+     * The inline counterpart of {@see inspectElement()}: scans opted-in string properties for `{{map:path}}` tokens.
      *
      * The shape rule matches what the render path expands — top-level string properties only, containers untouched
      * — because the gate and the expansion must agree on where a token counts. See

@@ -16,9 +16,9 @@ export const MAPPING_TOKEN_CLASS = 'sw-experience-studio-mapping-token';
  * friends) precisely because it had no node type and had to infer the token boundary; a real node makes that code
  * unnecessary rather than something to port.
  *
- * The chip is drawn by `renderHTML` and styled by CSS, deliberately not by a Vue node view. See
- * `mt-text-editor/tiptap.ts`: Meteor bundles its own copy of ProseMirror, and a node view is the one part of the
- * extension API that would construct ProseMirror objects from our copy and mix the two.
+ * The chip is drawn by a plain-DOM node view (`addNodeView`) and styled by CSS. `renderHTML` only serializes the
+ * marker attribute. See `mt-text-editor/tiptap.ts`: Meteor bundles its own copy of ProseMirror, and a Vue node view
+ * would construct ProseMirror objects from our copy and mix the two.
  *
  * @private
  * @sw-package discovery

@@ -1254,8 +1254,7 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
-     * The gap Workstream D closes: the write gate could already prove this mapping inadmissible, but the
-     * editor's routes said nothing, so an author saw no error and a blank element and only found out on save.
+     * Editor diagnostics reports an inadmissible mapping before an author attempts to save it.
      */
     #[TestDox('reports an inadmissible mapping as a binding error when handed a root source')]
     public function testMappingViolationIsReportedForABoundRootSource(): void

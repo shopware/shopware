@@ -68,8 +68,8 @@ final readonly class PropertySpecification
 
     /**
      * Whether an author may embed `{{map:path}}` tokens inside this property's text, mixing static prose with
-     * values read from the layout's root entity. Orthogonal to {@see mappable()} in concept but mutually
-     * exclusive with it in practice: one property must not offer two mapping mechanisms at once, so
+     * values read from registered sources. Mutually exclusive with {@see mappable()}: one property must not
+     * offer two mapping mechanisms at once, so
      * {@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\InlineMappableTypeValidator} rejects a
      * declaration carrying both.
      */

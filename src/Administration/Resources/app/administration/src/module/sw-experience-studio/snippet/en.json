@@ -264,11 +264,11 @@
         }
       },
       "mappingMutationErrors": {
-        "propertyNotMappable": "This property cannot use data mapping. Choose a property that supports mapping.",
+        "propertyNotMappable": "This property cannot use dynamic data. Choose a property that supports dynamic data.",
         "unknownMappingPath": "This data source is no longer available. Choose another source for this property.",
         "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source.",
-        "propertyAliasCollision": "This property already receives data from another binding. Choose another property or adjust the existing binding.",
-        "invalidMappingSource": "The selected mapping source is invalid. Choose a source from the available list.",
+        "propertyAliasCollision": "This property already receives data from another source. Choose another property or change that source.",
+        "invalidMappingSource": "The selected source for dynamic data is invalid. Choose a source from the available list.",
         "missingRootSource": "This layout has no data source, so dynamic data cannot be added."
       },
       "mutationErrors": {

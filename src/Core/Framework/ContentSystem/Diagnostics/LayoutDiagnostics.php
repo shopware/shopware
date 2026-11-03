@@ -38,7 +38,8 @@ use Shopware\Core\Framework\Log\Package;
  * The root SOURCE is a third, separate input, and it is not derivable from the other two. Data-mapping
  * admissibility is decided against the bound source's candidate catalogue, and a resolved root context
  * cannot be turned back into a source id, so a caller that has the id passes it and a caller that does not
- * gets no mapping checks. The diagnose route, both mutation routes and the persisted mutator all have it;
+ * gets only the inline-token check when the root context is also null; whole-field mappings stay unjudged.
+ * The diagnose route, both mutation routes and the persisted mutator all have the source;
  * `Validation/LayoutGate` passes it for mapped provider backing but disables mapping-problem reporting:
  * the write path uses `Validation/StoredMappingValidator` and its per-rule error codes for those findings.
  *

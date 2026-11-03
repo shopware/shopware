@@ -13,15 +13,17 @@ POST /api/_action/content-system/layout/unwrap-element
 POST /api/_action/content-system/layout/attach-element
 POST /api/_action/content-system/layout/insert-preset
 POST /api/_action/content-system/layout/bind-element
+POST /api/_action/content-system/layout/map-property
+POST /api/_action/content-system/layout/unmap-property
 ```
 
-Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, `insert_preset`, or `bind_element`.
+Apply exactly one layout edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, `insert_preset`, `bind_element`, `map_property`, or `unmap_property`.
 
-Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolveGated()` selection as the diagnose endpoint. When it is omitted, `null`, or the empty string (`""`), intrinsic well-formedness is evaluated and inline tokens in opted-in properties report `invalid_mapping`; whole-field mappings and other binding checks remain unjudged. Non-empty source names are checked against the registered sources without trimming.
+Each response already carries diagnostics, so a client does not also call the diagnose endpoint. `rootSource` selects the context through `Adapter/RootSourceRegistry::resolveGated()` and is required for `map-property`. Other actions accept an omitted, null, or empty source for an unbound draft. See [mapping findings](diagnose-response.md#mapping-findings) for the checks available without a source. Non-empty names are checked without trimming.
 
 ## Request
 
-Every action shares one envelope and adds its own operation fields. Shared fields: `layout` (raw element-tree array, decoded through the same `Layout/Codec/StoredElementCodec::decode()` path as a stored layout; defaults to an empty tree), `rootSource` (optional).
+Every action shares one envelope and adds its own operation fields. Shared fields: `layout` (raw element-tree array, decoded through the same `Layout/Codec/StoredElementCodec::decode()` path as a stored layout; defaults to an empty tree), `rootSource` (required and non-blank for `map-property`, optional otherwise).
 
 | Endpoint            | Operation fields                                                                                                                                                                                    |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -35,6 +37,8 @@ Every action shares one envelope and adds its own operation fields. Shared field
 | `attach-element`    | `element` (required, a raw element subtree to splice in; every id in it is reminted); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
 | `insert-preset`     | `presetId` (required, the id of a registered layout preset); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); no `index`, so the preset's root elements append in payload order |
 | `bind-element`      | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the target element's type entry's [`bindingSpecifications`](../../Binding/docs/introspection.md) map on `content-system-element-types.json`)                                                                                       |
+| `map-property` | `elementId`, `propertyKey`, `source` (required typed source reference); `rootSource` (required, non-blank registered source). The server derives cardinality and validates admission. |
+| `unmap-property` | `elementId`, `propertyKey` (required). Removes the typed mapping while preserving ordinary wiring. |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
@@ -42,7 +46,7 @@ Every action shares one envelope and adds its own operation fields. Shared field
 
 `insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
 
-Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; replacement seeds its newly built replacement; duplication and ordinary reattachment preserve the copied mapping state and do not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report. Direct DAL, Admin CRUD API, and Sync API writes do not seed default mappings: callers must supply mapping consumers or use these mutation actions. Removing a mapping and saving the layout leaves it unmapped.
+Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; wrapping seeds its new container; replacement seeds its newly built replacement; duplication and ordinary reattachment preserve the copied mapping state and do not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report. Direct DAL, Admin CRUD API, and Sync API writes do not seed default mappings: callers must supply mapping consumers or use these mutation actions. Removing a mapping and saving the layout leaves it unmapped.
 
 Example (`insert-element`):
 

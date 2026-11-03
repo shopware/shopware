@@ -7,9 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * One `{{map:path}}` occurrence found in an author's text.
  *
- * `$match` is kept verbatim rather than rebuilt from `$path`, because the fallback for an uncatalogued token is to
- * leave the author's own spelling — whitespace included — exactly as typed. A malformed token is captured too so
- * diagnostics can report it and rendering can remove it.
+ * `$match` preserves the author's spelling, including whitespace, for tokens inside markup, placeholder
+ * substitution, and the parse response. Its byte length also locates the end of the span. Malformed tokens
+ * are captured so diagnostics can report them and rendering can remove them.
  *
  * @internal
  *

@@ -4,6 +4,8 @@
 
 ## Constraints
 
+- Rebuild forests through `StoredTree::withRoots()` to preserve `rootSource` through normalization, seeding, and mutation transforms.
+
 - Multi-root layouts: element-provided context is tree-scoped, not layout-scoped (a provider in one root reaches nothing in another). Root-ambient context is the exception and is layout-scoped by construction: it is an explicit render input rather than anything a tree provides, so every `ConsumerScope::Root` consumer in every root receives it
 - `Scaffolding/VirtualRootWrapper` carries the page-level placeholder values and the wrap/unwrap prune scaffolding, and nothing else: no providers, no consumers, no data requirements. It distributes nothing to the roots in its slot
 - Element IDs unique across all roots (partial rendering searches all)

@@ -9,22 +9,23 @@ through the same `MutationResult` named constructor.
 `@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests). Constructor:
 `LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror, DefaultMappingSeeder $defaultMappingSeeder`.
 
-`run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
-already-decoded `$tree`, seeds compatible default mappings on fresh scaffolds, diagnoses the whole new tree, mirrors the proven consumers onto the same fresh ids via
-`ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
-instance, and hands the wired tree, the surviving analysis and the mutation to
-`MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
-(`array_intersect_key($analysis->resolutions, array_flip($affected))`).
-The root source is carried only by `StoredTree::$rootSource`; seeding, mapping admission, default bindings, and every diagnostics pass read it from the tree. Helpers that rebuild the forest use `StoredTree::withRoots()` to preserve it. A null source remains valid for an unbound draft. Mapping routes validate or load a bound source before running the operation; missing/blank or unknown request sources receive HTTP 400. An internal call to `MapProperty` with a null/empty source fails with `MAPPING_ROOT_SOURCE_MISSING` (500), because it violates that operation's precondition.
+`run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` operates on an already-decoded tree:
 
-Each operation reports the exact ids in `freshlyScaffolded()`; the runner does not infer this from `created()`. `DuplicateElement` is a copy rather than a fresh scaffold, so its new ids are excluded from seeding and mirroring while still appearing in its created/affected reports.
+1. Apply the mutation.
+2. Seed compatible default mappings on the operation's `freshlyScaffolded()` IDs, following the [fresh-scaffold contract](../AGENTS.md#constraints).
+3. Diagnose the whole new tree.
+4. Mirror proven consumers onto those same IDs through `ContextConsumerMirror::apply()`.
+5. Re-diagnose only if mirroring returned a different `StoredTree` instance.
+6. Pass the wired tree, surviving analysis, and mutation to `MutationResult::fromAnalyzedMutation()`, which restricts returned resolutions to the affected set.
+
+The draft controller initializes `StoredTree::$rootSource` from the request; persisted initialization is described below. Null is a valid unbound draft. Mapping routes validate or load a bound source before the operation: missing/blank or unknown request sources return HTTP 400. Internal `MapProperty` misuse with a null/empty source returns `MAPPING_ROOT_SOURCE_MISSING` (500). Source-preservation constraints live in [AGENTS.md](../AGENTS.md#constraints).
 
 The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
 consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing
 a pre-wiring tree.
 
 `$rootContext` is the bound source's root-ambient context (`list<ProvidedContext>`) or `null` for the
-well-formedness-only subset. Decoding the request draft is the caller's job (`Api/DraftLayoutDecoder`, the
+intrinsic checks and source-less inline-token diagnostics (see [mapping checks](../../Diagnostics/README.md#mapping-checks)). Decoding the request draft is the caller's job (`Api/DraftLayoutDecoder`, the
 structural pre-gate shared with the preview and diagnose routes); the pipeline is agnostic to whether the tree came
 from a request draft or a loaded `content_layout`. Stateless: it never persists.
 
@@ -51,9 +52,8 @@ microseconds.
 It runs no consumer mirroring at all, so a persisted mutation commits without mirrored wiring.
 
 The loaded layout's `root_source` initializes the `StoredTree` inside the locked mutation. Operations read it
-from that tree, so replacement and property mapping use the same `mutate()` entry point as structural edits;
-there is no separate source-aware mutation factory. Default mapping seeding and tree transforms preserve the
-source, and response diagnostics derive it from the resulting tree via `RootSourceRegistry::resolveGated()`.
+from that tree, so replacement and property mapping use the same `mutate()` entry point as structural edits.
+Default mapping seeding and tree transforms preserve the source, and response diagnostics derive it from the resulting tree via `RootSourceRegistry::resolveGated()`.
 Bound stored sources enable binding-scope checks (`[]` for `none` / header / footer). The preceding `update()`
 re-checks source membership through `ContentLayoutWriteValidator`, rejecting a de-registered source before commit.
 

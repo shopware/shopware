@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Authored inline-token spans captured once during tree preparation and carried through rendering.
+ * Authored inline-token spans captured once during tree preparation and carried through rendering. Placeholder
+ * values can contain the same characters as a mapping token, so only these authored spans are carried into
+ * dependency discovery and expansion.
  *
  * @internal
  */

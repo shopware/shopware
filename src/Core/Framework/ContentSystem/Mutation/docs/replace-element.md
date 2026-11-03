@@ -7,10 +7,6 @@ rules rather than a placement. The other eight are in [operations.md](operations
 
 Default bindings and mapping revalidation both use `StoredTree::$rootSource` from the input tree. The operation has no separate root-source argument.
 
-The mapping inspector is mandatory. With a bound source, whole-field mapping consumers survive only when they remain valid for the new type; invalid mappings are removed and reported as dropped wiring. An intentionally unbound tree drops mapping consumers without source-specific inspection, while compatible authored properties remain. Inline tokens remain authored property text rather than consumer wiring.
-
-Mapping cleanup applies only to the replaced element. Carried descendants keep their mapping consumers, and their mapping problems are reported against those descendants by normal diagnostics. A descendant's finding cannot remove a same-named consumer from the replacement or add a dropped-wiring entry for it.
-
 ## What it carries over
 
 Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
@@ -30,6 +26,10 @@ maps the new type's default specification's `resolves` entries whose loader is o
 loaders (`Binding/ResolvedByLoaderBranch::fromLoaderSource()`) to their storage keys, and carries a value forward
 only when its shape strictly matches that branch (`matchesStoredValueShape()`: a string for `entity`, a list of
 strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
+
+With a bound source, whole-field mapping consumers survive only when they remain valid for the new type; invalid mappings are removed and reported as dropped wiring. An intentionally unbound tree drops mapping consumers without source-specific inspection, while compatible authored properties remain. Inline tokens remain authored property text rather than consumer wiring.
+
+Mapping cleanup applies only to the replaced element. Carried descendants keep their mapping consumers, and their mapping problems are reported against those descendants by normal diagnostics. A descendant's finding cannot remove a same-named consumer from the replacement or add a dropped-wiring entry for it.
 
 ## The default overlay
 

@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The mapping catalogue for a landing-page layout.
  *
- * Reads only the declared members through entity accessors, preferring the active translation where relevant.
- *
  * @internal
  */
 #[Package('discovery')]

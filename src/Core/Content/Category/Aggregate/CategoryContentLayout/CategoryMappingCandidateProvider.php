@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Log\Package;
  * The mapping catalogue for a listing page layout: the category fields an author may bind a mappable element
  * property to.
  *
- * Reads only the declared members through entity accessors, preferring the active translation where relevant.
  * `media` is offered because `CategoryContentLayoutDefinition::getEntityAssociations()` eager-loads it.
  *
  * @internal

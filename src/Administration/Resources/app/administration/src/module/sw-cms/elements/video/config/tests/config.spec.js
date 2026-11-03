@@ -122,7 +122,9 @@ describe('src/module/sw-cms/elements/video/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
         if (!Shopware.Component.getComponentRegistry().has('sw-cms-el-config-video')) {
-            const { default: swCmsElConfigVideo } = await import('src/module/sw-cms/elements/video/config/src/sw-cms-el-config-video');
+            const { default: swCmsElConfigVideo } = await import(
+                'src/module/sw-cms/elements/video/config/src/sw-cms-el-config-video'
+            );
             Shopware.Component.register('sw-cms-el-config-video', swCmsElConfigVideo);
         }
     });

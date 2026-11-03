@@ -982,9 +982,237 @@ declare module 'shopware:stores/mediaModal' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-agentic-commerce-tracking-config' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config';
+    export type * from 'src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-change-type' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-change-type-field-renderer' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-customer' {
+    export { default } from 'src/module/sw-bulk-edit/page/sw-bulk-edit-customer';
+    export type * from 'src/module/sw-bulk-edit/page/sw-bulk-edit-customer';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-order' {
+    export { default } from 'src/module/sw-bulk-edit/page/sw-bulk-edit-order';
+    export type * from 'src/module/sw-bulk-edit/page/sw-bulk-edit-order';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-order-documents' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-order-documents-download-documents' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-order-documents-generate-delivery-note' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-order-documents-generate-invoice' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-product' {
+    export { default } from 'src/module/sw-bulk-edit/page/sw-bulk-edit-product';
+    export type * from 'src/module/sw-bulk-edit/page/sw-bulk-edit-product';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-product-media' {
+    export { default } from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media';
+    export type * from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-product-media-form' {
+    export { default } from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form';
+    export type * from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-bulk-edit-product-visibility' {
     export { default } from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
     export type * from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-save-modal' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-save-modal-confirm' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-save-modal-error' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-save-modal-process' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-save-modal-success' {
+    export { default } from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+    export type * from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-detail-base' {
+    export { default } from 'src/module/sw-category/view/sw-category-detail-base';
+    export type * from 'src/module/sw-category/view/sw-category-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-detail-cms' {
+    export { default } from 'src/module/sw-category/view/sw-category-detail-cms';
+    export type * from 'src/module/sw-category/view/sw-category-detail-cms';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-detail-menu' {
+    export { default } from 'src/module/sw-category/component/sw-category-detail-menu';
+    export type * from 'src/module/sw-category/component/sw-category-detail-menu';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-detail-products' {
+    export { default } from 'src/module/sw-category/view/sw-category-detail-products';
+    export type * from 'src/module/sw-category/view/sw-category-detail-products';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-detail-seo' {
+    export { default } from 'src/module/sw-category/view/sw-category-detail-seo';
+    export type * from 'src/module/sw-category/view/sw-category-detail-seo';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-entry-point-card' {
+    export { default } from 'src/module/sw-category/component/sw-category-entry-point-card';
+    export type * from 'src/module/sw-category/component/sw-category-entry-point-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-entry-point-modal' {
+    export { default } from 'src/module/sw-category/component/sw-category-entry-point-modal';
+    export type * from 'src/module/sw-category/component/sw-category-entry-point-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-entry-point-overwrite-modal' {
+    export { default } from 'src/module/sw-category/component/sw-category-entry-point-overwrite-modal';
+    export type * from 'src/module/sw-category/component/sw-category-entry-point-overwrite-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-layout-card' {
+    export { default } from 'src/module/sw-category/component/sw-category-layout-card';
+    export type * from 'src/module/sw-category/component/sw-category-layout-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-link-settings' {
+    export { default } from 'src/module/sw-category/component/sw-category-link-settings';
+    export type * from 'src/module/sw-category/component/sw-category-link-settings';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-seo-form' {
+    export { default } from 'src/module/sw-category/component/sw-category-seo-form';
+    export type * from 'src/module/sw-category/component/sw-category-seo-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-tree' {
+    export { default } from 'src/module/sw-category/component/sw-category-tree';
+    export type * from 'src/module/sw-category/component/sw-category-tree';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-view' {
+    export { default } from 'src/module/sw-category/component/sw-category-view';
+    export type * from 'src/module/sw-category/component/sw-category-view';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-create-wizard' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-create-wizard';
+    export type * from 'src/module/sw-cms/component/sw-cms-create-wizard';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-list' {
+    export { default } from 'src/module/sw-cms/page/sw-cms-list';
+    export type * from 'src/module/sw-cms/page/sw-cms-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-list-item' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-list-item';
+    export type * from 'src/module/sw-cms/component/sw-cms-list-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-section-actions' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
+    export type * from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-section-config' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-config';
+    export type * from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-config';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-sidebar-nav-element' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element';
+    export type * from 'src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-stage-section-selection' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-stage-section-selection';
+    export type * from 'src/module/sw-cms/component/sw-cms-stage-section-selection';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-cms-toolbar' {
+    export { default } from 'src/module/sw-cms/component/sw-cms-toolbar';
+    export type * from 'src/module/sw-cms/component/sw-cms-toolbar';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1162,6 +1390,90 @@ declare module 'shopware:components/sw-custom-field-type-select' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-address-form' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-address-form';
+    export type * from 'src/module/sw-customer/component/sw-customer-address-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-address-form-options' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-address-form-options';
+    export type * from 'src/module/sw-customer/component/sw-customer-address-form-options';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-base-form' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-base-form';
+    export type * from 'src/module/sw-customer/component/sw-customer-base-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-base-info' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-base-info';
+    export type * from 'src/module/sw-customer/component/sw-customer-base-info';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-card' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-card';
+    export type * from 'src/module/sw-customer/component/sw-customer-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-convert-guest-modal' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-convert-guest-modal';
+    export type * from 'src/module/sw-customer/component/sw-customer-convert-guest-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-create' {
+    export { default } from 'src/module/sw-customer/page/sw-customer-create';
+    export type * from 'src/module/sw-customer/page/sw-customer-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-default-addresses' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-default-addresses';
+    export type * from 'src/module/sw-customer/component/sw-customer-default-addresses';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-detail' {
+    export { default } from 'src/module/sw-customer/page/sw-customer-detail';
+    export type * from 'src/module/sw-customer/page/sw-customer-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-detail-addresses' {
+    export { default } from 'src/module/sw-customer/view/sw-customer-detail-addresses';
+    export type * from 'src/module/sw-customer/view/sw-customer-detail-addresses';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-detail-base' {
+    export { default } from 'src/module/sw-customer/view/sw-customer-detail-base';
+    export type * from 'src/module/sw-customer/view/sw-customer-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-detail-order' {
+    export { default } from 'src/module/sw-customer/view/sw-customer-detail-order';
+    export type * from 'src/module/sw-customer/view/sw-customer-detail-order';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-imitate-customer-modal' {
+    export { default } from 'src/module/sw-customer/component/sw-customer-imitate-customer-modal';
+    export type * from 'src/module/sw-customer/component/sw-customer-imitate-customer-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-customer-list' {
+    export { default } from 'src/module/sw-customer/page/sw-customer-list';
+    export type * from 'src/module/sw-customer/page/sw-customer-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-datepicker-deprecated' {
     export { default } from 'src/app/component/form/sw-datepicker-deprecated';
     export type * from 'src/app/component/form/sw-datepicker-deprecated';
@@ -1171,6 +1483,60 @@ declare module 'shopware:components/sw-datepicker-deprecated' {
 declare module 'shopware:components/sw-duplicated-media-v2' {
     export { default } from 'src/app/component/utils/sw-duplicated-media-v2';
     export type * from 'src/app/component/utils/sw-duplicated-media-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-mailer-smtp' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-paypal-base' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-paypal-credentials' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-paypal-info' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-plugins' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-shopware-account' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-shopware-base' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-shopware-domain' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-first-run-wizard-store' {
+    export { default } from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-store';
+    export type * from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-store';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1186,9 +1552,153 @@ declare module 'shopware:components/sw-import-export-activity' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-activity-result-modal' {
+    export { default } from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
+    export type * from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-edit-profile-field-indicators' {
+    export { default } from 'src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators';
+    export type * from 'src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-edit-profile-general' {
+    export { default } from 'src/module/sw-import-export/component/sw-import-export-edit-profile-general';
+    export type * from 'src/module/sw-import-export/component/sw-import-export-edit-profile-general';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-edit-profile-import-settings' {
+    export { default } from 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
+    export type * from 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-new-profile-wizard' {
+    export { default } from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard';
+    export type * from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-new-profile-wizard-csv-page' {
+    export { default } from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page';
+    export type * from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-new-profile-wizard-general-page' {
+    export { default } from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page';
+    export type * from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-new-profile-wizard-mapping-page' {
+    export { default } from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page';
+    export type * from 'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-integration-list' {
+    export { default } from 'src/module/sw-integration/page/sw-integration-list';
+    export type * from 'src/module/sw-integration/page/sw-integration-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-integration-mcp-allowlist' {
+    export { default } from 'src/module/sw-integration/component/sw-integration-mcp-allowlist';
+    export type * from 'src/module/sw-integration/component/sw-integration-mcp-allowlist';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-landing-page-detail-base' {
+    export { default } from 'src/module/sw-category/view/sw-landing-page-detail-base';
+    export type * from 'src/module/sw-category/view/sw-landing-page-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-landing-page-detail-cms' {
+    export { default } from 'src/module/sw-category/view/sw-landing-page-detail-cms';
+    export type * from 'src/module/sw-category/view/sw-landing-page-detail-cms';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-landing-page-tree' {
+    export { default } from 'src/module/sw-category/component/sw-landing-page-tree';
+    export type * from 'src/module/sw-category/component/sw-landing-page-tree';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-landing-page-view' {
+    export { default } from 'src/module/sw-category/component/sw-landing-page-view';
+    export type * from 'src/module/sw-category/component/sw-landing-page-view';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-header-footer-create' {
+    export { default } from 'src/module/sw-mail-template/page/sw-mail-header-footer-create';
+    export type * from 'src/module/sw-mail-template/page/sw-mail-header-footer-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-header-footer-detail' {
+    export { default } from 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
+    export type * from 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-header-footer-list' {
+    export { default } from 'src/module/sw-mail-template/component/sw-mail-header-footer-list';
+    export type * from 'src/module/sw-mail-template/component/sw-mail-header-footer-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-template-create' {
+    export { default } from 'src/module/sw-mail-template/page/sw-mail-template-create';
+    export type * from 'src/module/sw-mail-template/page/sw-mail-template-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-template-detail' {
+    export { default } from 'src/module/sw-mail-template/page/sw-mail-template-detail';
+    export type * from 'src/module/sw-mail-template/page/sw-mail-template-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-template-index' {
+    export { default } from 'src/module/sw-mail-template/page/sw-mail-template-index';
+    export type * from 'src/module/sw-mail-template/page/sw-mail-template-index';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-mail-template-list' {
+    export { default } from 'src/module/sw-mail-template/component/sw-mail-template-list';
+    export type * from 'src/module/sw-mail-template/component/sw-mail-template-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-manufacturer-detail' {
+    export { default } from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
+    export type * from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-manufacturer-list' {
+    export { default } from 'src/module/sw-manufacturer/page/sw-manufacturer-list';
+    export type * from 'src/module/sw-manufacturer/page/sw-manufacturer-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-media-base-item' {
     export { default } from 'src/app/component/media/sw-media-base-item';
     export type * from 'src/app/component/media/sw-media-base-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-breadcrumbs' {
+    export { default } from 'src/module/sw-media/component/sw-media-breadcrumbs';
+    export type * from 'src/module/sw-media/component/sw-media-breadcrumbs';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1201,6 +1711,12 @@ declare module 'shopware:components/sw-media-collapse' {
 declare module 'shopware:components/sw-media-compact-upload-v2' {
     export { default } from 'src/app/component/media/sw-media-compact-upload-v2';
     export type * from 'src/app/component/media/sw-media-compact-upload-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-display-options' {
+    export { default } from 'src/module/sw-media/component/sw-media-display-options';
+    export type * from 'src/module/sw-media/component/sw-media-display-options';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1219,6 +1735,12 @@ declare module 'shopware:components/sw-media-folder-content' {
 declare module 'shopware:components/sw-media-folder-item' {
     export { default } from 'src/app/component/media/sw-media-folder-item';
     export type * from 'src/app/component/media/sw-media-folder-item';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-index' {
+    export { default } from 'src/module/sw-media/page/sw-media-index';
+    export type * from 'src/module/sw-media/page/sw-media-index';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1252,9 +1774,39 @@ declare module 'shopware:components/sw-media-modal-replace' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-modal-v2' {
+    export { default } from 'src/module/sw-media/component/sw-media-modal-v2';
+    export type * from 'src/module/sw-media/component/sw-media-modal-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-media-preview-v2' {
     export { default } from 'src/app/component/media/sw-media-preview-v2';
     export type * from 'src/app/component/media/sw-media-preview-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-quickinfo-usage' {
+    export { default } from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
+    export type * from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-save-modal' {
+    export { default } from 'src/module/sw-media/component/sw-media-save-modal';
+    export type * from 'src/module/sw-media/component/sw-media-save-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-sidebar' {
+    export { default } from 'src/module/sw-media/component/sidebar/sw-media-sidebar';
+    export type * from 'src/module/sw-media/component/sidebar/sw-media-sidebar';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-tag' {
+    export { default } from 'src/module/sw-media/component/sidebar/sw-media-tag';
+    export type * from 'src/module/sw-media/component/sidebar/sw-media-tag';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1282,6 +1834,306 @@ declare module 'shopware:components/sw-model-viewer' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-newsletter-recipient-detail' {
+    export { default } from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
+    export type * from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-newsletter-recipient-filter-switch' {
+    export { default } from 'src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch';
+    export type * from 'src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-newsletter-recipient-list' {
+    export { default } from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
+    export type * from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-address-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-address-modal';
+    export type * from 'src/module/sw-order/component/sw-order-address-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-address-selection' {
+    export { default } from 'src/module/sw-order/component/sw-order-address-selection';
+    export type * from 'src/module/sw-order/component/sw-order-address-selection';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create' {
+    export { default } from 'src/module/sw-order/page/sw-order-create';
+    export type * from 'src/module/sw-order/page/sw-order-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-address-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-address-modal';
+    export type * from 'src/module/sw-order/component/sw-order-create-address-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-base' {
+    export { default } from 'src/module/sw-order/view/sw-order-create-base';
+    export type * from 'src/module/sw-order/view/sw-order-create-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-details' {
+    export { default } from 'src/module/sw-order/view/sw-order-create-details';
+    export type * from 'src/module/sw-order/view/sw-order-create-details';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-details-body' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-details-body';
+    export type * from 'src/module/sw-order/component/sw-order-create-details-body';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-details-footer' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-details-footer';
+    export type * from 'src/module/sw-order/component/sw-order-create-details-footer';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-details-header' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-details-header';
+    export type * from 'src/module/sw-order/component/sw-order-create-details-header';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-general' {
+    export { default } from 'src/module/sw-order/view/sw-order-create-general';
+    export type * from 'src/module/sw-order/view/sw-order-create-general';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-initial' {
+    export { default } from 'src/module/sw-order/view/sw-order-create-initial';
+    export type * from 'src/module/sw-order/view/sw-order-create-initial';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-initial-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-initial-modal';
+    export type * from 'src/module/sw-order/component/sw-order-create-initial-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-invalid-promotion-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-invalid-promotion-modal';
+    export type * from 'src/module/sw-order/component/sw-order-create-invalid-promotion-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-options' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-options';
+    export type * from 'src/module/sw-order/component/sw-order-create-options';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-create-promotion-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-create-promotion-modal';
+    export type * from 'src/module/sw-order/component/sw-order-create-promotion-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-customer-address-select' {
+    export { default } from 'src/module/sw-order/component/sw-order-customer-address-select';
+    export type * from 'src/module/sw-order/component/sw-order-customer-address-select';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-customer-comment' {
+    export { default } from 'src/module/sw-order/component/sw-order-customer-comment';
+    export type * from 'src/module/sw-order/component/sw-order-customer-comment';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-customer-grid' {
+    export { default } from 'src/module/sw-order/component/sw-order-customer-grid';
+    export type * from 'src/module/sw-order/component/sw-order-customer-grid';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-delivery-metadata' {
+    export { default } from 'src/module/sw-order/component/sw-order-delivery-metadata';
+    export type * from 'src/module/sw-order/component/sw-order-delivery-metadata';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-detail-details' {
+    export { default } from 'src/module/sw-order/view/sw-order-detail-details';
+    export type * from 'src/module/sw-order/view/sw-order-detail-details';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-detail-documents' {
+    export { default } from 'src/module/sw-order/view/sw-order-detail-documents';
+    export type * from 'src/module/sw-order/view/sw-order-detail-documents';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-detail-general' {
+    export { default } from 'src/module/sw-order/view/sw-order-detail-general';
+    export type * from 'src/module/sw-order/view/sw-order-detail-general';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-details-state-card' {
+    export { default } from 'src/module/sw-order/component/sw-order-details-state-card';
+    export type * from 'src/module/sw-order/component/sw-order-details-state-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-document-settings-credit-note-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-document-settings-credit-note-modal';
+    export type * from 'src/module/sw-order/component/sw-order-document-settings-credit-note-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-document-settings-delivery-note-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-document-settings-delivery-note-modal';
+    export type * from 'src/module/sw-order/component/sw-order-document-settings-delivery-note-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-document-settings-invoice-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
+    export type * from 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-document-settings-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-document-settings-modal';
+    export type * from 'src/module/sw-order/component/sw-order-document-settings-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-document-settings-storno-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-document-settings-storno-modal';
+    export type * from 'src/module/sw-order/component/sw-order-document-settings-storno-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-general-info' {
+    export { default } from 'src/module/sw-order/component/sw-order-general-info';
+    export type * from 'src/module/sw-order/component/sw-order-general-info';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-inline-field' {
+    export { default } from 'src/module/sw-order/component/sw-order-inline-field';
+    export type * from 'src/module/sw-order/component/sw-order-inline-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-leave-page-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-leave-page-modal';
+    export type * from 'src/module/sw-order/component/sw-order-leave-page-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-line-items-grid' {
+    export { default } from 'src/module/sw-order/component/sw-order-line-items-grid';
+    export type * from 'src/module/sw-order/component/sw-order-line-items-grid';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-line-items-grid-sales-channel' {
+    export { default } from 'src/module/sw-order/component/sw-order-line-items-grid-sales-channel';
+    export type * from 'src/module/sw-order/component/sw-order-line-items-grid-sales-channel';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-nested-line-items-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-nested-line-items-modal';
+    export type * from 'src/module/sw-order/component/sw-order-nested-line-items-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-new-customer-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-new-customer-modal';
+    export type * from 'src/module/sw-order/component/sw-order-new-customer-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-product-select' {
+    export { default } from 'src/module/sw-order/component/sw-order-product-select';
+    export type * from 'src/module/sw-order/component/sw-order-product-select';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-promotion-field' {
+    export { default } from 'src/module/sw-order/component/sw-order-promotion-field';
+    export type * from 'src/module/sw-order/component/sw-order-promotion-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-save-changes-beforehand-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-save-changes-beforehand-modal';
+    export type * from 'src/module/sw-order/component/sw-order-save-changes-beforehand-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-saveable-field' {
+    export { default } from 'src/module/sw-order/component/sw-order-saveable-field';
+    export type * from 'src/module/sw-order/component/sw-order-saveable-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-select-document-type-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-select-document-type-modal';
+    export type * from 'src/module/sw-order/component/sw-order-select-document-type-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-send-document-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-send-document-modal';
+    export type * from 'src/module/sw-order/component/sw-order-send-document-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-state-change-modal-attach-documents' {
+    export { default } from 'src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
+    export type * from 'src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-state-history-card' {
+    export { default } from 'src/module/sw-order/component/sw-order-state-history-card';
+    export type * from 'src/module/sw-order/component/sw-order-state-history-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-state-history-card-entry' {
+    export { default } from 'src/module/sw-order/component/sw-order-state-history-card-entry';
+    export type * from 'src/module/sw-order/component/sw-order-state-history-card-entry';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-state-history-modal' {
+    export { default } from 'src/module/sw-order/component/sw-order-state-history-modal';
+    export type * from 'src/module/sw-order/component/sw-order-state-history-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-state-select-v2' {
+    export { default } from 'src/module/sw-order/component/sw-order-state-select-v2';
+    export type * from 'src/module/sw-order/component/sw-order-state-select-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-order-user-card' {
+    export { default } from 'src/module/sw-order/component/sw-order-user-card';
+    export type * from 'src/module/sw-order/component/sw-order-user-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-payment-card' {
     export { default } from 'src/module/sw-settings-payment/component/sw-payment-card';
     export type * from 'src/module/sw-settings-payment/component/sw-payment-card';
@@ -1297,6 +2149,528 @@ declare module 'shopware:components/sw-plugin-box' {
 declare module 'shopware:components/sw-price-rule-modal' {
     export { default } from 'src/module/sw-settings-shipping/component/sw-price-rule-modal';
     export type * from 'src/module/sw-settings-shipping/component/sw-price-rule-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-privilege-error' {
+    export { default } from 'src/module/sw-privilege-error/page/sw-privilege-error';
+    export type * from 'src/module/sw-privilege-error/page/sw-privilege-error';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-add-properties-modal' {
+    export { default } from 'src/module/sw-product/component/sw-product-add-properties-modal';
+    export type * from 'src/module/sw-product/component/sw-product-add-properties-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-basic-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-basic-form';
+    export type * from 'src/module/sw-product/component/sw-product-basic-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-category-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-category-form';
+    export type * from 'src/module/sw-product/component/sw-product-category-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-clone-modal' {
+    export { default } from 'src/module/sw-product/component/sw-product-clone-modal';
+    export type * from 'src/module/sw-product/component/sw-product-clone-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-cross-selling-assignment' {
+    export { default } from 'src/module/sw-product/component/sw-product-cross-selling-assignment';
+    export type * from 'src/module/sw-product/component/sw-product-cross-selling-assignment';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-cross-selling-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-cross-selling-form';
+    export type * from 'src/module/sw-product/component/sw-product-cross-selling-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-deliverability-downloadable-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-deliverability-downloadable-form';
+    export type * from 'src/module/sw-product/component/sw-product-deliverability-downloadable-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-deliverability-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-deliverability-form';
+    export type * from 'src/module/sw-product/component/sw-product-deliverability-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-base' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-base';
+    export type * from 'src/module/sw-product/view/sw-product-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-context-prices' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-context-prices';
+    export type * from 'src/module/sw-product/view/sw-product-detail-context-prices';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-cross-selling' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-cross-selling';
+    export type * from 'src/module/sw-product/view/sw-product-detail-cross-selling';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-layout' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-layout';
+    export type * from 'src/module/sw-product/view/sw-product-detail-layout';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-reviews' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-reviews';
+    export type * from 'src/module/sw-product/view/sw-product-detail-reviews';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-seo' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-seo';
+    export type * from 'src/module/sw-product/view/sw-product-detail-seo';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-specifications' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-specifications';
+    export type * from 'src/module/sw-product/view/sw-product-detail-specifications';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail-variants' {
+    export { default } from 'src/module/sw-product/view/sw-product-detail-variants';
+    export type * from 'src/module/sw-product/view/sw-product-detail-variants';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-feature-set-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-feature-set-form';
+    export type * from 'src/module/sw-product/component/sw-product-feature-set-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-guarantee-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-guarantee-form';
+    export type * from 'src/module/sw-product/component/sw-product-guarantee-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-layout-assignment' {
+    export { default } from 'src/module/sw-product/component/sw-product-layout-assignment';
+    export type * from 'src/module/sw-product/component/sw-product-layout-assignment';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-list' {
+    export { default } from 'src/module/sw-product/page/sw-product-list';
+    export type * from 'src/module/sw-product/page/sw-product-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-measurement-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-measurement-form';
+    export type * from 'src/module/sw-product/component/sw-product-measurement-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-media-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-media-form';
+    export type * from 'src/module/sw-product/component/sw-product-media-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-modal-delivery' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-modal-variant-generation' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-packaging-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-packaging-form';
+    export type * from 'src/module/sw-product/component/sw-product-packaging-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-price-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-price-form';
+    export type * from 'src/module/sw-product/component/sw-product-price-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-properties' {
+    export { default } from 'src/module/sw-product/component/sw-product-properties';
+    export type * from 'src/module/sw-product/component/sw-product-properties';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-restriction-selection' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-seo-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-seo-form';
+    export type * from 'src/module/sw-product/component/sw-product-seo-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-settings-form' {
+    export { default } from 'src/module/sw-product/component/sw-product-settings-form';
+    export type * from 'src/module/sw-product/component/sw-product-settings-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-settings-mode' {
+    export { default } from 'src/module/sw-product/component/sw-product-settings-mode';
+    export type * from 'src/module/sw-product/component/sw-product-settings-mode';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variant-modal' {
+    export { default } from 'src/module/sw-product/component/sw-product-variant-modal';
+    export type * from 'src/module/sw-product/component/sw-product-variant-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-configurator-prices' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-configurator-restrictions' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-delivery-listing' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-delivery-media' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-delivery-order' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-media-upload' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-overview' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-variants-price-field' {
+    export { default } from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field';
+    export type * from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-visibility-detail' {
+    export { default } from 'src/module/sw-product/component/sw-product-visibility-detail';
+    export type * from 'src/module/sw-product/component/sw-product-visibility-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-profile-index' {
+    export { default } from 'src/module/sw-profile/page/sw-profile-index';
+    export type * from 'src/module/sw-profile/page/sw-profile-index';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-profile-index-general' {
+    export { default } from 'src/module/sw-profile/view/sw-profile-index-general';
+    export type * from 'src/module/sw-profile/view/sw-profile-index-general';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-profile-index-search-preferences' {
+    export { default } from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
+    export type * from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-cart-condition-form' {
+    export { default } from 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
+    export type * from 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-conditions' {
+    export { default } from 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
+    export type * from 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-detail-base' {
+    export { default } from 'src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base';
+    export type * from 'src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-generate-codes-modal' {
+    export { default } from 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal';
+    export type * from 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-individual-codes-behavior' {
+    export { default } from 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
+    export type * from 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-list' {
+    export { default } from 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
+    export type * from 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-sales-channel-select' {
+    export { default } from 'src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select';
+    export type * from 'src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-settings-discount-type' {
+    export { default } from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type';
+    export type * from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-settings-rule-selection' {
+    export { default } from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection';
+    export type * from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-settings-trigger' {
+    export { default } from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger';
+    export type * from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-wizard-description' {
+    export { default } from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description';
+    export type * from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-property-create' {
+    export { default } from 'src/module/sw-property/page/sw-property-create';
+    export type * from 'src/module/sw-property/page/sw-property-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-property-detail' {
+    export { default } from 'src/module/sw-property/page/sw-property-detail';
+    export type * from 'src/module/sw-property/page/sw-property-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-property-detail-base' {
+    export { default } from 'src/module/sw-property/component/sw-property-detail-base';
+    export type * from 'src/module/sw-property/component/sw-property-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-property-list' {
+    export { default } from 'src/module/sw-property/page/sw-property-list';
+    export type * from 'src/module/sw-property/page/sw-property-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-property-option-detail' {
+    export { default } from 'src/module/sw-property/component/sw-property-option-detail';
+    export type * from 'src/module/sw-property/component/sw-property-option-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-property-option-list' {
+    export { default } from 'src/module/sw-property/component/sw-property-option-list';
+    export type * from 'src/module/sw-property/component/sw-property-option-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-review-detail' {
+    export { default } from 'src/module/sw-review/page/sw-review-detail';
+    export type * from 'src/module/sw-review/page/sw-review-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-review-list' {
+    export { default } from 'src/module/sw-review/page/sw-review-list';
+    export type * from 'src/module/sw-review/page/sw-review-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-create' {
+    export { default } from 'src/module/sw-sales-channel/page/sw-sales-channel-create';
+    export type * from 'src/module/sw-sales-channel/page/sw-sales-channel-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-create-base' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-create-base';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-create-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-defaults-select' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-defaults-select';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-defaults-select';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail' {
+    export { default } from 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
+    export type * from 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-agentic-commerce-integration' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-agentic-file' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-agentic-files' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-base' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-domains' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-hreflang' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-product-comparison' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-product-comparison-preview' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-product-export-insights' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-detail-products' {
+    export { default } from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
+    export type * from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-list' {
+    export { default } from 'src/module/sw-sales-channel/page/sw-sales-channel-list';
+    export type * from 'src/module/sw-sales-channel/page/sw-sales-channel-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-measurement' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-measurement';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-measurement';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-modal' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-modal';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-modal-detail' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-modal-detail';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-modal-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-modal-grid' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-product-assignment-categories' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-products-assignment-dynamic-product-groups' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-products-assignment-modal' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-sales-channel-products-assignment-single-products' {
+    export { default } from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
+    export type * from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1882,6 +3256,84 @@ declare module 'shopware:components/sw-text-preview' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions' {
+    export { default } from 'src/module/sw-users-permissions/page/sw-users-permissions';
+    export type * from 'src/module/sw-users-permissions/page/sw-users-permissions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-additional-permissions' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-configuration' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-configuration';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-configuration';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-detailed-additional-permissions' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-permissions-grid' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-role-detail' {
+    export { default } from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
+    export type * from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-role-listing' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-role-listing';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-role-listing';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-role-mcp-reference-modal' {
+    export { default } from 'src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal';
+    export type * from 'src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-role-view-detailed' {
+    export { default } from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
+    export type * from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-role-view-general' {
+    export { default } from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-general';
+    export type * from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-general';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-user-create' {
+    export { default } from 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
+    export type * from 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-user-detail' {
+    export { default } from 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
+    export type * from 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-users-permissions-user-listing' {
+    export { default } from 'src/module/sw-users-permissions/components/sw-users-permissions-user-listing';
+    export type * from 'src/module/sw-users-permissions/components/sw-users-permissions-user-listing';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-vector-field' {
     export { default } from 'src/app/component/media/sw-vector-field';
     export type * from 'src/app/component/media/sw-vector-field';
@@ -1897,39 +3349,83 @@ declare module 'shopware:framework/public-component' {
 declare module 'shopware:framework/service-names' {
     export {
         acl,
+        aclApiService,
+        appAclService,
         appActionButtonService,
+        appCmsService,
         appModulesService,
+        bulkEditApiFactory,
+        businessEventService,
         cacheApiService,
         cacheService,
         captchaService,
+        cartStoreService,
+        cmsDataResolverService,
+        cmsElementFavorites,
+        cmsPageTypeService,
+        cmsService,
+        configService,
+        contextStoreService,
         customEntityDefinitionService,
+        customerGroupRegistrationService,
+        customerValidationService,
         customFieldDataProviderService,
         customSnippetApiService,
         documentV2ApiService,
         documentV2Service,
+        domainLinkService,
+        entityFactory,
+        entityHydrator,
+        entityMappingService,
         excludedSearchTermService,
+        exportTemplateService,
+        extensionHelperService,
         extensionSdkService,
         extensionStoreActionService,
         feature,
         fileValidationService,
         filterFactory,
         filterService,
+        firstRunWizardService,
+        flowActionService,
+        flowBuilderService,
+        guestCustomerConvertService,
         importExport,
+        importExportProfileMapping,
+        importExportUpdateByMapping,
+        integrationService,
         licenseViolationService,
         liveSearchService,
+        localeHelper,
         loginService,
+        mailService,
+        mcpToolService,
+        mediaDefaultFolderService,
         mediaFolderService,
         mediaPresignedUploadService,
         mediaService,
         menuService,
         messageStatsService,
         numberRangeService,
+        orderDocumentApiService,
+        orderService,
+        orderStateMachineService,
+        privileges,
+        productExportService,
         productIndexService,
+        productStreamConditionService,
         productStreamPreviewService,
+        productTypeService,
+        promotionCodeApiService,
+        promotionSyncService,
         recentlySearchService,
+        recommendationsService,
         repositoryFactory,
         ruleConditionDataProviderService,
         ruleConditionsConfigApiService,
+        salesChannelFileApiService,
+        salesChannelProductAssignmentApiService,
+        salesChannelService,
         searchPreferencesService,
         searchRankingService,
         searchService,
@@ -1937,11 +3433,17 @@ declare module 'shopware:framework/service-names' {
         seoUrlTemplateService,
         serviceRegistryClient,
         shopIdChangeService,
+        shopwareExtensionService,
         shopwareServicesService,
         shortcutService,
         snackbarService,
         snippetService,
         snippetSetService,
+        ssoInvitationService,
+        ssoSettingsService,
+        stateMachineService,
+        stateStyleDataProviderService,
+        storeService,
         syncService,
         systemConfigApiService,
         tagApiService,
@@ -1952,7 +3454,10 @@ declare module 'shopware:framework/service-names' {
         userActivityService,
         userConfigService,
         userInputSanitizeService,
+        userRecoveryService,
         userService,
+        userValidationService,
+        validationApiService,
     } from 'src/app/service-names';
     export type * from 'src/app/service-names';
 }

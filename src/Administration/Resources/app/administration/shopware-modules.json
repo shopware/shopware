@@ -257,7 +257,121 @@
     "shopware:components": {
         "exports": [],
         "subpaths": {
+            "sw-agentic-commerce-tracking-config": [
+                "default"
+            ],
+            "sw-bulk-edit-change-type": [
+                "default"
+            ],
+            "sw-bulk-edit-change-type-field-renderer": [
+                "default"
+            ],
+            "sw-bulk-edit-customer": [
+                "default"
+            ],
+            "sw-bulk-edit-order": [
+                "default"
+            ],
+            "sw-bulk-edit-order-documents": [
+                "default"
+            ],
+            "sw-bulk-edit-order-documents-download-documents": [
+                "default"
+            ],
+            "sw-bulk-edit-order-documents-generate-delivery-note": [
+                "default"
+            ],
+            "sw-bulk-edit-order-documents-generate-invoice": [
+                "default"
+            ],
+            "sw-bulk-edit-product": [
+                "default"
+            ],
+            "sw-bulk-edit-product-media": [
+                "default"
+            ],
+            "sw-bulk-edit-product-media-form": [
+                "default"
+            ],
             "sw-bulk-edit-product-visibility": [
+                "default"
+            ],
+            "sw-bulk-edit-save-modal": [
+                "default"
+            ],
+            "sw-bulk-edit-save-modal-confirm": [
+                "default"
+            ],
+            "sw-bulk-edit-save-modal-error": [
+                "default"
+            ],
+            "sw-bulk-edit-save-modal-process": [
+                "default"
+            ],
+            "sw-bulk-edit-save-modal-success": [
+                "default"
+            ],
+            "sw-category-detail-base": [
+                "default"
+            ],
+            "sw-category-detail-cms": [
+                "default"
+            ],
+            "sw-category-detail-menu": [
+                "default"
+            ],
+            "sw-category-detail-products": [
+                "default"
+            ],
+            "sw-category-detail-seo": [
+                "default"
+            ],
+            "sw-category-entry-point-card": [
+                "default"
+            ],
+            "sw-category-entry-point-modal": [
+                "default"
+            ],
+            "sw-category-entry-point-overwrite-modal": [
+                "default"
+            ],
+            "sw-category-layout-card": [
+                "default"
+            ],
+            "sw-category-link-settings": [
+                "default"
+            ],
+            "sw-category-seo-form": [
+                "default"
+            ],
+            "sw-category-tree": [
+                "default"
+            ],
+            "sw-category-view": [
+                "default"
+            ],
+            "sw-cms-create-wizard": [
+                "default"
+            ],
+            "sw-cms-list": [
+                "default"
+            ],
+            "sw-cms-list-item": [
+                "default"
+            ],
+            "sw-cms-section-actions": [
+                "default"
+            ],
+            "sw-cms-section-config": [
+                "default"
+            ],
+            "sw-cms-sidebar-nav-element": [
+                "default"
+            ],
+            "sw-cms-stage-section-selection": [
+                "default"
+            ],
+            "sw-cms-toolbar": [
                 "default"
             ],
             "sw-condition-base-line-item": [
@@ -347,10 +461,79 @@
             "sw-custom-field-type-select": [
                 "default"
             ],
+            "sw-customer-address-form": [
+                "default"
+            ],
+            "sw-customer-address-form-options": [
+                "default"
+            ],
+            "sw-customer-base-form": [
+                "default"
+            ],
+            "sw-customer-base-info": [
+                "default"
+            ],
+            "sw-customer-card": [
+                "default"
+            ],
+            "sw-customer-convert-guest-modal": [
+                "default"
+            ],
+            "sw-customer-create": [
+                "default"
+            ],
+            "sw-customer-default-addresses": [
+                "default"
+            ],
+            "sw-customer-detail": [
+                "default"
+            ],
+            "sw-customer-detail-addresses": [
+                "default"
+            ],
+            "sw-customer-detail-base": [
+                "default"
+            ],
+            "sw-customer-detail-order": [
+                "default"
+            ],
+            "sw-customer-imitate-customer-modal": [
+                "default"
+            ],
+            "sw-customer-list": [
+                "default"
+            ],
             "sw-datepicker-deprecated": [
                 "default"
             ],
             "sw-duplicated-media-v2": [
+                "default"
+            ],
+            "sw-first-run-wizard-mailer-smtp": [
+                "default"
+            ],
+            "sw-first-run-wizard-paypal-base": [
+                "default"
+            ],
+            "sw-first-run-wizard-paypal-credentials": [
+                "default"
+            ],
+            "sw-first-run-wizard-paypal-info": [
+                "default"
+            ],
+            "sw-first-run-wizard-plugins": [
+                "default"
+            ],
+            "sw-first-run-wizard-shopware-account": [
+                "default"
+            ],
+            "sw-first-run-wizard-shopware-base": [
+                "default"
+            ],
+            "sw-first-run-wizard-shopware-domain": [
+                "default"
+            ],
+            "sw-first-run-wizard-store": [
                 "default"
             ],
             "sw-image-slider": [
@@ -359,13 +542,88 @@
             "sw-import-export-activity": [
                 "default"
             ],
+            "sw-import-export-activity-result-modal": [
+                "default"
+            ],
+            "sw-import-export-edit-profile-field-indicators": [
+                "default"
+            ],
+            "sw-import-export-edit-profile-general": [
+                "default"
+            ],
+            "sw-import-export-edit-profile-import-settings": [
+                "default"
+            ],
+            "sw-import-export-new-profile-wizard": [
+                "default"
+            ],
+            "sw-import-export-new-profile-wizard-csv-page": [
+                "default"
+            ],
+            "sw-import-export-new-profile-wizard-general-page": [
+                "default"
+            ],
+            "sw-import-export-new-profile-wizard-mapping-page": [
+                "default"
+            ],
+            "sw-integration-list": [
+                "default"
+            ],
+            "sw-integration-mcp-allowlist": [
+                "default"
+            ],
+            "sw-landing-page-detail-base": [
+                "default"
+            ],
+            "sw-landing-page-detail-cms": [
+                "default"
+            ],
+            "sw-landing-page-tree": [
+                "default"
+            ],
+            "sw-landing-page-view": [
+                "default"
+            ],
+            "sw-mail-header-footer-create": [
+                "default"
+            ],
+            "sw-mail-header-footer-detail": [
+                "default"
+            ],
+            "sw-mail-header-footer-list": [
+                "default"
+            ],
+            "sw-mail-template-create": [
+                "default"
+            ],
+            "sw-mail-template-detail": [
+                "default"
+            ],
+            "sw-mail-template-index": [
+                "default"
+            ],
+            "sw-mail-template-list": [
+                "default"
+            ],
+            "sw-manufacturer-detail": [
+                "default"
+            ],
+            "sw-manufacturer-list": [
+                "default"
+            ],
             "sw-media-base-item": [
+                "default"
+            ],
+            "sw-media-breadcrumbs": [
                 "default"
             ],
             "sw-media-collapse": [
                 "default"
             ],
             "sw-media-compact-upload-v2": [
+                "default"
+            ],
+            "sw-media-display-options": [
                 "default"
             ],
             "sw-media-field": [
@@ -375,6 +633,9 @@
                 "default"
             ],
             "sw-media-folder-item": [
+                "default"
+            ],
+            "sw-media-index": [
                 "default"
             ],
             "sw-media-list-selection-v2": [
@@ -392,7 +653,22 @@
             "sw-media-modal-replace": [
                 "default"
             ],
+            "sw-media-modal-v2": [
+                "default"
+            ],
             "sw-media-preview-v2": [
+                "default"
+            ],
+            "sw-media-quickinfo-usage": [
+                "default"
+            ],
+            "sw-media-save-modal": [
+                "default"
+            ],
+            "sw-media-sidebar": [
+                "default"
+            ],
+            "sw-media-tag": [
                 "default"
             ],
             "sw-media-upload-v2": [
@@ -407,6 +683,156 @@
             "sw-model-viewer": [
                 "default"
             ],
+            "sw-newsletter-recipient-detail": [
+                "default"
+            ],
+            "sw-newsletter-recipient-filter-switch": [
+                "default"
+            ],
+            "sw-newsletter-recipient-list": [
+                "default"
+            ],
+            "sw-order-address-modal": [
+                "default"
+            ],
+            "sw-order-address-selection": [
+                "default"
+            ],
+            "sw-order-create": [
+                "default"
+            ],
+            "sw-order-create-address-modal": [
+                "default"
+            ],
+            "sw-order-create-base": [
+                "default"
+            ],
+            "sw-order-create-details": [
+                "default"
+            ],
+            "sw-order-create-details-body": [
+                "default"
+            ],
+            "sw-order-create-details-footer": [
+                "default"
+            ],
+            "sw-order-create-details-header": [
+                "default"
+            ],
+            "sw-order-create-general": [
+                "default"
+            ],
+            "sw-order-create-initial": [
+                "default"
+            ],
+            "sw-order-create-initial-modal": [
+                "default"
+            ],
+            "sw-order-create-invalid-promotion-modal": [
+                "default"
+            ],
+            "sw-order-create-options": [
+                "default"
+            ],
+            "sw-order-create-promotion-modal": [
+                "default"
+            ],
+            "sw-order-customer-address-select": [
+                "default"
+            ],
+            "sw-order-customer-comment": [
+                "default"
+            ],
+            "sw-order-customer-grid": [
+                "default"
+            ],
+            "sw-order-delivery-metadata": [
+                "default"
+            ],
+            "sw-order-detail-details": [
+                "default"
+            ],
+            "sw-order-detail-documents": [
+                "default"
+            ],
+            "sw-order-detail-general": [
+                "default"
+            ],
+            "sw-order-details-state-card": [
+                "default"
+            ],
+            "sw-order-document-settings-credit-note-modal": [
+                "default"
+            ],
+            "sw-order-document-settings-delivery-note-modal": [
+                "default"
+            ],
+            "sw-order-document-settings-invoice-modal": [
+                "default"
+            ],
+            "sw-order-document-settings-modal": [
+                "default"
+            ],
+            "sw-order-document-settings-storno-modal": [
+                "default"
+            ],
+            "sw-order-general-info": [
+                "default"
+            ],
+            "sw-order-inline-field": [
+                "default"
+            ],
+            "sw-order-leave-page-modal": [
+                "default"
+            ],
+            "sw-order-line-items-grid": [
+                "default"
+            ],
+            "sw-order-line-items-grid-sales-channel": [
+                "default"
+            ],
+            "sw-order-nested-line-items-modal": [
+                "default"
+            ],
+            "sw-order-new-customer-modal": [
+                "default"
+            ],
+            "sw-order-product-select": [
+                "default"
+            ],
+            "sw-order-promotion-field": [
+                "default"
+            ],
+            "sw-order-save-changes-beforehand-modal": [
+                "default"
+            ],
+            "sw-order-saveable-field": [
+                "default"
+            ],
+            "sw-order-select-document-type-modal": [
+                "default"
+            ],
+            "sw-order-send-document-modal": [
+                "default"
+            ],
+            "sw-order-state-change-modal-attach-documents": [
+                "default"
+            ],
+            "sw-order-state-history-card": [
+                "default"
+            ],
+            "sw-order-state-history-card-entry": [
+                "default"
+            ],
+            "sw-order-state-history-modal": [
+                "default"
+            ],
+            "sw-order-state-select-v2": [
+                "default"
+            ],
+            "sw-order-user-card": [
+                "default"
+            ],
             "sw-payment-card": [
                 "default"
             ],
@@ -414,6 +840,267 @@
                 "default"
             ],
             "sw-price-rule-modal": [
+                "default"
+            ],
+            "sw-privilege-error": [
+                "default"
+            ],
+            "sw-product-add-properties-modal": [
+                "default"
+            ],
+            "sw-product-basic-form": [
+                "default"
+            ],
+            "sw-product-category-form": [
+                "default"
+            ],
+            "sw-product-clone-modal": [
+                "default"
+            ],
+            "sw-product-cross-selling-assignment": [
+                "default"
+            ],
+            "sw-product-cross-selling-form": [
+                "default"
+            ],
+            "sw-product-deliverability-downloadable-form": [
+                "default"
+            ],
+            "sw-product-deliverability-form": [
+                "default"
+            ],
+            "sw-product-detail-base": [
+                "default"
+            ],
+            "sw-product-detail-context-prices": [
+                "default"
+            ],
+            "sw-product-detail-cross-selling": [
+                "default"
+            ],
+            "sw-product-detail-layout": [
+                "default"
+            ],
+            "sw-product-detail-reviews": [
+                "default"
+            ],
+            "sw-product-detail-seo": [
+                "default"
+            ],
+            "sw-product-detail-specifications": [
+                "default"
+            ],
+            "sw-product-detail-variants": [
+                "default"
+            ],
+            "sw-product-feature-set-form": [
+                "default"
+            ],
+            "sw-product-guarantee-form": [
+                "default"
+            ],
+            "sw-product-layout-assignment": [
+                "default"
+            ],
+            "sw-product-list": [
+                "default"
+            ],
+            "sw-product-measurement-form": [
+                "default"
+            ],
+            "sw-product-media-form": [
+                "default"
+            ],
+            "sw-product-modal-delivery": [
+                "default"
+            ],
+            "sw-product-modal-variant-generation": [
+                "default"
+            ],
+            "sw-product-packaging-form": [
+                "default"
+            ],
+            "sw-product-price-form": [
+                "default"
+            ],
+            "sw-product-properties": [
+                "default"
+            ],
+            "sw-product-restriction-selection": [
+                "default"
+            ],
+            "sw-product-seo-form": [
+                "default"
+            ],
+            "sw-product-settings-form": [
+                "default"
+            ],
+            "sw-product-settings-mode": [
+                "default"
+            ],
+            "sw-product-variant-modal": [
+                "default"
+            ],
+            "sw-product-variants-configurator-prices": [
+                "default"
+            ],
+            "sw-product-variants-configurator-restrictions": [
+                "default"
+            ],
+            "sw-product-variants-delivery-listing": [
+                "default"
+            ],
+            "sw-product-variants-delivery-media": [
+                "default"
+            ],
+            "sw-product-variants-delivery-order": [
+                "default"
+            ],
+            "sw-product-variants-media-upload": [
+                "default"
+            ],
+            "sw-product-variants-overview": [
+                "default"
+            ],
+            "sw-product-variants-price-field": [
+                "default"
+            ],
+            "sw-product-visibility-detail": [
+                "default"
+            ],
+            "sw-profile-index": [
+                "default"
+            ],
+            "sw-profile-index-general": [
+                "default"
+            ],
+            "sw-profile-index-search-preferences": [
+                "default"
+            ],
+            "sw-promotion-v2-cart-condition-form": [
+                "default"
+            ],
+            "sw-promotion-v2-conditions": [
+                "default"
+            ],
+            "sw-promotion-v2-detail-base": [
+                "default"
+            ],
+            "sw-promotion-v2-generate-codes-modal": [
+                "default"
+            ],
+            "sw-promotion-v2-individual-codes-behavior": [
+                "default"
+            ],
+            "sw-promotion-v2-list": [
+                "default"
+            ],
+            "sw-promotion-v2-sales-channel-select": [
+                "default"
+            ],
+            "sw-promotion-v2-settings-discount-type": [
+                "default"
+            ],
+            "sw-promotion-v2-settings-rule-selection": [
+                "default"
+            ],
+            "sw-promotion-v2-settings-trigger": [
+                "default"
+            ],
+            "sw-promotion-v2-wizard-description": [
+                "default"
+            ],
+            "sw-property-create": [
+                "default"
+            ],
+            "sw-property-detail": [
+                "default"
+            ],
+            "sw-property-detail-base": [
+                "default"
+            ],
+            "sw-property-list": [
+                "default"
+            ],
+            "sw-property-option-detail": [
+                "default"
+            ],
+            "sw-property-option-list": [
+                "default"
+            ],
+            "sw-review-detail": [
+                "default"
+            ],
+            "sw-review-list": [
+                "default"
+            ],
+            "sw-sales-channel-create": [
+                "default"
+            ],
+            "sw-sales-channel-create-base": [
+                "default"
+            ],
+            "sw-sales-channel-defaults-select": [
+                "default"
+            ],
+            "sw-sales-channel-detail": [
+                "default"
+            ],
+            "sw-sales-channel-detail-agentic-commerce-integration": [
+                "default"
+            ],
+            "sw-sales-channel-detail-agentic-file": [
+                "default"
+            ],
+            "sw-sales-channel-detail-agentic-files": [
+                "default"
+            ],
+            "sw-sales-channel-detail-base": [
+                "default"
+            ],
+            "sw-sales-channel-detail-domains": [
+                "default"
+            ],
+            "sw-sales-channel-detail-hreflang": [
+                "default"
+            ],
+            "sw-sales-channel-detail-product-comparison": [
+                "default"
+            ],
+            "sw-sales-channel-detail-product-comparison-preview": [
+                "default"
+            ],
+            "sw-sales-channel-detail-product-export-insights": [
+                "default"
+            ],
+            "sw-sales-channel-detail-products": [
+                "default"
+            ],
+            "sw-sales-channel-list": [
+                "default"
+            ],
+            "sw-sales-channel-measurement": [
+                "default"
+            ],
+            "sw-sales-channel-modal": [
+                "default"
+            ],
+            "sw-sales-channel-modal-detail": [
+                "default"
+            ],
+            "sw-sales-channel-modal-grid": [
+                "default"
+            ],
+            "sw-sales-channel-product-assignment-categories": [
+                "default"
+            ],
+            "sw-sales-channel-products-assignment-dynamic-product-groups": [
+                "default"
+            ],
+            "sw-sales-channel-products-assignment-modal": [
+                "default"
+            ],
+            "sw-sales-channel-products-assignment-single-products": [
                 "default"
             ],
             "sw-seo-main-category": [
@@ -707,12 +1394,89 @@
             "sw-text-preview": [
                 "default"
             ],
+            "sw-users-permissions": [
+                "default"
+            ],
+            "sw-users-permissions-additional-permissions": [
+                "default"
+            ],
+            "sw-users-permissions-configuration": [
+                "default"
+            ],
+            "sw-users-permissions-detailed-additional-permissions": [
+                "default"
+            ],
+            "sw-users-permissions-permissions-grid": [
+                "default"
+            ],
+            "sw-users-permissions-role-detail": [
+                "default"
+            ],
+            "sw-users-permissions-role-listing": [
+                "default"
+            ],
+            "sw-users-permissions-role-mcp-reference-modal": [
+                "default"
+            ],
+            "sw-users-permissions-role-view-detailed": [
+                "default"
+            ],
+            "sw-users-permissions-role-view-general": [
+                "default"
+            ],
+            "sw-users-permissions-user-create": [
+                "default"
+            ],
+            "sw-users-permissions-user-detail": [
+                "default"
+            ],
+            "sw-users-permissions-user-listing": [
+                "default"
+            ],
             "sw-vector-field": [
                 "default"
             ]
         },
         "sources": {
+            "sw-agentic-commerce-tracking-config": "src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config",
+            "sw-bulk-edit-change-type": "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type",
+            "sw-bulk-edit-change-type-field-renderer": "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer",
+            "sw-bulk-edit-customer": "src/module/sw-bulk-edit/page/sw-bulk-edit-customer",
+            "sw-bulk-edit-order": "src/module/sw-bulk-edit/page/sw-bulk-edit-order",
+            "sw-bulk-edit-order-documents": "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents",
+            "sw-bulk-edit-order-documents-download-documents": "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents",
+            "sw-bulk-edit-order-documents-generate-delivery-note": "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note",
+            "sw-bulk-edit-order-documents-generate-invoice": "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice",
+            "sw-bulk-edit-product": "src/module/sw-bulk-edit/page/sw-bulk-edit-product",
+            "sw-bulk-edit-product-media": "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media",
+            "sw-bulk-edit-product-media-form": "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form",
             "sw-bulk-edit-product-visibility": "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility",
+            "sw-bulk-edit-save-modal": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal",
+            "sw-bulk-edit-save-modal-confirm": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm",
+            "sw-bulk-edit-save-modal-error": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error",
+            "sw-bulk-edit-save-modal-process": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process",
+            "sw-bulk-edit-save-modal-success": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success",
+            "sw-category-detail-base": "src/module/sw-category/view/sw-category-detail-base",
+            "sw-category-detail-cms": "src/module/sw-category/view/sw-category-detail-cms",
+            "sw-category-detail-menu": "src/module/sw-category/component/sw-category-detail-menu",
+            "sw-category-detail-products": "src/module/sw-category/view/sw-category-detail-products",
+            "sw-category-detail-seo": "src/module/sw-category/view/sw-category-detail-seo",
+            "sw-category-entry-point-card": "src/module/sw-category/component/sw-category-entry-point-card",
+            "sw-category-entry-point-modal": "src/module/sw-category/component/sw-category-entry-point-modal",
+            "sw-category-entry-point-overwrite-modal": "src/module/sw-category/component/sw-category-entry-point-overwrite-modal",
+            "sw-category-layout-card": "src/module/sw-category/component/sw-category-layout-card",
+            "sw-category-link-settings": "src/module/sw-category/component/sw-category-link-settings",
+            "sw-category-seo-form": "src/module/sw-category/component/sw-category-seo-form",
+            "sw-category-tree": "src/module/sw-category/component/sw-category-tree",
+            "sw-category-view": "src/module/sw-category/component/sw-category-view",
+            "sw-cms-create-wizard": "src/module/sw-cms/component/sw-cms-create-wizard",
+            "sw-cms-list": "src/module/sw-cms/page/sw-cms-list",
+            "sw-cms-list-item": "src/module/sw-cms/component/sw-cms-list-item",
+            "sw-cms-section-actions": "src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions",
+            "sw-cms-section-config": "src/module/sw-cms/component/sw-cms-section/sw-cms-section-config",
+            "sw-cms-sidebar-nav-element": "src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element",
+            "sw-cms-stage-section-selection": "src/module/sw-cms/component/sw-cms-stage-section-selection",
+            "sw-cms-toolbar": "src/module/sw-cms/component/sw-cms-toolbar",
             "sw-condition-base-line-item": "src/app/component/rule/sw-condition-base-line-item",
             "sw-condition-billing-zip-code": "src/app/component/rule/condition-type/sw-condition-billing-zip-code",
             "sw-condition-customer-custom-field": "src/app/component/rule/condition-type/sw-condition-customer-custom-field",
@@ -742,29 +1506,220 @@
             "sw-custom-field-type-entity": "src/module/sw-settings-custom-field/component/sw-custom-field-type-entity",
             "sw-custom-field-type-number": "src/module/sw-settings-custom-field/component/sw-custom-field-type-number",
             "sw-custom-field-type-select": "src/module/sw-settings-custom-field/component/sw-custom-field-type-select",
+            "sw-customer-address-form": "src/module/sw-customer/component/sw-customer-address-form",
+            "sw-customer-address-form-options": "src/module/sw-customer/component/sw-customer-address-form-options",
+            "sw-customer-base-form": "src/module/sw-customer/component/sw-customer-base-form",
+            "sw-customer-base-info": "src/module/sw-customer/component/sw-customer-base-info",
+            "sw-customer-card": "src/module/sw-customer/component/sw-customer-card",
+            "sw-customer-convert-guest-modal": "src/module/sw-customer/component/sw-customer-convert-guest-modal",
+            "sw-customer-create": "src/module/sw-customer/page/sw-customer-create",
+            "sw-customer-default-addresses": "src/module/sw-customer/component/sw-customer-default-addresses",
+            "sw-customer-detail": "src/module/sw-customer/page/sw-customer-detail",
+            "sw-customer-detail-addresses": "src/module/sw-customer/view/sw-customer-detail-addresses",
+            "sw-customer-detail-base": "src/module/sw-customer/view/sw-customer-detail-base",
+            "sw-customer-detail-order": "src/module/sw-customer/view/sw-customer-detail-order",
+            "sw-customer-imitate-customer-modal": "src/module/sw-customer/component/sw-customer-imitate-customer-modal",
+            "sw-customer-list": "src/module/sw-customer/page/sw-customer-list",
             "sw-datepicker-deprecated": "src/app/component/form/sw-datepicker-deprecated",
             "sw-duplicated-media-v2": "src/app/component/utils/sw-duplicated-media-v2",
+            "sw-first-run-wizard-mailer-smtp": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp",
+            "sw-first-run-wizard-paypal-base": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base",
+            "sw-first-run-wizard-paypal-credentials": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials",
+            "sw-first-run-wizard-paypal-info": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info",
+            "sw-first-run-wizard-plugins": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins",
+            "sw-first-run-wizard-shopware-account": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account",
+            "sw-first-run-wizard-shopware-base": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base",
+            "sw-first-run-wizard-shopware-domain": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain",
+            "sw-first-run-wizard-store": "src/module/sw-first-run-wizard/view/sw-first-run-wizard-store",
             "sw-image-slider": "src/app/component/media/sw-image-slider",
             "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
+            "sw-import-export-activity-result-modal": "src/module/sw-import-export/component/sw-import-export-activity-result-modal",
+            "sw-import-export-edit-profile-field-indicators": "src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators",
+            "sw-import-export-edit-profile-general": "src/module/sw-import-export/component/sw-import-export-edit-profile-general",
+            "sw-import-export-edit-profile-import-settings": "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings",
+            "sw-import-export-new-profile-wizard": "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard",
+            "sw-import-export-new-profile-wizard-csv-page": "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page",
+            "sw-import-export-new-profile-wizard-general-page": "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page",
+            "sw-import-export-new-profile-wizard-mapping-page": "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page",
+            "sw-integration-list": "src/module/sw-integration/page/sw-integration-list",
+            "sw-integration-mcp-allowlist": "src/module/sw-integration/component/sw-integration-mcp-allowlist",
+            "sw-landing-page-detail-base": "src/module/sw-category/view/sw-landing-page-detail-base",
+            "sw-landing-page-detail-cms": "src/module/sw-category/view/sw-landing-page-detail-cms",
+            "sw-landing-page-tree": "src/module/sw-category/component/sw-landing-page-tree",
+            "sw-landing-page-view": "src/module/sw-category/component/sw-landing-page-view",
+            "sw-mail-header-footer-create": "src/module/sw-mail-template/page/sw-mail-header-footer-create",
+            "sw-mail-header-footer-detail": "src/module/sw-mail-template/page/sw-mail-header-footer-detail",
+            "sw-mail-header-footer-list": "src/module/sw-mail-template/component/sw-mail-header-footer-list",
+            "sw-mail-template-create": "src/module/sw-mail-template/page/sw-mail-template-create",
+            "sw-mail-template-detail": "src/module/sw-mail-template/page/sw-mail-template-detail",
+            "sw-mail-template-index": "src/module/sw-mail-template/page/sw-mail-template-index",
+            "sw-mail-template-list": "src/module/sw-mail-template/component/sw-mail-template-list",
+            "sw-manufacturer-detail": "src/module/sw-manufacturer/page/sw-manufacturer-detail",
+            "sw-manufacturer-list": "src/module/sw-manufacturer/page/sw-manufacturer-list",
             "sw-media-base-item": "src/app/component/media/sw-media-base-item",
+            "sw-media-breadcrumbs": "src/module/sw-media/component/sw-media-breadcrumbs",
             "sw-media-collapse": "src/module/sw-media/component/sw-media-collapse",
             "sw-media-compact-upload-v2": "src/app/component/media/sw-media-compact-upload-v2",
+            "sw-media-display-options": "src/module/sw-media/component/sw-media-display-options",
             "sw-media-field": "src/app/component/media/sw-media-field",
             "sw-media-folder-content": "src/app/component/media/sw-media-folder-content",
             "sw-media-folder-item": "src/app/component/media/sw-media-folder-item",
+            "sw-media-index": "src/module/sw-media/page/sw-media-index",
             "sw-media-list-selection-v2": "src/app/component/media/sw-media-list-selection-v2",
             "sw-media-modal-delete": "src/app/component/media/sw-media-modal-delete",
             "sw-media-modal-folder-dissolve": "src/app/component/media/sw-media-modal-folder-dissolve",
             "sw-media-modal-move": "src/app/component/media/sw-media-modal-move",
             "sw-media-modal-replace": "src/app/component/media/sw-media-modal-replace",
+            "sw-media-modal-v2": "src/module/sw-media/component/sw-media-modal-v2",
             "sw-media-preview-v2": "src/app/component/media/sw-media-preview-v2",
+            "sw-media-quickinfo-usage": "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage",
+            "sw-media-save-modal": "src/module/sw-media/component/sw-media-save-modal",
+            "sw-media-sidebar": "src/module/sw-media/component/sidebar/sw-media-sidebar",
+            "sw-media-tag": "src/module/sw-media/component/sidebar/sw-media-tag",
             "sw-media-upload-v2": "src/app/component/media/sw-media-upload-v2",
             "sw-media-url-form": "src/app/component/media/sw-media-url-form",
             "sw-model-editor": "src/app/component/media/sw-model-editor",
             "sw-model-viewer": "src/app/component/media/sw-model-viewer",
+            "sw-newsletter-recipient-detail": "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail",
+            "sw-newsletter-recipient-filter-switch": "src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch",
+            "sw-newsletter-recipient-list": "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list",
+            "sw-order-address-modal": "src/module/sw-order/component/sw-order-address-modal",
+            "sw-order-address-selection": "src/module/sw-order/component/sw-order-address-selection",
+            "sw-order-create": "src/module/sw-order/page/sw-order-create",
+            "sw-order-create-address-modal": "src/module/sw-order/component/sw-order-create-address-modal",
+            "sw-order-create-base": "src/module/sw-order/view/sw-order-create-base",
+            "sw-order-create-details": "src/module/sw-order/view/sw-order-create-details",
+            "sw-order-create-details-body": "src/module/sw-order/component/sw-order-create-details-body",
+            "sw-order-create-details-footer": "src/module/sw-order/component/sw-order-create-details-footer",
+            "sw-order-create-details-header": "src/module/sw-order/component/sw-order-create-details-header",
+            "sw-order-create-general": "src/module/sw-order/view/sw-order-create-general",
+            "sw-order-create-initial": "src/module/sw-order/view/sw-order-create-initial",
+            "sw-order-create-initial-modal": "src/module/sw-order/component/sw-order-create-initial-modal",
+            "sw-order-create-invalid-promotion-modal": "src/module/sw-order/component/sw-order-create-invalid-promotion-modal",
+            "sw-order-create-options": "src/module/sw-order/component/sw-order-create-options",
+            "sw-order-create-promotion-modal": "src/module/sw-order/component/sw-order-create-promotion-modal",
+            "sw-order-customer-address-select": "src/module/sw-order/component/sw-order-customer-address-select",
+            "sw-order-customer-comment": "src/module/sw-order/component/sw-order-customer-comment",
+            "sw-order-customer-grid": "src/module/sw-order/component/sw-order-customer-grid",
+            "sw-order-delivery-metadata": "src/module/sw-order/component/sw-order-delivery-metadata",
+            "sw-order-detail-details": "src/module/sw-order/view/sw-order-detail-details",
+            "sw-order-detail-documents": "src/module/sw-order/view/sw-order-detail-documents",
+            "sw-order-detail-general": "src/module/sw-order/view/sw-order-detail-general",
+            "sw-order-details-state-card": "src/module/sw-order/component/sw-order-details-state-card",
+            "sw-order-document-settings-credit-note-modal": "src/module/sw-order/component/sw-order-document-settings-credit-note-modal",
+            "sw-order-document-settings-delivery-note-modal": "src/module/sw-order/component/sw-order-document-settings-delivery-note-modal",
+            "sw-order-document-settings-invoice-modal": "src/module/sw-order/component/sw-order-document-settings-invoice-modal",
+            "sw-order-document-settings-modal": "src/module/sw-order/component/sw-order-document-settings-modal",
+            "sw-order-document-settings-storno-modal": "src/module/sw-order/component/sw-order-document-settings-storno-modal",
+            "sw-order-general-info": "src/module/sw-order/component/sw-order-general-info",
+            "sw-order-inline-field": "src/module/sw-order/component/sw-order-inline-field",
+            "sw-order-leave-page-modal": "src/module/sw-order/component/sw-order-leave-page-modal",
+            "sw-order-line-items-grid": "src/module/sw-order/component/sw-order-line-items-grid",
+            "sw-order-line-items-grid-sales-channel": "src/module/sw-order/component/sw-order-line-items-grid-sales-channel",
+            "sw-order-nested-line-items-modal": "src/module/sw-order/component/sw-order-nested-line-items-modal",
+            "sw-order-new-customer-modal": "src/module/sw-order/component/sw-order-new-customer-modal",
+            "sw-order-product-select": "src/module/sw-order/component/sw-order-product-select",
+            "sw-order-promotion-field": "src/module/sw-order/component/sw-order-promotion-field",
+            "sw-order-save-changes-beforehand-modal": "src/module/sw-order/component/sw-order-save-changes-beforehand-modal",
+            "sw-order-saveable-field": "src/module/sw-order/component/sw-order-saveable-field",
+            "sw-order-select-document-type-modal": "src/module/sw-order/component/sw-order-select-document-type-modal",
+            "sw-order-send-document-modal": "src/module/sw-order/component/sw-order-send-document-modal",
+            "sw-order-state-change-modal-attach-documents": "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents",
+            "sw-order-state-history-card": "src/module/sw-order/component/sw-order-state-history-card",
+            "sw-order-state-history-card-entry": "src/module/sw-order/component/sw-order-state-history-card-entry",
+            "sw-order-state-history-modal": "src/module/sw-order/component/sw-order-state-history-modal",
+            "sw-order-state-select-v2": "src/module/sw-order/component/sw-order-state-select-v2",
+            "sw-order-user-card": "src/module/sw-order/component/sw-order-user-card",
             "sw-payment-card": "src/module/sw-settings-payment/component/sw-payment-card",
             "sw-plugin-box": "src/module/sw-settings-payment/component/sw-plugin-box",
             "sw-price-rule-modal": "src/module/sw-settings-shipping/component/sw-price-rule-modal",
+            "sw-privilege-error": "src/module/sw-privilege-error/page/sw-privilege-error",
+            "sw-product-add-properties-modal": "src/module/sw-product/component/sw-product-add-properties-modal",
+            "sw-product-basic-form": "src/module/sw-product/component/sw-product-basic-form",
+            "sw-product-category-form": "src/module/sw-product/component/sw-product-category-form",
+            "sw-product-clone-modal": "src/module/sw-product/component/sw-product-clone-modal",
+            "sw-product-cross-selling-assignment": "src/module/sw-product/component/sw-product-cross-selling-assignment",
+            "sw-product-cross-selling-form": "src/module/sw-product/component/sw-product-cross-selling-form",
+            "sw-product-deliverability-downloadable-form": "src/module/sw-product/component/sw-product-deliverability-downloadable-form",
+            "sw-product-deliverability-form": "src/module/sw-product/component/sw-product-deliverability-form",
+            "sw-product-detail-base": "src/module/sw-product/view/sw-product-detail-base",
+            "sw-product-detail-context-prices": "src/module/sw-product/view/sw-product-detail-context-prices",
+            "sw-product-detail-cross-selling": "src/module/sw-product/view/sw-product-detail-cross-selling",
+            "sw-product-detail-layout": "src/module/sw-product/view/sw-product-detail-layout",
+            "sw-product-detail-reviews": "src/module/sw-product/view/sw-product-detail-reviews",
+            "sw-product-detail-seo": "src/module/sw-product/view/sw-product-detail-seo",
+            "sw-product-detail-specifications": "src/module/sw-product/view/sw-product-detail-specifications",
+            "sw-product-detail-variants": "src/module/sw-product/view/sw-product-detail-variants",
+            "sw-product-feature-set-form": "src/module/sw-product/component/sw-product-feature-set-form",
+            "sw-product-guarantee-form": "src/module/sw-product/component/sw-product-guarantee-form",
+            "sw-product-layout-assignment": "src/module/sw-product/component/sw-product-layout-assignment",
+            "sw-product-list": "src/module/sw-product/page/sw-product-list",
+            "sw-product-measurement-form": "src/module/sw-product/component/sw-product-measurement-form",
+            "sw-product-media-form": "src/module/sw-product/component/sw-product-media-form",
+            "sw-product-modal-delivery": "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery",
+            "sw-product-modal-variant-generation": "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation",
+            "sw-product-packaging-form": "src/module/sw-product/component/sw-product-packaging-form",
+            "sw-product-price-form": "src/module/sw-product/component/sw-product-price-form",
+            "sw-product-properties": "src/module/sw-product/component/sw-product-properties",
+            "sw-product-restriction-selection": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection",
+            "sw-product-seo-form": "src/module/sw-product/component/sw-product-seo-form",
+            "sw-product-settings-form": "src/module/sw-product/component/sw-product-settings-form",
+            "sw-product-settings-mode": "src/module/sw-product/component/sw-product-settings-mode",
+            "sw-product-variant-modal": "src/module/sw-product/component/sw-product-variant-modal",
+            "sw-product-variants-configurator-prices": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices",
+            "sw-product-variants-configurator-restrictions": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions",
+            "sw-product-variants-delivery-listing": "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing",
+            "sw-product-variants-delivery-media": "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media",
+            "sw-product-variants-delivery-order": "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order",
+            "sw-product-variants-media-upload": "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload",
+            "sw-product-variants-overview": "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview",
+            "sw-product-variants-price-field": "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field",
+            "sw-product-visibility-detail": "src/module/sw-product/component/sw-product-visibility-detail",
+            "sw-profile-index": "src/module/sw-profile/page/sw-profile-index",
+            "sw-profile-index-general": "src/module/sw-profile/view/sw-profile-index-general",
+            "sw-profile-index-search-preferences": "src/module/sw-profile/view/sw-profile-index-search-preferences",
+            "sw-promotion-v2-cart-condition-form": "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form",
+            "sw-promotion-v2-conditions": "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions",
+            "sw-promotion-v2-detail-base": "src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base",
+            "sw-promotion-v2-generate-codes-modal": "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal",
+            "sw-promotion-v2-individual-codes-behavior": "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior",
+            "sw-promotion-v2-list": "src/module/sw-promotion-v2/page/sw-promotion-v2-list",
+            "sw-promotion-v2-sales-channel-select": "src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select",
+            "sw-promotion-v2-settings-discount-type": "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type",
+            "sw-promotion-v2-settings-rule-selection": "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection",
+            "sw-promotion-v2-settings-trigger": "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger",
+            "sw-promotion-v2-wizard-description": "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description",
+            "sw-property-create": "src/module/sw-property/page/sw-property-create",
+            "sw-property-detail": "src/module/sw-property/page/sw-property-detail",
+            "sw-property-detail-base": "src/module/sw-property/component/sw-property-detail-base",
+            "sw-property-list": "src/module/sw-property/page/sw-property-list",
+            "sw-property-option-detail": "src/module/sw-property/component/sw-property-option-detail",
+            "sw-property-option-list": "src/module/sw-property/component/sw-property-option-list",
+            "sw-review-detail": "src/module/sw-review/page/sw-review-detail",
+            "sw-review-list": "src/module/sw-review/page/sw-review-list",
+            "sw-sales-channel-create": "src/module/sw-sales-channel/page/sw-sales-channel-create",
+            "sw-sales-channel-create-base": "src/module/sw-sales-channel/view/sw-sales-channel-create-base",
+            "sw-sales-channel-defaults-select": "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select",
+            "sw-sales-channel-detail": "src/module/sw-sales-channel/page/sw-sales-channel-detail",
+            "sw-sales-channel-detail-agentic-commerce-integration": "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration",
+            "sw-sales-channel-detail-agentic-file": "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file",
+            "sw-sales-channel-detail-agentic-files": "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files",
+            "sw-sales-channel-detail-base": "src/module/sw-sales-channel/view/sw-sales-channel-detail-base",
+            "sw-sales-channel-detail-domains": "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains",
+            "sw-sales-channel-detail-hreflang": "src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang",
+            "sw-sales-channel-detail-product-comparison": "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison",
+            "sw-sales-channel-detail-product-comparison-preview": "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview",
+            "sw-sales-channel-detail-product-export-insights": "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights",
+            "sw-sales-channel-detail-products": "src/module/sw-sales-channel/view/sw-sales-channel-detail-products",
+            "sw-sales-channel-list": "src/module/sw-sales-channel/page/sw-sales-channel-list",
+            "sw-sales-channel-measurement": "src/module/sw-sales-channel/component/sw-sales-channel-measurement",
+            "sw-sales-channel-modal": "src/module/sw-sales-channel/component/sw-sales-channel-modal",
+            "sw-sales-channel-modal-detail": "src/module/sw-sales-channel/component/sw-sales-channel-modal-detail",
+            "sw-sales-channel-modal-grid": "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid",
+            "sw-sales-channel-product-assignment-categories": "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories",
+            "sw-sales-channel-products-assignment-dynamic-product-groups": "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups",
+            "sw-sales-channel-products-assignment-modal": "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal",
+            "sw-sales-channel-products-assignment-single-products": "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products",
             "sw-seo-main-category": "src/module/sw-settings-seo/component/sw-seo-main-category",
             "sw-seo-url-template-card": "src/module/sw-settings-seo/component/sw-seo-url-template-card",
             "sw-settings-basic-information": "src/module/sw-settings-basic-information/page/sw-settings-basic-information",
@@ -862,6 +1817,19 @@
             "sw-system-config": "src/module/sw-settings/component/sw-system-config",
             "sw-tax-rule-card": "src/module/sw-settings-tax/component/sw-tax-rule-card",
             "sw-text-preview": "src/app/component/utils/sw-text-preview",
+            "sw-users-permissions": "src/module/sw-users-permissions/page/sw-users-permissions",
+            "sw-users-permissions-additional-permissions": "src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions",
+            "sw-users-permissions-configuration": "src/module/sw-users-permissions/components/sw-users-permissions-configuration",
+            "sw-users-permissions-detailed-additional-permissions": "src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions",
+            "sw-users-permissions-permissions-grid": "src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid",
+            "sw-users-permissions-role-detail": "src/module/sw-users-permissions/page/sw-users-permissions-role-detail",
+            "sw-users-permissions-role-listing": "src/module/sw-users-permissions/components/sw-users-permissions-role-listing",
+            "sw-users-permissions-role-mcp-reference-modal": "src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal",
+            "sw-users-permissions-role-view-detailed": "src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed",
+            "sw-users-permissions-role-view-general": "src/module/sw-users-permissions/view/sw-users-permissions-role-view-general",
+            "sw-users-permissions-user-create": "src/module/sw-users-permissions/page/sw-users-permissions-user-create",
+            "sw-users-permissions-user-detail": "src/module/sw-users-permissions/page/sw-users-permissions-user-detail",
+            "sw-users-permissions-user-listing": "src/module/sw-users-permissions/components/sw-users-permissions-user-listing",
             "sw-vector-field": "src/app/component/media/sw-vector-field"
         }
     },
@@ -874,39 +1842,83 @@
             ],
             "service-names": [
                 "acl",
+                "aclApiService",
+                "appAclService",
                 "appActionButtonService",
+                "appCmsService",
                 "appModulesService",
+                "bulkEditApiFactory",
+                "businessEventService",
                 "cacheApiService",
                 "cacheService",
                 "captchaService",
+                "cartStoreService",
+                "cmsDataResolverService",
+                "cmsElementFavorites",
+                "cmsPageTypeService",
+                "cmsService",
+                "configService",
+                "contextStoreService",
                 "customEntityDefinitionService",
+                "customerGroupRegistrationService",
+                "customerValidationService",
                 "customFieldDataProviderService",
                 "customSnippetApiService",
                 "documentV2ApiService",
                 "documentV2Service",
+                "domainLinkService",
+                "entityFactory",
+                "entityHydrator",
+                "entityMappingService",
                 "excludedSearchTermService",
+                "exportTemplateService",
+                "extensionHelperService",
                 "extensionSdkService",
                 "extensionStoreActionService",
                 "feature",
                 "fileValidationService",
                 "filterFactory",
                 "filterService",
+                "firstRunWizardService",
+                "flowActionService",
+                "flowBuilderService",
+                "guestCustomerConvertService",
                 "importExport",
+                "importExportProfileMapping",
+                "importExportUpdateByMapping",
+                "integrationService",
                 "licenseViolationService",
                 "liveSearchService",
+                "localeHelper",
                 "loginService",
+                "mailService",
+                "mcpToolService",
+                "mediaDefaultFolderService",
                 "mediaFolderService",
                 "mediaPresignedUploadService",
                 "mediaService",
                 "menuService",
                 "messageStatsService",
                 "numberRangeService",
+                "orderDocumentApiService",
+                "orderService",
+                "orderStateMachineService",
+                "privileges",
+                "productExportService",
                 "productIndexService",
+                "productStreamConditionService",
                 "productStreamPreviewService",
+                "productTypeService",
+                "promotionCodeApiService",
+                "promotionSyncService",
                 "recentlySearchService",
+                "recommendationsService",
                 "repositoryFactory",
                 "ruleConditionDataProviderService",
                 "ruleConditionsConfigApiService",
+                "salesChannelFileApiService",
+                "salesChannelProductAssignmentApiService",
+                "salesChannelService",
                 "searchPreferencesService",
                 "searchRankingService",
                 "searchService",
@@ -914,11 +1926,17 @@
                 "seoUrlTemplateService",
                 "serviceRegistryClient",
                 "shopIdChangeService",
+                "shopwareExtensionService",
                 "shopwareServicesService",
                 "shortcutService",
                 "snackbarService",
                 "snippetService",
                 "snippetSetService",
+                "ssoInvitationService",
+                "ssoSettingsService",
+                "stateMachineService",
+                "stateStyleDataProviderService",
+                "storeService",
                 "syncService",
                 "systemConfigApiService",
                 "tagApiService",
@@ -929,7 +1947,10 @@
                 "userActivityService",
                 "userConfigService",
                 "userInputSanitizeService",
-                "userService"
+                "userRecoveryService",
+                "userService",
+                "userValidationService",
+                "validationApiService"
             ]
         },
         "sources": {

@@ -1,18 +1,22 @@
 /**
  * @sw-package framework
  */
-import useConsentStore from 'src/core/consent/consent.store';
-import { dispatchConsentEvent } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-profile-consent.html.twig';
 import './sw-settings-usage-data-profile-consent.scss';
-
-import SwSettingsUsageDataUserDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card';
-import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
+import {
+    dispatchConsentEvent,
+    getAssetFilter,
+    SwSettingsUsageDataConsentCheckList,
+    SwSettingsUsageDataUserDataConsentCard,
+    useConsentStore,
+    useNotificationStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     components: {
@@ -43,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         unionPath() {
-            return Shopware.Filter.getByName('asset')('/administration/administration/static/img/data-sharing/union.svg');
+            return getAssetFilter()('/administration/administration/static/img/data-sharing/union.svg');
         },
     },
 
@@ -59,7 +63,7 @@ export default Shopware.Component.wrapComponentConfig({
                     await consentStore.revoke('product_analytics');
                 }
             } catch {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: this.$t('sw-settings-usage-data.errors.consent-update-error', {

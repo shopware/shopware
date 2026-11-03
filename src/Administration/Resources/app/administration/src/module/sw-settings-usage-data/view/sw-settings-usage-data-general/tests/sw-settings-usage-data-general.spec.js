@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import SwSettingsUsageDataStoreDataConsent from '../../component/sw-settings-usage-data-store-data-consent';
+import SwSettingsUsageDataStoreDataConsent from '../../../component/sw-settings-usage-data-store-data-consent';
 
 /**
  * @sw-package data-services

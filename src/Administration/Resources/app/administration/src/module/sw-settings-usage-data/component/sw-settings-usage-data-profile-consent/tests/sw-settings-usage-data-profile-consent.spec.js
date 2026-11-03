@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { MtSwitch } from '@shopware-ag/meteor-component-library';
 import useConsentStore from 'src/core/consent/consent.store';
-import SwSettingsUsageDataProfileConsent from './index';
-import SwSettingsUsageDataUserDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card';
-import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
+import SwSettingsUsageDataProfileConsent from '../src/sw-settings-usage-data-profile-consent';
+import SwSettingsUsageDataUserDataConsentCard from '../../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card';
+import SwSettingsUsageDataConsentCheckList from '../../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
 
 describe('module/sw-settings-usage-data/component/sw-settings-usage-data-profile-consent', () => {
     beforeEach(() => {

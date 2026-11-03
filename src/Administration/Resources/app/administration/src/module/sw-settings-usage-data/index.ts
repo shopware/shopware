@@ -1,31 +1,8 @@
+import './component/sw-settings-usage-data-consent-modal-data-provider/register';
+import './component/sw-settings-usage-data-profile-consent/register';
+import './page/sw-settings-usage-data/register';
+import './view/sw-settings-usage-data-general/register';
 const { Module } = Shopware;
-
-/**
- * @sw-package framework
- * @private
- */
-Shopware.Component.register('sw-settings-usage-data', () => import('./page/sw-settings-usage-data'));
-/**
- * @sw-package framework
- * @private
- */
-Shopware.Component.register('sw-settings-usage-data-general', () => import('./view/sw-settings-usage-data-general'));
-/**
- * @sw-package framework
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-usage-data-consent-modal-data-provider',
-    () => import('./component/sw-settings-usage-data-consent-modal-data-provider'),
-);
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-usage-data-profile-consent',
-    () => import('./component/sw-settings-usage-data-profile-consent'),
-);
 
 /**
  * @sw-package framework

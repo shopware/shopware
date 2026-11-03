@@ -1,10 +1,15 @@
 /**
  * @sw-package framework
  */
-import useConsentStore from 'src/core/consent/consent.store';
 import template from './sw-settings-usage-data-consent-modal-data-provider.html.twig';
-
-import SwSettingsUsageDataConsentModal from '../sw-settings-usage-data-consent-modal';
+import {
+    aclService,
+    SwSettingsUsageDataConsentModal,
+    useConsentStore,
+    useContextStore,
+    useSessionStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 const ADMIN_USER_MIN_AGE_DAYS = 15;
 const SHOP_MIN_AGE_DAYS = 60;
@@ -45,11 +50,11 @@ function isDateOlderThanDays(value: unknown, days: number): boolean {
 }
 
 function isFirstRunWizardActive(): boolean {
-    return Shopware.Store.get('context').app.firstRunWizard === true;
+    return useContextStore().app.firstRunWizard === true;
 }
 
 function isWrongAppUrlModalVisible(): boolean {
-    const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
+    const settings = useContextStore().app.config.settings as ContextSettings | undefined;
 
     if (!settings) {
         return false;
@@ -67,14 +72,14 @@ function isShopIdChangeModalVisible(): boolean {
 }
 
 function hasAdminUserAccountReachedMinimumAge(): boolean {
-    const currentUser = Shopware.Store.get('session').currentUser as Record<string, unknown> | null;
+    const currentUser = useSessionStore().currentUser as Record<string, unknown> | null;
     const createdAt = currentUser?.createdAt;
 
     return isDateOlderThanDays(createdAt, ADMIN_USER_MIN_AGE_DAYS);
 }
 
 function isShopOldEnough(): boolean {
-    const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
+    const settings = useContextStore().app.config.settings as ContextSettings | undefined;
 
     if (!settings) {
         return false;
@@ -85,7 +90,7 @@ function isShopOldEnough(): boolean {
 /**
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
     name: 'sw-settings-usage-data-consent-modal-data-provider',
 
@@ -93,7 +98,7 @@ export default Shopware.Component.wrapComponentConfig({
         SwSettingsUsageDataConsentModal,
     },
 
-    inject: ['acl'],
+    inject: [aclService],
 
     computed: {
         storeDataConsent() {

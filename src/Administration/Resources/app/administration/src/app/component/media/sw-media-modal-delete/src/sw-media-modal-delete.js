@@ -1,0 +1,271 @@
+import template from './sw-media-modal-delete.html.twig';
+import './sw-media-modal-delete.scss';
+import {
+    getApiContext,
+    getMediaNameFilter,
+    notificationMixin,
+    repositoryFactoryService,
+    useNotificationStore,
+} from '../dependencies';
+
+/**
+ * @status ready
+ * @description The <u>sw-media-modal-delete</u> component is used to validate the delete action.
+ * @sw-package discovery
+ * @example-type code-only
+ * @component-example
+ * <sw-media-modal-delete :itemsToDelete="[items]">
+ * </sw-media-modal-delete>
+ *
+ * @public
+ */
+export default {
+    template,
+
+    inject: [repositoryFactoryService],
+
+    emits: ['media-delete-modal-close', 'media-delete-modal-items-delete'],
+
+    mixins: [notificationMixin],
+
+    props: {
+        itemsToDelete: {
+            required: true,
+            type: Array,
+            validator(value) {
+                return value.length !== 0;
+            },
+        },
+    },
+
+    data() {
+        return {
+            mediaItems: [],
+            folders: [],
+            notificationId: null,
+        };
+    },
+
+    computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
+        },
+        mediaNameFilter() {
+            return getMediaNameFilter();
+        },
+
+        snippets() {
+            if (this.mediaItems.length > 0 && this.folders.length > 0) {
+                return {
+                    successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.mediaAndFolder',
+                    errorOverall: this.$t('global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'),
+                    modalTitle: this.$t('global.default.warning'),
+                    deleteMessage: this.$t(
+                        'global.sw-media-modal-delete.deleteMessage.mediaAndFolder',
+                        {
+                            mediaCount: this.mediaItems.length,
+                            folderCount: this.folders.length,
+                        },
+                        this.itemsToDelete.length,
+                    ),
+                };
+            }
+
+            if (this.mediaItems.length > 0) {
+                return {
+                    successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.media',
+                    errorOverall: this.$t('global.sw-media-modal-delete.notification.errorOverall.message.media'),
+                    modalTitle: this.$t('global.default.warning'),
+                    deleteMessage: this.$t(
+                        'global.sw-media-modal-delete.deleteMessage.media',
+                        {
+                            name: this.mediaNameFilter(this.mediaItems[0]),
+                            count: this.mediaItems.length,
+                        },
+                        this.mediaItems.length,
+                    ),
+                };
+            }
+
+            return {
+                successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.folder',
+                errorOverall: this.$t('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
+                modalTitle: this.$t('global.default.warning'),
+                deleteMessage: this.$t(
+                    'global.sw-media-modal-delete.deleteMessage.folder',
+                    {
+                        name: this.folders[0].name,
+                        count: this.folders.length,
+                    },
+                    this.folders.length,
+                ),
+            };
+        },
+
+        mediaQuickInfo() {
+            const usedMediaItem = this.mediaItems.length === 1 && this._checkInUsage(this.mediaItems[0]);
+            return usedMediaItem ? this.mediaItems[0] : null;
+        },
+
+        mediaInUsages() {
+            if (this.mediaItems.length <= 1) return [];
+
+            return this.mediaItems.filter((mediaItem) => this._checkInUsage(mediaItem));
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.mediaItems = this.itemsToDelete.filter((item) => {
+                return item.getEntityName() === 'media';
+            });
+
+            this.folders = this.itemsToDelete.filter((item) => {
+                return item.getEntityName() === 'media_folder';
+            });
+        },
+
+        closeDeleteModal(originalDomEvent) {
+            this.$emit('media-delete-modal-close', { originalDomEvent });
+        },
+
+        getEntityRepository(entityName) {
+            if (entityName === 'media') {
+                return this.mediaRepository;
+            }
+
+            if (entityName === 'media_folder') {
+                return this.mediaFolderRepository;
+            }
+
+            return null;
+        },
+
+        _deleteSelection(item) {
+            const entityName = item.getEntityName();
+            const repository = this.getEntityRepository(entityName);
+
+            item.isLoading = true;
+
+            return repository
+                .delete(item.id, getApiContext())
+                .then(() => {
+                    return true;
+                })
+                .catch(() => {
+                    const isMedia = item.getEntityName() === 'media';
+                    const errorSnippet = 'global.sw-media-modal-delete.notification.errorSingle.message';
+
+                    const message = isMedia
+                        ? this.$t(`${errorSnippet}.media`, { name: this.mediaNameFilter(item) }, 1)
+                        : this.$t(`${errorSnippet}.folder`, { name: item.name }, 1);
+
+                    this.createNotificationError({
+                        message,
+                    });
+
+                    return false;
+                })
+                .finally(() => {
+                    item.isLoading = false;
+                });
+        },
+
+        async deleteSelection() {
+            const deleteSelections = this.itemsToDelete.map((item) => {
+                return this._deleteSelection(item).catch(() => false);
+            });
+
+            const deletions = await Promise.all(deleteSelections);
+
+            const amounts = deletions.reduce(
+                (acc, isSuccess) => {
+                    acc.success = isSuccess ? (acc.success += 1) : acc.success;
+                    acc.failure = isSuccess ? acc.failure : (acc.failure += 1);
+
+                    return acc;
+                },
+                { success: 0, failure: 0 },
+            );
+
+            if (amounts.success > 0) {
+                this.updateSuccessNotification(amounts.success, amounts.failure, deletions.length);
+            }
+
+            this.$emit('media-delete-modal-items-delete', {
+                mediaIds: this.mediaItems.map((media) => {
+                    return media.id;
+                }),
+                folderIds: this.folders.map((folder) => {
+                    return folder.id;
+                }),
+            });
+        },
+
+        async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
+            const notification = {
+                message: this.$t(
+                    this.snippets.successOverall,
+                    {
+                        count: successAmount,
+                        total: totalAmount,
+                    },
+                    successAmount,
+                ),
+                growl: successAmount + failureAmount === totalAmount,
+            };
+
+            if (this.notificationId !== null) {
+                await useNotificationStore().updateNotification({
+                    uuid: this.notificationId,
+                    ...notification,
+                });
+
+                if (successAmount + failureAmount === totalAmount) {
+                    this.notificationId = null;
+                }
+
+                return;
+            }
+
+            const newNotificationId = await useNotificationStore().createNotification({
+                variant: 'success',
+                ...notification,
+            });
+
+            if (successAmount + failureAmount < totalAmount) {
+                this.notificationId = newNotificationId;
+            }
+        },
+
+        _checkInUsage(mediaItem) {
+            if (mediaItem.avatarUsers?.[0]) {
+                return true;
+            }
+
+            const mediaAssociations = [
+                'categories',
+                'productMedia',
+                'productManufacturers',
+                'mailTemplateMedia',
+                'documentBaseConfigs',
+                'paymentMethods',
+                'shippingMethods',
+                'cmsBlocks',
+                'cmsSections',
+                'cmsPages',
+            ];
+
+            return mediaAssociations.some((association) => {
+                return mediaItem[association].length > 0;
+            });
+        },
+    },
+};

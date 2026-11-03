@@ -1,8 +1,14 @@
 /**
+ * @private
+ * The name the mediaName filter is registered under, for code that looks it up with `Shopware.Filter.getByName()`.
+ */
+export const mediaNameFilterName = 'mediaName';
+
+/**
  * @sw-package discovery
  */
 Shopware.Filter.register(
-    'mediaName',
+    mediaNameFilterName,
     (
         value: {
             entity?: {

@@ -113,6 +113,16 @@ export const extensionSdkService = 'extensionSdkService';
 export const feature = 'feature';
 
 /**
+ * The name the fileValidationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [fileValidationService] };
+ *
+ * @public
+ */
+export const fileValidationService = 'fileValidationService';
+
+/**
  * The name the filterFactory service is registered and injected under.
  *
  * @example
@@ -141,6 +151,36 @@ export const filterService = 'filterService';
  * @public
  */
 export const liveSearchService = 'liveSearchService';
+
+/**
+ * The name the mediaFolderService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [mediaFolderService] };
+ *
+ * @public
+ */
+export const mediaFolderService = 'mediaFolderService';
+
+/**
+ * The name the mediaPresignedUploadService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [mediaPresignedUploadService] };
+ *
+ * @public
+ */
+export const mediaPresignedUploadService = 'mediaPresignedUploadService';
+
+/**
+ * The name the mediaService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [mediaService] };
+ *
+ * @public
+ */
+export const mediaService = 'mediaService';
 
 /**
  * The name the messageStatsService service is registered and injected under.

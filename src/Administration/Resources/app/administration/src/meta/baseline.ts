@@ -7,13 +7,8 @@ import dataSetIds from './data-sets.json';
 
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
-    'src/app/component/media/sw-media-add-thumbnail-form/index.js',
     'src/app/component/media/sw-media-entity-mapper/index.js',
-    'src/app/component/media/sw-media-folder-content/index.js',
-    'src/app/component/media/sw-media-list-selection-item-v2/index.js',
-    'src/app/component/media/sw-media-modal-folder-dissolve/index.js',
     'src/app/component/media/sw-media-replace/index.js',
-    'src/app/component/media/sw-sidebar-media-item/index.js',
     'src/app/component/base/sw-price-preview/index.js',
     'src/app/component/form/select/entity/sw-entity-tag-select/index.js',
     'src/app/component/form/sw-boolean-radio-group/index.js',

@@ -1291,7 +1291,7 @@
       "count": 35
     }
   },
-  "src/app/component/media/sw-image-slider/index.js": {
+  "src/app/component/media/sw-image-slider/src/sw-image-slider.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1299,17 +1299,17 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-image-slider/sw-image-slider.spec.js": {
+  "src/app/component/media/sw-image-slider/tests/sw-image-slider.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 29
     }
   },
-  "src/app/component/media/sw-media-add-thumbnail-form/index.js": {
+  "src/app/component/media/sw-media-add-thumbnail-form/src/sw-media-add-thumbnail-form.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-base-item/index.js": {
+  "src/app/component/media/sw-media-base-item/src/sw-media-base-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1317,7 +1317,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-compact-upload-v2/index.js": {
+  "src/app/component/media/sw-media-compact-upload-v2/src/sw-media-compact-upload-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1325,7 +1325,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-compact-upload-v2/sw-media-compact-upload-v2.spec.js": {
+  "src/app/component/media/sw-media-compact-upload-v2/tests/sw-media-compact-upload-v2.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
@@ -1335,7 +1335,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-field/index.js": {
+  "src/app/component/media/sw-media-field/src/sw-media-field.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1343,12 +1343,12 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-field/sw-media-field.spec.js": {
+  "src/app/component/media/sw-media-field/tests/sw-media-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 23
     }
   },
-  "src/app/component/media/sw-media-folder-content/index.js": {
+  "src/app/component/media/sw-media-folder-content/src/sw-media-folder-content.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1356,7 +1356,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-folder-item/index.js": {
+  "src/app/component/media/sw-media-folder-item/src/sw-media-folder-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1364,7 +1364,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-folder-item/sw-media-folder-item.spec.js": {
+  "src/app/component/media/sw-media-folder-item/tests/sw-media-folder-item.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1372,12 +1372,12 @@
       "count": 24
     }
   },
-  "src/app/component/media/sw-media-list-selection-item-v2/index.js": {
+  "src/app/component/media/sw-media-list-selection-item-v2/src/sw-media-list-selection-item-v2.js": {
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-list-selection-v2/index.js": {
+  "src/app/component/media/sw-media-list-selection-v2/src/sw-media-list-selection-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1385,7 +1385,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-list-selection-v2/sw-media-list-selection-v2.spec.js": {
+  "src/app/component/media/sw-media-list-selection-v2/tests/sw-media-list-selection-v2.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
@@ -1403,7 +1403,7 @@
       "count": 18
     }
   },
-  "src/app/component/media/sw-media-modal-delete/index.js": {
+  "src/app/component/media/sw-media-modal-delete/src/sw-media-modal-delete.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1414,12 +1414,12 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-modal-delete/sw-media-modal-delete.spec.js": {
+  "src/app/component/media/sw-media-modal-delete/tests/sw-media-modal-delete.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 21
     }
   },
-  "src/app/component/media/sw-media-modal-folder-dissolve/index.js": {
+  "src/app/component/media/sw-media-modal-folder-dissolve/src/sw-media-modal-folder-dissolve.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1427,22 +1427,22 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-modal-folder-settings/index.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig": {
+  "src/app/component/media/sw-media-modal-folder-settings/src/sw-media-modal-folder-settings.html.twig": {
     "vue/max-template-depth": {
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.spec.js": {
+  "src/app/component/media/sw-media-modal-folder-settings/src/sw-media-modal-folder-settings.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-folder-settings/tests/sw-media-modal-folder-settings.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 16
     }
   },
-  "src/app/component/media/sw-media-modal-move/index.js": {
+  "src/app/component/media/sw-media-modal-move/src/sw-media-modal-move.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1450,12 +1450,12 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-modal-move/sw-media-modal-move.spec.js": {
+  "src/app/component/media/sw-media-modal-move/tests/sw-media-modal-move.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 14
     }
   },
-  "src/app/component/media/sw-media-modal-replace/index.js": {
+  "src/app/component/media/sw-media-modal-replace/src/sw-media-modal-replace.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1463,12 +1463,12 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-modal-replace/sw-media-modal-replace.spec.js": {
+  "src/app/component/media/sw-media-modal-replace/tests/sw-media-modal-replace.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/app/component/media/sw-media-preview-v2/index.js": {
+  "src/app/component/media/sw-media-preview-v2/src/sw-media-preview-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1476,7 +1476,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-preview-v2/sw-media-preview-v2.spec.js": {
+  "src/app/component/media/sw-media-preview-v2/tests/sw-media-preview-v2.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 19
     }
@@ -1489,7 +1489,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-upload-v2/index.js": {
+  "src/app/component/media/sw-media-upload-v2/src/sw-media-upload-v2.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1500,7 +1500,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-upload-v2/sw-media-upload-v2.spec.js": {
+  "src/app/component/media/sw-media-upload-v2/tests/sw-media-upload-v2.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1508,7 +1508,7 @@
       "count": 50
     }
   },
-  "src/app/component/media/sw-media-url-form/index.js": {
+  "src/app/component/media/sw-media-url-form/src/sw-media-url-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1516,7 +1516,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-url-form/sw-media-url-form.spec.js": {
+  "src/app/component/media/sw-media-url-form/tests/sw-media-url-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 10
     }
@@ -1529,12 +1529,12 @@
       "count": 2
     }
   },
-  "src/app/component/media/sw-model-editor/index.ts": {
+  "src/app/component/media/sw-model-editor/src/sw-model-editor.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 5
     }
   },
-  "src/app/component/media/sw-model-editor/sw-model-editor.spec.ts": {
+  "src/app/component/media/sw-model-editor/tests/sw-model-editor.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 27
     },
@@ -1542,12 +1542,12 @@
       "count": 36
     }
   },
-  "src/app/component/media/sw-model-viewer/index.ts": {
+  "src/app/component/media/sw-model-viewer/src/sw-model-viewer.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
     }
   },
-  "src/app/component/media/sw-model-viewer/sw-model-viewer.spec.ts": {
+  "src/app/component/media/sw-model-viewer/tests/sw-model-viewer.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 16
     },
@@ -1555,7 +1555,7 @@
       "count": 19
     }
   },
-  "src/app/component/media/sw-sidebar-media-item/index.js": {
+  "src/app/component/media/sw-sidebar-media-item/src/sw-sidebar-media-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1563,12 +1563,12 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-vector-field/index.ts": {
+  "src/app/component/media/sw-vector-field/src/sw-vector-field.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/component/media/sw-vector-field/sw-vector-field.spec.ts": {
+  "src/app/component/media/sw-vector-field/tests/sw-vector-field.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

@@ -1,150 +1,33 @@
-import { markRaw, type Raw } from 'vue';
-import type Repository from 'src/core/data/repository.data';
-import { QuickView } from '@shopware-ag/dive/quickview';
-import template from './sw-model-viewer.html.twig';
-import './sw-model-viewer.scss';
-
-const { EventBus } = Shopware.Utils;
-const { Context } = Shopware;
+import { definePublicComponent } from 'src/core/public-component';
 
 /**
- * @status ready
- * @description The <u>sw-model-viewer</u> component is used to show a preview of model objects.
  * @sw-package discovery
- * @example-type code-only
- * @component-example
- * <sw-model-viewer
- *      :source="mediaEntity"
- * </sw-model-viewer>
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
-    template,
-
-    inject: ['repositoryFactory'],
-
-    props: {
-        source: {
-            type: Object,
-            required: true,
-            validator(value: Entity<'media'>) {
-                return value?.getEntityName() === 'media';
-            },
-        },
-    },
-
-    data() {
-        return {
-            canvas: null,
-            isLoading: false,
-            modelEntity: null,
-            quickView: null,
-        } as {
-            canvas: HTMLCanvasElement | null;
-            isLoading: boolean;
-            modelEntity: Entity<'media'> | null;
-            quickView: Raw<QuickView> | null;
-        };
-    },
-
-    watch: {
-        async source(): Promise<void> {
-            this.modelEntity = this.source as Entity<'media'>;
-            await this.quickView?.disposeAsync();
-            return this.initializeQuickView();
-        },
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    beforeUnmount() {
-        this.beforeUnmountedComponent();
-    },
-
-    mounted() {
-        this.mountedComponent();
-    },
-
-    computed: {
-        mediaRepository(): Repository<'media'> {
-            return this.repositoryFactory.create('media');
-        },
-    },
-
-    methods: {
-        createdComponent(): void {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            EventBus.on('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
-        },
-
-        beforeUnmountedComponent(): void {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
-
-            this.disposeQuickView().catch((error) => {
-                console.error(error);
-            });
-        },
-
-        mountedComponent(): void {
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,
-                @typescript-eslint/no-unsafe-member-access,
-                @typescript-eslint/no-unsafe-call
-            */
-            this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas');
-
-            this.modelEntity = this.source as Entity<'media'>;
-            this.initializeQuickView().catch((error) => {
-                console.error(error);
-            });
-        },
-
-        async initializeQuickView(): Promise<void> {
-            if (!this.canvas) {
-                return Promise.reject(new Error('Canvas is missing'));
-            }
-
-            if (!this.modelEntity?.url) {
-                return Promise.reject(new Error('Model entity URL is missing'));
-            }
-
-            this.isLoading = true;
-
-            this.quickView = markRaw(
-                await QuickView(this.modelEntity.url, {
-                    canvas: this.canvas,
-                })
-                    .catch((error) => {
-                        console.error(error);
-                        return Promise.reject(error as Error);
-                    })
-                    .finally(() => {
-                        this.isLoading = false;
-                    }),
-            );
-
-            return Promise.resolve();
-        },
-
-        async disposeQuickView(): Promise<void> {
-            await this.quickView?.disposeAsync();
-        },
-
-        onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void {
-            if (!this.modelEntity?.id) return;
-            if (this.modelEntity?.id !== mediaId) return;
-
-            // Refetch media entity to get fresh URL with updated cache-busting timestamp
-            this.mediaRepository
-                .get(mediaId, Context.api)
-                .then((media) => {
-                    this.modelEntity = media;
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        },
+/** @public */
+export default definePublicComponent({
+    name: 'sw-model-viewer',
+    load: () => import('./src/sw-model-viewer'),
+    public: {
+        props: [
+            'source',
+        ],
+        blocks: [
+            'sw_model_viewer',
+        ],
+        computed: [
+            'mediaRepository',
+        ],
+        methods: [
+            'createdComponent',
+            'beforeUnmountedComponent',
+            'mountedComponent',
+            'initializeQuickView',
+            'disposeQuickView',
+            'onMediaLibraryItemUpdated',
+        ],
     },
 });

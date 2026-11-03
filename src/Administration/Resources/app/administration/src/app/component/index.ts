@@ -136,6 +136,28 @@ import 'src/app/component/grid/sw-grid-column/register';
 import 'src/app/component/grid/sw-grid-row/register';
 import 'src/app/component/grid/sw-pagination/register';
 import 'src/app/component/list/sw-sortable-list/register';
+import 'src/app/component/media/sw-image-slider/register';
+import 'src/app/component/media/sw-media-add-thumbnail-form/register';
+import 'src/app/component/media/sw-media-base-item/register';
+import 'src/app/component/media/sw-media-upload-v2/register';
+import 'src/app/component/media/sw-media-compact-upload-v2/register';
+import 'src/app/component/media/sw-media-field/register';
+import 'src/app/component/media/sw-media-folder-content/register';
+import 'src/app/component/media/sw-media-folder-item/register';
+import 'src/app/component/media/sw-media-folder-thumbnail/register';
+import 'src/app/component/media/sw-media-list-selection-item-v2/register';
+import 'src/app/component/media/sw-media-list-selection-v2/register';
+import 'src/app/component/media/sw-media-modal-delete/register';
+import 'src/app/component/media/sw-media-modal-folder-dissolve/register';
+import 'src/app/component/media/sw-media-modal-folder-settings/register';
+import 'src/app/component/media/sw-media-modal-move/register';
+import 'src/app/component/media/sw-media-modal-replace/register';
+import 'src/app/component/media/sw-media-preview-v2/register';
+import 'src/app/component/media/sw-media-url-form/register';
+import 'src/app/component/media/sw-model-editor/register';
+import 'src/app/component/media/sw-model-viewer/register';
+import 'src/app/component/media/sw-sidebar-media-item/register';
+import 'src/app/component/media/sw-vector-field/register';
 /**
  * @sw-package framework
  * @private
@@ -332,58 +354,14 @@ export default () => {
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
-    Shopware.Component.register('sw-image-slider', () => import('src/app/component/media/sw-image-slider'));
-    Shopware.Component.register(
-        'sw-media-add-thumbnail-form',
-        () => import('src/app/component/media/sw-media-add-thumbnail-form'),
-    );
-    Shopware.Component.register('sw-media-base-item', () => import('src/app/component/media/sw-media-base-item'));
-    Shopware.Component.extend(
-        'sw-media-compact-upload-v2',
-        'sw-media-upload-v2',
-        () => import('src/app/component/media/sw-media-compact-upload-v2'),
-    );
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
-    Shopware.Component.register('sw-media-field', () => import('src/app/component/media/sw-media-field'));
-    Shopware.Component.register('sw-media-folder-content', () => import('src/app/component/media/sw-media-folder-content'));
-    Shopware.Component.register('sw-media-folder-item', () => import('src/app/component/media/sw-media-folder-item'));
-    Shopware.Component.register(
-        'sw-media-folder-thumbnail',
-        () => import('src/app/component/media/sw-media-folder-thumbnail'),
-    );
-    Shopware.Component.register(
-        'sw-media-list-selection-item-v2',
-        () => import('src/app/component/media/sw-media-list-selection-item-v2'),
-    );
-    Shopware.Component.register(
-        'sw-media-list-selection-v2',
-        () => import('src/app/component/media/sw-media-list-selection-v2'),
-    );
     Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
-    Shopware.Component.register('sw-media-modal-delete', () => import('src/app/component/media/sw-media-modal-delete'));
-    Shopware.Component.register(
-        'sw-media-modal-folder-dissolve',
-        () => import('src/app/component/media/sw-media-modal-folder-dissolve'),
-    );
-    Shopware.Component.register(
-        'sw-media-modal-folder-settings',
-        () => import('src/app/component/media/sw-media-modal-folder-settings'),
-    );
-    Shopware.Component.register('sw-media-modal-move', () => import('src/app/component/media/sw-media-modal-move'));
-    Shopware.Component.register('sw-media-modal-replace', () => import('src/app/component/media/sw-media-modal-replace'));
-    Shopware.Component.register('sw-media-preview-v2', () => import('src/app/component/media/sw-media-preview-v2'));
-    Shopware.Component.register('sw-model-editor', () => import('src/app/component/media/sw-model-editor'));
     Shopware.Component.extend(
         'sw-model-editor-collapse',
         'sw-collapse',
         () => import('src/app/component/media/sw-model-editor-collapse'),
     );
-    Shopware.Component.register('sw-model-viewer', () => import('src/app/component/media/sw-model-viewer'));
-    Shopware.Component.register('sw-vector-field', () => import('src/app/component/media/sw-vector-field'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
-    Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
-    Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));
-    Shopware.Component.register('sw-sidebar-media-item', () => import('src/app/component/media/sw-sidebar-media-item'));
     Shopware.Component.register(
         'sw-media-modal-renderer',
         () => import('src/app/component/structure/sw-media-modal-renderer/index'),

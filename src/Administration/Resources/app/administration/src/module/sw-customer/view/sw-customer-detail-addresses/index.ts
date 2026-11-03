@@ -1,0 +1,85 @@
+import { definePublicComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package checkout
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
+ */
+/** @public */
+export default definePublicComponent({
+    name: 'sw-customer-detail-addresses',
+    load: () => import('./src/sw-customer-detail-addresses'),
+    public: {
+        props: [
+            'customer',
+            'customerEditMode',
+        ],
+        blocks: [
+            'sw_customer_detail_addresses',
+            'sw_customer_detail_addresses_card',
+            'sw_customer_detail_addresses_toolbar',
+            'sw_customer_detail_addresses_add_button',
+            'sw_customer_detail_addresses_add_modal',
+            'sw_customer_detail_addresses_add_modal_address_form',
+            'sw_customer_detail_addresses_add_modal_footer',
+            'sw_customer_detail_addresses_add_modal_cancel',
+            'sw_customer_detail_addresses_add_modal_apply',
+            'sw_customer_detail_addresses_grid',
+            'sw_customer_detail_addresses_grid_columns',
+            'sw_customer_detail_addresses_grid_columns_default_shipping_address',
+            'sw_customer_detail_addresses_grid_columns_default_billing_address',
+            'sw_customer_detail_addresses_grid_columns_last_name',
+            'sw_customer_detail_addresses_grid_columns_actions',
+            'sw_customer_detail_addresses_grid_columns_actions_edit',
+            'sw_customer_detail_addresses_grid_columns_actions_duplicate',
+            'sw_customer_detail_addresses_grid_columns_actions_defaultShippingAddress',
+            'sw_customer_detail_addresses_grid_columns_actions_defaultBillingAddress',
+            'sw_customer_detail_addresses_grid_columns_actions_delete',
+            'sw_customer_detail_addresses_grid_columns_action_modals',
+            'sw_customer_detail_addresses_delete_modal',
+            'sw_customer_detail_addresses_delete_modal_confirm_delete_text',
+            'sw_customer_detail_addresses_delete_modal_address_item',
+            'sw_customer_detail_addresses_delete_modal_footer',
+            'sw_customer_detail_addresses_delete_modal_cancel',
+            'sw_customer_detail_addresses_delete_modal_confirm',
+        ],
+        computed: [
+            'customerRepository',
+            'customFieldSetRepository',
+            'customerAddressRepository',
+            'addressColumns',
+            'addressRepository',
+            'sortedAddresses',
+            'salutationRepository',
+            'salutationCriteria',
+        ],
+        methods: [
+            'createdComponent',
+            'getAddressColumns',
+            'setAddressSorting',
+            'onCreateNewAddress',
+            'createNewCustomerAddress',
+            'onSaveAddress',
+            'isValidAddress',
+            'onCloseAddressModal',
+            'clearAddressErrors',
+            'removeRequiredFieldError',
+            'getLoadedAddress',
+            'onEditAddress',
+            'onDeleteAddress',
+            'onConfirmDeleteAddress',
+            'onCloseDeleteAddressModal',
+            'isDefaultAddress',
+            'onChangeDefaultBillingAddress',
+            'onChangeDefaultShippingAddress',
+            'onDuplicateAddress',
+            'onChangeDefaultAddress',
+            'onChange',
+            'refreshList',
+            'createPrefix',
+            'getDefaultSalutation',
+        ],
+    },
+});

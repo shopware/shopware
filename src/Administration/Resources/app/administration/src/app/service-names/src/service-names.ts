@@ -119,6 +119,16 @@ export const cmsService = 'cmsService';
 export const configService = 'configService';
 
 /**
+ * The name the contextStoreService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [contextStoreService] };
+ *
+ * @public
+ */
+export const contextStoreService = 'contextStoreService';
+
+/**
  * The name the customEntityDefinitionService service is registered and injected under.
  *
  * @example
@@ -127,6 +137,26 @@ export const configService = 'configService';
  * @public
  */
 export const customEntityDefinitionService = 'customEntityDefinitionService';
+
+/**
+ * The name the customerGroupRegistrationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [customerGroupRegistrationService] };
+ *
+ * @public
+ */
+export const customerGroupRegistrationService = 'customerGroupRegistrationService';
+
+/**
+ * The name the customerValidationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [customerValidationService] };
+ *
+ * @public
+ */
+export const customerValidationService = 'customerValidationService';
 
 /**
  * The name the customFieldDataProviderService service is registered and injected under.
@@ -261,6 +291,16 @@ export const filterFactory = 'filterFactory';
  * @public
  */
 export const filterService = 'filterService';
+
+/**
+ * The name the guestCustomerConvertService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [guestCustomerConvertService] };
+ *
+ * @public
+ */
+export const guestCustomerConvertService = 'guestCustomerConvertService';
 
 /**
  * The name the licenseViolationService service is registered and injected under.

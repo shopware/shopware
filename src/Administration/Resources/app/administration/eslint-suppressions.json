@@ -6793,7 +6793,7 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-address-form-options/index.js": {
+  "src/module/sw-customer/component/sw-customer-address-form-options/src/sw-customer-address-form-options.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6801,12 +6801,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-address-form-options/sw-customer-address-form-options.spec.js": {
+  "src/module/sw-customer/component/sw-customer-address-form-options/tests/sw-customer-address-form-options.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 10
     }
   },
-  "src/module/sw-customer/component/sw-customer-address-form/index.js": {
+  "src/module/sw-customer/component/sw-customer-address-form/src/sw-customer-address-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6814,12 +6814,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-address-form/sw-customer-address-form.spec.js": {
+  "src/module/sw-customer/component/sw-customer-address-form/tests/sw-customer-address-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/module/sw-customer/component/sw-customer-base-form/index.js": {
+  "src/module/sw-customer/component/sw-customer-base-form/src/sw-customer-base-form.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6827,12 +6827,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-base-form/sw-customer-base-form.spec.js": {
+  "src/module/sw-customer/component/sw-customer-base-form/tests/sw-customer-base-form.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-customer/component/sw-customer-base-info/index.js": {
+  "src/module/sw-customer/component/sw-customer-base-info/src/sw-customer-base-info.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6840,25 +6840,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-card/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-customer/component/sw-customer-card/sw-customer-card.html.twig": {
+  "src/module/sw-customer/component/sw-customer-card/src/sw-customer-card.html.twig": {
     "vue/max-template-depth": {
       "count": 2
     }
   },
-  "src/module/sw-customer/component/sw-customer-card/sw-customer-card.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
-  "src/module/sw-customer/component/sw-customer-convert-guest-modal/index.js": {
+  "src/module/sw-customer/component/sw-customer-card/src/sw-customer-card.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6866,12 +6853,25 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-convert-guest-modal/sw-customer-convert-guest-modal.spec.js": {
+  "src/module/sw-customer/component/sw-customer-card/tests/sw-customer-card.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-convert-guest-modal/src/sw-customer-convert-guest-modal.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-convert-guest-modal/tests/sw-customer-convert-guest-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/module/sw-customer/component/sw-customer-default-addresses/index.js": {
+  "src/module/sw-customer/component/sw-customer-default-addresses/src/sw-customer-default-addresses.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6879,12 +6879,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-default-addresses/sw-customer-default-addresses.spec.js": {
+  "src/module/sw-customer/component/sw-customer-default-addresses/tests/sw-customer-default-addresses.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/module/sw-customer/component/sw-customer-imitate-customer-modal/index.js": {
+  "src/module/sw-customer/component/sw-customer-imitate-customer-modal/src/sw-customer-imitate-customer-modal.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6895,7 +6895,7 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/component/sw-customer-imitate-customer-modal/sw-customer-imitate-customer-modal.spec.js": {
+  "src/module/sw-customer/component/sw-customer-imitate-customer-modal/tests/sw-customer-imitate-customer-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 10
     }
@@ -6924,7 +6924,7 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/page/sw-customer-create/index.js": {
+  "src/module/sw-customer/page/sw-customer-create/src/sw-customer-create.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6932,7 +6932,7 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/page/sw-customer-create/sw-customer-create.spec.js": {
+  "src/module/sw-customer/page/sw-customer-create/tests/sw-customer-create.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6940,7 +6940,7 @@
       "count": 21
     }
   },
-  "src/module/sw-customer/page/sw-customer-detail/index.js": {
+  "src/module/sw-customer/page/sw-customer-detail/src/sw-customer-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6948,12 +6948,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.spec.js": {
+  "src/module/sw-customer/page/sw-customer-detail/tests/sw-customer-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 24
     }
   },
-  "src/module/sw-customer/page/sw-customer-list/index.js": {
+  "src/module/sw-customer/page/sw-customer-list/src/sw-customer-list.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6964,12 +6964,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/page/sw-customer-list/sw-customer-list.spec.js": {
+  "src/module/sw-customer/page/sw-customer-list/tests/sw-customer-list.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 29
     }
   },
-  "src/module/sw-customer/view/sw-customer-detail-addresses/index.js": {
+  "src/module/sw-customer/view/sw-customer-detail-addresses/src/sw-customer-detail-addresses.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6977,12 +6977,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.spec.js": {
+  "src/module/sw-customer/view/sw-customer-detail-addresses/tests/sw-customer-detail-addresses.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 22
     }
   },
-  "src/module/sw-customer/view/sw-customer-detail-base/index.js": {
+  "src/module/sw-customer/view/sw-customer-detail-base/src/sw-customer-detail-base.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -6990,12 +6990,12 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/view/sw-customer-detail-base/sw-customer-detail-base.spec.js": {
+  "src/module/sw-customer/view/sw-customer-detail-base/tests/sw-customer-detail-base.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
-  "src/module/sw-customer/view/sw-customer-detail-order/index.js": {
+  "src/module/sw-customer/view/sw-customer-detail-order/src/sw-customer-detail-order.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },

@@ -1,0 +1,474 @@
+import template from './sw-customer-list.html.twig';
+import './sw-customer-list.scss';
+import {
+    aclService,
+    Criteria,
+    filterFactoryService,
+    getAppContext,
+    getAssetFilter,
+    getDecodeIdnEmailFilter,
+    getFilterService,
+    isFeatureActive,
+    listingMixin,
+    notificationMixin,
+    repositoryFactoryService,
+    salutationMixin,
+} from '../dependencies';
+
+/**
+ * @sw-package checkout
+ */
+
+/**
+ * @public
+ */
+export default {
+    template,
+
+    inject: [repositoryFactoryService, aclService, filterFactoryService],
+
+    mixins: [notificationMixin, salutationMixin, listingMixin],
+
+    data() {
+        return {
+            customers: null,
+            sortBy: 'createdAt',
+            naturalSorting: false,
+            sortDirection: 'DESC',
+            isLoading: false,
+            showDeleteModal: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
+            filterLoading: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
+            availableAffiliateCodes: [],
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
+            availableCampaignCodes: [],
+            filterCriteria: [],
+            defaultFilters: [
+                'customer-number-filter',
+                'affiliate-code-filter',
+                'campaign-code-filter',
+                'customer-group-request-filter',
+                'salutation-filter',
+                'account-status-filter',
+                'default-payment-method-filter',
+                'group-filter',
+                'billing-address-country-filter',
+                'shipping-address-country-filter',
+                'tags-filter',
+            ],
+            storeKey: 'grid.filter.customer',
+            activeFilterNumber: 0,
+            searchConfigEntity: 'customer',
+            showBulkEditModal: false,
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(),
+        };
+    },
+
+    computed: {
+        hasActiveSearchOrFilter() {
+            return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
+        },
+
+        customerRepository() {
+            return this.repositoryFactory.create('customer');
+        },
+
+        customerColumns() {
+            return this.getCustomerColumns();
+        },
+
+        defaultCriteria() {
+            const defaultCriteria = new Criteria(this.page, this.limit);
+            this.naturalSorting = this.sortBy === 'customerNumber';
+
+            defaultCriteria.setTerm(this.term);
+
+            this.sortBy.split(',').forEach((sortBy) => {
+                defaultCriteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
+            });
+
+            defaultCriteria
+                .addAssociation('defaultBillingAddress')
+                .addAssociation('group')
+                .addAssociation('requestedGroup')
+                .addAssociation('boundSalesChannel');
+
+            this.filterCriteria.forEach((filter) => {
+                defaultCriteria.addFilter(filter);
+            });
+
+            return defaultCriteria;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
+        filterSelectCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(
+                Criteria.not('AND', [Criteria.equals('affiliateCode', null), Criteria.equals('campaignCode', null)]),
+            );
+            criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
+            criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
+
+            return criteria;
+        },
+
+        listFilterOptions() {
+            const options = {
+                'customer-number-filter': {
+                    property: 'customerNumber',
+                    type: 'string-filter',
+                    label: this.$t('sw-customer.filter.customerNumber.label'),
+                    placeholder: this.$t('sw-customer.filter.customerNumber.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
+                'affiliate-code-filter': {
+                    property: 'affiliateCode',
+                    type: 'string-filter',
+                    label: this.$t('sw-customer.filter.affiliateCode.label'),
+                    placeholder: this.$t('sw-customer.filter.affiliateCode.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                },
+                'campaign-code-filter': {
+                    property: 'campaignCode',
+                    type: 'string-filter',
+                    label: this.$t('sw-customer.filter.campaignCode.label'),
+                    placeholder: this.$t('sw-customer.filter.campaignCode.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                },
+                'customer-group-request-filter': {
+                    property: 'requestedGroupId',
+                    type: 'existence-filter',
+                    label: this.$t('sw-customer.filter.customerGroupRequest.label'),
+                    placeholder: this.$t('sw-customer.filter.customerGroupRequest.placeholder'),
+                    optionHasCriteria: this.$t('sw-customer.filter.customerGroupRequest.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-customer.filter.customerGroupRequest.textNoCriteria'),
+                },
+                'salutation-filter': {
+                    property: 'salutation',
+                    label: this.$t('sw-customer.filter.salutation.label'),
+                    placeholder: this.$t('sw-customer.filter.salutation.placeholder'),
+                    labelProperty: 'displayName',
+                },
+                'account-status-filter': {
+                    property: 'active',
+                    label: this.$t('sw-customer.filter.status.label'),
+                    placeholder: this.$t('sw-customer.filter.status.placeholder'),
+                },
+                'group-filter': {
+                    property: 'group',
+                    label: this.$t('sw-customer.filter.customerGroup.label'),
+                    placeholder: this.$t('sw-customer.filter.customerGroup.placeholder'),
+                },
+                'billing-address-country-filter': {
+                    property: 'defaultBillingAddress.country',
+                    label: this.$t('sw-customer.filter.billingCountry.label'),
+                    placeholder: this.$t('sw-customer.filter.billingCountry.placeholder'),
+                },
+                'shipping-address-country-filter': {
+                    property: 'defaultShippingAddress.country',
+                    label: this.$t('sw-customer.filter.shippingCountry.label'),
+                    placeholder: this.$t('sw-customer.filter.shippingCountry.placeholder'),
+                },
+                'tags-filter': {
+                    property: 'tags',
+                    label: this.$t('sw-customer.filter.tags.label'),
+                    placeholder: this.$t('sw-customer.filter.tags.placeholder'),
+                },
+            };
+
+            return options;
+        },
+
+        listFilters() {
+            return this.filterFactory.create('customer', this.listFilterOptions);
+        },
+
+        assetFilter() {
+            return getAssetFilter();
+        },
+
+        emailIdnFilter() {
+            return getDecodeIdnEmailFilter();
+        },
+
+        adminEsEnable() {
+            if (!isFeatureActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return getAppContext().adminEsEnable ?? false;
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
+        createdComponent() {
+            return Promise.resolve();
+        },
+
+        onInlineEditSave(promise, customer) {
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$t('sw-customer.detail.messageSaveError'),
+                    });
+                });
+        },
+
+        async getList() {
+            this.isLoading = true;
+
+            const criteria = await getFilterService().mergeWithStoredFilters(this.storeKey, this.defaultCriteria);
+
+            let newCriteria;
+            if (this.adminEsEnable) {
+                newCriteria = criteria;
+                newCriteria.setTerm(this.term);
+            } else {
+                newCriteria = await this.addQueryScores(this.term, criteria);
+            }
+
+            this.activeFilterNumber = criteria.filters.length;
+
+            if (!this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
+
+            if (this.freshSearchTerm) {
+                newCriteria.resetSorting();
+            }
+
+            try {
+                const items = await this.customerRepository.search(newCriteria);
+
+                this.total = items.total;
+                this.customers = items;
+                this.isLoading = false;
+                this.selection = {};
+            } catch {
+                this.isLoading = false;
+            }
+        },
+
+        onDelete(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
+            return this.customerRepository
+                .delete(id)
+                .then(() => {
+                    this.getList();
+                })
+                .catch((errorResponse) => {
+                    const errors = errorResponse?.response?.data?.errors;
+
+                    if (Array.isArray(errors) && errors.length > 0) {
+                        errors.forEach((error) => {
+                            this.createNotificationError({
+                                title: error.title,
+                                message: error.detail,
+                            });
+                        });
+                    } else {
+                        this.createNotificationError({
+                            title: this.$t('global.default.error'),
+                            message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    }
+                });
+        },
+
+        async onChangeLanguage() {
+            await this.createdComponent();
+            await this.getList();
+        },
+
+        getCustomerColumns() {
+            const columns = [
+                {
+                    property: 'firstName',
+                    dataIndex: 'lastName,firstName',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnName',
+                    routerLink: 'sw.customer.detail',
+                    width: '250px',
+                    allowResize: true,
+                    primary: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'company',
+                    label: 'sw-customer.list.columnCompany',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'defaultBillingAddress.street',
+                    label: 'sw-customer.list.columnStreet',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'defaultBillingAddress.zipcode',
+                    label: 'sw-customer.list.columnZip',
+                    align: 'right',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'defaultBillingAddress.city',
+                    label: 'sw-customer.list.columnCity',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'customerNumber',
+                    dataIndex: 'customerNumber',
+                    naturalSorting: true,
+                    label: 'sw-customer.list.columnCustomerNumber',
+                    allowResize: true,
+                    inlineEdit: 'string',
+                    align: 'right',
+                    useCustomSort: true,
+                },
+                {
+                    property: 'group',
+                    dataIndex: 'group.name',
+                    naturalSorting: true,
+                    label: 'sw-customer.list.columnGroup',
+                    allowResize: true,
+                    inlineEdit: 'string',
+                    align: 'right',
+                    useCustomSort: true,
+                },
+                {
+                    property: 'email',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnEmail',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'affiliateCode',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnAffiliateCode',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'campaignCode',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnCampaignCode',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'boundSalesChannelId',
+                    label: 'sw-customer.list.columnBoundSalesChannel',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'active',
+                    inlineEdit: 'boolean',
+                    label: 'sw-customer.list.columnActive',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'createdAt',
+                    label: 'sw-customer.list.columnCreatedAt',
+                    allowResize: true,
+                },
+            ];
+
+            return columns;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
+        loadFilterValues() {
+            this.filterLoading = true;
+
+            return this.customerRepository
+                .search(this.filterSelectCriteria)
+                .then(({ aggregations }) => {
+                    this.availableAffiliateCodes = aggregations?.affiliateCodes?.buckets ?? [];
+                    this.availableCampaignCodes = aggregations?.campaignCodes?.buckets ?? [];
+                    this.filterLoading = false;
+
+                    return aggregations;
+                })
+                .catch(() => {
+                    this.filterLoading = false;
+                });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
+        updateCriteria(criteria) {
+            // Delegate to listing mixin implementation
+            return listingMixin.methods.updateCriteria.call(this, criteria);
+        },
+
+        async onBulkEditItems() {
+            await this.$nextTick();
+            this.$router.push({ name: 'sw.bulk.edit.customer' });
+        },
+
+        onBulkEditModalOpen() {
+            this.showBulkEditModal = true;
+        },
+
+        onBulkEditModalClose() {
+            this.showBulkEditModal = false;
+        },
+    },
+};

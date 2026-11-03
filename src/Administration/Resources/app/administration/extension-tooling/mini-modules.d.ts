@@ -238,3 +238,17 @@ import '../src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element
 import '../src/module/sw-cms/component/sw-cms-stage-section-selection/global';
 import '../src/module/sw-cms/component/sw-cms-toolbar/global';
 import '../src/module/sw-cms/page/sw-cms-list/global';
+import '../src/module/sw-customer/component/sw-customer-address-form/global';
+import '../src/module/sw-customer/component/sw-customer-address-form-options/global';
+import '../src/module/sw-customer/component/sw-customer-base-form/global';
+import '../src/module/sw-customer/component/sw-customer-base-info/global';
+import '../src/module/sw-customer/component/sw-customer-card/global';
+import '../src/module/sw-customer/component/sw-customer-convert-guest-modal/global';
+import '../src/module/sw-customer/component/sw-customer-default-addresses/global';
+import '../src/module/sw-customer/component/sw-customer-imitate-customer-modal/global';
+import '../src/module/sw-customer/page/sw-customer-create/global';
+import '../src/module/sw-customer/page/sw-customer-detail/global';
+import '../src/module/sw-customer/page/sw-customer-list/global';
+import '../src/module/sw-customer/view/sw-customer-detail-addresses/global';
+import '../src/module/sw-customer/view/sw-customer-detail-base/global';
+import '../src/module/sw-customer/view/sw-customer-detail-order/global';

@@ -450,6 +450,11 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### CMS sliders and image galleries respect vertical alignment
+
+Image gallery, image slider, and product slider CMS elements now apply their configured vertical alignment in the Storefront.
+Themes overriding their alignment blocks should preserve the alignment wrapper when vertical alignment is configured.
+
 ### CMS buy boxes select the configured variant
 
 Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.
@@ -639,6 +644,8 @@ A sales channel whose domain cannot be resolved is now reported as its own failu
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
+
+`bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
 
 ### Elasticsearch errors no longer fail `system:update:finish`
 

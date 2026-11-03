@@ -276,6 +276,8 @@ class OrderRoute extends AbstractOrderRoute
         if ($email && $zipcode) {
             $billingZipCode = $order->getBillingAddress()?->getZipcode();
             if ($billingZipCode === null
+                || !\is_string($email)
+                || !\is_string($zipcode)
                 || strtolower($email) !== strtolower($orderCustomer->getEmail())
                 || strtoupper($zipcode) !== strtoupper($billingZipCode)) {
                 throw OrderException::wrongGuestCredentials();

@@ -277,6 +277,10 @@ General styling for cms elements
     }
 }
 
+.cms-element-text.has-vertical-alignment .cms-element-alignment {
+    width: 100%;
+}
+
 .cms-element-image-gallery {
     .js-magnifier-zoom-image-container {
         // hides magnifier overlay because zoom container is displayed over gallery

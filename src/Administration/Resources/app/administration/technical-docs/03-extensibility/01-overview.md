@@ -89,7 +89,7 @@ Template extension mechanism using TwigJS for overriding template blocks:
 
 ### 3. Native Block System + Composition API Extension System (Experimental, 6.8+)
 
-Both systems are available behind the feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM` and will become stable in v6.8.0.
+Both systems are available behind the feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM` and will become stable in v6.9.0 at the latest.
 
 Vue-native block system replacing TwigJS blocks:
 
@@ -156,8 +156,8 @@ Guaranteed backward compatibility within major versions:
 
 ### Experimental APIs (Subject to Change)
 New features under active development:
-- **Composition API Extension System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.8.0
-- **Native Block System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.8.0
+- **Composition API Extension System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.9.0 at the latest
+- **Native Block System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.9.0 at the latest
 - Advanced component lifecycle hooks
 
 ## Key Architecture Decision Records

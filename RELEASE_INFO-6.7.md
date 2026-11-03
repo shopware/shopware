@@ -306,6 +306,14 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Native setup stays experimental until 6.9
+
+Native setup and the Composition API extension system now target 6.9.0 instead of 6.8.0 for their stable release.
+The native setup macros (`swDefinePublic()`, `swDefineOverride()`, `useSwPreviousState()`, `useSwProps()`, `useSwContext()`) are annotated `@experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`.
+Like the composables in `shopware:composables`, they can still change in any release before 6.9 without a deprecation cycle.
+They may become stable in 6.8 already if they settle in time.
+The reasoning is recorded in [Postpone the stabilization of native setup and the composables to 6.9](adr/2026-11-03-postpone-native-setup-stabilization-to-6-9.md).
+
 ### CMS layout overview places the page type navigation in a grid
 
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.

@@ -186,7 +186,7 @@ Shopware.Component.override('sw-product-detail', {
 
 ### 4. Composition API Extensions
 
-> **Experimental** — available behind feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`, stable in v6.8.0.
+> **Experimental** — available behind feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`, stable in v6.9.0 at the latest.
 > See [04-composition-extension-system.md](./04-composition-extension-system.md) for the full technical reference.
 
 Components migrated to Composition API expose a typed public API that extensions can override with full type safety. There are two roles: **component author** (uses `createExtendableSetup`) and **plugin author** (uses `overrideComponentSetup`).

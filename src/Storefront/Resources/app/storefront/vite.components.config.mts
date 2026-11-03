@@ -9,6 +9,7 @@ import { plainCssShimPlugin } from './build/vite/plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './build/vite/scoped-subpath-exports-plugin';
 import { resolveStorefrontDevUpdate } from './build/vite/storefront-dev-update';
 import { themeScssWatcherPlugin } from './build/vite/theme-scss-watcher-plugin';
+import { twigHmrPlugin } from './build/vite/twig-hmr-plugin';
 import {
     extensionComponentAliasesPlugin,
     loadExtensionComponentAliases,
@@ -128,6 +129,8 @@ export default defineConfig(async ({ command, mode }): Promise<UserConfig> => {
             extensionModuleResolverPlugin(projectRoot),
             plainCssShimPlugin(plainCssShims),
             themeScssWatcherPlugin(projectRoot, { devUpdate }),
+            // Manual mode sends nothing to the page, so the Twig views are not watched.
+            ...(devUpdate === 'manual' ? [] : [twigHmrPlugin(projectRoot)]),
         ],
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),

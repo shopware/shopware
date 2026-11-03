@@ -111,6 +111,18 @@ describe('OffCanvasCartPlugin tests', () => {
         expect(plugin.$emitter.publish).toHaveBeenCalledWith('offCanvasOpened', { response: expect.any(String) });
         expect(document.querySelector('.offcanvas.cart-offcanvas')).toBeTruthy();
         expect(document.querySelector('.cart-item-product')).toBeTruthy();
+        expect(document.querySelector('.offcanvas.cart-offcanvas').dataset.swSourceUrl).toBe('/checkout/offcanvas');
+    });
+
+    test('marks a cart opened by a POST request with the cart URL', async () => {
+        const data = new FormData();
+        data.append('redirectTo', 'frontend.cart.offcanvas');
+
+        plugin.openOffCanvas('/checkout/line-item/add', data);
+        await new Promise(process.nextTick);
+
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
+        expect(document.querySelector('.offcanvas.cart-offcanvas').dataset.swSourceUrl).toBe('/checkout/offcanvas');
     });
 
     test('change product quantity using select', async () => {

@@ -77,6 +77,7 @@ use Shopware\Storefront\Event\CartMergedSubscriber;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
+use Shopware\Storefront\Framework\Cache\TwigHmrCacheSubscriber;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator;
 use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
@@ -243,6 +244,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CacheCookieEventSubscriber::class)
         ->args([
             service('session.factory'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(TwigHmrCacheSubscriber::class)
+        ->args([
+            param('kernel.debug'),
+            param('twig.cache'),
         ])
         ->tag('kernel.event_subscriber');
 

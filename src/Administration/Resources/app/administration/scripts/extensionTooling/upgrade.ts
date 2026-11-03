@@ -19,7 +19,7 @@ import { globSync } from 'glob';
 import { runMigration } from '../codemods/sfc-migration/run-sfc-migration';
 import { discoverProjects } from './setup';
 import { discoverProjectsFromBundles } from './setup-discovery';
-import { resolveCliSelection } from './select';
+import { isInteractiveTerminal, resolveCliSelection } from './select';
 import {
     filterSelectedProjects,
     isUpgradable,
@@ -85,6 +85,7 @@ export interface UpgradeExtensionsOptions {
 export interface UpgradeExtensionsResult {
     target: string;
     write: boolean;
+    skipGitCheck: boolean;
     optIns: string[];
     extensions: ExtensionUpgrade[];
     fatalDiagnostics: string[];
@@ -110,7 +111,9 @@ interface EslintFileResult {
  * An extension outside a work tree, or one the surrounding repository ignores, counts as untracked.
  */
 function gitState(directory: string): 'clean' | 'dirty' | 'untracked' {
-    const git = (...args: string[]) => spawnSync('git', args, { cwd: directory, encoding: 'utf8' });
+    // A third-party extension may ship its own .git whose config runs core.fsmonitor on every status.
+    const git = (...args: string[]) =>
+        spawnSync('git', ['-c', 'core.fsmonitor=false', ...args], { cwd: directory, encoding: 'utf8' });
     const tracked = git('ls-files', '--', '.');
 
     if (tracked.status !== 0 || tracked.stdout.trim() === '') {
@@ -438,9 +441,18 @@ export async function upgradeExtensions(options: UpgradeExtensionsOptions): Prom
     const target = options.target ?? targets[targets.length - 1];
     const optIns = options.optIns ?? [];
     const write = options.write ?? false;
+    const skipGitCheck = options.skipGitCheck ?? false;
     const codemods = selectCodemods(target, optIns);
     const explicitOnly = options.explicitOnly ?? [];
-    const result: UpgradeExtensionsResult = { target, write, optIns, extensions: [], fatalDiagnostics: [], exitCode: 0 };
+    const result: UpgradeExtensionsResult = {
+        target,
+        write,
+        skipGitCheck,
+        optIns,
+        extensions: [],
+        fatalDiagnostics: [],
+        exitCode: 0,
+    };
     const discovered = discoverUpgradeProjects(projectRoot, administrationRoot, options.only ?? []);
     const selection = filterSelectedProjects(discovered, options.only ?? []);
 
@@ -458,7 +470,7 @@ export async function upgradeExtensions(options: UpgradeExtensionsOptions): Prom
         }
     }
 
-    if (write && !options.skipGitCheck) {
+    if (write && !skipGitCheck) {
         const blocked = runnable.flatMap((project) => {
             const state = gitState(path.join(projectRoot, project.basePath));
 
@@ -524,7 +536,9 @@ const UPGRADE_COMMAND: CommandSpec = {
         },
         {
             name: '--write',
-            description: 'Write the changes. Refuses extensions that are not committed to git.',
+            description:
+                'Write the changes. Refuses extensions that are not committed to git. ' +
+                'Needs --only or --all outside an interactive terminal.',
         },
         {
             name: '--skip-git-check',
@@ -583,9 +597,28 @@ export async function runUpgradeCli(argv: string[]): Promise<number> {
         return 2;
     }
 
+    const write = parsed.flags.has('--write');
+    const all = parsed.flags.has('--all');
+
+    // A separator-only --only such as "," normalizes to no names, which would select every extension.
+    if (parsed.values['--only'] !== undefined && normalizeSelection(parsed.values['--only']).length === 0) {
+        console.error(`--only needs at least one extension name.\n\n${renderHelp(UPGRADE_COMMAND)}`);
+
+        return 2;
+    }
+
+    if (write && parsed.values['--only'] === undefined && !all && !isInteractiveTerminal()) {
+        console.error(
+            'Not an interactive terminal: --write needs --only=<name[,name]> or --all. ' +
+                'Run without --write first to see what would change.',
+        );
+
+        return 2;
+    }
+
     const selection = await resolveCliSelection({
         only: parsed.values['--only'],
-        all: parsed.flags.has('--all'),
+        all,
         candidates: () => {
             const resolvedRoot = path.resolve(projectRoot);
 
@@ -612,7 +645,7 @@ export async function runUpgradeCli(argv: string[]): Promise<number> {
             only: selection.only,
             explicitOnly: selection.explicitOnly,
             optIns: normalizeSelection(parsed.values['--with']),
-            write: parsed.flags.has('--write'),
+            write,
             skipGitCheck: parsed.flags.has('--skip-git-check'),
         });
     } catch (error) {

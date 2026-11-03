@@ -317,7 +317,7 @@ bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --
 ```
 
 `--target` defaults to the newest major the installed Administration ships codemods for, and `--list` shows them.
-`--write` refuses extensions that are not committed to git.
+`--write` refuses extensions that are not committed to git, and outside an interactive terminal it needs `--only` or `--all`.
 `--only` also finds plugins in `custom/plugins` that are not installed or activated.
 `--with=sfc-migration` additionally converts Options API components into native setup SFCs.
 

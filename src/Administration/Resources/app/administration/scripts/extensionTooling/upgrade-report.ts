@@ -142,11 +142,23 @@ export function renderUpgradeReport(result: UpgradeExtensionsResult, commands: T
         return lines.join('\n');
     }
 
+    const wroteDrafts = applied.some((report) => report.codemod.kind === 'sfc-migration' && report.changes > 0);
+
     lines.push(
         colors.cyan(`Wrote ${plural(changes, 'change')} in ${plural(files, 'file')}.`),
-        colors.dim('Review them with: git diff'),
-        colors.dim(`Next: ${commands.check} -- --only=${names.join(',')}`),
+        colors.dim(
+            wroteDrafts
+                ? 'Review them with: git diff, and git status for the new .vue drafts'
+                : 'Review them with: git diff',
+        ),
     );
+
+    // After --skip-git-check, git clean could also delete files that existed before the run.
+    if (!result.skipGitCheck) {
+        lines.push(colors.dim('In each extension folder, undo them with: git checkout . && git clean -f'));
+    }
+
+    lines.push(colors.dim(`Next: ${commands.check} -- --only=${names.join(',')}`));
 
     return lines.join('\n');
 }

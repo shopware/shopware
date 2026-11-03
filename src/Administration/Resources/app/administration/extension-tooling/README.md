@@ -144,6 +144,8 @@ With shopware-cli use `shopware-cli project console administration:upgrade-exten
 - `--write` refuses an extension that has uncommitted or untracked changes.
   Run `git checkout . && git clean -f` in the extension folder to undo a run.
   `--skip-git-check` writes anyway, and then `git clean -f` can also delete files that existed before the run.
+- Without an interactive terminal, for example in CI or with `docker compose exec -T`, `--write` needs `--only` or `--all`.
+  A dry run without either previews every writable extension.
 - Vendor-installed extensions are only rewritten when you name them via `--only`.
 - The command finds extensions through `var/plugins.json`, which lists active plugins only.
   An `--only` name that is not listed there is looked up as a folder in `custom/plugins`,

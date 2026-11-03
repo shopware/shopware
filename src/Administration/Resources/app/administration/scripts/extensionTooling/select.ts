@@ -141,6 +141,10 @@ export interface CliSelection {
     explicitOnly: string[];
 }
 
+export function isInteractiveTerminal(): boolean {
+    return process.stdin.isTTY && process.stdout.isTTY;
+}
+
 /** Resolves --only, --all and the interactive picker; null when there is nothing to run. */
 export async function resolveCliSelection(options: CliSelectionOptions): Promise<CliSelection | null> {
     if (options.only !== undefined) {
@@ -153,7 +157,7 @@ export async function resolveCliSelection(options: CliSelectionOptions): Promise
         return { only: undefined, explicitOnly: [] };
     }
 
-    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    if (!isInteractiveTerminal()) {
         console.log(`${options.messages.fallback} Pass --only=<name[,name]> or --all to be explicit.`);
 
         return { only: undefined, explicitOnly: [] };

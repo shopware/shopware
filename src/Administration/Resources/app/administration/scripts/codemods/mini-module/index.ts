@@ -161,20 +161,27 @@ const movedPath = (moves: Map<string, string>, target: string) => {
 /**
  * Rewrites the relative imports of a moved file, so they still reach their target from the file's new place,
  * also when the target moved: a spec in tests/ that imported './index' now imports '../src/<name>'.
+ * An import through the `src/…` alias stays one, and changes only when its target moved.
  * It covers `from`, bare side-effect imports, `import()`, `require()` and `jest.mock()`.
  *
  * @example
  * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
+ * // tests/sw-x.spec.js: 'src/app/component/sw-x/sw-x.helper' → 'src/app/component/sw-x/src/sw-x.helper'
  */
 const rewriteMovedImports = (moves: Map<string, string>, from: string, to: string) => {
     const file = path.join(adminRoot, to);
     const source = fs.readFileSync(file, 'utf8');
     const rewritten = source.replace(
-        /((?:from|import\(|import|require\(|jest\.mock\()\s*')(\.\.?\/[^']+)'/g,
+        /((?:from|import\(|import|require\(|jest\.mock\()\s*')((?:\.\.?\/|src\/)[^']+)'/g,
         (statement, prefix: string, specifier: string) => {
-            const target = relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
+            const isAlias = specifier.startsWith('src/');
+            const target = isAlias ? specifier : relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
             const moved = movedPath(moves, target);
             const written = SCRIPT_EXTENSION.test(specifier) ? moved : moved.replace(SCRIPT_EXTENSION, '');
+
+            if (isAlias) {
+                return moved === target ? statement : `${prefix}${written}'`;
+            }
 
             return `${prefix}${importPath(file, path.join(adminRoot, written))}'`;
         },

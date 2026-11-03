@@ -160,9 +160,19 @@ class InstallerRedirectHelperTest extends TestCase
             'expected' => '',
         ];
 
-        yield 'null bytes are truncated by parse_str, leaving valid language' => [
+        yield 'query is truncated at raw null byte, leaving valid language' => [
             'queryString' => 'language=en' . "\0" . 'GB',
             'expected' => '?language=en',
+        ];
+
+        yield 'raw null byte at start discards the entire query' => [
+            'queryString' => "\0language=en-GB",
+            'expected' => '',
+        ];
+
+        yield 'parameters after raw null byte are discarded' => [
+            'queryString' => "ext_steps=1\0&language=en-GB",
+            'expected' => '?ext_steps=1',
         ];
     }
 

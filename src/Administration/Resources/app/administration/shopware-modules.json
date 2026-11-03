@@ -257,6 +257,21 @@
     "shopware:components": {
         "exports": [],
         "subpaths": {
+            "sw-bulk-edit-product-visibility": [
+                "default"
+            ],
+            "sw-import-export-activity": [
+                "default"
+            ],
+            "sw-media-collapse": [
+                "default"
+            ],
+            "sw-settings-logging-entry-info": [
+                "default"
+            ],
+            "sw-settings-services-service-card": [
+                "default"
+            ],
             "sw-settings-shipping-price-matrices": [
                 "default"
             ],
@@ -265,6 +280,11 @@
             ]
         },
         "sources": {
+            "sw-bulk-edit-product-visibility": "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility",
+            "sw-import-export-activity": "src/module/sw-import-export/component/sw-import-export-activity",
+            "sw-media-collapse": "src/module/sw-media/component/sw-media-collapse",
+            "sw-settings-logging-entry-info": "src/module/sw-settings-logging/component/sw-settings-logging-entry-info",
+            "sw-settings-services-service-card": "src/module/sw-settings-services/component/sw-settings-services-service-card",
             "sw-settings-shipping-price-matrices": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices",
             "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix"
         }

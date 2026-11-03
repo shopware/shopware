@@ -982,6 +982,36 @@ declare module 'shopware:stores/mediaModal' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-bulk-edit-product-visibility' {
+    export { default } from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
+    export type * from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-import-export-activity' {
+    export { default } from 'src/module/sw-import-export/component/sw-import-export-activity';
+    export type * from 'src/module/sw-import-export/component/sw-import-export-activity';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-collapse' {
+    export { default } from 'src/module/sw-media/component/sw-media-collapse';
+    export type * from 'src/module/sw-media/component/sw-media-collapse';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-logging-entry-info' {
+    export { default } from 'src/module/sw-settings-logging/component/sw-settings-logging-entry-info';
+    export type * from 'src/module/sw-settings-logging/component/sw-settings-logging-entry-info';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-services-service-card' {
+    export { default } from 'src/module/sw-settings-services/component/sw-settings-services-service-card';
+    export type * from 'src/module/sw-settings-services/component/sw-settings-services-service-card';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-shipping-price-matrices' {
     export { default } from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
     export type * from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';

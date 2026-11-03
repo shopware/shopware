@@ -3,7 +3,7 @@
  */
 
 import { config, mount } from '@vue/test-utils';
-import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon';
+import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon/src/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from '../src/_fixtures/app-action.fixtures';
 import 'src/app/component/app/sw-app-actions/src/sw-app-actions';

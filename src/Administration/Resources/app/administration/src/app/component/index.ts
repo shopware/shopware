@@ -118,6 +118,7 @@ import 'src/app/component/extension-api/sw-extension-component-section/register'
 import 'src/app/component/extension-api/sw-extension-teaser-popover/register';
 import 'src/app/component/extension-api/sw-extension-teaser-sales-channel/register';
 import 'src/app/component/extension-api/sw-iframe-renderer/register';
+import 'src/app/component/extension/sw-extension-icon/register';
 /**
  * @sw-package framework
  * @private
@@ -382,7 +383,6 @@ export default () => {
     Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
     Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));
     Shopware.Component.register('sw-sidebar-media-item', () => import('src/app/component/media/sw-sidebar-media-item'));
-    Shopware.Component.register('sw-extension-icon', () => import('src/app/component/extension/sw-extension-icon'));
     Shopware.Component.register('sw-ai-copilot-badge', () => import('src/app/component/feedback/sw-ai-copilot-badge'));
     Shopware.Component.register('sw-ai-copilot-warning', () => import('src/app/component/feedback/sw-ai-copilot-warning'));
     Shopware.Component.register('sw-string-filter', () => import('src/app/component/filter/sw-string-filter'));

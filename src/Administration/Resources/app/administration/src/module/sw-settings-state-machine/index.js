@@ -2,18 +2,12 @@
  * @sw-package checkout
  */
 import './acl';
+import './component/sw-settings-state-machine-state-detail/register';
+import './component/sw-settings-state-machine-state-list/register';
+import './page/sw-settings-state-machine-detail/register';
+import './page/sw-settings-state-machine-list/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-state-machine-list', () => import('./page/sw-settings-state-machine-list'));
-Shopware.Component.register('sw-settings-state-machine-detail', () => import('./page/sw-settings-state-machine-detail'));
-Shopware.Component.register(
-    'sw-settings-state-machine-state-list',
-    () => import('./component/sw-settings-state-machine-state-list'),
-);
-Shopware.Component.register(
-    'sw-settings-state-machine-state-detail',
-    () => import('./component/sw-settings-state-machine-state-detail'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

@@ -1,20 +1,19 @@
 import template from './sw-settings-state-machine-state-detail.html.twig';
-
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+import { mapPropertyErrors, notificationMixin, repositoryFactoryService, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['modal-close'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         currentStateMachineState: {

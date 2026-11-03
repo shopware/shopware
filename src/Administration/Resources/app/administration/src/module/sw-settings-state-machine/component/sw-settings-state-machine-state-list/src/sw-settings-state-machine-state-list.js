@@ -1,18 +1,17 @@
 import template from './sw-settings-state-machine-state-list.html.twig';
-
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { aclService, Criteria, notificationMixin, repositoryFactoryService, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         stateMachineId: {

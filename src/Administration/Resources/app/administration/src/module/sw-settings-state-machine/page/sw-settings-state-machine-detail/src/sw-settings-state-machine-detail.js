@@ -1,21 +1,28 @@
 import template from './sw-settings-state-machine-detail.html.twig';
-
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+import {
+    aclService,
+    discardDetailPageChangesMixin,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    wrapComponentConfig,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('stateMachine'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('stateMachine'),
     ],
 
     props: {

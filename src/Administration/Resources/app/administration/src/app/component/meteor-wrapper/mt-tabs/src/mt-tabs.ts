@@ -1,8 +1,6 @@
-import MtTabs from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
-import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './mt-tabs.html.twig';
-import type { TabItemEntry } from '../../../store/tabs.store';
 import './mt-tabs.scss';
+import { MtTabs, type TabItem, type TabItemEntry, useTabsStore, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -12,7 +10,7 @@ import './mt-tabs.scss';
  * @description Wrapper component for mt-tabs. Adds the component sections
  *  to the slots. Need to be matched with the original mt-tabs component.
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     components: {
@@ -83,7 +81,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         tabExtensions(): TabItemEntry[] {
-            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return useTabsStore().tabItems[this.positionIdentifier] ?? [];
         },
 
         activeItemName(): string {

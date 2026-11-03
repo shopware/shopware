@@ -1,5 +1,5 @@
-import MtCard from '@shopware-ag/meteor-component-library/dist/esm/MtCard';
 import template from './mt-card.html.twig';
+import { MtCard, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package framework
@@ -9,7 +9,7 @@ import template from './mt-card.html.twig';
  * @description Wrapper component for mt-card. Adds the component sections
  *  to the slots. Need to be matched with the original mt-card component.
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     components: {

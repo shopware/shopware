@@ -1576,12 +1576,12 @@
       "count": 35
     }
   },
-  "src/app/component/meteor-wrapper/mt-datepicker/index.ts": {
+  "src/app/component/meteor-wrapper/mt-datepicker/src/mt-datepicker.ts": {
     "complexity": {
       "count": 1
     }
   },
-  "src/app/component/meteor-wrapper/mt-datepicker/mt-datepicker.spec.js": {
+  "src/app/component/meteor-wrapper/mt-datepicker/tests/mt-datepicker.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 1
     }
@@ -1596,7 +1596,7 @@
       "count": 2
     }
   },
-  "src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/sw-text-editor-toolbar-button-link.spec.js": {
+  "src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/tests/sw-text-editor-toolbar-button-link.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }

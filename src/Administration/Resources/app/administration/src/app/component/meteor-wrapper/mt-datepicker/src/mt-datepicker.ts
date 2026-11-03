@@ -1,6 +1,5 @@
-import MtDatepickerOriginal from '@shopware-ag/meteor-component-library/dist/esm/MtDatepicker';
-import type { DateTimeOptions } from 'vue-i18n';
 import template from './mt-datepicker.html.twig';
+import { type DateTimeOptions, MtDatepickerOriginal, useSessionStore, wrapComponentConfig } from '../dependencies';
 
 type SessionStore = {
     currentLocale?: string | null;
@@ -10,7 +9,7 @@ type SessionStore = {
 };
 
 function getSessionStore(): SessionStore {
-    return Shopware.Store.get('session') as SessionStore;
+    return useSessionStore() as SessionStore;
 }
 
 /**
@@ -21,7 +20,7 @@ function getSessionStore(): SessionStore {
  * @description Wrapper component for mt-datepicker. Replaces the
  * datepicker with automatic language and formatting for the admin user.
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     components: {

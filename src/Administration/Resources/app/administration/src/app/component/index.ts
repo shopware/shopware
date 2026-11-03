@@ -158,6 +158,10 @@ import 'src/app/component/media/sw-model-editor/register';
 import 'src/app/component/media/sw-model-viewer/register';
 import 'src/app/component/media/sw-sidebar-media-item/register';
 import 'src/app/component/media/sw-vector-field/register';
+import 'src/app/component/meteor-wrapper/mt-card/register';
+import 'src/app/component/meteor-wrapper/mt-datepicker/register';
+import 'src/app/component/meteor-wrapper/mt-tabs/register';
+import 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/register';
 /**
  * @sw-package framework
  * @private
@@ -332,13 +336,6 @@ export default () => {
     );
     Shopware.Component.register('sw-confirm-modal', () => import('src/app/component/modal/sw-confirm-modal/index'));
     Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
-    Shopware.Component.register(
-        'sw-text-editor-toolbar-button-link',
-        () => import('src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/index'),
-    );
-    Shopware.Component.register('mt-tabs', () => import('src/app/component/meteor-wrapper/mt-tabs/index'));
-    Shopware.Component.register('mt-datepicker', () => import('src/app/component/meteor-wrapper/mt-datepicker/index'));
-    Shopware.Component.register('mt-card', () => import('src/app/component/meteor-wrapper/mt-card/index'));
     Shopware.Component.register(
         'sw-meteor-single-select',
         () => import('src/app/component/meteor/sw-meteor-single-select/index'),

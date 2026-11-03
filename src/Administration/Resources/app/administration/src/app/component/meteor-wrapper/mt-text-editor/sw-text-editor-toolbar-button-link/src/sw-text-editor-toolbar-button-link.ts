@@ -1,14 +1,19 @@
-import type { Editor } from '@tiptap/vue-3';
-import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 import template from './sw-text-editor-toolbar-button-link.html.twig';
 import './sw-text-editor-toolbar-button-link.scss';
-import type EntityCollectionType from '../../../../../core/data/entity-collection.data';
-import type RepositoryType from '../../../../../core/data/repository.data';
-import type CriteriaType from '../../../../../core/data/criteria.data';
+import {
+    Criteria,
+    type CriteriaType,
+    type CustomButton,
+    type Editor,
+    EntityCollection,
+    type EntityCollectionType,
+    getApiContext,
+    repositoryFactoryService,
+    type RepositoryType,
+    wrapComponentConfig,
+} from '../dependencies';
 
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
-
-const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @sw-package framework
@@ -17,10 +22,10 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @status ready
  * @description Custom link button for the Meteor text editor.
  */
-export default Shopware.Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     props: {
         editor: {
@@ -345,11 +350,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getEmptyCategoryCollection(): EntityCollectionType<'category'> {
-            return new EntityCollection(
-                this.categoryRepository.route,
-                this.categoryRepository.entityName,
-                Shopware.Context.api,
-            );
+            return new EntityCollection(this.categoryRepository.route, this.categoryRepository.entityName, getApiContext());
         },
 
         replaceCategorySelection(category: { id: EntityKey<'category'> }): void {

@@ -31,19 +31,18 @@ class CleanupUnusedDocumentMediaTaskHandlerTest extends TestCase
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
+        $mediaRepository = static::getContainer()->get('media.repository');
         $documentsFolder = $this->getFolderId(ProductDocumentDefinition::ENTITY_NAME, $context);
-        $productImagesFolder = $this->getFolderId(ProductDefinition::ENTITY_NAME, $context);
         $twoDaysAgo = new \DateTimeImmutable('-2 days');
 
-        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($ids, $documentsFolder, $productImagesFolder, $twoDaysAgo): void {
-            static::getContainer()->get('media.repository')->create([
-                self::file($ids->create('unused'), $documentsFolder, $twoDaysAgo),
-                self::file($ids->create('manual'), $documentsFolder, $twoDaysAgo),
-                self::file($ids->create('handbuch'), $documentsFolder, $twoDaysAgo),
-                self::file($ids->create('just-uploaded'), $documentsFolder, new \DateTimeImmutable()),
-                self::file($ids->create('product-image'), $productImagesFolder, $twoDaysAgo),
-            ], $context);
-        });
+        $files = [
+            self::file($ids->create('unused'), $documentsFolder, $twoDaysAgo),
+            self::file($ids->create('manual'), $documentsFolder, $twoDaysAgo),
+            self::file($ids->create('handbuch'), $documentsFolder, $twoDaysAgo),
+            self::file($ids->create('just-uploaded'), $documentsFolder, new \DateTimeImmutable()),
+            self::file($ids->create('product-image'), $this->getFolderId(ProductDefinition::ENTITY_NAME, $context), $twoDaysAgo),
+        ];
+        $context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => $mediaRepository->create($files, $context));
 
         $product = (new ProductBuilder($ids, 'drill'))->price(10)->build();
         $product['documents'] = [[
@@ -56,9 +55,8 @@ class CleanupUnusedDocumentMediaTaskHandlerTest extends TestCase
 
         static::getContainer()->get(CleanupUnusedDocumentMediaTaskHandler::class)->run();
 
-        $files = $ids->getList(['unused', 'manual', 'handbuch', 'just-uploaded', 'product-image']);
-        $remaining = static::getContainer()->get('media.repository')->searchIds(new Criteria(array_values($files)), $context)->getIds();
-        static::assertEqualsCanonicalizing(['manual', 'handbuch', 'just-uploaded', 'product-image'], array_keys(array_intersect($files, $remaining)));
+        $remaining = $mediaRepository->searchIds(new Criteria(array_column($files, 'id')), $context)->getIds();
+        static::assertEqualsCanonicalizing(['manual', 'handbuch', 'just-uploaded', 'product-image'], array_keys(array_intersect($ids->all(), $remaining)));
     }
 
     private function getFolderId(string $entity, Context $context): string
@@ -71,7 +69,7 @@ class CleanupUnusedDocumentMediaTaskHandlerTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{id: string, fileName: string, fileExtension: string, mimeType: string, mediaFolderId: string, uploadedAt: \DateTimeImmutable}
      */
     private static function file(string $id, string $folderId, \DateTimeImmutable $uploadedAt): array
     {

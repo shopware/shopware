@@ -457,6 +457,11 @@ The following new blocks have been added to the shipping method template in `sto
 - `component_shipping_method_name`
 - `component_shipping_method_description_text`
 
+### CMS sliders and image galleries respect vertical alignment
+
+Image gallery, image slider, and product slider CMS elements now apply their configured vertical alignment in the Storefront.
+Themes overriding their alignment blocks should preserve the alignment wrapper when vertical alignment is configured.
+
 ### CMS buy boxes select the configured variant
 
 Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.
@@ -612,6 +617,21 @@ With the `v6.8.0.0` flag active, the template no longer sets the deprecated `bre
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
 
+### Legal guarantee notice on the registration form
+
+Disabling the new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the legal guarantee notice on the registration form while the checkout keeps it.
+The notice still requires `core.cart.showLegalGuaranteeNotice` as well.
+
+With the `v6.8.0.0` flag active, the notice of `component/privacy-notice.html.twig` renders before the privacy `<fieldset>` instead of under the "Privacy" heading.
+The blocks `component_privacy_legal_guarantee_notice_paragraph` and `component_privacy_legal_guarantee_notice_modal` are deprecated in their place inside `component_privacy_dpi` and move out of it with 6.8.
+See `UPGRADE-6.8.md` for what themes have to adjust.
+
+### Legal guarantee notice disabled by default
+
+`core.cart.showLegalGuaranteeNotice` now declares `false` as its default.
+This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
+Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests
@@ -631,6 +651,8 @@ A sales channel whose domain cannot be resolved is now reported as its own failu
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
+
+`bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
 
 ### Elasticsearch errors no longer fail `system:update:finish`
 

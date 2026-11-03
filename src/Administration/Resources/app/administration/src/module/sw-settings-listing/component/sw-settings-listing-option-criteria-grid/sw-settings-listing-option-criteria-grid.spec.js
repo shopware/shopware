@@ -1,4 +1,5 @@
 import { DOMWrapper, mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package inventory
@@ -230,9 +231,35 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         const isProductSetFilter = (f) =>
             f.type === 'equals' && f.field === 'customFieldSet.relations.entityName' && f.value === 'product';
 
-        expect(wrapper.vm.customFieldCriteria.parse().filter.some(isProductSetFilter)).toBe(true);
-        expect(wrapper.vm.customFieldCriteriaSingleSelect().parse().filter.some(isProductSetFilter)).toBe(true);
+        const { customFieldCriteria, customFieldCriteriaSingleSelect } = wrapper.vm;
+
+        expect(customFieldCriteria.parse().filter.some(isProductSetFilter)).toBe(true);
+        expect(customFieldCriteriaSingleSelect().parse().filter.some(isProductSetFilter)).toBe(true);
         expect(customFieldSetRelationSearch).not.toHaveBeenCalled();
+    });
+
+    // @deprecated tag:v6.8.0.0 - The test will be removed with fetchCustomFieldSetIds().
+    it.deprecated('v6.8.0.0')('should still load the product custom field set ids on demand', async () => {
+        customFieldSetRelationSearch.mockResolvedValueOnce([{ customFieldSetId: 'set-1' }]);
+        const vm = wrapper.vm;
+
+        await vm.fetchCustomFieldSetIds();
+
+        expect(customFieldSetRelationSearch).toHaveBeenCalledWith(
+            expect.objectContaining({
+                filters: [expect.objectContaining({ type: 'equals', field: 'entityName', value: 'product' })],
+            }),
+        );
+        expect(vm.customFieldSetIDs).toEqual(['set-1']);
+        expect(deprecations).toHaveTriggered(
+            'sw-settings-listing-option-criteria-grid.fetchCustomFieldSetIds() is deprecated.',
+        );
+        expect(deprecations).toHaveTriggered(
+            'sw-settings-listing-option-criteria-grid.customFieldSetRelationsRepository is deprecated.',
+        );
+        expect(deprecations).toHaveTriggered(
+            'sw-settings-listing-option-criteria-grid.customFieldsRelationsCriteria is deprecated.',
+        );
     });
 
     it('should change productSortingEntity when add custom field', async () => {

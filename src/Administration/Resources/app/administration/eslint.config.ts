@@ -289,6 +289,8 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
+            '!scripts/mini-module-owners/',
+            '!scripts/mini-module-owners/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',

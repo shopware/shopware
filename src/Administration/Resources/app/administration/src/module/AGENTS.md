@@ -186,7 +186,9 @@ it('shows an order with its primary delivery', () => {
 
 Requirements, pinned, regressions and public-api specs import the module only through `../index`, so they test what other code sees.
 They may arrange state through a harness in `tests/`, and the harness may import from `../dependencies`.
-A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
+A change to `index.ts`, a requirement or a regression needs the owning team.
+`mini-module-owners.json` names the owner of each mini-module, with `? ` in front when the team is only optional, as in `.codeowners`.
+`composer admin:generate-mini-module-owners` writes the mini-modules block of `.codeowners` from it, and a spec fails when the block is stale.
 A changed pin only asks whether the change was intended.
 A change to `public-api.spec.ts` needs the owning team as well, because extensions rely on what those members do.
 

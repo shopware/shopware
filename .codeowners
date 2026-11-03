@@ -61,3 +61,8 @@ src/Administration/Resources/app/administration/extension-tooling/eslint.mjs @sh
 
 # ctrl-alt-elite
 src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
+
+# mini-modules: generated from src/Administration/Resources/app/administration/mini-module-owners.json by `composer admin:generate-mini-module-owners`
+# A change to the public API (`index.ts`), the requirements, the regressions or the public-api tests needs the owning team.
+# Changes to `src/` and to pinned tests do not.
+# end of the generated mini-modules

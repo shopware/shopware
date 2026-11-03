@@ -2,20 +2,19 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-settings-currency-country-modal.html.twig';
+import { Criteria, getApiContext, mapPropertyErrors, notificationMixin, repositoryFactoryService } from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['edit-cancel', 'save'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         currencyCountryRounding: {
@@ -60,7 +59,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.countryRepository.searchIds(this.assignedCountriesCriteria, Shopware.Context.api).then((res) => {
+            this.countryRepository.searchIds(this.assignedCountriesCriteria, getApiContext()).then((res) => {
                 this.assignedCountryIds = res.data;
             });
         },

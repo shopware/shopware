@@ -2,17 +2,14 @@
  * @sw-package fundamentals@framework
  */
 import './acl';
+import './component/sw-settings-currency-country-modal/register';
+import './component/sw-settings-price-rounding/register';
+import './page/sw-settings-currency-detail/register';
+import './page/sw-settings-currency-list/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-currency-list', () => import('./page/sw-settings-currency-list'));
-Shopware.Component.register('sw-settings-currency-detail', () => import('./page/sw-settings-currency-detail'));
-Shopware.Component.register('sw-settings-price-rounding', () => import('./component/sw-settings-price-rounding'));
-Shopware.Component.register(
-    'sw-settings-currency-country-modal',
-    () => import('./component/sw-settings-currency-country-modal'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -3,24 +3,34 @@
  */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
+import {
+    aclService,
+    cloneDeep,
+    Criteria,
+    customFieldDataProviderService,
+    featureService,
+    getCacheService,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    useContextStore,
+} from '../dependencies';
 
-const { cloneDeep } = Shopware.Utils.object;
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-        'customFieldDataProviderService',
+        repositoryFactoryService,
+        aclService,
+        featureService,
+        customFieldDataProviderService,
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         currencyId: {
@@ -199,7 +209,7 @@ export default {
                 return Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.isLoading = true;
             this.currency = this.currencyRepository.create();
             // defaults for rounding
@@ -296,7 +306,7 @@ export default {
         },
 
         invalidateCurrencyCaches() {
-            const cacheService = Shopware.Service('cacheService');
+            const cacheService = getCacheService();
 
             cacheService.invalidateCaches({
                 cacheKey: ['shared-data', 'currencies'],

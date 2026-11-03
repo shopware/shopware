@@ -4,7 +4,9 @@
 import template from './sw-settings-price-rounding.html.twig';
 import './sw-settings-price-rounding.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

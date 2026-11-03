@@ -21,7 +21,7 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +35,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class DownloadServiceTest extends TestCase
 {
     public const DEFAULT_STRATEGY = 'php';
+
+    private const NOW = '2026-01-01 12:00:00 UTC';
 
     #[DataProvider('dataProviderInvalidAccessToken')]
     public function testInvalidAccessToken(ImportExportFileEntity $fileEntity, string $accessToken): void
@@ -99,7 +101,7 @@ class DownloadServiceTest extends TestCase
             'originalName' => 'products.csv',
             'accessToken' => 'validAccessToken',
             'path' => 'export/foobar.txt',
-            'updatedAt' => new \DateTimeImmutable(),
+            'updatedAt' => new \DateTimeImmutable(self::NOW),
         ]);
 
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
@@ -161,7 +163,7 @@ class DownloadServiceTest extends TestCase
             'originalName' => 'products.csv',
             'accessToken' => 'validAccessToken',
             'path' => 'export/foobar.txt',
-            'updatedAt' => new \DateTimeImmutable(),
+            'updatedAt' => new \DateTimeImmutable(self::NOW),
         ]);
 
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
@@ -215,11 +217,11 @@ class DownloadServiceTest extends TestCase
             'accessToken' => 'inValidAccessToken',
         ];
 
-        yield 'recently modified access token' => [
+        yield 'expired access token' => [
             'fileEntity' => (new ImportExportFileEntity())->assign([
                 'id' => Uuid::randomHex(),
                 'accessToken' => 'validAccessToken',
-                'updatedAt' => new \DateTimeImmutable('+' . 600),
+                'updatedAt' => new \DateTimeImmutable(self::NOW . ' -10 minutes'),
             ]),
             'accessToken' => 'validAccessToken',
         ];
@@ -239,7 +241,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'fileName',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $notFoundFileId,
@@ -251,7 +253,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'fileName',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
@@ -277,7 +279,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'Name with öäüß',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
@@ -291,7 +293,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'Name with ascii chars',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
@@ -305,7 +307,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'Name with /\/\/\ slashes',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
@@ -319,7 +321,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'products.csv',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
@@ -333,7 +335,7 @@ class DownloadServiceTest extends TestCase
                 'originalName' => 'products.CSV',
                 'accessToken' => 'validAccessToken',
                 'path' => 'path',
-                'updatedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(self::NOW),
             ]),
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
@@ -402,7 +404,7 @@ class DownloadServiceTest extends TestCase
             $localDownloadStrategy,
             $rateLimiter,
             $localPathPrefix,
-            new NativeClock()
+            new MockClock(self::NOW)
         );
     }
 

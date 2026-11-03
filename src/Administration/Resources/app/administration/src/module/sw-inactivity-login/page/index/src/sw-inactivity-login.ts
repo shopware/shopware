@@ -1,16 +1,15 @@
 import './sw-inactivity-login.scss';
 import template from './sw-inactivity-login.html.twig';
-
-const { Component } = Shopware;
+import { featureService, hasOwnProperty, loginService, wrapComponentConfig } from '../dependencies';
 
 /**
  * @sw-package framework
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['loginService', 'feature'],
+    inject: [loginService, featureService],
 
     props: {
         hash: {
@@ -67,7 +66,7 @@ export default Component.wrapComponentConfig({
         this.sessionChannel.postMessage({ inactive: true });
         this.sessionChannel.onmessage = (event) => {
             const data = event.data as { inactive?: boolean };
-            if (!data || !Shopware.Utils.object.hasOwnProperty(data, 'inactive')) {
+            if (!data || !hasOwnProperty(data, 'inactive')) {
                 return;
             }
 

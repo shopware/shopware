@@ -3,16 +3,14 @@
  */
 
 import template from './sw-login.html.twig';
-import type { LoginConfig } from '../../../../core/service/login.service';
 import './sw-login.scss';
-
-const { Component } = Shopware;
+import { getAssetFilter, type LoginConfig, wrapComponentConfig } from '../dependencies';
 
 /**
  * @private
  * @sw-package framework
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
     props: {
@@ -53,7 +51,7 @@ export default Component.wrapComponentConfig({
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         showBackToLoginLink() {

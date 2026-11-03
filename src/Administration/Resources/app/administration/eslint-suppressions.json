@@ -7464,7 +7464,7 @@
       "count": 1
     }
   },
-  "src/module/sw-first-run-wizard/page/index/index.js": {
+  "src/module/sw-first-run-wizard/page/index/src/sw-first-run-wizard.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8119,7 +8119,7 @@
       "count": 3
     }
   },
-  "src/module/sw-inactivity-login/page/index/index.spec.js": {
+  "src/module/sw-inactivity-login/page/index/tests/index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -8203,7 +8203,7 @@
       "count": 1
     }
   },
-  "src/module/sw-login/page/index/index.spec.js": {
+  "src/module/sw-login/page/index/tests/index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -8682,7 +8682,7 @@
       "count": 29
     }
   },
-  "src/module/sw-oauth-authorize/page/index/index.spec.ts": {
+  "src/module/sw-oauth-authorize/page/index/tests/index.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 4
     }
@@ -13133,7 +13133,7 @@
       "count": 1
     }
   },
-  "src/module/sw-sso-error/page/index/index.js": {
+  "src/module/sw-sso-error/page/index/src/sw-sso-error-index.js": {
     "filename-rules/not-match": {
       "count": 1
     }

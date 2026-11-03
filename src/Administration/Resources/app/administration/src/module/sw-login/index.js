@@ -2,14 +2,12 @@ import './view/sw-login-login/register';
 import './view/sw-login-recovery/register';
 import './view/sw-login-recovery-info/register';
 import './view/sw-login-recovery-recovery/register';
+import './page/index/register';
 /**
  * @sw-package framework
  */
 
-const { Component, Module } = Shopware;
-
-/** @private */
-Component.register('sw-login', () => import('./page/index'));
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-login', {

@@ -16,11 +16,8 @@ import './view/sw-first-run-wizard-shopware-base/register';
 import './view/sw-first-run-wizard-shopware-domain/register';
 import './view/sw-first-run-wizard-store/register';
 import './view/sw-first-run-wizard-welcome/register';
+import './page/index/register';
 const { Module } = Shopware;
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-first-run-wizard', () => import('./page/index'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @sw-package fundamentals@after-sales

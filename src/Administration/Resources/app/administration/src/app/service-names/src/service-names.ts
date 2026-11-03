@@ -583,6 +583,16 @@ export const messageStatsService = 'messageStatsService';
 export const numberRangeService = 'numberRangeService';
 
 /**
+ * The name the oauthAuthorizeApiService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [oauthAuthorizeApiService] };
+ *
+ * @public
+ */
+export const oauthAuthorizeApiService = 'oauthAuthorizeApiService';
+
+/**
  * The name the orderDocumentApiService service is registered and injected under.
  *
  * @example

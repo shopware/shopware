@@ -1,9 +1,7 @@
 import type { RouteLocationNamedRaw } from 'vue-router';
+import './page/index/register';
 
-const { Component, Module } = Shopware;
-
-/** @private */
-Component.register('sw-inactivity-login', () => import('./page/index'));
+const { Module } = Shopware;
 
 /**
  * @sw-package framework

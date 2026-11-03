@@ -4,6 +4,7 @@
 
 import template from './sw-sso-error-index.html.twig';
 import './sw-sso-error-index.scss';
+import { getAssetFilter, loginService } from '../dependencies';
 
 /**
  * @private
@@ -11,7 +12,7 @@ import './sw-sso-error-index.scss';
 export default {
     template,
 
-    inject: ['loginService'],
+    inject: [loginService],
 
     data() {
         return {
@@ -29,7 +30,7 @@ export default {
 
     computed: {
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         isLoading() {

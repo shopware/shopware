@@ -1,9 +1,7 @@
 /**
  * @sw-package framework
  */
-
-/** @private */
-Shopware.Component.register('sw-oauth-authorize-index', () => import('./page/index'));
+import './page/index/register';
 
 /**
  * Consent page of the OAuth2 authorization code flow. The backend forwards the browser

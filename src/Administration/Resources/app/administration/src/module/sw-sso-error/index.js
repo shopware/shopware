@@ -1,12 +1,9 @@
 /**
  * @sw-package after-sales
  */
-import './page/index';
-
-/**
- * @private
- */
-Shopware.Component.register('sw-sso-error-index', () => import('./page/index'));
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- a bare import that registers nothing, as before the module moved
+import './page/index/private';
+import './page/index/register';
 
 const { Module } = Shopware;
 

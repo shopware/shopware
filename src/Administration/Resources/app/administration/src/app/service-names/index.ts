@@ -70,6 +70,7 @@ export {
     menuService,
     messageStatsService,
     numberRangeService,
+    oauthAuthorizeApiService,
     orderDocumentApiService,
     orderService,
     orderStateMachineService,

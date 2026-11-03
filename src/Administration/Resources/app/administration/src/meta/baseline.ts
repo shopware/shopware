@@ -141,7 +141,6 @@ const missingTests = [
     'src/module/sw-extension/store/index.ts',
     'src/module/sw-extension-sdk/index.js',
     'src/module/sw-first-run-wizard/index.js',
-    'src/module/sw-first-run-wizard/page/index/index.js',
     'src/module/sw-flow/constant/flow.constant.js',
     'src/module/sw-flow/default-search-configuration.js',
     'src/module/sw-flow/index.js',

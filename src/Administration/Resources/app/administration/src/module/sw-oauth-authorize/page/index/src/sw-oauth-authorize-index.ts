@@ -1,8 +1,14 @@
-import type { OAuthAuthorizationInfo, OAuthAuthorizationParams } from 'src/core/service/api/oauth-authorize.api.service';
 import template from './sw-oauth-authorize-index.html.twig';
 import './sw-oauth-authorize-index.scss';
-
-const { Component } = Shopware;
+import {
+    getAssetFilter,
+    type OAuthAuthorizationInfo,
+    type OAuthAuthorizationParams,
+    oauthAuthorizeApiService,
+    systemConfigApiService,
+    useSessionStore,
+    wrapComponentConfig,
+} from '../dependencies';
 
 type ShopwareApiError = {
     response?: {
@@ -26,10 +32,10 @@ const OPTIONAL_PARAMS = ['state', 'scope'] as const;
  * @sw-package framework
  * @private
  */
-export default Component.wrapComponentConfig({
+export default wrapComponentConfig({
     template,
 
-    inject: ['oauthAuthorizeApiService', 'systemConfigApiService'],
+    inject: [oauthAuthorizeApiService, systemConfigApiService],
 
     data(): {
         isLoading: boolean;
@@ -80,7 +86,7 @@ export default Component.wrapComponentConfig({
         },
 
         username(): string {
-            return Shopware.Store.get('session').currentUser?.username ?? '';
+            return useSessionStore().currentUser?.username ?? '';
         },
 
         clientName(): string {
@@ -100,7 +106,7 @@ export default Component.wrapComponentConfig({
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 

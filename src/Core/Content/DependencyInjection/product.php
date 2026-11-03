@@ -52,6 +52,8 @@ use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDocumentMediaTask;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDocumentMediaTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler;
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
@@ -893,6 +895,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.scheduled.task');
 
     $services->set(CleanupUnusedDownloadMediaTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(UnusedMediaPurger::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupUnusedDocumentMediaTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupUnusedDocumentMediaTaskHandler::class)
         ->args([
             service('scheduled_task.repository'),
             service('logger'),

@@ -611,6 +611,8 @@
       "errorNameRequired": "Gib einen Namen ein.",
       "errorFileRequired": "Wähle eine Datei aus.",
       "draftHint": "Änderungen werden gespeichert, wenn Du das Produkt speicherst.",
+      "removeTitle": "„{name}“ entfernen?",
+      "removeDescription": "Das Dokument wird in allen Sprachen vom Produkt entfernt. Die Datei bleibt im Medienmodul.",
       "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Bitte versuche es erneut.",
       "errorPrivateMedia": "Produktdokumente müssen öffentliche Mediendateien verwenden.",
       "errorDocumentLimit": "Du kannst bis zu {count} Dokumente pro Produkt hinzufügen.",

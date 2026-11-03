@@ -611,6 +611,8 @@
       "errorNameRequired": "Enter a name.",
       "errorFileRequired": "Select a file.",
       "draftHint": "Changes are saved when you save the product.",
+      "removeTitle": "Remove \"{name}\"?",
+      "removeDescription": "The document is removed from the product in all languages. The file stays in the Media module.",
       "errorLoadMedia": "The uploaded file could not be loaded. Please try again.",
       "errorPrivateMedia": "Product documents must use public media files.",
       "errorDocumentLimit": "You can add up to {count} documents per product.",

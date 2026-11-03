@@ -1,0 +1,47 @@
+{% block sw_product_document_remove_modal %}
+<mt-modal-root
+
+    :is-open="true"
+    @change="!$event && $emit('close')"
+>
+    <mt-modal
+        :title="$t('sw-product.documentForm.removeTitle', { name: documentTitle })"
+        width="m"
+    >
+        <div class="sw-product-document-form__remove-content">
+        {% block sw_product_document_form_remove_description %}
+            <mt-text size="xs">
+                {{ $t('sw-product.documentForm.removeDescription') }}
+            </mt-text>
+        {% endblock %}
+
+            <mt-text
+                size="xs"
+                color="color-text-secondary-default"
+            >
+                {{ $t('sw-product.documentForm.draftHint') }}
+            </mt-text>
+        </div>
+        <template #footer>
+            <div class="sw-product-document-form__remove-footer">
+                <mt-button
+                    size="small"
+                    variant="secondary"
+                    @click="$emit('close')"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+                <mt-button
+                    class="sw-product-document-form__confirm-remove"
+                    variant="critical"
+                    size="small"
+                    :disabled="!canEdit || isRemovingDocument"
+                    @click="$emit('remove')"
+                >
+                    {{ $t('global.default.remove') }}
+                </mt-button>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

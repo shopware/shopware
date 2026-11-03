@@ -216,10 +216,16 @@ class ProductSerializer extends EntitySerializer
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('name', $names));
 
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
+
         $idsByName = [];
 
-        foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $salesChannel) {
-            $idsByName[(string) $salesChannel->getName()][] = $salesChannel->getId();
+        foreach ($names as $name) {
+            foreach ($salesChannels as $salesChannel) {
+                if (mb_strtolower((string) $salesChannel->getName()) === mb_strtolower($name)) {
+                    $idsByName[$name][] = $salesChannel->getId();
+                }
+            }
         }
 
         return $idsByName;

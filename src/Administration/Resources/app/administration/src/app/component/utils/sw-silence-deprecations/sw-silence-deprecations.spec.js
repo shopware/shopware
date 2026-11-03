@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 
 let scope;
@@ -46,6 +46,19 @@ function wrapperComponent() {
             </sw-silence-deprecations>
         `,
     };
+}
+
+/**
+ * Builds a component through the twig block system, so overrides of its blocks apply like in an extension.
+ */
+async function buildWithOverride(name, template, overrideTemplate, extraComponents = {}) {
+    Shopware.Component.register(name, {
+        components: { 'sw-silence-deprecations': scope, ...components, ...extraComponents },
+        template,
+    });
+    Shopware.Component.override(name, { template: overrideTemplate });
+
+    return await Shopware.Component.build(name);
 }
 
 describe('src/app/component/utils/sw-silence-deprecations', () => {
@@ -99,6 +112,50 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
         );
 
         expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+    });
+
+    it('silences a component inside of it on a <template v-if>, also after toggling it', async () => {
+        const wrapper = mountTemplate(
+            `
+            <sw-silence-deprecations flag="V6_9_0_0">
+                <template v-if="shown">
+                    <sw-silence-deprecations-test-child />
+                </template>
+            </sw-silence-deprecations>
+        `,
+            {},
+            { shown: false },
+        );
+
+        await wrapper.setData({ shown: true });
+        await wrapper.setData({ shown: false });
+        await wrapper.setData({ shown: true });
+
+        expect(wrapper.find('.child').exists()).toBe(true);
+        expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+    });
+
+    it('silences a component with several root nodes inside of it without a warning', () => {
+        const fragment = {
+            name: 'sw-silence-deprecations-test-fragment',
+            template: '<div class="first" /><div class="second" />',
+            created() {
+                Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'sw-silence-deprecations-test-fragment is deprecated.');
+            },
+        };
+
+        const wrapper = mountTemplate(
+            `
+            <sw-silence-deprecations flag="V6_9_0_0" class="legacy">
+                <sw-silence-deprecations-test-fragment />
+            </sw-silence-deprecations>
+        `,
+            { 'sw-silence-deprecations-test-fragment': fragment },
+        );
+
+        expect(wrapper.findAll('.first, .second')).toHaveLength(2);
+        expect(wrapper.find('.legacy').exists()).toBe(false);
+        expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-fragment is deprecated.');
     });
 
     it('silences the deprecation plugin for components and props inside of it', () => {
@@ -232,6 +289,80 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
         expect(deprecations).not.toHaveTriggered('A mounted hook called a deprecated API.');
     });
 
+    describe('block overrides', () => {
+        it('silences a component an override puts into a block directly inside of it', async () => {
+            const page = await buildWithOverride(
+                'sw-silence-deprecations-test-override-direct',
+                `<sw-silence-deprecations flag="V6_9_0_0">
+                    {% block legacy_content %}<sw-silence-deprecations-test-child />{% endblock %}
+                </sw-silence-deprecations>`,
+                '{% block legacy_content %}{% parent %}<sw-silence-deprecations-test-other />{% endblock %}',
+            );
+
+            const wrapper = mount(page);
+
+            expect(wrapper.find('.child').exists()).toBe(true);
+            expect(wrapper.find('.other').exists()).toBe(true);
+            expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+            expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
+        });
+
+        it('keeps the deprecations of a component an override puts into the slot content of a component inside of it', async () => {
+            const card = { name: 'sw-silence-deprecations-test-card', template: '<div class="card"><slot /></div>' };
+            const page = await buildWithOverride(
+                'sw-silence-deprecations-test-override-slot',
+                `<sw-silence-deprecations flag="V6_9_0_0">
+                    <sw-silence-deprecations-test-card>
+                        {% block legacy_card_content %}<span />{% endblock %}
+                    </sw-silence-deprecations-test-card>
+                </sw-silence-deprecations>`,
+                '{% block legacy_card_content %}<sw-silence-deprecations-test-other />{% endblock %}',
+                { 'sw-silence-deprecations-test-card': card },
+            );
+
+            const wrapper = mount(page);
+
+            expect(wrapper.find('.card .other').exists()).toBe(true);
+            expect(deprecations).toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
+        });
+
+        it('silences a component an override puts into the own template of a component inside of it', async () => {
+            const panel = await buildWithOverride(
+                'sw-silence-deprecations-test-override-panel',
+                '<div class="panel">{% block panel_content %}<span />{% endblock %}</div>',
+                '{% block panel_content %}<sw-silence-deprecations-test-other />{% endblock %}',
+            );
+
+            const wrapper = mountTemplate(
+                `
+                <sw-silence-deprecations flag="V6_9_0_0">
+                    <sw-silence-deprecations-test-panel />
+                </sw-silence-deprecations>
+            `,
+                { 'sw-silence-deprecations-test-panel': panel },
+            );
+
+            expect(wrapper.find('.panel .other').exists()).toBe(true);
+            expect(deprecations).not.toHaveTriggered('sw-silence-deprecations-test-other is deprecated.');
+        });
+
+        it('keeps the deprecations of a component an override moves out of it', async () => {
+            const page = await buildWithOverride(
+                'sw-silence-deprecations-test-override-replace',
+                `<div>
+                    {% block legacy %}
+                        <sw-silence-deprecations flag="V6_9_0_0"><sw-silence-deprecations-test-child /></sw-silence-deprecations>
+                    {% endblock %}
+                </div>`,
+                '{% block legacy %}<sw-silence-deprecations-test-child />{% endblock %}',
+            );
+
+            mount(page);
+
+            expect(deprecations).toHaveTriggered('sw-silence-deprecations-test-child is deprecated.');
+        });
+    });
+
     it('keeps the deprecations of components outside of it', () => {
         mountTemplate(`
             <div>
@@ -311,6 +442,29 @@ describe('src/app/component/utils/sw-silence-deprecations', () => {
 
         expect(deprecations).toHaveTriggered('A click handler called a deprecated API.');
         expect(deprecations).toHaveTriggered('A watcher called a deprecated API.');
+    });
+
+    it('keeps the deprecations of code after an await', async () => {
+        const loading = {
+            name: 'sw-silence-deprecations-test-loading',
+            template: '<div />',
+            async created() {
+                await Promise.resolve();
+                Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'Code after an await called a deprecated API.');
+            },
+        };
+
+        mountTemplate(
+            `
+            <sw-silence-deprecations flag="V6_9_0_0">
+                <sw-silence-deprecations-test-loading />
+            </sw-silence-deprecations>
+        `,
+            { 'sw-silence-deprecations-test-loading': loading },
+        );
+        await flushPromises();
+
+        expect(deprecations).toHaveTriggered('Code after an await called a deprecated API.');
     });
 
     it('silences nothing and logs an error for an unknown flag', () => {

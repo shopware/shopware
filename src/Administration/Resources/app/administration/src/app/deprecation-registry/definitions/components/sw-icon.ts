@@ -2,7 +2,14 @@
  * @sw-package framework
  */
 
-import { componentMigration, missingProp, onlyAfterConversion, renameComponent, renameProp, upgradeGuide } from '../helpers';
+import {
+    booleanPropToValue,
+    componentMigration,
+    missingProp,
+    onlyAfterConversion,
+    renameComponent,
+    upgradeGuide,
+} from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-icon',
@@ -17,15 +24,15 @@ export default componentMigration({
     ],
     usage: [
         renameComponent({ from: 'sw-icon', to: 'mt-icon' }),
-        renameProp({
+        booleanPropToValue({
             from: 'small',
             to: 'size',
-            staticValue: '16px',
+            value: '16px',
         }),
-        renameProp({
+        booleanPropToValue({
             from: 'large',
             to: 'size',
-            staticValue: '32px',
+            value: '32px',
         }),
         onlyAfterConversion(
             missingProp({

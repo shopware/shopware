@@ -121,7 +121,7 @@ export type CodemodRuleStep = UsageStepBase & { kind: 'codemod-rule'; rule: stri
  * Rewrites a removed prop into something else instead of only deleting it.
  *
  * @example
- * removeProp({ prop: 'router-link', fix: 'unsafe-auto', replaceWith: routerLinkClickHandler });
+ * replaceProp({ prop: 'router-link', with: routerLinkClickHandler, fix: 'unsafe-auto' });
  */
 export type PropReplacement = {
     /** Reported instead of a fix when an object `v-bind` can hide the prop. */
@@ -134,17 +134,31 @@ export type RenamePropStep = ComponentUsageStepBase & {
     kind: 'rename-prop';
     from: string;
     to: string;
-    /** Writes the negated value, for a boolean prop whose meaning flipped (`show-icon` → `hide-icon`). */
-    invert?: boolean;
-    /** Writes this value instead of the old one, for a boolean prop replaced by a valued prop (`small` → `size="16px"`). */
-    staticValue?: string;
+};
+
+export type InvertBooleanPropStep = ComponentUsageStepBase & {
+    kind: 'invert-boolean-prop';
+    from: string;
+    to: string;
+};
+
+export type BooleanPropToValueStep = ComponentUsageStepBase & {
+    kind: 'boolean-prop-to-value';
+    from: string;
+    to: string;
+    /** The static value the replacement prop gets when the old boolean prop is set. */
+    value: string;
 };
 
 export type RemovePropStep = ComponentUsageStepBase & {
     kind: 'remove-prop';
     prop: string;
-    /** Rewrites the prop instead of deleting it. */
-    replaceWith?: PropReplacement;
+};
+
+export type ReplacePropStep = ComponentUsageStepBase & {
+    kind: 'replace-prop';
+    prop: string;
+    with: PropReplacement;
 };
 
 export type MapPropValueStep = ComponentUsageStepBase & {
@@ -233,7 +247,10 @@ export type RenameVModelArgumentStep = ComponentUsageStepBase & {
 
 export type ComponentUsageStep =
     | RenamePropStep
+    | InvertBooleanPropStep
+    | BooleanPropToValueStep
     | RemovePropStep
+    | ReplacePropStep
     | MapPropValueStep
     | MapOptionsPropKeysStep
     | MissingPropStep

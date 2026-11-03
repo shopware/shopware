@@ -9,7 +9,7 @@ import type { PropReplacement } from '../types';
  * Rewrites the `router-link` prop of a button into a `@click` handler that pushes the same route.
  *
  * @example
- * removeProp({ prop: 'router-link', fix: 'unsafe-auto', replaceWith: routerLinkClickHandler });
+ * replaceProp({ prop: 'router-link', with: routerLinkClickHandler, fix: 'unsafe-auto' });
  * // router-link="sw.dashboard.index" → @click="$router.push('sw.dashboard.index')"
  */
 export const routerLinkClickHandler: PropReplacement = {
@@ -27,7 +27,7 @@ export const routerLinkClickHandler: PropReplacement = {
  * Rewrites the `ai-badge` prop of a card into an AI badge rendered in the card's title slot.
  *
  * @example
- * removeProp({ prop: 'ai-badge', fix: 'unsafe-auto', replaceWith: aiBadgeTitleSlot });
+ * replaceProp({ prop: 'ai-badge', with: aiBadgeTitleSlot, fix: 'unsafe-auto' });
  * // :ai-badge="isAi" → <slot name="title"><sw-ai-copilot-badge v-if="isAi" /></slot>
  */
 export const aiBadgeTitleSlot: PropReplacement = {

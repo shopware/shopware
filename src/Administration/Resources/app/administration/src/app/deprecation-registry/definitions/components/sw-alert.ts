@@ -4,6 +4,7 @@
 
 import {
     componentMigration,
+    invertBooleanProp,
     mapPropValue,
     removeProp,
     removeSlot,
@@ -32,10 +33,9 @@ export default componentMigration({
         removeProp({
             prop: 'appearance',
         }),
-        renameProp({
+        invertBooleanProp({
             from: 'show-icon',
             to: 'hide-icon',
-            invert: true,
         }),
         mapPropValue({
             prop: 'variant',

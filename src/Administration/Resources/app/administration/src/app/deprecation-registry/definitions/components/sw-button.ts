@@ -6,8 +6,8 @@ import {
     componentMigration,
     mapPropValue,
     missingProp,
-    removeProp,
     renameComponent,
+    replaceProp,
     routerLinkClickHandler,
     upgradeGuide,
 } from '../helpers';
@@ -54,10 +54,10 @@ export default componentMigration({
             to: 'critical',
             addBooleanProp: 'ghost',
         }),
-        removeProp({
+        replaceProp({
             prop: 'router-link',
+            with: routerLinkClickHandler,
             fix: 'unsafe-auto',
-            replaceWith: routerLinkClickHandler,
             message:
                 'Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
         }),

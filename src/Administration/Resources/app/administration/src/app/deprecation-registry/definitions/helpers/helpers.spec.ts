@@ -2,8 +2,10 @@
  * @sw-package framework
  */
 import {
+    booleanPropToValue,
     codemodRule,
     flagSlotForManualMove,
+    invertBooleanProp,
     mapOptionsPropKeys,
     mapPropValue,
     memberCall,
@@ -24,6 +26,8 @@ import {
     renameVModelArgument,
     replaceExtension,
     replaceObjectOption,
+    replaceProp,
+    routerLinkClickHandler,
     slotToItemsProp,
     slotToProp,
     templateEventUsage,
@@ -34,7 +38,10 @@ import {
 describe('src/app/deprecation-registry/definitions/helpers', () => {
     it.each([
         ['rename-prop', 'auto', renameProp({ from: 'a', to: 'b' })],
+        ['invert-boolean-prop', 'auto', invertBooleanProp({ from: 'a', to: 'b' })],
+        ['boolean-prop-to-value', 'auto', booleanPropToValue({ from: 'a', to: 'b', value: '1' })],
         ['remove-prop', 'auto', removeProp({ prop: 'a' })],
+        ['replace-prop', 'auto', replaceProp({ prop: 'a', with: routerLinkClickHandler })],
         ['map-prop-value', 'auto', mapPropValue({ prop: 'a', from: 'b', to: 'c' })],
         ['map-options-prop-keys', 'unsafe-auto', mapOptionsPropKeys({ prop: 'options', from: { name: 'label' } })],
         ['missing-prop', 'auto', missingProp({ prop: 'a', value: 'b' })],

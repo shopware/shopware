@@ -71,6 +71,12 @@ final readonly class WebhookEventMessageHandler
         }
 
         $request = $this->webhookDeliveryService->buildRequest($message, $entry);
+        if ($request === null) {
+            $this->webhookOutboxStore->markFailed($entry, null);
+
+            return;
+        }
+
         $result = $this->webhookClient->send($request);
         $response = DeliveryResponse::from($request, $result);
 

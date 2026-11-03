@@ -6,12 +6,19 @@ const { isTestDeclaration } = require('./test-declaration');
 
 /**
  * The doc tag a test needs in each kind of spec file.
- * Pinned and public-api specs need none: they freeze today's behaviour, which nobody decided.
+ * Pinned specs need none: they freeze today's behaviour, which nobody decided.
+ * A public-api test names the member it pins, because changing that behaviour can break extensions.
  */
 const REQUIRED_TAGS = [
     {
-        file: /(^|\/)(pinned|public-api)\.spec(\/[^/]+\.spec)?\.[jt]s$/,
+        file: /(^|\/)pinned\.spec(\/[^/]+\.spec)?\.[jt]s$/,
         tag: null,
+    },
+    {
+        file: /(^|\/)public-api\.spec(\/[^/]+\.spec)?\.[jt]s$/,
+        tag: '@public-api',
+        pattern: /@public-api\s+\S/,
+        hint: 'the public member it pins; a change to it can break extensions',
     },
     {
         file: /(^|\/)requirements\.spec(\/[^/]+\.spec)?\.[jt]s$/,

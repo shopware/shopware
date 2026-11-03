@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import EntityCollection from '../../../../core/data/entity-collection.data';
+import EntityCollection from '../../../../../core/data/entity-collection.data';
 
 const createWrapper = async (privileges = []) => {
     const mockDefaultUnits = new EntityCollection(

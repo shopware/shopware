@@ -557,6 +557,7 @@ class WebhookOutboxStoreTest extends TestCase
 
         static::assertTrue($this->store->markFailed(
             new OutboxEntry(
+                webhookId: $this->ids->get('wh-1'),
                 webhookEventId: $this->ids->get('evt-1'),
                 sequence: $sequence,
                 executionCount: 1,

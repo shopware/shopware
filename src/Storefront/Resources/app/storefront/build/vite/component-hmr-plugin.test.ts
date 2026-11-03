@@ -19,8 +19,53 @@ function moduleNode(file: string, importers: EnvironmentModuleNode[] = []): Envi
     return { file, importers: new Set(importers) } as unknown as EnvironmentModuleNode;
 }
 
+/**
+ * Runs the footer with a fake `import.meta` and returns the update handler it registers.
+ */
+function runFooter(windowStub: Record<string, unknown>) {
+    let onUpdate: (module: unknown) => void = () => {};
+    const hot = {
+        accept: vi.fn((callback: (module: unknown) => void) => {
+            onUpdate = callback;
+        }),
+        invalidate: vi.fn(),
+    };
+    const footer = COMPONENT_HMR_FOOTER.split('import.meta').join('importMeta');
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval -- runs the generated module code with stubs
+    const run = new Function('importMeta', 'window', 'console', footer) as (meta: unknown, win: unknown, log: unknown) => void;
+    run({ hot, url: 'http://localhost:5173/Counter/index.ts' }, windowStub, { info: vi.fn() });
+
+    return { hot, onUpdate: (module: unknown) => onUpdate(module) };
+}
+
 describe('build/vite/component-hmr-plugin', () => {
     const plugin = componentHmrPlugin(STOREFRONT_ROOT) as unknown as Hooks;
+
+    it('hands the new class to the client and keeps the page', () => {
+        const replace = vi.fn(() => true);
+        const reload = vi.fn();
+        const { hot, onUpdate } = runFooter({ swComponentHmr: { replace }, location: { reload } });
+        const NewClass = class {};
+
+        onUpdate({ default: NewClass });
+
+        expect(replace).toHaveBeenCalledWith('http://localhost:5173/Counter/index.ts', NewClass);
+        expect(reload).not.toHaveBeenCalled();
+        expect(hot.invalidate).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['the client is missing', {}],
+        ['the client cannot swap the class', { swComponentHmr: { replace: () => false } }],
+    ])('reloads only this page if %s, so other pages keep their state', (_, client) => {
+        const reload = vi.fn();
+        const { hot, onUpdate } = runFooter({ ...client, location: { reload } });
+
+        onUpdate({ default: class {} });
+
+        expect(reload).toHaveBeenCalledOnce();
+        expect(hot.invalidate).not.toHaveBeenCalled();
+    });
 
     it('appends the HMR handler to component scripts in the browser', () => {
         expect(plugin.transform.call(createContext(), 'export default class {}', `${COMPONENT}?t=1`)).toEqual({

@@ -5,13 +5,16 @@ const COMPONENT_SCRIPT = /\/Resources\/views\/components\/.+(?<!\.d|\.test|\.spe
 
 /**
  * Accepts the update in the module and hands the new class to `src/dev/twig-hmr/component-hmr.js`.
- * Without the client, or if it cannot swap the class, the update falls back to a page reload.
+ * Without the client, or if it cannot swap the class, only this page reloads.
+ * `import.meta.hot.invalidate()` is not used: no importer accepts a component,
+ * so Vite would reload every open page, also the ones that swapped the class.
  */
 export const COMPONENT_HMR_FOOTER = `
 if (import.meta.hot) {
     import.meta.hot.accept((module) => {
         if (!window.swComponentHmr?.replace(import.meta.url, module?.default)) {
-            import.meta.hot.invalidate('[sw-component-hmr] The component could not be swapped in place.');
+            console.info('[sw-component-hmr] The component could not be swapped in place, reloading the page.');
+            window.location.reload();
         }
     });
 }

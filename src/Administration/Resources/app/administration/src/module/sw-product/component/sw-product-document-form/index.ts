@@ -37,6 +37,12 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             editingDocument: null as ProductDocument | null,
+            documentTitle: '',
+            documentEditSession: 0,
+            replacementMedia: null as Entity<'media'> | null,
+            documentFileRemoved: false,
+            isSavingDocument: false,
+            documentValidationSubmitted: false,
             uploadedMedia: {} as Record<string, Entity<'media'>>,
             // Use the epic defaults until the product-document configuration is exposed by the backend.
             allowedExtensions: [
@@ -90,6 +96,29 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
         },
 
+        editingMedia(): Entity<'media'> | undefined {
+            return (
+                this.replacementMedia ||
+                (!this.documentFileRemoved && this.editingDocument ? this.getMedia(this.editingDocument) : undefined)
+            );
+        },
+
+        canSaveDocument(): boolean {
+            return this.canEdit && !this.isSavingDocument && !!this.documentTitle.trim() && !!this.editingMedia;
+        },
+
+        documentNameError(): { code: string; detail: string } | null {
+            return this.documentValidationSubmitted && !this.documentTitle.trim()
+                ? { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: this.$t('sw-product.documentForm.errorNameRequired') }
+                : null;
+        },
+
+        documentFileError(): { code: string; detail: string } | null {
+            return this.documentValidationSubmitted && !this.editingMedia
+                ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
+                : null;
+        },
+
         documentColumns() {
             return [
                 { property: 'number', label: '#', width: '56px', align: 'center' },
@@ -123,8 +152,7 @@ export default Shopware.Component.wrapComponentConfig({
     watch: {
         product() {
             this.showUploadModal = false;
-            this.showMediaModal = false;
-            this.editingDocument = null;
+            this.closeDocumentEditor();
             this.uploadedMedia = {};
         },
     },
@@ -206,6 +234,7 @@ export default Shopware.Component.wrapComponentConfig({
         ): Promise<void> {
             const product = this.product;
             const languageId = Shopware.Context.api.languageId;
+            const editSession = this.documentEditSession;
 
             try {
                 const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
@@ -213,7 +242,10 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                if (editingDocument && editingDocument !== this.editingDocument) {
+                if (
+                    editingDocument &&
+                    (editingDocument !== this.editingDocument || editSession !== this.documentEditSession)
+                ) {
                     return;
                 }
 
@@ -258,6 +290,8 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 if (editingDocument) {
+                    this.replacementMedia = media;
+                    this.documentFileRemoved = false;
                     continue;
                 }
 
@@ -292,6 +326,47 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.documents.moveItem(oldIndex, newIndex);
             this.updatePositions();
+        },
+
+        editDocument(document: ProductDocument): void {
+            if (!this.canChangeDocuments()) {
+                return;
+            }
+
+            this.documentEditSession += 1;
+            this.editingDocument = document;
+            this.documentTitle = this.getTitle(document);
+            this.replacementMedia = null;
+            this.documentFileRemoved = false;
+            this.documentValidationSubmitted = false;
+        },
+
+        removeEditingFile(): void {
+            this.replacementMedia = null;
+            this.documentFileRemoved = true;
+        },
+
+        saveDocument(): void {
+            this.documentValidationSubmitted = true;
+            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) {
+                return;
+            }
+            const title = this.documentTitle.trim();
+            if (title !== this.getTitle(this.editingDocument).trim()) {
+                this.editingDocument.title = title;
+            }
+            if (this.replacementMedia) {
+                this.editingDocument.mediaId = this.replacementMedia.id;
+                this.uploadedMedia[this.replacementMedia.id] = this.replacementMedia;
+            }
+            this.closeDocumentEditor();
+        },
+
+        closeDocumentEditor(): void {
+            this.documentEditSession += 1;
+            this.editingDocument = null;
+            this.replacementMedia = null;
+            this.showMediaModal = false;
         },
 
         updatePositions(): void {

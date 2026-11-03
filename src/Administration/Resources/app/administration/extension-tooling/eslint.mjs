@@ -72,8 +72,9 @@ const vueParser = resolveVueParser();
  *   needs rule *options* re-declares the entries in a later config block —
  *   flat-config rule entries replace wholesale.
  * - `srcImportBoundary`: `false` disables the "never import Administration
- *   internals" rules — only sensible for the Administration itself, which IS
- *   `src`.
+ *   internals" rules and the warning on overriding, extending or building a
+ *   component that is not public — only sensible for the Administration
+ *   itself, which IS `src`.
  * - `specFiles`: `'untyped'` (default) parses spec files standalone with the
  *   type-checked rules off; `'typed'` omits that block entirely, for hosts
  *   whose tsconfig covers spec files with jest types.
@@ -217,6 +218,8 @@ export function shopwareAdminExtension(options = {}) {
             },
             rules: {
                 'plugin-rules/no-src-imports': srcImportBoundary ? 'error' : 'off',
+                // A warning: overriding a component that is not public still works, it only carries no promise.
+                'plugin-rules/no-private-components': srcImportBoundary ? 'warn' : 'off',
                 'no-restricted-imports': srcImportBoundary ? NO_ADMIN_INTERNALS_RULE : 'off',
             },
         },

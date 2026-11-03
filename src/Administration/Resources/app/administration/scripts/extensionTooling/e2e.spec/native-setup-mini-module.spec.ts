@@ -4,6 +4,7 @@
  * End-to-end proof that an extension can author a native-setup base component as a mini-module:
  * the extension check types its `index.ts`, the extension build compares `index.ts` with the SFC,
  * and a second extension types the public members it overrides.
+ * An override of a component that is not public stays untyped for an extension, and the lint warns about it.
  */
 
 import { spawnSync } from 'child_process';
@@ -92,6 +93,10 @@ function writeMiniModulePlugins(projectRoot: string): void {
         '',
         'swDefineOverride({ greeting });',
         '</script>',
+    ]);
+    write(`${THEME_ADMIN}/src/private-override.ts`, [
+        '// Not public: any configuration type-checks, and the lint warns that an update may break it.',
+        "Shopware.Component.override('sw-cms-detail', { methods: { anyMethod(): void {} } });",
     ]);
     write(`${THEME_ADMIN}/src/mm-greeting.types.ts`, [
         "import type { PublicInstance } from 'shopware:framework/public-component';",
@@ -186,6 +191,9 @@ describe('extension tooling native-setup mini-module (e2e)', () => {
                 ],
             ]);
             expect(check.exitCode).toBe(0);
+            expect(check.results[1].eslint.output).toContain(
+                "'sw-cms-detail' is not public API of the Administration: an update can change or remove it without deprecation",
+            );
         },
         CHECK_TIMEOUT,
     );

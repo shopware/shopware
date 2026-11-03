@@ -1,20 +1,25 @@
 /**
  * @sw-package framework
  */
-import { computed } from 'vue';
-import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
-import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
-import utils from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
+import {
+    computed,
+    deepCloneWithEntity,
+    ErrorResolverSystemConfig,
+    mapSystemConfigErrors,
+    notificationMixin,
+    swInlineSnippetMixin,
+    systemConfigApiService,
+    Utils,
+    utils,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
 const {
     object,
     types,
     string: { kebabCase },
-} = Shopware.Utils;
-const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
+} = Utils;
 
 /**
  * Component which automatically renders all fields for a given system_config schema. It allows the user to edit these
@@ -27,11 +32,13 @@ const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
  *      also the corresponding data.
  */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['systemConfigApiService'],
+    inject: [systemConfigApiService],
 
     /** @public */
     provide() {
@@ -42,7 +49,7 @@ export default {
 
     emits: ['loading-changed', 'config-changed'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
+    mixins: [notificationMixin, swInlineSnippetMixin],
 
     props: {
         domain: {

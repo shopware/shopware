@@ -1,8 +1,9 @@
 import template from './sw-system-config-media-upload.html.twig';
+import { Utils } from '../dependencies';
 
 /**
  * @sw-package framework
- * @private
+ * @public
  */
 export default {
     template,
@@ -37,7 +38,7 @@ export default {
 
     data() {
         return {
-            uploadTag: `sw-system-config-media-upload-${Shopware.Utils.createId()}`,
+            uploadTag: `sw-system-config-media-upload-${Utils.createId()}`,
         };
     },
 

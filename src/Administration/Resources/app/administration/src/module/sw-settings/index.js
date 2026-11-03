@@ -3,14 +3,14 @@
  */
 import './mixin/sw-settings-list.mixin';
 import './acl';
+import './component/sw-settings-item/register';
+import './component/sw-system-config/register';
+import './component/sw-system-config-media-upload/register';
+import './page/sw-settings-index/register';
 
 const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-item', () => import('./component/sw-settings-item'));
-Shopware.Component.register('sw-system-config', () => import('./component/sw-system-config'));
-Shopware.Component.register('sw-system-config-media-upload', () => import('./component/sw-system-config-media-upload'));
-Shopware.Component.register('sw-settings-index', () => import('./page/sw-settings-index'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import component from './index';
+import component from '../src/sw-system-config-media-upload';
 
 async function createWrapper(props = {}) {
     return mount(component, {

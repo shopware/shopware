@@ -4,7 +4,9 @@
 import template from './sw-settings-item.html.twig';
 import './sw-settings-item.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 

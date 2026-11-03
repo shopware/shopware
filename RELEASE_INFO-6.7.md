@@ -13,6 +13,26 @@ The error messages are unchanged.
 The PHPStan rule `NoXmlUtilsParsingRule` in the core rule set reports direct calls to `XmlUtils::parse()` and `XmlUtils::loadFile()` outside tests.
 Use `XmlParser` for XML that may come from an extension.
 `XmlParser` is public API, so extensions that parse XML from an untrusted source should use it instead of `XmlUtils` as well.
+
+### Twig templates only read the request context
+
+Twig templates can no longer call methods that change the request context or the request, such as setters.
+Reading them stays possible, for example `context.languageId`.
+Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
+
+### Aggregation identifiers and JSON paths reject comment and quote characters
+
+Aggregation names and range aggregation keys containing a single or double quote, the `--`, `/*`, or `*/` SQL comment markers, a backslash, or a semicolon are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400), in addition to the previously rejected backtick, question mark, colon, and control characters.
+JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters. From 6.8.0.0 this fails as a `FRAMEWORK__INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500). Either way the request is blocked and no data is returned.
+These characters could desynchronise PDO placeholder parsing from the database server under emulated prepares on PHP 8.2 and 8.3 leading to SQL Injection.
+
+### Store API criteria field paths are resolved per path segment
+
+Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.
+A path that uses `extensions` as a whole segment keeps working;
+a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
+Integrations that use valid field paths are unaffected.
+
 ### Content Security Policy for Storefront documents
 
 Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
@@ -67,6 +87,28 @@ Writes to other users or their access keys are rejected with `403` and `USER__US
 A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
 Administrators are unaffected.
 The user of an access key can no longer be changed after the key was created, also not by administrators.
+
+### Presigned media upload endpoints now require ACL privileges
+
+`POST /api/_action/media/presign-upload` and `POST /api/_action/media/{mediaId}/finalize-upload` now require the `media:update` privilege.
+Preparing an upload without a `mediaId`, which creates a new media entity, additionally requires `media:create`.
+Requests with tokens lacking a privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+Administration users are not affected: the "Media creator" permission already includes `media:update`.
+Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+When `finalize-upload` fails for a new media, the media and the uploaded file are only removed if the caller also holds `media:delete`.
+Otherwise the media stays without a file.
+### Integrations no longer act as the user named in `sw-app-user-id`
+
+A standard integration that sends the `sw-app-user-id` header keeps its own identity.
+The header only narrows its permissions to those of the named user.
+Writes are no longer attributed to that user: `created_by_id` stays empty and `updated_by_id` keeps its previous value.
+Naming an inactive or unknown user is rejected with a `403` and the error code `FRAMEWORK__APP_USER_NOT_FOUND`, and requests of a deactivated app are rejected as well.
+An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
+
+Routes that act on the signed-in Administration user now require a directly authenticated user and reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
+To read a user, use `GET /api/user/{id}` with `user:read`.
+To change a user, use `PATCH /api/user/{id}` with `user:update`.
+That route requires an admin integration or a directly authenticated user, because a non-admin caller may only change its own user.
 
 # 6.7.16.0 (upcoming)
 

@@ -100,14 +100,14 @@ const PRINT_WIDTH = 125;
 
 /**
  * An `export { … } from` line, split into one name per line where Prettier would split it,
- * so the generated file passes the formatting check.
+ * so the generated file passes the formatting check. Prettier keeps a single name on one line, however long.
  *
  * @example
  * namedReExport(['acl', 'feature'], 'src/app/service-names'); // → ["export { acl, feature } from 'src/app/service-names';"]
  */
 function namedReExport(names: string[], source: string): string[] {
     const line = `export { ${names.join(', ')} } from '${source}';`;
-    if (`${' '.repeat(4)}${line}`.length <= PRINT_WIDTH) {
+    if (names.length === 1 || `${' '.repeat(4)}${line}`.length <= PRINT_WIDTH) {
         return [line];
     }
 

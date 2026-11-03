@@ -171,6 +171,20 @@ describe('scripts/generate-shopware-modules', () => {
             );
         });
 
+        it('keeps a single re-exported name on one line however long, as Prettier does', () => {
+            const source = `src/module/${'sw-very-long-module-name/'.repeat(5)}sw-wide`;
+            const rendered = renderDeclarations({
+                ...registry,
+                'shopware:components': {
+                    exports: [],
+                    subpaths: { 'sw-wide': ['default'] },
+                    sources: { 'sw-wide': source },
+                },
+            });
+
+            expect(rendered).toContain(`    export { default } from '${source}';`);
+        });
+
         it('lists only the named exports recorded for a namespace subpath', () => {
             expect(declarations).toContain("declare module 'shopware:utils/debug'");
             expect(declarations).toContain("export const warn: (typeof member)['warn'];");

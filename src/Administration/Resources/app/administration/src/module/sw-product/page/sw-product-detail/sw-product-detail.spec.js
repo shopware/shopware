@@ -63,12 +63,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        {
-            featureActive = false,
-            routeName = 'sw.product.detail.base',
-            routerPush = jest.fn(),
-            systemConfigValues = defaultSalesChannelData,
-        } = {},
+        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -131,7 +126,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             Promise.resolve({
                                 'core.tax.defaultTaxRate': '',
                             }),
-                        getValues: () => Promise.resolve(systemConfigValues),
+                        getValues: () => Promise.resolve(defaultSalesChannelData),
                     },
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
@@ -704,37 +699,36 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
     });
 
-    it('should create a visibility for every default sales channel, also beyond the first 500', async () => {
+    it('should request every default sales channel by id', async () => {
         await flushPromises();
         await wrapper.unmount();
 
-        const salesChannels = Array.from({ length: 501 }, (_, index) => ({
-            id: `sales-channel-${index}`,
-            name: `Sales channel ${index}`,
-        }));
+        const searchedCriteria = [];
 
         wrapper = await createWrapper(
-            (criteria) =>
-                Promise.resolve(
-                    criteria?.ids.length
-                        ? salesChannels.filter(({ id }) => criteria.ids.includes(id))
-                        : salesChannels.slice(0, criteria?.limit),
-                ),
+            (criteria) => {
+                searchedCriteria.push(criteria);
+
+                return Promise.resolve([
+                    {
+                        id: '98432def39fc4624b33213a56b8c944d',
+                        name: 'Headless',
+                    },
+                ]);
+            },
             undefined,
             null,
-            {
-                systemConfigValues: {
-                    ...defaultSalesChannelData,
-                    'core.defaultSalesChannel.salesChannel': salesChannels.map(({ id }) => id),
-                },
-            },
         );
 
         await flushPromises();
         await flushPromises();
-        expect(
-            Shopware.Store.get('swProductDetail').product.visibilities.map(({ salesChannelId }) => salesChannelId),
-        ).toEqual(salesChannels.map(({ id }) => id));
+
+        const salesChannelCriteria = searchedCriteria.find((criteria) =>
+            criteria.ids.includes('98432def39fc4624b33213a56b8c944d'),
+        );
+
+        expect(salesChannelCriteria).toBeDefined();
+        expect(salesChannelCriteria.limit).toBeNull();
     });
 
     it('should run custom validation service and handle errors', async () => {

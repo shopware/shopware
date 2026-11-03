@@ -185,11 +185,6 @@
       "count": 10
     }
   },
-  "src/app/component/app/sw-app-shop-id-change-modal/sw-app-shop-id-change-modal.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 9
-    }
-  },
   "src/app/component/app/sw-app-topbar-button/index.js": {
     "filename-rules/not-match": {
       "count": 1
@@ -9738,9 +9733,6 @@
   "src/module/sw-product/component/sw-product-variant-modal/sw-product-variant-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 14
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/index.js": {
@@ -11698,11 +11690,6 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/sw-settings-logging-entry-info.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
   "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -12545,11 +12532,6 @@
     },
     "filename-rules/not-match": {
       "count": 1
-    }
-  },
-  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/sw-settings-shipping-price-matrix.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 25
     }
   },
   "src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost/index.js": {

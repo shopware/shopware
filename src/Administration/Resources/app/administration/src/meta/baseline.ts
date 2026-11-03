@@ -30,6 +30,7 @@ const missingTests = [
     'src/app/component/utils/sw-ignore-class/index.js',
     'src/app/component/utils/sw-upload-listener/index.js',
     'src/app/component/utils/sw-vnode-renderer/index.js',
+    'src/app/component/wizard/sw-wizard-dot-navigation/index.js',
     'src/app/decorator/index.js',
     'src/app/directive/index.ts',
     'src/app/directive/popover.directive.ts',

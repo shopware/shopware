@@ -3,8 +3,8 @@ import { MtSwitch } from '@shopware-ag/meteor-component-library';
 import useConsentStore from 'src/core/consent/consent.store';
 import SwSettingsUsageDataStoreDataConsent from '../src/sw-settings-usage-data-store-data-consent';
 
-import SwSettingsUsageDataStoreDataConsentCard from '../../../../../component/sw-settings-usage-data-consent-modal-data-provider/src/sw-settings-usage-data-consent-modal/src/subcomponents/sw-settings-usage-data-store-data-consent-card';
-import SwSettingsUsageDataConsentCheckList from '../../../../../component/sw-settings-usage-data-consent-modal-data-provider/src/sw-settings-usage-data-consent-modal/src/subcomponents/sw-settings-usage-data-consent-check-list';
+import SwSettingsUsageDataStoreDataConsentCard from '../../../../../component/sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-store-data-consent-card';
+import SwSettingsUsageDataConsentCheckList from '../../../../../component/sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
 
 describe('module/sw-settings-usage-data/component/sw-settings-usage-data-store-data-consent', () => {
     beforeEach(() => {

@@ -8,14 +8,8 @@ interface SdkLocationState {
     };
 }
 
-/**
- * @private
- * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
- */
-export const sdkLocationStoreId = 'sdkLocation';
-
 const sdkLocation = Shopware.Store.register({
-    id: sdkLocationStoreId,
+    id: 'sdkLocation',
 
     state: (): SdkLocationState => ({
         locations: {},

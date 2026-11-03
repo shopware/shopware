@@ -313,7 +313,7 @@
       "count": 1
     }
   },
-  "src/app/component/base/sw-icon-deprecated/src/sw-icon-deprecated.js": {
+  "src/app/component/base/sw-icon-deprecated/index.js": {
     "filename-rules/not-match": {
       "count": 1
     }
@@ -586,12 +586,12 @@
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-iframe-renderer/src/sw-iframe-renderer.ts": {
+  "src/app/component/extension-api/sw-iframe-renderer/index.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
-  "src/app/component/extension-api/sw-iframe-renderer/tests/sw-iframe-renderer.spec.js": {
+  "src/app/component/extension-api/sw-iframe-renderer/sw-iframe-renderer.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
@@ -905,7 +905,7 @@
       "count": 4
     }
   },
-  "src/app/component/form/sw-code-editor/src/sw-code-editor.js": {
+  "src/app/component/form/sw-code-editor/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -916,7 +916,7 @@
       "count": 2
     }
   },
-  "src/app/component/form/sw-code-editor/tests/sw-code-editor.spec.js": {
+  "src/app/component/form/sw-code-editor/sw-code-editor.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 20
     }
@@ -971,7 +971,7 @@
       "count": 51
     }
   },
-  "src/app/component/form/sw-datepicker-deprecated/src/sw-datepicker-deprecated.js": {
+  "src/app/component/form/sw-datepicker-deprecated/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -979,7 +979,7 @@
       "count": 1
     }
   },
-  "src/app/component/form/sw-datepicker-deprecated/tests/sw-datepicker-deprecated.spec.js": {
+  "src/app/component/form/sw-datepicker-deprecated/sw-datepicker-deprecated.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 8
     }
@@ -2546,7 +2546,7 @@
       "count": 1
     }
   },
-  "src/app/component/wizard/sw-wizard-dot-navigation/src/sw-wizard-dot-navigation.js": {
+  "src/app/component/wizard/sw-wizard-dot-navigation/index.js": {
     "filename-rules/not-match": {
       "count": 1
     }

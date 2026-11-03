@@ -74,7 +74,8 @@ a name in `public` the component doesn't have is a type error.
 `global.d.ts` next to `index.ts` adds the component to the global `PublicComponents` interface, so `Shopware.Component.override()` on that name may replace public members only, and `this.$super()` takes public names only.
 Extensions see these types through `extension-tooling/mini-modules.d.ts`, which imports every `global.d.ts`; a spec fails when one is missing there.
 
-Extensions import a mini-module as `shopware:<kind>/<directory name>`, so a component module's directory carries the component name.
+Extensions import a component module as `shopware:components/<component name>`, and any other mini-module as `shopware:<kind>/<directory name>`.
+A CMS element keeps its `component/`, `config/` or `preview/` directory, because its name says which one it is.
 A component module is of the kind `components`.
 Any other mini-module names its kind with `@shopware-kind <kind>` in the doc comment of its `index.ts` exports, and the generator fails without one:
 
@@ -141,7 +142,7 @@ It is not published as `shopware:components/<name>` and has no code owner entry.
 `npm run codemod:mini-module -- <component directory>` does the mechanical part of moving an Options API component into a mini-module,
 whether it is registered, extends another component, or is imported by its parent.
 A component its parent imports moves nested into the parent's module; while the parent is no mini-module yet, the codemod skips it.
-A component whose registration is marked `@private` becomes a registered private module.
+A component whose registration, or the doc comment of its own default export, is marked `@private` becomes a registered private module.
 It takes the code owner from what `.codeowners` already says about the directory, at the same level, and never guesses one.
 It writes `dependencies.ts` and routes `src/` through it where that cannot change behaviour:
 injected service names, mixins, stores, filters, services, the context, feature flags, component helpers,

@@ -50,6 +50,41 @@ const statementRange = (source: ts.SourceFile, statement: ts.Statement) => {
 const expressionStatements = (node: ts.Node): ts.ExpressionStatement[] =>
     ts.isExpressionStatement(node) ? [node] : node.getChildren().flatMap((child) => expressionStatements(child));
 
+/** Every statement of a file that registers or extends a component by its name with a lazy import, with that name. */
+function findRegistrations(code: string): (Registration & { name: string })[] {
+    const source = ts.createSourceFile('registration.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+
+    return expressionStatements(source).flatMap((statement) => {
+        if (!ts.isCallExpression(statement.expression)) {
+            return [];
+        }
+
+        const call = statement.expression;
+        const kind = CALLEES[call.expression.getText(source)];
+        const [componentName, ...rest] = call.arguments;
+        if (!kind || !componentName || !ts.isStringLiteral(componentName)) {
+            return [];
+        }
+
+        const base = kind === 'extend' ? rest.shift() : undefined;
+        const specifier = readLazyImport(rest[0]);
+        if (!specifier || (kind === 'extend' && !(base && ts.isStringLiteral(base)))) {
+            return [];
+        }
+
+        const range = statementRange(source, statement);
+        const isPrivate = /@private\b/.test(source.text.slice(range.start, statement.getStart(source)));
+        const name = componentName.text;
+        return [
+            kind === 'extend'
+                ? { kind, base: (base as ts.StringLiteral).text, specifier, isPrivate, name, ...range }
+                : { kind, specifier, isPrivate, name, ...range },
+        ];
+    });
+}
+
+const withoutName = ({ name, ...registration }: Registration & { name: string }): Registration => registration;
+
 /**
  * Finds the statement that registers or extends the named component with a lazy import, written on
  * one line or spread over several.
@@ -60,38 +95,29 @@ const expressionStatements = (node: ts.Node): ts.ExpressionStatement[] =>
  * // → { kind: 'extend', base: 'sw-a', specifier: './b', isPrivate: false, start: 0, end: 63 }
  */
 export function findRegistration(code: string, name: string): Registration | null {
-    const source = ts.createSourceFile('registration.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-
-    for (const statement of expressionStatements(source)) {
-        if (!ts.isCallExpression(statement.expression)) {
-            continue;
-        }
-
-        const call = statement.expression;
-        const kind = CALLEES[call.expression.getText(source)];
-        const [componentName, ...rest] = call.arguments;
-        if (!kind || !componentName || !ts.isStringLiteral(componentName) || componentName.text !== name) {
-            continue;
-        }
-
-        const base = kind === 'extend' ? rest.shift() : undefined;
-        const specifier = readLazyImport(rest[0]);
-        if (!specifier || (kind === 'extend' && !(base && ts.isStringLiteral(base)))) {
-            continue;
-        }
-
-        const range = statementRange(source, statement);
-        const isPrivate = /@private\b/.test(source.text.slice(range.start, statement.getStart(source)));
-        return kind === 'extend'
-            ? { kind, base: (base as ts.StringLiteral).text, specifier, isPrivate, ...range }
-            : { kind, specifier, isPrivate, ...range };
-    }
-
-    return null;
+    const found = findRegistrations(code).find((registration) => registration.name === name);
+    return found ? withoutName(found) : null;
 }
 
 /**
- * Finds the static imports of a file whose path `matches` accepts, so a caller can point them somewhere else.
+ * Finds the statement whose lazy import `leadsHere` accepts, and the name it registers the component under,
+ * for a directory not named after its component, such as the `component/` of a CMS element.
+ *
+ * @example
+ * findRegistrationByPath("Shopware.Component.register('sw-cms-el-text', () => import('./component'));\n", (s) => s === './component');
+ * // → { name: 'sw-cms-el-text', registration: { kind: 'register', specifier: './component', … } }
+ */
+export function findRegistrationByPath(
+    code: string,
+    leadsHere: (specifier: string) => boolean,
+): { name: string; registration: Registration } | null {
+    const found = findRegistrations(code).find((registration) => leadsHere(registration.specifier));
+    return found ? { name: found.name, registration: withoutName(found) } : null;
+}
+
+/**
+ * Finds the static imports and `export … from` re-exports of a file whose path `matches` accepts,
+ * so a caller can point them somewhere else.
  * `start` and `end` span the path inside its quotes, `lineStart` is where the import's line begins.
  *
  * @example
@@ -105,7 +131,8 @@ export function findImports(
     const source = ts.createSourceFile('importer.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 
     return source.statements.flatMap((statement) => {
-        if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+        const isImportOrReexport = ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement);
+        if (!isImportOrReexport || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) {
             return [];
         }
 

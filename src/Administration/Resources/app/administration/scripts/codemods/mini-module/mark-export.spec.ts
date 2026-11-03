@@ -1,4 +1,4 @@
-import { markExport } from './mark-export';
+import { isDocumentedPrivate, markExport } from './mark-export';
 
 describe('markExport', () => {
     it('adds @public to the doc comment of the export and drops the suppression', () => {
@@ -68,6 +68,29 @@ export default { template };
         expect(marked).toEqual([
             '/**\n * @private\n */\nexport default {};\n',
             '/**\n * @private\n */\nexport default {};\n',
+        ]);
+    });
+});
+
+describe('isDocumentedPrivate', () => {
+    it('reads @private from the doc comment of the default export, also with a reason after it', () => {
+        // ARRANGE
+        const sources = [
+            '/**\n * @sw-package after-sales\n *\n * @private might get removed\n */\nexport default Shopware.Component.wrapComponentConfig({});\n',
+            '/**\n * @private\n */\n// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations\nexport default {};\n',
+            '/**\n * @private\n * @sw-package framework\n */\nimport template from "./x.html.twig";\n\n/**\n * @public\n */\nexport default { template };\n',
+            '// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations\nexport default {};\n',
+        ];
+
+        // ACT
+        const results = sources.map(isDocumentedPrivate);
+
+        // ASSERT
+        expect(results).toEqual([
+            true,
+            true,
+            false,
+            false,
         ]);
     });
 });

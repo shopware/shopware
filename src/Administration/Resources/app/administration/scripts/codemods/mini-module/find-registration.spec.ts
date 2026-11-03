@@ -1,4 +1,4 @@
-import { findImports, findRegistration } from './find-registration';
+import { findImports, findRegistration, findRegistrationByPath } from './find-registration';
 
 describe('findRegistration', () => {
     it('finds a registration on one line', () => {
@@ -116,5 +116,34 @@ import Card from '../../component/sw-card';
         // ASSERT
         expect(imports).toEqual([{ specifier: '../../component/sw-card', start: 39, end: 62, lineStart: 21 }]);
         expect(source.slice(imports[0].start, imports[0].end)).toBe('../../component/sw-card');
+    });
+});
+
+describe('findRegistrationByPath', () => {
+    it('finds the name a directory not named after its component is registered under', () => {
+        // ARRANGE
+        const source = `Shopware.Component.register('sw-cms-el-preview-text', () => import('./preview'));
+Shopware.Component.register('sw-cms-el-text', () => import('./component'));
+`;
+
+        // ACT
+        const found = findRegistrationByPath(source, (specifier) => specifier === './component');
+
+        // ASSERT
+        expect(found?.name).toBe('sw-cms-el-text');
+        expect(found?.registration).toMatchObject({ kind: 'register', specifier: './component', isPrivate: false });
+    });
+});
+
+describe('findImports', () => {
+    it('finds a re-export in the dependencies.ts of a migrated parent', () => {
+        // ARRANGE
+        const source = "/** @private */\nexport { default as SwHero } from '../../component/sw-hero';\n";
+
+        // ACT
+        const imports = findImports(source, (specifier) => specifier.endsWith('sw-hero'));
+
+        // ASSERT
+        expect(imports.map(({ specifier }) => specifier)).toEqual(['../../component/sw-hero']);
     });
 });

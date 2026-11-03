@@ -83,8 +83,12 @@ describe('extension-tooling type surface', () => {
 
         expect(miniModules.length).toBeGreaterThan(0);
 
+        // A component module is published under the component's name, any other module under its directory.
+        const publishedName = (dir: string) =>
+            /definePublicComponent\(\{\s*name: '([^']+)'/.exec(fs.readFileSync(path.join(dir, 'index.ts'), 'utf8'))?.[1] ??
+            path.basename(dir);
         const notDeclared = miniModules.filter(
-            (dir) => !new RegExp(`declare module 'shopware:[a-z]+/${path.basename(dir)}'`).test(declarations),
+            (dir) => !new RegExp(`declare module 'shopware:[a-z]+/${publishedName(dir)}'`).test(declarations),
         );
 
         expect(notDeclared).toEqual([]);

@@ -3,6 +3,7 @@
  * @private
  */
 
+import ts from 'typescript';
 import { isWritten } from '../global-uses';
 import type { UseRewrite } from '../model';
 import { prefixNode, replaceNode } from './helpers';
@@ -21,25 +22,51 @@ const STATIC_ROOTS = new Set([
 ]);
 
 /**
- * `Shopware.Data.Criteria`, `Shopware.Utils.format.fileSize` and the like become imports of the module that holds
- * the same value, as deep along the path as an export reaches. A call keeps the object it was called on,
- * unless the function never reads `this`.
+ * `Shopware.Data.Criteria` and the other classes and objects of the global become imports of the module that
+ * holds the same value, as deep along the path as an export reaches.
+ * A function becomes a function in dependencies.ts that calls it through the global, so a spy or a replacement
+ * on the global still applies, and the call keeps the object it was called on.
  *
  * @example
  * // const { Criteria } = Shopware.Data; … new Criteria(1, 25)
  * // → new Criteria(1, 25)
  * // dependencies.ts: export { default as Criteria } from 'src/core/data/criteria.data';
+ * // Shopware.Utils.format.localeName(locale)
+ * // → localeName(locale)
+ * // dependencies.ts: export const localeName = (...args: Parameters<typeof Shopware.Utils.format.localeName>) =>
+ * //     Shopware.Utils.format.localeName(...args);
  */
 export const rewriteGlobalPath: UseRewrite = (use, context) => {
     if (!STATIC_ROOTS.has(use.path[0])) {
         return null;
     }
 
-    const isCallee = !!use.call;
-    const source = context.index.resolveGlobal(use.path, isCallee);
+    const source = context.index.resolveGlobal(use.path);
     const node = source && prefixNode(use, source.consumed);
     if (!source || !node || (source.consumed === use.path.length && isWritten(use.node)) || !context.isFree(source.name)) {
         return null;
+    }
+
+    // A value from a package may be a function or a class: a call is reached through the global, `new` imports
+    // it, and anything else needs judgement.
+    const isNew = ts.isNewExpression(node.parent) && node.parent.expression === node;
+    const asFunction =
+        source.kind === 'function' || (source.fromPackage && !!use.call && source.consumed === use.path.length);
+    if (source.kind === 'import' && source.fromPackage && source.consumed === use.path.length && !use.call && !isNew) {
+        return null;
+    }
+
+    if (asFunction) {
+        const global = `Shopware.${use.path.slice(0, source.consumed).join('.')}`;
+        return replaceNode(node, context, source.name, [
+            {
+                kind: 'accessor',
+                name: source.name,
+                order: 5,
+                body: `(...args: Parameters<typeof ${global}>) => ${global}(...args)`,
+                imports: [],
+            },
+        ]);
     }
 
     return replaceNode(node, context, source.name, [

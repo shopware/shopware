@@ -8,14 +8,24 @@ import { renderDependencies } from './render-dependencies';
 import { DependencyRegistry, routeFile } from './route-file';
 
 const GLOBALS: Record<string, GlobalSource> = {
-    'Data.Criteria': { module: 'src/core/data/criteria.data', imported: 'default', name: 'Criteria', consumed: 2 },
-    'Utils.format.fileSize': {
-        module: 'src/core/service/utils/format.utils',
-        imported: 'fileSize',
-        name: 'fileSize',
-        consumed: 3,
+    'Data.Criteria': {
+        kind: 'import',
+        module: 'src/core/data/criteria.data',
+        imported: 'default',
+        name: 'Criteria',
+        consumed: 2,
+        fromPackage: true,
     },
-    Utils: { module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
+    'Utils.format.fileSize': { kind: 'function', name: 'fileSize', consumed: 3 },
+    'Utils.debounce': {
+        kind: 'import',
+        module: 'lodash-es/debounce',
+        imported: 'default',
+        name: 'debounce',
+        consumed: 2,
+        fromPackage: true,
+    },
+    Utils: { kind: 'import', module: 'src/core/service/util.service', imported: 'default', name: 'Utils', consumed: 1 },
 };
 
 /**
@@ -34,6 +44,7 @@ export const fakeIndex: AdminIndex = {
     typing: (container, name) => (container === 'ServiceContainer' && name === 'filterService' ? 'any' : 'typed'),
     findMixin: (name) =>
         ({ notification: 'src/app/mixin/notification.mixin', placeholder: 'src/app/mixin/placeholder.mixin' })[name] ?? null,
+    isModuleLocalMixin: (name) => name === 'sw-settings-list',
     findStore: (id) =>
         ({
             swProductDetail: { module: '../../page/sw-product-detail/store', file: '/admin/store.ts', exportName: null },

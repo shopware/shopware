@@ -18,9 +18,12 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractComponentApi, mergeComponentApi, readDeclaredApi, type ComponentApi } from './extract-component-api';
-import { findImports, findRegistration } from './find-registration';
-import { markExport } from './mark-export';
+import { findImports, findRegistration, findRegistrationByPath } from './find-registration';
+import { isDocumentedPrivate, markExport } from './mark-export';
 import { dropBaseImport } from './drop-base-import';
+import { dropUntestedFiles } from './drop-untested-baseline';
+import { findLocalMixins } from './find-local-mixins';
+import { dropComponentReexport, exportDefineAsyncComponent, mountNested } from './nest-through-dependencies';
 import {
     CODEOWNERS_FILE,
     expectedCodeowners,
@@ -32,6 +35,7 @@ import {
 import { isPrivateShape, renderGlobalTypes, renderIndex, renderPrivate, renderRegister, type Shape } from './render';
 import { createAdminIndex } from './dependencies/admin-index';
 import { routeModule, type RoutedModule } from './dependencies/route-module';
+import type { AdminIndex } from './dependencies/model';
 
 const adminRoot = path.resolve(__dirname, '../../..');
 const relative = (file: string) => path.relative(adminRoot, file).split(path.sep).join('/');
@@ -70,6 +74,29 @@ const locateRegistration = (name: string) => {
     }
 
     return null;
+};
+
+/**
+ * The name of the component in a directory: the directory's name, or, for a directory that is not named after
+ * its component such as the `component/` of a CMS element, the name its lazy registration gives it.
+ */
+const readComponentName = (componentDirectory: string) => {
+    const directoryName = path.basename(componentDirectory);
+    if (fs.existsSync(path.join(componentDirectory, `${directoryName}.html.twig`)) || locateRegistration(directoryName)) {
+        return directoryName;
+    }
+
+    for (const file of sourceFiles(`${directoryName}'`)) {
+        const absolute = path.join(adminRoot, file);
+        const found = findRegistrationByPath(fs.readFileSync(absolute, 'utf8'), (specifier) =>
+            leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
+        );
+        if (found) {
+            return found.name;
+        }
+    }
+
+    return directoryName;
 };
 
 /** The directory of a component that is already a mini-module, found by the name its index.ts declares. */
@@ -161,20 +188,27 @@ const movedPath = (moves: Map<string, string>, target: string) => {
 /**
  * Rewrites the relative imports of a moved file, so they still reach their target from the file's new place,
  * also when the target moved: a spec in tests/ that imported './index' now imports '../src/<name>'.
+ * An import through the `src/…` alias stays one, and changes only when its target moved.
  * It covers `from`, bare side-effect imports, `import()`, `require()` and `jest.mock()`.
  *
  * @example
  * // src/sw-x.js was index.js: '../../service/a.service' → '../../../service/a.service'
+ * // tests/sw-x.spec.js: 'src/app/component/sw-x/sw-x.helper' → 'src/app/component/sw-x/src/sw-x.helper'
  */
 const rewriteMovedImports = (moves: Map<string, string>, from: string, to: string) => {
     const file = path.join(adminRoot, to);
     const source = fs.readFileSync(file, 'utf8');
     const rewritten = source.replace(
-        /((?:from|import\(|import|require\(|jest\.mock\()\s*')(\.\.?\/[^']+)'/g,
+        /((?:from|import\(|import|require\(|jest\.mock\()\s*')((?:\.\.?\/|src\/)[^']+)'/g,
         (statement, prefix: string, specifier: string) => {
-            const target = relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
+            const isAlias = specifier.startsWith('src/');
+            const target = isAlias ? specifier : relative(path.resolve(path.dirname(path.join(adminRoot, from)), specifier));
             const moved = movedPath(moves, target);
             const written = SCRIPT_EXTENSION.test(specifier) ? moved : moved.replace(SCRIPT_EXTENSION, '');
+
+            if (isAlias) {
+                return moved === target ? statement : `${prefix}${written}'`;
+            }
 
             return `${prefix}${importPath(file, path.join(adminRoot, written))}'`;
         },
@@ -192,7 +226,7 @@ const leadsToEntry = (componentDirectory: string, fromDirectory: string, specifi
 };
 
 /**
- * The mini-module whose `src/` holds a file, or null: the directory with an `index.ts` or a `private.ts`,
+ * The mini-module whose `src/` or dependencies.ts holds a file, or null: the directory with an `index.ts` or a `private.ts`,
  * a `src/` and a `tests/`, as `eslint-rules/core-rules/mini-module.js` defines it.
  */
 const findEnclosingModule = (file: string) => {
@@ -203,7 +237,7 @@ const findEnclosingModule = (file: string) => {
             ['src', 'tests'].every((folder) => fs.existsSync(path.join(absolute, folder)));
 
         if (isMiniModule) {
-            return file.startsWith(`${directory}/src/`) ? directory : null;
+            return file.startsWith(`${directory}/src/`) || file === `${directory}/dependencies.ts` ? directory : null;
         }
     }
 
@@ -257,23 +291,157 @@ const moveSuppressions = (moves: Map<string, string>) => {
     fs.writeFileSync(file, JSON.stringify(sorted, null, 2));
 };
 
+/** The script files of a module's own `src/`, without specs and without the nested modules in it. */
+const moduleSourceFiles = (moduleRoot: string): string[] => {
+    const walk = (directory: string): string[] =>
+        fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+            const file = path.join(directory, entry.name);
+            if (entry.isDirectory()) {
+                return fs.existsSync(path.join(file, 'private.ts')) || fs.existsSync(path.join(file, 'index.ts'))
+                    ? []
+                    : walk(file);
+            }
+
+            return /\.[jt]s$/.test(entry.name) && !/\.(spec|d)\.[jt]s$/.test(entry.name) ? [file] : [];
+        });
+
+    return walk(path.join(adminRoot, moduleRoot, 'src'));
+};
+
+/**
+ * The new content of each file of the parent module that reaches a nested component through its dependencies.ts:
+ * dependencies.ts no longer re-exports it, and `src/` mounts it from its private.ts with `defineAsyncComponent`.
+ * Returns a string that says why when that is not safe, so the codemod moves nothing.
+ */
+const planNestingThroughDependencies = (
+    importers: ReturnType<typeof findImporters>,
+    componentDirectory: string,
+    parent: string,
+    name: string,
+): Map<string, string> | string => {
+    const planned = new Map<string, string>();
+    const dependencies = importers.filter(({ file }) => file === `${parent}/dependencies.ts`);
+    for (const { file } of dependencies) {
+        const absolute = path.join(adminRoot, file);
+        const dropped = dropComponentReexport(fs.readFileSync(absolute, 'utf8'), (specifier) =>
+            leadsToEntry(componentDirectory, path.dirname(absolute), specifier),
+        );
+        if (!dropped) {
+            return `${file} re-exports more of ${name} than its component, so the codemod cannot nest it: move it by hand.`;
+        }
+
+        planned.set(absolute, exportDefineAsyncComponent(dropped.code));
+        for (const source of moduleSourceFiles(parent)) {
+            const privatePath = importPath(source, path.join(adminRoot, parent, 'src', name, 'private'));
+            const code = dropped.names.reduce<string | null>(
+                (current, local) => (current === null ? null : mountNested(current, local, privatePath)),
+                planned.get(source) ?? fs.readFileSync(source, 'utf8'),
+            );
+            if (code === null) {
+                return `${relative(source)} uses ${name} outside its components, so the codemod cannot mount it lazily: move it by hand.`;
+            }
+
+            planned.set(source, code);
+        }
+    }
+
+    return planned;
+};
+
+/** The script files below a directory, as absolute paths. */
+const scriptFilesBelow = (directory: string) =>
+    fs
+        .readdirSync(directory, { recursive: true, encoding: 'utf8' })
+        .filter((file) => SCRIPT_EXTENSION.test(file))
+        .map((file) => path.join(directory, file));
+
+/** Whether an import path, written in a file of the given directory, leads to the file. */
+const leadsToFile = (fromDirectory: string, specifier: string, file: string) => {
+    if (!specifier.startsWith('.') && !specifier.startsWith('src/')) {
+        return false;
+    }
+
+    const target = resolveSpecifier(fromDirectory, specifier);
+    const withoutExtension = file.replace(SCRIPT_EXTENSION, '');
+    return [file, withoutExtension].includes(target) || `${target}/index` === withoutExtension;
+};
+
+/** The script files of src/ and test/ that contain the text, also specs. */
+const filesMentioning = (text: string) => {
+    try {
+        return git('grep', '-lF', text, '--', 'src/**/*.js', 'src/**/*.ts', 'test/**/*.js', 'test/**/*.ts')
+            .split('\n')
+            .filter(Boolean);
+    } catch (error) {
+        if ((error as { status?: number }).status === 1) {
+            return [];
+        }
+
+        throw error;
+    }
+};
+
+/**
+ * Why the component cannot move yet, or null: a file in its directory besides the component, such as a store,
+ * that code outside the directory imports would break, and a mixin only the registry reaches cannot be imported.
+ */
+const findBlocker = (componentDirectory: string, entry: string, index: AdminIndex): string | null => {
+    const files = scriptFilesBelow(componentDirectory).filter(
+        (file) => file !== path.join(componentDirectory, entry) && !/\.spec\.[jt]s$|\.spec\//.test(file),
+    );
+
+    for (const file of files) {
+        const importers = filesMentioning(path.basename(file).replace(SCRIPT_EXTENSION, ''))
+            .filter((importer) => !path.join(adminRoot, importer).startsWith(`${componentDirectory}${path.sep}`))
+            .filter((importer) => {
+                const absolute = path.join(adminRoot, importer);
+                return (
+                    findImports(fs.readFileSync(absolute, 'utf8'), (specifier) =>
+                        leadsToFile(path.dirname(absolute), specifier, file),
+                    ).length > 0
+                );
+            });
+
+        if (importers.length > 0) {
+            return `${relative(componentDirectory)} is not moved: the shared file ${relative(file)} is imported by ${importers.join(', ')}.
+Extract it into its own module first.`;
+        }
+    }
+
+    const localMixins = [
+        ...new Set(
+            scriptFilesBelow(componentDirectory)
+                .filter((file) => !/\.spec\.[jt]s$|\.spec\//.test(file))
+                .flatMap((file) => findLocalMixins(fs.readFileSync(file, 'utf8'), index.isModuleLocalMixin)),
+        ),
+    ];
+
+    return localMixins.length > 0
+        ? `${relative(componentDirectory)} is not moved: it uses the module-local mixin ${localMixins.join(', ')}.
+It moves after the mixin gets its own module.`
+        : null;
+};
+
 type Reading = {
     shape: Shape;
     registration: ReturnType<typeof locateRegistration>;
     importers: ReturnType<typeof findImporters>;
+    nesting?: Map<string, string>;
 };
 
 /**
  * How the component reaches the page today: the statement that registers or extends it, or, without one,
  * the parent that imports it. A string says why the component cannot move yet.
+ * A component is private when its registration or the doc comment of its own default export says `@private`.
  */
-const readShape = (componentDirectory: string, name: string): Reading | string => {
+const readShape = (componentDirectory: string, name: string, componentSource: string): Reading | string => {
     const registration = locateRegistration(name);
     if (registration) {
+        const isPrivate = registration.registration.isPrivate || isDocumentedPrivate(componentSource);
         const shape: Shape =
             registration.registration.kind === 'extend'
-                ? { kind: 'extend', base: registration.registration.base, isPrivate: registration.registration.isPrivate }
-                : { kind: 'register', isPrivate: registration.registration.isPrivate };
+                ? { kind: 'extend', base: registration.registration.base, isPrivate }
+                : { kind: 'register', isPrivate };
 
         return { shape, registration, importers: [] };
     }
@@ -290,12 +458,17 @@ const readShape = (componentDirectory: string, name: string): Reading | string =
 It moves with ${files} when the parent is migrated: run the codemod on the parent first, then on ${name} again.`;
     }
 
-    return { shape: { kind: 'nested', parent: parents[0] }, registration, importers };
+    const nesting = planNestingThroughDependencies(importers, componentDirectory, parents[0], name);
+    if (typeof nesting === 'string') {
+        return nesting;
+    }
+
+    return { shape: { kind: 'nested', parent: parents[0] }, registration, importers, nesting };
 };
 
 function run(directory: string) {
     const componentDirectory = path.resolve(adminRoot, directory);
-    const name = path.basename(componentDirectory);
+    const name = readComponentName(componentDirectory);
     const origin = relative(componentDirectory);
 
     if (git('status', '--porcelain', '--', origin).trim()) {
@@ -304,15 +477,22 @@ function run(directory: string) {
 
     const { entry, componentSource, templateSource } = readComponentSource(componentDirectory, name);
     const packageName = /@sw-package (\S+)/.exec(componentSource)?.[1] ?? 'framework';
-    const reading = readShape(componentDirectory, name);
+    const reading = readShape(componentDirectory, name, componentSource);
     if (typeof reading === 'string') {
         console.log(reading);
         return;
     }
 
-    const { shape, registration, importers } = reading;
+    const { shape, registration, importers, nesting } = reading;
     const root = shape.kind === 'nested' ? `${shape.parent}/src/${name}` : origin;
     const moduleDirectory = path.join(adminRoot, root);
+    const adminIndex = createAdminIndex(adminRoot, moduleDirectory);
+    const blocker = findBlocker(componentDirectory, entry, adminIndex);
+    if (blocker) {
+        console.log(blocker);
+        return;
+    }
+
     const ownApi = extractComponentApi(componentSource, templateSource);
     const api = shape.kind === 'extend' ? mergeComponentApi(ownApi, readInheritedApi(shape.base)) : ownApi;
     const target = { name, packageName, shape };
@@ -338,8 +518,22 @@ function run(directory: string) {
     for (const [from, to] of moves) {
         if (SCRIPT_EXTENSION.test(to)) {
             rewriteMovedImports(moves, from, to);
+        } else if (fs.statSync(path.join(adminRoot, to)).isDirectory()) {
+            // A spec split into a directory, such as `sw-x.spec/`, moved with every file in it.
+            fs.readdirSync(path.join(adminRoot, to), { recursive: true, encoding: 'utf8' })
+                .filter((file) => SCRIPT_EXTENSION.test(file))
+                .forEach((file) => rewriteMovedImports(moves, `${from}/${file}`, `${to}/${file}`));
         }
     }
+
+    // Specs elsewhere, such as a parent's, may import the moved files: point them at the new places.
+    const outsideSpecs = sourceFiles(path.basename(origin)).filter(
+        (file) => /\.spec\.[jt]s$/.test(file) && !file.startsWith(`${origin}/`) && !file.startsWith(`${root}/`),
+    );
+    outsideSpecs.forEach((file) => rewriteMovedImports(moves, file, file));
+
+    const baseline = path.join(adminRoot, 'src/meta/baseline.ts');
+    fs.writeFileSync(baseline, dropUntestedFiles(fs.readFileSync(baseline, 'utf8'), [...moves.keys()]));
 
     const sourceFile = path.join(adminRoot, root, 'src', `${name}${path.extname(entry)}`);
     const source = markExport(fs.readFileSync(sourceFile, 'utf8'), isPrivateShape(shape) ? '@private' : '@public');
@@ -361,7 +555,11 @@ function run(directory: string) {
         return [`${root}/${file}`];
     });
 
-    const changed = registration ? [replaceRegistration(registration)] : importThroughPrivate(importers, root);
+    nesting?.forEach((code, file) => fs.writeFileSync(file, code));
+    const sourceImporters = importers.filter(({ file }) => !file.endsWith('/dependencies.ts'));
+    const changed = registration
+        ? [replaceRegistration(registration)]
+        : [...importThroughPrivate(sourceImporters, root), ...[...(nesting?.keys() ?? [])].map(relative)];
 
     if (entryFiles['global.d.ts'] !== null && !isPrivateShape(shape)) {
         const miniModuleTypes = path.join(adminRoot, 'extension-tooling', 'mini-modules.d.ts');
@@ -378,7 +576,7 @@ function run(directory: string) {
         moduleRoot: moduleDirectory,
         name,
         packageName,
-        index: createAdminIndex(adminRoot, moduleDirectory),
+        index: adminIndex,
     });
     execFileSync(
         path.join(adminRoot, 'node_modules', '.bin', 'prettier'),
@@ -457,7 +655,7 @@ const describeOutsideEdits = ({ outside }: RoutedModule) => {
 const describeShape = (name: string, shape: Shape) => {
     const privateNote =
         shape.kind !== 'nested' && shape.isPrivate
-            ? `${name} is registered @private, so it is a private module: private.ts declares it with definePrivateComponent(),
+            ? `${name} is marked @private, so it is a private module: private.ts declares it with definePrivateComponent(),
 and global.d.ts adds it to PrivateComponents, which types Component.override() inside the Administration only.
 It is not published to extensions and has no code owner entry.
 `
@@ -479,8 +677,9 @@ TypeScript cannot check inherited names; the meta test src/meta/public-component
 ${name} is no global component, so it is now a private module in the src/ of ${shape.parent}, the module that mounts it.
 private.ts declares it with definePrivateComponent(), and its lists hold only what the parent uses.
 It has no index.ts, register.ts or global.d.ts, and needs no code owner: changes to it go through the parent's module.
-The parent now imports the declaration, so mount it lazily in its components until the page works again:
+Where the parent reached it through its dependencies.ts, the codemod mounts it already:
    SwExample: defineAsyncComponent(SwExample.load), with defineAsyncComponent from the parent's dependencies.ts.
+Where the parent imported it directly, it now imports the declaration: mount it the same way until the page works again.
    A template ref of the parent is typed with PrivateInstance<typeof SwExample>.
 `;
     }

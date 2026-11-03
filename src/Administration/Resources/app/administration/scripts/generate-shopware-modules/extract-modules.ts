@@ -76,8 +76,8 @@
  *
  *     → shopware:framework/service-names  named exports { repositoryFactory }
  *
- * The subpath is the name of the module directory. A component module's directory carries the component
- * name already, and a helper module such as `order-delivery` has no other name.
+ * The subpath of a component module is the name it declares, so a CMS element in `component/` publishes
+ * as `sw-cms-el-text`. Any other module has no other name than its directory, such as `order-delivery`.
  *
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */
@@ -493,11 +493,10 @@ function moduleKind(sourceFile: ts.SourceFile, moduleDir: string, isComponent: b
 /**
  * @private
  *
- * The `shopware:<kind>` families: one family per kind, with one subpath per mini-module, named after its
- * directory. Every kind has a family, even one no module uses yet.
+ * The `shopware:<kind>` families: one family per kind, with one subpath per mini-module, named after the
+ * component it declares, or else after its directory. Every kind has a family, even one no module uses yet.
  *
- * Throws when two modules share a directory name, because they would be easy to confuse, and when a
- * component module's directory is not named after its component, because the specifier would mislead.
+ * Throws when two modules share a name, because one specifier would reach both.
  */
 export function extractPublicModules(administrationRoot: string): ModuleRegistry {
     const families = Object.fromEntries(
@@ -509,17 +508,13 @@ export function extractPublicModules(administrationRoot: string): ModuleRegistry
     const seen: Record<string, string> = {};
 
     findMiniModules(administrationRoot).forEach((moduleDir) => {
-        const name = path.posix.basename(moduleDir);
         const indexFile = `${moduleDir}/index.ts`;
         const sourceFile = parse(administrationRoot, indexFile);
         const componentName = declaredComponentName(sourceFile);
+        const name = componentName ?? path.posix.basename(moduleDir);
 
         if (Object.hasOwn(seen, name)) {
             throw new Error(`The mini-modules "${seen[name]}" and "${moduleDir}" share the name "${name}".`);
-        }
-
-        if (componentName !== undefined && componentName !== name) {
-            throw new Error(`"${moduleDir}" declares the component "${componentName}". Name the directory after it.`);
         }
 
         const family = families[moduleKind(sourceFile, moduleDir, componentName !== undefined)];

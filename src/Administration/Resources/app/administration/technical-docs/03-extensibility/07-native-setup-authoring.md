@@ -1,7 +1,7 @@
 # Native Setup Authoring
 
 > **Status:** Experimental — `@experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`.
-> See [Postpone the stabilization of native setup and the composables to 6.9](../../../../../../../adr/2026-11-03-postpone-native-setup-stabilization-to-6-9.md).
+> It may become stable in 6.8 already.
 
 Native setup is the Administration term for Vue's native `<script setup>` SFC syntax. Shopware setup authoring is native setup plus a filename-based base/override convention for the Composition-API extension system. It is *not* plain native setup: the transform lowers the author body into Shopware's base/override callback contracts before Vue compiles the SFC.
 

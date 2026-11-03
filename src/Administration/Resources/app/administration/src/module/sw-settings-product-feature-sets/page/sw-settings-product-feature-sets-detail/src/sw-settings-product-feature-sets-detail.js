@@ -2,17 +2,24 @@
  * @sw-package inventory
  */
 import template from './sw-settings-product-feature-sets-detail.html.twig';
+import {
+    aclService,
+    featureService,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: [repositoryFactoryService, aclService, featureService],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         productFeatureSetId: {

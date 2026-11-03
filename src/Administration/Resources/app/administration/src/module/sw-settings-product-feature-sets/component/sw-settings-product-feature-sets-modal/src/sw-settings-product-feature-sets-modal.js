@@ -3,15 +3,15 @@
  */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
+import { Criteria, getApiContext, getAppContext, repositoryFactoryService, useSessionStore } from '../dependencies';
 
-const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     emits: ['modal-close'],
 
@@ -292,7 +292,7 @@ export default {
             this.valuesLoading = true;
 
             return repository
-                .search(criteria, Shopware.Context.api)
+                .search(criteria, getApiContext())
                 .then(callback)
                 .catch(() => {
                     this.valuesLoading = false;
@@ -337,7 +337,7 @@ export default {
 
             this.productFeatureSet.features = this.features;
             this.productFeatureSetRepository
-                .save(this.productFeatureSet, Context.api)
+                .save(this.productFeatureSet, getApiContext())
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.featureType = null;
@@ -477,8 +477,8 @@ export default {
         },
 
         readCustomFieldLabel(field) {
-            const language = Shopware.Store.get('session').currentLocale;
-            const fallback = Shopware.Context.app.fallbackLocale;
+            const language = useSessionStore().currentLocale;
+            const fallback = getAppContext().fallbackLocale;
 
             return field.config.label[language] || field.config.label[fallback];
         },

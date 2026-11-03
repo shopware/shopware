@@ -3,24 +3,12 @@
  */
 
 import './acl';
+import './component/sw-settings-product-feature-sets-modal/register';
+import './component/sw-settings-product-feature-sets-values-card/register';
+import './page/sw-settings-product-feature-sets-detail/register';
+import './page/sw-settings-product-feature-sets-list/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register(
-    'sw-settings-product-feature-sets-list',
-    () => import('./page/sw-settings-product-feature-sets-list'),
-);
-Shopware.Component.register(
-    'sw-settings-product-feature-sets-detail',
-    () => import('./page/sw-settings-product-feature-sets-detail'),
-);
-Shopware.Component.register(
-    'sw-settings-product-feature-sets-values-card',
-    () => import('./component/sw-settings-product-feature-sets-values-card'),
-);
-Shopware.Component.register(
-    'sw-settings-product-feature-sets-modal',
-    () => import('./component/sw-settings-product-feature-sets-modal'),
-);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

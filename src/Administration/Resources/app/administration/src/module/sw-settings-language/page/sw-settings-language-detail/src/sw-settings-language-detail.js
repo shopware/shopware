@@ -3,24 +3,36 @@
  */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    featureService,
+    getApiContext,
+    getCacheService,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    translationService,
+    useContextStore,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'translationService',
-        'acl',
-        'customFieldDataProviderService',
-        'feature',
+        repositoryFactoryService,
+        translationService,
+        aclService,
+        customFieldDataProviderService,
+        featureService,
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -126,7 +138,7 @@ export default {
         },
 
         isSystemDefaultLanguageId() {
-            return this.language.id === Shopware.Context.api.systemLanguageId;
+            return this.language.id === getApiContext().systemLanguageId;
         },
 
         inheritanceTooltipText() {
@@ -263,7 +275,7 @@ export default {
             }
 
             if (!this.languageId) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+                useContextStore().resetLanguageToDefault();
                 this.language = this.languageRepository.create();
                 this.language.active = true;
 
@@ -292,7 +304,7 @@ export default {
             salesChannelCriteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return this.languageRepository
-                .get(this.languageId, Shopware.Context.api, criteria)
+                .get(this.languageId, getApiContext(), criteria)
                 .then((language) => {
                     this.isLoading = false;
                     this.language = language;
@@ -371,7 +383,7 @@ export default {
         },
 
         setParentTranslationCodeId(parentId) {
-            this.languageRepository.get(parentId, Shopware.Context.api).then((parentLanguage) => {
+            this.languageRepository.get(parentId, getApiContext()).then((parentLanguage) => {
                 this.parentTranslationCodeId = parentLanguage.translationCodeId;
             });
         },
@@ -430,7 +442,7 @@ export default {
         },
 
         invalidateLanguageCaches() {
-            Shopware.Service('cacheService').invalidateCaches({
+            getCacheService().invalidateCaches({
                 cacheKey: ['shared-data', 'active-languages'],
             });
         },

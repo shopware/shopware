@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -32,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 
 /**
  * @internal
@@ -43,7 +41,7 @@ class CriteriaQueryBuilderTest extends TestCase
 {
     public function testBuildWithWhereCondition(): void
     {
-        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
+        $queryBuilder = new QueryBuilder(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]));
 
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(
@@ -85,17 +83,15 @@ class CriteriaQueryBuilderTest extends TestCase
 
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
-        static::assertEquals(
-            CompositeExpression::and(
-                '`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d OR `order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6',
-            ),
-            QueryBuilderDataExtractor::getWhere($queryBuilder),
+        static::assertSame(
+            'SELECT 1 WHERE `order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d OR `order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6 HAVING _score >= :_minScore ORDER BY _score DESC',
+            $queryBuilder->select('1')->getSQL(),
         );
     }
 
     public function testBuildWithoutAddConditions(): void
     {
-        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
+        $queryBuilder = new QueryBuilder(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]));
 
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(
@@ -124,7 +120,7 @@ class CriteriaQueryBuilderTest extends TestCase
         $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
-        static::assertNull(QueryBuilderDataExtractor::getWhere($queryBuilder));
+        static::assertSame('SELECT 1', $queryBuilder->select('1')->getSQL());
     }
 
     public function testInvalidSortingDirectionException(): void

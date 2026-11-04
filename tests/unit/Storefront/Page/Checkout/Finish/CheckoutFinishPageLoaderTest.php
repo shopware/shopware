@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Finish;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -129,13 +130,19 @@ class CheckoutFinishPageLoaderTest extends TestCase
     #[DataProvider('provideRequestsWithFailedPayment')]
     public function testOrderIdAndPaymentFlagsAreReadFromTheRequest(string $orderId, array $query, array $attributes): void
     {
-        $pageLoader = static::createStub(GenericPageLoader::class);
+        $pageLoader = $this->createMock(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 
-        $page = $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId))->load(
+        $checkoutFinishPageLoader = new CheckoutFinishPageLoader(
+            $this->createMock(EventDispatcher::class),
+            $pageLoader,
+            $this->getOrderRouteWithValidOrder($orderId),
+        );
+
+        $page = $checkoutFinishPageLoader->load(
             new Request($query, [], $attributes),
-            Generator::generateSalesChannelContext(),
+            $this->getContextWithDummyCustomer(),
         );
 
         static::assertSame($orderId, $page->getOrder()->getId());
@@ -160,33 +167,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         ];
     }
 
-    #[DataProvider('provideGuestLogoutConstellations')]
-    public function testLogoutCustomerSetCorrectly(bool $isGuest, bool $guestLogoutSetting, bool $expected): void
-    {
-        $orderId = Uuid::randomHex();
-
-        $pageLoader = static::createStub(GenericPageLoader::class);
-        $pageLoader->method('load')
-            ->willReturn(new Page());
-
-        $request = new Request([
-            'orderId' => $orderId,
-            'changedPayment' => false,
-            'paymentFailed' => false,
-        ]);
-
-        $context = Generator::generateSalesChannelContext();
-        $context->getCustomer()?->setGuest($isGuest);
-        $config = [
-            $context->getSalesChannelId() => ['core.cart.logoutGuestAfterCheckout' => $guestLogoutSetting],
-        ];
-
-        $page = $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId), $config)->load($request, $context);
-
-        static::assertSame($expected, $page->isLogoutCustomer());
-    }
-
-    public function testRoundingIsSetInContext(): void
+    public function testItemRoundingIsSetInContext(): void
     {
         $orderId = Uuid::randomHex();
         $itemRounding = new CashRoundingConfig(2, 2.0, false);

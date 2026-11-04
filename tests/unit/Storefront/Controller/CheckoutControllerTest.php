@@ -341,7 +341,7 @@ class CheckoutControllerTest extends TestCase
         static::assertSame('frontend.account.edit-order.page', $response->headers->get('Location'));
         static::assertSame(
             ['orderId' => $orderId, 'error-code' => 'CHECKOUT__UNKNOWN_ERROR'],
-            $this->controller->recorder()->redirected['frontend.account.edit-order.page'][0]['parameters']
+            $this->controller->redirected['frontend.account.edit-order.page'][0]['parameters']
         );
     }
 

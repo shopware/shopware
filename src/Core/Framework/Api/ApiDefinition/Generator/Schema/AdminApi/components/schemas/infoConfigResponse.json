@@ -172,6 +172,20 @@
               "description": "Purchase entry.",
               "additionalProperties": true
             }
+          },
+          "versionHistory": {
+            "type": "array",
+            "description": "Shopware versions this shop was installed with or updated to, oldest first, at most 24 entries.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "version": { "type": "string", "description": "Shopware version." },
+                "recordedAt": { "type": "string", "format": "date-time", "description": "Time the install or update finished." },
+                "installed": { "type": "boolean", "description": "True if the entry was recorded by the installation." }
+              },
+              "required": ["version", "recordedAt", "installed"],
+              "additionalProperties": false
+            }
           }
         },
         "required": ["version", "shopId", "versionRevision", "adminWorker", "bundles", "settings", "inAppPurchases"],

@@ -15,13 +15,7 @@
             "fileReader",
             "sort",
             "array",
-            "moveItem",
-            "VueHelper",
-            "EventBus",
-            "genericRuleCondition",
-            "unitConversion",
-            "extension",
-            "mapInheritanceSlotPropsToMeteorProps"
+            "moveItem"
         ],
         "subpaths": {
             "createId": [],
@@ -106,19 +100,7 @@
                 "chunk",
                 "intersectionBy"
             ],
-            "moveItem": [],
-            "VueHelper": [],
-            "EventBus": [],
-            "genericRuleCondition": [
-                "getPlaceholderSnippet"
-            ],
-            "unitConversion": [
-                "convert"
-            ],
-            "extension": [
-                "getExtensionNameByOrigin"
-            ],
-            "mapInheritanceSlotPropsToMeteorProps": []
+            "moveItem": []
         }
     },
     "shopware:data": {
@@ -129,10 +111,7 @@
             "EntityCollection",
             "EntityDefinition",
             "EntityFactory",
-            "EntityHydrator",
-            "Repository",
-            "ErrorResolver",
-            "FilterFactory"
+            "Repository"
         ],
         "subpaths": {
             "ChangesetGenerator": [],
@@ -141,117 +120,24 @@
             "EntityCollection": [],
             "EntityDefinition": [],
             "EntityFactory": [],
-            "EntityHydrator": [],
-            "Repository": [],
-            "ErrorResolver": [],
-            "FilterFactory": []
+            "Repository": []
         }
     },
     "shopware:composables": {
-        "exports": [
-            "useCmsElement",
-            "useCmsState",
-            "useInlineSnippet",
-            "useListing",
-            "useMediaGridListener",
-            "useMediaSidebarModal",
-            "useNotification",
-            "useNotificationTranslation",
-            "usePlaceholder",
-            "usePosition",
-            "useRuleBetweenOperator",
-            "useRuleContainer",
-            "useSalutation",
-            "useTranslateWithFallback",
-            "useUserSettings",
-            "useValidation",
-            "useVideoCover"
-        ],
-        "subpaths": {
-            "useCmsElement": [],
-            "useCmsState": [],
-            "useInlineSnippet": [],
-            "useListing": [],
-            "useMediaGridListener": [],
-            "useMediaSidebarModal": [],
-            "useNotification": [],
-            "useNotificationTranslation": [],
-            "usePlaceholder": [],
-            "usePosition": [],
-            "useRuleBetweenOperator": [],
-            "useRuleContainer": [],
-            "useSalutation": [],
-            "useTranslateWithFallback": [],
-            "useUserSettings": [],
-            "useValidation": [],
-            "useVideoCover": []
-        }
+        "exports": [],
+        "subpaths": {}
     },
     "shopware:mixins": {
         "exports": [],
-        "subpaths": {
-            "notification": [],
-            "validation": [],
-            "user-settings": [],
-            "sw-inline-snippet": [],
-            "translate-with-fallback": [],
-            "notification-translation": [],
-            "salutation": [],
-            "ruleContainer": [],
-            "remove-api-error": [],
-            "position": [],
-            "placeholder": [],
-            "listing": [],
-            "generic-condition": [],
-            "sw-form-field": [],
-            "discard-detail-page-changes": [],
-            "rule-between-operator": []
-        }
+        "subpaths": {}
     },
     "shopware:stores": {
         "exports": [],
         "subpaths": {
-            "cmsPage": [],
-            "topBarButton": [],
-            "teaserPopover": [],
-            "adminMenu": [],
-            "inAppPurchaseCheckout": [],
-            "extensionComponentSections": [],
-            "blockOverride": [],
-            "extensionEntryRoutes": [],
-            "extensionSdkModules": [],
-            "extensions": [],
-            "error": [],
-            "context": [],
-            "adminHelpCenter": [],
-            "actionButtons": [],
-            "licenseViolation": [],
-            "extensionMainModules": [],
-            "marketing": [],
-            "sdkLocation": [],
             "ruleConditionsConfig": [],
-            "settingsItems": [],
             "shopwareApps": [],
-            "system": [],
-            "modals": [],
-            "sidebar": [],
-            "menuItem": [],
             "notification": [],
-            "tabs": [],
-            "session": [],
-            "swCategoryDetail": [],
-            "swSeoUrl": [],
-            "shopwareExtensions": [],
-            "swOrderDetail": [],
-            "swOrder": [],
-            "swShippingDetail": [],
-            "paymentOverviewCard": [],
-            "swProductDetail": [],
-            "swProfile": [],
-            "swPromotionDetail": [],
-            "swFlow": [],
-            "swBulkEdit": [],
-            "mediaModal": []
+            "swCategoryDetail": []
         }
     }
 }

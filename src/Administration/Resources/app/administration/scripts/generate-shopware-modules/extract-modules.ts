@@ -62,6 +62,8 @@
  * Neither registry family publishes a root import: resolving one would have to resolve every entry. And
  * both are only as honest as the interface — a key nobody registers passes here and throws on import.
  *
+ * An entry whose declaration is marked `@private` is left out of every family, see `isPrivateEntry`.
+ *
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */
 
@@ -320,6 +322,311 @@ function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
     return central;
 }
 
+const PRIVATE_TAG = /@private\b/;
+
+/**
+ * Whether a `/** … *\/` block directly above `node` carries `@private`.
+ *
+ *     /**
+ *      * @private
+ *      *\/
+ *     export default class FilterFactory {   → true
+ */
+function hasPrivateDoc(sourceFile: ts.SourceFile, node: ts.Node): boolean {
+    const text = sourceFile.getFullText();
+
+    return (ts.getLeadingCommentRanges(text, node.getFullStart()) ?? []).some((range) => {
+        const comment = text.slice(range.pos, range.end);
+
+        return comment.startsWith('/**') && PRIVATE_TAG.test(comment);
+    });
+}
+
+/**
+ * Whether the file opens with a `/** … *\/` header that carries `@private`, which marks every export of
+ * the file:
+ *
+ *     /**
+ *      * @private
+ *      * @sw-package framework
+ *      *\/
+ */
+function hasPrivateHeader(sourceFile: ts.SourceFile): boolean {
+    const text = sourceFile.getFullText();
+    const header = ts.getLeadingCommentRanges(text, 0)?.[0];
+
+    if (!header) {
+        return false;
+    }
+
+    const comment = text.slice(header.pos, header.end);
+
+    return comment.startsWith('/**') && PRIVATE_TAG.test(comment);
+}
+
+/**
+ * The top-level statements that declare `name`: a const, function, class, interface, type or enum. A
+ * store declares its value and its type under one name, so there can be two.
+ */
+function declarationStatements(sourceFile: ts.SourceFile, name: string): ts.Statement[] {
+    return sourceFile.statements.filter((statement) => {
+        if (ts.isVariableStatement(statement)) {
+            return statement.declarationList.declarations.some(
+                (declaration) => ts.isIdentifier(declaration.name) && declaration.name.text === name,
+            );
+        }
+
+        return (
+            (ts.isFunctionDeclaration(statement) ||
+                ts.isClassDeclaration(statement) ||
+                ts.isInterfaceDeclaration(statement) ||
+                ts.isTypeAliasDeclaration(statement) ||
+                ts.isEnumDeclaration(statement)) &&
+            statement.name?.text === name
+        );
+    });
+}
+
+/**
+ * The statements whose doc block decides whether the export `name` of a file is private. `"default"`
+ * stands for the default export.
+ *
+ *     /** @private *\/
+ *     const cmsPageStore = defineStore(…);
+ *     export default cmsPageStore;          → both statements, either doc block counts
+ *
+ *     export type { SwOrderState };        → the `export` list and the `interface SwOrderState`
+ */
+function exportStatements(sourceFile: ts.SourceFile, name: string): ts.Statement[] {
+    const statements: ts.Statement[] = [];
+
+    sourceFile.statements.forEach((statement) => {
+        // `export default <expression>`; an identifier on the right points at its own declaration.
+        if (name === 'default' && ts.isExportAssignment(statement)) {
+            statements.push(statement);
+
+            if (ts.isIdentifier(statement.expression)) {
+                statements.push(...declarationStatements(sourceFile, statement.expression.text));
+            }
+
+            return;
+        }
+
+        // `export default class FilterFactory {}` and `export default function useNotification() {}`.
+        const isDefaultDeclaration =
+            ts.canHaveModifiers(statement) &&
+            ts.getModifiers(statement)?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword);
+
+        if (name === 'default' && isDefaultDeclaration) {
+            statements.push(statement);
+
+            return;
+        }
+
+        // `export { foo }` and `export type { Foo }` lists.
+        if (
+            name !== 'default' &&
+            ts.isExportDeclaration(statement) &&
+            !statement.moduleSpecifier &&
+            statement.exportClause &&
+            ts.isNamedExports(statement.exportClause) &&
+            statement.exportClause.elements.some((element) => element.name.text === name)
+        ) {
+            statements.push(statement);
+        }
+    });
+
+    if (name !== 'default') {
+        statements.push(...declarationStatements(sourceFile, name));
+    }
+
+    return statements;
+}
+
+/**
+ * Where an identifier of `sourceFile` comes from, as the import's specifier and the name it has in the
+ * imported file.
+ *
+ *     import FilterFactory from './filter-factory.data';         → ['./filter-factory.data', 'default']
+ *     import type { CmsPageStore } from './…/cms-page.store';  → ['./…/cms-page.store', 'CmsPageStore']
+ */
+function importOf(sourceFile: ts.SourceFile, identifier: string): [string, string] | undefined {
+    for (const statement of sourceFile.statements) {
+        if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+            continue;
+        }
+
+        const clause = statement.importClause;
+        const specifier = statement.moduleSpecifier.text;
+
+        if (clause?.name?.text === identifier) {
+            return [
+                specifier,
+                'default',
+            ];
+        }
+
+        if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
+            const element = clause.namedBindings.elements.find((binding) => binding.name.text === identifier);
+
+            if (element) {
+                return [
+                    specifier,
+                    (element.propertyName ?? element.name).text,
+                ];
+            }
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * The Administration file an import specifier points at, relative to the Administration root. A package
+ * import such as `lodash-es/throttle` has none.
+ */
+function resolveImport(administrationRoot: string, importer: string, specifier: string): string | undefined {
+    let base: string;
+
+    if (specifier.startsWith('.')) {
+        base = path.join(path.dirname(importer), specifier);
+    } else if (specifier.startsWith('src/')) {
+        base = specifier;
+    } else {
+        return undefined;
+    }
+
+    const candidate = [
+        '',
+        '.ts',
+        '.js',
+        '/index.ts',
+        '/index.js',
+    ]
+        .map((extension) => path.normalize(base + extension))
+        .find((file) => fs.existsSync(path.join(administrationRoot, file)) && path.extname(file) !== '');
+
+    if (!candidate) {
+        throw new Error(`Cannot resolve "${specifier}" imported by "${importer}".`);
+    }
+
+    return candidate;
+}
+
+/**
+ * Whether the entry an identifier of a branch source stands for is marked `@private`, which keeps it out
+ * of the `shopware:*` modules.
+ *
+ * The identifier is followed to its declaration, in the branch source itself or across one import:
+ *
+ *     export default { createId, extension };         // util.service.ts
+ *     /** @private *\/ const extension = { … };      → private, declared in place
+ *     import createId from './utils/create-id.utils'; → read there, private only if that is
+ *
+ * Either the declaration's own doc block or the header of its file counts. A package import is never
+ * private.
+ */
+function isPrivateEntry(
+    administrationRoot: string,
+    relativePath: string,
+    sourceFile: ts.SourceFile,
+    identifier: string,
+): boolean {
+    const local = declarationStatements(sourceFile, identifier);
+
+    if (local.length > 0) {
+        return hasPrivateHeader(sourceFile) || local.some((statement) => hasPrivateDoc(sourceFile, statement));
+    }
+
+    const origin = importOf(sourceFile, identifier);
+
+    if (!origin) {
+        return false;
+    }
+
+    const [
+        specifier,
+        importedName,
+    ] = origin;
+    const target = resolveImport(administrationRoot, relativePath, specifier);
+
+    if (!target) {
+        return false;
+    }
+
+    const targetFile = parse(administrationRoot, target);
+
+    return (
+        hasPrivateHeader(targetFile) ||
+        exportStatements(targetFile, importedName).some((statement) => hasPrivateDoc(targetFile, statement))
+    );
+}
+
+/**
+ * The identifier each key of an object literal reads, keyed by the key: `{ debug }` and `{ debug: debug }`
+ * both read `debug`. A key with any other value reads nothing a declaration can be found for.
+ */
+function objectLiteralIdentifiers(literal: ts.ObjectLiteralExpression): Record<string, string> {
+    const identifiers: Record<string, string> = {};
+
+    literal.properties.forEach((property) => {
+        const key =
+            ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)
+                ? memberName(property.name)
+                : undefined;
+
+        if (key === undefined) {
+            return;
+        }
+
+        if (ts.isShorthandPropertyAssignment(property)) {
+            identifiers[key] = property.name.text;
+        } else if (ts.isPropertyAssignment(property) && ts.isIdentifier(property.initializer)) {
+            identifiers[key] = property.initializer.text;
+        }
+    });
+
+    return identifiers;
+}
+
+/**
+ * The type each member of a declared interface names, keyed by the member: `notification: typeof
+ * NotificationMixin` names `NotificationMixin`, `cmsPage: CmsPageStore` names `CmsPageStore`.
+ */
+function interfaceMemberTypes(sourceFile: ts.SourceFile, interfaceName: string): Record<string, string> {
+    const types: Record<string, string> = {};
+
+    const visit = (node: ts.Node): void => {
+        if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
+            node.members.forEach((member) => {
+                if (!ts.isPropertySignature(member) || !member.type) {
+                    return;
+                }
+
+                const key = memberName(member.name);
+                const type = member.type;
+                let name: string | undefined;
+
+                if (ts.isTypeQueryNode(type) && ts.isIdentifier(type.exprName)) {
+                    name = type.exprName.text;
+                } else if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)) {
+                    name = type.typeName.text;
+                }
+
+                if (key !== undefined && name !== undefined) {
+                    types[key] = name;
+                }
+            });
+        }
+
+        ts.forEachChild(node, visit);
+    };
+
+    visit(sourceFile);
+
+    return types;
+}
+
 function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
     return Object.fromEntries(
         keys.map((key) => [
@@ -347,17 +654,34 @@ function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
  * beside an unrelated `export const dom = { … }` would pair the two.
  */
 export function extractModuleRegistry(administrationRoot: string): ModuleRegistry {
+    const literalKeys = (relativePath: string, sourceFile: ts.SourceFile): string[] => {
+        const literal = defaultExportLiteral(sourceFile, relativePath);
+        const identifiers = objectLiteralIdentifiers(literal);
+
+        return objectLiteralKeys(literal).filter((key) => {
+            const identifier = identifiers[key];
+
+            return !identifier || !isPrivateEntry(administrationRoot, relativePath, sourceFile, identifier);
+        });
+    };
+
     const utilsSource = parse(administrationRoot, UTILS_SOURCE);
-    const utilsKeys = objectLiteralKeys(defaultExportLiteral(utilsSource, UTILS_SOURCE));
+    const utilsKeys = literalKeys(UTILS_SOURCE, utilsSource);
     const utilsNamespaces = namedObjectExports(utilsSource);
 
-    const dataSource = parse(administrationRoot, DATA_SOURCE);
-    const dataKeys = objectLiteralKeys(defaultExportLiteral(dataSource, DATA_SOURCE));
-
-    const composablesSource = parse(administrationRoot, COMPOSABLES_SOURCE);
-    const composableKeys = objectLiteralKeys(defaultExportLiteral(composablesSource, COMPOSABLES_SOURCE));
+    const dataKeys = literalKeys(DATA_SOURCE, parse(administrationRoot, DATA_SOURCE));
+    const composableKeys = literalKeys(COMPOSABLES_SOURCE, parse(administrationRoot, COMPOSABLES_SOURCE));
 
     const globalTypes = parse(administrationRoot, GLOBAL_TYPES_SOURCE);
+    const publicInterfaceKeys = (interfaceName: string, keys: string[]): string[] => {
+        const types = interfaceMemberTypes(globalTypes, interfaceName);
+
+        return keys.filter((key) => {
+            const type = types[key];
+
+            return !type || !isPrivateEntry(administrationRoot, GLOBAL_TYPES_SOURCE, globalTypes, type);
+        });
+    };
 
     return {
         'shopware:utils': {
@@ -379,11 +703,13 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
         },
         'shopware:mixins': {
             exports: [],
-            subpaths: defaultOnlySubpaths(centralMixinKeys(globalTypes)),
+            subpaths: defaultOnlySubpaths(publicInterfaceKeys('MixinContainer', centralMixinKeys(globalTypes))),
         },
         'shopware:stores': {
             exports: [],
-            subpaths: defaultOnlySubpaths(interfaceKeys(globalTypes, 'PiniaRootState')),
+            subpaths: defaultOnlySubpaths(
+                publicInterfaceKeys('PiniaRootState', interfaceKeys(globalTypes, 'PiniaRootState')),
+            ),
         },
     };
 }

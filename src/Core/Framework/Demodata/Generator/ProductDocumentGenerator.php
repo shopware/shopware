@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Dompdf\Dompdf;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -185,50 +186,18 @@ class ProductDocumentGenerator implements DemodataGeneratorInterface
      */
     private function createPdf(string $title, array $subtitles, array $paragraphs): string
     {
-        $text = \sprintf('BT /F1 22 Tf 56 770 Td (%s) Tj /F1 12 Tf 16 TL', $this->escapePdfText($title));
+        $html = \sprintf(
+            '<h1>%s</h1><p>%s</p><p>%s</p>',
+            htmlspecialchars($title),
+            implode('<br>', array_map(htmlspecialchars(...), $subtitles)),
+            implode('</p><p>', array_map(htmlspecialchars(...), $paragraphs)),
+        );
 
-        foreach ($subtitles as $index => $subtitle) {
-            $text .= \sprintf(' %s (%s) Tj', $index === 0 ? '0 -32 Td' : 'T*', $this->escapePdfText($subtitle));
-        }
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->render();
 
-        $text .= ' /F1 10 Tf 14 TL T*';
-        foreach ($paragraphs as $paragraph) {
-            foreach (explode("\n", wordwrap($paragraph, 95)) as $line) {
-                $text .= \sprintf(' T* (%s) Tj', $this->escapePdfText($line));
-            }
-            $text .= ' T*';
-        }
-        $text .= ' ET';
-
-        $objects = [
-            '<< /Type /Catalog /Pages 2 0 R >>',
-            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
-            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
-            \sprintf("<< /Length %d >>\nstream\n%s\nendstream", \strlen($text), $text),
-        ];
-
-        $pdf = "%PDF-1.4\n";
-        $offsets = [];
-        foreach ($objects as $index => $object) {
-            $offsets[] = \strlen($pdf);
-            $pdf .= \sprintf("%d 0 obj\n%s\nendobj\n", $index + 1, $object);
-        }
-
-        $xrefOffset = \strlen($pdf);
-        $pdf .= \sprintf("xref\n0 %d\n0000000000 65535 f \n", \count($objects) + 1);
-        foreach ($offsets as $offset) {
-            $pdf .= \sprintf("%010d 00000 n \n", $offset);
-        }
-
-        return $pdf . \sprintf("trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n", \count($objects) + 1, $xrefOffset);
-    }
-
-    private function escapePdfText(string $text): string
-    {
-        $encoded = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
-
-        return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $encoded);
+        return $dompdf->output();
     }
 
     /**

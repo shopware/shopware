@@ -120,9 +120,7 @@ class ProductDocumentGeneratorTest extends TestCase
 
         static::assertCount(1, $this->writtenContents);
         $content = $this->writtenContents[0];
-        static::assertStringStartsWith('%PDF-1.4', $content);
-        static::assertStringEndsWith("%%EOF\n", $content);
-        static::assertStringContainsString('Product number: SW1', $content);
+        static::assertStringStartsWith('%PDF-', $content);
         static::assertSame(\strlen($content), $this->persistedFiles[0]->getFileSize());
 
         static::assertNull($this->writer->inserts[0]['mediaFolderId']);

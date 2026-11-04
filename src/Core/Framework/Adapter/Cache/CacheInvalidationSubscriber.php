@@ -360,7 +360,6 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        // each product once before its variants are joined: one file can be used by several documents and languages
         /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(
             'SELECT

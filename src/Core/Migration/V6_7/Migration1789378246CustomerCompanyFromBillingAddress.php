@@ -23,18 +23,22 @@ class Migration1789378246CustomerCompanyFromBillingAddress extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $lastId = '';
+
         do {
             $ids = $connection->fetchFirstColumn(
                 'SELECT `customer`.`id`
                 FROM `customer`
                 INNER JOIN `customer_address` ON `customer_address`.`id` = `customer`.`default_billing_address_id`
-                WHERE `customer`.`account_type` = :business
+                WHERE `customer`.`id` > :lastId
+                    AND `customer`.`account_type` = :business
                     AND (`customer`.`company` IS NULL OR TRIM(`customer`.`company`) = \'\')
                     AND `customer_address`.`company` IS NOT NULL
                     AND TRIM(`customer_address`.`company`) <> \'\'
+                ORDER BY `customer`.`id`
                 LIMIT :limit',
-                ['business' => 'business', 'limit' => self::UPDATE_LIMIT],
-                ['limit' => ParameterType::INTEGER]
+                ['lastId' => $lastId, 'business' => 'business', 'limit' => self::UPDATE_LIMIT],
+                ['lastId' => ParameterType::BINARY, 'limit' => ParameterType::INTEGER]
             );
 
             if ($ids === []) {
@@ -49,6 +53,8 @@ class Migration1789378246CustomerCompanyFromBillingAddress extends MigrationStep
                 ['ids' => $ids],
                 ['ids' => ArrayParameterType::BINARY]
             );
+
+            $lastId = end($ids);
         } while (\count($ids) === self::UPDATE_LIMIT);
     }
 }

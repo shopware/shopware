@@ -47,6 +47,20 @@ class Migration1789378246CustomerCompanyFromBillingAddressTest extends TestCase
         static::assertSame($expected, $this->company($customerId));
     }
 
+    public function testMigrationFillsMoreThanOneBatch(): void
+    {
+        $customerIds = [];
+        for ($i = 0; $i < 1001; ++$i) {
+            $customerIds[] = $this->createCustomer('business', null, 'Acme GmbH');
+        }
+
+        (new Migration1789378246CustomerCompanyFromBillingAddress())->update($this->connection);
+
+        foreach ($customerIds as $customerId) {
+            static::assertSame('Acme GmbH', $this->company($customerId));
+        }
+    }
+
     /**
      * @return iterable<string, array{string, string|null, string|null, string|null}>
      */

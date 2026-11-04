@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -206,15 +205,8 @@ class GenerateThumbnailsCommandTest extends TestCase
     public function testFiltersMediaByFolderName(): void
     {
         $folderId = Uuid::randomHex();
-        $mediaCriteria = null;
 
-        $mediaRepository = new StaticEntityRepository([
-            static function (Criteria $criteria) use (&$mediaCriteria): MediaCollection {
-                $mediaCriteria = $criteria;
-
-                return new MediaCollection();
-            },
-        ], new TestEntityDefinition());
+        $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [new MediaCollection()], new TestEntityDefinition());
 
         $commandTester = new CommandTester(new GenerateThumbnailsCommand(
             static::createStub(ThumbnailService::class),
@@ -228,8 +220,10 @@ class GenerateThumbnailsCommandTest extends TestCase
             '--async' => true,
         ]));
 
-        static::assertInstanceOf(Criteria::class, $mediaCriteria);
-        static::assertContainsEquals(new EqualsAnyFilter('mediaFolderId', [$folderId]), $mediaCriteria->getFilters());
+        static::assertContainsEquals(
+            new EqualsAnyFilter('mediaFolderId', [$folderId]),
+            $mediaRepository->searchedCriteria[0]->getFilters(),
+        );
     }
 
     private function createMediaEntity(): MediaEntity

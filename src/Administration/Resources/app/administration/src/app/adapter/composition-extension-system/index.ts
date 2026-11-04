@@ -13,7 +13,7 @@ import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
 import type { OverrideFn } from '../options-composition-shim';
-import type { ComponentConfig } from 'src/core/factory/async-component.factory';
+import type { IndexedAwaitedComponentConfig } from 'src/core/factory/async-component.factory';
 import {
     createDataScope,
     createOverrideLocalState,
@@ -248,7 +248,7 @@ const convertedPendingOverrides = new WeakMap<object, Promise<OverrideFn | null>
 
 function convertPendingOverride(
     componentName: string,
-    pendingOverride: { config: () => Promise<ComponentConfig | boolean> },
+    pendingOverride: IndexedAwaitedComponentConfig,
 ): Promise<OverrideFn | null> {
     let converted = convertedPendingOverrides.get(pendingOverride);
 

@@ -93,13 +93,16 @@ type AwaitedComponentConfig = () => Promise<ComponentConfig | boolean>;
 const componentRegistry = new Map<string, AwaitedComponentConfig>();
 
 /**
- * Registry which holds all component overrides
  * @private
  */
-type IndexedAwaitedComponentConfig = {
+export type IndexedAwaitedComponentConfig = {
     index: number;
     config: AwaitedComponentConfig;
 };
+/**
+ * Registry which holds all component overrides
+ * @private
+ */
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
 
 /**

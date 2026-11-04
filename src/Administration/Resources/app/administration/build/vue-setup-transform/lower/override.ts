@@ -19,8 +19,7 @@ import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { OverrideReferenceRewrite, OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import type { LowerOptions } from './index';
-import { escapeSingleQuoted } from './shared';
+import { escapeSingleQuoted, type LowerOptions } from './shared';
 import {
     OVERRIDE_NAMESPACE_BINDING,
     OVERRIDE_SCOPE_ACCESSOR,

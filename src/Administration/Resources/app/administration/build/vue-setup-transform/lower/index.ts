@@ -20,15 +20,7 @@ import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-
-/**
- * @private
- */
-type LowerOptions = {
-    filename: string;
-    /** The output is served for hot updates, see `transformShopwareSetupSfc`. */
-    hotUpdates: boolean;
-};
+import type { LowerOptions } from './shared';
 
 /**
  * Dispatches to the mode-specific lowering path after shared analysis has completed.
@@ -52,4 +44,4 @@ function lowerShopwareSetupBlock(
 /**
  * @private
  */
-export { lowerShopwareSetupBlock, type LowerOptions };
+export { lowerShopwareSetupBlock };

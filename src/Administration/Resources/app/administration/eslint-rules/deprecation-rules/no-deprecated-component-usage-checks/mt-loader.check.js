@@ -10,8 +10,8 @@ const handleMtLoader = (context, node) => {
     }
 
     /**
-     * The Meteor component has identical functionality to the sw-loader component and
-     * therefore no migration is needed.
+     * The props of the Meteor component match the ones of the sw-loader component.
+     * Only the backdrop differs, which the rule "no-sw-loader-usage" turns off while it migrates sw-loader.
      **/
 }
 
@@ -28,8 +28,8 @@ const mtLoaderValidChecks = [
 ]
 const mtLoaderInvalidChecks = [
     /**
-     * The Meteor component has identical functionality to the sw-loader component and
-     * therefore no migration is needed.
+     * The props of the Meteor component match the ones of the sw-loader component.
+     * Only the backdrop differs, which the rule "no-sw-loader-usage" turns off while it migrates sw-loader.
      **/
 ];
 

@@ -487,6 +487,9 @@ Extensions that style or select the old classes inside core components have to u
 Acceptance tests that wait for `.sw-loader` inside core components return immediately and have to locate `.mt-loader` instead.
 Jest specs that mount core components and stub or look for `sw-loader` have to use `mt-loader` instead.
 
+`composer run admin:code-mods -- --fix -v 6.7 -p YourPlugin` replaces `sw-loader` and `sw-skeleton-bar` in the templates of your extension.
+It adds `:backdrop="false"` to each converted loader, because `mt-loader` shows a backdrop by default.
+
 ### Bulk order status handler results
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.

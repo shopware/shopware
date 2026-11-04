@@ -283,10 +283,12 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                     'sw-checkbox-field',
                                     'sw-number-field',
                                     'sw-password-field',
+                                    'sw-skeleton-bar',
                                 ],
                             }],
                             'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
                             'sw-deprecation-rules/no-sw-empty-state-usage': ['error'],
+                            'sw-deprecation-rules/no-sw-loader-usage': ['error'],
                         };
                     }
 
@@ -294,6 +296,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                         'sw-deprecation-rules/no-deprecated-components': 'off',
                         'sw-deprecation-rules/no-deprecated-component-usage': 'off',
                         'sw-deprecation-rules/no-sw-empty-state-usage': 'off',
+                        'sw-deprecation-rules/no-sw-loader-usage': 'off',
                     };
                 })(),
                 // Disabled rules

@@ -51,7 +51,6 @@ module.exports = {
                         'sw-text-field',
                         'sw-number-field',
                         'sw-url-field',
-                        'sw-loader',
                         'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',
@@ -143,6 +142,7 @@ module.exports = {
                         }
                     });
 
+                    // "sw-loader" needs more than a rename, the rule "no-sw-loader-usage" migrates it
                     const deprecatedComponents = [
                         'sw-button',
                         'sw-icon',
@@ -151,7 +151,6 @@ module.exports = {
                         'sw-text-field',
                         'sw-number-field',
                         'sw-url-field',
-                        'sw-loader',
                         'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',

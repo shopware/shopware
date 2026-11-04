@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import type { Plugin } from 'vite';
 import { findFilesRecursively } from '../utils';
@@ -20,26 +21,34 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
     let overrideFiles = [] as string[];
 
+    // Editors and scaffolds create a file empty first; @vitejs/plugin-vue rejects an SFC without blocks.
+    const hasContent = (file: string) => fs.readFileSync(file, 'utf8').trim() !== '';
+    // Sorted because the directory walk follows filesystem order, which differs between machines - and
+    // the generated entry numbers its imports in this order, so sorting keeps the emitted source byte-stable.
+    const findOverrideFiles = () => findFilesRecursively(root, pattern).filter(hasContent).sort();
+
     return {
         name: 'shopware-vite-plugin-override-component',
 
         configResolved() {
-            // Find all override files. Sorted because the directory walk follows filesystem order, which
-            // differs between machines - and the generated entry numbers its imports in this order, so
-            // sorting is what keeps the emitted source byte-stable across builds.
-            overrideFiles = findFilesRecursively(root, pattern).sort();
+            overrideFiles = findOverrideFiles();
         },
 
         /**
-         * The entry imports every override file found at startup, so adding or removing one changes the entry.
+         * The entry imports every override file with content found at startup, so adding or removing one,
+         * or giving an empty one content, changes the entry.
          * The new entry registers the overrides again, which only a page reload can apply.
          */
         hotUpdate({ type, file }) {
-            if (type === 'update' || this.environment.name !== 'client' || !pattern.test(file)) {
+            if (this.environment.name !== 'client' || !pattern.test(file)) {
                 return undefined;
             }
 
-            const discovered = findFilesRecursively(root, pattern).sort();
+            if (type === 'update' && overrideFiles.includes(file) === hasContent(file)) {
+                return undefined;
+            }
+
+            const discovered = findOverrideFiles();
 
             if (discovered.join('\n') === overrideFiles.join('\n')) {
                 return undefined;

@@ -74,6 +74,21 @@ describe('build/vite-plugins/override-component-register hot updates', () => {
         expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
     });
 
+    it('reloads the page once an override file created empty gets its content', () => {
+        const { file, context, hotUpdate, entryCode } = setup();
+        fs.writeFileSync(file, '');
+
+        expect(hotUpdate('create')).toBeUndefined();
+        expect(entryCode()).not.toContain('sw-example.override.vue');
+
+        fs.writeFileSync(file, '<script setup>swDefineOverride({});</script>');
+
+        expect(hotUpdate('update')).toEqual([]);
+        expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
+        expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'full-reload', path: '*' });
+        expect(entryCode()).toContain("from './sw-example.override.vue'");
+    });
+
     it('imports an override file added before the entry was loaded without reloading the page', () => {
         const { file, context, hotUpdate, entryCode } = setup({ loadedEntry: false });
         fs.writeFileSync(file, '<script setup>swDefineOverride({});</script>');

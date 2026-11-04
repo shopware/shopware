@@ -126,6 +126,13 @@ describe('build/vite-plugins/utils', () => {
             expect(proxy['/_internal_app/swag-example/'].target).toBe(`http://127.0.0.1:${appPort}`);
             expect(proxy['/_internal_ext/swag-example/'].target).toBe(`http://127.0.0.1:${pluginPort}`);
         });
+
+        it('only reserves the port of the Administration without separate extension servers', async () => {
+            await exportViteServerMapping(false);
+
+            expect(getViteServerPorts()).toEqual({});
+            expect(getMainViteServerConfig().proxy).toEqual({});
+        });
     });
 
     describe('getDevServerHttpsConfig', () => {

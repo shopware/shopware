@@ -237,9 +237,11 @@ type ViteServerMapping = {
 
 /**
  * @private
+ *
+ * Without separate extension servers, as with Vite 8, only the port of the Administration is reserved.
  */
-export async function exportViteServerMapping(): Promise<void> {
-    const extensions = loadExtensions();
+export async function exportViteServerMapping(withExtensionServers = true): Promise<void> {
+    const extensions = withExtensionServers ? loadExtensions() : [];
 
     const mapping = new Map<string, ViteServerMapping>();
     const ports = await findAvailablePorts(Number(process.env.ADMIN_PORT) || 5173, extensions.length + 1);

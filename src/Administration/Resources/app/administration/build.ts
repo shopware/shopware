@@ -4,7 +4,7 @@
 
 import { spawn } from 'child_process';
 import { startDevelopmentProcesses } from './build/vite-plugins/development-process-runner';
-import { getViteCommand } from './build/vite-plugins/vite-toolchain';
+import { getViteCommand, isVite8ToolchainActive } from './build/vite-plugins/vite-toolchain';
 import { exportViteServerMapping } from './build/vite-plugins/utils';
 
 // Vite 8 warns about loading the CommonJS typed TypeScript of the shared build plugins, which ts-node needs.
@@ -29,7 +29,7 @@ async function run(command: string): Promise<void> {
 async function main() {
     const mode = process.env.VITE_MODE;
     const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
-    await exportViteServerMapping();
+    await exportViteServerMapping(!isVite8ToolchainActive());
 
     if (mode === 'production') {
         try {

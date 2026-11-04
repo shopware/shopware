@@ -246,6 +246,10 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

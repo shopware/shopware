@@ -247,8 +247,7 @@ class GenerateDocumentActionTest extends TestCase
         $document->setOrderId(Uuid::randomHex());
         $document->setOrderVersionId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             [],
             function (
                 Criteria $criteria,
@@ -261,13 +260,11 @@ class GenerateDocumentActionTest extends TestCase
             },
         ], new DocumentDefinition());
 
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
         $documentFileRepository = new StaticEntityRepository([
             new DocumentFileCollection([]),
         ], new DocumentFileDefinition());
 
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 

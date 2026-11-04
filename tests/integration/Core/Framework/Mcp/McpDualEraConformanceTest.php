@@ -134,6 +134,7 @@ class McpDualEraConformanceTest extends TestCase
 
         static::assertIsArray($capabilities);
         static::assertArrayHasKey('tools', $capabilities);
+        static::assertArrayNotHasKey('subscribe', (array) ($capabilities['resources'] ?? []), 'nothing publishes resource updates');
     }
 
     #[DataProvider('endpointProvider')]
@@ -145,6 +146,7 @@ class McpDualEraConformanceTest extends TestCase
         static::assertContains(McpEra::Stateless->protocolVersion()->value, $discover['supportedVersions'] ?? [], (string) json_encode($discover));
         static::assertIsArray($discover['capabilities'] ?? null);
         static::assertArrayHasKey('tools', $discover['capabilities']);
+        static::assertArrayNotHasKey('subscribe', (array) ($discover['capabilities']['resources'] ?? []), 'nothing publishes resource updates');
     }
 
     #[DataProvider('endpointProvider')]

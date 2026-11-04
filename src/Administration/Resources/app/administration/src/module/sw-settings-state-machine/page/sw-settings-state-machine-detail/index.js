@@ -10,8 +10,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [

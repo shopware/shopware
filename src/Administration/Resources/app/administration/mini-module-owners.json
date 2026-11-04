@@ -90,11 +90,15 @@
     "src/module/sw-settings-customer-group/page/sw-settings-customer-group-list": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-language/component/sw-settings-language-add-modal": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-language/page/sw-settings-language-detail": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-language/page/sw-settings-language-list": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices": "@shopware/product-cc-checkout",
     "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix": "@shopware/product-cc-checkout",
     "src/module/sw-settings-sitemap/page/sw-settings-sitemap": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch": "? @shopware/product-cc-discovery",
     "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar": "? @shopware/product-cc-discovery",
-    "src/module/sw-settings-snippet/page/sw-settings-snippet-detail": "? @shopware/product-cc-discovery"
+    "src/module/sw-settings-snippet/page/sw-settings-snippet-detail": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-snippet/page/sw-settings-snippet-list": "? @shopware/product-cc-discovery",
+    "src/module/sw-settings-snippet/page/sw-settings-snippet-set-list": "? @shopware/product-cc-discovery"
 }

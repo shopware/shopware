@@ -3,17 +3,17 @@
  */
 import template from './sw-settings-language-add-modal.html.twig';
 import './sw-settings-language-add-modal.scss';
+import { Criteria, localeName, notificationMixin, repositoryFactoryService, translationService } from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'translationService'],
+    inject: [repositoryFactoryService, translationService],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     emits: ['close', 'language-added'],
 
@@ -44,7 +44,7 @@ export default {
                     return {
                         value: translation.locale,
                         // Pseudo languages borrow a real locale code, so only their own name describes them
-                        label: isPseudoLanguage ? translation.name : Shopware.Utils.format.localeName(translation.locale),
+                        label: isPseudoLanguage ? translation.name : localeName(translation.locale),
                         disabled: isLinked || existsAsLanguage,
                         isPseudoLanguage,
                     };

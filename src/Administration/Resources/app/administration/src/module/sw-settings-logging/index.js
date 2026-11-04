@@ -5,10 +5,7 @@
 import './acl';
 import './component/sw-settings-logging-entry-info/register';
 import './component/sw-settings-logging-mail-sent-info/register';
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-logging-list', () => import('./page/sw-settings-logging-list'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
+import './page/sw-settings-logging-list/register';
 
 const { Module } = Shopware;
 

@@ -3,12 +3,9 @@
  */
 import './acl';
 import './page/sw-settings-document-detail/register';
+import './page/sw-settings-document-list/register';
 
-const { Module, Component } = Shopware;
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {

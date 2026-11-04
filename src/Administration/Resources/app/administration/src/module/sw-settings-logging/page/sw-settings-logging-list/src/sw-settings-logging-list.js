@@ -4,17 +4,19 @@
 
 import './sw-settings-logging-list.scss';
 import template from './sw-settings-logging-list.html.twig';
+import { Criteria, getDateFilter, placeholderMixin, repositoryFactoryService, swSettingsListMixin } from '../dependencies';
 
-const { Mixin, Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
-    mixins: [Mixin.getByName('sw-settings-list'), Mixin.getByName('placeholder')],
+    mixins: [swSettingsListMixin, placeholderMixin],
 
     data() {
         return {
@@ -67,7 +69,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
     },
 

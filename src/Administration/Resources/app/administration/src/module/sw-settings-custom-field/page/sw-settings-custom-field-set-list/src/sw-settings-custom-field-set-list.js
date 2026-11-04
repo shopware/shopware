@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
+import { aclService, featureService, getCacheService } from '../dependencies';
 
 const {
     Locale,
@@ -10,11 +11,13 @@ const {
     Data: { Criteria },
 } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: [aclService, featureService],
 
     mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('sw-settings-list')],
 
@@ -101,7 +104,7 @@ export default {
             return this.entityRepository
                 .delete(id)
                 .then(() => {
-                    Shopware.Service('cacheService').invalidateCaches({
+                    getCacheService().invalidateCaches({
                         cacheKey: ['custom-field-sets'],
                     });
 

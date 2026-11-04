@@ -519,11 +519,21 @@ src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 ? src/Administration/Resources/app/administration/src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/tests/requirements.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/tests/regressions.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/tests/public-api.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/component/sw-settings-language-add-modal/index.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/component/sw-settings-language-add-modal/global.d.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/component/sw-settings-language-add-modal/tests/requirements.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/component/sw-settings-language-add-modal/tests/regressions.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/component/sw-settings-language-add-modal/tests/public-api.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-detail/index.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-detail/global.d.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-detail/tests/requirements.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-detail/tests/regressions.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-detail/tests/public-api.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-list/index.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-list/global.d.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-list/tests/requirements.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-list/tests/regressions.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-language/page/sw-settings-language-list/tests/public-api.spec.ts @shopware/product-cc-discovery
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/global.d.ts @shopware/product-cc-checkout
 src/Administration/Resources/app/administration/src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/tests/requirements.spec.ts @shopware/product-cc-checkout
@@ -554,4 +564,14 @@ src/Administration/Resources/app/administration/src/module/sw-settings-shipping/
 ? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-detail/tests/requirements.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-detail/tests/regressions.spec.ts @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-detail/tests/public-api.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-list/index.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-list/global.d.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-list/tests/requirements.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-list/tests/regressions.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-list/tests/public-api.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/index.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/global.d.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/tests/requirements.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/tests/regressions.spec.ts @shopware/product-cc-discovery
+? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/tests/public-api.spec.ts @shopware/product-cc-discovery
 # end of the generated mini-modules

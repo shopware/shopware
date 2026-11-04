@@ -13,11 +13,10 @@ import './component/sw-custom-field-type-entity/register';
 import './component/sw-custom-field-type-number/register';
 import './page/sw-settings-custom-field-set-detail/register';
 import './page/sw-settings-custom-field-set-create/register';
+import './page/sw-settings-custom-field-set-list/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-custom-field-set-list', () => import('./page/sw-settings-custom-field-set-list'));
 Shopware.Component.extend(
     'sw-custom-field-type-text',
     'sw-custom-field-type-base',
@@ -38,7 +37,6 @@ Shopware.Component.extend(
     'sw-custom-field-type-base',
     () => import('./component/sw-custom-field-type-colorpicker'),
 );
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-custom-field', {

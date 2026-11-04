@@ -1,5 +1,6 @@
 import template from './sw-settings-document-list.html.twig';
 import './sw-settings-document-list.scss';
+import { aclService } from '../dependencies';
 
 const {
     Mixin,
@@ -8,12 +9,13 @@ const {
 
 /**
  * @sw-package after-sales
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [aclService],
 
     mixins: [Mixin.getByName('sw-settings-list')],
 

@@ -3,21 +3,24 @@
  */
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
+import { aclService, featureService, getDateFilter, repositoryFactoryService, snippetSetService } from '../dependencies';
 
 const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'snippetSetService',
-        'repositoryFactory',
-        'acl',
-        'feature',
+        snippetSetService,
+        repositoryFactoryService,
+        aclService,
+        featureService,
     ],
 
     mixins: [Mixin.getByName('sw-settings-list')],
@@ -69,7 +72,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
 
         baseFileOptions() {

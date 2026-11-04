@@ -5,18 +5,16 @@ import './acl';
 import './component/sidebar/sw-settings-snippet-filter-switch/register';
 import './component/sidebar/sw-settings-snippet-sidebar/register';
 import './page/sw-settings-snippet-detail/register';
+import './page/sw-settings-snippet-list/register';
+import './page/sw-settings-snippet-set-list/register';
 
 const { Module } = Shopware;
 
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-snippet-set-list', () => import('./page/sw-settings-snippet-set-list'));
-Shopware.Component.register('sw-settings-snippet-list', () => import('./page/sw-settings-snippet-list'));
 Shopware.Component.extend(
     'sw-settings-snippet-create',
     'sw-settings-snippet-detail',
     () => import('./page/sw-settings-snippet-create'),
 );
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-snippet', {

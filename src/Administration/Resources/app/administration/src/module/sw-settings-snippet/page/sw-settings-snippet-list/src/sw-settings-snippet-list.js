@@ -1,25 +1,35 @@
 /**
  * @sw-package discovery
  */
-import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 import './sw-settings-snippet-list.scss';
+import {
+    aclService,
+    getUserConfigService,
+    repositoryFactoryService,
+    Sanitizer,
+    snippetService,
+    snippetSetService,
+    userService,
+} from '../dependencies';
 
 const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'snippetSetService',
-        'snippetService',
-        'userService',
-        'repositoryFactory',
-        'acl',
+        snippetSetService,
+        snippetService,
+        userService,
+        repositoryFactoryService,
+        aclService,
     ],
 
     mixins: [Mixin.getByName('sw-settings-list')],
@@ -223,14 +233,15 @@ export default {
         },
 
         async getFilterSettings() {
-            const userConfig = (await Shopware.Service('userConfigService').search(['grid.filter.setting-snippet-list']))
-                ?.data?.['grid.filter.setting-snippet-list'];
+            const userConfig = (await getUserConfigService().search(['grid.filter.setting-snippet-list']))?.data?.[
+                'grid.filter.setting-snippet-list'
+            ];
 
             this.filterSettings = userConfig || this.createFilterSettings();
         },
 
         saveUserConfig() {
-            return Shopware.Service('userConfigService').upsert({
+            return getUserConfigService().upsert({
                 'grid.filter.setting-snippet-list': this.filterSettings,
             });
         },

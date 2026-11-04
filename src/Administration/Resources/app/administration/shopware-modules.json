@@ -1172,6 +1172,9 @@
             "sw-settings-custom-field-set-detail": [
                 "default"
             ],
+            "sw-settings-custom-field-set-list": [
+                "default"
+            ],
             "sw-settings-customer-group-detail": [
                 "default"
             ],
@@ -1187,13 +1190,22 @@
             "sw-settings-document-detail": [
                 "default"
             ],
+            "sw-settings-document-list": [
+                "default"
+            ],
             "sw-settings-index": [
                 "default"
             ],
             "sw-settings-item": [
                 "default"
             ],
+            "sw-settings-language-add-modal": [
+                "default"
+            ],
             "sw-settings-language-detail": [
+                "default"
+            ],
+            "sw-settings-language-list": [
                 "default"
             ],
             "sw-settings-listing": [
@@ -1221,6 +1233,9 @@
                 "default"
             ],
             "sw-settings-logging-entry-info": [
+                "default"
+            ],
+            "sw-settings-logging-list": [
                 "default"
             ],
             "sw-settings-logging-mail-sent-info": [
@@ -1347,6 +1362,12 @@
                 "default"
             ],
             "sw-settings-snippet-filter-switch": [
+                "default"
+            ],
+            "sw-settings-snippet-list": [
+                "default"
+            ],
+            "sw-settings-snippet-set-list": [
                 "default"
             ],
             "sw-settings-snippet-sidebar": [
@@ -1762,14 +1783,18 @@
             "sw-settings-currency-list": "src/module/sw-settings-currency/page/sw-settings-currency-list",
             "sw-settings-custom-field-set-create": "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create",
             "sw-settings-custom-field-set-detail": "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail",
+            "sw-settings-custom-field-set-list": "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list",
             "sw-settings-customer-group-detail": "src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail",
             "sw-settings-customer-group-list": "src/module/sw-settings-customer-group/page/sw-settings-customer-group-list",
             "sw-settings-delivery-time-detail": "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail",
             "sw-settings-delivery-time-list": "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list",
             "sw-settings-document-detail": "src/module/sw-settings-document/page/sw-settings-document-detail",
+            "sw-settings-document-list": "src/module/sw-settings-document/page/sw-settings-document-list",
             "sw-settings-index": "src/module/sw-settings/page/sw-settings-index",
             "sw-settings-item": "src/module/sw-settings/component/sw-settings-item",
+            "sw-settings-language-add-modal": "src/module/sw-settings-language/component/sw-settings-language-add-modal",
             "sw-settings-language-detail": "src/module/sw-settings-language/page/sw-settings-language-detail",
+            "sw-settings-language-list": "src/module/sw-settings-language/page/sw-settings-language-list",
             "sw-settings-listing": "src/module/sw-settings-listing/page/sw-settings-listing",
             "sw-settings-listing-default-sales-channel": "src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel",
             "sw-settings-listing-delete-modal": "src/module/sw-settings-listing/component/sw-settings-listing-delete-modal",
@@ -1779,6 +1804,7 @@
             "sw-settings-listing-option-general-info": "src/module/sw-settings-listing/component/sw-settings-listing-option-general-info",
             "sw-settings-listing-visibility-detail": "src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail",
             "sw-settings-logging-entry-info": "src/module/sw-settings-logging/component/sw-settings-logging-entry-info",
+            "sw-settings-logging-list": "src/module/sw-settings-logging/page/sw-settings-logging-list",
             "sw-settings-logging-mail-sent-info": "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info",
             "sw-settings-login-registration": "src/module/sw-settings-login-registration/page/sw-settings-login-registration",
             "sw-settings-mailer": "src/module/sw-settings-mailer/page/sw-settings-mailer",
@@ -1821,6 +1847,8 @@
             "sw-settings-sitemap": "src/module/sw-settings-sitemap/page/sw-settings-sitemap",
             "sw-settings-snippet-detail": "src/module/sw-settings-snippet/page/sw-settings-snippet-detail",
             "sw-settings-snippet-filter-switch": "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch",
+            "sw-settings-snippet-list": "src/module/sw-settings-snippet/page/sw-settings-snippet-list",
+            "sw-settings-snippet-set-list": "src/module/sw-settings-snippet/page/sw-settings-snippet-set-list",
             "sw-settings-snippet-sidebar": "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar",
             "sw-settings-state-machine-detail": "src/module/sw-settings-state-machine/page/sw-settings-state-machine-detail",
             "sw-settings-state-machine-list": "src/module/sw-settings-state-machine/page/sw-settings-state-machine-list",

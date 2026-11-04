@@ -2800,6 +2800,12 @@ declare module 'shopware:components/sw-settings-custom-field-set-detail' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-custom-field-set-list' {
+    export { default } from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
+    export type * from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-customer-group-detail' {
     export { default } from 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
     export type * from 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
@@ -2830,6 +2836,12 @@ declare module 'shopware:components/sw-settings-document-detail' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-document-list' {
+    export { default } from 'src/module/sw-settings-document/page/sw-settings-document-list';
+    export type * from 'src/module/sw-settings-document/page/sw-settings-document-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-index' {
     export { default } from 'src/module/sw-settings/page/sw-settings-index';
     export type * from 'src/module/sw-settings/page/sw-settings-index';
@@ -2842,9 +2854,21 @@ declare module 'shopware:components/sw-settings-item' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-language-add-modal' {
+    export { default } from 'src/module/sw-settings-language/component/sw-settings-language-add-modal';
+    export type * from 'src/module/sw-settings-language/component/sw-settings-language-add-modal';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-language-detail' {
     export { default } from 'src/module/sw-settings-language/page/sw-settings-language-detail';
     export type * from 'src/module/sw-settings-language/page/sw-settings-language-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-language-list' {
+    export { default } from 'src/module/sw-settings-language/page/sw-settings-language-list';
+    export type * from 'src/module/sw-settings-language/page/sw-settings-language-list';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -2899,6 +2923,12 @@ declare module 'shopware:components/sw-settings-listing-visibility-detail' {
 declare module 'shopware:components/sw-settings-logging-entry-info' {
     export { default } from 'src/module/sw-settings-logging/component/sw-settings-logging-entry-info';
     export type * from 'src/module/sw-settings-logging/component/sw-settings-logging-entry-info';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-logging-list' {
+    export { default } from 'src/module/sw-settings-logging/page/sw-settings-logging-list';
+    export type * from 'src/module/sw-settings-logging/page/sw-settings-logging-list';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -3151,6 +3181,18 @@ declare module 'shopware:components/sw-settings-snippet-detail' {
 declare module 'shopware:components/sw-settings-snippet-filter-switch' {
     export { default } from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';
     export type * from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-snippet-list' {
+    export { default } from 'src/module/sw-settings-snippet/page/sw-settings-snippet-list';
+    export type * from 'src/module/sw-settings-snippet/page/sw-settings-snippet-list';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-snippet-set-list' {
+    export { default } from 'src/module/sw-settings-snippet/page/sw-settings-snippet-set-list';
+    export type * from 'src/module/sw-settings-snippet/page/sw-settings-snippet-set-list';
 }
 
 /** @experimental stableVersion:v6.8.0 */

@@ -79,7 +79,7 @@ tester.run('no-tc-translation', rule, {
         {
             name: 'this.$tc() should be this.$t()',
             code: `this.$tc('some.translation.key');`,
-            output: `${HINT}this.$t('some.translation.key');`,
+            output: `this.$t('some.translation.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -91,7 +91,7 @@ tester.run('no-tc-translation', rule, {
         {
             name: '$tc() without this (template context)',
             code: `$tc('some.translation.key');`,
-            output: `${HINT}$t('some.translation.key');`,
+            output: `$t('some.translation.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -109,25 +109,25 @@ tester.run('no-tc-translation', rule, {
         {
             name: 'multiple $tc calls in one file',
             code: `this.$tc('key.one'); this.$tc('key.two');`,
-            output: `${HINT}this.$t('key.one'); ${HINT}this.$t('key.two');`,
+            output: `this.$t('key.one'); this.$t('key.two');`,
             errors: [{ messageId: 'noTc' }, { messageId: 'noTc' }],
         },
         {
             name: 'Shopware.Snippet.tc() should be Shopware.Snippet.t()',
             code: `Shopware.Snippet.tc('some.key');`,
-            output: `${HINT}Shopware.Snippet.t('some.key');`,
+            output: `Shopware.Snippet.t('some.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: 'optional chained Shopware.Snippet?.tc() should be Shopware.Snippet?.t()',
             code: `Shopware.Snippet?.tc('some.key');`,
-            output: `${HINT}Shopware.Snippet?.t('some.key');`,
+            output: `Shopware.Snippet?.t('some.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: 'destructured Snippet.tc() should be Snippet.t()',
             code: `Snippet.tc('some.key');`,
-            output: `${HINT}Snippet.t('some.key');`,
+            output: `Snippet.t('some.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -233,7 +233,7 @@ templateTester.run('no-tc-translation (template)', rule, {
         {
             name: '$tc() in a mustache should be $t()',
             code: `<template><div>{{ $tc('some.key') }}</div></template>`,
-            output: `<template><div>{{ ${HINT}$t('some.key') }}</div></template>`,
+            output: `<template><div>{{ $t('some.key') }}</div></template>`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -265,7 +265,7 @@ templateTester.run('no-tc-translation (twig template)', rule, {
             name: '$tc() in a v-if condition of a twig template should be $t()',
             filename: 'sw-foo.html.twig',
             code: `<template><div v-if="$tc('x')" /></template>`,
-            output: `<template><div v-if="${HINT}$t('x')" /></template>`,
+            output: `<template><div v-if="$t('x')" /></template>`,
             errors: [{ messageId: 'noTc' }],
         },
     ],
@@ -277,12 +277,56 @@ tester.run('no-tc-translation message', rule, {
         {
             name: 'carries the registry description and the pluralization review hint',
             code: `this.$tc('a.b');`,
-            output: `${HINT}this.$t('a.b');`,
+            output: `this.$t('a.b');`,
             errors: [
                 {
                     message: /verify pluralization and count interpolation manually\.\nThe \$tc translation helper is deprecated\.[\s\S]*Removed in Shopware 6\.9\.0\./,
                 },
             ],
+        },
+    ],
+});
+
+tester.run('no-tc-translation in a file that defines its own $tc', rule, {
+    valid: [],
+    invalid: [
+        {
+            name: 'reports a call on a class with its own $tc method without renaming it',
+            code: `class Service { $tc(key) { return root.$tc(key); } caption() { return this.$tc('a.b'); } }`,
+            output: null,
+            errors: [{ messageId: 'noTcOwnDefinition' }, { messageId: 'noTcOwnDefinition' }],
+        },
+        {
+            name: 'reports a call on a helper that stores a passed $tc without renaming it',
+            code: `class Helper { constructor({ $tc }) { this.$tc = $tc; } label() { return this.$tc('a.b'); } }`,
+            output: null,
+            errors: [{ messageId: 'noTcOwnDefinition' }],
+        },
+    ],
+});
+
+templateTester.run('no-tc-translation in twig mustaches', rule, {
+    valid: [
+        {
+            name: 'leaves Twig expressions and $t() in mustaches alone',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div>{{ parent() }} {{ 'a'|trans }} {{ $t('a.b') }}</div></template>`,
+        },
+    ],
+    invalid: [
+        {
+            name: 'renames $tc() in a mustache of a twig template',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div>{{ $tc('a.b') }}</div></template>`,
+            output: `<template><div>{{ $t('a.b') }}</div></template>`,
+            errors: [{ messageId: 'noTc' }],
+        },
+        {
+            name: 'renames every $tc() of a mustache and adds the review hint to a call with a count',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div>{{ $tc('a.b', count) + $tc('c.d') }}</div></template>`,
+            output: `<template><div>{{ ${HINT}$t('a.b', count) + $t('c.d') }}</div></template>`,
+            errors: [{ messageId: 'noTc' }, { messageId: 'noTc' }],
         },
     ],
 });

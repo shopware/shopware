@@ -263,7 +263,7 @@
       "count": 1
     }
   },
-  "src/app/component/base/sw-chart/sw-chart.spec/options.spec.js": {
+  "src/app/component/base/sw-chart/sw-chart.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 15
     }

@@ -2,14 +2,84 @@
  * @sw-package framework
  */
 
-import { setup } from './sw-chart.fixtures';
+import { mount } from '@vue/test-utils';
+import nl from 'apexcharts/dist/locales/nl.json';
+import VueApexCharts from 'vue3-apexcharts';
+import localeLoaders from './locales';
+
+// mock data
+const chartOptions = {
+    title: { text: 'Phenomenal chart' },
+    chart: {
+        toolbar: {
+            show: true,
+        },
+    },
+};
+
+const chartSeries = [
+    {
+        name: 'Demo Serie',
+        data: [
+            10,
+            41,
+            35,
+            51,
+            49,
+            62,
+            69,
+            91,
+            148,
+        ],
+    },
+    {
+        name: 'Another demo Serie',
+        data: [
+            12,
+            24,
+            35,
+            58,
+            88,
+            95,
+            125,
+            145,
+            148,
+        ],
+    },
+];
+
+const setAdminLocale = (locale) => {
+    Shopware.Store.get('session').setAdminLocaleState({
+        locale,
+        locales: ['en-GB', 'nl-NL', locale],
+    });
+};
+
+const renderedChartOptions = (wrapper) => wrapper.getComponent(VueApexCharts).props('options').chart;
+
+// initial component setup
+const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
+    return mount(await wrapTestComponent('sw-chart', { sync: true }), {
+        props: {
+            type: type || 'line',
+            series: series || chartSeries,
+            options: options || chartOptions,
+            fillEmptyValues: fillEmptyValues,
+            sort: sort || false,
+        },
+        global: {
+            stubs: ['apexchart'],
+        },
+    });
+};
 
 describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
-        Shopware.Store.get('session').setAdminLocaleState({
-            locale: 'en-GB',
-            locales: ['en-GB', 'nl-NL'],
-        });
+        setAdminLocale('en-GB');
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should override some default options', async () => {
@@ -271,5 +341,60 @@ describe('asyncComponent/base/sw-chart', () => {
         });
 
         expect(wrapper.vm.optimizedSeries).toEqual(convertedSeriesStructure);
+    });
+
+    it.each(Object.entries(localeLoaders))('provides the ApexCharts locale named "%s"', async (language, load) => {
+        const { default: locale } = await load();
+
+        expect(locale.name).toBe(language);
+    });
+
+    it('should load the correct default locale', async () => {
+        setAdminLocale('nl-NL');
+        let resolveLocale;
+        jest.spyOn(localeLoaders, 'nl').mockReturnValue(
+            new Promise((resolve) => {
+                resolveLocale = resolve;
+            }),
+        );
+
+        const wrapper = await setup();
+        await flushPromises();
+
+        expect(wrapper.findComponent(VueApexCharts).exists()).toBe(false);
+
+        resolveLocale({ default: nl });
+        await flushPromises();
+
+        expect(renderedChartOptions(wrapper).defaultLocale).toBe('nl');
+        expect(renderedChartOptions(wrapper).locales).toEqual([nl]);
+    });
+
+    it.each([
+        'en-GB',
+        'foo-BAR',
+    ])('should load the fallback locale when default locale does not exist: %s', async (adminLocale) => {
+        setAdminLocale(adminLocale);
+        const loaders = Object.keys(localeLoaders).map((language) => jest.spyOn(localeLoaders, language));
+
+        const wrapper = await setup();
+        await flushPromises();
+
+        loaders.forEach((loader) => expect(loader).not.toHaveBeenCalled());
+        expect(renderedChartOptions(wrapper).defaultLocale).toBe('en');
+        expect(renderedChartOptions(wrapper)).not.toHaveProperty('locales');
+    });
+
+    it('falls back to English when the locale cannot be loaded', async () => {
+        setAdminLocale('nl-NL');
+        jest.spyOn(localeLoaders, 'nl').mockRejectedValue(new Error('offline'));
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const wrapper = await setup();
+        await flushPromises();
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(renderedChartOptions(wrapper).defaultLocale).toBe('en');
+        expect(renderedChartOptions(wrapper)).not.toHaveProperty('locales');
     });
 });

@@ -3610,11 +3610,6 @@
       "count": 1
     }
   },
-  "src/app/store/main-module.store.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/store/marketing.store.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -4823,11 +4818,6 @@
   },
   "src/index.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/meta/baseline.ts": {
-    "max-lines": {
       "count": 1
     }
   },
@@ -9406,11 +9396,6 @@
   "src/module/sw-product-stream/component/sw-product-stream-filter/sw-product-stream-filter.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 12
-    }
-  },
-  "src/module/sw-product-stream/component/sw-product-stream-filter/type-provider.js": {
-    "filename-rules/not-match": {
-      "count": 1
     }
   },
   "src/module/sw-product-stream/component/sw-product-stream-modal-preview/index.js": {

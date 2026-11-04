@@ -209,7 +209,7 @@ export function loadExtensions(): ExtensionDefinition[] {
 /**
  * @private
  */
-export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
+async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
     const ports = [];
     let currentPort = startPort;
     const maxPort = 65535;

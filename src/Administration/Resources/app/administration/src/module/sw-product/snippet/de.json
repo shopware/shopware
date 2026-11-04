@@ -600,6 +600,8 @@
       "emptyDescriptionOtherLanguage": "Wechsle zur Standard-Inhaltssprache {language}, um Dokumente hinzuzufügen.",
       "defaultLanguage": "Standardsprache",
       "buttonAdd": "Dokumente hinzufügen",
+      "addLanguageVersion": "Version auf {language} hinzufügen",
+      "fileFallbackHint": "Ohne eine Datei an dieser Stelle erhalten Kundinnen und Kunden die Datei aus der Fallback-Sprache.",
       "removeLanguageVersion": "Version auf {language} entfernen",
       "removeLanguageVersionTitle": "Version auf {language} von „{name}“ entfernen?",
       "removeLanguageVersionDescription": "Die Version auf {language} wird entfernt. Kundinnen und Kunden, die auf {language} einkaufen, erhalten stattdessen die Version auf {fallbackLanguage}. Die Datei bleibt unter „Medien“ verfügbar.",

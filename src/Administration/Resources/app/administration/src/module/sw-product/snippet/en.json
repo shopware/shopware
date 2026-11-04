@@ -600,6 +600,8 @@
       "emptyDescriptionOtherLanguage": "Switch the content language to the default language {language} to add documents.",
       "defaultLanguage": "default language",
       "buttonAdd": "Add documents",
+      "addLanguageVersion": "Add {language} version",
+      "fileFallbackHint": "Without a file here, customers get the file from the fallback language.",
       "removeLanguageVersion": "Remove {language} version",
       "removeLanguageVersionTitle": "Remove {language} version of \"{name}\"?",
       "removeLanguageVersionDescription": "The {language} version will be removed. Customers who shop in {language} will get the {fallbackLanguage} one instead. The file will still be available under 'Media'.",

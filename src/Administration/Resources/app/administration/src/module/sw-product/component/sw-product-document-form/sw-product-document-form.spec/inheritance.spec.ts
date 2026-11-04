@@ -129,7 +129,8 @@ describe('sw-product-document-form inheritance', () => {
         expect(getDocuments()![0].translated).not.toBe(document.translated);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props()).toMatchObject({
-            modelValue: 'Default language title',
+            modelValue: '',
+            placeholder: 'Default language title',
         });
         expect(wrapper.get<HTMLButtonElement>('.sw-product-document-form__save-document').element.disabled).toBe(false);
         await clickButton(wrapper, 'global.default.apply');

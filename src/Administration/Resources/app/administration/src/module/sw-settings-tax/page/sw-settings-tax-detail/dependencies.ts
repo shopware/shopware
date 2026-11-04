@@ -7,7 +7,7 @@ import { cacheService } from 'src/app/service-names';
 import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

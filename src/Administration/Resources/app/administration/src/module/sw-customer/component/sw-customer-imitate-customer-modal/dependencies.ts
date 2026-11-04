@@ -10,7 +10,7 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { default as ApiService } from 'src/core/service/api.service';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { contextStoreService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

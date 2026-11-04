@@ -8,7 +8,7 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
 export type { default as RepositoryType } from 'src/core/data/repository.data';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { documentV2Service, numberRangeService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 /** @private */

@@ -6,7 +6,7 @@
 import { currencyFilterName } from 'src/app/filter/currency.filter';
 
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
 export { default as cmsElementMixin } from '../../../mixin/sw-cms-element.mixin';
 

@@ -4,7 +4,7 @@
  * Everything sw-multi-select needs from outside its mini-module.
  */
 /** @private */
-export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error.mixin';
+export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error';
 /** @private */
 export { feature as featureService } from 'src/app/service-names';
 

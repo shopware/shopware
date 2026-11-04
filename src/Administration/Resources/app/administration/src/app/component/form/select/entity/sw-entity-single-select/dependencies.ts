@@ -8,9 +8,9 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error.mixin';
+export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error';
 /** @private */
 export { feature as featureService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

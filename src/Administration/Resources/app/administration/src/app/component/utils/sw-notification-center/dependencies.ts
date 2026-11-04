@@ -10,7 +10,7 @@ export { default as EventBus } from 'src/core/service/utils/eventBus.utils';
 /** @private */
 export { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { feature as featureService } from 'src/app/service-names';
 

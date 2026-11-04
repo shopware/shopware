@@ -11,7 +11,7 @@ export type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtT
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { feature as featureService } from 'src/app/service-names';
 /** @private */

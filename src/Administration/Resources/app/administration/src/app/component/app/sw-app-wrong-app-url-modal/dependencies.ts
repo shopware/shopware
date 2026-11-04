@@ -8,7 +8,7 @@ import { contextStoreId } from 'src/app/store/context';
 import { notificationStoreId } from 'src/app/store/notification';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 
 /** @private */
 export const useContextStore = () => Shopware.Store.get(contextStoreId);

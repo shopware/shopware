@@ -14,9 +14,9 @@ export { default as EntityCollection } from 'src/core/data/entity-collection.dat
 /** @private */
 export { dom } from 'src/core/service/util.service';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
 export {
     acl as aclService,

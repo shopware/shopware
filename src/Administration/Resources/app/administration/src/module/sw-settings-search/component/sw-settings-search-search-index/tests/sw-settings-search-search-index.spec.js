@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import 'src/app/mixin/notification.mixin';
+import 'src/app/mixin/notification/register';
 
 async function createWrapper(privileges = []) {
     return mount(

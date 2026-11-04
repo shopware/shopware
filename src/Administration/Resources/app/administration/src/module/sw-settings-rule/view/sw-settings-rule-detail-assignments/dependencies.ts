@@ -10,7 +10,7 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { get, set } from 'src/core/service/utils/object.utils';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

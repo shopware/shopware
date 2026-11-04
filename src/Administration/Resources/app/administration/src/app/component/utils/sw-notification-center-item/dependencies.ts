@@ -6,7 +6,7 @@
 import { notificationStoreId } from 'src/app/store/notification';
 
 /** @private */
-export { default as notificationTranslationMixin } from 'src/app/mixin/notification-translation.mixin';
+export { default as notificationTranslationMixin } from 'src/app/mixin/notification-translation';
 
 /** @private */
 export const useNotificationStore = () => Shopware.Store.get(notificationStoreId);

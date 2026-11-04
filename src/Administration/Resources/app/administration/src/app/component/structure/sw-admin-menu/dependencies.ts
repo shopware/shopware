@@ -18,7 +18,7 @@ export { default as EventBus } from 'src/core/service/utils/eventBus.utils';
 /** @private */
 export { default as useModuleIconColors } from 'src/app/composables/use-module-icon-colors';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

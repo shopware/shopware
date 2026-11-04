@@ -11,7 +11,7 @@ export { default as EntityCollection } from 'src/core/data/entity-collection.dat
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 
 /** @private */
 export const useCmsPageStore = () => Shopware.Store.get(cmsPageStoreId);

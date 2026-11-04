@@ -6,7 +6,7 @@
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

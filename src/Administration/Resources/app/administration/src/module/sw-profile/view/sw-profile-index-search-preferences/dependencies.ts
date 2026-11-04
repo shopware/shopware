@@ -8,7 +8,7 @@ import { swProfileStoreId } from '../../store/sw-profile.store';
 /** @private */
 export { default as EventBus } from 'src/core/service/utils/eventBus.utils';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { searchPreferencesService, searchRankingService } from 'src/app/service-names';
 

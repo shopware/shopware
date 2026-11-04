@@ -8,7 +8,7 @@ export { default as Criteria } from '@shopware-ag/meteor-admin-sdk/es/data/Crite
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

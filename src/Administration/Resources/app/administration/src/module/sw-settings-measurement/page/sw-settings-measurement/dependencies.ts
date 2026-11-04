@@ -11,7 +11,7 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

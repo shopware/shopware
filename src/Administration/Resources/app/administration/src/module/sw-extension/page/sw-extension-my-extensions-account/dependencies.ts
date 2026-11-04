@@ -11,7 +11,7 @@ export type { AxiosError } from 'axios';
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { shopwareExtensionService, storeService, systemConfigApiService } from 'src/app/service-names';
 /** @private */

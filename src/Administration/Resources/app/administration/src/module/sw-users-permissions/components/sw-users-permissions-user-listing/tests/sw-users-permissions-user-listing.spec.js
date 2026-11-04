@@ -4,7 +4,7 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/mixin/translate-with-fallback.mixin';
+import 'src/app/mixin/translate-with-fallback/register';
 
 async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(

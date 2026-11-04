@@ -28,7 +28,7 @@ export interface UseValidationOptions {
  * `currentValue`, `value` or `selections` existed. That name is not knowable up front, so the
  * composable leaves it out — pass the value to `validate(...)` instead.
  *
- * Keep this and `src/app/mixin/validation.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/validation` in sync — change both together.
  *
  * @private
  */

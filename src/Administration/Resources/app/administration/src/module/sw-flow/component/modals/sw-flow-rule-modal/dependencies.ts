@@ -12,9 +12,9 @@ export { mapState } from 'pinia';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
 export {
     feature as featureService,

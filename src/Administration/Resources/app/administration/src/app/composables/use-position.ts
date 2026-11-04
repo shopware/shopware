@@ -11,7 +11,7 @@ import Criteria from 'src/core/data/criteria.data';
  * collection. The mixin's helpers never touched `this` beyond calling each other, so the bodies are
  * duplicated as-is; the mixin stays in place for Options API components.
  *
- * Keep this and `src/app/mixin/position.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/position` in sync — change both together.
  *
  * @private
  */

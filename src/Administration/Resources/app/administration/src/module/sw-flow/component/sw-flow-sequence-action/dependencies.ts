@@ -17,7 +17,7 @@ export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';
 /** @private */
-export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet.mixin';
+export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet';
 /** @private */
 export {
     feature as featureService,

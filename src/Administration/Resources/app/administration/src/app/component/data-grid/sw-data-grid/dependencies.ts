@@ -8,7 +8,7 @@ import { userConfigService } from 'src/app/service-names';
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';
 /** @private */
-export { default as translateWithFallbackMixin } from 'src/app/mixin/translate-with-fallback.mixin';
+export { default as translateWithFallbackMixin } from 'src/app/mixin/translate-with-fallback';
 /** @private */
 export {
     acl as aclService,

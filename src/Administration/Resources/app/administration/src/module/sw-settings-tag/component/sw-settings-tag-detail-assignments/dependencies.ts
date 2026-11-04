@@ -8,7 +8,7 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { default as utils } from 'src/core/service/util.service';
 /** @private */
-export { default as listingMixin } from 'src/app/mixin/listing.mixin';
+export { default as listingMixin } from 'src/app/mixin/listing';
 /** @private */
 export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

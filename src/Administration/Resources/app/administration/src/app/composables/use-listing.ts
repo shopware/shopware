@@ -104,7 +104,7 @@ export interface UseListingReturn {
  * runs `onMounted`, because `getList` is a callback the caller can only close over once this call has
  * returned. A list page that relied on the load happening before the first render has to be verified.
  *
- * Keep this and `src/app/mixin/listing.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/listing` in sync — change both together.
  *
  * @private
  */

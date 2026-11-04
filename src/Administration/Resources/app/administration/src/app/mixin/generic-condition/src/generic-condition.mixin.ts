@@ -1,0 +1,272 @@
+/**
+ * @sw-package framework
+ */
+import {
+    cloneDeep,
+    convertUnit,
+    createCriteriaFromArray,
+    type Criteria,
+    defineComponent,
+    type RuleConditionService,
+    useRuleConditionsConfigStore,
+} from '../dependencies';
+
+interface Field {
+    name: string;
+    type: string;
+    config: {
+        name: string;
+        componentName?: string;
+        criteria: Criteria;
+        options: unknown[];
+        placeholder: string;
+        descriptionProperty?: string;
+        descriptionPosition?: string;
+    };
+}
+
+interface Config {
+    operatorSet: null;
+    fields: Field[];
+}
+
+type BetweenValue = {
+    from: string | null;
+    to: string | null;
+};
+
+/**
+ * Field types whose compared value is a list. Used to pick the "is one of / is none of" operator labels
+ * over "is equal to / is not equal to".
+ */
+const LIST_VALUED_FIELD_TYPES = ['multi-entity-id-select', 'multi-select', 'tagged'];
+
+/* Mixin uses many untyped dependencies */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
+
+/**
+ * @public
+ */
+export default defineComponent({
+    data(): {
+        visibleValue: null | number;
+        baseUnit: unknown;
+        selectedUnit: unknown;
+    } {
+        return {
+            visibleValue: null,
+            baseUnit: null,
+            selectedUnit: null,
+        };
+    },
+
+    computed: {
+        config(): Config {
+            // @ts-expect-error - condition is available in base component
+            const config = useRuleConditionsConfigStore().getConfigForType(this.condition.type as string) as
+                | Config
+                | undefined;
+
+            if (!config) {
+                return { operatorSet: null, fields: [] };
+            }
+
+            return config;
+        },
+
+        inputKey(): string | null {
+            if (!this.config.fields.length) {
+                return null;
+            }
+
+            return this.config.fields[0].name;
+        },
+
+        operators(): ReturnType<RuleConditionService['getOperatorOptionsByIdentifiers']> | null {
+            if (!this.config.operatorSet) {
+                return null;
+            }
+
+            const isMultiValue = Object.values(this.config.fields ?? {}).some((field) =>
+                LIST_VALUED_FIELD_TYPES.includes(field.type),
+            );
+
+            // @ts-expect-error
+            return this.conditionDataProviderService.getOperatorOptionsByIdentifiers(
+                // @ts-expect-error
+                this.config.operatorSet.operators,
+                isMultiValue,
+            );
+        },
+
+        /**
+         * This computed property serves the purpose of dynamically matching the values of the condition from the config.
+         * From the config we create nested properties with their own getters/setters. We iterate the `fields` objects
+         * that contain the properties `type` and `name` for each field. The `type` property is used to determine
+         * the initial value of the nested property within the getter. The `name` property is used as the key within
+         * the `rule_condition` entities `value` object, setting/getting the actual values accordingly.
+         */
+        values() {
+            const values = {};
+
+            Object.values(this.config.fields).forEach((field) => {
+                const { name, type } = field;
+
+                Object.defineProperty(values, name, {
+                    get: () => {
+                        // @ts-expect-error
+                        this.ensureValueExist();
+
+                        if (['multi-entity-id-select', 'multi-select', 'tagged'].includes(type)) {
+                            // @ts-expect-error
+                            return this.condition.value[name] || [];
+                        }
+
+                        // @ts-expect-error
+                        return this.condition.value[name];
+                    },
+                    set: (value) => {
+                        // @ts-expect-error
+                        this.ensureValueExist();
+
+                        // @ts-expect-error
+                        this.condition.value = {
+                            // @ts-expect-error
+                            ...this.condition.value,
+                            [name]: value,
+                        };
+                    },
+                });
+            });
+
+            return values;
+        },
+
+        boolOptions() {
+            return [
+                {
+                    label: this.$t('global.default.yes'),
+                    value: true,
+                },
+                {
+                    label: this.$t('global.default.no'),
+                    value: false,
+                },
+            ];
+        },
+
+        conditionValueClasses(): { [key: string]: boolean } {
+            return {
+                'sw-condition__condition-value': !!this.config.operatorSet,
+                // @ts-expect-error
+                [`sw-condition__condition-type-${this.condition.type}`]: true,
+            };
+        },
+    },
+
+    methods: {
+        getBind(field: Field) {
+            const fieldClone = cloneDeep(field);
+            const snippetBasePath = [
+                'global',
+                'sw-condition-generic',
+                // @ts-expect-error
+                this.condition.type,
+                fieldClone.name,
+            ];
+            const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
+
+            if (
+                ['multi-entity-id-select', 'single-entity-id-select'].includes(fieldClone.type) &&
+                fieldClone.config.criteria
+            ) {
+                fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
+            }
+
+            if ((fieldClone.type === 'single-select' || fieldClone.type === 'multi-select') && fieldClone.config.options) {
+                fieldClone.config.options = fieldClone.config.options.map((value) => {
+                    return {
+                        label: this.$t([...snippetBasePath, 'options', value].join('.')),
+                        value,
+                    };
+                });
+            }
+
+            if (fieldClone.config.descriptionProperty) {
+                fieldClone.config.descriptionPosition ??= 'bottom';
+            }
+
+            if (fieldClone.type === 'bool') {
+                fieldClone.type = 'single-select';
+                fieldClone.config.options = this.boolOptions;
+            }
+
+            if (fieldClone.type === 'tagged') {
+                fieldClone.config.componentName ??= 'sw-multi-tag-select';
+            }
+
+            if (this.$te(placeholderPath)) {
+                fieldClone.config.placeholder = this.$t(placeholderPath);
+            }
+
+            fieldClone.config.name = `sw-field--${fieldClone.name}`;
+
+            return fieldClone;
+        },
+
+        updateFieldValue(fieldName: string, value: number, to = undefined, from = undefined) {
+            if (!from || !to || from === to) {
+                // @ts-expect-error
+                this.values[fieldName] = value;
+
+                return;
+            }
+
+            // @ts-expect-error
+            this.values[fieldName] = convertUnit(value, {
+                from,
+                to,
+            });
+        },
+
+        updateVisibleValue(value: number) {
+            this.visibleValue = value;
+        },
+
+        getVisibleValue(fieldName: string) {
+            if (this.visibleValue === null) {
+                // @ts-expect-error - value exists in main component
+                return this.values[fieldName];
+            }
+
+            return this.visibleValue;
+        },
+
+        isBetweenDateField(field: Field): boolean {
+            // @ts-expect-error - operator is available in base component
+            if (this.operator !== 'between') {
+                return false;
+            }
+
+            return ['date', 'datetime'].includes(field.type);
+        },
+
+        updateBetweenDateValue(fieldName: string, value: BetweenValue) {
+            // @ts-expect-error - value exists in main component
+            this.values[fieldName] = value;
+        },
+
+        handleUnitChange(event: { unit: unknown; value: number }) {
+            this.selectedUnit = event.unit;
+
+            this.updateVisibleValue(event.value);
+        },
+
+        /**
+         * @param event represents the base unit
+         */
+        setDefaultUnit(event: unknown) {
+            this.baseUnit = event;
+        },
+    },
+});

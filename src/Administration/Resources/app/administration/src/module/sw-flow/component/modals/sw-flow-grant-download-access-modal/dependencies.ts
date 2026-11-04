@@ -10,9 +10,9 @@ export { mapState } from 'pinia';
 /** @private */
 export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 
 /** @private */
 export const useFlowStore = () => Shopware.Store.get(swFlowStoreId);

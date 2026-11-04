@@ -8,12 +8,12 @@ import type { NotificationType, NotificationVariant } from '../store/notificatio
 /**
  * Composable alternative to the `notification` mixin.
  *
- * The logic is duplicated from `src/app/mixin/notification.mixin.ts` rather than delegated to it,
+ * The logic is duplicated from `src/app/mixin/notification` rather than delegated to it,
  * because the mixin's `createNotification*` helpers call `this.createNotification`: delegating would
  * keep resolving that call against a component's override, which a composable has no `this` to read.
  * The mixin stays in place for Options API components.
  *
- * Keep this and `src/app/mixin/notification.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/notification` in sync — change both together.
  *
  * @private
  */

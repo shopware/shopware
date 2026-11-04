@@ -10,7 +10,7 @@ import { repositoryFactory } from 'src/app/service-names';
 import { actionButtonsStoreId } from 'src/app/store/action-buttons';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { acl as aclService, mediaService } from 'src/app/service-names';
 /** @private */

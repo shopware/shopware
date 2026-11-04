@@ -9,7 +9,7 @@ import { swOrderStoreId } from '../../store/order.store';
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { default as cartNotificationMixin } from '../../mixin/cart-notification.mixin';
 /** @private */

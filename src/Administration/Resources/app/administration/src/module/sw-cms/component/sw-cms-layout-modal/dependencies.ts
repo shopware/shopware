@@ -8,7 +8,7 @@ import { dateFilterName } from 'src/app/filter/date.filter';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as listingMixin } from 'src/app/mixin/listing.mixin';
+export { default as listingMixin } from 'src/app/mixin/listing';
 /** @private */
 export {
     acl as aclService,

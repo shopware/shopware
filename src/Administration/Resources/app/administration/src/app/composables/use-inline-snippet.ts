@@ -11,7 +11,7 @@
  * `getInlineSnippet`; here they are read inline from the same globals, so nothing but the helper is
  * public. The mixin stays in place for Options API components.
  *
- * Keep this and `src/app/mixin/sw-inline-snippet.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/sw-inline-snippet` in sync — change both together.
  *
  * @private
  */

@@ -10,9 +10,9 @@ export { useSnackbar } from '@shopware-ag/meteor-component-library';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as listingMixin } from 'src/app/mixin/listing.mixin';
+export { default as listingMixin } from 'src/app/mixin/listing';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

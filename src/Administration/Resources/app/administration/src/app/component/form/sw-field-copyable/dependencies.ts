@@ -6,4 +6,4 @@
 /** @private */
 export { dom } from 'src/core/service/util.service';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';

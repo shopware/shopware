@@ -10,7 +10,7 @@ import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 /** @private */
 export { createRouter as createRouterVue, createWebHistory } from 'vue-router';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { appActionButtonService, extensionSdkService, feature as featureService } from 'src/app/service-names';
 

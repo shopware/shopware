@@ -6,7 +6,7 @@
 import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
 export {
     acl as aclService,

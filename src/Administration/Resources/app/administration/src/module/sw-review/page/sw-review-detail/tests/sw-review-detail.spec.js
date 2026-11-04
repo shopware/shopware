@@ -2,8 +2,8 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
-import 'src/app/mixin/placeholder.mixin';
-import 'src/app/mixin/salutation.mixin';
+import 'src/app/mixin/placeholder/register';
+import 'src/app/mixin/salutation/register';
 
 async function createWrapper(reviewOverrides = {}, stubOverrides = {}) {
     return mount(await wrapTestComponent('sw-review-detail', { sync: true }), {

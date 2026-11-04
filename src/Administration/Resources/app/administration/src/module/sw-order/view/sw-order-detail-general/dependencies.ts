@@ -7,7 +7,7 @@ import { currencyFilterName } from 'src/app/filter/currency.filter';
 import { swOrderDetailStoreId } from '../../store/order-detail.store';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 
 /** @private */
 export const useOrderDetailStore = () => Shopware.Store.get(swOrderDetailStoreId);

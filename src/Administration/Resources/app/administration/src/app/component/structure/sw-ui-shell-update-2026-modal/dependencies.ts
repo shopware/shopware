@@ -17,7 +17,7 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
 export { default as useTheme } from 'src/app/composables/use-theme';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 
 /** @private */
 export const getUserConfigService = () => Shopware.Service(userConfigService);

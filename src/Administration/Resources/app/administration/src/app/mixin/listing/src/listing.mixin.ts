@@ -1,0 +1,419 @@
+/**
+ * @sw-package framework
+ */
+/* @private */
+import {
+    type Criteria,
+    defineComponent,
+    featureService,
+    isEmpty,
+    type LocationQuery,
+    type RouteLocationNamedRaw,
+    searchRankingService,
+    useBulkEditStore,
+    useShopwareAppsStore,
+    warn,
+} from '../dependencies';
+
+/* @private */
+
+/* Mixin uses many untyped dependencies */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+
+/**
+ * @public
+ *
+ * Duplicated in `src/app/composables/use-listing`; change both together.
+ */
+export default defineComponent({
+    inject: [searchRankingService, featureService],
+
+    data(): {
+        page: number;
+        limit: number;
+        total: number;
+        sortBy: string | null;
+        sortDirection: string;
+        naturalSorting: boolean;
+        selection: Record<string, any>;
+        term: string | undefined;
+        disableRouteParams: boolean;
+        searchConfigEntity: string | null;
+        entitySearchable: boolean;
+        freshSearchTerm: boolean;
+        previousRouteName: string;
+    } {
+        return {
+            page: 1,
+            limit: 25,
+            total: 0,
+            sortBy: null,
+            sortDirection: 'ASC',
+            naturalSorting: false,
+            selection: [],
+            term: undefined,
+            disableRouteParams: false,
+            searchConfigEntity: null,
+            entitySearchable: true,
+            freshSearchTerm: false,
+            previousRouteName: '',
+        };
+    },
+
+    computed: {
+        maxPage() {
+            return Math.ceil(this.total / this.limit);
+        },
+
+        routeName() {
+            return this.$route.name;
+        },
+
+        selectionArray() {
+            return Object.values(this.selection);
+        },
+
+        selectionCount() {
+            return this.selectionArray.length;
+        },
+
+        filters(): {
+            active: boolean;
+        }[] {
+            // You can create your custom filters by defining the computed property "filters"
+            return [];
+        },
+
+        searchRankingFields() {
+            if (!this.searchConfigEntity) {
+                return {};
+            }
+
+            return this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
+        },
+
+        currentSortBy() {
+            return this.freshSearchTerm ? null : this.sortBy;
+        },
+    },
+
+    created() {
+        this.previousRouteName = this.$route.name as string;
+
+        if (this.disableRouteParams) {
+            this.getList();
+            return;
+        }
+
+        const actualQueryParameters: LocationQuery = this.$route.query;
+
+        // When no route information are provided
+        if (isEmpty(actualQueryParameters)) {
+            this.resetListing();
+        } else {
+            this.parseBooleanQueryParams(actualQueryParameters);
+
+            // otherwise update local data and fetch from server
+            this.updateData(actualQueryParameters);
+            this.getList();
+        }
+    },
+
+    beforeRouteLeave(to) {
+        const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
+
+        // Routes from the `sw-bulk-edit` module are generated under `sw.bulk.edit.*`.
+        if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
+            return;
+        }
+
+        useShopwareAppsStore().selectedIds = [];
+        useBulkEditStore().selectedIds = [];
+    },
+
+    watch: {
+        // Watch for changes in query parameters and update listing
+        $route(newRoute, oldRoute) {
+            if (this.disableRouteParams || oldRoute.name !== newRoute.name) {
+                return;
+            }
+
+            const query = this.$route.query;
+
+            if (isEmpty(query)) {
+                this.resetListing();
+            }
+
+            this.parseBooleanQueryParams(query);
+
+            // Update data information from the url
+            this.updateData(query);
+
+            // @ts-expect-error - properties are defined in base component
+            if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria?.length) {
+                // @ts-expect-error - filterCriteria is defined in base component
+                this.filterCriteria = [];
+                return;
+            }
+
+            // Fetch new list
+            this.getList();
+        },
+
+        selection() {
+            useShopwareAppsStore().selectedIds = Object.keys(this.selection);
+            useBulkEditStore().selectedIds = Object.keys(this.selection);
+        },
+
+        term(newValue) {
+            this.freshSearchTerm = !!newValue?.length;
+        },
+
+        sortBy() {
+            this.freshSearchTerm = false;
+        },
+
+        sortDirection() {
+            this.freshSearchTerm = false;
+        },
+    },
+
+    methods: {
+        updateData(customData: {
+            page?: number;
+            limit?: number;
+            term?: string;
+            sortBy?: string;
+            sortDirection?: string;
+            naturalSorting?: boolean;
+        }) {
+            this.page = parseInt(customData.page as unknown as string, 10) || this.page;
+            this.limit = parseInt(customData.limit as unknown as string, 10) || this.limit;
+            this.term = customData.term ?? this.term;
+            this.sortBy = customData.sortBy || this.sortBy;
+            this.sortDirection = customData.sortDirection || this.sortDirection;
+            this.naturalSorting = customData.naturalSorting || this.naturalSorting;
+        },
+
+        updateRoute(
+            customQuery: {
+                limit?: number;
+                page?: number;
+                term?: string;
+                sortBy?: string;
+                sortDirection?: string;
+                naturalSorting?: boolean;
+            },
+            queryExtension = {},
+        ) {
+            // Get actual query parameter
+            const query = customQuery || this.$route.query;
+            const routeQuery = this.$route.query;
+
+            // Create new route
+            const route = {
+                name: this.$route.name,
+                params: this.$route.params,
+                query: {
+                    limit: query.limit || this.limit,
+                    page: query.page || this.page,
+                    term: query.term || this.term,
+                    sortBy: query.sortBy || this.sortBy,
+                    sortDirection: query.sortDirection || this.sortDirection,
+                    naturalSorting: query.naturalSorting || this.naturalSorting,
+                    ...queryExtension,
+                },
+            };
+
+            // If query is empty then replace route, otherwise push
+            if (isEmpty(routeQuery)) {
+                void this.$router.replace(route as unknown as RouteLocationNamedRaw);
+            } else {
+                void this.$router.push(route as unknown as RouteLocationNamedRaw);
+            }
+        },
+
+        resetListing() {
+            this.updateRoute({
+                // @ts-expect-error
+                name: this.$route.name,
+                query: {
+                    limit: this.limit,
+                    page: this.page,
+                    term: this.term,
+                    sortBy: this.sortBy,
+                    sortDirection: this.sortDirection,
+                    naturalSorting: this.naturalSorting,
+                },
+            });
+        },
+
+        getMainListingParams() {
+            if (this.disableRouteParams) {
+                return {
+                    limit: this.limit,
+                    page: this.page,
+                    term: this.term,
+                    sortBy: this.sortBy,
+                    sortDirection: this.sortDirection,
+                    naturalSorting: this.naturalSorting,
+                };
+            }
+            // Get actual query parameter
+            const query = this.$route.query;
+
+            return {
+                limit: query.limit,
+                page: query.page,
+                term: query.term,
+                sortBy: query.sortBy || this.sortBy,
+                sortDirection: query.sortDirection || this.sortDirection,
+                naturalSorting: query.naturalSorting || this.naturalSorting,
+            };
+        },
+
+        updateSelection(selection: Record<string, any>) {
+            this.selection = selection;
+        },
+
+        onPageChange(opts: { page: number; limit: number }) {
+            this.page = opts.page;
+            this.limit = opts.limit;
+            if (this.disableRouteParams) {
+                this.getList();
+                return;
+            }
+            this.updateRoute({
+                page: this.page,
+            });
+        },
+
+        onSearch(value: string | undefined) {
+            this.term = value;
+
+            if (this.disableRouteParams) {
+                this.page = 1;
+                this.getList();
+                return;
+            }
+
+            this.updateRoute({
+                term: this.term,
+                page: 1,
+            });
+        },
+
+        onSwitchFilter(filter: any, filterIndex: number) {
+            this.filters[filterIndex].active = !this.filters[filterIndex].active;
+
+            this.page = 1;
+        },
+
+        onSort({ sortBy, sortDirection }: { sortBy: string; sortDirection: string }) {
+            if (this.disableRouteParams) {
+                this.updateData({
+                    sortBy,
+                    sortDirection,
+                });
+            } else {
+                this.updateRoute({
+                    sortBy,
+                    sortDirection,
+                });
+            }
+
+            this.getList();
+        },
+
+        onSortColumn(column: { dataIndex: string; naturalSorting: boolean }) {
+            if (this.disableRouteParams) {
+                if (this.sortBy === column.dataIndex) {
+                    this.sortDirection = this.sortDirection === 'ASC' ? 'DESC' : 'ASC';
+                } else {
+                    this.sortDirection = 'ASC';
+                    this.sortBy = column.dataIndex;
+                }
+                this.getList();
+                return;
+            }
+
+            if (this.sortBy === column.dataIndex) {
+                this.updateRoute({
+                    sortDirection: this.sortDirection === 'ASC' ? 'DESC' : 'ASC',
+                });
+            } else {
+                this.naturalSorting = column.naturalSorting;
+                this.updateRoute({
+                    sortBy: column.dataIndex,
+                    sortDirection: 'ASC',
+                    naturalSorting: column.naturalSorting,
+                });
+            }
+        },
+
+        onRefresh() {
+            this.getList();
+        },
+
+        getList() {
+            warn('Listing Mixin', 'When using the listing mixin you have to implement your custom "getList()" method.');
+        },
+
+        isValidTerm(term: string) {
+            return this.searchRankingService.isValidTerm(term);
+        },
+
+        async addQueryScores(term: string, originalCriteria: Criteria) {
+            this.entitySearchable = true;
+            if (!this.searchConfigEntity || !this.isValidTerm(term)) {
+                return originalCriteria;
+            }
+            const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                this.entitySearchable = false;
+                return originalCriteria;
+            }
+
+            return this.searchRankingService.buildSearchQueriesForEntity(searchRankingFields, term, originalCriteria);
+        },
+
+        /**
+         * Parses all string representations of boolean values to actual boolean values.
+         * Only works on root level of the query object.
+         */
+        parseBooleanQueryParams(query: LocationQuery) {
+            Object.keys(query).forEach((key) => {
+                if (String(query[key]).toLowerCase() === 'true') {
+                    // @ts-expect-error
+                    query[key] = true;
+                } else if (String(query[key]).toLowerCase() === 'false') {
+                    // @ts-expect-error
+                    query[key] = false;
+                }
+            });
+        },
+
+        /**
+         * Update filter criteria and reset pagination to page 1.
+         * This method is called when filters are changed via sw-sidebar-filter-panel.
+         *
+         * @param {Array} criteria - The new filter criteria
+         */
+        updateCriteria(criteria: any[]) {
+            this.page = 1;
+
+            // @ts-expect-error - filterCriteria is defined in base component
+            this.filterCriteria = criteria;
+
+            if (this.disableRouteParams) {
+                this.getList();
+                return;
+            }
+
+            this.updateRoute({
+                page: 1,
+            });
+        },
+    },
+});

@@ -13,7 +13,7 @@ export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
 export { required } from 'src/core/service/validation.service';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { customSnippetApiService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 /** @private */

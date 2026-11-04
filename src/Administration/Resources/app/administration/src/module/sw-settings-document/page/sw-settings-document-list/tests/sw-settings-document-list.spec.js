@@ -1,5 +1,5 @@
-import 'src/app/mixin/notification.mixin';
-import 'src/app/mixin/listing.mixin';
+import 'src/app/mixin/notification/register';
+import 'src/app/mixin/listing/register';
 import { mount } from '@vue/test-utils';
 
 /**

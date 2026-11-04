@@ -17,7 +17,7 @@ export type { default as Repository } from 'src/core/data/repository.data';
 /** @private */
 export { cloneDeep } from 'src/core/service/utils/object.utils';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { acl as aclService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 /** @private */

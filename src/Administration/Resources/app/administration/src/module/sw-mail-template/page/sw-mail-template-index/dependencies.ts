@@ -6,7 +6,7 @@
 import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
-export { default as listingMixin } from 'src/app/mixin/listing.mixin';
+export { default as listingMixin } from 'src/app/mixin/listing';
 /** @private */
 export { acl as aclService, feature as featureService } from 'src/app/service-names';
 

@@ -14,7 +14,7 @@ export { default as EntityCollection } from 'src/core/data/entity-collection.dat
 /** @private */
 export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

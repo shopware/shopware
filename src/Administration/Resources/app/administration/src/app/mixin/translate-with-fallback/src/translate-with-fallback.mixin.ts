@@ -1,0 +1,37 @@
+/**
+ * @sw-package framework
+ */
+import { defineComponent, getAppContext } from '../dependencies';
+
+/**
+ * @public
+ *
+ * Resolves a snippet key with the current locale first and falls back to
+ * `Shopware.Context.app.fallbackLocale` when the key is missing.
+ *
+ * Vue-i18n v10's `$te` only checks the active locale, so translations that
+ * live only in the fallback locale (typically `en-GB`) would otherwise leak
+ * the raw key to the UI.
+ *
+ * Duplicated in `src/app/composables/use-translate-with-fallback`; change both together.
+ */
+export default defineComponent({
+    methods: {
+        tWithFallback(key: string): string {
+            if (!key) {
+                return '';
+            }
+
+            if (this.$te(key)) {
+                return this.$t(key);
+            }
+
+            const fallbackLocale = getAppContext().fallbackLocale;
+            if (fallbackLocale && this.$te(key, fallbackLocale)) {
+                return this.$t(key, fallbackLocale);
+            }
+
+            return key;
+        },
+    },
+});

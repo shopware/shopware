@@ -8,7 +8,7 @@ import { errorStoreId } from 'src/app/store/error';
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { feature as featureService } from 'src/app/service-names';
 

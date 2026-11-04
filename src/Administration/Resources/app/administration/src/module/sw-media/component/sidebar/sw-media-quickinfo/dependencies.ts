@@ -8,9 +8,9 @@ import { actionButtonsStoreId } from 'src/app/store/action-buttons';
 /** @private */
 export { default as EventBus } from 'src/core/service/utils/eventBus.utils';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
 export {
     acl as aclService,

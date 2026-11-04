@@ -12,7 +12,7 @@
  * never touched `this`, so the body is duplicated as-is; the mixin stays in place for Options API
  * components.
  *
- * Keep this and `src/app/mixin/placeholder.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/placeholder` in sync — change both together.
  *
  * @private
  */

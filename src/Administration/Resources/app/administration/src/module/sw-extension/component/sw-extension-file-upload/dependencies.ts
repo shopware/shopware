@@ -6,7 +6,7 @@
 import { userConfigService } from 'src/app/service-names';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { extensionStoreActionService } from 'src/app/service-names';
 /** @private */

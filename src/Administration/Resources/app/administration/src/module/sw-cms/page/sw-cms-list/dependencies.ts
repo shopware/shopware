@@ -9,11 +9,11 @@ import { contextStoreId } from 'src/app/store/context';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as listingMixin } from 'src/app/mixin/listing.mixin';
+export { default as listingMixin } from 'src/app/mixin/listing';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as userSettingsMixin } from 'src/app/mixin/user-settings.mixin';
+export { default as userSettingsMixin } from 'src/app/mixin/user-settings';
 /** @private */
 export {
     acl as aclService,

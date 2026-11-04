@@ -2991,46 +2991,37 @@
       "count": 1
     }
   },
-  "src/app/mixin/discard-detail-page-changes.mixin.spec.js": {
+  "src/app/mixin/discard-detail-page-changes/register.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/discard-detail-page-changes/src/discard-detail-page-changes.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/mixin/discard-detail-page-changes/tests/discard-detail-page-changes.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 11
     }
   },
-  "src/app/mixin/discard-detail-page-changes.mixin.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 3
-    },
+  "src/app/mixin/generic-condition/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/form-field.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 4
-    }
-  },
-  "src/app/mixin/form-field.mixin.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 10
-    },
-    "sw-core-rules/no-new-mixins": {
-      "count": 1
-    }
-  },
-  "src/app/mixin/generic-condition.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 25
-    }
-  },
-  "src/app/mixin/generic-condition.mixin.ts": {
+  "src/app/mixin/generic-condition/src/generic-condition.mixin.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 12
-    },
-    "sw-core-rules/no-new-mixins": {
-      "count": 1
+    }
+  },
+  "src/app/mixin/generic-condition/tests/generic-condition.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 25
     }
   },
   "src/app/mixin/index.js": {
@@ -3041,7 +3032,23 @@
       "count": 1
     }
   },
-  "src/app/mixin/listing.mixin.spec.js": {
+  "src/app/mixin/listing/register.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/listing/src/listing.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/app/mixin/listing/tests/listing.mixin.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -3049,57 +3056,58 @@
       "count": 87
     }
   },
-  "src/app/mixin/listing.mixin.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 2
-    },
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 4
-    },
+  "src/app/mixin/notification-translation/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/notification-translation.mixin.spec.js": {
+  "src/app/mixin/notification-translation/tests/notification-translation.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 7
     }
   },
-  "src/app/mixin/notification-translation.mixin.ts": {
+  "src/app/mixin/notification/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/notification.mixin.spec.js": {
+  "src/app/mixin/notification/tests/notification.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
   },
-  "src/app/mixin/notification.mixin.ts": {
+  "src/app/mixin/placeholder/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/placeholder.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
-  "src/app/mixin/placeholder.mixin.ts": {
+  "src/app/mixin/placeholder/src/placeholder.mixin.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
     },
     "no-restricted-syntax": {
       "count": 1
-    },
+    }
+  },
+  "src/app/mixin/placeholder/tests/placeholder.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/position/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/position.mixin.spec.js": {
+  "src/app/mixin/position/src/position.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 12
+    }
+  },
+  "src/app/mixin/position/tests/position.mixin.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -3107,128 +3115,144 @@
       "count": 19
     }
   },
-  "src/app/mixin/position.mixin.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 2
-    },
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 12
-    },
+  "src/app/mixin/remove-api-error/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/remove-api-error.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
-  "src/app/mixin/remove-api-error.mixin.ts": {
+  "src/app/mixin/remove-api-error/src/remove-api-error.mixin.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 5
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
-    },
+    }
+  },
+  "src/app/mixin/remove-api-error/tests/remove-api-error.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/rule-between-operator/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/rule-between-operator.mixin.spec.js": {
+  "src/app/mixin/rule-between-operator/src/rule-between-operator.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    }
+  },
+  "src/app/mixin/rule-between-operator/tests/rule-between-operator.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
   },
-  "src/app/mixin/rule-between-operator.mixin.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 5
-    },
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 5
-    },
+  "src/app/mixin/ruleContainer/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/rule-container.mixin.spec.js": {
+  "src/app/mixin/ruleContainer/src/rule-container.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    }
+  },
+  "src/app/mixin/ruleContainer/tests/rule-container.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/mixin/rule-container.mixin.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 3
-    },
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 3
-    },
+  "src/app/mixin/salutation/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/salutation.mixin.spec.js": {
+  "src/app/mixin/salutation/tests/salutation.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
-  "src/app/mixin/salutation.mixin.ts": {
+  "src/app/mixin/sw-form-field/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/sw-inline-snippet.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 5
+  "src/app/mixin/sw-form-field/src/form-field.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 10
     }
   },
-  "src/app/mixin/sw-inline-snippet.mixin.ts": {
+  "src/app/mixin/sw-form-field/tests/form-field.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 4
+    }
+  },
+  "src/app/mixin/sw-inline-snippet/register.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/sw-inline-snippet/src/sw-inline-snippet.mixin.ts": {
     "no-restricted-syntax": {
       "count": 2
-    },
+    }
+  },
+  "src/app/mixin/sw-inline-snippet/tests/sw-inline-snippet.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 5
+    }
+  },
+  "src/app/mixin/translate-with-fallback/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/translate-with-fallback.mixin.spec.js": {
+  "src/app/mixin/translate-with-fallback/tests/translate-with-fallback.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
     }
   },
-  "src/app/mixin/translate-with-fallback.mixin.ts": {
+  "src/app/mixin/user-settings/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/user-settings.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 6
-    }
-  },
-  "src/app/mixin/user-settings.mixin.ts": {
+  "src/app/mixin/user-settings/src/user-settings.mixin.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
     "no-restricted-syntax": {
       "count": 1
-    },
+    }
+  },
+  "src/app/mixin/user-settings/tests/user-settings.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 6
+    }
+  },
+  "src/app/mixin/validation/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/app/mixin/validation.mixin.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 2
-    }
-  },
-  "src/app/mixin/validation.mixin.ts": {
+  "src/app/mixin/validation/src/validation.mixin.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 6
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
-    },
-    "sw-core-rules/no-new-mixins": {
-      "count": 1
+    }
+  },
+  "src/app/mixin/validation/tests/validation.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 2
     }
   },
   "src/app/plugin/device-helper.plugin.js": {

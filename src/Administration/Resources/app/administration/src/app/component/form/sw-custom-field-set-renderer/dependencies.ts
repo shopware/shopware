@@ -12,9 +12,9 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
-export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet.mixin';
+export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet';
 /** @private */
 export { feature as featureService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

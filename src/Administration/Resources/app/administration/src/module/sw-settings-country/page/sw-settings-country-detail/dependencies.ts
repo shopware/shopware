@@ -8,11 +8,11 @@ import { userConfigService } from 'src/app/service-names';
 /** @private */
 export { set } from 'src/core/service/utils/object.utils';
 /** @private */
-export { default as discardDetailPageChangesMixin } from 'src/app/mixin/discard-detail-page-changes.mixin';
+export { default as discardDetailPageChangesMixin } from 'src/app/mixin/discard-detail-page-changes';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
 export {
     acl as aclService,

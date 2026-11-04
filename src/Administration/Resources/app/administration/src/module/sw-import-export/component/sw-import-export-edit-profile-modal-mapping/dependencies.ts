@@ -6,6 +6,6 @@
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { feature as featureService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';

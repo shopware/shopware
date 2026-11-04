@@ -194,7 +194,7 @@ Everything `src/` needs from outside the module comes through `dependencies.ts`,
 ```ts
 // dependencies.ts
 export { default as Criteria } from 'src/core/data/criteria.data';
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 export const getApiContext = () => Shopware.Context.api;
 ```

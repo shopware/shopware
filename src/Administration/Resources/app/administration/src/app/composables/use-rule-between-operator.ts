@@ -34,7 +34,7 @@ export interface UseRuleBetweenOperatorOptions {
  * Composable alternative to the `rule-between-operator` mixin: renders a condition's `between` operator
  * as a from/to pair on a date or datetime field. The mixin stays in place for Options API components.
  *
- * Keep this and `src/app/mixin/rule-between-operator.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/rule-between-operator` in sync — change both together.
  *
  * @private
  */

@@ -8,4 +8,4 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet.mixin';
+export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet';

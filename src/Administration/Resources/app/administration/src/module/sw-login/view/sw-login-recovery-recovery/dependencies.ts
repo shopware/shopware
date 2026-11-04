@@ -10,7 +10,7 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
 export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { userRecoveryService } from 'src/app/service-names';
 /** @private */

@@ -6,9 +6,9 @@
 import { assetFilterName } from 'src/app/filter/asset.filter';
 
 /** @private */
-export { default as listingMixin } from 'src/app/mixin/listing.mixin';
+export { default as listingMixin } from 'src/app/mixin/listing';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { acl as aclService } from 'src/app/service-names';
 

@@ -11,7 +11,7 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
 export type { RouteLocationNamedRaw } from 'vue-router';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { shopwareExtensionService } from 'src/app/service-names';
 /** @private */

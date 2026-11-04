@@ -8,7 +8,7 @@ import { errorStoreId } from 'src/app/store/error';
 /** @private */
 export { default as ShopwareError } from 'src/core/data/ShopwareError';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { guestCustomerConvertService } from 'src/app/service-names';
 /** @private */

@@ -13,6 +13,6 @@ export type {
 /** @private */
 export { date } from 'src/core/service/utils/format.utils';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { messageStatsService } from 'src/app/service-names';

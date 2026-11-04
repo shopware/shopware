@@ -6,7 +6,7 @@
 import { swBulkEditStoreId } from 'src/app/store/sw-bulk-edit';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 
 /** @private */
 export const useBulkEditStore = () => Shopware.Store.get(swBulkEditStoreId);

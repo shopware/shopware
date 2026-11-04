@@ -8,9 +8,9 @@ import { sessionStoreId } from 'src/app/store/session';
 /** @private */
 export { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 /** @private */
-export { default as swFormFieldMixin } from 'src/app/mixin/form-field.mixin';
+export { default as swFormFieldMixin } from 'src/app/mixin/sw-form-field';
 /** @private */
-export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error.mixin';
+export { default as removeApiErrorMixin } from 'src/app/mixin/remove-api-error';
 /** @private */
 export { feature as featureService } from 'src/app/service-names';
 

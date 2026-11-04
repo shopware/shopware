@@ -12,7 +12,7 @@ export { default as EntityCollection } from 'src/core/data/entity-collection.dat
 /** @private */
 export { fileSize } from 'src/core/service/utils/format.utils';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     feature as featureService,

@@ -9,7 +9,7 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     feature as featureService,

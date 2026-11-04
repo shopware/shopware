@@ -16,7 +16,7 @@ import type { NotificationType } from '../store/notification';
  * and from the Sanitizer helper that `$sanitize` is bound to. The mixin stays in place for Options API
  * components.
  *
- * Keep this and `src/app/mixin/notification-translation.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/notification-translation` in sync — change both together.
  *
  * @private
  */

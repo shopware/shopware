@@ -6,7 +6,7 @@
 import { dateFilterName } from 'src/app/filter/date.filter';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { importExport as importExportService } from 'src/app/service-names';
 

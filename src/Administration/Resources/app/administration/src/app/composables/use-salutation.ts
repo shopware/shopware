@@ -22,7 +22,7 @@ export type SalutationFilterEntityType = {
  * on the way to `salutation()`; here it is resolved inside the call, so nothing but the formatting
  * helper is public. The mixin stays in place for Options API components.
  *
- * Keep this and `src/app/mixin/salutation.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/salutation` in sync — change both together.
  *
  * @private
  */

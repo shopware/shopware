@@ -8,13 +8,13 @@ export { computed } from 'vue';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as discardDetailPageChangesMixin } from 'src/app/mixin/discard-detail-page-changes.mixin';
+export { default as discardDetailPageChangesMixin } from 'src/app/mixin/discard-detail-page-changes';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
+export { default as placeholderMixin } from 'src/app/mixin/placeholder';
 /** @private */
-export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet.mixin';
+export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet';
 /** @private */
 export {
     acl as aclService,

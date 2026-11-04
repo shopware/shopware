@@ -7,7 +7,7 @@ import { assetFilterName } from 'src/app/filter/asset.filter';
 import { mediaNameFilterName } from 'src/app/filter/media-name.filter';
 
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

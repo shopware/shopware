@@ -8,7 +8,7 @@ import { currencyFilterName } from 'src/app/filter/currency.filter';
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { acl as aclService } from 'src/app/service-names';
 /** @private */

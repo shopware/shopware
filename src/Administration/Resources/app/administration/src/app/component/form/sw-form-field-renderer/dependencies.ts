@@ -4,7 +4,7 @@
  * Everything sw-form-field-renderer needs from outside its mini-module.
  */
 /** @private */
-export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet.mixin';
+export { default as swInlineSnippetMixin } from 'src/app/mixin/sw-inline-snippet';
 /** @private */
 export { feature as featureService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

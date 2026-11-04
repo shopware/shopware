@@ -51,7 +51,7 @@ export interface UseRuleContainerReturn {
  * refs. The Options API unwrapped them on the instance proxy; here they stay refs and are returned as
  * such.
  *
- * Keep this and `src/app/mixin/rule-container.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/ruleContainer` in sync — change both together.
  *
  * @private
  */

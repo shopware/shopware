@@ -8,7 +8,7 @@ import { currencyFilterName } from 'src/app/filter/currency.filter';
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
-export { default as salutationMixin } from 'src/app/mixin/salutation.mixin';
+export { default as salutationMixin } from 'src/app/mixin/salutation';
 /** @private */
 export { customSnippetApiService, orderService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 

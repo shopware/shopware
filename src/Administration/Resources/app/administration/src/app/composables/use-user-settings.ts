@@ -32,7 +32,7 @@ interface CurrentUser {
  * through `Shopware.Service` and the session store, so it needs nothing from the component. The mixin
  * stays in place for Options API components.
  *
- * Keep this and `src/app/mixin/user-settings.mixin.ts` in sync — change both together.
+ * Keep this and `src/app/mixin/user-settings` in sync — change both together.
  *
  * @private
  */

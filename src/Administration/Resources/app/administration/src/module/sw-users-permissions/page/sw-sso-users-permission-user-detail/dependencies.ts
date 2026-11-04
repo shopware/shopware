@@ -10,9 +10,9 @@ export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { default as useTheme } from 'src/app/composables/use-theme';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
-export { default as salutationMixin } from 'src/app/mixin/salutation.mixin';
+export { default as salutationMixin } from 'src/app/mixin/salutation';
 /** @private */
 export {
     acl as aclService,

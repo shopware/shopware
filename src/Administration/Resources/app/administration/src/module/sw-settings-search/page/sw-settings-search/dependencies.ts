@@ -10,7 +10,7 @@ export { default as EntityCollection } from 'src/core/data/entity-collection.dat
 /** @private */
 export { publishData } from 'src/core/service/extension-api-data.service';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export {
     acl as aclService,

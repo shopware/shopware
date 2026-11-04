@@ -12,7 +12,7 @@ export { default as useSession } from 'src/app/composables/use-session';
 /** @private */
 export { default as useSnackbar } from 'src/app/composables/use-snackbar';
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { updateService } from 'src/app/service-names';
 

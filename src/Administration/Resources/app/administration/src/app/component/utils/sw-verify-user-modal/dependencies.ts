@@ -4,7 +4,7 @@
  * Everything sw-verify-user-modal needs from outside its mini-module.
  */
 /** @private */
-export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { default as notificationMixin } from 'src/app/mixin/notification';
 /** @private */
 export { loginService } from 'src/app/service-names';
 

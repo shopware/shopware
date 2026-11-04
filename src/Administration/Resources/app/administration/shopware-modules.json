@@ -206,6 +206,24 @@
             "sw-form-field": [],
             "discard-detail-page-changes": [],
             "rule-between-operator": []
+        },
+        "sources": {
+            "discard-detail-page-changes": "src/app/mixin/discard-detail-page-changes",
+            "generic-condition": "src/app/mixin/generic-condition",
+            "listing": "src/app/mixin/listing",
+            "notification": "src/app/mixin/notification",
+            "notification-translation": "src/app/mixin/notification-translation",
+            "placeholder": "src/app/mixin/placeholder",
+            "position": "src/app/mixin/position",
+            "remove-api-error": "src/app/mixin/remove-api-error",
+            "rule-between-operator": "src/app/mixin/rule-between-operator",
+            "ruleContainer": "src/app/mixin/ruleContainer",
+            "salutation": "src/app/mixin/salutation",
+            "sw-form-field": "src/app/mixin/sw-form-field",
+            "sw-inline-snippet": "src/app/mixin/sw-inline-snippet",
+            "translate-with-fallback": "src/app/mixin/translate-with-fallback",
+            "user-settings": "src/app/mixin/user-settings",
+            "validation": "src/app/mixin/validation"
         }
     },
     "shopware:stores": {

@@ -140,6 +140,7 @@ use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
+use Shopware\Core\Framework\App\SystemCheck\AppUrlVerificationCheck;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -231,6 +232,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.app_manifest.validator');
 
     $services->set(AppNameValidator::class)
+        ->args([
+            service(SourceResolver::class),
+        ])
         ->tag('shopware.app_manifest.validator');
 
     $services->set(ManifestValidator::class)
@@ -241,6 +245,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
@@ -1092,6 +1097,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             env('APP_URL_CHECK_DISABLED')->bool(),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(AppUrlVerificationCheck::class)
+        ->args([
+            service(AppUrlVerifier::class),
+        ])
+        ->tag('shopware.system_check');
 
     $services->set(AppUrlVerificationPrinter::class);
 

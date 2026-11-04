@@ -127,7 +127,7 @@
                 <sw-context-menu-item
                     v-if="canHaveOwnSecret(item)"
                     class="sw-settings-webhook-list__secret-action"
-                    :disabled="!acl.can('webhook.editor')"
+                    :disabled="!acl.can('webhook.editor') || !canChange(item)"
                     @click="openSecret(item)"
                 >
                     {{ $t('sw-settings-webhook.list.actionSetSecret') }}

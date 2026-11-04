@@ -23,6 +23,7 @@ export async function createWrapper(
     const component = options.baseView ? await wrapTestComponent('sw-product-detail-base', { sync: true }) : documentForm;
     return shallowMount(component, {
         global: {
+            renderStubDefaultSlot: true,
             mocks: {
                 $route: { name: 'sw.product.detail.base', params: { id: Shopware.Store.get('swProductDetail').product.id } },
             },
@@ -44,6 +45,7 @@ export async function createWrapper(
             },
             stubs: {
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
+                'sw-product-document-download': await wrapTestComponent('sw-product-document-download', { sync: true }),
                 'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),
                 'sw-product-document-language-value': await wrapTestComponent('sw-product-document-language-value', {
                     sync: true,

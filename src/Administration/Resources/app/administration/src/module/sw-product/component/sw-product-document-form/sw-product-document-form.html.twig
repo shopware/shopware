@@ -154,21 +154,18 @@
                                 {{ $t('global.default.edit') }}
                             </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
-                            <sw-context-menu-item
-                                class="sw-product-document-form__download"
-                                :disabled="!acl.can('media.viewer') || !getMedia(item)"
-                                @click="downloadDocument(item)"
-                            >
-                                {{ $t('sw-product.documentForm.contextDownload') }}
-                            </sw-context-menu-item>
+                            <sw-product-document-download :media="getMedia(item)" />
                             {% endblock %}
+                            {% block sw_product_document_form_action_remove %}
                             <sw-context-menu-item
+                                v-if="isDefaultLanguage || item.title || item.mediaId"
                                 variant="danger"
                                 :disabled="!canEdit || isInherited"
                                 @click="confirmRemoveDocument(item)"
                             >
-                                {{ $t('global.default.remove') }}
+                                {{ isDefaultLanguage ? $t('global.default.remove') : $t('sw-product.documentForm.removeLanguageVersion', { language: contentLanguageName }) }}
                             </sw-context-menu-item>
+                            {% endblock %}
                         </template>
                     {% endblock %}
                     </sw-data-grid>
@@ -275,6 +272,7 @@
                 v-if="removingDocument"
                 v-model:remove-from-variants="removeFromVariants"
                 :document-title="getTitle(removingDocument)"
+                :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
                 :is-removing-document="isRemovingDocument"
                 :has-variants="hasVariants"

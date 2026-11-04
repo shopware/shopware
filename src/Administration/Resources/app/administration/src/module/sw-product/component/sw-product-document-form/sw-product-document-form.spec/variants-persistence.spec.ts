@@ -213,14 +213,15 @@ describe('sw-product-document-form variant persistence', () => {
     });
 
     it('includes loaded variant deletions in the parent Sync save and reloads both removals', async () => {
+        Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const repository = repositoryFactory.create('product', '', { useSync: true });
         const productId = repositoryFactory.create('product').create().id;
         const variantId = repositoryFactory.create('product').create().id;
         const documentId = repositoryFactory.create('product_document').create().id;
         const variantDocumentId = repositoryFactory.create('product_document').create().id;
         const store = Shopware.Store.get('swProductDetail');
-        store.product = await loadProduct(productId, documentId);
-        const variant = await loadProduct(variantId, variantDocumentId);
+        store.product = await loadProduct(productId, documentId, 'Manual', englishMediaId);
+        const variant = await loadProduct(variantId, variantDocumentId, 'Manual', englishMediaId);
 
         jest.spyOn(repository, 'search').mockResolvedValueOnce(
             new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),

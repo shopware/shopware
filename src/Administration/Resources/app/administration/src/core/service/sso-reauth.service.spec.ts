@@ -21,8 +21,8 @@ describe('src/core/service/sso-reauth.service.ts', () => {
         ),
     } as unknown as LoginService;
 
-    const postMessage = (origin: string, data: unknown) => {
-        listeners.forEach((listener) => listener({ origin, data } as unknown as Event));
+    const postMessage = (origin: string, data: unknown, source: unknown = popup) => {
+        listeners.forEach((listener) => listener({ origin, data, source } as unknown as Event));
     };
 
     const createService = () =>
@@ -83,12 +83,13 @@ describe('src/core/service/sso-reauth.service.ts', () => {
         );
     });
 
-    it('ignores messages from other origins and other messages', async () => {
+    it('ignores messages from other origins, other windows and other messages', async () => {
         const result = createService().reauthenticate();
         await jest.advanceTimersByTimeAsync(0);
 
         postMessage('https://evil.test', SSO_REAUTH_COMPLETE_MESSAGE);
         postMessage('https://shop.test', 'something-else');
+        postMessage('https://shop.test', SSO_REAUTH_COMPLETE_MESSAGE, window);
 
         expect(windowEvents.removeEventListener).not.toHaveBeenCalled();
 

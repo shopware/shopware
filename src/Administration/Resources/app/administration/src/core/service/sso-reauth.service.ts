@@ -92,9 +92,10 @@ export default class SsoReauthService {
             };
 
             const onMessage = (event: Event) => {
-                const { origin, data } = event as MessageEvent<unknown>;
+                const { origin, data, source } = event as MessageEvent<unknown>;
 
-                if (origin !== this.browser.origin || data !== SSO_REAUTH_COMPLETE_MESSAGE) {
+                // only the window this verification opened may complete it
+                if (source !== popup || origin !== this.browser.origin || data !== SSO_REAUTH_COMPLETE_MESSAGE) {
                     return;
                 }
 

@@ -48,7 +48,7 @@ export default class CmsVideoPlugin extends Plugin {
 
         let volume = parseFloat(storedVolume);
 
-        if (Number.isNaN(volume) || volume < 0 || volume > 1) {
+        if (Number.isNaN(volume) || volume < 0 || volume > 1 || (volume === 0 && !this._video.hasAttribute('controls'))) {
             volume = this._getDefaultVolume();
         }
 

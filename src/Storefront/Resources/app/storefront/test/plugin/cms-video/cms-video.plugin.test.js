@@ -120,8 +120,9 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         expect(video.volume).toBe(1);
     });
 
-    test('applies stored volume of 0 and mutes video when stored preference is zero', () => {
+    test('applies stored volume of 0 and mutes video when controls are present and stored preference is zero', () => {
         const video = document.querySelector('video');
+        video.setAttribute('controls', '');
         defineMediaProperties(video, { volume: 1, muted: false });
         defineReadyState(video, 2);
 
@@ -133,7 +134,36 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         expect(video.muted).toBe(true);
     });
 
-    test('applies stored volume when valid value exists', () => {
+    test('ignores stored zero and preserves initial unmuted state when video has no controls', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 1, muted: false });
+        defineReadyState(video, 2);
+
+        window.localStorage.setItem('sw-cms-video-volume', '0');
+        const setItemSpy = jest.spyOn(window.localStorage.__proto__, 'setItem');
+
+        initPlugin();
+
+        expect(video.volume).toBe(1);
+        expect(video.muted).toBe(false);
+        expect(setItemSpy).not.toHaveBeenCalled();
+        expect(window.localStorage.getItem('sw-cms-video-volume')).toBe('0');
+    });
+
+    test('ignores stored zero and preserves template muted state when video has no controls', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 1, muted: true });
+        defineReadyState(video, 2);
+
+        window.localStorage.setItem('sw-cms-video-volume', '0');
+
+        initPlugin();
+
+        expect(video.volume).toBe(1);
+        expect(video.muted).toBe(true);
+    });
+
+    test('applies stored non-zero volume when video has no controls', () => {
         const video = document.querySelector('video');
         defineMediaProperties(video, { volume: 0 });
         defineReadyState(video, 2);
@@ -252,6 +282,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
     test('restores custom defaultVolume on muted-to-unmuted transition when volume is zero', () => {
         const video = document.querySelector('video');
+        video.setAttribute('controls', '');
         defineMediaProperties(video, { volume: 0, muted: true });
         defineReadyState(video, 2);
 
@@ -329,6 +360,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
     test('handles repeated volumechange events gracefully', () => {
         const video = document.querySelector('video');
+        video.setAttribute('controls', '');
         defineMediaProperties(video, { volume: 0, muted: true });
         defineReadyState(video, 2);
 

@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -30,7 +31,7 @@ class ToolResultCacheStorage
     public const DEFAULT_TTL_SECONDS = 86400;
 
     /**
-     * Every row holds more than 100 KB (`McpToolResponse::MAX_RESPONSE_SIZE`), so a batch stays around
+     * Every row holds about 100 KB or more (see `McpToolResultRenderer::MAX_INLINE_SIZE`), so a batch stays around
      * 10 MB of row data, well below transaction size limits such as Group Replication's.
      */
     private const CLEANUP_BATCH_SIZE = 100;
@@ -158,6 +159,9 @@ class ToolResultCacheStorage
     }
 
     /**
+     * The `mime_type` column also records the {@see McpToolResultStoredFormat}; the result carries the media
+     * type a client is sent.
+     *
      * @param array<string, mixed> $row
      *
      * @return array{content: string, mimeType: string}
@@ -166,7 +170,7 @@ class ToolResultCacheStorage
     {
         return [
             'content' => (string) $row['content'],
-            'mimeType' => (string) $row['mime_type'],
+            'mimeType' => McpToolResultStoredFormat::servedMimeType((string) $row['mime_type']),
         ];
     }
 }

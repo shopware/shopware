@@ -21,17 +21,19 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
     let overrideFiles = [] as string[];
 
-    // Editors and scaffolds create a file empty first; @vitejs/plugin-vue rejects an SFC without blocks.
-    const hasContent = (file: string) => fs.readFileSync(file, 'utf8').trim() !== '';
     // Sorted because the directory walk follows filesystem order, which differs between machines - and
     // the generated entry numbers its imports in this order, so sorting keeps the emitted source byte-stable.
-    const findOverrideFiles = () => findFilesRecursively(root, pattern).filter(hasContent).sort();
+    const findOverrideFiles = () => findFilesRecursively(root, pattern).sort();
+    // Editors and scaffolds create a file empty first; @vitejs/plugin-vue rejects an SFC without blocks.
+    // A build still imports empty files, so it keeps failing on them.
+    const findOverrideFilesWithContent = () =>
+        findOverrideFiles().filter((file) => fs.readFileSync(file, 'utf8').trim() !== '');
 
     return {
         name: 'shopware-vite-plugin-override-component',
 
-        configResolved() {
-            overrideFiles = findOverrideFiles();
+        configResolved({ command }) {
+            overrideFiles = command === 'serve' ? findOverrideFilesWithContent() : findOverrideFiles();
         },
 
         /**
@@ -39,16 +41,12 @@ export default function viteOverridePlugin(options: Options): Plugin {
          * or giving an empty one content, changes the entry.
          * The new entry registers the overrides again, which only a page reload can apply.
          */
-        hotUpdate({ type, file }) {
+        hotUpdate({ file }) {
             if (this.environment.name !== 'client' || !pattern.test(file)) {
                 return undefined;
             }
 
-            if (type === 'update' && overrideFiles.includes(file) === hasContent(file)) {
-                return undefined;
-            }
-
-            const discovered = findOverrideFiles();
+            const discovered = findOverrideFilesWithContent();
 
             if (discovered.join('\n') === overrideFiles.join('\n')) {
                 return undefined;

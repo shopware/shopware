@@ -7,7 +7,7 @@ import path from 'node:path';
 import overrideComponentRegisterPlugin from './index';
 
 type CallablePlugin = {
-    configResolved(): void;
+    configResolved(config: { command: 'serve' }): void;
     transform(code: string, id: string): { code: string } | null;
     hotUpdate(options: { type: 'create' | 'delete' | 'update'; file: string }): [] | undefined;
 };
@@ -32,7 +32,7 @@ describe('build/vite-plugins/override-component-register hot updates', () => {
                 hot: { send: jest.fn() },
             },
         };
-        plugin.configResolved();
+        plugin.configResolved({ command: 'serve' });
 
         const hotUpdate = (type: 'create' | 'delete' | 'update') => plugin.hotUpdate.call(context, { type, file });
         const entryCode = () => plugin.transform('// entry', entry)?.code ?? '// entry';

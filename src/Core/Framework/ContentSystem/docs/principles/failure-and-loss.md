@@ -10,7 +10,7 @@ Why: A skipped defect appears later as a state that no write could produce. A de
 
 Decided against: A first-wins pick or a precedence rule that resolves an ambiguous entity-name derivation or an ambiguous default specification into a value.
 
-Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate). It degrades on an entity id that `Uuid::isValid()` rejects, so an unsubstituted placeholder never reaches an id parser. Each database registry loader skips and logs a malformed row under the [build-time rule](#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request). The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key. It stays lenient because the binding system reads the inline `bindings:` section of the same file.
+Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate). It degrades on an entity id that `Uuid::isValid()` rejects, so an unsubstituted placeholder never reaches an id parser. The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key. It stays lenient because the binding system reads the inline `bindings:` section of the same file.
 
 In code:
 
@@ -19,15 +19,19 @@ In code:
 - `ResolvedValueIndexEncoder` throws on a missing index, because an empty map would look like a page whose elements resolved nothing.
 - See [DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
 
-## A declaration or registration defect fails the build or the load, never a request
+## A declaration or registration defect fails the container build or the registry load, before any request uses the declaration
 
-The registry load fails fast on a property-key collision, on `resolvedBy` on a primitive or on `enum` on a non-primitive. The container build fails fast on a loader with no config serializer, an abstract loader class, an unparseable `@extends` or a duplicate source. Decoration is the only way to replace a data loader, and registration order never replaces one. Install and update of an app fail on a malformed row, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The production load skips and logs a malformed persisted row. It never invents a name for a malformed persisted row.
+A malformed declaration, from a file or a persisted row, fails the load of its registry. No registry loader skips a declaration or invents a name for it. A defect in a data loader registration, a second loader for an existing source among them, fails the container build, so registration order never replaces a loader.
 
-Why: A request-time defect fails that request. If one loader rejects a row that another skips, the same row fails the load or is left out. A persisted row can turn invalid after install, for example when a dependency is deactivated. The production load skips that row instead of failing every request.
+Why: A defect that surfaces where a request uses the declaration fails far from its cause. A registry loads on first use and fails as a whole, while a skipped row would leave it silently without the declaration. The accepted cost: one malformed persisted row fails every load of its registry until the row is fixed or its app is deactivated.
+
+Decided against: Skipping and logging a malformed persisted row so that the rest of the registry loads.
 
 In code:
 
-- `YamlTypeLoader`, `DefaultBindingSpecificationSynthesizer` and `ContentSystemDataLoaderCompilerPass` enforce the load and build failures.
+- `YamlTypeLoader`, `ContentSystemDataLoaderCompilerPass` and the four database registry loaders, `DatabaseTypeLoader` among them, enforce the load and build failures.
+- `DefaultBindingSpecificationSynthesizer` fails the load on `resolvedBy` on a non-reference property and on a storage-key collision, and `TypedEnumValidator` on `enum` without exactly one primitive type.
+- `DatabaseTypeLoaderTest::testValidatesAllRowsTogetherAndFailsTheWholeLoad` pins that one invalid row fails the whole load.
 - See [architecture.md](../../Layout/Type/docs/architecture.md).
 
 ## The module drops nothing silently and reports every loss
@@ -46,7 +50,7 @@ In code:
 
 ## The cause of a defect sets its classification, and HTTP status is a separate axis
 
-A code that a client can cause is a [client defect](README.md#glossary), and `CLIENT_DEFECT_CODES` lists it. A defect whose only possible cause is data bypassing the write gate is an internal fault, and `CLIENT_DEFECT_CODES` does not list it. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
+A code that a client causes through the element tree is a [client defect](README.md#glossary), and `CLIENT_DEFECT_CODES` lists it. A code that a client causes through a route parameter, a mutation operation or another request field stays off the list. So does an internal fault, a defect whose only possible cause is a bug in core or in a plugin, or data that bypassed the write gate. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
 
 | Path that meets a defect in an id or in a layout | HTTP status or behaviour |
 |---|---|
@@ -57,7 +61,7 @@ A code that a client can cause is a [client defect](README.md#glossary), and `CL
 
 Why: A status derived from `CLIENT_DEFECT_CODES` would make a read of stored corruption a 400 that marks the client as the cause.
 
-Exceptions: `CLIENT_DEFECT_CODES` lists neither the mutation structural 400s nor the field-selection 400. A mutation payload that its request object rejects is a 400 without an error code.
+Exceptions: `INVALID_LAYOUT_STRUCTURE` marks a structural defect of a submitted tree, such as a repeated element id, and stays off `CLIENT_DEFECT_CODES`. A mutation payload that its request object rejects is a 400 without an error code.
 
 In code:
 

@@ -34,11 +34,11 @@ In code:
 
 A registry must reconcile app rows under a per-app lock and in one transaction. It must invalidate its cache inside the lock. The lifecycle handler of the registry must implement every lifecycle hook. Install and update must fail on a malformed declaration and on a nameless or malformed row. Binding ids are unique per source. An uninstall locks no layout.
 
-Why: A malformed row that install accepts is skipped on load, so the declaration is absent from the registry. A lifecycle handler without a deactivate hook still serves a deactivated app. A binding is scoped to its element type, not a Store API wire key.
+Why: A malformed row that install accepts fails every load of its registry. A lifecycle handler without a deactivate hook still serves a deactivated app. A binding is scoped to its element type, not a Store API wire key.
 
 Decided against: A global flat id namespace, as the style-option and element-type names use.
 
-Exceptions: The attribution reconciler drops an attribution to a specification that no longer exists, and the drop is not a fault. A database registry loader skips and logs a malformed persisted row on load, under the [build-time rule](failure-and-loss.md#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request).
+Exceptions: The attribution reconciler drops an attribution to a specification that no longer exists, and the drop is not a fault.
 
 In code:
 

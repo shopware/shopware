@@ -34,9 +34,9 @@ In code:
 - `PlaceholderValues::from()` throws on an integer key in a placeholder map.
 - See [client-defect-codes.md](../client-defect-codes.md).
 
-## The module seeds a primitive default at write time, never at serve time
+## The module seeds a property default at write time, never at serve time
 
-Creation and replacement write the declared default of a primitive property in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any type default that is still absent. It never seeds over a present value, including an authored null. Serving and diagnostics read only stored values. A stored value therefore satisfies a required primitive, and the declaration never does.
+Creation and replacement write the property defaults of the element type in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any property default whose key is still absent. It never seeds over a present value, including an authored null and a map that carries only some members. Serving and diagnostics read only stored values. A stored non-null value therefore satisfies a required primitive, and the declaration never does.
 
 Why: A serve-time default makes an unfilled required property look filled. It also lets a later declaration change what stored layouts render.
 
@@ -44,11 +44,12 @@ Exceptions: A storefront component that callers outside stored layouts also rend
 
 In code:
 
-- `AbstractLayoutMutation::storedDefaults()` seeds defaults.
-- `BindingApplicator` seeds defaults.
-- The write-boundary `LayoutDefaultSeeder` seeds defaults and fills only absent keys.
+- `StoredDefaultProvider` defines a property default as a primitive's declared default or the map of its nested members' defaults.
+- `AbstractLayoutMutation::storedDefaults()` seeds defaults on creation and replacement, and `BindingApplicator` seeds input defaults.
+- The write-boundary `LayoutDefaultSeeder` fills only an absent top-level key.
 - `LayoutDiagnostics` reads no default.
 - `ContentLayoutDefaultSeedingTest` pins that a plain DAL create gets its primitive default seeded.
+- `LayoutDefaultSeederTest::testKeepsAuthoredNestedPropertyWithoutMergingDefaults` pins that a present partial map gets no member default.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## The creating write sets the root source of a layout
@@ -68,17 +69,18 @@ In code:
 
 ## An element id is an opaque string, unique across all roots of a layout
 
-An element id carries no format. No code derives meaning from the shape of an element id. `StoredElementCodec::decode()`, which every write path and every draft path share, rejects two values only. The first value is `VirtualRootWrapper::VIRTUAL_ROOT_ID`, which would collide with the [virtual root](README.md#glossary). The second value is a string that PHP casts to an integer, which the [map-key rule](#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it) bans because element ids serve as map keys. A repeated element id is a well-formedness violation.
+An element id carries no format, and no code derives meaning from its shape. The module rejects the [virtual root](README.md#glossary) id `__page_context_root__`, an integer literal, and an id with a line terminator, so every non-empty id it accepts matches the published `ContentElementId` pattern. An integer literal that PHP casts to an integer would also break the [map-key rule](#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it). A repeated element id is a well-formedness violation.
 
-Why: A format constraint invites code to parse the id.
+Why: A format constraint invites code to parse the id. An id that the server stores and the published pattern rejects locks a schema-validating client out of the layout that carries it.
 
 Decided against: A 32-character hex pattern for the id.
 
 In code:
 
-- `StoredElementCodec::decode()` rejects `VirtualRootWrapper::VIRTUAL_ROOT_ID` and an integer-castable id with `INVALID_ELEMENT_ID`.
+- `ElementIdRule` rejects `VirtualRootWrapper::VIRTUAL_ROOT_ID`, an integer literal such as `0`, `-0` or `9223372036854775808`, and an id that contains LF, CR, U+2028 or U+2029.
+- `StoredElementCodec::decode()` throws `INVALID_ELEMENT_ID` on an id that `ElementIdRule` rejects, and reads back an empty id. `StoredTreeConstraints` rejects an empty id on write.
 - `StoredTree::duplicateElementIds()` finds a repeated id, and `LayoutDiagnostics` reports it as `ViolationCode::DuplicateElementId`.
-- `StoredElementCodecStructuralDecodeTest` pins that decode rejects `VirtualRootWrapper::VIRTUAL_ROOT_ID` and an integer-castable id.
+- `ElementIdRuleTest` pins each rejection and that `012`, a tab and NEL stay accepted.
 - See [client-defect-codes.md](../client-defect-codes.md).
 
 ## Also true by construction

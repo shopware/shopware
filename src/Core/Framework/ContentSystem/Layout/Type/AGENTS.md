@@ -6,7 +6,7 @@
 - Never read `adminUI` server-side to decide storage, validation or normalization. Declare a storage-relevant kind as its own typed key. Check: does any PHP outside a serializer, a schema generator or a shape check read the block's content? [type-declarations.md](../../docs/principles/type-declarations.md)
 - Decide whether a stored value conforms to a declared type only through `PropertyType::enforceableTypes()` and `admits()`. Check: does a caller keep its own type table? [values.md](../../docs/principles/values.md)
 - Ship an element capability as a declaration the module reads, never as a core edit per entity or per element. Check: could an app ship it with no core edit? [extension-surface.md](../../docs/principles/extension-surface.md)
-- Fail a declaration or registration defect at registry load or container build, never on a request. Skip and log only a bad database registry row, and give no row a placeholder name. Check: can the defect first appear on a request? `ContentSystemDataLoaderCompilerPassTest` pins the build side. [failure-and-loss.md](../../docs/principles/failure-and-loss.md)
+- Fail a declaration or registration defect at registry load or container build, before any request uses the declaration. Throw on a malformed database registry row as on a malformed file, never skip it or give it a placeholder name. Check: does a registry loader skip, log or rename a malformed declaration? `ContentSystemDataLoaderCompilerPassTest` pins the build side. [failure-and-loss.md](../../docs/principles/failure-and-loss.md)
 
 ## Where to look
 

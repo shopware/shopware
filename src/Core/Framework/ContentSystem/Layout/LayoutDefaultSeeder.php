@@ -11,10 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Seeds an element forest's type defaults into stored properties at the DAL write boundary, so every tree written to
  * content_layout carries its type defaults regardless of how it was built (direct DAL write, Sync API, import,
- * fixtures) — the paths that never pass through the layout mutations. Per node it fills each primitive property and
- * nested object member of the node's component type whose default is non-null and whose key is absent, then recurses
- * every slot's children; an existing value is never overwritten and an unregistered component is left untouched (the
- * write gate reports that separately).
+ * fixtures), including the paths that never pass through the layout mutations. Per node it adds each property default
+ * {@see StoredDefaultProvider} returns for the node's component type whose top-level key is absent: a primitive
+ * default, or the map of nested member defaults. A present key keeps its value, an authored null or a partial map
+ * included, so no member default is merged into a map that is present. An unregistered component is left untouched
+ * (the write gate reports that separately). It then recurses every slot's children.
  *
  * A {@see StoredElement} is immutable, so seeding it rebuilds the subtree through its `with*()` methods and hands
  * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations

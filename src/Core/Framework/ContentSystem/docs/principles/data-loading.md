@@ -60,16 +60,18 @@ In code:
 
 ## An element receives a sales-channel context value only from a loader that returns that value
 
-The module never hands the `SalesChannelContext` to an element. Every loader queries its repositories with `$context->getContext()`, so prices, translations and availability already follow the request's currency, language and rules. An element that needs a context value as data declares a data requirement whose loader returns that value, never the context object and never a customer entity. The [root context](README.md#glossary) carries the root entity's page data only. A `resolves` entry in the `context` form stays rejected. An element component reads no Twig global `context`, also not as a prop default.
+The module never hands the `SalesChannelContext` to an element. A loader passes the request's `SalesChannelContext` to every collaborator that accepts one, so prices, translations and availability follow the request's currency, language and rules. An element that needs a context value as data declares a data requirement whose loader returns that value, never the context object and never a customer entity. The [root context](README.md#glossary) carries the root entity's page data only. An element component reads no Twig global `context`, also not as a prop default.
 
-Why: An ambient context invites reads across module boundaries and widens the Store API response, where the `ApiAware` flag protects entity fields only. A headless client has no Twig global, so an element that reads one renders differently there. A headless client reads its own context from `/store-api/context`.
+Why: An ambient context invites reads across module boundaries and widens the Store API response, where the `ApiAware` flag protects entity fields only. A headless client has no Twig global, so an element that reads one renders differently there.
 
 In code:
 
+- Every built-in loader passes the `SalesChannelContext` to its Store API route, sales-channel repository or service.
+- `EntityLoader` and `EntityCollectionLoader` pass `$context->getContext()` only to the plain repository of an entity without a sales-channel definition.
 - `LoaderInputResolver::resolve()` dereferences element properties only.
 - `RootContextMapper::map()` builds the root context from the assignable definition's page data requirements.
-- `TypeConsistentBindingSpecificationValidator` rejects a `resolves` entry in the `context` form.
-- No test pins the rule.
+- `TypeConsistentBindingSpecificationValidator` rejects a `resolves` entry in the `context` form. `TypeConsistentBindingSpecificationValidatorTest::testResolvesEntryContextFormIsViolation` pins the rejection.
+- The unit tests of `ProductReviewDataLoader`, `CrossSellingDataLoader`, `ProductListingDataLoader`, `NavigationDataLoader` and `ServiceMenuDataLoader` pin the context their collaborator receives.
 - See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md).
 
 ## An authoring client reads loader configuration through introspection and never parses it

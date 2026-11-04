@@ -52,9 +52,9 @@ In code:
 
 ## The codec and the constraint descriptor keep separate copies of the wiring rules, and one change tightens both
 
-The codec throws on the first wiring or shape defect in a stated order. The constraint descriptor reports every wiring or shape defect. The codec and the constraint descriptor each keep their own copy of the rules. The write runs both with no third rule set. One change tightens the codec and the constraint descriptor together. `StoredTreeShapeConformanceTest` pins where the codec and the descriptor agree and names the descriptor-only checks. Draft and persisted request pairs repeat constraints verbatim, not through a static helper.
+The codec throws on the first wiring or shape defect in a stated order, and the constraint descriptor reports every one. The codec and the constraint descriptor each keep their own copy of the wiring and shape rules, the write runs both with no third rule set, and one change tightens both together. A value domain that an API schema publishes is implemented once, and a test checks it against the schema's pattern. Draft and persisted request pairs repeat constraints verbatim, not through a static helper.
 
-Why: Under one shared implementation the conformance test compares a rule with itself. A descriptor that accepts what the codec rejects persists payloads the codec cannot read back.
+Why: Under one shared implementation the conformance test compares a rule with itself, unless a published schema is the independent second copy. A descriptor that accepts what the codec rejects lets the codec reject the write with an error the descriptor never reports.
 
 Exceptions: `ConsumerBaseKeyResolver` owns the base-key split. A hand-written tree that bypasses both the codec and the descriptor fails on [read](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read) or at [render](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
 
@@ -62,5 +62,7 @@ In code:
 
 - `StoredElementCodec` is the codec.
 - `StoredTreeConstraints` is the constraint descriptor.
+- `ElementIdRule` states the element-id domain that both call.
 - `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on every payload and names each descriptor-only check.
+- `ElementIdSchemaConformanceTest` pins that decode and the published `ContentElementId` pattern accept and reject the same ids, except the empty string.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).

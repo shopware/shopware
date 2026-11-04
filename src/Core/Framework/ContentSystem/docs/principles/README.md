@@ -8,7 +8,7 @@
 | present null / absent key | Neither gives the property a non-null value. | `LayoutDefaultSeeder` fills an absent key and never a present null. | [values.md](values.md) |
 | FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off placeholder substitution, data resolution and context delivery. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
-| client defect / internal fault | Both are defects that `ContentSystemException` throws. | A client can cause a client defect (`CLIENT_DEFECT_CODES`), while only data that bypassed the write gate causes an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
+| client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
 
 ## Glossary
 
@@ -33,7 +33,7 @@
 - draft pipeline: `MutationPipeline::run()`, which applies a mutation operation to a decoded draft and writes its derived consumer wiring.
 - the module: the Content System under `src/Core/Framework/ContentSystem/`.
 - present null, authored null, absent: a key whose value is null (authored when the author wrote it) and a key missing from the map: [values.md](values.md#a-present-null-and-an-absent-key-are-different-states).
-- client defect: a defect that a client can cause, with a code in `CLIENT_DEFECT_CODES`: [failure-and-loss.md](failure-and-loss.md#the-cause-of-a-defect-sets-its-classification-and-http-status-is-a-separate-axis).
+- client defect: a code that a client causes through the element tree, listed in `CLIENT_DEFECT_CODES`: [failure-and-loss.md](failure-and-loss.md#the-cause-of-a-defect-sets-its-classification-and-http-status-is-a-separate-axis).
 - write boundary: `LayoutWriteBoundary::apply()`, the one path every DAL write of a layout takes: [write-admission.md](write-admission.md#every-layout-write-passes-through-the-write-boundary-a-single-choke-point).
 - write gate: the checks that reject a `content_layout` write, `LayoutGate` through `ContentLayoutWriteValidator` and the `StoredTreeConstraints` descriptor: [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness).
 - conformance validator: `PropertyTypeConformanceValidator`, the descriptor's check of a property value against its declared primitive type.

@@ -94,8 +94,10 @@ final readonly class StoredSchemaResolver
     }
 
     /**
-     * A declared primitive property is stored under its own key. A declared FQCN/object/union property is not:
-     * nothing is ever stored under the reference key itself, so it contributes no entry.
+     * A declared primitive property is stored under its own key and contributes an entry. A property declared as a
+     * single class name is a reference that a loader or a context delivery fills, so nothing is stored under its key
+     * and it contributes no entry. A property declared as a bare `object` or as a union is authored and stored under
+     * its own key, where write-time seeding can put a map of member defaults. Neither contributes an entry.
      *
      * @return array<string, StoredSchemaEntry>
      */
@@ -178,9 +180,10 @@ final readonly class StoredSchemaResolver
      * - an integer-like token, which no stored key can be: `StoredElement` rejects an integer property, data
      *   requirement or slot key outright, and PHP converts such a string key to an integer, so publishing one
      *   would advertise a key the storage model forbids;
-     * - a token naming a declared non-primitive property, which would claim storage where none exists (the
-     *   reference property is filled by the pipeline, never stored). A token naming a declared PRIMITIVE needs
-     *   no rejection here: the property tier overwrites it.
+     * - a token naming a declared non-primitive property. A single class name is a reference the pipeline fills and
+     *   nothing stores. A bare `object` or a union is stored, yet it is rejected here as well, and
+     *   {@see self::propertyEntries()} publishes no entry for it either. A token naming a declared PRIMITIVE needs
+     *   no rejection here: its property entry overwrites the binding entry.
      *
      * @param array<string, PropertySpecification> $properties
      *

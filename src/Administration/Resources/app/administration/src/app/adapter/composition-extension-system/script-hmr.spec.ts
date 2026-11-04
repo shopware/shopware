@@ -271,6 +271,29 @@ describe('src/app/adapter/composition-extension-system/script-hmr', () => {
         },
     );
 
+    it.activeFeatureFlags(['ADMIN_VITE_8'])(
+        'applies a Component.override() of the base once after an override was edited',
+        async () => {
+            const owner = `${name}:override`;
+            Shopware.Component.override(name, {
+                computed: {
+                    total(this: { $super: (name: string) => number }): number {
+                        return this.$super('total') + 100;
+                    },
+                },
+            });
+            jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const wrapper = mountAll(overrideSfc(name, owner, '1', 1), nativeBase(name));
+            await flushPromises();
+            expect(totals(wrapper)).toEqual(['111']);
+
+            runtime.reload(owner, overrideSfc(name, owner, '2', 2));
+            await flushPromises();
+
+            expect(totals(wrapper)).toEqual(['112']);
+        },
+    );
+
     it('adds every registration of an override without hot update data', async () => {
         const show = ref(true);
         const Override = defineComponent({

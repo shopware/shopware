@@ -13,6 +13,7 @@ import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
 import type { OverrideFn } from '../options-composition-shim';
+import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import {
     createDataScope,
     createOverrideLocalState,
@@ -241,6 +242,30 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
     );
 };
 
+// Every instance of a base processes the pending overrides, the conversion has to happen once so
+// a later instance does not add the same override again.
+const convertedPendingOverrides = new WeakMap<object, Promise<OverrideFn | null>>();
+
+function convertPendingOverride(
+    componentName: string,
+    pendingOverride: { config: () => Promise<ComponentConfig | boolean> },
+): Promise<OverrideFn | null> {
+    let converted = convertedPendingOverrides.get(pendingOverride);
+
+    if (!converted) {
+        converted = pendingOverride
+            .config()
+            .then((config) =>
+                typeof config !== 'boolean' && shouldActivateShim(config)
+                    ? convertOptionsApiOverrideToCompositionApi(componentName, config)
+                    : null,
+            );
+        convertedPendingOverrides.set(pendingOverride, converted);
+    }
+
+    return converted;
+}
+
 /**
  * @private
  *
@@ -350,12 +375,9 @@ export function createExtendableSetup<
                 const pendingOverrides = overrideRegistry.get(options.name as string)!;
                 await Promise.all(
                     pendingOverrides.map(async (pendingOverride) => {
-                        const resolvedConfig = await pendingOverride.config();
-                        if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
-                            const compositionOverride = convertOptionsApiOverrideToCompositionApi(
-                                options.name as string,
-                                resolvedConfig,
-                            );
+                        const compositionOverride = await convertPendingOverride(options.name as string, pendingOverride);
+
+                        if (compositionOverride && !_overridesMap[options.name].includes(compositionOverride)) {
                             _overridesMap[options.name].push(compositionOverride);
                         }
                     }),

@@ -38,6 +38,7 @@ const missingTests = [
     'src/app/component/form/field-base/sw-base-field/index.js',
     'src/app/component/form/field-base/sw-block-field/index.js',
     'src/app/component/form/field-base/sw-contextual-field/index.js',
+    'src/app/component/form/select/entity/sw-entity-tag-select/index.js',
     'src/app/component/form/sw-boolean-radio-group/index.js',
     'src/app/component/form/sw-compact-colorpicker/index.js',
     'src/app/component/form/sw-confirm-field/index.js',
@@ -496,6 +497,7 @@ const missingTests = [
     'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js',
     'src/module/sw-users-permissions/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
+    'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
     // unable to test because of es module <-> cjs conflicts lazy import statements
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',

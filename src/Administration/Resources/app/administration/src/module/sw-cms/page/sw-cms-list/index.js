@@ -13,7 +13,6 @@ export default {
 
     inject: [
         'repositoryFactory',
-        'mediaDefaultFolderService',
         'acl',
         'feature',
         'systemConfigApiService',
@@ -69,7 +68,6 @@ export default {
             return this.repositoryFactory.create('cms_page');
         },
 
-        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         defaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
         },
@@ -405,7 +403,22 @@ export default {
         },
 
         getDefaultFolderId() {
-            return this.mediaDefaultFolderService.getDefaultFolderId('cms_page');
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('folder');
+            criteria.addFilter(Criteria.equals('entity', 'cms_page'));
+
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: ['media-default-folder', 'cms_page'],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
+
+                    return null;
+                });
         },
 
         onChangeLanguage(languageId) {

@@ -302,16 +302,14 @@ export default {
                     Criteria.equals('private', uploadTask.isPrivate),
                 ]),
             );
-            criteria.setTotalCountMode(0);
 
-            const {
-                data: [newTargetId],
-            } = await this.mediaRepository.searchIds(criteria, Context.api);
+            const searchResult = await this.mediaRepository.search(criteria, Context.api);
+            const newTarget = searchResult[0];
             const oldTargetId = uploadTask.targetId;
 
             if (this.presignedSupported && uploadTask.src instanceof File) {
                 try {
-                    const mediaId = await this.presignedUpload(uploadTask, newTargetId);
+                    const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
 
                     const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
                     if (oldTarget && !oldTarget.hasFile) {
@@ -331,7 +329,7 @@ export default {
                 return;
             }
 
-            uploadTask.targetId = newTargetId;
+            uploadTask.targetId = newTarget.id;
 
             this.mediaService.addUpload(uploadTask.uploadTag, uploadTask);
 
@@ -400,12 +398,10 @@ export default {
                     Criteria.equals('private', uploadTask.isPrivate),
                 ]),
             );
-            criteria.setTotalCountMode(0);
 
-            const {
-                data: [newTargetId],
-            } = await this.mediaRepository.searchIds(criteria, Context.api);
-            uploadTask.targetId = newTargetId;
+            const searchResult = await this.mediaRepository.search(criteria, Context.api);
+            const newTarget = searchResult[0];
+            uploadTask.targetId = newTarget.id;
             uploadTask.originalTargetId = originalTargetId;
 
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);

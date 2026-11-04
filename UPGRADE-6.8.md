@@ -1599,6 +1599,10 @@ The deprecated custom-field set loader computed properties were removed from the
 | `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
 | `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
 
+These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
+`sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
+
 ## Media default folder lookup computed properties removed
 
 The deprecated computed properties that loaded the media default folder were removed from these Administration components:
@@ -1607,8 +1611,6 @@ The deprecated computed properties that loaded the media default folder were rem
 |---|---|
 | `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
 | `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
-| `sw-cms-detail` | `defaultFolderRepository` |
-| `sw-cms-list` | `defaultFolderRepository` |
 
 Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
 

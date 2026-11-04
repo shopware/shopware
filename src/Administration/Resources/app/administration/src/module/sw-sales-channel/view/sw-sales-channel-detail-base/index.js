@@ -828,7 +828,6 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
-            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('fileName', this.productExport.fileName),
@@ -837,9 +836,9 @@ export default {
             );
 
             this.productExportRepository
-                .searchIds(criteria)
-                .then(({ data }) => {
-                    this.invalidFileName = data.length > 0;
+                .search(criteria)
+                .then(({ total }) => {
+                    this.invalidFileName = total > 0;
                     this.isFileNameChecking = false;
                 })
                 .catch(() => {

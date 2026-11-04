@@ -126,14 +126,18 @@ const normalizedTemplateRegistry = new Map();
 
 /**
  * Maps a template string to the edited string that replaced it during development.
- * Components register their template again on every build, with the string their module exported at load time,
- * so every registration follows these edits to the latest version.
+ * `Component.register()` registers the template again on every build, with the string its module exported at load time,
+ * so the registration follows these edits to the latest version.
  *
  * @type {Map<String, String>}
  */
 const editedTemplates = new Map();
 
 function latestTemplate(template) {
+    if (process.env.NODE_ENV === 'production') {
+        return template;
+    }
+
     let latest = template;
 
     while (editedTemplates.has(latest)) {
@@ -186,7 +190,7 @@ function extendComponentTemplate(componentName, extendComponentName, templateExt
 
     templateRegistry.set(componentName, {
         name: componentName,
-        raw: latestTemplate(templateExtension),
+        raw: templateExtension,
         extend: extendComponentName,
         overrides: overrides,
     });
@@ -212,7 +216,7 @@ function registerTemplateOverride(componentName, templateOverride = null, overri
     };
     component.overrides.push({
         index: overrideIndex,
-        raw: latestTemplate(templateOverride),
+        raw: templateOverride,
     });
     component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);
@@ -230,6 +234,10 @@ function registerTemplateOverride(componentName, templateOverride = null, overri
  * @returns {String[]|null} The changed component followed by all components extending it, or null without a unique match
  */
 function replaceTemplate(previousTemplate, nextTemplate) {
+    if (process.env.NODE_ENV === 'production') {
+        return null;
+    }
+
     const matches = findTemplateEntries(previousTemplate);
 
     // Without a base template the component is not rendered by Twig, its overrides reach it through `sw-block`.
@@ -246,7 +254,16 @@ function replaceTemplate(previousTemplate, nextTemplate) {
     entry.raw = nextTemplate;
     normalizedTemplateRegistry.clear();
 
-    return [component.name, ...collectExtendingComponents(component.name)];
+    const affected = new Set([component.name]);
+    affected.forEach((parent) => {
+        templateRegistry.forEach((item) => {
+            if (item.extend === parent) {
+                affected.add(item.name);
+            }
+        });
+    });
+
+    return [...affected];
 }
 
 function findTemplateEntries(rawTemplate) {
@@ -255,24 +272,6 @@ function findTemplateEntries(rawTemplate) {
             .filter((entry) => entry.raw === rawTemplate)
             .map((entry) => ({ component, entry })),
     );
-}
-
-function collectExtendingComponents(componentName) {
-    const extending = [];
-    const queue = [componentName];
-
-    while (queue.length > 0) {
-        const name = queue.shift();
-
-        templateRegistry.forEach((item) => {
-            if (item.extend === name && !extending.includes(item.name)) {
-                extending.push(item.name);
-                queue.push(item.name);
-            }
-        });
-    }
-
-    return extending;
 }
 
 /**

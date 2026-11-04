@@ -385,7 +385,8 @@ To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extensi
 
 While `composer watch:admin` runs, saving the Twig template of a component or of a component override updates that component on the page and keeps its state.
 Components that extend it update as well.
-The watcher still reloads the page when it cannot apply an edit in place, for example for a Twig override of a component without a Twig template, or for a template file that several components use.
+The watcher still reloads the page when it cannot apply an edit in place:
+for a Twig override of a component without a Twig template, for a template whose content another template file has as well, or for a component that has not been rendered yet.
 
 With the `ADMIN_VITE_8` feature flag, the watcher also applies script edits of native `.vue` components and `.override.vue` files of extensions without a page reload.
 It remounts the edited component and the components an edited override changes, and reloads the page for edits it cannot apply in place, for example of a file such a component imports, of a component built with `Component.extend()` or `Component.override()`, or of a component that is not on the page.

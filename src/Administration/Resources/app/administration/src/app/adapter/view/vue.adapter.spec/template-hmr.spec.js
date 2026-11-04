@@ -101,6 +101,28 @@ describe('app/adapter/view/vue.adapter.js - template hot updates', () => {
         expect(wrapper.text()).toBe('Override again');
     });
 
+    it('keeps the template override of an extension when the overridden template is edited', async () => {
+        const template =
+            '<div>{% block hmr_extended_text %}<span class="text">Before</span>{% endblock %}<input v-model="draft"></div>';
+        Shopware.Component.register('hmr-extended', {
+            template,
+            data: () => ({ draft: '' }),
+        });
+        Shopware.Component.override('hmr-extended', {
+            template: '{% block hmr_extended_text %}{% parent %}<span class="extension">Extension</span>{% endblock %}',
+        });
+        const wrapper = await mountComponent('hmr-extended');
+        await wrapper.find('input').setValue('unsaved draft');
+
+        const updated = await vueAdapter.hotUpdateTemplate(template, template.replace('Before', 'After'));
+        await flushPromises();
+
+        expect(updated).toBe(true);
+        expect(wrapper.find('.text').text()).toBe('After');
+        expect(wrapper.find('.extension').text()).toBe('Extension');
+        expect(wrapper.find('input').element.value).toBe('unsaved draft');
+    });
+
     it('applies further edits of the same template', async () => {
         const first = '<div>First</div>';
         const second = '<div>Second</div>';

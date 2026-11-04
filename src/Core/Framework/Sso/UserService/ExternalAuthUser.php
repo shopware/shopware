@@ -29,12 +29,29 @@ final readonly class ExternalAuthUser implements UserEntityInterface
         public ?Token $token,
         public \DateTimeInterface $expiry,
         public string $email,
+        /**
+         * when the identity provider authenticated the user for this login; not persisted, null when unknown
+         */
+        public ?\DateTimeImmutable $authenticatedAt = null,
     ) {
     }
 
     public function getIdentifier(): string
     {
         return $this->userId;
+    }
+
+    /**
+     * Whether the identity provider authenticated the user at most $seconds before $now. Without a reported
+     * authentication time the login may have reused a session of any age, so it does not count.
+     */
+    public function isAuthenticatedWithin(int $seconds, \DateTimeInterface $now): bool
+    {
+        if ($this->authenticatedAt === null) {
+            return false;
+        }
+
+        return $now->getTimestamp() - $this->authenticatedAt->getTimestamp() <= $seconds;
     }
 
     /**
@@ -51,6 +68,7 @@ final readonly class ExternalAuthUser implements UserEntityInterface
             \array_key_exists('token', $data) && \is_array($data['token']) ? Token::fromArray($data['token']) : null,
             $data['expiry'],
             $data['email'],
+            $data['authenticated_at'] ?? null,
         );
     }
 
@@ -122,6 +140,9 @@ final readonly class ExternalAuthUser implements UserEntityInterface
                 new NotBlank(null, 'is required'),
                 new Email(null, 'Needs to be a valid email address'),
             ],
+            'authenticated_at' => new Optional([
+                new Type('DateTimeImmutable', 'Needs to be a DateTimeImmutable'),
+            ]),
         ]);
     }
 }

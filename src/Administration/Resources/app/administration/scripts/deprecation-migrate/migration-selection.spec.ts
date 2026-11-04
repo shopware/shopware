@@ -31,6 +31,7 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                     '--all',
                     '--fix',
                     '--list',
+                    '--no-partial',
                     '-h',
                 ]),
             ).toEqual({
@@ -39,7 +40,12 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                 help: true,
                 ids: [],
                 list: true,
+                partial: false,
             });
+        });
+
+        it('allows partial conversions by default', () => {
+            expect(parseArgs(['--all']).partial).toBe(true);
         });
 
         it('reads an id given as a separate value or with an equals sign', () => {

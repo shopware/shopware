@@ -77,7 +77,6 @@ export type ComponentUsageRuleApi = {
         findSlot(node: TemplateNode, slotName: string): TemplateNode | undefined;
         hasCodemodComment(node: TemplateNode, text: string): boolean;
         getAttributeValueSource(attribute: TemplateNode): string | null;
-        getCondensedTextContent(node: TemplateNode): string;
         getDirectiveName(attribute: TemplateNode): string | null;
         getFirstElementChildWithoutSlot(node: TemplateNode): TemplateNode | undefined;
         getStaticAttributeName(attribute: TemplateNode): string | null;
@@ -213,8 +212,8 @@ export type MissingPropStep = ComponentUsageStepBase & {
 export type RemoveSlotStep = ComponentUsageStepBase & {
     kind: 'remove-slot';
     slot: string;
-    /** Replaces the slot with `<!-- <replacementComment> -->` instead of a comment that quotes its content. */
-    replacementComment?: string;
+    /** The review comment above a slot with content; defaults to a generic "not rendered anymore" hint. */
+    hint?: string;
 };
 
 export type SlotToPropStep = ComponentUsageStepBase & {

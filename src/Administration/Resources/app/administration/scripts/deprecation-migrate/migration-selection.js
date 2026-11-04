@@ -26,6 +26,7 @@ function parseArgs(argv) {
         help: false,
         ids: [],
         list: false,
+        partial: true,
     };
 
     for (let index = 0; index < argv.length; index += 1) {
@@ -38,6 +39,11 @@ function parseArgs(argv) {
 
         if (arg === '--fix') {
             args.fix = true;
+            continue;
+        }
+
+        if (arg === '--no-partial') {
+            args.partial = false;
             continue;
         }
 

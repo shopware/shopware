@@ -156,11 +156,14 @@ const mtBannerInvalidTests = [
         output: `
             <template>
                 <mt-banner>
-                    <!-- Slot "actions" was removed and has no replacement. -->
+                    <!-- TODO Codemod: mt-banner has no "actions" slot, so this content is not rendered. Render the actions next to the banner. -->
+                    <template #actions>
+                        <sw-button />
+                    </template>
                 </mt-banner>
             </template>`,
         errors: [{
-            message: '[mt-banner] The "actions" API is deprecated.',
+            message: '[mt-banner] The "actions" slot is removed.',
         }]
     },
     {
@@ -177,11 +180,14 @@ const mtBannerInvalidTests = [
         output: `
             <template>
                 <mt-banner>
-                    <!-- Slot "actions" was removed and has no replacement. -->
+                    <!-- TODO Codemod: mt-banner has no "actions" slot, so this content is not rendered. Render the actions next to the banner. -->
+                    <template v-slot:actions>
+                        <sw-button />
+                    </template>
                 </mt-banner>
             </template>`,
         errors: [{
-            message: '[mt-banner] The "actions" API is deprecated.',
+            message: '[mt-banner] The "actions" slot is removed.',
         }]
     },
 ];

@@ -26,6 +26,7 @@ Usage:
   npm run deprecation:migrate -- --id component.sw-button --fix
   npm run deprecation:migrate -- --all
   npm run deprecation:migrate -- --all --fix
+  npm run deprecation:migrate -- --all --fix --no-partial
 
 Options:
   --help          Show this help.
@@ -34,6 +35,9 @@ Options:
   --all           Run all registry-backed deprecation migrations.
   --fix           Apply available ESLint fixes and report remaining work.
                   Without --fix, matching deprecations are only reported.
+  --no-partial    Convert a component only when every part of it can be fixed
+                  automatically, without review comments. Other usages keep the
+                  deprecated component and are only reported.
 
 Asset deprecations (for example PNG/JPG to WebP) are reported by the admin build, not by this command.
 
@@ -85,6 +89,12 @@ function runEslint(args) {
 
     if (args.fix) {
         eslintArgs.push('--fix');
+    }
+
+    if (!args.partial) {
+        const noPartialRule = { 'sw-deprecation-rules/no-deprecated-components': ['error', { partial: false }] };
+
+        eslintArgs.push('--rule', JSON.stringify(noPartialRule));
     }
 
     return spawnSync(eslintBin, eslintArgs, {

@@ -6,7 +6,6 @@ import {
     componentMigration,
     mapPropValue,
     removeProp,
-    removeSlot,
     renameComponent,
     renameEvent,
     renameProp,
@@ -46,6 +45,5 @@ export default componentMigration({
             slot: 'label',
             prop: 'label',
         }),
-        removeSlot({ slot: 'hint' }),
     ],
 });

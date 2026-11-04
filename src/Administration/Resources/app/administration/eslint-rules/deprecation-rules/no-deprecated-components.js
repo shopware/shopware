@@ -8,6 +8,44 @@ const { appendRegistryContext } = require('./registry/format-migration-message')
 const { canAutoFix } = require('./registry/fix-policy');
 const { convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
 const { findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
+const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
+
+// Stands in for ESLint's fixer when a fix only has to be built, not applied.
+const RECORDING_FIXER = new Proxy({}, { get: () => () => ({}) });
+
+/**
+ * Runs the follow-up steps of a migration on the element before it is converted and returns the
+ * headlines of the parts that would be left for a person: no automatic fix, or a fix that only leaves a
+ * review comment (`unsafe-auto`). An element with such parts is only converted when the rule allows
+ * partial conversions.
+ *
+ * @example
+ * findManualParts(context, swAlertNode, migration);
+ * // ['[sw-alert] The "actions" slot is removed.\nmt-banner has no "actions" slot, …']
+ */
+function findManualParts(context, node, migration) {
+    const manualParts = [];
+
+    migration.usage
+        .filter((usage) => usage.eslint?.report)
+        .forEach((usage) => {
+            const recordingContext = {
+                sourceCode: context.sourceCode,
+                options: [],
+                report(report) {
+                    const fixesCompletely = usage.fix === 'auto' && report.fix && report.fix(RECORDING_FIXER);
+
+                    if (!fixesCompletely) {
+                        manualParts.push(report.message.split(`\n${migration.description}`)[0]);
+                    }
+                },
+            };
+
+            usage.eslint.report(createComponentUsageRuleApi(recordingContext, node, migration, usage));
+        });
+
+    return manualParts;
+}
 
 /**
  * Builds the comment above a converted element. Object `v-bind` / `v-on` can still pass deprecated
@@ -55,6 +93,10 @@ module.exports = {
                             type: 'string',
                         },
                     },
+                    // false converts only elements whose follow-up steps can all be fixed automatically
+                    partial: {
+                        type: 'boolean',
+                    },
                 },
             },
         ],
@@ -64,6 +106,7 @@ module.exports = {
         const migrations = filterMigrations(loadRegistry().componentApiMigrations);
         const activatedComponents =
             context.options[0]?.activatedComponents ?? migrations.map((migration) => migration.component);
+        const allowsPartialConversion = context.options[0]?.partial ?? true;
         const renameMigrations = migrations
             .filter((migration) => activatedComponents.includes(migration.component))
             .map((migration) => ({
@@ -83,6 +126,23 @@ module.exports = {
                 const { migration, renameUsage } = match;
                 const oldName = migration.component;
                 const newName = migration.replacement;
+                const manualParts = allowsPartialConversion ? [] : findManualParts(context, node, migration);
+
+                if (manualParts.length > 0) {
+                    context.report({
+                        loc: node.loc,
+                        message: appendRegistryContext(
+                            [
+                                `"${oldName}" is deprecated. Please use "${newName}" instead.`,
+                                'It is not converted, because these parts need a manual migration first:',
+                                ...manualParts.map((part) => `- ${part}`),
+                            ],
+                            migration,
+                        ),
+                    });
+
+                    return;
+                }
 
                 context.report({
                     loc: node.loc,

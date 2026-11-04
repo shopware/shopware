@@ -1494,6 +1494,8 @@ Extensions whose ESLint config composes the extension tooling get the reports an
 The other registry categories, such as template blocks, snippet keys and JavaScript APIs, are applied in the Administration through `npm run deprecation:migrate`.
 Steps that need a decision, such as keeping the former `sw-icon` default size of 24px after the switch to `mt-icon`, are applied with a `TODO Codemod` comment that asks to confirm them.
 In the Administration itself, `npm run deprecation:migrate -- --list` lists every migration with its fix level, and `npm run deprecation:migrate -- --id <id> --fix` applies one.
+With `--no-partial`, or the `{ partial: false }` option of `sw-deprecation-rules/no-deprecated-components`, a component is only converted when every part of it can be fixed without a review comment;
+the other usages keep the deprecated component and list the parts that need a manual migration.
 
 The new `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on an Administration component or prop that has no codemod in the registry.
 Add a migration in `src/app/deprecation-registry/definitions/components`, or disable the rule for that line with the reason why no codemod is possible:

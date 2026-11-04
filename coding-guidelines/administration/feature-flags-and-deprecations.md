@@ -80,6 +80,8 @@ npm run deprecation:migrate -- --list
 npm run deprecation:migrate -- --id component.sw-card
 # Apply its fixes
 npm run deprecation:migrate -- --id component.sw-card --fix
+# Convert only components whose every part fixes without a review comment
+npm run deprecation:migrate -- --id component.sw-card --fix --no-partial
 ```
 
 ### Deprecation baseline

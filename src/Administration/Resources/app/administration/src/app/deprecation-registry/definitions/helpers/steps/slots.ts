@@ -17,28 +17,33 @@ import type { UsagePlan } from '../shared';
 import { defineUsageStep, reportUsage } from '../shared';
 
 /**
- * Replaces a removed slot with a comment that keeps its text content, or with `replacementComment`.
+ * Handles a slot the new component no longer has. An empty slot is deleted. A slot with content keeps
+ * its content and gets a review comment above it, because the new component does not render it and
+ * only a developer can decide where it goes.
  *
  * @example
- * removeSlot({ slot: 'hint' });
- * removeSlot({ slot: 'actions', replacementComment: 'Slot "actions" was removed and has no replacement.' });
+ * removeSlot({ slot: 'actions', hint: 'mt-banner has no "actions" slot. Render the actions next to the banner.' });
  */
-export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotStep>): RemoveSlotStep {
+export function removeSlot({ fix = 'unsafe-auto', ...config }: StepConfig<RemoveSlotStep>): RemoveSlotStep {
     return defineUsageStep<RemoveSlotStep>({ kind: 'remove-slot', fix, ...config }, (api, step) => {
         const slot = api.ast.findSlot(api.node, step.slot);
+        const hint =
+            step.hint ??
+            `The "${step.slot}" slot does not exist anymore, so its content is not rendered. Move or remove it.`;
 
-        if (!slot) {
+        if (!slot || api.ast.hasCodemodComment(api.node, hint)) {
             return;
         }
 
-        const comment =
-            step.replacementComment ??
-            `Slot "${step.slot}" was removed without replacement. Previous value was: ${api.ast.getCondensedTextContent(slot)}`;
+        const isEmpty = api.ast.getSlotContentValue(slot)?.kind === 'none';
 
         reportUsage(api, {
             node: slot,
             apiName: step.slot,
-            fix: (fixer) => fixer.replaceText(slot, `<!-- ${comment} -->`),
+            headline: `The "${step.slot}" slot is removed.`,
+            fix: isEmpty
+                ? (fixer) => fixer.removeRange(api.ast.getRemovalRange(slot))
+                : (fixer) => api.insertCodemodCommentBefore(fixer, slot, hint),
         });
     });
 }

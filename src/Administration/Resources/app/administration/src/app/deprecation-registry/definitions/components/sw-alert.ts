@@ -54,7 +54,7 @@ export default componentMigration({
         }),
         removeSlot({
             slot: 'actions',
-            replacementComment: 'Slot "actions" was removed and has no replacement.',
+            hint: 'mt-banner has no "actions" slot, so this content is not rendered. Render the actions next to the banner.',
         }),
     ],
 });

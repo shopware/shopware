@@ -666,11 +666,14 @@ const mtSwitchInvalidChecks = [
         output: `
             <template>
                 <mt-switch>
-                    <!-- Slot "hint" was removed with no replacement. -->
+                    <!-- TODO Codemod: mt-switch has no "hint" slot, so this content is not rendered. Use the "help-text" prop or render it next to the switch. -->
+                    <template #hint>
+                        Foobar
+                    </template>
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" API is deprecated.',
+            message: '[mt-switch] The "hint" slot is removed.',
         }],
     },
     {
@@ -686,7 +689,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" API is deprecated.',
+            message: '[mt-switch] The "hint" slot is removed.',
         }],
     },
     {
@@ -703,11 +706,14 @@ const mtSwitchInvalidChecks = [
         output: `
             <template>
                 <mt-switch>
-                    <!-- Slot "hint" was removed with no replacement. -->
+                    <!-- TODO Codemod: mt-switch has no "hint" slot, so this content is not rendered. Use the "help-text" prop or render it next to the switch. -->
+                    <template v-slot:hint>
+                        Foobar
+                    </template>
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" API is deprecated.',
+            message: '[mt-switch] The "hint" slot is removed.',
         }],
     },
     {
@@ -723,7 +729,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" API is deprecated.',
+            message: '[mt-switch] The "hint" slot is removed.',
         }],
     },
 ];

@@ -160,16 +160,6 @@ function findSlot(node, slotName) {
 }
 
 /**
- * Returns the first text child on one line, with runs of whitespace collapsed.
- *
- * @example
- * getCondensedTextContent(node); // 'Save changes' for <template #label>\n  Save   changes\n</template>
- */
-function getCondensedTextContent(node) {
-    return (node.children?.[0]?.value ?? '').replace(/\n/g, '').replace(/\s+/g, ' ');
-}
-
-/**
  * Returns the first child element that is not a slot template.
  *
  * @example
@@ -206,7 +196,6 @@ module.exports = {
     findObjectVOnAttribute,
     findSlot,
     getAttributeValueSource,
-    getCondensedTextContent,
     getDirectiveArgumentName,
     getDirectiveName,
     getFirstElementChildWithoutSlot,

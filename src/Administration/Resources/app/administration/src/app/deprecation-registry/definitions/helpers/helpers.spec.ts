@@ -45,7 +45,7 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
         ['map-prop-value', 'auto', mapPropValue({ prop: 'a', from: 'b', to: 'c' })],
         ['map-options-prop-keys', 'unsafe-auto', mapOptionsPropKeys({ prop: 'options', from: { name: 'label' } })],
         ['missing-prop', 'auto', missingProp({ prop: 'a', value: 'b' })],
-        ['remove-slot', 'auto', removeSlot({ slot: 'a' })],
+        ['remove-slot', 'unsafe-auto', removeSlot({ slot: 'a' })],
         ['slot-to-prop', 'auto', slotToProp({ slot: 'a', prop: 'b' })],
         ['flag-slot-for-manual-move', 'unsafe-auto', flagSlotForManualMove({ slot: 'a', hint: 'Move it.' })],
         ['slot-to-items-prop', 'unsafe-auto', slotToItemsProp({ prop: 'items', itemComponent: 'sw-tabs-item' })],

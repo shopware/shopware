@@ -56,7 +56,7 @@ export default componentMigration({
         }),
         removeSlot({
             slot: 'hint',
-            replacementComment: 'Slot "hint" was removed with no replacement.',
+            hint: 'mt-switch has no "hint" slot, so this content is not rendered. Use the "help-text" prop or render it next to the switch.',
         }),
     ],
 });

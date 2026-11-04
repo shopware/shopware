@@ -271,83 +271,22 @@ const mtUrlFieldInvalidTests = [
             message: '[mt-url-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
-    {
-        name: '"mt-url-field" wrong "hint" slot usage should be removed [shorthand syntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-url-field>
-                    <template #hint>
-                        My Hint
-                    </template>
-                </mt-url-field>
-            </template>`,
-        output: `
-            <template>
-                <mt-url-field>
-                    <!-- Slot "hint" was removed without replacement. Previous value was:  My Hint  -->
-                </mt-url-field>
-            </template>`,
-        errors: [{
-            message: '[mt-url-field] The "hint" API is deprecated.',
-        }]
-    },
-    {
-        name: '"mt-url-field" wrong "hint" slot usage should be removed [shorthand syntax, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-url-field>
-                    <template #hint>
-                        My Hint
-                    </template>
-                </mt-url-field>
-            </template>`,
-        errors: [{
-            message: '[mt-url-field] The "hint" API is deprecated.',
-        }]
-    },
-    {
-        name: '"mt-url-field" wrong "hint" slot usage should be removed [v-slot syntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-url-field>
-                    <template v-slot:hint>
-                        My Hint
-                    </template>
-                </mt-url-field>
-            </template>`,
-        output: `
-            <template>
-                <mt-url-field>
-                    <!-- Slot "hint" was removed without replacement. Previous value was:  My Hint  -->
-                </mt-url-field>
-            </template>`,
-        errors: [{
-            message: '[mt-url-field] The "hint" API is deprecated.',
-        }]
-    },
-    {
-        name: '"mt-url-field" wrong "hint" slot usage should be removed [v-slot syntax, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-url-field>
-                    <template v-slot:hint>
-                        My Hint
-                    </template>
-                </mt-url-field>
-            </template>`,
-        errors: [{
-            message: '[mt-url-field] The "hint" API is deprecated.',
-        }]
-    }
 ];
 
+const keptHintSlot = {
+    name: '"mt-url-field" keeps its "hint" slot, which mt-url-field still supports',
+    filename: 'test.html.twig',
+    code: `
+            <template>
+                <mt-url-field>
+                    <template #hint>
+                        My Hint
+                    </template>
+                </mt-url-field>
+            </template>`,
+};
+
 module.exports = {
-    valid: mtUrlFieldValidTests,
+    valid: [...mtUrlFieldValidTests, keptHintSlot],
     invalid: mtUrlFieldInvalidTests,
 };

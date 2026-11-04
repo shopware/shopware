@@ -576,7 +576,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             }),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
             {
@@ -712,7 +712,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         const conditions = {
             ...conditionTreeMock,

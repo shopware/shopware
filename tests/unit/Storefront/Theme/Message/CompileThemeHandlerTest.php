@@ -116,8 +116,7 @@ class CompileThemeHandlerTest extends TestCase
 
         $themeCompilerMock->expects($this->once())->method('compileTheme');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         // the theme is still the latest requested one for the sales channel
         $systemConfigService = static::createStub(SystemConfigService::class);
@@ -173,8 +172,7 @@ class CompileThemeHandlerTest extends TestCase
         $themeSalesChannelRep = $this->createMock(EntityRepository::class);
         $themeSalesChannelRep->expects($this->never())->method('upsert');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         $handler = new CompileThemeHandler(
             $themeCompiler,
@@ -213,8 +211,7 @@ class CompileThemeHandlerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         $handler = new CompileThemeHandler(
             $themeCompilerMock,
@@ -252,8 +249,7 @@ class CompileThemeHandlerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         $handler = new CompileThemeHandler(
             $themeCompilerMock,

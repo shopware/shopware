@@ -46,7 +46,7 @@
 
                                     {% if shipping.translated.description and shipping.id is same as(selectedShippingMethodId) %}
                                         {% set shippingDescription = shipping.translated.description|raw %}
-                                        {% set shippingDescriptionTitle = shipping.translated.description|striptags|raw %}
+                                        {% set shippingDescriptionTitle = shipping.translated.description|raw|striptags %}
 
                                         {% block component_shipping_method_description_text %}
                                             <p class="mb-0" title="{{ shippingDescriptionTitle }}">{{ shippingDescription }}</p>

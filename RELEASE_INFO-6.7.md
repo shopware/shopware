@@ -324,6 +324,7 @@ The customer group detail page offers both settings separately. Plugins customiz
 The custom field selection of the product sorting criteria grid (`sw-settings-listing-option-criteria-grid`) loads the custom fields with one request filtered by `customFieldSet.relations.entityName`.
 It no longer stops at the first 25 custom field sets related to products.
 The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method are deprecated and no longer used by the component, so overriding them has no effect anymore.
+
 ### Apps can add tabs to the media modal they open
 
 `ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).

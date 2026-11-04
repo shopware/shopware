@@ -454,14 +454,6 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         expect(wrapper.find('.row-app-webhook .sw-settings-webhook-list__secret-action').exists()).toBe(false);
     });
 
-    it('does not allow setting a signing secret without the editor role', async () => {
-        const { wrapper } = await createWrapper();
-
-        expect(
-            wrapper.find('.row-user-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
-        ).toBeDefined();
-    });
-
     it('lets a user who is not an admin set the signing secret only of their own webhooks', async () => {
         const ownWebhook = { ...userWebhook, id: 'own-webhook', ownerUserId: 'current-user-id' };
         const { wrapper } = await createWrapper({

@@ -245,11 +245,6 @@ Rows whose cells only contain `0` are imported instead of skipped.
 A `0` is no longer replaced by the mapping's default value and satisfies a required field.
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
-### Automatically taken over SEO URLs are no longer write-protected
-
-When indexing generates an SEO URL that another entity already uses as its canonical URL, the generated URL takes it over and the other entity falls back to its oldest remaining SEO URL.
-That fallback is no longer marked as modified, so the entity gets its own URL back with its next indexing.
-A takeover by an SEO URL set in the Administration or via the API still write-protects the fallback, so later indexing does not undo the manual change.
 
 ## API
 
@@ -696,6 +691,7 @@ See `UPGRADE-6.8.md` for what themes have to adjust.
 `core.cart.showLegalGuaranteeNotice` now declares `false` as its default.
 This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
 Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
+
 ### Link categories no longer get new SEO URLs
 
 Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore.
@@ -1746,43 +1742,6 @@ Extensibility of the `buy-widget-form.html.twig` template has been improved for 
 Themes that still define `label` or `helpText` in their `theme.json` show their labels in the theme manager again. On `theme:refresh`, plugin installation and plugin update, Shopware generates the matching administration snippets from those properties into the private filesystem (`snippets/administration/<technicalName>/<locale>.json`, see "Snippets can be provided through the private filesystem") and loads them as the lowest-priority snippet layer, so snippet files shipped by the theme always win. A warning is logged while a theme relies on the generated snippets. Snippet files shipped with the theme are the recommended way to provide these translations. The `labels` and `helpTexts` fields of the `theme` and `theme_translation` entities, which carried the legacy translations, are deprecated and will be removed in 6.8.
 
 The new command `theme:migrate-translations <technicalName>` writes the snippets into `Resources/app/administration/src/snippet/<locale>.json` of the theme and keeps every snippet the theme already maintains there. Use `--strip` to also remove the deprecated properties from the `theme.json`, and `--dry-run` to preview the result.
-### Link categories no longer get new SEO URLs
-
-Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore. Their existing SEO URLs are kept and still redirect to the link target.
-
-When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested. This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
-
-If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL. Indexing does not repair this, because the fallback is marked as modified. After updating:
-
-1. Find the affected target categories:
-
-    ```sql
-    SELECT LOWER(HEX(target.id)) AS target_id, target_t.name AS target_name,
-           target_url.seo_path_info AS target_url_now, link_url.seo_path_info AS url_held_by_link
-    FROM category link
-    JOIN category_translation link_t ON link_t.category_id = link.id AND link_t.category_version_id = link.version_id
-    JOIN category target ON target.id = link_t.internal_link AND target.version_id = link.version_id
-    JOIN category_translation target_t ON target_t.category_id = target.id AND target_t.category_version_id = target.version_id
-         AND target_t.language_id = link_t.language_id AND target_t.name = link_t.name
-    JOIN seo_url link_url ON link_url.foreign_key = link.id AND link_url.language_id = link_t.language_id
-         AND link_url.route_name = 'frontend.navigation.page' AND link_url.is_canonical = 1
-         AND link_url.is_deleted = 0 AND link_url.is_modified = 0
-    JOIN seo_url target_url ON target_url.foreign_key = target.id AND target_url.language_id = link_url.language_id
-         AND target_url.sales_channel_id = link_url.sales_channel_id
-         AND target_url.route_name = 'frontend.navigation.page' AND target_url.is_canonical = 1 AND target_url.is_modified = 1
-    WHERE link.type = 'link' AND link_t.link_type = 'category'
-      AND link.version_id = UNHEX('0FA91CE3E96A4BC2BE4BD9CE752C3425');
-    ```
-
-2. Check the list, because a target whose SEO URL was set manually also appears in it. Remove the write protection of the confirmed targets:
-
-    ```sql
-    UPDATE seo_url SET is_modified = 0
-    WHERE foreign_key IN (UNHEX('<target_id>'))
-      AND route_name = 'frontend.navigation.page' AND is_canonical = 1 AND is_modified = 1;
-    ```
-
-3. Run `bin/console dal:refresh:index --only=category.indexer`. The targets get their SEO URLs back, and their fallback URLs redirect to them.
 
 ### Extension component aliases work in the dev server
 

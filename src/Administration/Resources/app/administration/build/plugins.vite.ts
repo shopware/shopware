@@ -57,6 +57,8 @@ const getBaseConfig = (
 ): UserConfig => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
+    // On Vite 6 an extension runs on its own dev server behind `/_internal_ext/`, and the Vue HMR record of an
+    // override there does not hold the definition the Administration mounted, so a script edit leaves the page stale.
     const scriptHmr = toolchain.isVite8 && !isProd && !useBundledDev;
     const useSourceMap =
         (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||

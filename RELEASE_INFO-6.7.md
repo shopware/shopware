@@ -389,7 +389,10 @@ The watcher still reloads the page when it cannot apply an edit in place:
 for a Twig override of a component without a Twig template, for a template whose content another template file has as well, or for a component that has not been rendered yet.
 
 With the `ADMIN_VITE_8` feature flag, the watcher also applies script edits of native `.vue` components and `.override.vue` files of extensions without a page reload.
-It remounts the edited component and the components an edited override changes, and reloads the page for edits it cannot apply in place, for example of a file such a component imports, of a component built with `Component.extend()` or `Component.override()`, or of a component that is not on the page.
+This includes edits of the files such a component imports.
+The watcher remounts the edited component and the components an edited override changes.
+It reloads the page for edits it cannot apply in place:
+edits that change the blocks of a component, edits of a component built with `Component.extend()` or `Component.override()` or of a component that is not on the page, and updates that fail to render.
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 

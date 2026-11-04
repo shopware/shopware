@@ -126,8 +126,8 @@ const normalizedTemplateRegistry = new Map();
 
 /**
  * Maps a template string to the edited string that replaced it during development.
- * `Component.register()` registers the template again on every build, with the string its module exported at load time,
- * so the registration follows these edits to the latest version.
+ * Templates can be registered again with the string their module exported at load time,
+ * so every registration follows these edits to the latest version.
  *
  * @type {Map<String, String>}
  */
@@ -190,7 +190,7 @@ function extendComponentTemplate(componentName, extendComponentName, templateExt
 
     templateRegistry.set(componentName, {
         name: componentName,
-        raw: templateExtension,
+        raw: latestTemplate(templateExtension),
         extend: extendComponentName,
         overrides: overrides,
     });
@@ -216,7 +216,7 @@ function registerTemplateOverride(componentName, templateOverride = null, overri
     };
     component.overrides.push({
         index: overrideIndex,
-        raw: templateOverride,
+        raw: latestTemplate(templateOverride),
     });
     component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);

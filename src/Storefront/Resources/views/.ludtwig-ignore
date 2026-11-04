@@ -54,3 +54,4 @@
 # -------------------------------------------
 # Dynamic tag names via {{ previewItemTag }} (button vs div) are not valid HTML for the parser
 /components/Sw/Media/Gallery.html.twig
+/components/Sw/Media/ImageGrid.html.twig

@@ -144,6 +144,14 @@ properties:
     adminUI:
       panel: "general"
 
+  sticky:
+    type: boolean
+    title: "Sticky"
+    description: "Keep the container visible at the top of the viewport while scrolling."
+    default: false
+    adminUI:
+      panel: "general"
+
   gap:
     type: integer
     title: "Gap"

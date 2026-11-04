@@ -269,7 +269,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testRemoveAppDoesNothingWithoutCustomEntities(): void
     {
         $context = Context::createDefaultContext();
-        $customEntityRepository = $this->createCustomEntityRepository();
+        $customEntityRepository = StaticEntityRepository::of(CustomEntityCollection::class, [[]]);
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
         $customEntitySchemaUpdater->expects($this->never())->method('update');
@@ -290,7 +290,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $customEntityId = Uuid::randomHex();
-        $customEntityRepository = $this->createCustomEntityRepository($customEntityId);
+        $customEntityRepository = StaticEntityRepository::of(CustomEntityCollection::class, [[$customEntityId]]);
         $clock = new MockClock('2026-06-16 12:34:56.123456');
         $deletedAt = $clock->now();
 
@@ -321,7 +321,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $customEntityId = Uuid::randomHex();
-        $customEntityRepository = $this->createCustomEntityRepository($customEntityId);
+        $customEntityRepository = StaticEntityRepository::of(CustomEntityCollection::class, [[$customEntityId]]);
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
         $customEntitySchemaUpdater->expects($this->once())->method('update');
@@ -389,18 +389,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator()),
             new StaticSourceResolver([]),
             $connection,
-            $customEntityRepository ?? $this->createCustomEntityRepository(),
+            $customEntityRepository ?? StaticEntityRepository::of(CustomEntityCollection::class, [[]]),
             $clock ?? new NativeClock(),
         );
-    }
-
-    /**
-     * @return StaticEntityRepository<CustomEntityCollection>
-     */
-    private function createCustomEntityRepository(string ...$customEntityIds): StaticEntityRepository
-    {
-        $repository = new StaticEntityRepository([$customEntityIds]);
-
-        return $repository;
     }
 }

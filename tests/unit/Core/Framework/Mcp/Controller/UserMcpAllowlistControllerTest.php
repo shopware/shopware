@@ -6,9 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -55,24 +52,10 @@ class UserMcpAllowlistControllerTest extends TestCase
             'prompts' => null,
         ];
 
-        $savedContext = null;
-        $entityEvent = static::createStub(EntityWrittenContainerEvent::class);
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('searchIds')->willReturn(new IdSearchResult(1, [$this->userId => ['primaryKey' => $this->userId, 'data' => []]], new Criteria(), $this->context));
-        $repository->expects($this->once())
-            ->method('update')
-            ->willReturnCallback(function (array $data, Context $context) use ($allowlist, $entityEvent, &$savedContext): EntityWrittenContainerEvent {
-                static::assertSame([['id' => $this->userId, 'mcpAllowlist' => $allowlist]], $data);
-                $savedContext = $context;
-
-                return $entityEvent;
-            });
-
-        $response = (new UserMcpAllowlistController($repository))->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertNotNull($savedContext);
-        static::assertSame(Context::SYSTEM_SCOPE, $savedContext->getScope());
+        static::assertSame([[['id' => $this->userId, 'mcpAllowlist' => $allowlist]]], $this->repository->updates);
     }
 
     public function testSaveAllowlistNull(): void

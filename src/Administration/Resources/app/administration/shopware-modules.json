@@ -641,13 +641,22 @@
             "sw-media-folder-content": [
                 "default"
             ],
+            "sw-media-folder-info": [
+                "default"
+            ],
             "sw-media-folder-item": [
                 "default"
             ],
             "sw-media-index": [
                 "default"
             ],
+            "sw-media-library": [
+                "default"
+            ],
             "sw-media-list-selection-v2": [
+                "default"
+            ],
+            "sw-media-media-item": [
                 "default"
             ],
             "sw-media-modal-delete": [
@@ -666,6 +675,12 @@
                 "default"
             ],
             "sw-media-preview-v2": [
+                "default"
+            ],
+            "sw-media-quickinfo": [
+                "default"
+            ],
+            "sw-media-quickinfo-multiple": [
                 "default"
             ],
             "sw-media-quickinfo-usage": [
@@ -1606,15 +1621,20 @@
             "sw-media-display-options": "src/module/sw-media/component/sw-media-display-options",
             "sw-media-field": "src/app/component/media/sw-media-field",
             "sw-media-folder-content": "src/app/component/media/sw-media-folder-content",
+            "sw-media-folder-info": "src/module/sw-media/component/sidebar/sw-media-folder-info",
             "sw-media-folder-item": "src/app/component/media/sw-media-folder-item",
             "sw-media-index": "src/module/sw-media/page/sw-media-index",
+            "sw-media-library": "src/module/sw-media/component/sw-media-library",
             "sw-media-list-selection-v2": "src/app/component/media/sw-media-list-selection-v2",
+            "sw-media-media-item": "src/app/component/media/sw-media-media-item",
             "sw-media-modal-delete": "src/app/component/media/sw-media-modal-delete",
             "sw-media-modal-folder-dissolve": "src/app/component/media/sw-media-modal-folder-dissolve",
             "sw-media-modal-move": "src/app/component/media/sw-media-modal-move",
             "sw-media-modal-replace": "src/app/component/media/sw-media-modal-replace",
             "sw-media-modal-v2": "src/module/sw-media/component/sw-media-modal-v2",
             "sw-media-preview-v2": "src/app/component/media/sw-media-preview-v2",
+            "sw-media-quickinfo": "src/module/sw-media/component/sidebar/sw-media-quickinfo",
+            "sw-media-quickinfo-multiple": "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple",
             "sw-media-quickinfo-usage": "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage",
             "sw-media-save-modal": "src/module/sw-media/component/sw-media-save-modal",
             "sw-media-sidebar": "src/module/sw-media/component/sidebar/sw-media-sidebar",

@@ -1390,7 +1390,7 @@
       "count": 3
     }
   },
-  "src/app/component/media/sw-media-media-item/index.js": {
+  "src/app/component/media/sw-media-media-item/src/sw-media-media-item.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -1398,7 +1398,7 @@
       "count": 1
     }
   },
-  "src/app/component/media/sw-media-media-item/sw-media-media-item.spec.js": {
+  "src/app/component/media/sw-media-media-item/tests/sw-media-media-item.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
@@ -8409,7 +8409,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-folder-info/index.js": {
+  "src/module/sw-media/component/sidebar/sw-media-folder-info/src/sw-media-folder-info.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8417,7 +8417,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-folder-info/sw-media-folder-info.spec.js": {
+  "src/module/sw-media/component/sidebar/sw-media-folder-info/tests/sw-media-folder-info.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -8430,7 +8430,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/index.js": {
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/src/sw-media-quickinfo-multiple.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8438,7 +8438,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/sw-media-quickinfo-multiple.spec.js": {
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/tests/sw-media-quickinfo-multiple.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
@@ -8456,7 +8456,7 @@
       "count": 5
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-quickinfo/index.js": {
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo/src/sw-media-quickinfo.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -8464,7 +8464,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sidebar/sw-media-quickinfo/sw-media-quickinfo.spec.js": {
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo/tests/sw-media-quickinfo.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 8
     },
@@ -8519,7 +8519,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-library/index.js": {
+  "src/module/sw-media/component/sw-media-library/src/sw-media-library.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     },
@@ -8527,7 +8527,7 @@
       "count": 1
     }
   },
-  "src/module/sw-media/component/sw-media-library/sw-media-library.spec.js": {
+  "src/module/sw-media/component/sw-media-library/tests/sw-media-library.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 63
     }

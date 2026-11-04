@@ -1738,6 +1738,12 @@ declare module 'shopware:components/sw-media-folder-content' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-folder-info' {
+    export { default } from 'src/module/sw-media/component/sidebar/sw-media-folder-info';
+    export type * from 'src/module/sw-media/component/sidebar/sw-media-folder-info';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-media-folder-item' {
     export { default } from 'src/app/component/media/sw-media-folder-item';
     export type * from 'src/app/component/media/sw-media-folder-item';
@@ -1750,9 +1756,21 @@ declare module 'shopware:components/sw-media-index' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-library' {
+    export { default } from 'src/module/sw-media/component/sw-media-library';
+    export type * from 'src/module/sw-media/component/sw-media-library';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-media-list-selection-v2' {
     export { default } from 'src/app/component/media/sw-media-list-selection-v2';
     export type * from 'src/app/component/media/sw-media-list-selection-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-media-item' {
+    export { default } from 'src/app/component/media/sw-media-media-item';
+    export type * from 'src/app/component/media/sw-media-media-item';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -1789,6 +1807,18 @@ declare module 'shopware:components/sw-media-modal-v2' {
 declare module 'shopware:components/sw-media-preview-v2' {
     export { default } from 'src/app/component/media/sw-media-preview-v2';
     export type * from 'src/app/component/media/sw-media-preview-v2';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-quickinfo' {
+    export { default } from 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
+    export type * from 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-media-quickinfo-multiple' {
+    export { default } from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple';
+    export type * from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple';
 }
 
 /** @experimental stableVersion:v6.8.0 */

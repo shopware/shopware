@@ -410,3 +410,8 @@ import '../src/module/sw-settings-snippet/page/sw-settings-snippet-list/global';
 import '../src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/global';
 import '../src/module/sw-settings-language/page/sw-settings-language-list/global';
 import '../src/module/sw-settings-language/component/sw-settings-language-add-modal/global';
+import '../src/module/sw-media/component/sw-media-library/global';
+import '../src/module/sw-media/component/sidebar/sw-media-quickinfo/global';
+import '../src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/global';
+import '../src/module/sw-media/component/sidebar/sw-media-folder-info/global';
+import '../src/app/component/media/sw-media-media-item/global';

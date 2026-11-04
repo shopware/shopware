@@ -277,6 +277,7 @@ import 'src/app/component/utils/sw-help-center/register';
 import 'src/app/component/wizard/sw-wizard-dot-navigation/register';
 import 'src/app/component/form/sw-text-editor/register';
 import 'src/app/component/rule/condition-type/sw-condition-time-range/register';
+import 'src/app/component/media/sw-media-media-item/register';
 /**
  * @sw-package framework
  * @private
@@ -304,7 +305,6 @@ export default () => {
     );
     Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
-    Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
     Shopware.Component.extend(
         'sw-condition-generic',

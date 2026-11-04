@@ -1,21 +1,27 @@
 import template from './sw-media-folder-info.html.twig';
 import './sw-media-folder-info.scss';
-
-const { Component, Mixin, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+import {
+    aclService,
+    date,
+    getApiContext,
+    mapPropertyErrors,
+    mediaSidebarModalMixinMixin,
+    repositoryFactoryService,
+} from '../dependencies';
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [repositoryFactoryService, aclService],
 
     emits: ['media-folder-renamed'],
 
-    mixins: [Mixin.getByName('media-sidebar-modal-mixin')],
+    mixins: [mediaSidebarModalMixinMixin],
 
     props: {
         mediaFolder: {
@@ -39,7 +45,7 @@ export default {
         },
 
         createdAt() {
-            return Shopware.Utils.format.date(this.mediaFolder.createdAt);
+            return date(this.mediaFolder.createdAt);
         },
 
         ...mapPropertyErrors('mediaFolder', ['name']),
@@ -54,7 +60,7 @@ export default {
     methods: {
         async onChangeFolderName(newName) {
             this.mediaFolder.name = newName;
-            await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
+            await this.mediaFolderRepository.save(this.mediaFolder, getApiContext());
             this.$emit('media-folder-renamed');
         },
 

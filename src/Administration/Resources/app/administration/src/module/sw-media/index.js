@@ -16,6 +16,10 @@ import './component/sw-media-grid/register';
 import './component/sw-media-modal-v2/register';
 import './component/sw-media-save-modal/register';
 import './page/sw-media-index/register';
+import './component/sw-media-library/register';
+import './component/sidebar/sw-media-quickinfo/register';
+import './component/sidebar/sw-media-quickinfo-multiple/register';
+import './component/sidebar/sw-media-folder-info/register';
 
 const { Module } = Shopware;
 
@@ -24,10 +28,6 @@ Shopware.Component.register(
     'sw-media-quickinfo-metadata-item',
     () => import('./component/sidebar/sw-media-quickinfo-metadata-item'),
 );
-Shopware.Component.register('sw-media-folder-info', () => import('./component/sidebar/sw-media-folder-info'));
-Shopware.Component.register('sw-media-quickinfo', () => import('./component/sidebar/sw-media-quickinfo'));
-Shopware.Component.register('sw-media-quickinfo-multiple', () => import('./component/sidebar/sw-media-quickinfo-multiple'));
-Shopware.Component.register('sw-media-library', () => import('./component/sw-media-library'));
 
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 

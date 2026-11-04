@@ -4,7 +4,6 @@
  * @sw-package discovery
  */
 import { config, mount } from '@vue/test-utils';
-import 'src/module/sw-media/mixin/media-sidebar-modal-mixin/register';
 
 const itemMock = (options = {}) => {
     const itemOptions = {

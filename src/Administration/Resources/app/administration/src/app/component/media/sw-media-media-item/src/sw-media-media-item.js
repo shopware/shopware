@@ -1,8 +1,17 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
-
-const { Mixin } = Shopware;
-const { dom } = Shopware.Utils;
+import {
+    aclService,
+    copyStringToClipboard,
+    getDateFilter,
+    getFileSizeFilter,
+    getMediaNameFilter,
+    getRepositoryFactory,
+    mediaService,
+    notificationMixin,
+    useActionButtonsStore,
+    videoCoverMixin,
+} from '../dependencies';
 
 /**
  * @status ready
@@ -24,14 +33,15 @@ const { dom } = Shopware.Utils;
  *          Lorem ipsum dolor sit amet
  *       </sw-context-menu-item>
  * </sw-media-media-item>
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inheritAttrs: false,
 
-    inject: ['mediaService', 'acl'],
+    inject: [mediaService, aclService],
 
     props: {
         item: {
@@ -48,7 +58,7 @@ export default {
         'media-item-replaced',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('video-cover')],
+    mixins: [notificationMixin, videoCoverMixin],
 
     data() {
         return {
@@ -71,22 +81,22 @@ export default {
         },
 
         mediaNameFilter() {
-            return Shopware.Filter.getByName('mediaName');
+            return getMediaNameFilter();
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
 
         fileSizeFilter() {
-            return Shopware.Filter.getByName('fileSize');
+            return getFileSizeFilter();
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
                     return false;
                 }
@@ -101,7 +111,7 @@ export default {
         },
 
         mediaRepository() {
-            return Shopware.Service('repositoryFactory').create('media');
+            return getRepositoryFactory().create('media');
         },
     },
 
@@ -190,7 +200,7 @@ export default {
 
         async copyItemLink(item) {
             try {
-                await dom.copyStringToClipboard(item.url);
+                await copyStringToClipboard(item.url);
                 this.createNotificationSuccess({
                     message: this.$t('sw-media.general.notification.urlCopied.message'),
                 });

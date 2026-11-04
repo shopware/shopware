@@ -1,18 +1,18 @@
 import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
-
-const { Mixin } = Shopware;
+import { mediaSidebarModalMixinMixin, useActionButtonsStore } from '../dependencies';
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     emits: ['media-item-selection-remove', 'media-item-selection-clear'],
 
-    mixins: [Mixin.getByName('media-sidebar-modal-mixin')],
+    mixins: [mediaSidebarModalMixinMixin],
 
     props: {
         items: {
@@ -67,7 +67,7 @@ export default {
                 return [];
             }
 
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'list') {
                     return false;
                 }

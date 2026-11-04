@@ -1,32 +1,50 @@
-import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
+import {
+    aclService,
+    copyStringToClipboard,
+    customFieldDataProviderService,
+    EventBus,
+    getApiContext,
+    isPlayableMediaFormat,
+    mediaService,
+    mediaSidebarModalMixinMixin,
+    notificationMixin,
+    placeholderMixin,
+    publishData,
+    repositoryFactoryService,
+    shouldShowUnsupportedFormatWarning,
+    systemConfigApiService,
+    useActionButtonsStore,
+    videoCoverMixin,
+} from '../dependencies';
 
-const { Mixin, Context, Utils } = Shopware;
-const { dom, format } = Utils;
+const { Utils } = Shopware;
+const { format } = Utils;
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'mediaService',
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-        'systemConfigApiService',
+        mediaService,
+        repositoryFactoryService,
+        aclService,
+        customFieldDataProviderService,
+        systemConfigApiService,
     ],
 
     emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('media-sidebar-modal-mixin'),
-        Mixin.getByName('video-cover'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        mediaSidebarModalMixinMixin,
+        videoCoverMixin,
+        placeholderMixin,
     ],
 
     props: {
@@ -95,7 +113,7 @@ export default {
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
                     return false;
                 }
@@ -162,7 +180,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-media-quickinfo__item',
                 path: 'item',
                 scope: this,
@@ -196,7 +214,7 @@ export default {
                     });
             });
 
-            this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
+            this.mediaRepository.get(this.item.id, getApiContext()).then((entity) => {
                 this.arReady = entity?.config?.spatial?.arReady;
                 this.arPlacement = entity?.config?.spatial?.arPlacement;
             });
@@ -227,7 +245,7 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.mediaRepository.save(this.item, Context.api);
+                await this.mediaRepository.save(this.item, getApiContext());
                 this.isSaveSuccessful = true;
             } catch (error) {
                 this.createNotificationError({
@@ -235,7 +253,7 @@ export default {
                 });
             } finally {
                 this.isLoading = false;
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                EventBus.emit('sw-media-library-item-updated', this.item.id);
             }
         },
 
@@ -246,7 +264,7 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            await this.mediaRepository.save(item, Context.api);
+            await this.mediaRepository.save(item, getApiContext());
 
             this.isSaveSuccessful = true;
             this.isLoading = false;
@@ -259,7 +277,7 @@ export default {
         async copyLinkToClipboard() {
             if (this.item) {
                 try {
-                    await dom.copyStringToClipboard(this.item.url);
+                    await copyStringToClipboard(this.item.url);
                     this.createNotificationSuccess({
                         message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });

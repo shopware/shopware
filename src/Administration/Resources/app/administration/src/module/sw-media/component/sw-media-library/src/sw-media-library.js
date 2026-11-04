@@ -1,11 +1,21 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
-
-const { Mixin, Context, Feature } = Shopware;
-const { Criteria } = Shopware.Data;
+import {
+    aclService,
+    Criteria,
+    EventBus,
+    featureService,
+    getApiContext,
+    getAppContext,
+    getAssetFilter,
+    isFeatureActive,
+    mediaGridListenerMixin,
+    repositoryFactoryService,
+    searchRankingService,
+} from '../dependencies';
 
 const getDefaultMediaSorting = () => {
-    if (Feature.isActive('v6.8.0.0')) {
+    if (isFeatureActive('v6.8.0.0')) {
         return { sortBy: 'createdAt', sortDirection: 'desc' };
     }
 
@@ -14,21 +24,22 @@ const getDefaultMediaSorting = () => {
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'acl',
-        'searchRankingService',
-        'feature',
+        repositoryFactoryService,
+        aclService,
+        searchRankingService,
+        featureService,
     ],
 
     emits: ['update:selection', 'media-folder-change'],
 
-    mixins: [Mixin.getByName('media-grid-listener')],
+    mixins: [mediaGridListenerMixin],
 
     props: {
         selection: {
@@ -155,7 +166,7 @@ export default {
         },
 
         rootFolder() {
-            const root = this.mediaFolderRepository.create(Context.api);
+            const root = this.mediaFolderRepository.create(getApiContext());
             root.id = '';
             root.name = this.$t('sw-media.index.rootFolderName');
 
@@ -254,15 +265,15 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         adminEsEnable() {
-            if (!Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            if (!isFeatureActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 return false;
             }
 
-            return Context.app.adminEsEnable ?? false;
+            return getAppContext().adminEsEnable ?? false;
         },
     },
 
@@ -301,7 +312,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem);
+            EventBus.on('sw-media-library-item-updated', this.refreshItem);
 
             this.refreshList();
 
@@ -317,7 +328,7 @@ export default {
         },
 
         beforeUnmountedComponent() {
-            Shopware.Utils.EventBus.off('sw-media-library-item-updated', this.refreshItem);
+            EventBus.off('sw-media-library-item-updated', this.refreshItem);
         },
 
         /*
@@ -430,7 +441,7 @@ export default {
                 );
             }
 
-            const media = await this.mediaRepository.search(criteria, Context.api);
+            const media = await this.mediaRepository.search(criteria, getApiContext());
 
             this.itemTotal = media.total ?? 0;
             this.itemLoaderDone = this.isLoaderDone(criteria, media);
@@ -445,7 +456,7 @@ export default {
                 return [];
             }
 
-            const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, Context.api);
+            const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, getApiContext());
 
             this.folderTotal = subFolders.total ?? 0;
             this.folderLoaderDone = this.isLoaderDone(this.nextFoldersCriteria, subFolders);
@@ -462,10 +473,10 @@ export default {
                 return;
             }
 
-            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
+            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, getApiContext());
 
             if (this.currentFolder && this.currentFolder.parentId) {
-                this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, Context.api);
+                this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, getApiContext());
             } else {
                 this.parentFolder = this.rootFolder;
             }
@@ -504,7 +515,7 @@ export default {
         },
 
         async createFolder() {
-            const newFolder = this.mediaFolderRepository.create(Context.api);
+            const newFolder = this.mediaFolderRepository.create(getApiContext());
             newFolder.parentId = this.folderId;
             newFolder.name = '';
 
@@ -512,12 +523,12 @@ export default {
                 newFolder.configurationId = this.currentFolder.configurationId;
                 newFolder.useParentConfiguration = true;
             } else {
-                const configuration = this.mediaFolderConfigurationRepository.create(Context.api);
+                const configuration = this.mediaFolderConfigurationRepository.create(getApiContext());
                 configuration.createThumbnails = true;
                 configuration.keepProportions = true;
                 configuration.thumbnailQuality = 80;
 
-                await this.mediaFolderConfigurationRepository.save(configuration, Context.api);
+                await this.mediaFolderConfigurationRepository.save(configuration, getApiContext());
 
                 newFolder.configurationId = configuration.id;
                 newFolder.useParentConfiguration = false;
@@ -537,7 +548,7 @@ export default {
             this.isLoading = true;
 
             try {
-                const media = await this.mediaRepository.get(mediaId, Context.api);
+                const media = await this.mediaRepository.get(mediaId, getApiContext());
 
                 if (itemsIndex !== -1) {
                     this.items.splice(itemsIndex, 1, media);

@@ -29,10 +29,13 @@ class StoreApiToolSearchToolTest extends TestCase
 
         $tool = new StoreApiToolSearchTool($registry, new ToolSearch());
 
-        $data = json_decode($tool('product'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('product');
 
-        static::assertTrue($data['success']);
-        static::assertSame('shopware-store-api-product-search', $data['data'][0]['tool']['name']);
+        static::assertFalse($data->isError());
+        static::assertIsArray($data->data);
+        $match = $data->data[0]['tool'];
+        static::assertInstanceOf(Tool::class, $match);
+        static::assertSame('shopware-store-api-product-search', $match->name);
     }
 
     public function testResultCarriesToolsetEnableUsageHint(): void
@@ -42,11 +45,11 @@ class StoreApiToolSearchToolTest extends TestCase
 
         $tool = new StoreApiToolSearchTool($registry, new ToolSearch());
 
-        $data = json_decode($tool('product'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('product');
 
         // Store API now uses progressive disclosure, so tool-search nudges toward the enable path.
-        static::assertArrayHasKey('usage', $data['_meta']);
-        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+        static::assertArrayHasKey('usage', $data->meta);
+        static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
     }
 
     public function testStatelessResultNamesTheToolsetAndPointsToToolsetsInTheUrl(): void

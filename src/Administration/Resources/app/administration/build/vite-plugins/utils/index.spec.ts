@@ -6,8 +6,10 @@ import os from 'os';
 import path from 'path';
 import {
     createPluginDevJson,
+    exportViteServerMapping,
     getDevServerHttpsConfig,
     getMainViteServerConfig,
+    getViteServerPorts,
     readFeatureFlags,
     runForEachExtension,
 } from './index';
@@ -48,6 +50,82 @@ describe('build/vite-plugins/utils', () => {
                     },
                 },
             });
+        });
+    });
+
+    describe('extension server mapping', () => {
+        const originalEnv = { PROJECT_ROOT: process.env.PROJECT_ROOT, ADMIN_PORT: process.env.ADMIN_PORT };
+        const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
+        let projectRoot: string;
+
+        beforeEach(() => {
+            projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vite-server-mapping-'));
+            process.env.PROJECT_ROOT = projectRoot;
+            process.env.ADMIN_PORT = '45173';
+
+            const pluginRoot = path.join(projectRoot, 'custom/plugins/SwagExample/src');
+            fs.mkdirSync(path.join(pluginRoot, 'Resources/app/administration/src'), { recursive: true });
+            fs.mkdirSync(path.join(pluginRoot, 'Resources/app/meteor-app'), { recursive: true });
+            fs.writeFileSync(path.join(pluginRoot, 'Resources/app/meteor-app/index.html'), '');
+            fs.mkdirSync(path.join(projectRoot, 'var'));
+            fs.writeFileSync(
+                path.join(projectRoot, 'var/plugins.json'),
+                JSON.stringify({
+                    SwagExample: {
+                        basePath: 'custom/plugins/SwagExample/src',
+                        technicalName: 'swag-example',
+                        administration: {
+                            path: 'Resources/app/administration/src',
+                            entryFilePath: 'Resources/app/administration/src/main.ts',
+                        },
+                    },
+                }),
+            );
+
+            // Keep the mapping of the local watcher untouched
+            let mapping = '';
+            const { writeFileSync, readFileSync, existsSync } = fs;
+            jest.spyOn(fs, 'writeFileSync').mockImplementation((file, data, options) => {
+                if (file === mappingPath) {
+                    mapping = data as string;
+                    return;
+                }
+                writeFileSync(file, data, options);
+            });
+            jest.spyOn(fs, 'readFileSync').mockImplementation(((file: fs.PathOrFileDescriptor, options) =>
+                file === mappingPath ? mapping : readFileSync(file, options)) as typeof fs.readFileSync);
+            jest.spyOn(fs, 'existsSync').mockImplementation((file) => file === mappingPath || existsSync(file));
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+            fs.rmSync(projectRoot, { recursive: true, force: true });
+
+            Object.entries(originalEnv).forEach(([key, value]) => {
+                if (value === undefined) {
+                    delete process.env[key];
+                } else {
+                    process.env[key] = value;
+                }
+            });
+        });
+
+        it('gives a plugin and its meteor-app separate servers', async () => {
+            await exportViteServerMapping();
+
+            const ports = getViteServerPorts();
+            const pluginPort = ports['/_internal_ext/swag-example/'];
+            const appPort = ports['/_internal_ext/swag-example/meteor-app/'];
+
+            expect(pluginPort).toEqual(expect.any(Number));
+            expect(appPort).toEqual(expect.any(Number));
+            expect(appPort).not.toBe(pluginPort);
+
+            const { proxy } = getMainViteServerConfig();
+
+            expect(Object.keys(proxy)).toEqual(['/_internal_ext/swag-example/meteor-app/', '/_internal_ext/swag-example/']);
+            expect(proxy['/_internal_ext/swag-example/meteor-app/'].target).toBe(`http://127.0.0.1:${appPort}`);
+            expect(proxy['/_internal_ext/swag-example/'].target).toBe(`http://127.0.0.1:${pluginPort}`);
         });
     });
 
@@ -184,7 +262,7 @@ describe('build/vite-plugins/utils', () => {
                     hmrSrc: '/_internal_ext/swag-example/@vite/client',
                 },
                 'example-app': {
-                    html: '/_internal_ext/example-app/index.html',
+                    html: '/_internal_ext/example-app/meteor-app/index.html',
                 },
             });
         });
@@ -197,29 +275,43 @@ describe('build/vite-plugins/utils', () => {
                     hmrSrc: '/_internal_ext/swag-example/bundledDevClient.mjs',
                 },
                 'example-app': {
-                    html: '/_internal_ext/example-app/index.html',
+                    html: '/_internal_ext/example-app/meteor-app/index.html',
                 },
             });
         });
 
-        it('keeps the entry files of the plugin when the bundle also ships an app', () => {
-            const appOfPlugin: ExtensionDefinition = {
-                ...plugin,
-                path: '/plugins/SwagExample/src/Resources/app/meteor-app',
-                filePath: '/plugins/SwagExample/src/Resources/app/meteor-app/index.html',
-                isPlugin: false,
-                isApp: true,
-            };
+        it.each([
+            {
+                useBundledDev: false,
+                js: '/_internal_ext/swag-example/main.ts',
+                hmrSrc: '/_internal_ext/swag-example/@vite/client',
+            },
+            {
+                useBundledDev: true,
+                js: '/_internal_ext/swag-example/assets/swag-example.js',
+                hmrSrc: '/_internal_ext/swag-example/bundledDevClient.mjs',
+            },
+        ])(
+            'serves the meteor-app of a plugin under its own path (bundled dev: $useBundledDev)',
+            ({ useBundledDev, js, hmrSrc }) => {
+                const appOfPlugin: ExtensionDefinition = {
+                    ...plugin,
+                    path: '/plugins/SwagExample/src/Resources/app/meteor-app',
+                    filePath: '/plugins/SwagExample/src/Resources/app/meteor-app/index.html',
+                    isPlugin: false,
+                    isApp: true,
+                };
 
-            expect(createPluginDevJson([plugin, appOfPlugin], false)).toEqual({
-                metadata: 'shopware',
-                'swag-example': {
-                    js: '/_internal_ext/swag-example/main.ts',
-                    hmrSrc: '/_internal_ext/swag-example/@vite/client',
-                    html: '/_internal_ext/swag-example/index.html',
-                },
-            });
-        });
+                expect(createPluginDevJson([plugin, appOfPlugin], useBundledDev)).toEqual({
+                    metadata: 'shopware',
+                    'swag-example': {
+                        js,
+                        hmrSrc,
+                        html: '/_internal_ext/swag-example/meteor-app/index.html',
+                    },
+                });
+            },
+        );
 
         it('only contains the metadata without extensions', () => {
             expect(createPluginDevJson([], true)).toEqual({ metadata: 'shopware' });

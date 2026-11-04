@@ -246,10 +246,8 @@ export async function exportViteServerMapping(): Promise<void> {
     let counter = 1;
 
     for (const extension of extensions) {
-        mapping.set(extension.technicalName, {
-            basePath: `/_internal_ext/${extension.technicalName}/`,
-            port: ports[counter],
-        });
+        const basePath = getExtensionBasePath(extension);
+        mapping.set(basePath, { basePath, port: ports[counter] });
         counter += 1;
     }
 
@@ -262,24 +260,35 @@ export async function exportViteServerMapping(): Promise<void> {
 
 /**
  * @private
+ *
+ * A bundle can ship an Administration entry and a meteor-app, which run as two servers under the same technical name.
  */
-export function getViteServerPorts(): Record<string, number> {
+export function getExtensionBasePath(extension: ExtensionDefinition): string {
+    return `/_internal_ext/${extension.technicalName}/${extension.isApp ? 'meteor-app/' : ''}`;
+}
+
+function readViteServerMapping(): { vitePort: number; extensions: ViteServerMapping[] } {
     const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
 
     if (!fs.existsSync(mappingPath)) {
         throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
     }
 
-    const rawData = fs.readFileSync(mappingPath, 'utf-8');
-    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
+    const parsedData = JSON.parse(fs.readFileSync(mappingPath, 'utf-8')) as {
+        vitePort: number;
+        extensions: Record<string, ViteServerMapping>;
+    };
 
-    const ports: Record<string, number> = {};
+    return { vitePort: parsedData.vitePort, extensions: Object.values(parsedData.extensions) };
+}
 
-    for (const [key, value] of Object.entries(parsedData.extensions)) {
-        ports[key] = value.port;
-    }
-
-    return ports;
+/**
+ * @private
+ *
+ * Returns the port of each extension server by its base path.
+ */
+export function getViteServerPorts(): Record<string, number> {
+    return Object.fromEntries(readViteServerMapping().extensions.map(({ basePath, port }) => [basePath, port]));
 }
 
 /**
@@ -289,18 +298,13 @@ export function getMainViteServerConfig(): {
     proxy: Record<string, { target: string; changeOrigin: boolean; ws: boolean; rewriteWsOrigin: boolean }>;
     port: number;
 } {
-    const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
-
-    if (!fs.existsSync(mappingPath)) {
-        throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
-    }
-
-    const rawData = fs.readFileSync(mappingPath, 'utf-8');
-    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
-
+    const { vitePort, extensions } = readViteServerMapping();
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
 
-    for (const [key, value] of Object.entries(parsedData.extensions)) {
+    // Vite uses the first matching proxy, so the meteor-app path must come before the path of its plugin
+    extensions.sort((a, b) => b.basePath.length - a.basePath.length);
+
+    for (const value of extensions) {
         proxyConfig[value.basePath] = {
             // Extension servers bind to IPv4. localhost can resolve to the main server on IPv6 and proxy back to itself.
             target: `http://127.0.0.1:${value.port}`,
@@ -312,7 +316,7 @@ export function getMainViteServerConfig(): {
 
     return {
         proxy: proxyConfig,
-        port: parsedData.vitePort,
+        port: vitePort,
     };
 }
 
@@ -372,7 +376,7 @@ export function createPluginDevJson(extensions: ExtensionDefinition[], useBundle
     const pluginDevJson = { metadata: 'shopware' } as PluginDevJson;
 
     extensions.forEach((extension) => {
-        const base = `/_internal_ext/${extension.technicalName}/`;
+        const base = getExtensionBasePath(extension);
         const entry: PluginDevJson[string] = {};
 
         if (extension.isApp) {

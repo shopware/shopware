@@ -52,6 +52,10 @@ export default {
             );
         },
 
+        showChildSearchEmptyState() {
+            return !!this.buttonConfig.searchable && this.filteredChildren.length === 0;
+        },
+
         classes() {
             return {
                 'is--active': !!this.buttonConfig.active || this.buttonConfig.expanded,

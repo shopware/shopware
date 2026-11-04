@@ -74,13 +74,11 @@
             v-if="buttonConfig.searchable"
             class="sw-text-editor-toolbar-button__children-search"
         >
-            <input
+            <mt-search
                 v-model="childSearchTerm"
-                type="search"
-                class="sw-text-editor-toolbar-button__children-search-input"
+                size="small"
                 :placeholder="$t('sw-text-editor-toolbar.childSearch.placeholder')"
-                :aria-label="$t('sw-text-editor-toolbar.childSearch.placeholder')"
-            >
+            />
         </div>
         {% endblock %}
 
@@ -112,7 +110,7 @@
 
             {% block sw_text_editor_toolbar_button_child_search_empty %}
             <div
-                v-if="buttonConfig.searchable && filteredChildren.length === 0"
+                v-if="showChildSearchEmptyState"
                 class="sw-text-editor-toolbar-button__children-empty"
             >
                 {{ $t('sw-text-editor-toolbar.childSearch.noResults') }}

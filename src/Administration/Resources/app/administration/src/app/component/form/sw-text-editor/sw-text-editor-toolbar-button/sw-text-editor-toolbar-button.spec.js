@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { MtSearch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     document.body.innerHTML = '<div id="app"></div>';
@@ -69,6 +70,7 @@ async function createChildrenWrapper(buttonConfig) {
         global: {
             stubs: {
                 'mt-icon': true,
+                'mt-search': MtSearch,
             },
         },
     });
@@ -83,13 +85,13 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
     it('should not render a search input for children that are not searchable', async () => {
         const wrapper = await createChildrenWrapper();
 
-        expect(wrapper.find('.sw-text-editor-toolbar-button__children-search-input').exists()).toBe(false);
+        expect(wrapper.find('.sw-text-editor-toolbar-button__children-search input').exists()).toBe(false);
         expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child')).toHaveLength(2);
     });
 
     it('should filter searchable children by name and title case-insensitively', async () => {
         const wrapper = await createChildrenWrapper({ searchable: true });
-        const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search-input');
+        const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search input');
 
         await searchInput.setValue('PRODUCT.NAME');
         expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child').map((child) => child.text())).toEqual([
@@ -106,11 +108,11 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
     it('should reset the search term when the children menu closes', async () => {
         const wrapper = await createChildrenWrapper({ searchable: true });
 
-        await wrapper.find('.sw-text-editor-toolbar-button__children-search-input').setValue('colour');
+        await wrapper.find('.sw-text-editor-toolbar-button__children-search input').setValue('colour');
         await wrapper.setProps({ buttonConfig: { ...wrapper.props('buttonConfig'), expanded: false } });
         await wrapper.setProps({ buttonConfig: { ...wrapper.props('buttonConfig'), expanded: true } });
 
-        expect(wrapper.find('.sw-text-editor-toolbar-button__children-search-input').element.value).toBe('');
+        expect(wrapper.find('.sw-text-editor-toolbar-button__children-search input').element.value).toBe('');
         expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child')).toHaveLength(2);
     });
 

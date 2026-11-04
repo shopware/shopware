@@ -5,6 +5,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { MtSearch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
@@ -17,6 +18,7 @@ async function createWrapper(allowInlineDataMapping = true) {
         },
         global: {
             stubs: {
+                'mt-search': MtSearch,
                 'sw-text-editor-toolbar-button': await wrapTestComponent('sw-text-editor-toolbar-button'),
                 'sw-text-editor-link-menu': await wrapTestComponent('sw-text-editor-link-menu'),
                 'sw-text-editor-toolbar': await wrapTestComponent('sw-text-editor-toolbar'),
@@ -322,7 +324,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         await flushPromises();
 
         // insert inline data mapping
-        await wrapper.find('.sw-text-editor-toolbar-button__children :first-child > div').trigger('click');
+        await wrapper.find('.sw-text-editor-toolbar-button__children-child').trigger('click');
         await flushPromises();
 
         // check if newly edited content is correct
@@ -350,7 +352,7 @@ describe('src/app/component/form/sw-text-editor', () => {
             .trigger('click');
         await flushPromises();
 
-        const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search-input');
+        const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search input');
         await searchInput.setValue('TYPE');
         // Focusing the search input moves the document selection out of the editor.
         document.getSelection().selectAllChildren(searchInput.element.parentElement);
@@ -376,7 +378,7 @@ describe('src/app/component/form/sw-text-editor', () => {
             .trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-text-editor-toolbar-button__children-search-input').setValue('unknown');
+        await wrapper.find('.sw-text-editor-toolbar-button__children-search input').setValue('unknown');
 
         expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child')).toHaveLength(0);
         expect(wrapper.find('.sw-text-editor-toolbar-button__children-empty').text()).toBe(

@@ -72,21 +72,6 @@
         max-width: 300px;
     }
 
-    &-search-input {
-        width: 100%;
-        padding: 6px 8px;
-        font-size: $font-size-xs;
-        color: var(--color-text-primary-default);
-        background: var(--color-elevation-surface-raised);
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: $border-radius-default;
-
-        &:focus {
-            outline: none;
-            border-color: var(--color-border-brand-selected);
-        }
-    }
-
     &-empty {
         margin: 4px;
         padding: 8px;

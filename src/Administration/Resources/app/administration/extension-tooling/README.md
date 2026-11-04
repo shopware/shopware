@@ -138,6 +138,38 @@ The Administration lints its own sources with the same rules.
 All of them have an autofix, so `--fix` resolves the findings.
 To turn one off, set it to `'off'` in your own `eslint.config.mjs` after the `...shopware` spread.
 
+## Loading performance
+
+`plugin-rules/no-eager-component-imports` reports component configs that are fetched while the extension boots instead of when the component renders first.
+It is off by default.
+Turn it on with the `loadingPerformanceSeverity` option in the `eslint.config.mjs` of your extension:
+
+```js
+import { shopwareAdminExtensionConfig } from './.shopware/eslint.mjs';
+
+export default [
+    ...shopwareAdminExtensionConfig({ loadingPerformanceSeverity: 'warn' }),
+];
+```
+
+`Shopware.Component.register`, `override` and `extend` accept a config, a loader function or a promise.
+Only a loader function defers the download, because its import starts on first render:
+
+```js
+// Reported: the import starts while main.js runs
+Shopware.Component.register('swag-example', import('./swag-example'));
+
+// Reported: the module is already loaded when the loader returns it
+import config from './swag-example';
+Shopware.Component.register('swag-example', () => config);
+
+// Preferred
+Shopware.Component.register('swag-example', () => import('./swag-example'));
+```
+
+The promise form stays supported, so the rule only discourages it.
+The rule does not report object configs or modules that are imported for their side effects, such as `import './page'` in a module index.
+
 ## Own path aliases (`tsconfig.aliases.json`)
 
 TypeScript replaces `paths` **wholesale** across `extends`, so declaring

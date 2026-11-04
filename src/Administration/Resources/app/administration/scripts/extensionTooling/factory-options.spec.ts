@@ -33,6 +33,7 @@ const variants = {
     },
     umbrella: { internalApiSeverity: 'warn' },
     vite8Off: { vite8DeprecationSeverity: 'off' },
+    loadingPerformance: { loadingPerformanceSeverity: 'warn' },
 };
 
 const { shopwareAdminExtension } = await import(${JSON.stringify(factoryUrl)});
@@ -120,6 +121,13 @@ describe('extension-tooling eslint factory host options', () => {
                 'sw-deprecation-rules/no-import-meta-glob-extglob',
             ),
         ).toBe('off');
+    });
+
+    it('reports eager component imports only when the extension opts in', () => {
+        const rule = 'plugin-rules/no-eager-component-imports';
+
+        expect(ruleSeverity(variants.defaults, 'shopware/admin-extension/runtime-contract', rule)).toBe('off');
+        expect(ruleSeverity(variants.loadingPerformance, 'shopware/admin-extension/runtime-contract', rule)).toBe('warn');
     });
 
     it('follows the umbrella severity for the deprecated i18n syntax', () => {

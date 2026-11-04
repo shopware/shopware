@@ -381,6 +381,22 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Extension tooling can report component configs loaded at boot
+
+The ESLint config of the Administration extension tooling has a new opt-in rule, `plugin-rules/no-eager-component-imports`.
+It reports `Shopware.Component.register`, `override` and `extend` calls whose config is fetched while the extension boots, for example `register('swag-example', import('./swag-example'))` or a loader that returns a statically imported module.
+Pass a loader function instead, `() => import('./swag-example')`, so the config is only downloaded when the component renders first.
+The rule is off by default.
+Turn it on with the new `loadingPerformanceSeverity` option in the `eslint.config.mjs` of your extension:
+
+```js
+import { shopwareAdminExtensionConfig } from './.shopware/eslint.mjs';
+
+export default [
+    ...shopwareAdminExtensionConfig({ loadingPerformanceSeverity: 'warn' }),
+];
+```
+
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

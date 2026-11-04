@@ -58,6 +58,9 @@ const vueParser = resolveVueParser();
  *   consume internal APIs may lower this in their own config.
  * - `vite8DeprecationSeverity`: severity of the rules for code that breaks
  *   with Vite 8, the build tool of Shopware 6.8 (defaults to `warn`).
+ * - `loadingPerformanceSeverity`: severity of `plugin-rules/no-eager-component-imports`,
+ *   which reports component configs fetched while the extension boots
+ *   (defaults to `off`).
  * - `ignores`: additional global ignore patterns.
  *
  * Host options — the Administration's own config composes this factory too
@@ -84,6 +87,7 @@ export function shopwareAdminExtension(options = {}) {
         legacyTwig = true,
         internalApiSeverity = 'error',
         vite8DeprecationSeverity = 'warn',
+        loadingPerformanceSeverity = 'off',
         ignores = [],
         deprecatedApiSeverity = internalApiSeverity,
         templateDeprecationSeverity = internalApiSeverity,
@@ -216,6 +220,7 @@ export function shopwareAdminExtension(options = {}) {
             },
             rules: {
                 'plugin-rules/no-src-imports': srcImportBoundary ? 'error' : 'off',
+                'plugin-rules/no-eager-component-imports': loadingPerformanceSeverity,
                 'no-restricted-imports': srcImportBoundary ? NO_ADMIN_INTERNALS_RULE : 'off',
             },
         },

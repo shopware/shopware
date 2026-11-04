@@ -429,6 +429,12 @@ shopware:
             enabled: false
 ```
 
+### MCP tools declare whether they change shop data
+
+The core MCP tools on `/api/_mcp` and `/store-api/_mcp` now send the tool annotations of the MCP specification in `tools/list` and in `shopware-tool-search` results.
+Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-upsert`, `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write`, `shopware-theme-config` and `shopware-media-upload`, with `destructiveHint`.
+MCP clients use these hints to decide when to ask the user before a call, so some clients may now ask for confirmation where they did not before.
+Plugin and bundle tools can declare the same hints with the `annotations` argument of `#[McpTool]`.
 ### Price calculation basis per customer group
 
 Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new customer group field `priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.

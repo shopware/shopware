@@ -2,13 +2,10 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -105,7 +102,7 @@ final class StorefrontControllerRecorder
         $this->calledHook = $hook;
     }
 
-    protected function loadContentPage(string $path, Request $request, SalesChannelContext $context): ?ContentPage
+    public function loadContentPage(string $path): ?ContentPage
     {
         $this->loadedContentPath = $path;
 

@@ -129,16 +129,16 @@ class ProductControllerTest extends TestCase
         $contentPage = ContentPage::fromRenderResult(
             new RenderResult([], LayoutReference::create('layout-id', 'PDP layout', null), null)
         );
-        $this->controller->contentPage = $contentPage;
+        $this->controller->recorder()->contentPage = $contentPage;
 
         $response = $this->controller->index(static::createStub(SalesChannelContext::class), new Request());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame('/product/test', $this->controller->loadedContentPath);
-        static::assertSame('@Storefront/storefront/page/content/page.html.twig', $this->controller->renderStorefrontView);
-        static::assertSame($contentPage, $this->controller->renderStorefrontParameters['contentPage']);
-        static::assertTrue($this->controller->renderStorefrontParameters['isNewContentStructure']);
-        static::assertInstanceOf(ProductPage::class, $this->controller->renderStorefrontParameters['page']);
+        static::assertSame('/product/test', $this->controller->recorder()->loadedContentPath);
+        static::assertSame('@Storefront/storefront/page/content/page.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame($contentPage, $this->controller->recorder()->renderStorefrontParameters['contentPage']);
+        static::assertTrue($this->controller->recorder()->renderStorefrontParameters['isNewContentStructure']);
+        static::assertInstanceOf(ProductPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
     }
 
     public function testSwitchNoVariantReturn(): void

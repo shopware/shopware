@@ -16,14 +16,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-submit',
-        'modal-close',
-    ],
+    emits: ['selection-submit', 'modal-close'],
 
     data() {
         return {

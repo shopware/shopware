@@ -8,10 +8,7 @@ import './sw-cms-el-config-product-listing-config-delete-modal.scss';
 export default {
     template,
 
-    emits: [
-        'confirm',
-        'cancel',
-    ],
+    emits: ['confirm', 'cancel'],
 
     props: {
         productSorting: {

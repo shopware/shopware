@@ -26,7 +26,7 @@ function stubShopware(can = true): void {
 }
 
 function videoItem(overrides: VideoCoverMedia = {}): VideoCoverMedia {
-    return { id: 'video-1', mediaType: { name: 'VIDEO' }, ...overrides };
+    return { id: 'video-1' as EntityKey<'media'>, mediaType: { name: 'VIDEO' }, ...overrides };
 }
 
 describe('src/app/composables/use-video-cover', () => {
@@ -37,22 +37,10 @@ describe('src/app/composables/use-video-cover', () => {
     });
 
     it.each([
-        [
-            { mediaType: { name: 'VIDEO' } },
-            true,
-        ],
-        [
-            { mediaType: { name: 'IMAGE' } },
-            false,
-        ],
-        [
-            { mimeType: 'video/mp4' },
-            true,
-        ],
-        [
-            { mimeType: 'image/png' },
-            false,
-        ],
+        [{ mediaType: { name: 'VIDEO' } }, true],
+        [{ mediaType: { name: 'IMAGE' } }, false],
+        [{ mimeType: 'video/mp4' }, true],
+        [{ mimeType: 'image/png' }, false],
     ])('recognizes a video by media type and mime type', (item: VideoCoverMedia, expected: boolean) => {
         const { isVideoMedia } = useVideoCover({ item: () => item });
 
@@ -89,7 +77,7 @@ describe('src/app/composables/use-video-cover', () => {
         const { onCoverSelectionChange, showCoverSelectionModal } = useVideoCover({ item: () => item });
 
         showCoverSelectionModal.value = true;
-        await onCoverSelectionChange([{ id: 'cover-1', mediaType: { name: 'IMAGE' } }]);
+        await onCoverSelectionChange([{ id: 'cover-1' as EntityKey<'media'>, mediaType: { name: 'IMAGE' } }]);
 
         expect(showCoverSelectionModal.value).toBe(false);
         expect(assignVideoCover).toHaveBeenCalledWith('video-1', 'cover-1');
@@ -104,7 +92,7 @@ describe('src/app/composables/use-video-cover', () => {
         const item = videoItem();
         const { onCoverSelectionChange } = useVideoCover({ item: () => item });
 
-        await onCoverSelectionChange([{ id: 'other-1', mediaType: { name: 'VIDEO' } }]);
+        await onCoverSelectionChange([{ id: 'other-1' as EntityKey<'media'>, mediaType: { name: 'VIDEO' } }]);
 
         expect(assignVideoCover).not.toHaveBeenCalled();
         expect(createNotificationError).toHaveBeenCalledWith({
@@ -138,14 +126,8 @@ describe('src/app/composables/use-video-cover', () => {
     });
 
     it.each([
-        [
-            'a non-video item',
-            { id: 'image-1', mediaType: { name: 'IMAGE' } },
-        ],
-        [
-            'an item without an id',
-            { mediaType: { name: 'VIDEO' } },
-        ],
+        ['a non-video item', { id: 'image-1' as EntityKey<'media'>, mediaType: { name: 'IMAGE' } }],
+        ['an item without an id', { mediaType: { name: 'VIDEO' } }],
     ])('does not assign a cover for %s', async (_case: string, item: VideoCoverMedia) => {
         const { persistCoverMedia } = useVideoCover({ item: () => item });
 

@@ -1,0 +1,5 @@
+{% sw_macro_function value() %}
+    {% return null %}
+{% end_sw_macro_function %}
+
+{{ _self.value() is null ? 'yes' : 'no' }}

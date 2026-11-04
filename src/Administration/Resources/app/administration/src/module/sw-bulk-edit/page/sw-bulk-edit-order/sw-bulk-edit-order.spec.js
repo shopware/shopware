@@ -9,10 +9,7 @@ import Criteria from 'src/core/data/criteria.data';
 
 const selectedOrderId = Shopware.Utils.createId();
 
-const documentIds = [
-    'document-id-1',
-    'document-id-2',
-];
+const documentIds = ['document-id-1', 'document-id-2'];
 
 const deleteDocumentTypesFixtures = [
     {
@@ -69,9 +66,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-order', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': true,
@@ -144,6 +139,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-media-collapse': true,
                 },
                 provide: {
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () =>
+                            Promise.resolve(
+                                createEntityCollection([
+                                    {
+                                        id: 'field-set-id-1',
+                                        name: 'example',
+                                        customFields: [
+                                            {
+                                                name: 'customFieldName',
+                                                type: 'text',
+                                                config: {
+                                                    label: 'configFieldLabel',
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ]),
+                            ),
+                    },
                     validationService: {},
                     repositoryFactory: {
                         create: (entity) => {
@@ -428,7 +443,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(
             wrapper
@@ -456,13 +471,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper
             .find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input')
             .setValue('checked');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(
             wrapper.find('.sw-bulk-edit-change-field-documents .mt-field--checkbox__container input').attributes().disabled,
@@ -528,11 +543,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const { statusData } = wrapper.vm.onProcessData();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const changeDocumentTypes = statusData[0].documentTypes;
 
@@ -564,11 +579,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const { statusData } = wrapper.vm.onProcessData();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const changeDocumentTypes = statusData[0].documentTypes;
 
@@ -595,7 +610,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
         expect(wrapper.vm.$route.path).toBe('/confirm');
@@ -607,7 +622,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
 
@@ -625,7 +640,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
 
@@ -654,7 +669,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
 
@@ -681,10 +696,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         };
 
         await tagsCard.find('.sw-bulk-edit-change-field__change input').setValue('checked');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const { syncData } = wrapper.vm.onProcessData();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const changeTagField = syncData[0];
         expect(changeTagField.field).toBe('tags');
@@ -701,7 +716,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--color-purple-500)');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--sw-color-module-purple-default)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
@@ -733,9 +748,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderTransactionStateCriteria = new Criteria(1, null);
         orderTransactionStateCriteria.addFilter(
             Criteria.multi('AND', [
-                Criteria.equalsAny('orderTransactions.orderId', [
-                    selectedOrderId,
-                ]),
+                Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]),
                 Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
             ]),
         );
@@ -744,9 +757,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderDeliveryStateCriteria = new Criteria(1, null);
         orderDeliveryStateCriteria.addFilter(
             Criteria.multi('AND', [
-                Criteria.equalsAny('orderDeliveries.orderId', [
-                    selectedOrderId,
-                ]),
+                Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]),
                 Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
             ]),
         );
@@ -828,29 +839,33 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         setInvoiceFileFormats([]);
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
 
         setInvoiceFileFormats(['pdf']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
 
         global.activeFeatureFlags = [];
     });
 
-    it('should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK',
+        async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+            await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
 
-        setInvoiceFileFormats([]);
-        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
-        await wrapper.vm.$nextTick();
+            setInvoiceFileFormats([]);
+            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+            await flushPromises();
 
-        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
-    });
+            expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+        },
+    );
 
     it('should get latest order status correctly', async () => {
         wrapper = await createWrapper();
@@ -879,10 +894,27 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.getLatestOrderStatus();
 
-        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderTransactions.order.id');
-        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.order.id');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderTransactions.orderId');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.orderId');
         expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orders.id');
         wrapper.vm.fetchStatusOptions.mockRestore();
+    });
+
+    it('should assign the latest status options to their own status field', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        wrapper.vm.fetchStateMachineStates = jest.fn((field) => Promise.resolve([field]));
+        wrapper.vm.fetchToStateMachineTransitions = jest.fn((states) => Promise.resolve(states));
+
+        wrapper.vm.bulkEditData.orders.isChanged = true;
+        wrapper.vm.bulkEditData.orderTransactions.isChanged = true;
+        wrapper.vm.bulkEditData.orderDeliveries.isChanged = true;
+
+        await wrapper.vm.getLatestOrderStatus();
+
+        expect(wrapper.vm.transactionStatus).toEqual(['orderTransactions.orderId']);
+        expect(wrapper.vm.deliveryStatus).toEqual(['orderDeliveries.orderId']);
+        expect(wrapper.vm.orderStatus).toEqual(['orders.id']);
     });
 
     it('should restrict fields on including orders without delivery', async () => {

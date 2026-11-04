@@ -10,11 +10,7 @@ export default {
 
     inject: ['firstRunWizardService'],
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-        'frw-redirect',
-    ],
+    emits: ['frw-set-title', 'buttons-update', 'frw-redirect'],
 
     data() {
         return {

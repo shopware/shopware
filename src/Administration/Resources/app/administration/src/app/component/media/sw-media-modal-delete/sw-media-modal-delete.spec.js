@@ -61,14 +61,10 @@ describe('components/media/sw-media-modal-delete', () => {
             },
         };
 
-        const wrapper = await createWrapper([
-            itemDeleteMock({ productMedia: [productMediaMock] }),
-        ]);
+        const wrapper = await createWrapper([itemDeleteMock({ productMedia: [productMediaMock] })]);
 
         expect(wrapper.vm.mediaQuickInfo.fileName).toMatch(itemDeleteMock().fileName);
-        expect(wrapper.vm.mediaQuickInfo.productMedia).toEqual([
-            productMediaMock,
-        ]);
+        expect(wrapper.vm.mediaQuickInfo.productMedia).toEqual([productMediaMock]);
         expect(wrapper.vm.mediaInUsages).toHaveLength(0);
         expect(wrapper.find('.sw-media-quickinfo-usage').exists()).toBeTruthy();
         expect(wrapper.find('.sw-media-media-item').exists()).toBeFalsy();
@@ -119,22 +115,12 @@ describe('components/media/sw-media-modal-delete', () => {
         expect(wrapper.vm.mediaInUsages).toHaveLength(0);
         expect(wrapper.vm.mediaQuickInfo.avatarUsers).toEqual([avatarUser]);
         expect(wrapper.vm.mediaQuickInfo.categories).toEqual([category]);
-        expect(wrapper.vm.mediaQuickInfo.productManufacturers).toEqual([
-            productManufacturer,
-        ]);
+        expect(wrapper.vm.mediaQuickInfo.productManufacturers).toEqual([productManufacturer]);
         expect(wrapper.vm.mediaQuickInfo.productMedia).toEqual([productMedia]);
-        expect(wrapper.vm.mediaQuickInfo.mailTemplateMedia).toEqual([
-            mailTemplateMedia,
-        ]);
-        expect(wrapper.vm.mediaQuickInfo.documentBaseConfigs).toEqual([
-            documentBaseConfig,
-        ]);
-        expect(wrapper.vm.mediaQuickInfo.paymentMethods).toEqual([
-            paymentMethod,
-        ]);
-        expect(wrapper.vm.mediaQuickInfo.shippingMethods).toEqual([
-            shippingMethod,
-        ]);
+        expect(wrapper.vm.mediaQuickInfo.mailTemplateMedia).toEqual([mailTemplateMedia]);
+        expect(wrapper.vm.mediaQuickInfo.documentBaseConfigs).toEqual([documentBaseConfig]);
+        expect(wrapper.vm.mediaQuickInfo.paymentMethods).toEqual([paymentMethod]);
+        expect(wrapper.vm.mediaQuickInfo.shippingMethods).toEqual([shippingMethod]);
         expect(wrapper.vm.mediaQuickInfo.cmsBlocks).toEqual([cmsBlock]);
         expect(wrapper.vm.mediaQuickInfo.cmsSections).toEqual([cmsSection]);
         expect(wrapper.vm.mediaQuickInfo.cmsPages).toEqual([cmsPage]);

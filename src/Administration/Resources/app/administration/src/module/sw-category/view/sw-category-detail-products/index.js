@@ -12,14 +12,9 @@ const ShopwareError = Shopware.Classes.ShopwareError;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        'placeholder',
-    ],
+    mixins: ['placeholder'],
 
     props: {
         isLoading: {
@@ -96,10 +91,7 @@ export default {
             return null;
         },
 
-        ...mapPropertyErrors('category', [
-            'productStreamId',
-            'productAssignmentType',
-        ]),
+        ...mapPropertyErrors('category', ['productStreamId', 'productAssignmentType']),
 
         productAssignmentTypes() {
             return [

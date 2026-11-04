@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Exception\ConnectionException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
@@ -360,7 +363,7 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
-    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoader(): void
+    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoaderWhenDatabaseIsAvailable(): void
     {
         $themeId = Uuid::randomHex();
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
@@ -386,6 +389,45 @@ class ThemeServiceTest extends TestCase
 
         $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
         $runtimeConfigService->expects($this->once())->method('refreshConfigValues')->with($themeId, $this->context);
+        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $configLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
+    public function testCompileThemeDoesNotRefreshConfigValuesWithStaticFileConfigLoaderWhenDatabaseIsUnavailable(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(
+            \sprintf('theme-config/%s.json', $themeId),
+            json_encode([
+                'styleFiles' => [],
+                'scriptFiles' => [],
+            ], \JSON_THROW_ON_ERROR)
+        );
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $driverException = static::createStub(Driver\Exception::class);
+        $runtimeConfigService->expects($this->once())
+            ->method('refreshConfigValues')
+            ->with($themeId, $this->context)
+            ->willThrowException(new ConnectionException($driverException, null));
         $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
 
         $this->getThemeService(
@@ -669,8 +711,10 @@ class ThemeServiceTest extends TestCase
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependentThemeId,
-                    'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
         );
@@ -699,6 +743,56 @@ class ThemeServiceTest extends TestCase
         ], $parameters);
     }
 
+    public function testCompileThemeByIdAsyncNotifiesCompletionOnlyForTheLastCompilation(): void
+    {
+        $themeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn(
+            [
+                [
+                    'id' => $themeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+            ]
+        );
+
+        $this->systemConfigMock->method('get')->willReturn(true);
+
+        $messages = [];
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->exactly(4))->method('dispatch')
+            ->willReturnCallback(static function (CompileThemeMessage $message) use (&$messages): Envelope {
+                $messages[] = $message;
+
+                return new Envelope($message);
+            });
+
+        $themeService = $this->getThemeService(messageBus: $messageBus);
+        $themeService->compileThemeById($themeId, $this->context);
+
+        static::assertSame(
+            [[$themeId, false], [$dependentThemeId, true]],
+            array_map(static fn (CompileThemeMessage $message) => [$message->getThemeId(), $message->isNotifyOnCompletion()], $messages)
+        );
+
+        $messages = [];
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+
+        static::assertCount(1, $messages);
+        static::assertTrue($messages[0]->isNotifyOnCompletion());
+
+        $messages = [];
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, true, false);
+
+        static::assertCount(1, $messages);
+        static::assertFalse($messages[0]->isNotifyOnCompletion());
+    }
+
     public function testUpdateTheme(): void
     {
         $themeId = Uuid::randomHex();
@@ -709,8 +803,10 @@ class ThemeServiceTest extends TestCase
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependentThemeId,
-                    'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
         );
@@ -758,8 +854,10 @@ class ThemeServiceTest extends TestCase
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependentThemeId,
-                    'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
         );
@@ -828,8 +926,10 @@ class ThemeServiceTest extends TestCase
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependentThemeId,
-                    'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
         );
@@ -926,6 +1026,32 @@ class ThemeServiceTest extends TestCase
         $themeCompiler->expects($this->never())->method('compileTheme');
 
         $this->getThemeService(themeCompiler: $themeCompiler)->updateTheme($themeId, null, null, $this->context);
+    }
+
+    public function testUpdateThemeRefreshesRuntimeAfterWritingUnassignedTheme(): void
+    {
+        $themeId = Uuid::randomHex();
+        $theme = new ThemeEntity();
+        $theme->setId($themeId);
+        $theme->setSalesChannels(new SalesChannelCollection());
+        $repository = new StaticEntityRepository([new ThemeCollection([$theme])]);
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn([
+            'fields' => ['sw-color-brand-primary' => ['type' => 'color', 'value' => '#0000ff']],
+        ]);
+        $runtime = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtime->expects($this->once())->method('refreshConfigValues')->with($themeId, $this->context)
+            ->willReturnCallback(static function () use ($repository, $themeId): void {
+                static::assertSame([[
+                    ['id' => $themeId, 'configValues' => ['sw-color-brand-primary' => ['value' => '#00ff00']]],
+                ]], $repository->updates);
+            });
+
+        $this->getThemeService(themeRepository: $repository, runtimeConfigService: $runtime)->updateTheme(
+            $themeId,
+            ['sw-color-brand-primary' => ['value' => '#00ff00']],
+            null,
+            $this->context,
+        );
     }
 
     public function testUpdateThemeNoTheme(): void

@@ -83,9 +83,7 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
 
     it('should add a promotion code tag', async () => {
         const wrapper = await createWrapper({
-            value: [
-                { code: 'EXISTING-CODE' },
-            ],
+            value: [{ code: 'EXISTING-CODE' }],
         });
         const event = {
             key: 'Enter',
@@ -99,22 +97,13 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
         wrapper.vm.performAddTag(event);
 
         expect(event.preventDefault).toHaveBeenCalled();
-        expect(wrapper.emitted('update:value')).toEqual([
-            [
-                [
-                    { code: 'EXISTING-CODE' },
-                    { code: 'SUMMER-SALE' },
-                ],
-            ],
-        ]);
+        expect(wrapper.emitted('update:value')).toEqual([[[{ code: 'EXISTING-CODE' }, { code: 'SUMMER-SALE' }]]]);
         expect(wrapper.vm.newTagName).toBe('');
     });
 
     it('should not add a promotion code tag when the code already exists', async () => {
         const wrapper = await createWrapper({
-            value: [
-                { code: 'SUMMER-SALE' },
-            ],
+            value: [{ code: 'SUMMER-SALE' }],
         });
 
         await wrapper.setData({
@@ -169,9 +158,7 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
 
         wrapper.vm.dismissTag(item);
 
-        expect(wrapper.emitted('on-remove-code')).toEqual([
-            [item],
-        ]);
+        expect(wrapper.emitted('on-remove-code')).toEqual([[item]]);
     });
 
     it('should focus the input when the field receives focus', async () => {
@@ -238,9 +225,7 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
 
     it('should hide the input when codes exist and the field loses focus', async () => {
         const wrapper = await createWrapper({
-            value: [
-                { code: 'SUMMER-SALE' },
-            ],
+            value: [{ code: 'SUMMER-SALE' }],
         });
 
         expect(wrapper.find('.sw-tagged-field__input').classes()).toContain('sw-tagged-field__input--hidden');

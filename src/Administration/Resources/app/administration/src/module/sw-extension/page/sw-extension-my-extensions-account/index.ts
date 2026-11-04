@@ -14,15 +14,11 @@ const { Store, Mixin, Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'systemConfigApiService',
-        'shopwareExtensionService',
-        'storeService',
-    ],
+    inject: ['systemConfigApiService', 'shopwareExtensionService', 'storeService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    emits: ['logout-success', 'login-success'],
+
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         isLoading: boolean;

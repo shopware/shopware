@@ -31,21 +31,14 @@ class Deprecated extends Flag
     public function isRemovedInVersion(int $version): bool
     {
         $removedVersion = (int) str_replace('v', '', $this->willBeRemovedIn);
-        if ($version >= $removedVersion) {
-            return true;
-        }
 
-        return false;
+        return $version >= $removedVersion;
     }
 
     public function isDeprecatedInVersion(int $version): bool
     {
         $deprecatedVersion = (int) str_replace('v', '', $this->deprecatedSince);
 
-        if ($version >= $deprecatedVersion) {
-            return true;
-        }
-
-        return false;
+        return $version >= $deprecatedVersion;
     }
 }

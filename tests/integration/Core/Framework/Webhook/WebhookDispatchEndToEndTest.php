@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -940,6 +942,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 
@@ -985,14 +988,11 @@ class WebhookDispatchEndToEndTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     /**
@@ -1034,14 +1034,11 @@ class WebhookDispatchEndToEndTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
 
         return Uuid::fromBytesToHex($appId);
     }
@@ -1052,13 +1049,14 @@ class WebhookDispatchEndToEndTest extends TestCase
      */
     private function createBareWebhook(string $webhookId, string $name, string $eventName, string $url): void
     {
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        static::assertIsString($adminId);
+
+        WebhookBuilder::ownedByUser($adminId)
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     private function createCustomerBeforeLoginEvent(): CustomerBeforeLoginEvent

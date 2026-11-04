@@ -27,6 +27,9 @@
 
                     {# Allow all media files to be indexed, including the GET requests with the cache buster #}
                     Allow: /media/*?ts=
+
+                    {# Allow all thumbnail files to be indexed, including the GET requests with the cache buster #}
+                    Allow: /thumbnail/*?ts=
                 {% endif %}
             {% endblock %}
 

@@ -86,6 +86,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
         $self->setRegulationPrice(isset($data['regulationPrice']) ? (float) $data['regulationPrice'] : null);
 
+        $reference = $data['referencePriceDefinition'] ?? null;
+        if (\is_array($reference) && isset($reference['purchaseUnit'], $reference['referenceUnit'], $reference['unitName'])) {
+            $self->setReferencePriceDefinition(new ReferencePriceDefinition(
+                (float) $reference['purchaseUnit'],
+                (float) $reference['referenceUnit'],
+                (string) $reference['unitName']
+            ));
+        }
+
         return $self;
     }
 

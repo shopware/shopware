@@ -5,9 +5,9 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\Fi
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class InstallerRedirectHelper
 {
-    private const ALLOWED_PARAM_NAME_PATTERN = '/^[a-zA-Z0-9_\-]+$/';
+    private const ALLOWED_PARAM_NAME_PATTERN = '/^[a-zA-Z0-9_\-]+$/D';
 
     /**
      * @var array<string, string>
@@ -64,7 +64,7 @@ class InstallerRedirectHelper
                 continue;
             }
 
-            $parameterPattern = "/^{$this->allowedParameterRegexp[$key]}\$/";
+            $parameterPattern = "/^{$this->allowedParameterRegexp[$key]}\$/D";
 
             if (\is_array($value)) {
                 $value = reset($value);

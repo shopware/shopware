@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -91,6 +92,10 @@ class HookableEventDoc
     {
         $data = [];
         foreach ($dataTypes as $name => $dataType) {
+            if ($dataType[EventDataCollection::HIDDEN_FROM_WEBHOOK] ?? false) {
+                continue;
+            }
+
             if ($dataType['type'] === EntityType::TYPE || $dataType['type'] === EntityCollectionType::TYPE) {
                 /** @var EntityDefinition $definition */
                 $definition = new $dataType['entityClass']();

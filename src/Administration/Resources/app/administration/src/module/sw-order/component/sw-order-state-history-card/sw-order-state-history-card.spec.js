@@ -6,9 +6,7 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     const orderProp = {
         transactions: [],
-        deliveries: [
-            {},
-        ],
+        deliveries: [{}],
     };
 
     orderProp.transactions.last = () => ({});
@@ -95,7 +93,7 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         wrapper = await createWrapper();
         await wrapper.setData({ showModal: true });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Document selection should be visible
         expect(wrapper.find('sw-order-state-change-modal-attach-documents-stub').exists()).toBeTruthy();

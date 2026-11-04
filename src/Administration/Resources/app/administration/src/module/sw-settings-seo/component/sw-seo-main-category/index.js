@@ -10,10 +10,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'main-category-add',
-        'main-category-remove',
-    ],
+    emits: ['main-category-add', 'main-category-remove'],
 
     props: {
         currentSalesChannelId: {

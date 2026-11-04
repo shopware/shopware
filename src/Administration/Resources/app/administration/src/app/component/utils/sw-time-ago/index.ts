@@ -16,10 +16,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         date: {
-            type: [
-                Date,
-                String,
-            ] as PropType<Date | string>,
+            type: [Date, String] as PropType<Date | string>,
             required: true,
         },
         dateTimeFormat: {

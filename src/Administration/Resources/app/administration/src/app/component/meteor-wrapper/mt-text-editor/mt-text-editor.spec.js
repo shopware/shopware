@@ -76,9 +76,7 @@ describe('src/app/component/meteor-wrapper/mt-text-editor', () => {
 
         // Exclude the bold button
         await wrapper.setProps({
-            excludedButtons: [
-                'bold',
-            ],
+            excludedButtons: ['bold'],
         });
 
         // Check if button with aria-label "Bold" is not present

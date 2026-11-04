@@ -12,14 +12,11 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    emits: ['modal-close', 'modal-save'],
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         taxProviders: {

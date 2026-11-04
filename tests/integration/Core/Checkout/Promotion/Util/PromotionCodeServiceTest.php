@@ -208,7 +208,7 @@ class PromotionCodeServiceTest extends TestCase
         $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $promotionRepository = static::getContainer()->get('promotion.repository');
-        $criteria = (new Criteria())
+        $criteria = (new Criteria([$id]))
             ->addAssociation('individualCodes');
 
         $this->codesService->addIndividualCodes($id, $newCodeAmount, $salesChannelContext->getContext());

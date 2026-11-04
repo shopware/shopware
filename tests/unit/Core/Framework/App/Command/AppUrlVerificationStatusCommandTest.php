@@ -6,9 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\AppUrlVerificationStatusCommand;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
-use Shopware\Core\Framework\App\ShopId\ShopId;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Url\VerificationState;
@@ -25,11 +22,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 class AppUrlVerificationStatusCommandTest extends TestCase
 {
     /**
-     * @var ShopIdProvider&Stub
-     */
-    private ShopIdProvider $shopIdProvider;
-
-    /**
      * @var AppUrlVerifier&Stub
      */
     private AppUrlVerifier $verifier;
@@ -38,10 +30,9 @@ class AppUrlVerificationStatusCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
         $this->verifier = static::createStub(AppUrlVerifier::class);
 
-        $printer = new AppUrlVerificationPrinter($this->shopIdProvider);
+        $printer = new AppUrlVerificationPrinter();
         $command = new AppUrlVerificationStatusCommand($this->verifier, $printer);
         $this->tester = new CommandTester($command);
     }
@@ -60,16 +51,15 @@ class AppUrlVerificationStatusCommandTest extends TestCase
     public function testPassStateShowsOkAndDetails(): void
     {
         $state = new VerificationState(
+            'https://example.com',
             VerificationStatus::PASS,
             1,
             new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
-            null
+            null,
+            statusCode: null,
         );
 
         $this->verifier->method('getCurrentState')->willReturn($state);
-
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        $this->shopIdProvider->method('getShopId')->willReturn($shopId);
 
         $exit = $this->tester->execute([]);
 
@@ -92,16 +82,15 @@ class AppUrlVerificationStatusCommandTest extends TestCase
     public function testSoftFailState(): void
     {
         $state = new VerificationState(
+            'https://www.example.com',
             VerificationStatus::SOFT_FAIL,
             2,
             new \DateTimeImmutable('2025-06-15 08:30:00', new \DateTimeZone('UTC')),
-            'transient error'
+            'transient error',
+            statusCode: null,
         );
 
         $this->verifier->method('getCurrentState')->willReturn($state);
-
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://www.example.com']);
-        $this->shopIdProvider->method('getShopId')->willReturn($shopId);
 
         $exit = $this->tester->execute([]);
         $output = $this->tester->getDisplay();
@@ -121,16 +110,15 @@ class AppUrlVerificationStatusCommandTest extends TestCase
     public function testHardFailState(): void
     {
         $state = new VerificationState(
+            'https://broken.example',
             VerificationStatus::HARD_FAIL,
             3,
             new \DateTimeImmutable('2025-09-01 17:45:00', new \DateTimeZone('UTC')),
-            'bad url'
+            'bad url',
+            statusCode: null,
         );
 
         $this->verifier->method('getCurrentState')->willReturn($state);
-
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://broken.example']);
-        $this->shopIdProvider->method('getShopId')->willReturn($shopId);
 
         $exit = $this->tester->execute([]);
         $output = $this->tester->getDisplay();

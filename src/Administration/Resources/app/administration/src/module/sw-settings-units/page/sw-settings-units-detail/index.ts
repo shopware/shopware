@@ -5,6 +5,7 @@ import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
+import type { UnitUneceCode } from '../../../../core/service/api/unit-unece-code.api.service';
 
 const { Component, Mixin } = Shopware;
 
@@ -14,13 +15,13 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     inject: [
         'repositoryFactory',
         'acl',
+        'customFieldDataProviderService',
+        'unitUneceCodeService',
     ],
 
     props: {
@@ -28,7 +29,7 @@ export default Component.wrapComponentConfig({
          * Either the id of the unit when in edit mode or null when in create mode.
          */
         unitId: {
-            type: String,
+            type: String as unknown as PropType<EntityKey<'unit'> | null>,
             required: false,
             default: null,
         },
@@ -39,10 +40,12 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('unit');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository(): Repository<'custom_field_set'> {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria(): Criteria {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
@@ -50,10 +53,18 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', [
-            'name',
-            'shortCode',
-        ]),
+        uneceCodeOptions(): Array<{ value: string; label: string }> {
+            return this.uneceCodes.map(({ code, name }) => {
+                const snippetKey = `sw-settings-units.uneceCodes.${code}`;
+
+                return {
+                    value: code,
+                    label: `${code} - ${this.$te(snippetKey) ? this.$t(snippetKey) : name}`,
+                };
+            });
+        },
+
+        ...mapPropertyErrors('unit', ['name', 'shortCode', 'uneceCode']),
     },
 
     data(): {
@@ -61,12 +72,16 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         isSaveSuccessful: boolean;
         customFieldSets: Entity<'custom_field_set'>[];
+        uneceCodes: UnitUneceCode[];
+        isUneceCodesLoading: boolean;
     } {
         return {
             unit: null,
             isLoading: true,
             isSaveSuccessful: false,
             customFieldSets: [],
+            uneceCodes: [],
+            isUneceCodesLoading: true,
         };
     },
 
@@ -87,8 +102,18 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        this.customFieldSetRepository
-            .search(this.customFieldSetCriteria)
+        this.loadUneceCodes();
+
+        const customFieldDataProviderService = this.customFieldDataProviderService as {
+            getCustomFieldSets(
+                entityName: string,
+                forceReload: boolean,
+                limit: number | null,
+            ): Promise<Entity<'custom_field_set'>[]>;
+        };
+
+        customFieldDataProviderService
+            .getCustomFieldSets('unit', false, null)
             .then((result) => {
                 this.customFieldSets = result;
 
@@ -111,7 +136,27 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        loadUneceCodes(): void {
+            this.unitUneceCodeService
+                .getUneceCodes()
+                .then((uneceCodes) => {
+                    this.uneceCodes = uneceCodes;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-units.notification.errorLoadingUneceCodes'),
+                    });
+                })
+                .finally(() => {
+                    this.isUneceCodesLoading = false;
+                });
+        },
+
         loadUnit(): void {
+            if (this.unitId === null) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.unitRepository

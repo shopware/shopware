@@ -141,7 +141,7 @@ class CartMigrateCommandTest extends TestCase
         $persister->save($sqlCart, $context);
 
         $token = static::getContainer()->get(Connection::class)->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $sqlCart->getToken()]);
-        static::assertNotEmpty($token);
+        static::assertNotFalse($token);
 
         $factory = static::getContainer()->get(RedisConnectionFactory::class);
         $redis = $factory->create($this->redisUrl);

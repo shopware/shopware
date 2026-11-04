@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -44,13 +45,14 @@ class AclControllerTest extends TestCase
 
     public function testGetAdditionalPrivilegesEvent(): void
     {
-        $getAdditionalPrivileges = static function (AclGetAdditionalPrivilegesEvent $event): void {
+        $eventPrivileges = [];
+        $getAdditionalPrivileges = static function (AclGetAdditionalPrivilegesEvent $event) use (&$eventPrivileges): void {
             $privileges = $event->getPrivileges();
-            static::assertContains('system:clear:cache', $privileges);
+            $eventPrivileges = $privileges;
             $privileges[] = 'my_custom_privilege';
             $event->setPrivileges($privileges);
         };
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
 
         $this->getBrowser()->request('GET', '/api/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();
@@ -58,6 +60,7 @@ class AclControllerTest extends TestCase
         static::assertIsString($content);
         $privileges = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertContains('system:clear:cache', $eventPrivileges);
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
         static::assertContains('my_custom_privilege', $privileges);

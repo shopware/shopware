@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth;
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
@@ -44,6 +45,13 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @see RefreshTokenGrant::getIdentifier()
      */
     public const REFRESH_TOKEN_GRANT = 'refresh_token';
+
+    /**
+     * @internal abstraction on external library
+     *
+     * @see AuthCodeGrant::getIdentifier()
+     */
+    public const AUTH_CODE_GRANT = 'authorization_code';
 
     /**
      * @var ScopeEntityInterface[]
@@ -87,7 +95,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     ): array {
         $hasWrite = false;
 
-        if ($grantType === self::PASSWORD_GRANT) {
+        if ($grantType === self::PASSWORD_GRANT || $grantType === self::AUTH_CODE_GRANT) {
             $hasWrite = true;
         }
 

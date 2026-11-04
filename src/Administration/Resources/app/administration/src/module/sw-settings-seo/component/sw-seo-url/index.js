@@ -116,10 +116,7 @@ export default {
             });
 
             // Product comparison and agentic commerce sales channels do not serve SEO URLs.
-            const unsupportedTypeIds = [
-                Defaults.productComparisonTypeId,
-                Defaults.agenticCommerceTypeId,
-            ];
+            const unsupportedTypeIds = [Defaults.productComparisonTypeId, Defaults.agenticCommerceTypeId];
 
             return this.currentSalesChannelId !== null && unsupportedTypeIds.includes(salesChannel?.typeId);
         },

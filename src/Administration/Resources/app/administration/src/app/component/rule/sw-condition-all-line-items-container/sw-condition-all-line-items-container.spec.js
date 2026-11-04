@@ -220,18 +220,12 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
         expect(removeNodeFromTreeUi).toHaveBeenCalledTimes(2);
 
         // first call removes child from container
-        const [
-            parentCondition1,
-            condition1,
-        ] = removeNodeFromTreeUi.mock.calls[0];
+        const [parentCondition1, condition1] = removeNodeFromTreeUi.mock.calls[0];
         expect(parentCondition1.type).toBe('allLineItemsContainer');
         expect(condition1.type).toBe('cartLineItemInCategory');
 
         // second call removes empty wrapper container
-        const [
-            parentCondition2,
-            condition2,
-        ] = removeNodeFromTreeUi.mock.calls[1];
+        const [parentCondition2, condition2] = removeNodeFromTreeUi.mock.calls[1];
         expect(parentCondition2.type).toBe('andContainer');
         expect(condition2.type).toBe('allLineItemsContainer');
 

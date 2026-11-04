@@ -11,9 +11,9 @@ import './sw-generic-seo-general-card.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
+
+    emits: ['update:seo-meta-title', 'update:seo-meta-description', 'update:seo-url'],
 
     props: {
         seoMetaTitle: {

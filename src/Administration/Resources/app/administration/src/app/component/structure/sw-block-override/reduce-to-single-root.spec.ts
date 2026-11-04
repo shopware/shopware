@@ -12,10 +12,7 @@ describe('reduce-to-single-root', () => {
     });
 
     it('leaves several nodes as they are', () => {
-        const nodes = [
-            h('div'),
-            h('span'),
-        ];
+        const nodes = [h('div'), h('span')];
 
         expect(reduceToSingleRoot(nodes)).toBe(nodes);
     });
@@ -34,31 +31,17 @@ describe('reduce-to-single-root', () => {
     it('does not count an author comment as a root', () => {
         const node = h('div');
 
-        expect(
-            reduceToSingleRoot([
-                createCommentVNode('a note'),
-                node,
-            ]),
-        ).toBe(node);
+        expect(reduceToSingleRoot([createCommentVNode('a note'), node])).toBe(node);
     });
 
     // The root shape has to survive the condition flipping: a placeholder that stops counting would
     // make the same markup single-rooted while falsy and multi-rooted while truthy, and Vue answers
     // a changed root type with an unmount plus remount.
     it.each([
-        [
-            'development',
-            'v-if',
-        ],
-        [
-            'production',
-            '',
-        ],
+        ['development', 'v-if'],
+        ['production', ''],
     ])('counts the %s `v-if` placeholder as a root', (_build, content) => {
-        const nodes = [
-            createCommentVNode(content),
-            h('div'),
-        ];
+        const nodes = [createCommentVNode(content), h('div')];
 
         expect(reduceToSingleRoot(nodes)).toBe(nodes);
     });

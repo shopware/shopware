@@ -3,6 +3,7 @@
  */
 
 import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
+import { toHaveTriggered } from '../_helper_/deprecations';
 
 type EachTable = Parameters<jest.It['each']>[0];
 type TestCallback = (() => unknown) | ((done: jest.DoneCallback) => unknown);
@@ -86,3 +87,5 @@ export function createActiveFeatureFlagsTest(testFunction: jest.It): jest.It['ac
 
 it.deprecated = createDeprecatedTest(it);
 it.activeFeatureFlags = createActiveFeatureFlagsTest(it);
+
+expect.extend({ toHaveTriggered });

@@ -104,6 +104,8 @@ Issue layout (title:
 
   then rerun the test (this matches the CI job env in [`.github/workflows/integration-major.yml`](https://github.com/shopware/shopware/blob/trunk/.github/workflows/integration-major.yml)).
 
+  While more than one major is in flight, that job runs one lane per major: take the `FEATURE_ALL` value from the failing job's name (`v6.8.0.0`) instead of `major`, which would enable the next major as well.
+
   Afterwards restore your test DB with `APP_ENV=test FORCE_INSTALL=true composer init:testdb`.
 
   **Verify your fix in CI:** add the `major-php` label to your PR — it runs the full `integration-major` matrix on the PR (`major-tests` would additionally trigger the other major arms, e.g. acceptance).

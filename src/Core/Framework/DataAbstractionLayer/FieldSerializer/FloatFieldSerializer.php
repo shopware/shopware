@@ -6,13 +6,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -49,12 +52,21 @@ class FloatFieldSerializer extends AbstractFieldSerializer
         return $value === null ? null : (float) $value;
     }
 
+    /**
+     * @param FloatField $field
+     *
+     * @return Constraint[]
+     */
     protected function getConstraints(Field $field): array
     {
         $constraints = [
             new NotBlank(),
             new Type('numeric'),
         ];
+
+        if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
+            $constraints[] = new Range(min: $field->getMinValue(), max: $field->getMaxValue());
+        }
 
         $choice = $field->getFlag(ChoiceFlag::class);
         if ($choice instanceof ChoiceFlag && $choice->isStrict() && $choice->getChoices() !== []) {

@@ -39,8 +39,6 @@ describe('module/sw-product/page/sw-product-list criteria', () => {
     it('does not duplicate the id tie-breaker when already sorting by id', () => {
         const criteria = buildCriteria({ sortBy: 'id', sortDirection: 'DESC' });
 
-        expect(criteria.sortings).toEqual([
-            expect.objectContaining({ field: 'id', order: 'DESC' }),
-        ]);
+        expect(criteria.sortings).toEqual([expect.objectContaining({ field: 'id', order: 'DESC' })]);
     });
 });

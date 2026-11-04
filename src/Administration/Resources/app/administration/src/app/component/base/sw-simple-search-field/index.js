@@ -22,30 +22,19 @@ export default {
     template,
     inheritAttrs: false,
 
-    emits: [
-        'update:value',
-        'search-term-change',
-    ],
+    emits: ['update:value', 'search-term-change'],
 
     props: {
         variant: {
             type: String,
             required: false,
             default: 'default',
-            validValues: [
-                'default',
-                'inverted',
-                'form',
-            ],
+            validValues: ['default', 'inverted', 'form'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'default',
-                    'inverted',
-                    'form',
-                ].includes(value);
+                return ['default', 'inverted', 'form'].includes(value);
             },
         },
 
@@ -84,9 +73,7 @@ export default {
 
     computed: {
         fieldClasses() {
-            return [
-                `sw-simple-search-field--${this.variant}`,
-            ];
+            return [`sw-simple-search-field--${this.variant}`];
         },
 
         placeholder() {

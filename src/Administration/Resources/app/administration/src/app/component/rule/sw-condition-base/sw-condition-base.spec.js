@@ -35,17 +35,12 @@ async function createWrapper(customProps = {}) {
 function seedErrors(conditionId, errors) {
     const errorStore = Shopware.Store.get('error');
 
-    Object.entries(errors).forEach(
-        ([
-            path,
+    Object.entries(errors).forEach(([path, error]) => {
+        errorStore.addApiError({
+            expression: `rule_condition.${conditionId}.${path}`,
             error,
-        ]) => {
-            errorStore.addApiError({
-                expression: `rule_condition.${conditionId}.${path}`,
-                error,
-            });
-        },
-    );
+        });
+    });
 }
 
 function shopwareError(code = 'INVALID') {

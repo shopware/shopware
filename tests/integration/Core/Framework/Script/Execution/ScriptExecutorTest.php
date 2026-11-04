@@ -56,7 +56,7 @@ class ScriptExecutorTest extends TestCase
             $this->executor->execute(new TestHook($hook, $context, ['object' => $object], [RepositoryFacadeHookFactory::class]));
         }
 
-        static::assertNotEmpty($expected);
+        static::assertNotCount(0, $expected);
 
         foreach ($expected as $key => $value) {
             static::assertTrue($object->has($key));

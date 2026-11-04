@@ -50,11 +50,7 @@ async function createWrapper(items, mediaRepositoryFunctions = {}) {
     });
 }
 
-const defaultNames = [
-    't-shirt.png',
-    'flask.jpg',
-    'router.glb',
-];
+const defaultNames = ['t-shirt.png', 'flask.jpg', 'router.glb'];
 const createItems = (itemNames = defaultNames) => {
     return itemNames.map((name) => {
         return {
@@ -84,7 +80,7 @@ describe('module/sw-media/component/sidebar/sw-media-sidebar', () => {
         };
 
         const wrapper = await createWrapper(mediaItems, mediaRepositoryFunctions);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const mediaQuickInfo = wrapper.findComponent('.sw-media-quickinfo');
         expect(mediaQuickInfo.exists()).toBe(true);
 

@@ -47,18 +47,11 @@ export default {
     template,
     inheritAttrs: false,
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
@@ -77,17 +70,9 @@ export default {
         dateType: {
             type: String,
             default: 'date',
-            validValues: [
-                'time',
-                'date',
-                'datetime',
-            ],
+            validValues: ['time', 'date', 'datetime'],
             validator(value) {
-                return [
-                    'time',
-                    'date',
-                    'datetime',
-                ].includes(value);
+                return ['time', 'date', 'datetime'].includes(value);
             },
         },
 
@@ -172,12 +157,7 @@ export default {
              * Do not pass "change" or "input" event listeners to the form elements.
              */
             Object.keys(this.$attrs).forEach((key) => {
-                if (
-                    ![
-                        'onChange',
-                        'onInput',
-                    ].includes(key)
-                ) {
+                if (!['onChange', 'onInput'].includes(key)) {
                     attrs[key] = this.$attrs[key];
                 }
             });
@@ -188,26 +168,21 @@ export default {
              * So this can be used as a parameter to flatpickr to specify which events will be thrown
              * and also emit the right event from vue.
              */
-            Object.entries(attrs).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    // Check if the key is an event, e.g. starts with "on-"
-                    if (!key.startsWith('on-')) {
-                        return;
-                    }
+            Object.entries(attrs).forEach(([key, value]) => {
+                // Check if the key is an event, e.g. starts with "on-"
+                if (!key.startsWith('on-')) {
+                    return;
+                }
 
-                    // Remove the "on-" prefix
-                    const eventName = key.replace('on-', '');
-                    // Convert the kebab-case to camelCase
-                    const camelCase = this.kebabToCamel(eventName);
-                    // Add the new event name to the object
-                    attrs[camelCase] = value;
-                    // Remove the old event name from the object
-                    delete attrs[key];
-                },
-            );
+                // Remove the "on-" prefix
+                const eventName = key.replace('on-', '');
+                // Convert the kebab-case to camelCase
+                const camelCase = this.kebabToCamel(eventName);
+                // Add the new event name to the object
+                attrs[camelCase] = value;
+                // Remove the old event name from the object
+                delete attrs[key];
+            });
 
             return attrs;
         },
@@ -222,12 +197,7 @@ export default {
                     return null;
                 }
 
-                if (
-                    [
-                        'time',
-                        'date',
-                    ].includes(this.dateType)
-                ) {
+                if (['time', 'date'].includes(this.dateType)) {
                     return this.value;
                 }
 
@@ -244,12 +214,7 @@ export default {
                     return;
                 }
 
-                if (
-                    [
-                        'time',
-                        'date',
-                    ].includes(this.dateType)
-                ) {
+                if (['time', 'date'].includes(this.dateType)) {
                     this.$emit('update:value', newValue);
 
                     return;
@@ -424,10 +389,7 @@ export default {
             this.flatpickrInstance.set(mergedConfig);
 
             // Workaround: Allow to change locale dynamically
-            [
-                'locale',
-                'showMonths',
-            ].forEach((name) => {
+            ['locale', 'showMonths'].forEach((name) => {
                 if (typeof mergedConfig[name] !== 'undefined') {
                     this.flatpickrInstance.set(name, mergedConfig[name]);
                 }

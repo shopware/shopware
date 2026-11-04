@@ -23,7 +23,6 @@ use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Installer\Database\DatabaseMigrator;
 use Shopware\Core\Installer\Database\MigrationCollectionFactory;
 use Shopware\Core\Installer\Finish\SystemLocker;
-use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator;
 use Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator;
@@ -264,7 +263,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(EnvConfigWriter::class)
         ->args([
             param('kernel.project_dir'),
-            service(UniqueIdGenerator::class),
         ]);
 
     $services->set(ShopConfigurationService::class)
@@ -279,11 +277,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(SystemLocker::class)
-        ->args([
-            param('kernel.project_dir'),
-        ]);
-
-    $services->set(UniqueIdGenerator::class)
         ->args([
             param('kernel.project_dir'),
         ]);

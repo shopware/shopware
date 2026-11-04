@@ -95,10 +95,7 @@ const flowSequenceRepositorySyncDeletedMock = jest.fn((sequencesIds) => {
     });
 
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(ids).toEqual([
-        '2',
-        '4',
-    ]);
+    expect(ids).toEqual(['2', '4']);
 });
 
 const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
@@ -111,10 +108,7 @@ const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
     });
 
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(ids).toEqual([
-        '1',
-        '3',
-    ]);
+    expect(ids).toEqual(['1', '3']);
 });
 
 const businessEventServiceMock = {
@@ -184,9 +178,7 @@ async function createWrapper(
                                 },
                                 search: () => {
                                     if (entity === 'rule') {
-                                        return Promise.resolve([
-                                            { id: '1111', name: 'test rule' },
-                                        ]);
+                                        return Promise.resolve([{ id: '1111', name: 'test rule' }]);
                                     }
 
                                     return Promise.resolve([]);
@@ -302,6 +294,84 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         });
     });
 
+    const loadFlowWithSequences = async (sequences) => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const criteriaByEntity = {};
+
+        const recordingRepositoryFactoryMock = {
+            create: (entity) => {
+                if (entity === 'flow') {
+                    return {
+                        get: () =>
+                            Promise.resolve({
+                                id: ID_FLOW,
+                                name: 'Flow 1',
+                                eventName: 'checkout.customer',
+                                sequences: getSequencesCollection(sequences),
+                            }),
+                    };
+                }
+
+                return {
+                    create: () => ({}),
+                    search: (criteria) => {
+                        criteriaByEntity[entity] = criteria;
+
+                        return Promise.resolve([]);
+                    },
+                };
+            },
+        };
+
+        await createWrapper({}, {}, ID_FLOW, true, {}, { repositoryFactory: recordingRepositoryFactoryMock });
+        await flushPromises();
+
+        return criteriaByEntity;
+    };
+
+    const configuredSequences = [
+        {
+            ...sequenceFixture,
+            id: '1',
+            actionName: 'action.mail.send',
+            config: { mailTemplateId: 'mail-template-id' },
+        },
+        {
+            ...sequenceFixture,
+            id: '2',
+            actionName: 'action.set.order.custom.field',
+            config: { customFieldSetId: 'custom-field-set-id', customFieldId: 'custom-field-id' },
+        },
+    ];
+
+    it('should not limit the entities a flow references', async () => {
+        const criteriaByEntity = await loadFlowWithSequences(configuredSequences);
+
+        expect(criteriaByEntity.mail_template.limit).toBeNull();
+        expect(criteriaByEntity.custom_field_set.limit).toBeNull();
+        expect(criteriaByEntity.custom_field.limit).toBeNull();
+    });
+
+    it('should request the entities a flow references by id', async () => {
+        const criteriaByEntity = await loadFlowWithSequences(configuredSequences);
+
+        expect([...criteriaByEntity.mail_template.ids]).toEqual(['mail-template-id']);
+        expect([...criteriaByEntity.custom_field_set.ids]).toEqual(['custom-field-set-id']);
+        expect([...criteriaByEntity.custom_field.ids]).toEqual(['custom-field-id']);
+    });
+
+    it('should not look up the entities a flow references when none is configured', async () => {
+        const criteriaByEntity = await loadFlowWithSequences([
+            { ...sequenceFixture, id: '1', actionName: 'action.mail.send' },
+            { ...sequenceFixture, id: '2', actionName: 'action.set.order.custom.field' },
+        ]);
+
+        expect(criteriaByEntity.mail_template).toBeUndefined();
+        expect(criteriaByEntity.custom_field_set).toBeUndefined();
+        expect(criteriaByEntity.custom_field).toBeUndefined();
+    });
+
     it('should not be able to save a flow', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -372,6 +442,35 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         expect(wrapper.vm.flowSequenceRepository.syncDeleted).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.flowSequenceRepository.sync).toHaveBeenCalledTimes(1);
+    });
+
+    it('should refetch the flow with the page criteria when saving an existing flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper({}, {}, ID_FLOW);
+        await flushPromises();
+
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
+
+        const flow = {
+            id: ID_FLOW,
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: getSequencesCollection(sequencesFixture),
+        };
+
+        Shopware.Store.get('swFlow').setFlow({
+            ...flow,
+            getOrigin: () => flow,
+        });
+
+        const getSpy = jest.spyOn(wrapper.vm.flowRepository, 'get');
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(getSpy).toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api, wrapper.vm.flowCriteria);
+        expect(getSpy).not.toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api);
     });
 
     it('should not able to saving flow template', async () => {

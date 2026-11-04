@@ -6,7 +6,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
@@ -52,13 +52,13 @@ class ProductIndexerTest extends TestCase
 
     private ProductIndexer $indexer;
 
-    private Connection&MockObject $connectionMock;
+    private Connection&Stub $connectionMock;
 
     private MessageBusInterface $messageBus;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
+        $this->connectionMock = static::createStub(Connection::class);
         $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new ProductIndexer(

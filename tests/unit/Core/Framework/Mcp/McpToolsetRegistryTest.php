@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -19,6 +21,23 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 #[CoversClass(McpToolsetRegistry::class)]
 class McpToolsetRegistryTest extends TestCase
 {
+    /**
+     * @return iterable<string, array{?string, string, bool}>
+     */
+    public static function reservedGroupClaimCases(): iterable
+    {
+        yield 'extension tool in the discovery group' => [McpToolsetRegistry::DISCOVERY_GROUP, 'swag-report', true];
+        yield 'meta-tool in the discovery group' => [McpToolsetRegistry::DISCOVERY_GROUP, 'shopware-tool-search', false];
+        yield 'extension tool in its own group' => ['swag', 'swag-report', false];
+        yield 'ungrouped tool' => [null, 'swag-report', false];
+    }
+
+    #[DataProvider('reservedGroupClaimCases')]
+    public function testIsReservedGroupClaim(?string $group, string $toolName, bool $expected): void
+    {
+        static::assertSame($expected, McpToolsetRegistry::isReservedGroupClaim($group, $toolName));
+    }
+
     public function testBuildsToolsetsFromExplicitToolGroups(): void
     {
         $registry = $this->buildRegistry([
@@ -148,6 +167,35 @@ class McpToolsetRegistryTest extends TestCase
             ],
             $toolsetRegistry->advertisedTools(['entity', 'order']),
         );
+
+        static::assertSame(
+            $toolsetRegistry->advertisedToolsForNames([McpToolsetRegistry::ALL_TOOLSETS]),
+            $toolsetRegistry->advertisedTools([McpToolsetRegistry::ALL_TOOLSETS]),
+        );
+    }
+
+    public function testAToolGroupNamedLikeTheAllSelectorLandsInTheFallbackToolset(): void
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            'swag-report',
+            'my-erp-sync-orders',
+        ]);
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(['my-erp-sync-orders' => McpToolsetRegistry::ALL_TOOLSETS]),
+            toolGroups: [
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
+                'swag-report' => McpToolsetRegistry::ALL_TOOLSETS,
+            ],
+        ));
+
+        $toolsetsByName = array_column($toolsetRegistry->toolsets(), null, 'name');
+
+        static::assertSame([McpToolsetRegistry::FALLBACK_GROUP], array_keys($toolsetsByName));
+        static::assertSame(['my-erp-sync-orders', 'swag-report'], $toolsetsByName[McpToolsetRegistry::FALLBACK_GROUP]['tools']);
+        static::assertNull($toolsetRegistry->find(McpToolsetRegistry::ALL_TOOLSETS));
     }
 
     public function testToolsetsAreScopedToTheCurrentAllowlist(): void
@@ -183,6 +231,49 @@ class McpToolsetRegistryTest extends TestCase
         static::assertSame([], $toolsetRegistry->advertisedTools(['order']));
     }
 
+    public function testAdvertisedToolsForNamesReturnsEmptyWithoutReadingTheCatalogue(): void
+    {
+        $privilegeProvider = $this->createMock(AppMcpPrivilegeProvider::class);
+        $privilegeProvider->expects($this->never())->method('getAppToolGroups');
+        $privilegeProvider->expects($this->never())->method('getAppToolPrivileges');
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
+            $this->buildRegistry(['shopware-entity-search']),
+            $privilegeProvider,
+            toolGroups: ['shopware-entity-search' => 'entity'],
+        ));
+
+        static::assertSame([], $toolsetRegistry->advertisedToolsForNames([]));
+    }
+
+    /**
+     * @param list<string> $names
+     * @param list<string> $expected
+     */
+    #[DataProvider('advertisedToolsForNamesCases')]
+    #[TestDox('advertisedToolsForNames $_dataName')]
+    public function testAdvertisedToolsForNames(array $names, array $expected): void
+    {
+        static::assertSame($expected, $this->toolsetRegistry()->advertisedToolsForNames($names));
+    }
+
+    /**
+     * @return \Generator<string, array{list<string>, list<string>}>
+     */
+    public static function advertisedToolsForNamesCases(): \Generator
+    {
+        $entity = 'shopware-entity-search';
+        $order = 'shopware-order-state';
+
+        yield 'returns empty for no names' => [[], []];
+        yield 'resolves known names' => [['entity', 'order'], [$entity, $order]];
+        yield 'drops unknown names' => [['entity', 'does-not-exist'], [$entity]];
+        yield 'deduplicates' => [['entity', 'entity'], [$entity]];
+        yield 'resolves the all shorthand' => [[McpToolsetRegistry::ALL_TOOLSETS], [$entity, $order]];
+        yield 'lets all subsume other names' => [['order', McpToolsetRegistry::ALL_TOOLSETS], [$entity, $order]];
+        yield 'rejects the discovery group' => [[McpToolsetRegistry::DISCOVERY_GROUP], []];
+    }
+
     /**
      * @param list<string> $toolNames
      */
@@ -198,6 +289,25 @@ class McpToolsetRegistryTest extends TestCase
         }
 
         return $registry;
+    }
+
+    private function toolsetRegistry(): McpToolsetRegistry
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+            'shopware-entity-search',
+            'shopware-order-state',
+        ]);
+
+        return new McpToolsetRegistry(new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            toolGroups: [
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
+                'shopware-entity-search' => 'entity',
+                'shopware-order-state' => 'order',
+            ],
+        ));
     }
 
     /**

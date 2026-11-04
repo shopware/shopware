@@ -35,11 +35,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -156,11 +152,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/ProductListingCriteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/ProductListingCriteria"
                             }
                         }
                     }
@@ -229,6 +221,9 @@
                     },
                     {
                         "x-parameter-group": "productListingCriteria"
+                    },
+                    {
+                        "$ref": "#/components/parameters/CompressedCriteria"
                     }
                 ],
                 "responses": {

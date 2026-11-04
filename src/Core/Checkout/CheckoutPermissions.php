@@ -70,6 +70,12 @@ final class CheckoutPermissions
      */
     final public const SKIP_PRIMARY_ORDER_IDS = 'skipPrimaryOrderIds';
 
+    /**
+     * Keeps the primary transaction of a cart converted from an order ({@see OrderConverter::convertToCart})
+     * instead of replacing it with a new transaction, and moves it to the recalculated cart total.
+     */
+    final public const KEEP_ORDER_TRANSACTION = 'keepOrderTransaction';
+
     private function __construct()
     {
     }

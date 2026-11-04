@@ -14,6 +14,7 @@ class DependencyInjectionException extends HttpException
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
+    public const FEATURE_TAG_MISSING_FLAG = 'FRAMEWORK__FEATURE_TAG_MISSING_FLAG';
     public const MISSING_ASSIGNABLE_DEFINITION = 'FRAMEWORK__MISSING_ASSIGNABLE_DEFINITION';
     public const ROOT_SOURCE_NAMESPACE_COLLISION = 'FRAMEWORK__ROOT_SOURCE_NAMESPACE_COLLISION';
     public const DATA_LOADER_RESERVED_SOURCE = 'FRAMEWORK__DATA_LOADER_RESERVED_SOURCE';
@@ -260,6 +261,16 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARAMETER_HAS_WRONG_TYPE,
             \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
+        );
+    }
+
+    public static function featureTagMissingFlag(string $serviceId, string $tag): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FEATURE_TAG_MISSING_FLAG,
+            'Service "{{ serviceId }}" has tag "{{ tag }}" without the required "flag" attribute.',
+            ['serviceId' => $serviceId, 'tag' => $tag],
         );
     }
 

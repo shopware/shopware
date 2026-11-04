@@ -30,10 +30,7 @@ describe('SyncService', () => {
             .reply(() => {
                 didRequest = true;
 
-                return [
-                    200,
-                    {},
-                ];
+                return [200, {}];
             });
 
         syncService.sync({

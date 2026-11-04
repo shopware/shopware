@@ -10,10 +10,7 @@ const { Store } = Shopware;
 export default {
     template,
 
-    emits: [
-        'save-and-reload',
-        'update-loading',
-    ],
+    emits: ['save-and-reload', 'update-loading'],
 
     inject: {
         swOrderDetailOnSaveAndReload: {

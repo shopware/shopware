@@ -388,7 +388,7 @@ class OpenApiDefinitionSchemaBuilder
     private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
     {
         if ($field->getPropertyName() === 'translations'
-            || preg_match('#translations$#i', $field->getPropertyName())
+            || preg_match('#translations$#Di', $field->getPropertyName())
         ) {
             return false;
         }
@@ -403,11 +403,7 @@ class OpenApiDefinitionSchemaBuilder
             return false;
         }
 
-        if (!$flag->isSourceAllowed($forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class)) {
-            return false;
-        }
-
-        return true;
+        return $flag->isSourceAllowed($forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class);
     }
 
     private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property

@@ -29,7 +29,7 @@ export default {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-tagged-field.text-default-placeholder');
+                return Shopware.Snippet.t('global.sw-tagged-field.text-default-placeholder');
             },
         },
 
@@ -97,10 +97,7 @@ export default {
                 return;
             }
 
-            this.$emit('update:value', [
-                ...this.value,
-                this.newTagName,
-            ]);
+            this.$emit('update:value', [...this.value, this.newTagName]);
             this.newTagName = '';
         },
 

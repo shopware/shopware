@@ -109,7 +109,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
@@ -127,7 +127,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
         $criteria->addSorting(new FieldSorting('_score', FieldSorting::ASCENDING));
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());

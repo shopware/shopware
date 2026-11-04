@@ -65,9 +65,7 @@ async function createWrapper(visiblePageTypes = Object.values(expectedVisiblePag
                         },
                     },
                     customEntityDefinitionService: {
-                        getCmsAwareDefinitions: () => [
-                            'some-content-to-result-in-true',
-                        ],
+                        getCmsAwareDefinitions: () => ['some-content-to-result-in-true'],
                     },
                 },
             },
@@ -116,26 +114,11 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     });
 
     const selectionWidthDataProvider = [
-        [
-            4,
-            '620px',
-        ],
-        [
-            5,
-            '780px',
-        ],
-        [
-            6,
-            '460px',
-        ],
-        [
-            7,
-            '620px',
-        ],
-        [
-            11,
-            '620px',
-        ],
+        [4, '620px'],
+        [5, '780px'],
+        [6, '460px'],
+        [7, '620px'],
+        [11, '620px'],
     ];
     it.each(selectionWidthDataProvider)(
         'should balance %i page types into even rows of at most 5',
@@ -161,14 +144,8 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     });
 
     const pageTypeDataProvider = [
-        [
-            'page',
-            false,
-        ],
-        [
-            'custom-entity-detail',
-            true,
-        ],
+        ['page', false],
+        ['custom-entity-detail', true],
     ];
     it.each(pageTypeDataProvider)(
         'should show the correct pageType selection for type "%s"',

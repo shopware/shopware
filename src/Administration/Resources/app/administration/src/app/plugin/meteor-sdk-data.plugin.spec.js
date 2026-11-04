@@ -28,9 +28,7 @@ describe('src/app/plugin/meteor-sdk-data.plugin.ts', () => {
             },
             {
                 global: {
-                    plugins: [
-                        MeteorSdkDataPlugin,
-                    ],
+                    plugins: [MeteorSdkDataPlugin],
                 },
             },
         );

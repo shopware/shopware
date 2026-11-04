@@ -68,9 +68,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoMetaDescriptionDisplay.text()).toBe('');
 
         await seoMetaDescriptionInput.vm.$emit('update:modelValue', TEST_SEO_META_DESCRIPTION);
-        expect(wrapper.emitted('update:seo-meta-description')).toEqual([
-            [TEST_SEO_META_DESCRIPTION],
-        ]);
+        expect(wrapper.emitted('update:seo-meta-description')).toEqual([[TEST_SEO_META_DESCRIPTION]]);
 
         await wrapper.setProps({
             seoMetaDescription: TEST_SEO_META_DESCRIPTION,

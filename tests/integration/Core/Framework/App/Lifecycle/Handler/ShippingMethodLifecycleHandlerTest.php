@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -30,7 +29,6 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
     use ExtensionBehaviour;
     use IntegrationTestBehaviour;
 
-    private const APP_NAME = 'test';
     private const APP_PATH = __DIR__ . '/../_fixtures/shippingMethodBase/test';
     private const ACTIVE_FLAG_APP_PATH = __DIR__ . '/../_fixtures/ShippingMethodActiveFlag/test';
     private const MANIFEST_UPDATE = __DIR__ . '/../_fixtures/shippingMethodUpdate/test/manifest.xml';
@@ -66,7 +64,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         $numberOfAppShippingMethods = $this->getNumberOfShippingMethods(true);
         static::assertSame($expectedAppShippingMethodCountBeforeUpdate, $numberOfAppShippingMethods, 'Number of expected app shipping methods before update does not match');
 
-        $this->updateApp($this->getAppId(), self::MANIFEST_UPDATE);
+        $this->updateApp(self::MANIFEST_UPDATE);
 
         $numberOfShippingMethodsAfterUpdate = $this->getNumberOfShippingMethods();
         static::assertSame($expectedShippingMethodCountAfterUpdate, $numberOfShippingMethodsAfterUpdate, 'Number of expected shipping methods after update does not match');
@@ -86,7 +84,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
         $mediaId = $shippingMethod->getMediaId();
 
-        $this->updateApp($this->getAppId(), self::MANIFEST_UPDATE);
+        $this->updateApp(self::MANIFEST_UPDATE);
 
         $updatedAppShippingMethods = $this->getApp()->getAppShippingMethods();
         static::assertInstanceOf(EntityCollection::class, $updatedAppShippingMethods);
@@ -118,7 +116,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         $numberOfAppShippingMethods = $this->getNumberOfShippingMethods(true);
         static::assertSame($expectedAppShippingMethodCountBeforeUpdate, $numberOfAppShippingMethods, 'Number of expected app shipping methods before update does not match');
 
-        $this->updateApp($this->getAppId(), self::MANIFEST_UPDATE_IDENTIFIER);
+        $this->updateApp(self::MANIFEST_UPDATE_IDENTIFIER);
 
         $numberOfShippingMethodsAfterUpdate = $this->getNumberOfShippingMethods();
         static::assertSame($expectedShippingMethodCountAfterUpdate, $numberOfShippingMethodsAfterUpdate, 'Number of expected shipping methods after update does not match');
@@ -158,7 +156,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         static::assertTrue($firstShippingMethod->getActive(), 'Install: swagFirstShippingMethod is not activated');
         static::assertFalse($secondShippingMethod->getActive(), 'Install: swagSecondShippingMethod is not deactivated');
 
-        $this->updateApp($this->getAppId(), __DIR__ . '/../_fixtures/ShippingMethodActiveFlagUpdate/test/manifest.xml');
+        $this->updateApp(__DIR__ . '/../_fixtures/ShippingMethodActiveFlagUpdate/test/manifest.xml');
 
         $updatedAppShippingMethods = $this->getApp()->getAppShippingMethods();
         static::assertInstanceOf(EntityCollection::class, $updatedAppShippingMethods);
@@ -199,7 +197,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         return $app;
     }
 
-    private function updateApp(string $appId, string $manifestXml): void
+    private function updateApp(string $manifestXml): void
     {
         $manifest = Manifest::createFromXmlFile($manifestXml);
         $app = $this->getApp();
@@ -215,16 +213,5 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
 
         $shippingMethodLifecycleHandler = static::getContainer()->get(ShippingMethodLifecycleHandler::class);
         $shippingMethodLifecycleHandler->update($context);
-    }
-
-    private function getAppId(): string
-    {
-        $sql = 'SELECT `id` from `app` where name ="' . self::APP_NAME . '";';
-        $appUuid = $this->connection->fetchOne($sql);
-        if (!$appUuid) {
-            static::fail('Cannot find appId for app with name ' . self::APP_NAME);
-        }
-
-        return Uuid::fromBytesToHex($appUuid);
     }
 }

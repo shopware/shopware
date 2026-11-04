@@ -32,6 +32,6 @@ class NewsletterExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(NewsletterException::MISSING_EMAIL_PARAMETER, $exception->getErrorCode());
         static::assertSame('The email parameter is missing.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 }

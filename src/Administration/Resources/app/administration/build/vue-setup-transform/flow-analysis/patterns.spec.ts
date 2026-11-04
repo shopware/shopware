@@ -17,13 +17,7 @@ function declaredNames(patternSource: string): string[] {
 function patternReferences(patternSource: string, outerScope: string[] = []): string[] {
     const { pattern } = parseBindingPattern(patternSource);
     const references = new Set<string>();
-    collectPatternReferences(
-        pattern,
-        [
-            new Set(outerScope),
-        ],
-        references,
-    );
+    collectPatternReferences(pattern, [new Set(outerScope)], references);
 
     return Array.from(references).sort();
 }
@@ -31,18 +25,11 @@ function patternReferences(patternSource: string, outerScope: string[] = []): st
 describe('build/vue-setup-transform/flow-analysis binding patterns', () => {
     describe('addPatternNames', () => {
         it('collects object, aliased, and rest names', () => {
-            expect(declaredNames('{ a, b: c, ...rest }')).toEqual([
-                'a',
-                'c',
-                'rest',
-            ]);
+            expect(declaredNames('{ a, b: c, ...rest }')).toEqual(['a', 'c', 'rest']);
         });
 
         it('collects array-pattern names including defaults and holes', () => {
-            expect(declaredNames('[first, , third = fallback]')).toEqual([
-                'first',
-                'third',
-            ]);
+            expect(declaredNames('[first, , third = fallback]')).toEqual(['first', 'third']);
         });
 
         it('does not collect a default value as a declared name', () => {
@@ -64,11 +51,7 @@ describe('build/vue-setup-transform/flow-analysis binding patterns', () => {
         });
 
         it('excludes names already in an outer scope', () => {
-            expect(
-                patternReferences('{ label = fallback }', [
-                    'fallback',
-                ]),
-            ).toEqual([]);
+            expect(patternReferences('{ label = fallback }', ['fallback'])).toEqual([]);
         });
     });
 });

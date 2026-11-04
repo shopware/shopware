@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import {
     ComponentFactory,
     expectOnlyBranch,
@@ -21,11 +22,11 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             },
             template: `
                 <div>
-                    <sw-block name="test-block" :data="{}">
+                    <sw-block name="test-block" sw-internal-component-name="native-block-legacy-else" :data="{}">
                         <div v-if="isConditionTrue" class="true-case">true</div>
                     </sw-block>
 
-                    <sw-block extends="test-block">
+                    <sw-block extends="test-block" sw-internal-component-name="native-block-legacy-else">
                         <sw-block-parent />
                         <div v-else class="false-case">false</div>
                     </sw-block>
@@ -39,7 +40,6 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(wrapper.find('.false-case').exists()).toBe(true);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders condition chains across more than two nested Twig component extensions', async () => {
         ComponentFactory.register('native-block-nested-twig-chain-base', {
             data() {
@@ -52,7 +52,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             template: `
                 <div>
                     {% block nested_twig_chain_root %}
-                        <sw-block name="nested_twig_chain_block" :data="{}">
+                        <sw-block name="nested_twig_chain_block" sw-internal-component-name="native-block-nested-twig-chain-base" :data="{}">
                             <div v-if="condition1" class="condition-one">Condition 1</div>
                         </sw-block>
                     {% endblock %}
@@ -65,7 +65,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
                 {% block nested_twig_chain_root %}
                     {% parent %}
                     {% block nested_twig_chain_extension_one %}
-                        <sw-block extends="nested_twig_chain_block">
+                        <sw-block extends="nested_twig_chain_block" sw-internal-component-name="native-block-nested-twig-chain-base">
                             <sw-block-parent />
                             <div v-else-if="condition2" class="condition-two">Condition 2</div>
                         </sw-block>
@@ -79,7 +79,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
                 {% block nested_twig_chain_extension_one %}
                     {% parent %}
                     {% block nested_twig_chain_extension_two %}
-                        <sw-block extends="nested_twig_chain_block">
+                        <sw-block extends="nested_twig_chain_block" sw-internal-component-name="native-block-nested-twig-chain-base">
                             <sw-block-parent />
                             <div v-else-if="condition3" class="condition-three">Condition 3</div>
                         </sw-block>
@@ -89,21 +89,17 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         });
 
         const wrapper = await mountNativeBlockComponent('native-block-nested-twig-chain-two');
-        const branches = [
-            '.condition-one',
-            '.condition-two',
-            '.condition-three',
-        ];
+        const branches = ['.condition-one', '.condition-two', '.condition-three'];
 
         expectOnlyBranch(wrapper, branches, '.condition-three');
 
         await wrapper.setData({ condition2: true });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.condition-two');
 
         await wrapper.setData({ condition1: true });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.condition-one');
 
@@ -112,7 +108,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             condition2: false,
             condition3: false,
         });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, null);
     });
@@ -127,17 +123,17 @@ describe('core/factory/async-component.factory.ts - native block condition chain
                 },
                 template: `
                     <div>
-                        <sw-block name="${blockName}" :data="{}">
+                        <sw-block name="${blockName}" sw-internal-component-name="${componentName}" :data="{}">
                             <div v-if="showBlue" class="blue-case">blue</div>
                             <div v-else-if="showGreen" class="green-case">green</div>
                         </sw-block>
 
-                        <sw-block extends="${blockName}">
+                        <sw-block extends="${blockName}" sw-internal-component-name="${componentName}">
                             <sw-block-parent />
                             <div v-else-if="showRed" class="red-case">red</div>
                         </sw-block>
 
-                        <sw-block extends="${blockName}">
+                        <sw-block extends="${blockName}" sw-internal-component-name="${componentName}">
                             <sw-block-parent />
                             <div v-else class="fallback-case">fallback</div>
                         </sw-block>
@@ -176,7 +172,6 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(greenWrapper.find('.fallback-case').exists()).toBe(false);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('continues a restarted native condition chain in a later block extension', async () => {
         ComponentFactory.register('native-block-legacy-restarted-chain', {
             data() {
@@ -189,11 +184,11 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             },
             template: `
                 <div>
-                    <sw-block name="restarted_condition_block" :data="{}">
+                    <sw-block name="restarted_condition_block" sw-internal-component-name="native-block-legacy-restarted-chain" :data="{}">
                         <div v-if="showPrimary" class="primary">primary</div>
                     </sw-block>
 
-                    <sw-block extends="restarted_condition_block">
+                    <sw-block extends="restarted_condition_block" sw-internal-component-name="native-block-legacy-restarted-chain">
                         <sw-block-parent />
                         <div v-else-if="showSecondary" class="secondary">secondary</div>
 
@@ -203,7 +198,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
                         <div v-else-if="showRestartAlternative" class="alternative">alternative</div>
                     </sw-block>
 
-                    <sw-block extends="restarted_condition_block">
+                    <sw-block extends="restarted_condition_block" sw-internal-component-name="native-block-legacy-restarted-chain">
                         <sw-block-parent />
                         <div v-else class="restart-fallback">restart fallback</div>
                     </sw-block>
@@ -226,12 +221,12 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             showRestart: false,
             showRestartAlternative: true,
         });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.alternative');
 
         await wrapper.setData({ showRestartAlternative: false });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.restart-fallback');
     });
@@ -245,11 +240,11 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             },
             template: `
                 <div>
-                    <sw-block name="lifecycle_cleanup_block" :data="{}">
+                    <sw-block name="lifecycle_cleanup_block" sw-internal-component-name="native-block-lifecycle-cleanup" :data="{}">
                         <div v-if="showBaseCondition" class="base-condition">base</div>
                     </sw-block>
 
-                    <sw-block extends="lifecycle_cleanup_block">
+                    <sw-block extends="lifecycle_cleanup_block" sw-internal-component-name="native-block-lifecycle-cleanup">
                         <sw-block-parent />
                         <div v-else class="extension-fallback">fallback</div>
                     </sw-block>
@@ -263,16 +258,13 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         ).default;
         const { legacyConditionContext } = useLegacyConditionContext();
         const chainKey = `${wrapper.vm.$.uid}:lifecycle_cleanup_block:0`;
-        const branches = [
-            '.base-condition',
-            '.extension-fallback',
-        ];
+        const branches = ['.base-condition', '.extension-fallback'];
 
         expectOnlyBranch(wrapper, branches, '.extension-fallback');
         expect(legacyConditionContext[chainKey]).toBeDefined();
 
         await wrapper.setData({ showBaseCondition: true });
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expectOnlyBranch(wrapper, branches, '.base-condition');
         expect(legacyConditionContext[chainKey]).toBeDefined();

@@ -132,7 +132,7 @@ class CustomUrlProviderTest extends TestCase
 
         $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
-        static::assertEmpty($customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
+        static::assertCount(0, $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     private function getCustomUrlProvider(ConfigHandler $configHandler): CustomUrlProvider

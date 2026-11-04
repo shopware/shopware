@@ -37,27 +37,68 @@ final class McpAllowlist
         return new self(null, null, null);
     }
 
-    public static function fromJson(?string $json): self
+    public static function blocked(): self
+    {
+        return new self([], [], []);
+    }
+
+    /**
+     * Parses a stored allowlist for a principal without the administrator bypass: anything not
+     * explicitly selected is blocked, so every unusable value resolves to an empty list rather than
+     * to null. See the allowlist section of Mcp/AGENTS.md.
+     */
+    public static function restrictedFromJson(?string $json): self
     {
         if ($json === null || $json === '') {
-            return self::unrestricted();
+            return self::blocked();
         }
 
         try {
             $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            return self::unrestricted();
+            return self::blocked();
         }
 
         if (!\is_array($data)) {
-            return self::unrestricted();
+            return self::blocked();
         }
 
         return new self(
-            tools: self::extractList($data, self::TOOLS),
-            resources: self::extractList($data, self::RESOURCES),
-            prompts: self::extractList($data, self::PROMPTS),
+            tools: self::extractList($data, self::TOOLS) ?? [],
+            resources: self::extractList($data, self::RESOURCES) ?? [],
+            prompts: self::extractList($data, self::PROMPTS) ?? [],
         );
+    }
+
+    /**
+     * @param array<mixed> $allowlist
+     */
+    public static function isValidPayload(array $allowlist): bool
+    {
+        $knownKeys = [self::TOOLS, self::RESOURCES, self::PROMPTS];
+
+        if (array_diff(array_keys($allowlist), $knownKeys) !== []) {
+            return false;
+        }
+
+        foreach ($knownKeys as $key) {
+            if (!\array_key_exists($key, $allowlist)) {
+                continue;
+            }
+            $value = $allowlist[$key];
+            if ($value !== null && !\is_array($value)) {
+                return false;
+            }
+            // A JSON object decodes to an associative array, which restrictedFromJson() reads as an empty selection.
+            if (\is_array($value) && !array_is_list($value)) {
+                return false;
+            }
+            if (\is_array($value) && array_filter($value, static fn ($item) => !\is_string($item)) !== []) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -71,7 +112,9 @@ final class McpAllowlist
             return null;
         }
 
-        if (!\is_array($data[$key])) {
+        // A JSON object decodes to an associative array. It is not a list of capability names, so
+        // it must not be read as one: under restrictedFromJson() the caller gets an empty selection.
+        if (!\is_array($data[$key]) || !array_is_list($data[$key])) {
             return null;
         }
 

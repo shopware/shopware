@@ -29,7 +29,7 @@ final class NativeTimeReadHelper
         }
 
         // Unix timestamp form '@<int>[.frac]' — fixed instant, no current-time read.
-        if (preg_match('/^@-?\d+(\.\d+)?$/', $trimmed) === 1) {
+        if (preg_match('/^@-?\d+(\.\d+)?$/D', $trimmed) === 1) {
             return false;
         }
 

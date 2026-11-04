@@ -23,6 +23,7 @@ final class AppSystemHttpMiddleware
          * @var list<string>
          */
         private readonly array $allowedPrivateIpAddresses = [],
+        private readonly bool $enableUrlValidation = true,
     ) {
     }
 
@@ -33,6 +34,10 @@ final class AppSystemHttpMiddleware
      */
     public function __invoke(callable $handler): callable
     {
+        if (!$this->enableUrlValidation) {
+            return $handler;
+        }
+
         return function (RequestInterface $request, array $options) use ($handler): PromiseInterface {
             $this->assertSafeOptions($options);
             $options['proxy'] = ['http' => '', 'https' => ''];

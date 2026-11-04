@@ -10,10 +10,7 @@ const { Context, Filter } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:currentFolderId'],
 

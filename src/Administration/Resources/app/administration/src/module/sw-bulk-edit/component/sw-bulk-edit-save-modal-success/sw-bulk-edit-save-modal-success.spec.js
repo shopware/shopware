@@ -21,10 +21,7 @@ async function createWrapper(
                 stubs: {
                     'sw-label': true,
                     'mt-banner': {
-                        props: [
-                            'title',
-                            'variant',
-                        ],
+                        props: ['title', 'variant'],
                         template: '<div class="mt-banner">{{ title }}<slot /></div>',
                     },
                     'sw-bulk-edit-document-generation-failed-list': true,
@@ -270,10 +267,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 id: 'orderId',
                 orderId: 'orderId',
                 orderNumber: '10089',
-                documentTypes: [
-                    'invoice',
-                    'delivery_note',
-                ],
+                documentTypes: ['invoice', 'delivery_note'],
                 documentTypesLabel: [
                     'sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice',
                     'sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote',
@@ -283,9 +277,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 id: 'orderId2',
                 orderId: 'orderId2',
                 orderNumber: '10090',
-                documentTypes: [
-                    'credit_note',
-                ],
+                documentTypes: ['credit_note'],
                 documentTypesLabel: 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote',
             },
         ]);
@@ -471,19 +463,13 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
         await wrapper.setData({
             latestDocuments: {
-                invoice: [
-                    'documentId1',
-                    'documentId2',
-                ],
+                invoice: ['documentId1', 'documentId2'],
             },
         });
 
         await wrapper.vm.downloadDocument('invoice');
 
-        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith([
-            'documentId1',
-            'documentId2',
-        ]);
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith(['documentId1', 'documentId2']);
         expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
 

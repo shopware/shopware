@@ -167,11 +167,7 @@ interface ToolRow {
     resolution: OwnedConfig | null;
 }
 
-const SPEC_RUN_STATUSES = [
-    'passed',
-    'failed',
-    'tooling-error',
-];
+const SPEC_RUN_STATUSES = ['passed', 'failed', 'tooling-error'];
 
 /** The per-extension status rows, in print order: TypeScript, its spec companion (only when it ran), ESLint. */
 function toolRows(result: ExtensionCheckResult): ToolRow[] {
@@ -275,11 +271,7 @@ function renderUnmanagedNote(result: ExtensionCheckResult, commands: ToolingComm
 }
 
 function renderReproductionCommands(result: ExtensionCheckResult): string[] {
-    return [
-        result.commands.typescript,
-        result.commands.typescriptSpecs,
-        result.commands.eslint,
-    ]
+    return [result.commands.typescript, result.commands.typescriptSpecs, result.commands.eslint]
         .flatMap((commands) => commands ?? [])
         .filter((command) => command)
         .map((command) => colors.dim(`      $ ${command}`));
@@ -348,13 +340,7 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
     // Extensions without specs (or with an unmanaged/blocked TS run) get a dash
     // rather than a misleading "passed" in the specs column.
     const specCell = (run: ToolRunResult): string =>
-        [
-            'no-files',
-            'unmanaged',
-            'blocked',
-        ].includes(run.status)
-            ? '—'
-            : summaryCell(run, 'TypeScript');
+        ['no-files', 'unmanaged', 'blocked'].includes(run.status) ? '—' : summaryCell(run, 'TypeScript');
     const rows = results.map((result) => {
         const skipped = result.skippedTargets ?? collectSkippedTargets(result.project);
         // Partial skips get an explicit suffix — a plain "passed"/"N finding(s)"
@@ -388,11 +374,9 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
 }
 
 function hasFindings(result: ExtensionCheckResult): boolean {
-    return [
-        result.typescript.status,
-        result.typescriptSpecs.status,
-        result.eslint.status,
-    ].some((status) => status === 'failed' || status === 'tooling-error');
+    return [result.typescript.status, result.typescriptSpecs.status, result.eslint.status].some(
+        (status) => status === 'failed' || status === 'tooling-error',
+    );
 }
 
 interface CheckStats {
@@ -422,13 +406,7 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
             (extension) => extension.typescript.status === 'unmanaged' && extension.eslint.status === 'unmanaged',
         ).length,
         toolsSkipped: results.reduce(
-            (sum, extension) =>
-                sum +
-                countSkippedRuns([
-                    extension.typescript,
-                    extension.typescriptSpecs,
-                    extension.eslint,
-                ]),
+            (sum, extension) => sum + countSkippedRuns([extension.typescript, extension.typescriptSpecs, extension.eslint]),
             0,
         ),
         baselined: results.reduce(
@@ -443,12 +421,7 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
             .filter((extension) => !extension.project.vendor)
             .reduce(
                 (sum, extension) =>
-                    sum +
-                    countSkippedRuns([
-                        extension.typescript,
-                        extension.typescriptSpecs,
-                        extension.eslint,
-                    ]),
+                    sum + countSkippedRuns([extension.typescript, extension.typescriptSpecs, extension.eslint]),
                 0,
             ),
     };

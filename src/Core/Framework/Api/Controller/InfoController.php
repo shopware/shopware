@@ -13,8 +13,10 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
@@ -43,7 +45,6 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -73,6 +74,7 @@ class InfoController extends AbstractController
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly MigrationInfo $migrationInfo,
         private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly FlowActionCollector $flowActionCollector,
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
@@ -288,6 +290,14 @@ class InfoController extends AbstractController
             $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
         }
 
+        // Resolve the private extension whitelist ONCE: getMimeTypesByExtension() internally
+        // calls getAllowedExtensions(), which dispatches MediaFileExtensionWhitelistEvent.
+        // Calling both would dispatch that event twice per request; the array keys are exactly
+        // the allowed extensions (see MediaFileExtensionListProvider::normalizeExtensions()).
+        $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
+
+        $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
+
         $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
@@ -299,14 +309,16 @@ class InfoController extends AbstractController
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'presignedUploadSupported' => $this->presignedMediaUploadService !== null
                     && $this->presignedMediaUploadService->isAvailable(),
-                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
-                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
+                'appUrlReachable' => $appUrlReachable,
+                'appUrlStatusCode' => $appUrlReachable ? null : $this->appUrlVerifier->getCurrentState()?->statusCode,
+                'appsRequireAppUrl' => $this->activeAppsLoader->hasRegisteredApps(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
-                'private_allowed_extensions' => $this->mediaFileExtensionListProvider->getAllowedExtensions(true, $context),
-                'private_allowed_mime_types_by_extension' => $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context),
+                'private_allowed_extensions' => array_keys($privateMimeTypesByExtension),
+                'private_allowed_mime_types_by_extension' => $privateMimeTypesByExtension,
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
+                'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),

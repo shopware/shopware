@@ -126,7 +126,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isChild).toBe(true);
         expect(wrapper.vm.isInherited).toBe(true);
@@ -143,7 +143,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
@@ -157,7 +157,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.classes()).toContain('mt-empty-state');
@@ -176,7 +176,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesInherited');
@@ -194,14 +194,38 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.isInherited = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotInherited');
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
+    });
+
+    it('should only allow toggling the inherit switch when the inheritance is removed', async () => {
+        global.activeAclRoles = ['product.editor'];
+
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            prices: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const switchInput = () => wrapper.find('.sw-product-detail-context-prices__inherit-switch input');
+        expect(switchInput().attributes('disabled')).toBeDefined();
+
+        wrapper.vm.isInherited = false;
+        await flushPromises();
+
+        expect(switchInput().attributes('disabled')).toBeUndefined();
     });
 
     it('first start quantity input should be disabled', async () => {
@@ -399,7 +423,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         const newValue = 10;
         await firstQuantityEndInput.setValue(newValue);
         await firstQuantityEndInput.trigger('blur');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(firstQuantityEndInput.element.value).toBe(newValue.toString());
         expect(wrapper.vm.product.prices).toHaveLength(2);

@@ -9,6 +9,7 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type { Deprecation } from 'src/app/plugin/deprecation.plugin';
 import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { HttpClient } from 'src/core/factory/http-client.types';
@@ -28,8 +29,10 @@ import type ModuleFactory from 'src/core/factory/module.factory';
 import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
+import type UnitUneceCodeApiService from 'src/core/service/api/unit-unece-code.api.service';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
+import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
@@ -167,7 +170,7 @@ export interface SubContainer<ContainerName extends string> {
 
 type SalutationFilterEntityType = {
     salutation: {
-        id: string;
+        id: EntityKey<'salutation'>;
         salutationKey: string;
         displayName: string;
     };
@@ -220,6 +223,7 @@ declare global {
      */
     const Shopware: ShopwareClass & CustomShopwareProperties;
 
+    type EntityKey<K extends keyof EntitySchema.EntityKeys> = EntitySchema.EntityKeys[K];
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
@@ -293,6 +297,7 @@ declare global {
         mediaService: MediaService;
         menuService: $TSFixMe;
         numberRangeService: $TSFixMe;
+        oauthAuthorizeApiService: OAuthAuthorizeApiService;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;
@@ -310,6 +315,7 @@ declare global {
         storeService: StoreApiService;
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
+        unitUneceCodeService: UnitUneceCodeApiService;
         updateService: UpdateApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
@@ -378,6 +384,7 @@ declare global {
 
     interface FilterTypes {
         asset: (value: string) => string;
+        breadcrumb: (value: string[] | Record<string, string> | null | undefined, separator?: string) => string;
         currency: $TSFixMeFunction;
         date: (value: string, options?: Intl.DateTimeFormatOptions) => string;
         'file-size': $TSFixMeFunction;
@@ -448,7 +455,7 @@ declare global {
         shopwareExtensions: ShopwareExtensionsStore;
         swOrderDetail: SwOrderDetailStore;
         swOrder: SwOrderStore;
-        swShippingDetailStore: SwShippingDetailStore;
+        swShippingDetail: SwShippingDetailStore;
         paymentOverviewCard: PaymentOverviewCardStore;
         swProductDetail: SwProductDetailStore;
         swProfile: SwProfileStore;
@@ -547,6 +554,9 @@ interface CustomProperties extends ServiceContainer {
     $store: Store<VuexRootState>;
     $route: RouteLocationNormalizedLoaded;
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed, use $t instead.
+     */
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
@@ -592,6 +602,11 @@ declare module '@vue/runtime-core' {
     interface ComponentCustomProperties extends CustomProperties {}
 
     interface ComponentCustomOptions {
+        /**
+         * Guards every creation of the component, see `src/app/plugin/deprecation.plugin.ts`.
+         */
+        deprecated?: Deprecation;
+
         shortcuts?: {
             [key: string]:
                 | string

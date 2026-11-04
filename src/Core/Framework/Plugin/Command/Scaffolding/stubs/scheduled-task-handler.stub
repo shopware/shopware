@@ -1,0 +1,16 @@
+<?php declare(strict_types=1);
+
+namespace {{ namespace }}\ScheduledTask;
+
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler(handles: ExampleTask::class)]
+class ExampleTaskHandler extends ScheduledTaskHandler
+{
+    public function run(): void
+    {
+        // Add your code here
+        // Docs: https://developer.shopware.com/docs/guides/plugins/plugins/plugin-fundamentals/add-scheduled-task.html
+    }
+}

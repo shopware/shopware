@@ -53,7 +53,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -68,7 +68,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testCollectWithMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_STATIC, 'media123'));
@@ -96,9 +96,9 @@ class ImageTypeDataResolverTest extends TestCase
         $product->setCustomFields(['heroImage' => 'media123']);
 
         $resolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -122,7 +122,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -135,14 +135,14 @@ class ImageTypeDataResolverTest extends TestCase
 
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-        static::assertEmpty($imageStruct->getUrl());
-        static::assertEmpty($imageStruct->getMedia());
-        static::assertEmpty($imageStruct->getMediaId());
+        static::assertNull($imageStruct->getUrl());
+        static::assertNull($imageStruct->getMedia());
+        static::assertNull($imageStruct->getMediaId());
     }
 
     public function testEnrichWithUrlOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -159,13 +159,13 @@ class ImageTypeDataResolverTest extends TestCase
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
-        static::assertEmpty($imageStruct->getMedia());
-        static::assertEmpty($imageStruct->getMediaId());
+        static::assertNull($imageStruct->getMedia());
+        static::assertNull($imageStruct->getMediaId());
     }
 
     public function testEnrichWithUrlAndNewTabOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -184,13 +184,13 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
         static::assertTrue($imageStruct->getNewTab());
-        static::assertEmpty($imageStruct->getMedia());
-        static::assertEmpty($imageStruct->getMediaId());
+        static::assertNull($imageStruct->getMedia());
+        static::assertNull($imageStruct->getMediaId());
     }
 
     public function testEnrichWithMediaOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -220,7 +220,7 @@ class ImageTypeDataResolverTest extends TestCase
 
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-        static::assertEmpty($imageStruct->getUrl());
+        static::assertNull($imageStruct->getUrl());
         static::assertInstanceOf(MediaEntity::class, $imageStruct->getMedia());
         static::assertSame('media123', $imageStruct->getMediaId());
         static::assertSame($media, $imageStruct->getMedia());
@@ -228,7 +228,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMediaAndUrl(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -267,7 +267,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMissingMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -297,14 +297,14 @@ class ImageTypeDataResolverTest extends TestCase
 
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-        static::assertEmpty($imageStruct->getUrl());
+        static::assertNull($imageStruct->getUrl());
         static::assertSame('media123', $imageStruct->getMediaId());
-        static::assertEmpty($imageStruct->getMedia());
+        static::assertNull($imageStruct->getMedia());
     }
 
     public function testEnrichWithDefaultConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
@@ -328,7 +328,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testMediaWithRemote(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -358,7 +358,7 @@ class ImageTypeDataResolverTest extends TestCase
 
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-        static::assertEmpty($imageStruct->getUrl());
+        static::assertNull($imageStruct->getUrl());
         static::assertSame('media123', $imageStruct->getMediaId());
         static::assertSame($media, $imageStruct->getMedia());
     }
@@ -374,7 +374,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setCover($productMedia);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(ProductDefinition::class), $product);
 
         $mediaSearchResult = new EntitySearchResult(
             'media',
@@ -400,7 +400,7 @@ class ImageTypeDataResolverTest extends TestCase
 
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-        static::assertEmpty($imageStruct->getUrl());
+        static::assertNull($imageStruct->getUrl());
         static::assertSame('media123', $imageStruct->getMediaId());
         static::assertSame($media, $imageStruct->getMedia());
     }
@@ -414,9 +414,9 @@ class ImageTypeDataResolverTest extends TestCase
         $product->setCustomFields(['heroImage' => 'media123']);
 
         $resolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -456,7 +456,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setManufacturer($manufacturer);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(ProductDefinition::class), $product);
 
         $result = new ElementDataCollection();
 
@@ -473,7 +473,7 @@ class ImageTypeDataResolverTest extends TestCase
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame($manufacturer->getLink(), $imageStruct->getUrl());
-        static::assertEmpty($imageStruct->getMediaId());
-        static::assertEmpty($imageStruct->getMedia());
+        static::assertNull($imageStruct->getMediaId());
+        static::assertNull($imageStruct->getMedia());
     }
 }

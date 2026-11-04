@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
 use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
@@ -193,6 +193,55 @@ class DocumentConfigLoaderTest extends TestCase
         );
 
         static::assertSame(['zugferd_embedded_pdf' => '_zugferd'], $bundle->config->filenameInfixes);
+    }
+
+    public function testLoadTreatsEmptySalesChannelFilenameInfixAsUnconfigured(): void
+    {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenameInfixes: ['zugferd_embedded_pdf' => '_zugferd'],
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenameInfixes: ['zugferd_embedded_pdf' => '', 'pdf' => '_channel'],
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(
+            ['zugferd_embedded_pdf' => '_zugferd', 'pdf' => '_channel'],
+            $bundle->config->filenameInfixes,
+        );
     }
 
     public function testLoadMergesFilenameInfixesPerFormat(): void

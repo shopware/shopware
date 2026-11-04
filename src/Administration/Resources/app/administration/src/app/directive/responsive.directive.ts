@@ -27,23 +27,18 @@ Shopware.Directive.register('responsive', {
             entries.forEach((entry) => {
                 const elementSizeValues = entry.contentRect;
 
-                Object.entries(binding.value ?? {}).forEach(
-                    ([
-                        breakpointClass,
-                        breakpointCallback,
-                    ]) => {
-                        if (typeof breakpointCallback !== 'function') {
-                            return;
-                        }
+                Object.entries(binding.value ?? {}).forEach(([breakpointClass, breakpointCallback]) => {
+                    if (typeof breakpointCallback !== 'function') {
+                        return;
+                    }
 
-                        if (breakpointCallback(elementSizeValues)) {
-                            el.classList.add(breakpointClass);
-                            return;
-                        }
+                    if (breakpointCallback(elementSizeValues)) {
+                        el.classList.add(breakpointClass);
+                        return;
+                    }
 
-                        el.classList.remove(breakpointClass);
-                    },
-                );
+                    el.classList.remove(breakpointClass);
+                });
             });
         }, timeout);
 

@@ -61,9 +61,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
     });
 
     it('should have codeEditors enabled when the user has privileges', async () => {
-        global.activeAclRoles = [
-            'sales_channel.editor',
-        ];
+        global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
 

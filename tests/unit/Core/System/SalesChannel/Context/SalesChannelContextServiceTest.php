@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -153,6 +154,159 @@ class SalesChannelContextServiceTest extends TestCase
         );
 
         $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
+    }
+
+    #[DataProvider('stalePersistedOptionProvider')]
+    public function testFallsBackWhenPersistedOptionIsNoLongerAvailable(string $option, SalesChannelException $exception, ?string $fallbackCurrencyId): void
+    {
+        $token = Uuid::randomHex();
+        $staleId = Uuid::randomHex();
+        $customerId = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext();
+        $session = [
+            $option => $staleId,
+            SalesChannelContextService::CUSTOMER_ID => $customerId,
+        ];
+        $call = 0;
+
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->expects($this->once())
+            ->method('load')
+            ->with($token, TestDefaults::SALES_CHANNEL)
+            ->willReturn($session);
+        $persister->expects($this->once())
+            ->method('save')
+            ->with($token, [$option => null], TestDefaults::SALES_CHANNEL, $customerId);
+
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnCallback(function (string $actualToken, string $salesChannelId, array $options) use ($token, $option, $staleId, $exception, $context, $fallbackCurrencyId, &$call): SalesChannelContext {
+                static::assertSame($token, $actualToken);
+                static::assertSame(TestDefaults::SALES_CHANNEL, $salesChannelId);
+
+                if ($call++ === 0) {
+                    static::assertSame($staleId, $options[$option]);
+
+                    throw $exception;
+                }
+
+                if ($fallbackCurrencyId !== null) {
+                    static::assertSame($fallbackCurrencyId, $options[SalesChannelContextService::CURRENCY_ID]);
+                } else {
+                    static::assertArrayNotHasKey($option, $options);
+                }
+
+                return $context;
+            });
+
+        $service = $this->createContextService($factory, $persister, $token);
+
+        static::assertSame($context, $service->get(new SalesChannelContextServiceParameters(
+            salesChannelId: TestDefaults::SALES_CHANNEL,
+            token: $token,
+            currencyId: $fallbackCurrencyId,
+        )));
+    }
+
+    public static function stalePersistedOptionProvider(): \Generator
+    {
+        $unavailableLanguageId = Uuid::randomHex();
+        yield 'language' => [
+            SalesChannelContextService::LANGUAGE_ID,
+            SalesChannelException::providedLanguageNotAvailable($unavailableLanguageId, [Defaults::LANGUAGE_SYSTEM]),
+            null,
+        ];
+
+        yield 'currency' => [
+            SalesChannelContextService::CURRENCY_ID,
+            SalesChannelException::currencyNotFound(Uuid::randomHex()),
+            null,
+        ];
+
+        yield 'currency uses domain fallback' => [
+            SalesChannelContextService::CURRENCY_ID,
+            SalesChannelException::currencyNotFound(Uuid::randomHex()),
+            Uuid::randomHex(),
+        ];
+    }
+
+    public function testFallsBackWhenBothPersistedOptionsAreNoLongerAvailable(): void
+    {
+        $token = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext();
+        $session = [
+            SalesChannelContextService::LANGUAGE_ID => Uuid::randomHex(),
+            SalesChannelContextService::CURRENCY_ID => Uuid::randomHex(),
+        ];
+        $persistedOptions = [];
+
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn($session);
+        $persister->expects($this->exactly(2))
+            ->method('save')
+            ->willReturnCallback(function (string $actualToken, array $options, string $salesChannelId) use (&$persistedOptions, $token): void {
+                static::assertSame($token, $actualToken);
+                static::assertSame(TestDefaults::SALES_CHANNEL, $salesChannelId);
+                $persistedOptions[] = $options;
+            });
+
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->exactly(3))
+            ->method('create')
+            ->willReturnCallback(function (string $actualToken, string $salesChannelId, array $options) use ($token, $session, $context): SalesChannelContext {
+                static $call = 0;
+
+                static::assertSame($token, $actualToken);
+                static::assertSame(TestDefaults::SALES_CHANNEL, $salesChannelId);
+
+                if ($call++ === 0) {
+                    static::assertSame($session, $options);
+
+                    throw SalesChannelException::providedLanguageNotAvailable($session[SalesChannelContextService::LANGUAGE_ID], [Defaults::LANGUAGE_SYSTEM]);
+                }
+
+                if ($call === 2) {
+                    static::assertArrayNotHasKey(SalesChannelContextService::LANGUAGE_ID, $options);
+                    static::assertSame($session[SalesChannelContextService::CURRENCY_ID], $options[SalesChannelContextService::CURRENCY_ID]);
+
+                    throw SalesChannelException::currencyNotFound($session[SalesChannelContextService::CURRENCY_ID]);
+                }
+
+                static::assertArrayNotHasKey(SalesChannelContextService::LANGUAGE_ID, $options);
+                static::assertArrayNotHasKey(SalesChannelContextService::CURRENCY_ID, $options);
+
+                return $context;
+            });
+
+        $service = $this->createContextService($factory, $persister, $token);
+
+        static::assertSame($context, $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token)));
+        static::assertSame([
+            [SalesChannelContextService::LANGUAGE_ID => null],
+            [SalesChannelContextService::CURRENCY_ID => null],
+        ], $persistedOptions);
+    }
+
+    public function testDoesNotFallbackForExplicitLanguage(): void
+    {
+        $token = Uuid::randomHex();
+        $languageId = Uuid::randomHex();
+        $exception = SalesChannelException::providedLanguageNotAvailable($languageId, [Defaults::LANGUAGE_SYSTEM]);
+
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn([SalesChannelContextService::LANGUAGE_ID => Uuid::randomHex()]);
+
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->once())
+            ->method('create')
+            ->with($token, TestDefaults::SALES_CHANNEL, [SalesChannelContextService::LANGUAGE_ID => $languageId])
+            ->willThrowException($exception);
+
+        $service = $this->createContextService($factory, $persister, $token);
+
+        $this->expectExceptionObject($exception);
+        $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, $languageId));
     }
 
     public function testDispatchesSalesChannelContextCreatedEvent(): void
@@ -388,5 +542,20 @@ class SalesChannelContextServiceTest extends TestCase
         $this->requestStack->push($request);
 
         return $request;
+    }
+
+    private function createContextService(SalesChannelContextFactory $factory, SalesChannelContextPersister $persister, string $token): SalesChannelContextService
+    {
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculateByToken')->willReturn(new Cart($token));
+
+        return new SalesChannelContextService(
+            $factory,
+            $cartCalculator,
+            $persister,
+            static::createStub(CartService::class),
+            static::createStub(EventDispatcherInterface::class),
+            $this->requestStack,
+        );
     }
 }

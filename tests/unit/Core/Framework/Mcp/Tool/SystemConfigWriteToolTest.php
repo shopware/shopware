@@ -22,7 +22,7 @@ class SystemConfigWriteToolTest extends TestCase
     public function testDryRunReturnsPreviewWithoutCallingSet(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with('core.test.key', null)->willReturn('old-value');
+        $configService->expects($this->once())->method('get')->with('core.test.key', null)->willReturn('old-value');
         $configService->expects($this->never())->method('set');
 
         $contextProvider = static::createStub(McpContextProvider::class);
@@ -41,7 +41,7 @@ class SystemConfigWriteToolTest extends TestCase
     public function testNonDryRunCallsSetAndReturnsSuccess(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with('core.test.key', null)->willReturn('old-value');
+        $configService->expects($this->once())->method('get')->with('core.test.key', null)->willReturn('old-value');
         $configService->expects($this->once())->method('set')->with('core.test.key', 'new-value', null);
 
         $contextProvider = static::createStub(McpContextProvider::class);
@@ -130,7 +130,7 @@ class SystemConfigWriteToolTest extends TestCase
     public function testWriteWithSalesChannelId(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')->with('core.test.key', 'sc-1')->willReturn('old');
+        $configService->expects($this->once())->method('get')->with('core.test.key', 'sc-1')->willReturn('old');
         $configService->expects($this->once())->method('set')->with('core.test.key', 'new', 'sc-1');
 
         $contextProvider = static::createStub(McpContextProvider::class);

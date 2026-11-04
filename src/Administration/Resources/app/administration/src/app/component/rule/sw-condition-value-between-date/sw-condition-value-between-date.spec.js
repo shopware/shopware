@@ -12,10 +12,7 @@ const defaultProps = {
 const MtDatepickerStub = {
     name: 'MtDatepicker',
     inheritAttrs: false,
-    props: [
-        'modelValue',
-        'disabled',
-    ],
+    props: ['modelValue', 'disabled'],
     emits: ['update:modelValue'],
     template: `<input
         :value="modelValue"

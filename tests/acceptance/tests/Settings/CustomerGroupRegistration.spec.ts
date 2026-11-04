@@ -7,14 +7,14 @@ test(
         const customerGroup = await TestDataService.createCustomerGroup();
 
         await test.step('Verify the created customer group in the admin', async () => {
-            await ShopAdmin.goesTo(AdminCustomerGroupListing.url());
+            await ShopAdmin.goesTo(AdminCustomerGroupListing.url([customerGroup.name]));
             const customerGroupLineItem = await AdminCustomerGroupListing.getCustomerGroupByName(customerGroup.name);
             await ShopAdmin.expects(customerGroupLineItem.customerGroupName).toBeVisible({ timeout: 10000 });
 
             await ShopAdmin.goesTo(AdminCustomerGroupDetail.url(customerGroup.id));
             await ShopAdmin.expects(AdminCustomerGroupDetail.headline).toContainText(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupNameField).toHaveValue(customerGroup.name);
-            await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupGrossTaxDisplay).toBeChecked();
+            await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupTaxDisplayGross).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.customSignupFormToggle).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormTitle).toHaveValue(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormIntroduction).toContainText(
@@ -98,7 +98,7 @@ test(
         await test.step('Verify that the customer group request message is not displayed on the Storefront', async () => {
             await ShopCustomer.goesTo(StorefrontAccount.url());
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.vatRegNo)).toBeVisible();
+            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.vatRegNo.toUpperCase())).toBeVisible();
             await ShopCustomer.expects(StorefrontAccount.customerGroupRequestMessage).not.toBeVisible();
         });
     },

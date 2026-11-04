@@ -11,10 +11,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'cmsService',
-        'cmsElementFavorites',
-    ],
+    inject: ['cmsService', 'cmsElementFavorites'],
 
     props: {
         element: {
@@ -147,10 +144,7 @@ export default Shopware.Component.wrapComponentConfig({
             return (
                 this.element.locked ||
                 (Shopware.Store.get('cmsPage').currentPage?.type === 'product_detail' &&
-                    [
-                        'buy-box',
-                        'product-description-reviews',
-                    ].includes(this.element.type))
+                    ['buy-box', 'product-description-reviews'].includes(this.element.type))
             );
         },
     },

@@ -79,17 +79,8 @@ function getByName(apiServiceName) {
 }
 
 function getServices() {
-    return Array.from(apiServiceRegistry).reduce(
-        (
-            accumulator,
-            [
-                key,
-                value,
-            ],
-        ) => {
-            accumulator[key] = value;
-            return accumulator;
-        },
-        {},
-    );
+    return Array.from(apiServiceRegistry).reduce((accumulator, [key, value]) => {
+        accumulator[key] = value;
+        return accumulator;
+    }, {});
 }

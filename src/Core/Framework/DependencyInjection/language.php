@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\System\Language\CachedLanguageLoader;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer;
@@ -69,6 +70,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.language.repository'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(LanguageRule::class)

@@ -77,9 +77,12 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
         $this->expectExceptionObject(GatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_shipping']));
 
         $handler = new ChangeCheckoutOptionsCommandHandler(static::createStub(EntityRepository::class), $shippingMethodRepo);
-        $handler->handle($command, $context, $parameters);
 
-        static::assertSame([], $parameters);
+        try {
+            $handler->handle($command, $context, $parameters);
+        } finally {
+            static::assertSame([], $parameters);
+        }
     }
 
     public function testHandlePaymentMethodCommand(): void
@@ -137,9 +140,12 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
         $this->expectExceptionObject(GatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_payment']));
 
         $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, static::createStub(EntityRepository::class));
-        $handler->handle($command, $context, $parameters);
 
-        static::assertSame([], $parameters);
+        try {
+            $handler->handle($command, $context, $parameters);
+        } finally {
+            static::assertSame([], $parameters);
+        }
     }
 
     public function testSupportedCommands(): void

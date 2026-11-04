@@ -3,65 +3,68 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\WebhookNotPermittedError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\HookableValidatorTest
  */
 #[Package('framework')]
 class HookableValidator extends AbstractManifestValidator
 {
-    public function __construct(
-        private readonly HookableEventCollector $hookableEventCollector,
-    ) {
+    public function __construct(private readonly SubscriptionValidator $subscriptionValidator)
+    {
     }
 
-    public function validate(Manifest $manifest, Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, Context $context): array
     {
-        $errors = new ErrorCollection();
         $webhooks = $manifest->getWebhooks();
         $webhooks = $webhooks ? $webhooks->getWebhooks() : [];
 
         if (!$webhooks) {
-            return $errors;
+            return [];
         }
 
         $appPrivileges = $manifest->getPermissions();
         $appPrivileges = $appPrivileges ? $appPrivileges->asParsedPrivileges() : [];
-        $hookableEventNamesWithPrivileges = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context, $manifest);
-        $hookableEventNames = array_keys($hookableEventNamesWithPrivileges);
 
-        $notHookable = [];
-        $missingPermissions = [];
+        $subscriptions = [];
         foreach ($webhooks as $webhook) {
-            // validate supported webhooks
-            if (!\in_array($webhook->getEvent(), $hookableEventNames, true)) {
-                $notHookable[] = $webhook->getName() . ': ' . $webhook->getEvent();
-
-                continue;
-            }
-
-            // validate permissions
-            foreach ($hookableEventNamesWithPrivileges[$webhook->getEvent()]['privileges'] as $privilege) {
-                if (\in_array($privilege, $appPrivileges, true)) {
-                    continue;
-                }
-
-                $missingPermissions[] = $privilege;
-            }
+            $subscriptions[$webhook->getName() . ': ' . $webhook->getEvent()] = $webhook->getEvent();
         }
 
-        if ($notHookable !== []) {
-            $errors->add(new NotHookableError($notHookable));
+        $refusals = $this->subscriptionValidator->validate(
+            $subscriptions,
+            array_fill_keys(array_keys($subscriptions), $appPrivileges),
+            Subscriber::app($manifest),
+            $context
+        );
+
+        $errors = [];
+
+        if ($refusals->notHookable !== []) {
+            $errors[] = new NotHookableError($refusals->notHookable);
         }
 
-        if ($missingPermissions !== []) {
-            $errors->add(new MissingPermissionError($missingPermissions));
+        if ($refusals->notPermitted !== []) {
+            $errors[] = new WebhookNotPermittedError($refusals->notPermitted);
+        }
+
+        if ($refusals->allMissingPrivileges !== []) {
+            $errors[] = new MissingPermissionError($refusals->allMissingPrivileges);
         }
 
         return $errors;

@@ -89,11 +89,7 @@ describe('app/component/form/sw-checkbox-field', () => {
         expect(thirdCheckboxInputId).toMatch(thirdLabelFor);
     });
 
-    [
-        'checkOne',
-        'checkTwo',
-        'checkThree',
-    ].forEach((checkboxId, index) => {
+    ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
         it(`should click on the label of Checkbox "${checkboxId}" and the corresponding data updates`, async () => {
             const wrapper = await createWrapper();
             await flushPromises();

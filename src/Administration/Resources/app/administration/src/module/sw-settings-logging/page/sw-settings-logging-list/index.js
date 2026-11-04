@@ -14,10 +14,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('sw-settings-list'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('sw-settings-list'), Mixin.getByName('placeholder')],
 
     data() {
         return {

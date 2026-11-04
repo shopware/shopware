@@ -137,12 +137,12 @@
             overflow-y: auto;
             overflow-x: hidden;
             position: relative;
-            background: var(--color-background-secondary-default);
+            background: var(--color-elevation-surface-sunken);
         }
 
         .sw-cms-detail__empty-stage {
             height: 100%;
-            background: var(--color-background-secondary-default);
+            background: var(--color-elevation-surface-sunken);
             display: grid;
             align-items: center;
             align-content: center;

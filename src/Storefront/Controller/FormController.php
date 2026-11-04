@@ -287,7 +287,6 @@ class FormController extends StorefrontController
                 ]),
             ];
         } catch (\Exception) {
-            $response = [];
         }
 
         return $response;

@@ -224,6 +224,30 @@ class RedisCartPersisterTest extends TestCase
         static::assertFalse($redis->exists(RedisCartPersister::PREFIX . $token));
     }
 
+    public function testExistsReflectsStoredCart(): void
+    {
+        $token = Uuid::randomHex();
+
+        $dispatcher = static::createStub(EventDispatcher::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+
+        $redis = new RedisStub();
+
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+
+        $context = static::createStub(SalesChannelContext::class);
+
+        static::assertFalse($persister->exists($token, $context));
+
+        $redis->set(RedisCartPersister::PREFIX . $token, 'test');
+
+        static::assertTrue($persister->exists($token, $context));
+
+        $persister->delete($token, $context);
+
+        static::assertFalse($persister->exists($token, $context));
+    }
+
     public function testLoadWithDifferentCompression(): void
     {
         $token = Uuid::randomHex();
@@ -372,8 +396,8 @@ class RedisCartPersisterTest extends TestCase
 
         $cart = $persister->load($cart->getToken(), $context);
 
-        static::assertNotEmpty($cart->getLineItems());
-        static::assertEmpty($cart->getErrors());
+        static::assertNotCount(0, $cart->getLineItems());
+        static::assertCount(0, $cart->getErrors());
     }
 
     public function testSaveCartWithPersistCartErrorPermission(): void
@@ -398,8 +422,8 @@ class RedisCartPersisterTest extends TestCase
         $persister->save($cart, $context);
         $cart = $persister->load($cart->getToken(), $context);
 
-        static::assertNotEmpty($cart->getLineItems());
-        static::assertNotEmpty($cart->getErrors());
+        static::assertNotCount(0, $cart->getLineItems());
+        static::assertNotCount(0, $cart->getErrors());
 
         $error = $cart->getErrors()->first();
         static::assertInstanceOf(ProductNotFoundError::class, $error);

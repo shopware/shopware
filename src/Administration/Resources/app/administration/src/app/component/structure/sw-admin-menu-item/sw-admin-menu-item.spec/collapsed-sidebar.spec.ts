@@ -184,7 +184,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
         const leafEntry = {
             id: 'sw-dashboard',
             label: 'sw-dashboard.general.mainMenuItemGeneral',
-            color: '#6AD6F0',
+            color: 'var(--sw-color-module-brand-default)',
             path: 'sw.dashboard.index',
             icon: 'regular-dashboard',
             position: 10,
@@ -227,7 +227,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             await row.trigger('mouseover');
             jest.advanceTimersByTime(300);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(tooltip!.parentElement!.style.display).not.toBe('none');
 
@@ -306,7 +306,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             await row.trigger('mouseover');
             await row.trigger('focus');
             jest.advanceTimersByTime(300);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(tooltip!.parentElement!.style.display).toBe('none');
 

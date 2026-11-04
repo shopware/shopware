@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -15,6 +17,11 @@ use Symfony\Component\HttpFoundation\Response;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Exception::class,
+)]
 class DocumentException extends HttpException
 {
     public const INVALID_DOCUMENT_GENERATOR_TYPE_CODE = 'DOCUMENT__INVALID_GENERATOR_TYPE';
@@ -109,14 +116,32 @@ class DocumentException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use documentNumberAlreadyExistsExceptionForType() instead.
+     */
     public static function documentNumberAlreadyExistsException(string $number = ''): self
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'documentNumberAlreadyExistsExceptionForType()'));
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
             \sprintf('Document number %s has already been allocated.', $number),
             [
-                '$number' => $number,
+                'number' => $number,
+            ],
+        );
+    }
+
+    public static function documentNumberAlreadyExistsExceptionForType(string $number, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_NUMBER_ALREADY_EXISTS,
+            \sprintf('Document number %s has already been allocated for document type "%s".', $number, $documentType),
+            [
+                'number' => $number,
+                'documentType' => $documentType,
             ],
         );
     }

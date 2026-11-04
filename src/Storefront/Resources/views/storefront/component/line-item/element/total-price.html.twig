@@ -23,12 +23,15 @@
             {% endif %}
 
             {% set referencePrice = lineItem.price.referencePrice %}
-            {% if referencePrice is not null and displayMode == 'offcanvas' %}
-                <br>
-                <small class="line-item-reference-price">
-                    ({{ referencePrice.price|currency(currency) }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
-                </small>
-            {% endif %}
+
+            {% block component_line_item_reference_price %}
+                {% if referencePrice is not null and displayMode == 'offcanvas' %}
+                    <br>
+                    <small class="line-item-reference-price">
+                        ({{ referencePrice.price|currency(currency) }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
+                    </small>
+                {% endif %}
+            {% endblock %}
         </div>
     {% endblock %}
 {% endblock %}

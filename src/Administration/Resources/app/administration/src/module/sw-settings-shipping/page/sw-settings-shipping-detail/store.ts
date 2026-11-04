@@ -2,13 +2,13 @@
  * @sw-package checkout
  */
 
-type ShippingMethodPriceInMatrix = EntitySchema.shipping_method_price & { _inNewMatrix: boolean | undefined };
+type ShippingMethodPriceInMatrix = Entity<'shipping_method_price'> & { _inNewMatrix: boolean | undefined };
 type ShippingPriceGroup = {
     isNew: boolean;
-    ruleId?: string;
-    rule?: EntitySchema.rule;
+    ruleId?: EntityKey<'rule'>;
+    rule?: Entity<'rule'>;
     calculation?: number;
-    prices: EntitySchema.shipping_method_price[];
+    prices: Entity<'shipping_method_price'>[];
 };
 
 const swShippingDetailStore = Shopware.Store.register({
@@ -16,8 +16,8 @@ const swShippingDetailStore = Shopware.Store.register({
 
     state() {
         return {
-            shippingMethod: {} as EntitySchema.shipping_method,
-            currencies: [] as EntitySchema.currency[],
+            shippingMethod: {} as Entity<'shipping_method'>,
+            currencies: [] as Entity<'currency'>[],
             restrictedRuleIds: [] as string[],
         };
     },
@@ -33,7 +33,7 @@ const swShippingDetailStore = Shopware.Store.register({
             state.shippingMethod.prices.forEach((shippingPrice) => {
                 let key = shippingPrice.ruleId;
                 if ((shippingPrice as unknown as ShippingMethodPriceInMatrix)._inNewMatrix) {
-                    key = 'new';
+                    key = 'new' as EntityKey<'rule'>;
                 }
 
                 if (!shippingPriceGroups[key as string]) {
@@ -52,7 +52,7 @@ const swShippingDetailStore = Shopware.Store.register({
             return shippingPriceGroups;
         },
 
-        defaultCurrency(state): EntitySchema.currency | undefined {
+        defaultCurrency(state): Entity<'currency'> | undefined {
             return state.currencies.find((currency) => currency.isSystemDefault);
         },
 

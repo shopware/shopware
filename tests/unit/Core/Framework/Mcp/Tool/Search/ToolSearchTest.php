@@ -7,14 +7,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
-use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearchResult;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(ToolSearch::class)]
-#[CoversClass(ToolSearchResult::class)]
 class ToolSearchTest extends TestCase
 {
     public function testEmptyQueryReturnsNoResults(): void
@@ -33,7 +31,7 @@ class ToolSearchTest extends TestCase
             self::tool('repo-get', 'Get repository'),
         ], 'issue', 10);
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertSame('issue-list', $results[0]->tool->name);
         static::assertContains('name:substring', $results[0]->matchedIn);
     }
@@ -46,7 +44,7 @@ class ToolSearchTest extends TestCase
             self::tool('unrelated-tool', 'does something else', ['owner' => ['type' => 'string']]),
         ], 'owner', 10);
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertSame('unrelated-tool', $results[0]->tool->name);
         static::assertContains('parameter', $results[0]->matchedIn);
     }
@@ -65,7 +63,7 @@ class ToolSearchTest extends TestCase
             ),
         ], 'entity', 10);
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertSame('entity-read', $results[0]->tool->name);
     }
 
@@ -77,7 +75,7 @@ class ToolSearchTest extends TestCase
             self::tool('order_state', 'Change order state'),
         ], 'order state', 10);
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertSame('order_state', $results[0]->tool->name);
         static::assertContains('name:exact-tokens', $results[0]->matchedIn);
         static::assertContains('name:token', $results[0]->matchedIn);
@@ -91,7 +89,7 @@ class ToolSearchTest extends TestCase
             self::tool('state-transition', 'Cancel a customer order'),
         ], 'customer', 10);
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertSame('state-transition', $results[0]->tool->name);
         static::assertContains('description:token', $results[0]->matchedIn);
     }

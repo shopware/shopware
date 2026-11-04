@@ -176,7 +176,7 @@ class ServiceDefinitionRule implements Rule
     private function isXmlServiceDefinitionFile(string $path): bool
     {
         return str_ends_with($path, '.xml')
-            && (str_contains($path, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.xml$#', $path) === 1);
+            && (str_contains($path, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.xml$#D', $path) === 1);
     }
 
     private function isPhpServiceDefinitionFile(string $path): bool
@@ -185,7 +185,7 @@ class ServiceDefinitionRule implements Rule
             return false;
         }
 
-        if (!str_contains($path, '/DependencyInjection/') && preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#', $path) !== 1) {
+        if (!str_contains($path, '/DependencyInjection/') && preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#D', $path) !== 1) {
             return false;
         }
 

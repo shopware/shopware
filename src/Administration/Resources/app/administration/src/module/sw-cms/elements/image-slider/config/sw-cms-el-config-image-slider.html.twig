@@ -298,9 +298,9 @@
                             class="sw-cms-el-config-image-slider__settings-link-container"
                         >
                             <img
-                                v-if="sliderItem.mediaUrl"
+                                v-if="getMediaItemById(sliderItem.mediaId)"
                                 class="sw-cms-el-config-image-slider__settings-link-prefix"
-                                :src="sliderItem.mediaUrl"
+                                :src="getMediaItemById(sliderItem.mediaId).url"
                                 alt=""
                             >
 

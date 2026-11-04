@@ -2,141 +2,68 @@
  * @sw-package framework
  */
 import colors from 'picocolors';
-import { createHash } from 'crypto';
-import fs from 'fs';
-import { createServer } from 'http';
-import type { IncomingMessage, Server, ServerResponse } from 'http';
+import type { IncomingMessage } from 'http';
 import type { Duplex } from 'stream';
-import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import { getExtensionDevConfig } from '../extension-config';
-import { compareBasePathPrecedence, getExtensionBasePath, writePluginDevJson } from '../utils';
+import { getExtensionBasePath, writePluginDevJson } from '../utils';
 import type { ExtensionDefinition } from '../utils';
 import type { ViteToolchain } from '../vite-toolchain';
 
 // Typed with Vite 6, which does not know the `closeServer` hook of Vite 8
-type Vite8Plugin = Plugin & { closeServer: (options: { reason: 'close' | 'restart' }) => Promise<void> };
-
-type ExtensionServer = {
-    signature: string;
-    server: ViteDevServer;
-    // Receives the WebSocket upgrades of the current Administration server, which a restart replaces
-    upgrades: Server;
-};
-
-// Vite loads the config again on every restart, so the extension servers have to outlive this module
-const extensionServersKey = Symbol.for('shopware-vite-plugin-extension-dev-server');
-
-function getExtensionServers(): Map<string, ExtensionServer> {
-    const store = globalThis as typeof globalThis & { [extensionServersKey]?: Map<string, ExtensionServer> };
-    store[extensionServersKey] ??= new Map();
-
-    return store[extensionServersKey];
-}
-
-// Edits to the build plugins restart the Administration server and have to reach the extension servers as well
-function hashConfigDependencies(config: ResolvedConfig): string {
-    const hash = createHash('sha1');
-    config.configFileDependencies
-        .filter((file) => file !== config.configFile)
-        .sort()
-        .forEach((file) => hash.update(file).update(fs.readFileSync(file)));
-
-    return hash.digest('hex');
-}
-
-function forwardUpgrades(
-    source: NonNullable<ViteDevServer['httpServer']>,
-    findTarget: (request: IncomingMessage) => Server | undefined,
-): void {
-    function forward(request: IncomingMessage, socket: Duplex, head: Buffer): void {
-        findTarget(request)?.emit('upgrade', request, socket, head);
-    }
-
-    function stop(): void {
-        source.off('upgrade', forward);
-    }
-
-    source.on('upgrade', forward);
-    source.once('close', stop);
-}
+type Vite8Plugin = Plugin & { closeServer: () => Promise<void> };
 
 /**
  * @private
  *
  * Runs the dev servers of the extensions as middlewares of the Administration dev server, so the watcher needs one port.
- * A restart of the Administration server keeps the extension servers whose configuration did not change.
  */
 export default function ExtensionDevServerPlugin(
     toolchain: ViteToolchain,
     extensions: ExtensionDefinition[],
     useBundledDev: boolean,
 ): Vite8Plugin {
-    const servers = getExtensionServers();
+    const servers = new Map<string, ViteDevServer>();
+    const findBasePath = (url = '') => extensions.map(getExtensionBasePath).find((basePath) => url.startsWith(basePath));
+    let httpServer: ViteDevServer['httpServer'] = null;
+
+    // The running extension servers answer the WebSocket upgrades of their base path themselves
+    function rejectUpgradeOfFailedServer(request: IncomingMessage, socket: Duplex): void {
+        const basePath = findBasePath(request.url);
+        if (basePath && !servers.has(basePath)) {
+            socket.destroy();
+        }
+    }
 
     return {
         name: 'shopware-vite-plugin-extension-dev-server',
         apply: 'serve',
 
         async configureServer(parent) {
-            const httpServer = parent.httpServer;
+            httpServer = parent.httpServer;
             if (!httpServer) {
                 throw new Error('The extension dev servers need the HTTP server of the Administration.');
             }
 
             writePluginDevJson(parent.config.root, extensions, useBundledDev);
 
-            const { host, allowedHosts } = parent.config.server;
-            const environment = [
-                hashConfigDependencies(parent.config),
-                useBundledDev,
-                host,
-                allowedHosts,
-            ];
-            const wanted = new Map(
-                extensions.map((extension) => [
-                    getExtensionBasePath(extension),
-                    { extension, signature: JSON.stringify([extension, ...environment]) },
-                ]),
-            );
-
-            await Promise.allSettled(
-                [...servers]
-                    .filter(([basePath, { signature }]) => wanted.get(basePath)?.signature !== signature)
-                    .map(([basePath, { server }]) => {
-                        servers.delete(basePath);
-                        return server.close();
-                    }),
-            );
-
             await Promise.all(
-                [...wanted]
-                    .filter(([basePath]) => !servers.has(basePath))
-                    .map(async ([basePath, { extension, signature }]) => {
-                        try {
-                            const upgrades = createServer();
-                            const server = await createExtensionServer(
-                                toolchain,
-                                extension,
-                                useBundledDev,
-                                parent,
-                                upgrades,
-                            );
-                            servers.set(basePath, { signature, server, upgrades });
-                        } catch (error) {
-                            const message = error instanceof Error ? error.message : String(error);
-                            parent.config.logger.error(
-                                colors.red(
-                                    `# Failed to start ${extension.isApp ? 'app' : 'plugin'} "${extension.name}": ${message}`,
-                                ),
-                            );
-                        }
-                    }),
+                extensions.map(async (extension) => {
+                    try {
+                        const server = await createExtensionServer(toolchain, extension, useBundledDev, parent);
+                        servers.set(getExtensionBasePath(extension), server);
+                    } catch (error) {
+                        const message = error instanceof Error ? error.message : String(error);
+                        parent.config.logger.error(
+                            colors.red(
+                                `# Failed to start ${extension.isApp ? 'app' : 'plugin'} "${extension.name}": ${message}`,
+                            ),
+                        );
+                    }
+                }),
             );
 
-            const basePaths = [...wanted.keys()].sort(compareBasePathPrecedence);
-            const findBasePath = (url = '') => basePaths.find((candidate) => url.startsWith(candidate));
-
-            forwardUpgrades(httpServer, (request) => servers.get(findBasePath(request.url) ?? '')?.upgrades);
+            httpServer.on('upgrade', rejectUpgradeOfFailedServer);
 
             parent.middlewares.use((request, response, next) => {
                 const basePath = findBasePath(request.url);
@@ -145,7 +72,7 @@ export default function ExtensionDevServerPlugin(
                     return;
                 }
 
-                const server = servers.get(basePath)?.server;
+                const server = servers.get(basePath);
                 if (!server) {
                     response.writeHead(503, { 'Content-Type': 'text/plain' });
                     response.end('The dev server of this extension did not start. Check the log of the watcher.');
@@ -153,20 +80,16 @@ export default function ExtensionDevServerPlugin(
                 }
 
                 server.middlewares(request, response, () => {
-                    response.writeHead(response.statusCode >= 500 ? 500 : 404, { 'Content-Type': 'text/plain' });
+                    response.writeHead(404, { 'Content-Type': 'text/plain' });
                     response.end();
                 });
             });
         },
 
-        async closeServer({ reason }) {
-            if (reason === 'restart') {
-                return;
-            }
-
-            const closing = [...servers.values()].map(({ server }) => server.close());
+        async closeServer() {
+            httpServer?.off('upgrade', rejectUpgradeOfFailedServer);
+            await Promise.allSettled([...servers.values()].map((server) => server.close()));
             servers.clear();
-            await Promise.allSettled(closing);
         },
     };
 }
@@ -186,7 +109,6 @@ async function createExtensionServer(
     extension: ExtensionDefinition,
     useBundledDev: boolean,
     parent: ViteDevServer,
-    upgrades: Server,
 ): Promise<ViteDevServer> {
     const config = getExtensionDevConfig(toolchain, extension, useBundledDev);
     let startingServer: ViteDevServer | undefined;
@@ -207,11 +129,12 @@ async function createExtensionServer(
                             // A returned config would only be merged, so the socket options of the extension would stay
                             const server = (extensionConfig.server ??= {});
                             Object.assign(server, {
-                                middlewareMode: { server: upgrades },
+                                middlewareMode: true,
                                 host: parent.config.server.host,
+                                port: parent.config.server.port,
                                 allowedHosts: parent.config.server.allowedHosts,
                                 // Typed with Vite 6, which only knows `ws: false`
-                                ws: { server: upgrades },
+                                ws: { server: parent.httpServer },
                             });
                             const hmr = server.hmr;
                             if (typeof hmr === 'object') {
@@ -223,21 +146,6 @@ async function createExtensionServer(
                         order: 'pre',
                         handler(server) {
                             startingServer = server;
-
-                            // The error middleware of Vite only logs in middleware mode and passes on without the error
-                            return () => {
-                                server.middlewares.use(
-                                    (
-                                        error: unknown,
-                                        _request: IncomingMessage,
-                                        response: ServerResponse,
-                                        next: Connect.NextFunction,
-                                    ) => {
-                                        response.statusCode = 500;
-                                        next(error);
-                                    },
-                                );
-                            };
                         },
                     },
                 },

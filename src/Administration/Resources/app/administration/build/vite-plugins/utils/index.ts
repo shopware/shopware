@@ -268,15 +268,6 @@ export function getExtensionBasePath(extension: ExtensionDefinition): string {
     return `/${extension.isApp ? '_internal_app' : '_internal_ext'}/${extension.technicalName}/`;
 }
 
-/**
- * @private
- *
- * Sorts base paths for prefix matching: the meteor-app path starts with the path of its plugin and must match first.
- */
-export function compareBasePathPrecedence(a: string, b: string): number {
-    return b.length - a.length;
-}
-
 function readViteServerMapping(): { vitePort: number; extensions: ViteServerMapping[] } {
     const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
 
@@ -310,9 +301,6 @@ export function getMainViteServerConfig(): {
 } {
     const { vitePort, extensions } = readViteServerMapping();
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
-
-    // Vite uses the first matching proxy
-    extensions.sort((a, b) => compareBasePathPrecedence(a.basePath, b.basePath));
 
     for (const value of extensions) {
         proxyConfig[value.basePath] = {

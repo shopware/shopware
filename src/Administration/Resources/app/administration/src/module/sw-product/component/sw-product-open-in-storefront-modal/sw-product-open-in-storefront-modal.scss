@@ -1,0 +1,91 @@
+.sw-product-open-in-storefront-modal {
+    position: relative;
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    &__description {
+        margin: 0 0 var(--scale-size-24);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+    }
+
+    &__result {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-12);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+
+    &__domain {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--scale-size-10);
+        padding: var(--scale-size-10) var(--scale-size-12);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        background: var(--color-interaction-secondary-default);
+        color: var(--color-text-primary-default);
+        text-decoration: none;
+        transition: background-color 0.15s ease-out;
+
+        &:not(.is--disabled):hover {
+            background: var(--color-interaction-secondary-hover);
+        }
+
+        &.is--disabled {
+            border-style: dashed;
+            cursor: not-allowed;
+        }
+    }
+
+    &__domain-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__domain-header {
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__domain-url {
+        color: var(--color-text-secondary-default);
+        overflow-wrap: anywhere;
+    }
+
+    &__domain-hint {
+        color: var(--color-text-critical-default);
+    }
+
+    &__checks {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__check,
+    &__maintenance {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        margin: 0;
+    }
+
+    &__check {
+        color: var(--color-text-primary-default);
+    }
+
+    &__check-icon {
+        color: var(--color-icon-critical-default);
+    }
+
+    &__maintenance {
+        color: var(--color-text-secondary-default);
+    }
+}

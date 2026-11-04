@@ -316,7 +316,28 @@
       "messageUploadSuccess": "{count} of {total} files saved.",
       "messageSaveWarning": "No changes detected.",
       "messageProductNotFound": "The product could not be found. It may have been deleted.",
-      "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
+      "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity.",
+      "buttonOpenInStorefront": "Open in Storefront",
+      "tooltipOpenInStorefrontNewProduct": "Save the product first to open it in the Storefront."
+    },
+    "openInStorefrontModal": {
+      "title": "Open \"{name} ({productNumber})\" in the Storefront",
+      "description": "Choose the Sales Channel in which you would like to open the product \"{name} ({productNumber})\".",
+      "infoUnsavedChanges": "The product has unsaved changes. The Storefront shows the last saved state.",
+      "infoNoSalesChannels": "The product is not assigned to any Storefront sales channel.",
+      "labelSalesChannel": "Sales channel",
+      "placeholderSalesChannel": "Select a sales channel...",
+      "checks": {
+        "salesChannelActive": "Sales channel is inactive",
+        "hasDomain": "Sales channel has no domain",
+        "productActive": "Product is inactive",
+        "inStock": "Product is sold out, and this sales channel hides sold-out clearance sale products",
+        "inStockPossibly": "Product is sold out, and this sales channel may hide sold-out clearance sale products",
+        "storefrontShowsProduct": "This sales channel does not show the product, for example because of visibility, stock or an installed extension"
+      },
+      "maintenanceHint": "Sales channel is in maintenance mode. Only IP addresses on its allowlist can open it.",
+      "infoDomainWithoutValidUrl": "This domain has no valid http or https URL.",
+      "notificationOpenInStorefrontError": "The Storefront URLs of the product could not be loaded."
     },
     "mediaForm": {
       "errorNoImage": "\"{file}\" is not an image.",

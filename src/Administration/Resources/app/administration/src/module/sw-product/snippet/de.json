@@ -316,7 +316,28 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
       "messageSaveWarning": "Keine Änderung vorgenommen.",
       "messageProductNotFound": "Das Produkt konnte nicht gefunden werden. Es wurde möglicherweise gelöscht.",
-      "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme."
+      "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme.",
+      "buttonOpenInStorefront": "In der Storefront öffnen",
+      "tooltipOpenInStorefrontNewProduct": "Speichere das Produkt zuerst, um es in der Storefront zu öffnen."
+    },
+    "openInStorefrontModal": {
+      "title": "„{name} ({productNumber})“ in der Storefront öffnen",
+      "description": "Wähle den Verkaufskanal, in dem Du das Produkt „{name} ({productNumber})“ öffnen möchtest.",
+      "infoUnsavedChanges": "Das Produkt hat ungespeicherte Änderungen. Die Storefront zeigt den zuletzt gespeicherten Stand.",
+      "infoNoSalesChannels": "Das Produkt ist keinem Storefront-Verkaufskanal zugewiesen.",
+      "labelSalesChannel": "Verkaufskanal",
+      "placeholderSalesChannel": "Verkaufskanal auswählen ...",
+      "checks": {
+        "salesChannelActive": "Verkaufskanal ist inaktiv",
+        "hasDomain": "Verkaufskanal hat keine Domain",
+        "productActive": "Produkt ist inaktiv",
+        "inStock": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte aus",
+        "inStockPossibly": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte möglicherweise aus",
+        "storefrontShowsProduct": "Dieser Verkaufskanal zeigt das Produkt nicht an, zum Beispiel wegen Sichtbarkeit, Bestand oder einer installierten Erweiterung"
+      },
+      "maintenanceHint": "Verkaufskanal ist im Wartungsmodus. Nur IP-Adressen auf seiner Allowlist können ihn öffnen.",
+      "infoDomainWithoutValidUrl": "Diese Domain hat keine gültige http- oder https-URL.",
+      "notificationOpenInStorefrontError": "Die Storefront-URLs des Produkts konnten nicht geladen werden."
     },
     "mediaForm": {
       "errorNoImage": "\"{file}\" ist kein Bild.",

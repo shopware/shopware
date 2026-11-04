@@ -600,8 +600,7 @@ export default class VueAdapter extends ViewAdapter {
 
         const builtComponents = affected?.filter((name) => this.resolvedComponentConfigs.has(name)) ?? [];
 
-        // Only an already built component can be updated in place.
-        if (!runtime || !affected || !builtComponents.includes(affected[0])) {
+        if (!runtime || builtComponents.length === 0) {
             return false;
         }
 

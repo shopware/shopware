@@ -90,11 +90,9 @@
                                                 "format": "int32"
                                             },
                                             "buildTree": {
-                                                "description": "Return the categories as a tree or as a flat list.",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object"
-                                                }
+                                                "description": "Return the categories as a tree or as a flat list. Defaults to true.",
+                                                "type": "boolean",
+                                                "default": true
                                             }
                                         },
                                         "type": "object"
@@ -199,16 +197,12 @@
                     {
                         "name": "buildTree",
                         "in": "query",
-                        "description": "Return the categories as a tree or as a flat list.",
+                        "description": "Return the categories as a tree or as a flat list. Defaults to true.",
                         "required": false,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object"
-                            }
-                        },
-                        "style": "deepObject",
-                        "explode": true
+                            "type": "boolean",
+                            "default": true
+                        }
                     },
                     {
                         "x-parameter-group": "noneFieldsCriteria"

@@ -1084,6 +1084,211 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
+    describe('should keep object injections when a later override uses array injections', () => {
+        createComponentMatrix({
+            A: () => ({
+                inject: ['baseService'],
+                template:
+                    '{% block content %}<div>{{ baseService }} {{ objectService }} {{ arrayService }}</div>{% endblock %}',
+            }),
+            B: () => ({
+                inject: { objectService: 'objectService' },
+            }),
+            C: () => ({
+                inject: ['arrayService'],
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = await ComponentFactory.build('test-component');
+                const wrapper = mount(component, {
+                    global: {
+                        provide: {
+                            baseService: 'base',
+                            objectService: 'object',
+                            arrayService: 'array',
+                        },
+                    },
+                });
+
+                expect(wrapper.text()).toBe('base object array');
+            });
+        });
+    });
+
+    describe('should keep object injections in a chain of mixed injection overrides', () => {
+        createComponentMatrix({
+            A: () => ({
+                inject: ['baseService'],
+                template:
+                    '{% block content %}<div>{{ baseService }} {{ firstService }} {{ secondService }} {{ arrayService }}</div>{% endblock %}',
+            }),
+            B: () => ({
+                inject: { firstService: 'firstService' },
+            }),
+            C: () => ({
+                inject: { secondService: 'secondService' },
+            }),
+            D: () => ({
+                inject: ['arrayService'],
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+                ComponentFactory.override('test-component', components.D());
+
+                const component = await ComponentFactory.build('test-component');
+                const wrapper = mount(component, {
+                    global: {
+                        provide: {
+                            baseService: 'base',
+                            firstService: 'first',
+                            secondService: 'second',
+                            arrayService: 'array',
+                        },
+                    },
+                });
+
+                expect(wrapper.text()).toBe('base first second array');
+            });
+        });
+    });
+
+    describe('should keep object props when a later override uses array props', () => {
+        createComponentMatrix({
+            A: () => ({
+                props: ['baseProp'],
+                template: '{% block content %}<div>{{ baseProp }} {{ objectProp }} {{ arrayProp }}</div>{% endblock %}',
+            }),
+            B: () => ({
+                props: { objectProp: { type: String, required: true } },
+            }),
+            C: () => ({
+                props: ['arrayProp'],
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = await ComponentFactory.build('test-component');
+                const wrapper = mount(component, {
+                    props: {
+                        baseProp: 'base',
+                        objectProp: 'object',
+                        arrayProp: 'array',
+                    },
+                });
+
+                expect(wrapper.text()).toBe('base object array');
+            });
+        });
+    });
+
+    describe('should keep object emits when a later override uses array emits', () => {
+        createComponentMatrix({
+            A: () => ({
+                emits: ['base-event'],
+                template: '{% block content %}<div>{{ Object.keys($attrs).join(",") }}</div>{% endblock %}',
+            }),
+            B: () => ({
+                emits: { 'object-event': null },
+            }),
+            C: () => ({
+                emits: ['array-event'],
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = await ComponentFactory.build('test-component');
+                const wrapper = mount(component, {
+                    attrs: {
+                        onBaseEvent: () => {},
+                        onObjectEvent: () => {},
+                        onArrayEvent: () => {},
+                    },
+                });
+
+                expect(wrapper.text()).toBe('');
+            });
+        });
+    });
+
+    describe('should not fail when an override sets an option to null before an object override', () => {
+        createComponentMatrix({
+            A: () => ({
+                inject: ['baseService'],
+                template: '{% block content %}<div>{{ baseService }} {{ objectService }}</div>{% endblock %}',
+            }),
+            B: () => ({
+                inject: null,
+            }),
+            C: () => ({
+                inject: { objectService: 'objectService' },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = await ComponentFactory.build('test-component');
+                const wrapper = mount(component, {
+                    global: {
+                        provide: {
+                            baseService: 'base',
+                            objectService: 'object',
+                        },
+                    },
+                });
+
+                expect(wrapper.text()).toBe('base object');
+            });
+        });
+    });
+
+    describe('should not fail when an override sets an option to null after an object override', () => {
+        createComponentMatrix({
+            A: () => ({
+                inject: ['baseService'],
+                template: '{% block content %}<div>{{ baseService }} {{ objectService }}</div>{% endblock %}',
+            }),
+            B: () => ({
+                inject: { objectService: 'objectService' },
+            }),
+            C: () => ({
+                inject: null,
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = await ComponentFactory.build('test-component');
+                const wrapper = mount(component, {
+                    global: {
+                        provide: {
+                            baseService: 'base',
+                            objectService: 'object',
+                        },
+                    },
+                });
+
+                expect(wrapper.text()).toBe('base object');
+            });
+        });
+    });
+
     describe('should build the final component structure with an extend and super-call', () => {
         createComponentMatrix({
             A: () => ({
@@ -2445,7 +2650,7 @@ describe('core/factory/async-component.factory.ts', () => {
         const asyncOverrideRegistration = ComponentFactory.override('component', asyncOverride);
 
         expect(asyncOverride).not.toHaveBeenCalled();
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+        expect(twigBlockIndex.getBlockEntries('component', 'test')).toEqual([
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
@@ -2456,7 +2661,7 @@ describe('core/factory/async-component.factory.ts', () => {
         const asyncOverridePromise = asyncOverrideRegistration();
 
         expect(asyncOverride).toHaveBeenCalledTimes(1);
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+        expect(twigBlockIndex.getBlockEntries('component', 'test')).toEqual([
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
@@ -2469,7 +2674,7 @@ describe('core/factory/async-component.factory.ts', () => {
         });
         await asyncOverridePromise;
 
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+        expect(twigBlockIndex.getBlockEntries('component', 'test')).toEqual([
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',

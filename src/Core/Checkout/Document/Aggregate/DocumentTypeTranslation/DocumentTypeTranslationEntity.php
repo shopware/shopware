@@ -5,12 +5,13 @@ namespace Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
  *
- * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed
+ * @deprecated tag:v6.9.0 - Will be removed
  */
 #[Package('after-sales')]
 class DocumentTypeTranslationEntity extends TranslationEntity
@@ -22,6 +23,11 @@ class DocumentTypeTranslationEntity extends TranslationEntity
     protected ?DocumentTypeEntity $documentType = null;
 
     protected ?string $name = null;
+
+    public function __construct()
+    {
+        Feature::throwIfActive('v6.9.0.0', Feature::deprecatedClassMessage(self::class, 'v6.9.0.0'));
+    }
 
     public function getDocumentTypeId(): string
     {

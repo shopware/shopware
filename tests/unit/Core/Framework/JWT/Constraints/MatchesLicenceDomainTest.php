@@ -55,7 +55,7 @@ class MatchesLicenceDomainTest extends TestCase
 
     private function validate(string $token, string $returnDomain = 'example.com'): void
     {
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         $configService = $this->createMock(SystemConfigService::class);
         $configService

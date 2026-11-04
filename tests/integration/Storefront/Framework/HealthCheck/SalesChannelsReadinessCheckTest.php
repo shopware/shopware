@@ -106,7 +106,7 @@ class SalesChannelsReadinessCheckTest extends TestCase
     public function testTrustedHostsAreTheSameBeforeAndAfterCheck(): void
     {
         // empty test state, if this assertion fails, some other test is leaking.
-        static::assertEmpty(Request::getTrustedHosts());
+        static::assertCount(0, Request::getTrustedHosts());
         Request::setTrustedHosts(['foo.bar', 'test.com']);
         $trustedHostsBefore = Request::getTrustedHosts();
         $check = $this->createCheck();

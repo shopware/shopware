@@ -98,6 +98,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'group' => ElasticsearchFieldBuilder::nested(),
             ]),
             'parentId' => self::KEYWORD_FIELD,
+            'price' => ['type' => 'object', 'dynamic' => true],
             'active' => self::BOOLEAN_FIELD,
             'available' => self::BOOLEAN_FIELD,
             'isCloseout' => self::BOOLEAN_FIELD,
@@ -158,6 +159,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 [
                     'price_percentage' => [
                         'path_match' => 'price.*.percentage.*',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    // without it a price is detected as a 32 bit float, which cannot hold every price to the cent
+                    'price_fields' => [
+                        'path_match' => 'price.*.*',
                         'mapping' => ['type' => 'double'],
                     ],
                 ],
@@ -253,7 +261,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 continue;
             }
 
-            /** @var array<string, string> $item */
             $documents[$id] = [
                 'id' => $id,
                 'autoIncrement' => (float) $item['autoIncrement'],
@@ -337,6 +344,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
                 'customSearchKeywords' => ElasticsearchFieldMapper::translated(field: 'customSearchKeywords', items: $translation),
+                'price' => $this->mapPrice(ElasticsearchIndexingUtils::parseJson($item, 'price')),
                 ...$this->mapCheapestPrice(ElasticsearchIndexingUtils::parseJson($item, 'cheapest_price_accessor')),
                 ...$visibilitiesFlatten,
             ];
@@ -401,6 +409,7 @@ SELECT
     p.auto_increment as autoIncrement,
     p.display_group as displayGroup,
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
+    IFNULL(p.price, pp.price) as price,
     LOWER(HEX(p.parent_id)) as parentId,
     p.child_count as childCount,
     p.type#states#
@@ -599,6 +608,35 @@ SQL;
                 $key = 'cheapest_price_' . $rule . '_' . $currency . '_net_percentage';
                 $mapped[$key] = $taxes['percentage']['net'];
             }
+        }
+
+        return $mapped;
+    }
+
+    /**
+     * The database keys a price by `c<currencyId>`, the index uses `c_<currencyId>`, which is the accessor
+     * {@see \Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser::buildAccessor()} builds
+     * for a price field. An entry that is not keyed by currency is skipped, as the database accessor cannot
+     * resolve it either.
+     *
+     * @param array<array-key, array{gross?: float|string, net?: float|string}> $price
+     *
+     * @return array<string, array{gross: float, net: float}>
+     */
+    private function mapPrice(array $price): array
+    {
+        $mapped = [];
+
+        foreach ($price as $currency => $taxes) {
+            if (!\is_string($currency) || !str_starts_with($currency, 'c') || !isset($taxes['gross'], $taxes['net'])) {
+                continue;
+            }
+
+            // only the single `c` prefix is stripped - a currency id is hex and may start with a `c` itself
+            $mapped['c_' . substr($currency, 1)] = [
+                'gross' => (float) $taxes['gross'],
+                'net' => (float) $taxes['net'],
+            ];
         }
 
         return $mapped;

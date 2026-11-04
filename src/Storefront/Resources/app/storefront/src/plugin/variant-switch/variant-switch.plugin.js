@@ -24,7 +24,9 @@ export default class VariantSwitchPlugin extends Plugin {
 
     init() {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this._httpClient = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this._httpClient = new HttpClient();
+        }
         this._radioFields = this.el.querySelectorAll(this.options.radioFieldSelector);
         this._selectFields = this.el.querySelectorAll(this.options.selectFieldSelector);
         this._elementId = this.options.elementId;

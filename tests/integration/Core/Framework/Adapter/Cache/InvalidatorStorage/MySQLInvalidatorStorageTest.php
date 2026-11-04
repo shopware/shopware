@@ -67,7 +67,7 @@ class MySQLInvalidatorStorageTest extends TestCase
         $this->storage->store([]);
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testLoadAndDeleteSingleTag(): void
@@ -77,7 +77,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         static::assertSame(['tag1'], $result);
         $remaining = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
-        static::assertEmpty($remaining);
+        static::assertCount(0, $remaining);
     }
 
     public function testLoadAndDeleteMultipleTags(): void
@@ -87,13 +87,13 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         static::assertSame(['tag1', 'tag2'], $result);
         $remaining = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
-        static::assertEmpty($remaining);
+        static::assertCount(0, $remaining);
     }
 
     public function testLoadAndDeleteWhenEmpty(): void
     {
         $result = $this->storage->loadAndDelete();
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testStoreDuplicateTags(): void

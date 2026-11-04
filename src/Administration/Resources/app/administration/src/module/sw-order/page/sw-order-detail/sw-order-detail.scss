@@ -1,96 +1,34 @@
-@import "~scss/variables";
-
 .sw-order-detail {
-    .smart-bar__actions .sw-button-group .mt-button {
-        margin-right: 0;
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-6);
     }
 
-    .sw-order-detail__alert {
-        max-width: $content-width;
-        margin-bottom: 34px;
+    &__alert {
+        max-width: 60rem;
 
-        @media screen and (max-width: 1360px) {
-            max-width: 770px;
-        }
-
-        &__quantity {
-            font-weight: bold;
+        @media screen and (max-width: 85rem) {
+            max-width: 48rem;
         }
     }
 
-    .sw-order-detail__summary {
-        float: right;
-        padding-right: 38px;
-        display: grid;
-
-        dt,
-        dd {
-            line-height: 40px;
-            border-bottom: 1px solid var(--color-border-secondary-default);
-            color: var(--color-text-secondary-default);
-            font-size: var(--font-size-xs);
-            font-weight: normal;
-            text-align: right;
-            padding: 0;
-        }
-
-        dd {
-            width: 160px;
-            padding-right: 40px;
-        }
+    &__tabs.has-warning .sw-tabs__slider {
+        background-color: var(--color-border-attention-default);
     }
 
-    .sw-order-detail__summary:has(.sw-order-saveable-field) {
-        dd {
-            width: 200px;
+    &__tabs-tab-documents {
+        display: flex;
+        align-items: center;
 
-            &:has(.sw-order-saveable-field) {
-                display: flex;
-                align-items: center;
-                padding-right: 0;
-            }
-        }
-
-        .sw-order-saveable-field {
-            padding-left: 20px;
-            line-height: 1;
-        }
-    }
-
-    .sw-order-detail-summary__switch-promotions {
-        margin-top: 0;
-    }
-
-    .sw-card__content {
-        overflow: hidden;
-    }
-
-    .sw-order-detail__manual-order-label {
-        margin-left: 10px;
-        text-align: center;
-    }
-
-    .sw-order-detail__tab-warning-badge {
-        color: var(--color-icon-attention-default);
-        transform: translateY(-9%);
-        margin-left: 4px;
-    }
-
-    .sw-order-detail__tabs {
-        &.has-warning {
-            .sw-tabs__slider {
-                background-color: var(--color-border-attention-default);
-            }
-        }
-    }
-
-    .sw-order-detail__tabs-tab-documents {
-        &.has-warning {
+        &.has-warning,
+        &.has-warning.sw-tabs-item--active {
             color: var(--color-text-attention-default);
-
-            &.sw-tabs-item--active {
-                color: var(--color-text-attention-default);
-            }
         }
+    }
+
+    &__tab-warning-badge {
+        color: var(--color-icon-attention-default);
+        margin-left: var(--scale-size-6);
     }
 }

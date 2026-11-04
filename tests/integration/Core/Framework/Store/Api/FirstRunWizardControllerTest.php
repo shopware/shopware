@@ -16,12 +16,12 @@ use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -29,7 +29,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 #[Package('fundamentals@after-sales')]
 class FirstRunWizardControllerTest extends TestCase
 {
-    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
@@ -47,8 +46,7 @@ class FirstRunWizardControllerTest extends TestCase
         // Response for request of TrackingEventClient::fireTrackingEvent()
         $this->getStoreRequestHandler()->append(new Response());
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             FirstRunWizardStartedEvent::class,
             static function (FirstRunWizardStartedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
@@ -103,15 +101,14 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createAdminStoreContext();
 
         $this->setFrwUserToken($context, 'frw-us3r-t0k3n');
+        // an already completed FRW keeps the finished event from compiling the storefront theme
+        static::getContainer()->get(SystemConfigService::class)->set('core.frw.completedAt', '2022-12-01T00:00:00+00:00');
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             FirstRunWizardFinishedEvent::class,
             static function (FirstRunWizardFinishedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
-                $event->stopPropagation();
-            },
-            99999,
+            }
         );
 
         // Response for request of TrackEventClient::fireTrackingEvent()

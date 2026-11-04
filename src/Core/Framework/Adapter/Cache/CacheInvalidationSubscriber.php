@@ -381,7 +381,7 @@ class CacheInvalidationSubscriber
 
         $tags = array_map(ProductDetailRoute::buildName(...), $productIds);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $event->getIds()));
         }
 

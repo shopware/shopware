@@ -140,6 +140,8 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should identify a Shopware Service through the private SDK API', async () => {
+        // The SDK only answers `isService()` from Shopware 6.7.14.0 on
+        Shopware.Store.get('context').app.config.version = '6.7.14.0';
         Shopware.Store.get('extensions').addExtension({
             name: 'jestservice',
             baseUrl: window.location.origin,

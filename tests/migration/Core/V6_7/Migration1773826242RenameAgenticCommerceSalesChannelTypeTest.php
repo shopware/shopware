@@ -46,7 +46,7 @@ class Migration1773826242RenameAgenticCommerceSalesChannelTypeTest extends TestC
             ['salesChannelTypeId' => $salesChannelTypeId]
         );
 
-        static::assertNotEmpty($existingTranslations);
+        static::assertNotCount(0, $existingTranslations);
 
         $this->connection->update(
             'sales_channel_type_translation',

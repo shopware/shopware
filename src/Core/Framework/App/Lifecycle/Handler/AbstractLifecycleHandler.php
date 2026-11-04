@@ -30,6 +30,10 @@ abstract class AbstractLifecycleHandler
     {
     }
 
+    /**
+     * Must be safe to call when activate() did not run or did not finish: a failed activation rolls back
+     * through every handler.
+     */
     public function deactivate(AppActivationContext $context): void
     {
     }

@@ -217,7 +217,8 @@ export default {
             criteria
                 .getAssociation('deliveries')
                 .addAssociation('stateMachineState')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                .addSorting(Criteria.sort('id', 'ASC'));
 
             criteria
                 .getAssociation('transactions')
@@ -305,6 +306,7 @@ export default {
 
         beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
+            Store.get('swOrderDetail').resetCustomer();
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;

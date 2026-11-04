@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
@@ -29,6 +29,8 @@ use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -187,7 +189,17 @@ class AppManagerTest extends TestCase
             ->install(ManifestFixture::empty(), new AppInstallParameters(), Context::createDefaultContext());
     }
 
-    public function testInstallRollsBackAppDataWhenRegistrationFails(): void
+    /**
+     * @return iterable<string, array{AppException}>
+     */
+    public static function registrationFailures(): iterable
+    {
+        yield 'app rejects the registration' => [AppException::registrationFailed('test', 'registration failed')];
+        yield 'APP_URL fails verification' => [AppException::appUrlFailedVerification(new VerificationState('http://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'unreachable', statusCode: null))];
+    }
+
+    #[DataProvider('registrationFailures')]
+    public function testInstallRollsBackAppDataWhenRegistrationFails(AppException $failure): void
     {
         $context = Context::createDefaultContext();
         $manifest = ManifestFixture::empty()->withSetup();
@@ -200,7 +212,7 @@ class AppManagerTest extends TestCase
 
         $this->registrationService->expects($this->once())
             ->method('registerApp')
-            ->willThrowException(AppException::registrationFailed('test', 'registration failed'));
+            ->willThrowException($failure);
 
         $this->integrationRepository = new StaticEntityRepository([]);
         $this->permissionLifecycle->expects($this->once())->method('removeRole');
@@ -217,7 +229,8 @@ class AppManagerTest extends TestCase
             $this->createAppManager($appRepository)
                 ->install($manifest, new AppInstallParameters(), $context);
             static::fail('Expected app registration to fail');
-        } catch (AppRegistrationException) {
+        } catch (AppException $e) {
+            static::assertSame($failure, $e);
             static::assertCount(1, $appRepository->getPayloads(StaticEntityRepository::UPSERT));
             static::assertSame([['id' => $installedApp->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
             static::assertSame([['id' => 'integration-id']], $this->integrationRepository->getPayloads(StaticEntityRepository::DELETE));
@@ -833,6 +846,64 @@ class AppManagerTest extends TestCase
         static::assertSame([
             ['id' => $app->getId(), 'active' => true],
         ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testActivateRollsBackEveryHandlerWhenOneFails(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $failure = new \RuntimeException('handler failed');
+        $calls = [];
+
+        $first = $this->createMock(AbstractLifecycleHandler::class);
+        $first->expects($this->once())->method('activate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'first::activate'; });
+        $first->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'first::deactivate'; });
+
+        $failing = $this->createMock(AbstractLifecycleHandler::class);
+        $failing->expects($this->once())->method('activate')
+            ->willReturnCallback(static function () use (&$calls, $failure): void {
+                $calls[] = 'failing::activate';
+                throw $failure;
+            });
+        $failing->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'failing::deactivate'; });
+
+        $notReached = $this->createMock(AbstractLifecycleHandler::class);
+        $notReached->expects($this->never())->method('activate');
+        $notReached->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'notReached::deactivate'; });
+
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
+
+        $caught = null;
+
+        try {
+            $this->createAppManager($appRepository, persisters: [$first, $failing, $notReached])
+                ->activate($app, Context::createDefaultContext());
+        } catch (\RuntimeException $exception) {
+            $caught = $exception;
+        }
+
+        static::assertSame($failure, $caught);
+        static::assertSame(['first::activate', 'failing::activate', 'first::deactivate', 'failing::deactivate', 'notReached::deactivate'], $calls);
+        static::assertFalse($app->isActive());
+        static::assertSame([
+            ['id' => 'test-app', 'active' => true],
+            ['id' => 'test-app', 'active' => false],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
     }
 
     public function testDeactivateDoesNothingIfAppIsAlreadyInactive(): void

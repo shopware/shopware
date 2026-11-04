@@ -27,6 +27,7 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppUrlFailedVerificationException;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
@@ -250,7 +251,14 @@ class AppManager
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
         $activateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+
+        try {
+            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+        } catch (\Throwable $e) {
+            $this->switchOff($app, $context);
+
+            throw $e;
+        }
 
         $this->activeAppsLoader->reset();
 
@@ -271,13 +279,7 @@ class AppManager
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
-        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
-        $app->setActive(false);
-        $deactivateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
-
-        // reset only after new state is in the DB
-        $this->activeAppsLoader->reset();
+        $this->switchOff($app, $context);
     }
 
     private function recoverInstallation(
@@ -425,7 +427,7 @@ class AppManager
         if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
             try {
                 $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
-            } catch (AppRegistrationException $e) {
+            } catch (AppRegistrationException|AppUrlFailedVerificationException $e) {
                 // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting
                 // the app would lose it — keep the half-installed app for a later installation repair.
                 if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
@@ -737,7 +739,7 @@ class AppManager
             return false;
         }
 
-        $configError = $this->configValidator->validate($manifest, null)->first();
+        $configError = $this->configValidator->validate($manifest, null)[0] ?? null;
         if ($configError) {
             // only one error can be in the returned collection
             throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
@@ -767,6 +769,17 @@ class AppManager
         foreach ($this->lifecycleHandlers as $handler) {
             $callback($handler);
         }
+    }
+
+    private function switchOff(AppEntity $app, Context $context): void
+    {
+        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
+        $app->setActive(false);
+        $deactivateContext = new AppActivationContext($app, $context);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
+
+        // reset only after new state is in the DB
+        $this->activeAppsLoader->reset();
     }
 
     private function ensureMeetsRequirements(Manifest $manifest): void

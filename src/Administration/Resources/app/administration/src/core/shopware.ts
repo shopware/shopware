@@ -43,6 +43,7 @@ import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
+import { createDeprecatedTc, createTranslate } from 'src/core/helper/i18n-legacy-syntax.helper';
 import {
     attachOverrides,
     createExtendableSetup,
@@ -50,6 +51,7 @@ import {
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
+import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
 import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
@@ -59,6 +61,7 @@ import ExtensionApi from './extension-api';
 import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
+import composables from '../app/composables';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -149,6 +152,10 @@ class ShopwareClass implements CustomShopwareProperties {
         getExposedProps: getExposedProps,
         overrideComponentSetup: overrideComponentSetup,
 
+        /**
+         * @private
+         */
+        registerNativeExtensionTargets: registerNativeExtensionTargets,
         /**
          * @private
          *
@@ -274,17 +281,27 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public Data = data;
 
+    /**
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
+     */
+    public Composables = composables;
+
     public get Snippet() {
         // @ts-expect-error - type is currently not available
         if (!Shopware.Application.view?.i18n) {
             return null;
         }
 
+        // @ts-expect-error - type is currently not available
+        const i18nGlobal = Shopware.Application.view.i18n.global;
+
         return {
-            // @ts-expect-error - type is currently not available
-            ...Shopware.Application.view.i18n.global,
-            // @ts-expect-error - type is currently not available
-            tc: Shopware.Application.view.i18n.global.t,
+            ...i18nGlobal,
+            t: createTranslate(i18nGlobal.t, 'Shopware.Snippet.t'),
+            /**
+             * @deprecated tag:v6.9.0 - Will be removed, use Shopware.Snippet.t instead.
+             */
+            tc: createDeprecatedTc(i18nGlobal.t, 'Shopware.Snippet.tc', 'Shopware.Snippet.t'),
         };
     }
 

@@ -66,7 +66,7 @@ class LanguageDeletionSubscriberTest extends TestCase
         $metadataStore->expects($this->never())->method('remove');
 
         $event = $this->createMock(EntityDeleteEvent::class);
-        $event->method('getIds')->with(LanguageDefinition::ENTITY_NAME)->willReturn([]);
+        $event->expects($this->once())->method('getIds')->with(LanguageDefinition::ENTITY_NAME)->willReturn([]);
         $event->expects($this->never())->method('addSuccess');
 
         (new LanguageDeletionSubscriber($connection, $metadataStore))->beforeDelete($event);
@@ -81,7 +81,7 @@ class LanguageDeletionSubscriberTest extends TestCase
         $metadataStore->expects($this->never())->method('remove');
 
         $event = $this->createMock(EntityDeleteEvent::class);
-        $event->method('getIds')->with(LanguageDefinition::ENTITY_NAME)->willReturn([Uuid::randomHex()]);
+        $event->expects($this->once())->method('getIds')->with(LanguageDefinition::ENTITY_NAME)->willReturn([Uuid::randomHex()]);
         $event->expects($this->never())->method('addSuccess');
 
         (new LanguageDeletionSubscriber($connection, $metadataStore))->beforeDelete($event);

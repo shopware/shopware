@@ -84,7 +84,7 @@ class StorefrontCartSubscriberTest extends TestCase
         $subscriber = $this->createSubscriber();
         $subscriber->onLineItemAdded($event);
 
-        static::assertEmpty($cart->getExtensions());
+        static::assertCount(0, $cart->getExtensions());
     }
 
     public function testOnLineItemAddedPromotionNoCode(): void
@@ -96,7 +96,7 @@ class StorefrontCartSubscriberTest extends TestCase
         $subscriber = $this->createSubscriber();
         $subscriber->onLineItemAdded($event);
 
-        static::assertEmpty($cart->getExtensions());
+        static::assertCount(0, $cart->getExtensions());
     }
 
     public function testOnLineItemAddedPromotionWithCode(): void

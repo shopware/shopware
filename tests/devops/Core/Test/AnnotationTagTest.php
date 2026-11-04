@@ -103,7 +103,7 @@ class AnnotationTagTest extends TestCase
             }
         }
 
-        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
     }
 
     public function testSourceFilesForWrongBCChangeAttributeVersions(): void
@@ -133,7 +133,7 @@ class AnnotationTagTest extends TestCase
             }
         }
 
-        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
     }
 
     public function testSourceFilesForWrongSilentUntilMarkers(): void
@@ -165,7 +165,7 @@ class AnnotationTagTest extends TestCase
             }
         }
 
-        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
     }
 
     public function testConfigFilesForWrongDeprecatedTags(): void
@@ -196,7 +196,7 @@ class AnnotationTagTest extends TestCase
             }
         }
 
-        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
     }
 
     private function getPathForClass(string $className): string

@@ -2,16 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
-use AsyncAws\Core\AbstractApi;
 use AsyncAws\S3\S3Client;
-use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
@@ -112,22 +111,29 @@ class AwsS3v3FactoryTest extends TestCase
 
     public function testCreateWithCustomHttpClient(): void
     {
-        $httpClient = static::createStub(HttpClientInterface::class);
+        $requestedUrls = [];
+        $httpClient = new MockHttpClient(static function (string $method, string $url) use (&$requestedUrls): MockResponse {
+            $requestedUrls[] = $method . ' ' . $url;
+
+            return new MockResponse('', ['http_code' => 404]);
+        });
 
         $config = [
             'bucket' => 'private',
+            'endpoint' => 'http://localhost:9000',
+            'use_path_style_endpoint' => true,
             'region' => 'local',
             'root' => 'foobar',
+            'credentials' => [
+                'key' => 'foo',
+                'secret' => 'bar',
+            ],
         ];
 
-        $factory = new AwsS3v3Factory(250, $httpClient);
-        $adapter = $factory->create($config);
+        $adapter = (new AwsS3v3Factory(250, $httpClient))->create($config);
 
         static::assertInstanceOf(AsyncAwsS3WriteBatchAdapter::class, $adapter);
-
-        // Verify the custom HTTP client was forwarded to the underlying S3Client
-        $s3Client = (new \ReflectionProperty(AsyncAwsS3Adapter::class, 'client'))->getValue($adapter);
-        $actualHttpClient = (new \ReflectionProperty(AbstractApi::class, 'httpClient'))->getValue($s3Client);
-        static::assertSame($httpClient, $actualHttpClient);
+        static::assertFalse($adapter->fileExists('file.txt'));
+        static::assertSame(['HEAD http://localhost:9000/private/foobar/file.txt'], $requestedUrls);
     }
 }

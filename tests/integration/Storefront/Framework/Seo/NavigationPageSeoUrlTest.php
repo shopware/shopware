@@ -59,7 +59,7 @@ class NavigationPageSeoUrlTest extends TestCase
         $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $urls = $this->getSeoUrls($ids->getList(['root']), null);
-        static::assertEmpty($urls);
+        static::assertCount(0, $urls);
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 

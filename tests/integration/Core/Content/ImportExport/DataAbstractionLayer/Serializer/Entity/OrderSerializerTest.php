@@ -63,7 +63,7 @@ class OrderSerializerTest extends TestCase
 
         $serialized = iterator_to_array($this->serializer->serialize($config, $orderDefinition, $order));
 
-        static::assertNotEmpty($serialized);
+        static::assertNotCount(0, $serialized);
 
         // assert values
         static::assertSame($serialized['id'], $order->getId());
@@ -88,7 +88,7 @@ class OrderSerializerTest extends TestCase
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
 
-        static::assertNotEmpty($serialized['deliveries']);
+        static::assertNotCount(0, $serialized['deliveries']);
         static::assertSame($serialized['deliveries']['trackingCodes'], implode('|', $delivery->getTrackingCodes()));
         static::assertSame($serialized['deliveries']['shippingOrderAddress'], $delivery->getShippingOrderAddress());
         static::assertSame($serialized['deliveries']['stateMachineState'], $delivery->getStateMachineState());

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -18,19 +19,25 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(CheckExtensionsCommand::class)]
 class CheckExtensionsCommandTest extends TestCase
 {
-    use ExtensionToolingCommandTestBehaviour;
-
     public function testCheckCommandRunsTheCheckEntryScript(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
 
         $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
         $tester->execute(['tooling-args' => ['--only=MyPlugin']]);
 
-        $capture = $this->readToolingCapture($administrationRoot);
+        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
         static::assertStringEndsWith('scripts/extensionTooling/check.ts', $capture['argv'][1]);
         static::assertContains('--only=MyPlugin', $capture['argv']);
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+    }
+
+    private function kernel(): KernelInterface
+    {
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn('/shop');
+
+        return $kernel;
     }
 }

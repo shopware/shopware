@@ -29,8 +29,8 @@ export default class SearchAjaxEvent extends EventAwareAnalyticsEvent
             return;
         }
 
-        gtag('event', 'search', {
+        this.pushEvent('search', {
             'search_term': event.detail.value,
-        });
+        }, { ecommerce: false });
     }
 }

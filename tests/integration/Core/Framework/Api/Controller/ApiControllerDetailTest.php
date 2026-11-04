@@ -40,7 +40,7 @@ class ApiControllerDetailTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
         $location = $response->headers->get('Location');
-        static::assertNotEmpty($location);
+        static::assertNotNull($location);
 
         static::assertIsString($location);
         $this->getBrowser()->jsonRequest('GET', $location);

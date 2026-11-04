@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Response;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -14,7 +13,6 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
  */
 #[Package('checkout')]
 #[CoversClass(RefundResponse::class)]
-#[CoversClass(AbstractResponse::class)]
 class RefundResponseTest extends TestCase
 {
     public function testResponse(): void

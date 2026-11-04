@@ -30,6 +30,9 @@
             :label="$t('sw-rule-modal.labelPriority')"
             :placeholder="$t('sw-rule-modal.placeholderPriority')"
             :error="rulePriorityError"
+            :step="1"
+            :min="0"
+            number-type="int"
             required
         />
         {% endblock %}

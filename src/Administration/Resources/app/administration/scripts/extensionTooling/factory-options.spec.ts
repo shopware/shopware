@@ -32,6 +32,7 @@ const variants = {
         templateDeprecationSeverity: 'error',
     },
     umbrella: { internalApiSeverity: 'warn' },
+    vite8Off: { vite8DeprecationSeverity: 'off' },
 };
 
 const { shopwareAdminExtension } = await import(${JSON.stringify(factoryUrl)});
@@ -89,6 +90,49 @@ describe('extension-tooling eslint factory host options', () => {
                 'sw-deprecation-rules/no-deprecated-components',
             ),
         ).toBe('error');
+        expect(
+            ruleSeverity(
+                blocks,
+                'shopware/admin-extension/template-deprecations',
+                'sw-deprecation-rules/no-sw-empty-state-usage',
+            ),
+        ).toBe('error');
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/i18n-deprecations', 'sw-core-rules/no-tc-translation')).toBe(
+            'error',
+        );
+    });
+
+    it('warns about code that breaks with Vite 8 in every extension config by default', () => {
+        for (const variant of ['defaults', 'umbrella', 'splitSeverities']) {
+            expect(
+                ruleSeverity(
+                    variants[variant],
+                    'shopware/admin-extension/vite-8-deprecations',
+                    'sw-deprecation-rules/no-import-meta-glob-extglob',
+                ),
+            ).toBe('warn');
+        }
+
+        expect(
+            ruleSeverity(
+                variants.vite8Off,
+                'shopware/admin-extension/vite-8-deprecations',
+                'sw-deprecation-rules/no-import-meta-glob-extglob',
+            ),
+        ).toBe('off');
+    });
+
+    it('follows the umbrella severity for the deprecated i18n syntax', () => {
+        expect(
+            ruleSeverity(variants.umbrella, 'shopware/admin-extension/i18n-deprecations', 'sw-core-rules/no-tc-translation'),
+        ).toBe('warn');
+        expect(
+            ruleSeverity(
+                variants.splitSeverities,
+                'shopware/admin-extension/i18n-deprecations',
+                'sw-core-rules/no-tc-translation',
+            ),
+        ).toBe('warn');
     });
 
     it('bakes native-setup support into every extension config by default', () => {

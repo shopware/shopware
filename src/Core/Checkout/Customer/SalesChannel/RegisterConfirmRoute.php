@@ -8,9 +8,11 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Extension\RegisterConfirmRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -44,6 +46,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -54,6 +57,15 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
     #[Route(path: '/store-api/account/register-confirm', name: 'store-api.account.register.confirm', methods: ['POST'])]
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
+    {
+        return $this->extensions->publish(
+            name: RegisterConfirmRouteExtension::NAME,
+            extension: new RegisterConfirmRouteExtension($dataBag, $context),
+            function: $this->_confirm(...),
+        );
+    }
+
+    private function _confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
     {
         if (!$dataBag->has('hash')) {
             throw CustomerException::noHashProvided();

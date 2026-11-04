@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('after-sales')]
 #[CoversClass(CustomTriggerByNameNotFoundException::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class CustomTriggerByNameNotFoundExceptionTest extends TestCase
 {
     public function testException(): void

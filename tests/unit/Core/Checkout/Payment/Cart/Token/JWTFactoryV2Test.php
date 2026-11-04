@@ -59,7 +59,7 @@ class JWTFactoryV2Test extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, $expiration);
         $time = time();
         $token = $tokenFactory->generateToken($tokenStruct);
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         if ($expired) {
             $this->expectException(PaymentException::class);
@@ -80,7 +80,7 @@ class JWTFactoryV2Test extends TestCase
 
         $this->expectExceptionObject(PaymentException::invalidToken($token));
 
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         $this->tokenFactory->parseToken($token);
     }
@@ -94,7 +94,7 @@ class JWTFactoryV2Test extends TestCase
 
         $this->expectExceptionObject(PaymentException::invalidToken($invalidToken));
 
-        static::assertNotEmpty($invalidToken);
+        static::assertNotSame('', $invalidToken);
 
         $this->tokenFactory->parseToken($invalidToken);
     }
@@ -102,7 +102,7 @@ class JWTFactoryV2Test extends TestCase
     public function testInvalidateToken(): void
     {
         $token = Uuid::randomHex();
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
         $success = $this->tokenFactory->invalidateToken($token);
         static::assertFalse($success);
     }
@@ -119,7 +119,7 @@ class JWTFactoryV2Test extends TestCase
 
         $this->expectExceptionObject(PaymentException::invalidToken($token));
 
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         $tokenFactory->parseToken($token);
     }
@@ -140,7 +140,7 @@ class JWTFactoryV2Test extends TestCase
 
         $this->expectExceptionObject(PaymentException::tokenInvalidated($token));
 
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         $tokenFactory->parseToken($token);
     }

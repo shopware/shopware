@@ -41,8 +41,11 @@ class LockValidatorTest extends TestCase
         $this->testDefinition = $definition;
         $this->entityWriter = static::getContainer()->get(EntityWriter::class);
 
+        $this->connection->rollBack();
+        $this->connection->executeStatement('DROP TABLE IF EXISTS _test_lock');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS _test_lock_translation');
+
         $table = <<<EOF
-DROP TABLE IF EXISTS _test_lock;
 CREATE TABLE `_test_lock` (
   `id` binary(16) NOT NULL,
   `description` varchar(255) NULL,
@@ -52,7 +55,10 @@ CREATE TABLE `_test_lock` (
   PRIMARY KEY `id` (`id`)
 );
 
-DROP TABLE IF EXISTS _test_lock_translation;
+EOF;
+        $this->connection->executeStatement($table);
+
+        $table = <<<EOF
 CREATE TABLE `_test_lock_translation` (
   `_test_lock_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
@@ -62,7 +68,6 @@ CREATE TABLE `_test_lock_translation` (
   PRIMARY KEY `id` (`_test_lock_id`, `language_id`)
 );
 EOF;
-        $this->connection->rollBack();
         $this->connection->executeStatement($table);
         $this->connection->beginTransaction();
     }

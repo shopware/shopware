@@ -130,4 +130,63 @@ class SymfonySystemConfigServiceTest extends TestCase
 
         static::assertSame(['key' => []], $service->override([], 'salesChannelId'));
     }
+
+    public function testEmptyArrayStaticOverrideReplacesExistingArray(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar' => ['global-id']],
+            'salesChannelId' => ['foo.bar' => []],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => [], 'other' => 'unchanged']],
+            $service->override(['foo' => ['bar' => ['database-id'], 'other' => 'unchanged']], 'salesChannelId')
+        );
+        static::assertSame(
+            ['foo.bar' => []],
+            $service->override(['foo.bar' => ['database-id']], 'salesChannelId', nesting: false)
+        );
+    }
+
+    public function testNonEmptyStaticArrayKeepsExistingEntries(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar' => ['static' => 'value']],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => ['database' => 'value', 'static' => 'value']]],
+            $service->override(['foo' => ['bar' => ['database' => 'value']]], null)
+        );
+        static::assertSame(
+            ['foo.bar' => ['database' => 'value', 'static' => 'value']],
+            $service->override(['foo.bar' => ['database' => 'value']], null, nesting: false)
+        );
+    }
+
+    public function testSalesChannelDescendantOverridesEmptyDefaultParent(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar' => []],
+            'salesChannelId' => ['foo.bar.baz' => 'sales'],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => ['baz' => 'sales']]],
+            $service->override(['foo' => ['bar' => ['database' => 'value']]], 'salesChannelId')
+        );
+    }
+
+    public function testEmptySalesChannelParentOverridesDefaultDescendant(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar.baz' => 'default'],
+            'salesChannelId' => ['foo.bar' => []],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => []]],
+            $service->override([], 'salesChannelId')
+        );
+    }
 }

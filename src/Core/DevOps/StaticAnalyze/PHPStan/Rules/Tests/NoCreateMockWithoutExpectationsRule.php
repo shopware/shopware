@@ -20,9 +20,11 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\Expr\UnaryMinus;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
@@ -48,6 +50,11 @@ use Shopware\Core\Framework\Log\Package;
  * {@see self::ERROR_MIXED}, {@see self::ERROR_ORPHANED}). It only flags what it can prove; anything it cannot
  * resolve is skipped.
  *
+ * It also guards two PHPUnit 13 deprecations that PHPUnit 14 turns into errors and that the per-double check
+ * cannot see because they live on a single configuration chain: `->method()->with()` without `->expects()` on
+ * that same chain ({@see self::ERROR_WITH_WITHOUT_EXPECTS}), whatever created the double, and `->atLeast()` with
+ * a lower bound that asserts nothing ({@see self::ERROR_AT_LEAST_NOT_POSITIVE}).
+ *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -60,6 +67,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in %s, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
 
     public const ERROR_ORPHANED = 'createMock(%s) is created in setUp() and re-created via `$this->... = $this->createMock(...)` in %s. Re-assigning the property replaces this instance before it is used, so it never receives an expectation and triggers the PHPUnit "no expectations" notice. Configure the setUp instance directly in those tests instead of re-creating it (or move the creation out of setUp).';
+
+    public const ERROR_WITH_WITHOUT_EXPECTS = '->with() without ->expects() on the same chain is deprecated in PHPUnit 13 and rejected in PHPUnit 14. Put ->expects(...) in front of ->method() when the arguments matter, or drop ->with() and let the double answer any call.';
+
+    public const ERROR_AT_LEAST_NOT_POSITIVE = '->atLeast(%d) is deprecated in PHPUnit 13 and rejected in PHPUnit 14: a lower bound of zero or less asserts nothing. Use the real lower bound, or configure the double as a stub without ->expects().';
 
     /**
      * ClassMethod attribute carrying the ancestor file an inherited method was parsed from.
@@ -97,6 +108,29 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'willReturnMap',
         'willReturnOnConsecutiveCalls',
         'willReturnArgument',
+        'willThrowException',
+    ];
+
+    /**
+     * Every method PHPUnit offers on a double-configuration chain, so a `->with()` can be walked down to the
+     * double it configures and the walk stops at anything that is not part of that chain.
+     *
+     * @var list<string>
+     */
+    private const CHAIN_METHODS = [
+        'expects',
+        'method',
+        'with',
+        'withAnyParameters',
+        'id',
+        'after',
+        'willReturn',
+        'willReturnMap',
+        'willReturnOnConsecutiveCalls',
+        'willReturnArgument',
+        'willReturnCallback',
+        'willReturnSelf',
+        'willReturnReference',
         'willThrowException',
     ];
 
@@ -164,6 +198,14 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
             foreach ($this->findInlineStubMocks($method->stmts, $ownMethods) as $call) {
                 $errors[] = $this->buildError($call, $call->getStartLine(), self::ERROR_STUB, null, $file);
+            }
+
+            foreach ($this->findWithWithoutExpects($method->stmts) as $call) {
+                $errors[] = $this->buildChainError(self::ERROR_WITH_WITHOUT_EXPECTS, 'shopware.withWithoutExpects', $call->name->getStartLine(), $file);
+            }
+
+            foreach ($this->findNonPositiveAtLeast($method->stmts) as [$call, $bound]) {
+                $errors[] = $this->buildChainError(\sprintf(self::ERROR_AT_LEAST_NOT_POSITIVE, $bound), 'shopware.atLeastNotPositive', $call->getStartLine(), $file);
             }
         }
 
@@ -1508,6 +1550,85 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         return null;
+    }
+
+    /**
+     * `->with()` chains that configure a method without an expectation. The chain is walked down through
+     * PHPUnit's configuration vocabulary only, so a `with()` of an unrelated fluent API is never mistaken for
+     * a matcher. A chain rooted in a stub never gets here: `Stub::method()` offers no `with()`.
+     *
+     * @param array<Node> $stmts
+     *
+     * @return list<MethodCall>
+     */
+    private function findWithWithoutExpects(array $stmts): array
+    {
+        $calls = [];
+        foreach ((new NodeFinder())->findInstanceOf($stmts, MethodCall::class) as $call) {
+            if (!$call->name instanceof Identifier || !\in_array($call->name->name, ['with', 'withAnyParameters'], true)) {
+                continue;
+            }
+
+            $configuresMethod = false;
+            $expects = false;
+            $root = $call->var;
+            while ($root instanceof MethodCall && $root->name instanceof Identifier && \in_array($root->name->name, self::CHAIN_METHODS, true)) {
+                $configuresMethod = $configuresMethod || $root->name->name === 'method';
+                $expects = $expects || $this->isExpectsCall($root);
+                $root = $root->var;
+            }
+
+            if (!$configuresMethod || $expects) {
+                continue;
+            }
+
+            $calls[] = $call;
+        }
+
+        return $calls;
+    }
+
+    /**
+     * `->atLeast()` calls whose literal lower bound is zero or negative.
+     *
+     * @param array<Node> $stmts
+     *
+     * @return list<array{MethodCall|StaticCall, int}>
+     */
+    private function findNonPositiveAtLeast(array $stmts): array
+    {
+        $calls = [];
+        foreach ((new NodeFinder())->find($stmts, static fn (Node $node): bool => ($node instanceof MethodCall || $node instanceof StaticCall) && $node->name instanceof Identifier && $node->name->name === 'atLeast') as $call) {
+            \assert($call instanceof MethodCall || $call instanceof StaticCall);
+
+            $value = ($call->getArgs()[0] ?? null)?->value;
+            $bound = match (true) {
+                $value instanceof Int_ => $value->value,
+                $value instanceof UnaryMinus && $value->expr instanceof Int_ => -$value->expr->value,
+                default => null,
+            };
+
+            if ($bound === null || $bound > 0) {
+                continue;
+            }
+
+            $calls[] = [$call, $bound];
+        }
+
+        return $calls;
+    }
+
+    private function buildChainError(string $message, string $identifier, int $line, ?string $file): RuleError
+    {
+        $builder = RuleErrorBuilder::message($message)
+            ->identifier($identifier)
+            ->line($line);
+
+        if ($file !== null) {
+            $builder->file($file);
+        }
+
+        return $builder->build();
     }
 
     private function buildError(Node $createMockCall, int $line, string $message, ?string $detail = null, ?string $file = null): RuleError

@@ -78,6 +78,6 @@ class ADRValidationTest extends TestCase
             $all[$file->getFilename()] = $errors;
         }
 
-        static::assertEmpty($all, \print_r($all, true));
+        static::assertCount(0, $all, \print_r($all, true));
     }
 }

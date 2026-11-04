@@ -125,8 +125,6 @@ class ProductSearchScoringTest extends TestCase
             ],
         ], $context);
 
-        $criteria = new Criteria();
-
         $pattern = new SearchPattern(new SearchTerm('ring saphir', 1.0));
         $pattern->addTerm(new SearchTerm('ring', 1.1));
         $pattern->addTerm(new SearchTerm('saphir', 1.1));

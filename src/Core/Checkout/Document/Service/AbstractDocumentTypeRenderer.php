@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 

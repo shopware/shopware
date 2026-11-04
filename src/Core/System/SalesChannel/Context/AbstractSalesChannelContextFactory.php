@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -11,7 +12,7 @@ abstract class AbstractSalesChannelContextFactory
     abstract public function getDecorated(): AbstractSalesChannelContextFactory;
 
     /**
-     * @param array<string, string|array<string,bool>|null> $options
+     * @param array<string, string|array<string,bool>|CustomerAddressEntity|null> $options
      */
     abstract public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext;
 }

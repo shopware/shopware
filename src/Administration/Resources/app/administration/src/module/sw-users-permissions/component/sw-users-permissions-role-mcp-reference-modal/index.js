@@ -48,18 +48,8 @@ export default {
             ];
         },
 
-        anyIntegrationAllowsAllTools() {
-            return this.mcpIntegrations.some((integration) => {
-                const tools = integration.mcpAllowlist?.tools;
-                return tools === null || tools === undefined;
-            });
-        },
-
         allowlistedToolNames() {
-            if (this.anyIntegrationAllowsAllTools) {
-                return this.availableTools.map((tool) => tool.name);
-            }
-
+            // The server resolves a missing or null tool list to "no tools" (`McpAllowlist::restrictedFromJson()`).
             const names = new Set();
 
             this.mcpIntegrations.forEach((integration) => {

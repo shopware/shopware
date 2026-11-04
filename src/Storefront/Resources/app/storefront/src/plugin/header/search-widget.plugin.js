@@ -38,7 +38,9 @@ export default class SearchWidgetPlugin extends Plugin {
         }
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this._client = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this._client = new HttpClient();
+        }
 
         this.searchSuggestLinks = [];
 

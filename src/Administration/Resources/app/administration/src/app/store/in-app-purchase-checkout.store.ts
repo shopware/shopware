@@ -6,7 +6,9 @@ import type { iapCheckout } from '@shopware-ag/meteor-admin-sdk/es/iap';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type InAppPurchaseRequest = Omit<iapCheckout, 'responseType'>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export type InAppPurchaseCheckoutState =
     | {
           entry: null;

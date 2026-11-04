@@ -35,12 +35,14 @@ use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\AuthControllerStub;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -301,17 +303,43 @@ class AuthControllerTest extends TestCase
         static::assertSame('frontend.account.convert.page', $this->controller->recorder()->forwardToRoute);
     }
 
+    public function testResetPasswordFormRendersFormViolationsForwardedFromResetPassword(): void
+    {
+        $page = new AccountRecoverPasswordPage();
+        $page->setHash('recovery-hash');
+        $page->setHashExpired(false);
+
+        $recoverPasswordPageLoader = $this->createMock(AccountRecoverPasswordPageLoader::class);
+        $recoverPasswordPageLoader->expects($this->once())
+            ->method('load')
+            ->with(static::isInstanceOf(Request::class), static::isInstanceOf(SalesChannelContext::class), 'recovery-hash')
+            ->willReturn($page);
+        $controller = $this->createController(recoverPasswordRoute: $recoverPasswordPageLoader);
+
+        $formViolations = new ConstraintViolationException(new ConstraintViolationList(), []);
+
+        // resetPassword() forwards here with the hash as request attribute
+        $request = new Request(attributes: ['hash' => 'recovery-hash', 'formViolations' => $formViolations]);
+
+        $controller->resetPasswordForm($request, Generator::generateSalesChannelContext());
+
+        static::assertSame([], $controller->recorder()->flashBag);
+        static::assertSame($page, $controller->recorder()->renderStorefrontParameters['page']);
+        static::assertSame($formViolations, $controller->recorder()->renderStorefrontParameters['formViolations']);
+    }
+
     private function createController(
         ?AccountLoginPageLoader $accountLoginPageLoader = null,
         ?AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader = null,
         ?AbstractLoginRoute $loginRoute = null,
+        ?AccountRecoverPasswordPageLoader $recoverPasswordRoute = null,
     ): AuthControllerStub {
         $resetPasswordRoute = static::createStub(AbstractResetPasswordRoute::class);
         $loginRoute ??= static::createStub(AbstractLoginRoute::class);
         $logoutRoute = static::createStub(AbstractLogoutRoute::class);
         $imitateCustomerRoute = static::createStub(AbstractImitateCustomerRoute::class);
         $cartFacade = static::createStub(StorefrontCartFacade::class);
-        $recoverPasswordRoute = static::createStub(AccountRecoverPasswordPageLoader::class);
+        $recoverPasswordRoute ??= static::createStub(AccountRecoverPasswordPageLoader::class);
 
         $abstractConvertGuestRoute = static::createStub(AbstractConvertGuestRoute::class);
         $systemConfigService = static::createStub(SystemConfigService::class);

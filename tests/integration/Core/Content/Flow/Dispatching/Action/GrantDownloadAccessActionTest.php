@@ -327,6 +327,7 @@ class GrantDownloadAccessActionTest extends TestCase
             static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
         }
 
+        $expectedOutput = '';
         foreach ($productDownloads as $key => $downloadFiles) {
             $lineItem = $lineItems->getAt($key);
             static::assertNotNull($lineItem);
@@ -339,12 +340,13 @@ class GrantDownloadAccessActionTest extends TestCase
                 $request = new Request([], [], ['downloadId' => $download->getId(), 'orderId' => $orderId]);
                 $response = $this->downloadRoute->load($request, $this->salesChannelContext);
                 static::assertInstanceOf(StreamedResponse::class, $response);
-                ob_start();
                 $response->send();
-                $content = ob_get_clean();
-                static::assertSame($download->getMediaId(), $content);
+                $expectedOutput .= $download->getMediaId();
             }
         }
+
+        // Each fixture file contains its media id, the downloads stream them in order.
+        $this->expectOutputString($expectedOutput);
     }
 
     /**

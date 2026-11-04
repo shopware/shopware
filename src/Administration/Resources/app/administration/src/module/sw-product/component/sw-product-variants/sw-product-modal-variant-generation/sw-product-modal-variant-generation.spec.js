@@ -363,7 +363,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         });
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'prices');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('prices');
         expect(wrapper.findComponent({ name: 'sw-product-variants-configurator-prices' }).exists()).toBe(true);
@@ -873,7 +873,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.generateVariants();
         await flushPromises();

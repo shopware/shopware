@@ -4,7 +4,7 @@
 import './init/services.init';
 import './acl';
 
-import './page/sw-promotion-v2-detail/store';
+import './page/sw-promotion-v2-detail/store/register';
 import defaultSearchConfiguration from './default-search-configuration';
 import './component/discount/sw-promotion-v2-settings-discount-type/register';
 import './component/discount/sw-promotion-v2-settings-rule-selection/register';

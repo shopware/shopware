@@ -3,7 +3,6 @@
  *
  * Everything the price matrices need from outside their mini-module.
  */
-import { swShippingDetailStoreId } from '../../page/sw-settings-shipping-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -17,7 +16,7 @@ export { default as placeholderMixin } from 'src/app/mixin/placeholder.mixin';
 export { repositoryFactory as repositoryFactoryService, ruleConditionDataProviderService } from 'src/app/service-names';
 
 /** The shipping method being edited and its price groups, shared with the shipping detail page. @private */
-export const useShippingDetailStore = () => Shopware.Store.get(swShippingDetailStoreId);
+export { useSwShippingDetailStore as useShippingDetailStore } from '../../page/sw-settings-shipping-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

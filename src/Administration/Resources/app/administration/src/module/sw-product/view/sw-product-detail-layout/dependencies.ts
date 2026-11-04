@@ -4,7 +4,6 @@
  * Everything sw-product-detail-layout needs from outside its mini-module.
  */
 import { cmsPageStoreId } from 'src/module/sw-cms/store/cms-page.store';
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -20,7 +19,7 @@ export {
 export const useCmsPageStore = () => Shopware.Store.get(cmsPageStoreId);
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

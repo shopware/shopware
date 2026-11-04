@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-product/page/sw-product-detail/store';
+import 'src/module/sw-product/page/sw-product-detail/store/register';
 import { nextTick } from 'vue';
 
 describe('module/sw-product/component/sw-product-category-form', () => {

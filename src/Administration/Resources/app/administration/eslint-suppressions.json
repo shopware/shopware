@@ -5148,9 +5148,6 @@
     }
   },
   "src/module/sw-bulk-edit/page/sw-bulk-edit-product/src/sw-bulk-edit-product.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "complexity": {
       "count": 2
     },
@@ -5407,14 +5404,9 @@
       "count": 3
     }
   },
-  "src/module/sw-category/page/sw-category-detail/store.spec.ts": {
+  "src/module/sw-category/page/sw-category-detail/store/tests/sw-category-detail.store.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
-    }
-  },
-  "src/module/sw-category/page/sw-category-detail/store.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 2
     }
   },
   "src/module/sw-category/page/sw-category-detail/sw-category-detail.spec.js": {
@@ -12574,7 +12566,7 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/store.ts": {
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/store/src/sw-shipping-detail.store.ts": {
     "no-restricted-syntax": {
       "count": 1
     }

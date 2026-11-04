@@ -6,7 +6,6 @@ import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
-import './store';
 
 const { Context, Mixin, EntityDefinition } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;

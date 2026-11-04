@@ -3,7 +3,6 @@
  *
  * Everything sw-product-cross-selling-form needs from outside its mini-module.
  */
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -15,4 +14,4 @@ export { productStreamConditionService, repositoryFactory as repositoryFactorySe
 export { mapPropertyErrors } from 'src/app/service/map-errors.service';
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';

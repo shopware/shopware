@@ -252,6 +252,12 @@
             "swFlow": [],
             "swBulkEdit": [],
             "mediaModal": []
+        },
+        "sources": {
+            "swCategoryDetail": "src/module/sw-category/page/sw-category-detail/store",
+            "swProductDetail": "src/module/sw-product/page/sw-product-detail/store",
+            "swPromotionDetail": "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/store",
+            "swShippingDetail": "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/store"
         }
     },
     "shopware:components": {

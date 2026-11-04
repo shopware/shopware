@@ -3,7 +3,6 @@
  *
  * Everything sw-bulk-edit-product-media needs from outside its mini-module.
  */
-import { swProductDetailStoreId } from 'src/module/sw-product/page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -13,7 +12,7 @@ export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
 export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from 'src/module/sw-product/page/sw-product-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

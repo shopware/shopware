@@ -4,7 +4,6 @@
  * Everything sw-category-detail-custom-entity needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { swCategoryDetailStoreId } from '../../page/sw-category-detail/store';
 
 /** @private */
 export { default as Criteria } from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
@@ -14,7 +13,7 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 export { acl as aclService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
 
 /** @private */
-export const useCategoryDetailStore = () => Shopware.Store.get(swCategoryDetailStoreId);
+export { useSwCategoryDetailStore as useCategoryDetailStore } from '../../page/sw-category-detail/store';
 
 /** @private */
 export const getAssetFilter = () => Shopware.Filter.getByName(assetFilterName);

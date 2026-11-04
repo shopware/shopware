@@ -3,7 +3,7 @@
  */
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
-import './page/sw-category-detail/store';
+import './page/sw-category-detail/store/register';
 import './component/sw-category-detail-menu/register';
 import './component/sw-category-entry-point-card/register';
 import './component/sw-category-entry-point-modal/register';

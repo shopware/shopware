@@ -4,7 +4,6 @@
  * Everything sw-category-detail-products needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { swCategoryDetailStoreId } from '../../page/sw-category-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -14,7 +13,7 @@ export { acl as aclService, repositoryFactory as repositoryFactoryService } from
 export { mapPropertyErrors } from 'src/app/service/map-errors.service';
 
 /** @private */
-export const useCategoryDetailStore = () => Shopware.Store.get(swCategoryDetailStoreId);
+export { useSwCategoryDetailStore as useCategoryDetailStore } from '../../page/sw-category-detail/store';
 
 /** @private */
 export const getAssetFilter = () => Shopware.Filter.getByName(assetFilterName);

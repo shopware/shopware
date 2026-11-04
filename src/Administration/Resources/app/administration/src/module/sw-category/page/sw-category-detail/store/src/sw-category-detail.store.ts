@@ -1,9 +1,16 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type CriteriaType from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
-import type Repository from '../../../../core/data/repository.data';
-import type { ContextStore } from '../../../../app/store/context.store';
-
-const { Criteria } = Shopware.Data;
+/**
+ * @sw-package inventory
+ */
+import {
+    type ContextStore,
+    Criteria,
+    type CriteriaType,
+    defineStoreOptions,
+    type Entity,
+    getStore,
+    type Repository,
+    type StoreOf,
+} from '../dependencies';
 
 interface LoadPayload<EntityName extends keyof EntitySchema.EntityKeys> {
     repository: Repository<EntityName>;
@@ -13,15 +20,16 @@ interface LoadPayload<EntityName extends keyof EntitySchema.EntityKeys> {
 }
 
 /**
- * @private
+ * @public
  * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
  */
 export const swCategoryDetailStoreId = 'swCategoryDetail';
 
 /**
- * @sw-package inventory
+ * @private
+ * The options the store is registered with, see `register.ts`.
  */
-const swCategoryDetailStore = Shopware.Store.register({
+export const swCategoryDetailStoreOptions = defineStoreOptions({
     id: swCategoryDetailStoreId,
 
     state: () => ({
@@ -75,8 +83,13 @@ const swCategoryDetailStore = Shopware.Store.register({
     },
 });
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type SwCategoryDetailStore = ReturnType<typeof swCategoryDetailStore>;
+/**
+ * @public
+ */
+export type SwCategoryDetailStore = StoreOf<typeof swCategoryDetailStoreOptions>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default swCategoryDetailStore;
+/**
+ * @public
+ * The store, looked up when it is called, so the page, its views and extensions share one state.
+ */
+export const useSwCategoryDetailStore = (): SwCategoryDetailStore => getStore(swCategoryDetailStoreId);

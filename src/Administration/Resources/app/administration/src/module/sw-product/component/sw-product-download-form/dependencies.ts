@@ -4,7 +4,6 @@
  * Everything sw-product-download-form needs from outside its mini-module.
  */
 import { errorStoreId } from 'src/app/store/error.store';
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';
@@ -22,7 +21,7 @@ export {
 export const useErrorStore = () => Shopware.Store.get(errorStoreId);
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';
 
 /** @private */
 export const fileSize = ((...args: unknown[]) =>

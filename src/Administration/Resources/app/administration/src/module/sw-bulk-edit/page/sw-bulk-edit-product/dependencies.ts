@@ -6,7 +6,6 @@
 import { userConfigService } from 'src/app/service-names';
 import { contextStoreId } from 'src/app/store/context.store';
 import { swBulkEditStoreId } from 'src/app/store/sw-bulk-edit.store';
-import { swProductDetailStoreId } from 'src/module/sw-product/page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -30,7 +29,7 @@ export const useBulkEditStore = () => Shopware.Store.get(swBulkEditStoreId);
 export const useContextStore = () => Shopware.Store.get(contextStoreId);
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from 'src/module/sw-product/page/sw-product-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

@@ -5,7 +5,6 @@
  */
 import { repositoryFactory, userConfigService } from 'src/app/service-names';
 import { contextStoreId } from 'src/app/store/context.store';
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -26,7 +25,7 @@ export const getUserConfigService = () => Shopware.Service(userConfigService);
 export const useContextStore = () => Shopware.Store.get(contextStoreId);
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import './acl';
+import './page/sw-settings-shipping-detail/store/register';
 import './component/sw-settings-shipping-price-matrix/register';
 import defaultSearchConfiguration from './default-search-configuration';
 import './component/sw-settings-shipping-price-matrices/register';

@@ -1,4 +1,3 @@
-import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 

@@ -28,6 +28,7 @@
     "src/module/sw-category/component/sw-category-view": "? @shopware/product-cc-discovery",
     "src/module/sw-category/component/sw-landing-page-tree": "? @shopware/product-cc-discovery",
     "src/module/sw-category/component/sw-landing-page-view": "? @shopware/product-cc-discovery",
+    "src/module/sw-category/page/sw-category-detail/store": "? @shopware/product-cc-discovery",
     "src/module/sw-category/view/sw-category-detail-base": "? @shopware/product-cc-discovery",
     "src/module/sw-category/view/sw-category-detail-cms": "? @shopware/product-cc-discovery",
     "src/module/sw-category/view/sw-category-detail-products": "? @shopware/product-cc-discovery",

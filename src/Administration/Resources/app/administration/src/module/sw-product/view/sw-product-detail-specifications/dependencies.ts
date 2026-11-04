@@ -3,7 +3,6 @@
  *
  * Everything sw-product-detail-specifications needs from outside its mini-module.
  */
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export {
@@ -13,4 +12,4 @@ export {
 } from 'src/app/service-names';
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';

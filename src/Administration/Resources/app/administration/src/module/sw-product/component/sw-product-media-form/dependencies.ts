@@ -3,7 +3,6 @@
  *
  * Everything sw-product-media-form needs from outside its mini-module.
  */
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
@@ -15,4 +14,4 @@ export {
 } from 'src/app/service-names';
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';

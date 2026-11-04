@@ -4,7 +4,6 @@
  * Everything sw-product-detail-base needs from outside its mini-module.
  */
 import { errorStoreId } from 'src/app/store/error.store';
-import { swProductDetailStoreId } from '../../page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -19,7 +18,7 @@ export { acl as aclService, repositoryFactory as repositoryFactoryService } from
 export const useErrorStore = () => Shopware.Store.get(errorStoreId);
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../page/sw-product-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

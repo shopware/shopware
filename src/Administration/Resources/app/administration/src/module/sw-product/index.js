@@ -3,6 +3,7 @@
  */
 
 import './acl';
+import './page/sw-product-detail/store/register';
 import defaultSearchConfiguration from './default-search-configuration';
 import './component/sw-product-media-form/register';
 import './page/sw-product-list/register';

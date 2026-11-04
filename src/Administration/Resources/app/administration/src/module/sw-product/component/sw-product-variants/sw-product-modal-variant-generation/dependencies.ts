@@ -3,7 +3,6 @@
  *
  * Everything sw-product-modal-variant-generation needs from outside its mini-module.
  */
-import { swProductDetailStoreId } from '../../../page/sw-product-detail/store';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
@@ -21,7 +20,7 @@ export {
 export { default as VariantsGenerator } from '../../../helper/sw-products-variants-generator';
 
 /** @private */
-export const useProductDetailStore = () => Shopware.Store.get(swProductDetailStoreId);
+export { useSwProductDetailStore as useProductDetailStore } from '../../../page/sw-product-detail/store';
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;

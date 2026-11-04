@@ -1,6 +1,7 @@
 /**
  * @sw-package checkout
  */
+import { defineStoreOptions, getStore, type StoreOf } from '../dependencies';
 
 type ShippingMethodPriceInMatrix = Entity<'shipping_method_price'> & { _inNewMatrix: boolean | undefined };
 type ShippingPriceGroup = {
@@ -12,12 +13,16 @@ type ShippingPriceGroup = {
 };
 
 /**
- * @private
+ * @public
  * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
  */
 export const swShippingDetailStoreId = 'swShippingDetail';
 
-const swShippingDetailStore = Shopware.Store.register({
+/**
+ * @private
+ * The options the store is registered with, see `register.ts`.
+ */
+export const swShippingDetailStoreOptions = defineStoreOptions({
     id: swShippingDetailStoreId,
 
     state() {
@@ -77,11 +82,12 @@ const swShippingDetailStore = Shopware.Store.register({
 });
 
 /**
- * @private
+ * @public
  */
-export default swShippingDetailStore;
+export type SwShippingDetailStore = StoreOf<typeof swShippingDetailStoreOptions>;
 
 /**
- * @private
+ * @public
+ * The store, looked up when it is called, so the page, its views and extensions share one state.
  */
-export type SwShippingDetailStore = ReturnType<typeof swShippingDetailStore>;
+export const useSwShippingDetailStore = (): SwShippingDetailStore => getStore(swShippingDetailStoreId);

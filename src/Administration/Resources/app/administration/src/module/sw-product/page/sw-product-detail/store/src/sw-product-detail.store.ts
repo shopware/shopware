@@ -2,8 +2,7 @@
  * @sw-package inventory
  */
 
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { ContextStore } from '../../../../app/store/context.store';
+import { type ContextStore, defineStoreOptions, type EntityCollection, getStore, type StoreOf } from '../dependencies';
 
 type LoadingProperties =
     | 'init'
@@ -31,12 +30,16 @@ type ProductDetailProduct = Entity<'product'> & {
 };
 
 /**
- * @private
+ * @public
  * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
  */
 export const swProductDetailStoreId = 'swProductDetail';
 
-const swProductDetail = Shopware.Store.register({
+/**
+ * @private
+ * The options the store is registered with, see `register.ts`.
+ */
+export const swProductDetailStoreOptions = defineStoreOptions({
     id: swProductDetailStoreId,
 
     state() {
@@ -282,11 +285,12 @@ const swProductDetail = Shopware.Store.register({
 });
 
 /**
- * @private
+ * @public
  */
-export default swProductDetail;
+export type SwProductDetailStore = StoreOf<typeof swProductDetailStoreOptions>;
 
 /**
- * @private
+ * @public
+ * The store, looked up when it is called, so the page, its views and extensions share one state.
  */
-export type SwProductDetailStore = ReturnType<typeof swProductDetail>;
+export const useSwProductDetailStore = (): SwProductDetailStore => getStore(swProductDetailStoreId);

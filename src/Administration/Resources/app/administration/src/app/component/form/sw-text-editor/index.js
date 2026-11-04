@@ -464,6 +464,7 @@ export default {
                         icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
+                        searchable: true,
                         tooltipShowDelay: 500,
                         tooltipHideDelay: 100,
                     };

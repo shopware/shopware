@@ -334,6 +334,56 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(event[0]).toBe(expectedTextContent);
     });
 
+    it('should insert an inline mapping found by the search at the previous editor selection', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        await addTextToEditor(wrapper, '<p id="text-editor-content">some random text</p>');
+        const paragraph = document.getElementById('text-editor-content');
+
+        await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
+
+        await wrapper
+            .find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon')
+            .trigger('click');
+        await flushPromises();
+
+        const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search-input');
+        await searchInput.setValue('TYPE');
+        // Focusing the search input moves the document selection out of the editor.
+        document.getSelection().selectAllChildren(searchInput.element.parentElement);
+
+        const children = wrapper.findAll('.sw-text-editor-toolbar-button__children-child');
+        expect(children).toHaveLength(1);
+
+        await children[0].trigger('click');
+        await flushPromises();
+
+        expect(contentEditor.element.innerHTML).toBe('<p id="text-editor-content">some random {{ category.type }}</p>');
+    });
+
+    it('should show an empty state if the inline mapping search has no results', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await addTextToEditor(wrapper, '<p id="text-editor-content">some random text</p>');
+        await addAndCheckSelection(wrapper, document.getElementById('text-editor-content'), 12, 16, 'text');
+
+        await wrapper
+            .find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-text-editor-toolbar-button__children-search-input').setValue('unknown');
+
+        expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child')).toHaveLength(0);
+        expect(wrapper.find('.sw-text-editor-toolbar-button__children-empty').text()).toBe(
+            'sw-text-editor-toolbar.childSearch.noResults',
+        );
+    });
+
     it('should return true if selection contains one or two opening brackets', async () => {
         wrapper = await createWrapper();
 

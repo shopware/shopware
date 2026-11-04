@@ -129,6 +129,12 @@ The legacy document services and components in the Administration were removed:
 
 # Storefront
 
+## Removed `seo:repair:link-category-takeover` command
+
+The `seo:repair:link-category-takeover` command has been removed.
+It repaired categories whose SEO URL was taken over by a link category of the same name during category indexing in 6.7.
+Run it before upgrading if you have not done so yet, and remove it from your deployment scripts.
+
 ## Removed `category_url` and `category_linknewtab` Twig functions
 
 The `category_url` and `category_linknewtab` Twig functions have been removed.

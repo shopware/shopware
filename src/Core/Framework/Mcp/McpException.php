@@ -14,6 +14,7 @@ class McpException extends HttpException
     private const MCP_INVALID_CREDENTIALS = 'MCP__INVALID_CREDENTIALS';
     private const MCP_THROTTLED = 'MCP__THROTTLED';
     private const MCP_INVALID_SESSION_ID = 'MCP__INVALID_SESSION_ID';
+    private const MCP_OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE = 'MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE';
 
     public static function unsupportedKeyType(): self
     {
@@ -50,6 +51,17 @@ class McpException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MCP_INVALID_SESSION_ID,
             'The mcp-session-id header is not a valid session ID.',
+        );
+    }
+
+    public static function oauthProtectedResourceMetadataUnavailable(string $resource, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MCP_OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE,
+            'No OAuth protected resource metadata for "{{ resource }}": {{ reason }}',
+            ['resource' => $resource, 'reason' => $previous->getMessage()],
+            $previous,
         );
     }
 

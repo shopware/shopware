@@ -53,9 +53,10 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () =>
+                        searchIds: () =>
                             Promise.resolve({
                                 total: 2,
+                                data: [],
                             }),
                         get: () => Promise.resolve(),
                     }),

@@ -136,6 +136,7 @@ export default {
                 overwrites: {
                     parentId: duplicate.id,
                     productNumber: `${duplicate.productNumber}.${this.cloneProgress}`,
+                    canonicalProductId: null,
                 },
                 cloneChildren: false,
             };

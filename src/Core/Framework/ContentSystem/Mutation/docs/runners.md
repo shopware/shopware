@@ -1,43 +1,33 @@
 # Runners
 
-The two things that run an operation: `MutationPipeline`, the stateless runner over a decoded draft tree, and
-`PersistedLayoutMutator`, which commits one operation to a stored `content_layout`. Both assemble their outcome
-through the same `MutationResult` named constructor.
+The things that run an operation: `MutationPipeline`, the stateless runner over a decoded draft tree, and
+`PersistedLayoutMutator`, which commits one operation to a stored `content_layout`.
 
 ## MutationPipeline
 
-`@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests). Constructor:
-`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror`.
+`@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests).
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
-already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()` via
-`ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
-instance, and hands the wired tree, the surviving analysis and the mutation to
-`MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
-(`array_intersect_key($analysis->resolutions, array_flip($affected))`).
+already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()`,
+and re-diagnoses only when the mirror step returned a different `StoredTree` instance.
 
-The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
-consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing
-a pre-wiring tree.
+The instance-identity check alone gates the rerun. Mirroring returns the input tree unchanged when it writes
+no consumer, so the common case stays at one analysis pass. A response never carries diagnostics of the tree before
+mirroring.
 
-`$rootContext` is the bound source's root-ambient context (`list<ProvidedContext>`) or `null` for the
-well-formedness-only subset. Decoding the request draft is the caller's job (`Api/DraftLayoutDecoder`, the
-structural pre-gate shared with the preview and diagnose routes); the pipeline is agnostic to whether the tree came
-from a request draft or a loaded `content_layout`. Stateless: it never persists.
+`$rootContext` is the bound source's root context (`list<ProvidedContext>`). `null` skips the binding-scope checks.
 
 ## PersistedLayoutMutator
 
-`@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`. Constructor:
-`LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics`.
+`@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`.
 
-`mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult`
-serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
-commit span is atomic, closing the lost-update window. It then loads by id
+`mutate()` serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
+commit span is atomic, closing the lost-update window. `mutate()` loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
-the row's `updatedAt` (`layoutVersionConflict`, 409, without writing on a mismatch; an unparseable token is a `400`
-`invalidVersionToken`; a `null` token matches a never-updated row), applies the op to the loaded `getLayout()` tree
-as it is (the entity and the operations speak the same stored model), then persists the mutated tree's `roots` via
-`update()`, which runs the resolvability gates and rejects a resolvability-breaking edit, and returns the
+the row's `updatedAt`. A mismatch is `layoutVersionConflict`, 409, without writing. An unparseable token is a `400`
+`invalidVersionToken`. A `null` token matches a never-updated row. `mutate()` applies the op to the loaded `getLayout()` tree
+as it is (the entity and the operations speak the same stored model) and persists the mutated tree's `roots` via
+`update()`, which runs the resolvability gates and rejects a resolvability-breaking edit. `mutate()` returns the
 `MutationResult`.
 
 The token is compared at storage precision: `content_layout.updated_at` is `DATETIME(3)`, and the Admin API
@@ -47,15 +37,14 @@ microseconds.
 It runs no consumer mirroring at all, so a persisted mutation commits without mirrored wiring.
 
 The response diagnostics are derived from the loaded layout's single `root_source`, resolved once via
-`RootSourceRegistry::resolve()`, which returns a list and never `null` (`[]` for `none` / header / footer), so the
-binding-scope checks always run. `resolve()` is never handed an unregistered id here: the preceding `update()` runs
+`RootSourceRegistry::resolve()`. It returns a list and never `null` (`[]` for `none` / header / footer), so the
+binding-scope checks always run. `resolve()` is never handed an unregistered id here. The preceding `update()` runs
 `Validation/ContentLayoutWriteValidator`, which re-checks membership of the committed root source and rejects a
 de-registered source as a clean `unknownRootSource` 400 before any commit.
 
 Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and static property values it cannot carry
-(`droppedProperties`) are never lost: the committed tree omits them and they ride back in the `MutationResult` so
-the caller can re-place them with `Op/AttachElement` (orphans), re-wire (dropped keys), or re-apply (dropped
-values).
+(`droppedProperties`) come back in the `MutationResult`. The caller can then re-place orphans with `Op/AttachElement`, re-wire dropped keys, or re-apply dropped
+values.
 
 ### Interim limitations
 
@@ -71,15 +60,9 @@ Two known limitations are deferred to the planned layout draft/versioning system
 
 ## MutationResult assembly
 
-`MutationResult` is `@internal final readonly` with a private constructor, reached through two named constructors:
+`MutationResult` is `@internal final readonly` with a private constructor, reached through named constructors:
 
-- `fromAnalyzedMutation(StoredTree $mutated, LayoutAnalysis $analysis, LayoutMutation $mutation): self` is the
-  single owner of the result assembly. It restricts the analysis resolutions to the mutation's `affected()` set via
-  `array_intersect_key($analysis->resolutions, array_flip($affected))` and reads
-  `orphaned`/`droppedWiring`/`droppedProperties` off the mutation. Both `MutationPipeline::run()` and `mutate()` call
-  it, so the affected-set restriction is stated once.
-- `fromParts(StoredTree $layout, array $resolutions, DiagnosticsReport $diagnostics, array $affectedElementIds, array $orphaned = [], array $droppedWiring = [], array $droppedProperties = []): self`
-  is the direct passthrough for a bespoke result.
-
-`$resolutions` is `array<string, list<PropertyResolution>>` keyed by element id; `$droppedProperties` is
-`array<string, StoredValue>` keyed by property key.
+- `fromAnalyzedMutation()` is the single owner of the result assembly. It restricts the analysis resolutions to the
+  mutation's `affected()` set and reads `orphaned`/`droppedWiring`/`droppedProperties` off the mutation. Both
+  `MutationPipeline::run()` and `mutate()` call it, so the affected-set restriction is stated once.
+- `fromParts()` is the direct passthrough for a bespoke result.

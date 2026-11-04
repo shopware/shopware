@@ -1,21 +1,19 @@
 # Custom Element Types
 
-The plugin- and app-facing guide to registering a new element type.
-
 Element types define what content components exist, their properties, and their slots. They are the schema for what a hydrated element looks like in the API response. Plugins and apps register types by placing YAML files in a types directory.
 
 ## Registration
 
 | Source | Directory                        | Name Prefix       | Customizable                                 |
 |--------|----------------------------------|-------------------|----------------------------------------------|
-| Plugin | `Resources/content-system/types` | Plugin class name | Yes, via `Plugin::getContentTypeDirectory()` |
+| Plugin | `Resources/content-system/types` | Plugin name | Yes, via `Plugin::getContentTypeDirectory()` |
 | App    | `Resources/content-system/types` | App name          | No                                           |
 
 The compiler pass discovers YAML files automatically. No service registration needed.
 
 ## Name Resolution
 
-Type names are derived from the file path relative to the types directory. Directory segments and filenames are converted from kebab-case to PascalCase and joined with colons. The source prefix is prepended automatically.
+Type names are derived from the file path relative to the types directory. Directory segments and filenames are converted from kebab-case to PascalCase and joined with colons. The source prefix is prepended automatically: `Sw` for core and bundles, the short `Plugin::getName()` value (not the FQCN) for plugins, the app name for apps.
 
 **Example:** Plugin `AcmeStore` with file `Resources/content-system/types/product/quick-view.yaml` produces type name `AcmeStore:Product:QuickView`.
 
@@ -60,11 +58,11 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
+**`properties`** (optional): Each property declares its type: a primitive (`string`, `boolean`, `integer`, `number`; the set is `PropertyType::PRIMITIVE_TYPES`) or any other value, read as a `class-string<Struct>` FQCN for hydrated data. Optional fields: `required`, `translatable` (`type: string` only), `enum` (primitives only, a list whose values match the declared type; enforced by `TypedEnumValidator`), `default` (primitives only, a value matching the declared type; enforced by `TypedDefaultValidator`), `title`, `description`, `adminUI`, `resolvedBy` (reference properties only; the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
 
-The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
+The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key. A misused `resolvedBy`, for example on a primitive property, therefore fails app install and `manifest:validate` outright.
 
-**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`), so no child can be stored under it.
+**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`, see [stored-model.md](../../../docs/principles/stored-model.md#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it)), so no child can be stored under it.
 
 **`bindings`** (optional): Inline binding specifications for this type. See [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md).
 
@@ -76,9 +74,9 @@ Type names must be globally unique across core, bundles, plugins, and apps. Dupl
 
 ## App Lifecycle
 
-App activation state is read live, not denormalized onto the element type rows. `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its element types from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update). Element types are persisted on app install/update by `ContentSystemElementTypeLifecycleHandler` and cascade-deleted with the app.
+App activation state is read live, not denormalized onto the element type rows. `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`. Deactivating an app therefore drops its element types from that query with no extra write. Yet the cached registry keeps serving them until its next invalidation (the persister on a later app install/update). Element types are persisted on app install/update by `ContentSystemElementTypeLifecycleHandler` and cascade-deleted with the app.
 
-Reference: [Layout/Type/README.md](../README.md), `Layout/Type/Definitions/` (5 core type examples)
+Reference: [Layout/Type/README.md](../README.md), `Layout/Type/Definitions/`
 
 ## Discoverability
 

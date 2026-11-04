@@ -1,8 +1,6 @@
 # Mutation Errors
 
-The failure conditions that abort a stateless draft mutation action ([mutation.md](mutation.md)) instead of being reported in its diagnostics body.
-
-A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`); the structural impossibilities are `400 Bad Request`:
+A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`). The structural impossibilities are `400 Bad Request`:
 
 | Condition                                                                                                | HTTP | Factory                                           |
 |----------------------------------------------------------------------------------------------------------|------|---------------------------------------------------|
@@ -22,3 +20,5 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Collective validation fails or a per-file/per-row load step raises the matching `*_LOAD_FAILED` code for an element-type, style-option, or binding registry used by the operation | 500 | The corresponding `ELEMENT_TYPE_LOAD_FAILED`, `STYLE_OPTION_LOAD_FAILED`, or `BINDING_SPECIFICATION_LOAD_FAILED` error propagates |
 
 Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.
+
+The mutation-structural codes above (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`) are not client defects. See [Client-Defect Error Codes](../../docs/client-defect-codes.md).

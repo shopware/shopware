@@ -1,7 +1,5 @@
 # Data Requirements
 
-How an element declares the data it needs, when to declare it, and the fields each declaration carries.
-
 Data requirements specify what data needs loading for an element:
 
 - What to load (entity, product listing, etc.)
@@ -29,12 +27,12 @@ Don't use data requirements when:
 
 Each data requirement is an object with these fields:
 
-- `key` (optional) - Names this data requirement. It does NOT place the loaded value: the property the data lands under is always the entry's key in the `dataRequirements` map. `Layout/Codec/StoredElementCodec::decodeDataRequirements()` decodes by that map key and `Rendering/RenderedElementFactory::create()` mints from it, so an inner `key` differing from its map key changes nothing about placement. Omitted, it falls back to the map key.
+- `key` (optional) - Names this data requirement. It does NOT place the loaded value: the element property that holds the data is the object's key name in the `dataRequirements` map, always. `Layout/Codec/StoredElementCodec::decodeDataRequirements()` keys the decoded map by the map key and `Rendering/RenderedElementFactory::create()` builds from those map keys, so an inner `key` differing from its map key changes nothing about placement. Omitted, it falls back to the map key.
 - `source` (required) - Loader identifier (e.g., `"entity"`, `"entity_collection"`, `"product_listing"`, `"navigation"`)
 - `config` (optional) - Loader-specific configuration object
 
 > [!NOTE]
-> A missing `key` is unambiguous rather than malformed, so decode fills it from the map key instead of failing. `Layout/Element/DataRequirement/DataRequirement::jsonSerialize()` always emits `key`, so such a requirement — written by raw SQL, or in a row predating that guarantee — gains an explicit `key` the next time its layout is saved: the stored bytes change, the tree does not.
+> A missing `key` is unambiguous rather than malformed, so decode fills it from the map key instead of failing. `Layout/Element/DataRequirement/DataRequirement::jsonSerialize()` always emits `key`, so such a requirement (written by raw SQL, or in a row predating that guarantee) gains an explicit `key` the next time its layout is saved: the stored bytes change, the tree does not.
 
 ## Multiple Data Requirements
 

@@ -1,8 +1,6 @@
 # Automatic Data Loading
 
-What an entity-based render loads before your layout runs, and how a layout takes delivery of it.
-
-Entity-based rendering automatically loads the main entity before rendering your layout -- no `dataRequirements` declaration needed -- whenever an element on the page reads it through a root-scoped consumer. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available as the layout's root-ambient context. A page-level requirement that no element reads is not loaded, so it runs no query and contributes no cache tag.
+Entity-based rendering automatically loads the main entity before rendering your layout -- no `dataRequirements` declaration needed -- whenever an element on the page reads it through a root-scoped consumer. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available as the layout's [root context](../../docs/principles/README.md#glossary). A page-level requirement that no element reads is not loaded, so it runs no query and contributes no cache tag.
 
 **Auto-loaded entities and associations:**
 
@@ -32,4 +30,4 @@ Entity-based rendering automatically loads the main entity before rendering your
 }
 ```
 
-An element takes delivery of the auto-loaded entity by declaring `scope: "root"` on the matching context key. That is the only route by which it reaches an element directly: with no ancestor providing that key, a `scope: "parent"` consumer of it receives nothing however shallow the element sits, and a `redistribute` chain never carries it. The container in between declares no wiring at all, and the same consumer works at any depth (see [Consumer Configuration](../../Layout/Element/Context/docs/consumers.md)). An element that root-consumes a key may of course re-expose it through its own `providesContext` entry, and what it hands down from there is ordinary element-provided context. Redistribution stays the mechanism for context an element itself provides (see [Context Redistribution](../../Layout/Element/Context/docs/redistribution.md)). Declare `dataRequirements` only for additional data beyond what's automatically loaded (e.g., cross-sell products, reviews).
+An element receives the auto-loaded entity by declaring `scope: "root"` on the matching context key. See [Context flows only between adjacent elements](../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements). An element may re-expose a root-scoped key through its own `providesContext` entry, and what it passes down from there is ordinary element-provided context. Redistribution stays the mechanism for context an element itself provides (see [Context Redistribution](../../Layout/Element/Context/docs/redistribution.md)). Declare `dataRequirements` only for additional data beyond what's automatically loaded (e.g., cross-sell products, reviews).

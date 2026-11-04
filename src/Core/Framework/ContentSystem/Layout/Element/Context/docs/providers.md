@@ -1,7 +1,5 @@
 # Provider Configuration
 
-Configuration reference for the `providesContext` entry an element declares to expose data to its children.
-
 Provider exposes data as context for direct children using `providesContext`.
 
 ```json
@@ -46,6 +44,8 @@ Fields:
 
 Note: The context key in `providesContext` typically matches a property name loaded by `dataRequirements`.
 
+Providers of one element deliver under distinct keys. An authored provider delivers under `distributionConfig->getConsumerAlias() ?? providerKey`. A `redistribute: true` consumer adds a derived provider under `consumerAlias ?? contextKey`. `ProviderDeliveryKeyResolver` owns the rule. It indexes the authored providers first, reports the earlier of two colliding providers as `first` and throws `ContentSystemException::providerDeliveryCollision()`. `Rendering/WiringPlanner::plan()` (over the forest before the [partial prune](../../../../docs/principles/README.md#glossary)) and `Resolution/AvailableContextResolver` (over the target and its ancestors) both call it. Each site decides which elements it judges.
+
 **Consumer Alias Example:**
 
 **Use case:** You have reusable product card components that expect data as `"product"`. Your homepage loads featured products as `"featuredProducts"`, but you want to use the same product cards without modifying them.
@@ -60,4 +60,4 @@ Note: The context key in `providesContext` typically matches a property name loa
 }
 ```
 
-The provider loads data as `featuredProducts`, but child components receive it as `product`. This lets you reuse the same product card in homepage (featuredProducts), categories (categoryProducts), and search (searchResults) - all expecting `product` internally.
+The provider loads data as `featuredProducts`, but child components receive it as `product`.

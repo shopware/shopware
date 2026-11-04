@@ -1,7 +1,5 @@
 # Service Tags and Types
 
-The DI tags a plugin registers its content system services under, and the classes an extension developer encounters while writing them.
-
 ## Service Tag Reference
 
 | Tag                                   | Index Method           | Attributes                                     |
@@ -15,8 +13,6 @@ The DI tags a plugin registers its content system services under, and the classe
 Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`. Domain sources register in their owning module's DI instead: `content_system.entity_specification_source` is tagged in `src/Core/Content/DependencyInjection/product.php`, `category.php` and `landing_page.php`, and `content_system.specification_source` is tagged in `src/Storefront/DependencyInjection/content-system.php` for the header and footer sections.
 
 ## Type Reference
-
-Key types extension developers encounter when working with the ContentSystem:
 
 ### Base Classes (extend these)
 
@@ -32,11 +28,11 @@ Key types extension developers encounter when working with the ContentSystem:
 | Class                     | Purpose                                                                                |
 |---------------------------|----------------------------------------------------------------------------------------|
 | `ContentDataLoaderResult` | Loader return value with cache info                                                    |
-| `LoaderTypeCapability`    | One type a loader can produce: `producedType`, `configTemplate`, `genericParameters`; returned by `producibleTypes()` (construct directly when overriding it) |
+| `LoaderTypeCapability`    | One type a loader can produce, returned by `producibleTypes()` (construct directly when overriding it) |
 | `SpecificationData`       | Return type of `resolveSpecificationData()`                                            |
-| `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
+| `PlaceholderValues`       | Created via `PlaceholderValues::from()`                                                |
 
-The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are listed in [AGENTS.md](../AGENTS.md#source-code-references).
+The layout value objects a source assembles and the pipeline consumes (`RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout`) are described in [README.md](../README.md#key-classes).
 
 ### Enums
 
@@ -56,8 +52,8 @@ The layout value objects a source assembles and the pipeline consumes — `Rende
 
 | Class                    | Purpose                                         |
 |--------------------------|-------------------------------------------------|
-| `StoredElement`          | Stored tree node: properties, slots, data requirements, context wiring |
-| `RenderedElement`        | Rendered tree node: `id`, `component`, flat properties, slots, style |
+| `StoredElement`          | Stored tree node                                                       |
+| `RenderedElement`        | Rendered tree node                                                   |
 | `RenderingCacheContext`  | Cache tag collection + disable flag             |
 | `ContentSystemException` | Exception class with error codes                |
 

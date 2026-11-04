@@ -29,13 +29,9 @@
     "unused-export:scripts/extensionTooling/probe-live.ts:ESLINT_NOT_COMPOSED_DETAIL",
     "unused-export:scripts/extensionTooling/shared.ts:projectHasBridge",
     "unused-export:src/app/service/app-cms.service.js:BLOCKS_CATEGORIES",
-    "unused-export:src/core/service/util.service.ts:extension",
-    "unused-export:src/core/service/util.service.ts:genericRuleCondition",
-    "unused-export:src/core/service/util.service.ts:unitConversion",
     "unused-export:src/core/service/validation.service.js:regex",
     "unused-export:src/module/sw-import-export/service/mocks/mappings.mock.js:default",
-    "unused-export:src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.spec/fixtures.js:stateHistoryFixture",
-    "unused-export:src/module/sw-order/service/documentV2.service.ts:ZUGFERD_DOCUMENT_TYPES"
+    "unused-export:src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.spec/fixtures.js:stateHistoryFixture"
   ],
   "unused_types": [
     "unused-type:src/core/service/entity-mapping.service.ts:EntityNameMapping",

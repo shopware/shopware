@@ -168,29 +168,36 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
 
     [
         {
-            composition: 'extends',
-            compose: async (base: string) => {
-                ComponentFactory.extend(`${base}-child`, base, {});
-                await ComponentFactory.build(`${base}-child`);
+            base: 'a base that Component.extend() extends',
+            compose: async (componentName: string) => {
+                ComponentFactory.extend(`${componentName}-child`, componentName, {});
+                await ComponentFactory.build(`${componentName}-child`);
             },
         },
         {
-            composition: 'overrides',
-            compose: async (base: string) => {
-                ComponentFactory.override(base, {});
-                await ComponentFactory.build(base);
+            base: 'a base that Component.override() overrides',
+            compose: async (componentName: string) => {
+                ComponentFactory.override(componentName, {});
+                await ComponentFactory.build(componentName);
             },
         },
         {
-            composition: 'adds mixins to',
-            compose: async (base: string, component: ComponentConfig) => {
+            base: 'a base that extends another component',
+            compose: async (componentName: string, component: ComponentConfig) => {
+                component.extends = {};
+                await ComponentFactory.build(componentName);
+            },
+        },
+        {
+            base: 'a base with mixins',
+            compose: async (componentName: string, component: ComponentConfig) => {
                 component.mixins = [{}];
-                await ComponentFactory.build(base);
+                await ComponentFactory.build(componentName);
             },
         },
-    ].forEach(({ composition, compose }) => {
+    ].forEach(({ base, compose }) => {
         it.activeFeatureFlags(['ADMIN_VITE_8'])(
-            `reloads the page when the component factory ${composition} a base`,
+            `reloads the page for ${base} when the component factory composed it`,
             async () => {
                 const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
                 ComponentFactory.register(name, () => Promise.resolve(current.component as ComponentConfig));

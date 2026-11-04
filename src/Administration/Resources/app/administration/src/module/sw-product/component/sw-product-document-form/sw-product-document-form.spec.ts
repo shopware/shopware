@@ -111,7 +111,7 @@ describe('sw-product-document-form', () => {
         expect(wrapper.findAll('.document-row')).toHaveLength(10);
         expect(getDocuments()?.[9].mediaId).toBe(lastMedia.id);
         expect(getDocuments()?.some((document) => document.mediaId === excessMedia.id)).toBe(false);
-        expect(wrapper.get('.sw-product-document-form__add-button').attributes('disabled')).toBeDefined();
+        expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeDefined();
         expect(notificationSpy).toHaveBeenCalledTimes(1);
         expect(notificationSpy).toHaveBeenCalledWith(
             expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorDocumentLimit' }),

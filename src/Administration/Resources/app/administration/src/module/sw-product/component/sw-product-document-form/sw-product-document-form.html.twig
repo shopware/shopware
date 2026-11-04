@@ -47,28 +47,19 @@
 
                 <template #headerRight>
                 {% block sw_product_document_form_add %}
-                    <mt-button
+                    <sw-product-document-add-button
                         v-if="currentValue.length"
                         class="sw-product-document-form__add-button"
                         :disabled="isInherited || !canAddDocuments"
-                        size="small"
-                        variant="secondary"
-                        @click="showUploadModal = true"
-                    >
-                        {{ $t('sw-product.documentForm.buttonAdd') }}
-                    </mt-button>
+                        @add-documents="showUploadModal = true"
+                        @change-language="$emit('change-language', $event)"
+                    />
                 {% endblock %}
                 </template>
 
                 <template #grid>
                 {% block sw_product_document_form_language_hint %}
-                    <mt-banner
-                        v-if="!isDefaultLanguage && currentValue.length"
-                        variant="info"
-                        class="sw-product-document-form__language-hint"
-                    >
-                        {{ $t('sw-product.documentForm.languageHint') }}
-                    </mt-banner>
+
                 {% endblock %}
                 {% block sw_product_document_form_empty %}
                     <div
@@ -130,18 +121,18 @@
                     {% endblock %}
                     {% block sw_product_document_form_name %}
                         <template #column-title="{ item }">
-                            <span
-                                class="sw-data-grid__cell-value"
-                                :title="getTitle(item)"
-                            >{{ getTitle(item) }}</span>
+                            <sw-product-document-language-value
+                                :value="getTitle(item)"
+                                :is-translated="!!item.title"
+                            />
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_file %}
                         <template #column-fileName="{ item }">
-                            <span
-                                class="sw-data-grid__cell-value"
-                                :title="getFileName(item)"
-                            >{{ getFileName(item) }}</span>
+                            <sw-product-document-language-value
+                                :value="getFileName(item)"
+                                :is-translated="!!item.mediaId"
+                            />
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_type %}

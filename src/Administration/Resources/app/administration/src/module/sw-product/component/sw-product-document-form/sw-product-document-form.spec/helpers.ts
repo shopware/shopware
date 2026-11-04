@@ -44,6 +44,17 @@ export async function createWrapper(
             },
             stubs: {
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
+                'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),
+                'sw-product-document-language-value': await wrapTestComponent('sw-product-document-language-value', {
+                    sync: true,
+                }),
+                'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
+                    sync: true,
+                }),
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot name="trigger"/><slot v-if="isOpened"/></div>',
+                },
                 'sw-product-document-empty-state': await wrapTestComponent('sw-product-document-empty-state', {
                     sync: true,
                 }),

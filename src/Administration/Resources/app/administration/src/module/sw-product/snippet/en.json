@@ -600,6 +600,8 @@
       "emptyDescriptionOtherLanguage": "Switch the content language to the default language {language} to add documents.",
       "defaultLanguage": "default language",
       "buttonAdd": "Add documents",
+      "changedForLanguage": "Changed for this language.",
+      "switchContentLanguage": "Switch content language",
       "columnPosition": "Position",
       "columnTitle": "Name",
       "columnFileName": "File",

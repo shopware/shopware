@@ -600,6 +600,8 @@
       "emptyDescriptionOtherLanguage": "Wechsle zur Standard-Inhaltssprache {language}, um Dokumente hinzuzufügen.",
       "defaultLanguage": "Standardsprache",
       "buttonAdd": "Dokumente hinzufügen",
+      "changedForLanguage": "Für diese Sprache geändert.",
+      "switchContentLanguage": "Inhaltssprache wechseln",
       "columnPosition": "Position",
       "columnTitle": "Name",
       "columnFileName": "Datei",

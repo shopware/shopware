@@ -1,0 +1,73 @@
+{% block sw_product_document_add_button %}
+<span class="sw-product-document-add-button">
+    <mt-button
+        v-if="isDefaultLanguage"
+        :disabled="disabled"
+        size="small"
+        variant="secondary"
+        @click="$emit('add-documents')"
+    >
+        {{ $t('sw-product.documentForm.buttonAdd') }}
+    </mt-button>
+    <mt-floating-ui
+        v-else
+        :is-opened="isHintOpen"
+        :floating-ui-options="{ placement: 'top' }"
+        show-arrow
+        @close="closeHint"
+    >
+        <template #trigger>
+            <span
+                ref="trigger"
+                class="sw-product-document-add-button__trigger"
+                role="button"
+                tabindex="0"
+                :aria-label="$t('sw-product.documentForm.switchContentLanguage')"
+                aria-haspopup="dialog"
+                :aria-expanded="isHintOpen"
+                @mouseenter="openHint"
+                @mouseleave="scheduleClose"
+                @focusin="openHint"
+                @focusout="scheduleClose"
+                @keydown.enter="focusHint"
+                @keydown.esc.stop="closeHint"
+            >
+                <mt-button
+                    disabled
+                    aria-hidden="true"
+                    size="small"
+                    variant="secondary"
+                >
+                    {{ $t('sw-product.documentForm.buttonAdd') }}
+                </mt-button>
+            </span>
+        </template>
+
+        <template #default>
+            {% block sw_product_document_add_button_language_hint %}
+            <mt-text
+                ref="languageHint"
+                as="div"
+                size="xs"
+                color="var(--color-text-inverse-default)"
+                class="sw-product-document-add-button__hint"
+                role="dialog"
+                tabindex="-1"
+                :aria-label="$t('sw-product.documentForm.switchContentLanguage')"
+                @vue:mounted="focusLanguageLink"
+                @mouseenter="openHint"
+                @mouseleave="scheduleClose"
+                @focusin="openHint"
+                @focusout="scheduleClose"
+                @keydown.esc.stop="$refs.trigger.focus(); closeHint()"
+            >
+                <sw-product-document-language-hint
+                    @vue:mounted="focusLanguageLink"
+                    @change-language="closeHint(); $emit('change-language', $event)"
+                />
+            </mt-text>
+            {% endblock %}
+        </template>
+    </mt-floating-ui>
+</span>
+{% endblock %}

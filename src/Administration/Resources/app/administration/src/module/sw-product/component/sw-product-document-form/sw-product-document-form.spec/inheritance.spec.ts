@@ -42,7 +42,7 @@ describe('sw-product-document-form inheritance', () => {
         store.parentProduct.documents?.add(parentDocument);
         const wrapper = await createWrapper();
         expect(wrapper.text()).toContain('Parent manual');
-        expect(wrapper.get('.sw-product-document-form__add-button').attributes('disabled')).toBeDefined();
+        expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeDefined();
 
         await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
         expect(getDocuments()?.[0].id).not.toBe(parentDocument.id);

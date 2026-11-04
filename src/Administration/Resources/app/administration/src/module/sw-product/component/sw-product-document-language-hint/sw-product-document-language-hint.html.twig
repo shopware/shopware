@@ -1,0 +1,18 @@
+{% block sw_product_document_language_hint %}
+<i18n-t
+    tag="span"
+    keypath="sw-product.documentForm.emptyDescriptionOtherLanguage"
+    scope="global"
+>
+    <template #language>
+        {% block sw_product_document_language_hint_link %}
+        <mt-link
+            as="button"
+            @click.prevent="$emit('change-language', defaultLanguageId)"
+        >
+            '{{ defaultLanguageName || $t('sw-product.documentForm.defaultLanguage') }}'
+        </mt-link>
+        {% endblock %}
+    </template>
+</i18n-t>
+{% endblock %}

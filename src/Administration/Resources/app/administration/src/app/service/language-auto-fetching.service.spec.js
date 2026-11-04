@@ -39,7 +39,9 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         expect(repositoryGetMock).toHaveBeenCalledWith(
             'initial-language-id',
             expect.objectContaining({ inheritance: true }),
+            expect.any(Shopware.Data.Criteria),
         );
+        expect(repositoryGetMock.mock.calls[0][2].parse()).toMatchObject({ associations: { locale: {} } });
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({
@@ -60,7 +62,12 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         Shopware.Store.get('context').api.languageId = 'new-language-id';
         await flushPromises();
 
-        expect(repositoryGetMock).toHaveBeenCalledWith('new-language-id', expect.objectContaining({ inheritance: true }));
+        expect(repositoryGetMock).toHaveBeenCalledWith(
+            'new-language-id',
+            expect.objectContaining({ inheritance: true }),
+            expect.any(Shopware.Data.Criteria),
+        );
+        expect(repositoryGetMock.mock.calls[0][2].parse()).toMatchObject({ associations: { locale: {} } });
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({

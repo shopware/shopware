@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\DualEra;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 
 /**
@@ -18,9 +19,9 @@ final class OversizedResultTool extends McpToolResponse
 {
     public const NAME = 'dual-era-test-oversized-result';
 
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return $this->success(self::rows());
+        return $this->successResult(self::rows());
     }
 
     /**

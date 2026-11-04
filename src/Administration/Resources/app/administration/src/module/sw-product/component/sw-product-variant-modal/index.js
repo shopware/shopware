@@ -320,8 +320,7 @@ export default {
             return Promise.all([
                 this.fetchProductMedias(),
                 this.fetchProductConfiguration(),
-                this.fetchProductVariants(),
-                this.fetchSystemCurrency(),
+                this.fetchSystemCurrency().then(() => this.fetchProductVariants()),
                 this.loadGroups(),
             ]).finally(() => {
                 this.isLoading = false;

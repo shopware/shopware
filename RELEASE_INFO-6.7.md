@@ -528,6 +528,14 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### `app.request` is the current request
+
+The Twig variable `app.request` now always returns the request that is currently rendered.
+Before, it kept the first request it was read in, so long-running workers like FrankenPHP showed the host and URL of an earlier request.
+This also applies to the header and footer, which are rendered in their own requests.
+Templates in the header and footer that read page data from `app.request`, for example the page route, now get the header or footer request.
+Pass page data through `headerParameters` and `footerParameters` instead.
+
 ### CMS sliders and image galleries respect vertical alignment
 
 Image gallery, image slider, and product slider CMS elements now apply their configured vertical alignment in the Storefront.

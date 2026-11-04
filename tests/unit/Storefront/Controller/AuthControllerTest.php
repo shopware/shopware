@@ -15,17 +15,20 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -41,6 +44,8 @@ class AuthControllerTest extends TestCase
 
     private MockObject&AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader;
 
+    private MockObject&AccountRecoverPasswordPageLoader $recoverPasswordPageLoader;
+
     protected function setUp(): void
     {
         $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
@@ -50,7 +55,7 @@ class AuthControllerTest extends TestCase
         $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
         $imitateCustomerRoute = $this->createMock(AbstractImitateCustomerRoute::class);
         $cartFacade = $this->createMock(StorefrontCartFacade::class);
-        $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
+        $this->recoverPasswordPageLoader = $this->createMock(AccountRecoverPasswordPageLoader::class);
 
         $this->controller = new AuthControllerTestClass(
             $this->accountLoginPageLoader,
@@ -60,7 +65,7 @@ class AuthControllerTest extends TestCase
             $logoutRoute,
             $imitateCustomerRoute,
             $cartFacade,
-            $recoverPasswordRoute,
+            $this->recoverPasswordPageLoader,
         );
 
         $containerBuilder = new ContainerBuilder();
@@ -140,6 +145,29 @@ class AuthControllerTest extends TestCase
 
         static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
         static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());
+    }
+
+    public function testResetPasswordFormRendersFormViolationsForwardedFromResetPassword(): void
+    {
+        $page = new AccountRecoverPasswordPage();
+        $page->setHash('recovery-hash');
+        $page->setHashExpired(false);
+
+        $this->recoverPasswordPageLoader->expects($this->once())
+            ->method('load')
+            ->with(static::isInstanceOf(Request::class), static::isInstanceOf(SalesChannelContext::class), 'recovery-hash')
+            ->willReturn($page);
+
+        $formViolations = new ConstraintViolationException(new ConstraintViolationList(), []);
+
+        // resetPassword() forwards here with the hash as request attribute
+        $request = new Request(attributes: ['hash' => 'recovery-hash', 'formViolations' => $formViolations]);
+
+        $this->controller->resetPasswordForm($request, Generator::generateSalesChannelContext());
+
+        static::assertSame([], $this->controller->flashBag);
+        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
+        static::assertSame($formViolations, $this->controller->renderStorefrontParameters['formViolations']);
     }
 }
 

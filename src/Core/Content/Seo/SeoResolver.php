@@ -74,26 +74,32 @@ class SeoResolver extends AbstractSeoResolver
             ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
             ->andWhere('seo_url.is_deleted = 0');
 
-        $seoPathConditions = [
-            'seo_path_info = :seoPath',
-            'seo_path_info = :seoPathWithSlash',
-        ];
-
         $query->setParameter('language_id', Uuid::fromHexToBytes($context->languageId))
-            ->setParameter('sales_channel_id', Uuid::fromHexToBytes($context->salesChannelId))
-            ->setParameter('seoPath', $seoPathInfo)
-            ->setParameter('seoPathWithSlash', $seoPathInfo . '/');
+            ->setParameter('sales_channel_id', Uuid::fromHexToBytes($context->salesChannelId));
+
+        $pathCandidates = [$seoPathInfo];
+        $decodedSeoPathInfo = (string) preg_replace_callback(
+            '/(?:%[89A-Fa-f][0-9A-Fa-f])+/',
+            static fn (array $match): string => rawurldecode($match[0]),
+            $seoPathInfo
+        );
+        if ($decodedSeoPathInfo !== $seoPathInfo && mb_check_encoding($decodedSeoPathInfo, 'UTF-8')) {
+            $pathCandidates[] = $decodedSeoPathInfo;
+        }
 
         $queryCandidates = array_values(array_unique(array_filter(
             [$normalizedQueryString, $context->queryString],
             static fn (?string $query): bool => $query !== null && $query !== ''
         )));
 
-        foreach ($queryCandidates as $index => $candidate) {
-            $seoPathConditions[] = "seo_path_info = :seoPathWithQuery{$index}";
-            $seoPathConditions[] = "seo_path_info = :seoPathWithSlashAndQuery{$index}";
-            $query->setParameter("seoPathWithQuery{$index}", $seoPathInfo . '?' . $candidate)
-                ->setParameter("seoPathWithSlashAndQuery{$index}", $seoPathInfo . '/?' . $candidate);
+        $literalSeoPaths = $this->buildSeoPathVariants($seoPathInfo, $queryCandidates);
+
+        $seoPathConditions = [];
+        foreach ($pathCandidates as $pathIndex => $pathCandidate) {
+            foreach ($this->buildSeoPathVariants($pathCandidate, $queryCandidates) as $variantIndex => $variant) {
+                $seoPathConditions[] = "seo_path_info = :seoPath{$pathIndex}_{$variantIndex}";
+                $query->setParameter("seoPath{$pathIndex}_{$variantIndex}", $variant);
+            }
         }
 
         $query->andWhere('(' . implode(' OR ', $seoPathConditions) . ')');
@@ -102,7 +108,7 @@ class SeoResolver extends AbstractSeoResolver
         /** @var list<array{id: string, pathInfo: string, seoPathInfo: string, isCanonical: string|null, salesChannelId: string|null}> $seoPaths */
         $seoPaths = $query->executeQuery()->fetchAllAssociative();
 
-        usort($seoPaths, function ($a, $b) use ($normalizedQueryString) {
+        usort($seoPaths, function ($a, $b) use ($normalizedQueryString, $literalSeoPaths) {
             if ($a['isCanonical'] === null) {
                 return 1;
             }
@@ -125,6 +131,12 @@ class SeoResolver extends AbstractSeoResolver
                 if ($aMatches !== $bMatches) {
                     return $aMatches ? -1 : 1;
                 }
+            }
+
+            $aIsLiteral = \in_array($a['seoPathInfo'], $literalSeoPaths, true);
+            $bIsLiteral = \in_array($b['seoPathInfo'], $literalSeoPaths, true);
+            if ($aIsLiteral !== $bIsLiteral) {
+                return $aIsLiteral ? -1 : 1;
             }
 
             return 0;
@@ -186,6 +198,22 @@ class SeoResolver extends AbstractSeoResolver
             canonicalPathInfo: $seoPath['canonicalPathInfo'] ?? null,
             seoPathInfo: $seoPath['seoPathInfo'] ?? null,
         );
+    }
+
+    /**
+     * @param list<string> $queryCandidates
+     *
+     * @return list<string>
+     */
+    private function buildSeoPathVariants(string $seoPath, array $queryCandidates): array
+    {
+        $variants = [$seoPath, $seoPath . '/'];
+        foreach ($queryCandidates as $candidate) {
+            $variants[] = $seoPath . '?' . $candidate;
+            $variants[] = $seoPath . '/?' . $candidate;
+        }
+
+        return $variants;
     }
 
     private function normalizeQueryString(?string $queryString): ?string

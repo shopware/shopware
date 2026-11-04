@@ -469,6 +469,17 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
 
+### Unused runtime packages removed from the Administration
+
+The Administration no longer ships these packages:
+
+* `app-module-path`
+* `optional-chaining-codemod`
+* `path-browserify`
+* `uuid`
+* `vite-plugin-dynamic-import`
+
+If the Administration code of your extension imports one of them without declaring it, add it to the `package.json` of your extension.
 ### vue-i18n 11 in the Administration
 
 The Administration uses vue-i18n 11 instead of 10, which fixes the advisories GHSA-83rm-6c8r-g728 and GHSA-8rc2-428q-7ww3.

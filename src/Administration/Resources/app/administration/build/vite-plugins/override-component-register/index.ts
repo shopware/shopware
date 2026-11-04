@@ -30,6 +30,34 @@ export default function viteOverridePlugin(options: Options): Plugin {
             overrideFiles = findFilesRecursively(root, pattern).sort();
         },
 
+        /**
+         * The entry imports every override file found at startup, so adding or removing one changes the entry.
+         * The new entry registers the overrides again, which only a page reload can apply.
+         */
+        hotUpdate({ type, file }) {
+            if (type === 'update' || this.environment.name !== 'client' || !pattern.test(file)) {
+                return undefined;
+            }
+
+            const discovered = findFilesRecursively(root, pattern).sort();
+
+            if (discovered.join('\n') === overrideFiles.join('\n')) {
+                return undefined;
+            }
+
+            overrideFiles = discovered;
+            const entry = this.environment.moduleGraph.getModuleById(pluginEntryFile);
+
+            if (!entry) {
+                return undefined;
+            }
+
+            this.environment.moduleGraph.invalidateModule(entry);
+            this.environment.hot.send({ type: 'full-reload', path: '*' });
+
+            return [];
+        },
+
         transform(code, id) {
             // Only transform the entry file
             if (id !== pluginEntryFile || overrideFiles.length === 0) {

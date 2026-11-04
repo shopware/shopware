@@ -1,14 +1,17 @@
 /**
  * @sw-package framework
- *
+ */
+import { useMediaModalStore } from './src/media-modal.store';
+
+/**
  * @private
  */
 export default function initializeMediaModal(): void {
     Shopware.ExtensionAPI.handle('uiMediaModalOpen', (modalConfig) => {
-        Shopware.Store.get('mediaModal').openModal(modalConfig);
+        useMediaModalStore().openModal(modalConfig);
     });
 
     Shopware.ExtensionAPI.handle('uiMediaModalOpenSaveMedia', (saveModalConfig) => {
-        Shopware.Store.get('mediaModal').openSaveModal(saveModalConfig);
+        useMediaModalStore().openSaveModal(saveModalConfig);
     });
 }

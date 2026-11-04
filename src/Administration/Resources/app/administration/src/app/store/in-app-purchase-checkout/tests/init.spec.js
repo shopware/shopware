@@ -2,10 +2,10 @@
  * @sw-package checkout
  */
 import { purchase } from '@shopware-ag/meteor-admin-sdk/es/iap';
-import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
+import initializeInAppPurchaseCheckout from '../init';
 import 'src/app/store/in-app-purchase-checkout/register';
 
-describe('src/app/init/in-app-purchase.init.ts', () => {
+describe('src/app/store/in-app-purchase-checkout/init', () => {
     beforeAll(() => {
         initializeInAppPurchaseCheckout();
     });

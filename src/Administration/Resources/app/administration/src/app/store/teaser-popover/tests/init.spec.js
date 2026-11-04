@@ -2,10 +2,10 @@
  * @sw-package innovation
  */
 
-import initTeaserButtons from 'src/app/init/teaser-popover.init';
+import initTeaserButtons from '../init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
-describe('src/app/init/teaser-popover.init.ts', () => {
+describe('src/app/store/teaser-popover/init', () => {
     it('should handle __upsellingTeaserPopover', async () => {
         initTeaserButtons();
 

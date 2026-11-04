@@ -2,10 +2,10 @@
  * @sw-package framework
  */
 import { createRouter, createWebHistory } from 'vue-router';
-import initTabs from 'src/app/init/tabs.init';
+import initTabs from '../init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
-describe('src/app/init/tabs.init', () => {
+describe('../init', () => {
     let routerMock;
 
     beforeAll(() => {

@@ -2,11 +2,11 @@
  * @sw-package framework
  */
 import { createPinia, setActivePinia } from 'pinia';
-import initActionButtons from 'src/app/init/action-button.init';
+import initActionButtons from '../init';
 import { add } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
-import type { ActionButtonsStore } from '../store/action-buttons';
+import type { ActionButtonsStore } from '../index';
 
-describe('src/app/init/action-button.init.ts', () => {
+describe('src/app/store/action-buttons/init', () => {
     let store: ActionButtonsStore;
 
     beforeEach(() => {

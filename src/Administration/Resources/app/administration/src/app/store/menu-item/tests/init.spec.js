@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  */
-import initMenuItems from 'src/app/init/menu-item.init';
+import initMenuItems from '../init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
-describe('src/app/init/menu-item.init.ts', () => {
+describe('src/app/store/menu-item/init', () => {
     beforeAll(() => {
         initMenuItems();
     });

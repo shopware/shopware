@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  */
-import initializeModal from 'src/app/init/modals.init';
+import initializeModal from '../init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
-describe('src/app/init/modals.init.ts', () => {
+describe('src/app/store/modals/init', () => {
     beforeAll(() => {
         initializeModal();
     });

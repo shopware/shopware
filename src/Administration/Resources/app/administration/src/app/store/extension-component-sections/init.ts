@@ -1,14 +1,16 @@
-import '../store/extension-component-sections/register';
-
 /**
  * @sw-package framework
- *
+ */
+import { useExtensionComponentSectionsStore } from './src/extension-component-sections.store';
+import { useExtensionsStore } from './dependencies';
+
+/**
  * @private
  */
 export default function initializeExtensionComponentSections(): void {
     // Handle incoming ExtensionComponentRenderer requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('uiComponentSectionRenderer', (componentConfig, additionalInformation) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -16,7 +18,7 @@ export default function initializeExtensionComponentSections(): void {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
-        Shopware.Store.get('extensionComponentSections').addSection({
+        useExtensionComponentSectionsStore().addSection({
             ...componentConfig,
             extensionName: extension.name,
         });

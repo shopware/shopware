@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import initializeMediaModal from 'src/app/init/media-modal.init';
+import initializeMediaModal from '../init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 const mediaModalConfig = {
@@ -10,7 +10,7 @@ const mediaModalConfig = {
     callback: () => {},
 } as const;
 
-describe('src/app/init/media-modal.init.ts', () => {
+describe('src/app/store/media-modal/init', () => {
     beforeAll(() => {
         initializeMediaModal();
     });

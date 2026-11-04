@@ -23,7 +23,10 @@ module.exports = {
                  * ESLint parses changed text again. To prevent an endless loop we only
                  * process .twig files which weren't parsed before to a Vue SFC.
                  */
-                const parsedText = text.startsWith(templateTagBefore) ? text : twigPreParser(text);
+                // ESLint hands processors the text with its byte order mark but applies fixes to the text
+                // without it, so a kept mark would shift every fix by one character.
+                const content = text.replace(/^\uFEFF/, '');
+                const parsedText = content.startsWith(templateTagBefore) ? content : twigPreParser(content);
 
                 return [
                     { text: parsedText, filename: filename },

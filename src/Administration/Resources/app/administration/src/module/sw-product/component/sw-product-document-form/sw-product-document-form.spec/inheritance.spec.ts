@@ -94,6 +94,48 @@ describe('sw-product-document-form inheritance', () => {
         });
     });
 
+    it('preserves fallback display values when removing inheritance in another language', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        store.product.parentId = store.parentProduct.id;
+        const document = repositoryFactory.create('product_document').create();
+        const media = createMedia('default-language-file');
+        Object.assign(document, {
+            title: null,
+            mediaId: null,
+            translated: { title: 'Default language title', mediaId: media.id },
+        });
+        const translation = new EntityFactory().create(
+            'product_document_translation',
+            null,
+            Shopware.Context.api,
+        ) as Entity<'product_document_translation'>;
+        Object.assign(translation, {
+            languageId: Shopware.Context.api.systemLanguageId,
+            title: 'Default language title',
+            mediaId: media.id,
+            media,
+        });
+        document.translations.add(translation);
+        store.parentProduct.documents!.add(document);
+        const wrapper = await createWrapper();
+
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+
+        expect(wrapper.text()).toContain('Default language title');
+        expect(wrapper.text()).toContain('default-language-file.pdf');
+        expect(wrapper.text()).toContain('1.00KB');
+        expect(getDocuments()![0]).toMatchObject({ title: null, mediaId: null });
+        expect(getDocuments()![0].translated).not.toBe(document.translated);
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props()).toMatchObject({
+            modelValue: 'Default language title',
+        });
+        expect(wrapper.get<HTMLButtonElement>('.sw-product-document-form__save-document').element.disabled).toBe(false);
+        await clickButton(wrapper, 'global.default.apply');
+        expect(getDocuments()![0]).toMatchObject({ title: null, mediaId: null });
+    });
+
     it('detaches an empty inherited list and restores inheritance without adding assignments', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;

@@ -5,6 +5,7 @@ import { shallowMount, type VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import EntityFactory from 'src/core/data/entity-factory.data';
+import fileValidationService from 'src/app/service/file-validation.service';
 
 /** @private */
 export async function createWrapper(
@@ -27,6 +28,7 @@ export async function createWrapper(
             },
             provide: {
                 mediaService,
+                fileValidationService: fileValidationService(),
                 entityFactory: new EntityFactory(),
                 repositoryFactory: {
                     create: (name: keyof EntitySchema.EntityKeys) => {

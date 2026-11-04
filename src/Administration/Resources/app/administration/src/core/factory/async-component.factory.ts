@@ -730,6 +730,12 @@ function requirePageReloadOnHotUpdate(config: ComponentConfig): void {
     }
 }
 
+function requirePageReloadIfComposed(componentName: string, config: ComponentConfig): void {
+    if (overrideRegistry.has(componentName) || config.extends || config.mixins?.length) {
+        requirePageReloadOnHotUpdate(config);
+    }
+}
+
 /**
  * Returns the complete component including extension and overrides.
  * @private
@@ -746,9 +752,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         throw new Error(`The component registry could not build the component with the name "${componentName}".`);
     }
 
-    if (overrideRegistry.has(componentName) || resultConfig.extends || resultConfig.mixins?.length) {
-        requirePageReloadOnHotUpdate(resultConfig);
-    }
+    requirePageReloadIfComposed(componentName, resultConfig);
 
     // let config: ComponentConfig = Object.create(resultConfig) as ComponentConfig;
     let config: ComponentConfig = { ...resultConfig } as ComponentConfig;

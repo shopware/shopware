@@ -462,8 +462,26 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         ).toBeDefined();
     });
 
+    it('lets a user who is not an admin set the signing secret only of their own webhooks', async () => {
+        const ownWebhook = { ...userWebhook, id: 'own-webhook', ownerUserId: 'current-user-id' };
+        const { wrapper } = await createWrapper({
+            privileges: ['webhook.editor'],
+            webhooks: [ownWebhook, userWebhook, integrationWebhook],
+        });
+
+        expect(
+            wrapper.find('.row-own-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
+        ).toBeUndefined();
+        expect(
+            wrapper.find('.row-user-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
+        ).toBeDefined();
+        expect(
+            wrapper.find('.row-integration-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
+        ).toBeDefined();
+    });
+
     it('opens and closes the signing secret of a webhook', async () => {
-        const { wrapper } = await createWrapper({ privileges: ['webhook.editor'] });
+        const { wrapper } = await createWrapper({ isAdmin: true });
 
         await wrapper.find('.row-user-webhook .sw-settings-webhook-list__secret-action').trigger('click');
 

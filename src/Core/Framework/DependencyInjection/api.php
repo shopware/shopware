@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -52,6 +53,7 @@ use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber;
+use Shopware\Core\Framework\Api\EventListener\CompressedCriteriaRequestListener;
 use Shopware\Core\Framework\Api\EventListener\CorsListener;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
@@ -81,10 +83,13 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
@@ -102,7 +107,6 @@ use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -159,6 +163,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('api.request_criteria_builder'),
             service(EntityProtectionValidator::class),
             service(AclCriteriaValidator::class),
+            service(AclVersionMergeValidator::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -325,6 +330,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.increment.gateway.registry'),
             service(MigrationInfo::class),
             service(AppUrlVerifier::class),
+            service(ActiveAppsLoader::class),
             service(FlowActionCollector::class),
             service(SystemConfigService::class),
             service(ApiRouteInfoResolver::class),
@@ -440,6 +446,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(JsonRequestTransformerListener::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CompressedCriteriaRequestListener::class)
+        ->args([
+            service(CompressedCriteriaDecoder::class),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ExpectationSubscriber::class)

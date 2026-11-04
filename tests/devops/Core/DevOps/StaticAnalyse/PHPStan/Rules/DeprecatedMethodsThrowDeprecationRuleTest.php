@@ -124,6 +124,14 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testDataObjectsRemainCallableButExtraDefinitionApisNeedTriggers(): void
+    {
+        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedEntities.php'], [
+            ['Class "Shopware\\Core\\DevOps\\MyFakeNamespace\\RemovedDefinition" is marked as deprecated, but method "extraPublicMethod" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.', 26],
+            ['Method "getLegacyLabel" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\GuardedEntity" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.', 150],
+        ]);
+    }
+
     protected function getRule(): Rule
     {
         /** @phpstan-ignore phpstanApi.constructor */

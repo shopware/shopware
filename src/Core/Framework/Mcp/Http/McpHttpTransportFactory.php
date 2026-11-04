@@ -92,12 +92,19 @@ class McpHttpTransportFactory
      * Everything else passes through unchanged. The batch is decoded into objects, not associative
      * arrays, so empty JSON objects survive the re-encode: `json_decode('{"properties":{}}', true)`
      * would turn a parameterless tool's `properties` into `[]`, which strict clients reject.
+     *
+     * The SDK's own text/event-stream body is a `CallbackStream` that resumes the suspended request
+     * and echoes each frame when read. It must stay unread until Symfony has sent the headers.
      */
     public function createResponse(PsrResponseInterface $psrResponse): Response
     {
         \assert($this->httpFoundationFactory !== null);
 
         $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
+
+        if (str_starts_with($contentType, 'text/event-stream')) {
+            return $this->httpFoundationFactory->createResponse($psrResponse, true);
+        }
 
         if (str_starts_with($contentType, 'application/json')) {
             $decoded = json_decode((string) $psrResponse->getBody());

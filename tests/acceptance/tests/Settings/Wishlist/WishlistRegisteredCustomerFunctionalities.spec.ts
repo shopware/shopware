@@ -15,6 +15,7 @@ test(
         StorefrontHome,
         AddProductToWishlist,
         Login,
+        Logout,
         RemoveProductFromWishlist,
         StorefrontWishlist,
         AddProductToCartFromWishlist,
@@ -72,6 +73,43 @@ test(
             const itemPrice = await offcanvasItem.productTotalPriceValue.innerText();
             await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();
             await ShopCustomer.expects(itemPrice).toBe(expectedPrice);
+        });
+
+        await test.step('Merge anonymous wishlist items after login and verify wishlist order', async () => {
+            await ShopCustomer.attemptsTo(Logout());
+            await ShopCustomer.goesTo(StorefrontHome.url());
+
+            //Ensure wishlist cookie isn't already set
+            await StorefrontHome.page.context().clearCookies();
+            await ShopCustomer.presses(product1Locators.wishlistNotAddedIcon);
+            await ShopCustomer.expects(StorefrontHome.wishlistCookieAcceptButton).toBeVisible();
+
+            //Accept wishlist cookie
+            await ShopCustomer.presses(StorefrontHome.wishlistCookieAcceptButton);
+            await ShopCustomer.expects(StorefrontHome.wishlistCookieAcceptButton).not.toBeVisible();
+
+            //Check wishlist cookie was successfully set (critical for wishlist functionality)
+            await ShopCustomer.expects(async () => {
+                const cookies = await StorefrontHome.page.context().cookies();
+                const wishlistCookie = cookies.find((c) => c.name === 'wishlist-enabled')?.value;
+                await ShopCustomer.expects(wishlistCookie).toBe('1');
+            }).toPass({
+                intervals: [
+                    1_000,
+                    2_500,
+                ],
+            });
+
+            await ShopCustomer.attemptsTo(AddProductToWishlist(product1));
+            await ShopCustomer.attemptsTo(AddProductToWishlist(product3));
+            await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2');
+
+            await ShopCustomer.attemptsTo(Login());
+            await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2');
+
+            await ShopCustomer.presses(StorefrontHeader.wishlistIcon);
+            await ShopCustomer.expects(StorefrontWishlist.wishlistItems.nth(0)).toContainText(product3.name);
+            await ShopCustomer.expects(StorefrontWishlist.wishlistItems.nth(1)).toContainText(product1.name);
         });
     },
 );

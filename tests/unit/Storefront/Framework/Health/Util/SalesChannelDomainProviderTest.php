@@ -28,8 +28,8 @@ class SalesChannelDomainProviderTest extends TestCase
     public function testFetchSalesChannelDomainsReturnsCollectionWithData(): void
     {
         $this->connection->method('fetchAllAssociative')->willReturn([
-            ['sales_channel_id' => 'test-sales-channel-id-1', 'url' => 'http://localhost:8000'],
-            ['sales_channel_id' => 'test-sales-channel-id-2', 'url' => 'http://localhost:8001'],
+            ['id' => 'domain-1', 'sales_channel_id' => 'test-sales-channel-id-1', 'url' => 'http://localhost:8000', 'language_id' => 'language-1', 'currency_id' => 'currency-1'],
+            ['id' => 'domain-2', 'sales_channel_id' => 'test-sales-channel-id-2', 'url' => 'http://localhost:8001', 'language_id' => 'language-2', 'currency_id' => 'currency-2'],
         ]);
 
         $provider = $this->createProvider();
@@ -37,6 +37,13 @@ class SalesChannelDomainProviderTest extends TestCase
         $collection = $provider->fetchSalesChannelDomains();
         static::assertCount(2, $collection);
         static::assertContainsOnlyInstancesOf(SalesChannelDomain::class, $collection);
+
+        // the readiness checks build their lookup context from these, so the query has to select them
+        $domain = $collection->get('test-sales-channel-id-1');
+        static::assertInstanceOf(SalesChannelDomain::class, $domain);
+        static::assertSame('domain-1', $domain->id);
+        static::assertSame('language-1', $domain->languageId);
+        static::assertSame('currency-1', $domain->currencyId);
     }
 
     public function testFetchSalesChannelDomainsHandlesEmptyResults(): void

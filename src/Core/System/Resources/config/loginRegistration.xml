@@ -193,6 +193,15 @@
             <label lang="de-DE">Datenschutzhinweise müssen über eine Checkbox bestätigt werden</label>
         </input-field>
 
+        <input-field type="bool">
+            <name>showLegalGuaranteeNotice</name>
+            <defaultValue>true</defaultValue>
+            <label>Show legal guarantee notice on sign-up</label>
+            <label lang="de-DE">Gewährleistungshinweis bei der Registrierung anzeigen</label>
+            <helpText>Links the EU-harmonised legal guarantee notice on the sign-up form. Requires the legal guarantee notice to be enabled in the cart settings.</helpText>
+            <helpText lang="de-DE">Verlinkt den EU-weit harmonisierten Gewährleistungshinweis im Registrierungsformular. Der Gewährleistungshinweis muss dafür in den Warenkorb-Einstellungen aktiviert sein.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>pwdRecoverUrl</name>
             <label>Password recovery URL</label>

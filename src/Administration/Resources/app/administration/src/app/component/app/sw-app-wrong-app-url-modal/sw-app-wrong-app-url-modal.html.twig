@@ -7,27 +7,66 @@
     @modal-close="closeModal"
 >
     <template #default>
-        <div class="sw-app-wrong-app-url-modal__content-description">
+        <div class="sw-app-wrong-app-url-modal__content">
             <img
                 class="sw-app-wrong-app-url-modal__content-image"
                 :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
-            <h3>{{ $t('sw-app.component.sw-app-wrong-app-url-modal.explanationHeader') }}</h3>
-            <div>
-                {{ $t('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
-            </div>
 
-            <mt-button
-                class="sw-app-wrong-app-url-modal__content-link-button"
-                :link="$t('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
-                variant="secondary"
-            >
-                {{ $t('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
-            </mt-button>
+            <div class="sw-app-wrong-app-url-modal__content-description">
+                <p class="sw-app-wrong-app-url-modal__explanation">
+                    {{ $t('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
+                </p>
 
-            <div class="sw-app-wrong-app-url_modal__content-description-technical-details">
-                {{ $t('sw-app.component.sw-app-wrong-app-url-modal.textDetails') }}
+                <dl class="sw-app-wrong-app-url-modal__details">
+                    <dt>APP_URL</dt>
+                    <dd>{{ appUrl }}</dd>
+                    <dt>{{ $t('sw-app.component.sw-app-wrong-app-url-modal.labelReason') }}</dt>
+                    <dd v-if="appUrlStatusCode">
+                        {{ $t('sw-app.component.sw-app-wrong-app-url-modal.reasonStatusCode', { statusCode: appUrlStatusCode }) }}
+                    </dd>
+                    <dd v-else>
+                        {{ $t('sw-app.component.sw-app-wrong-app-url-modal.reasonUnknown') }}
+                    </dd>
+                </dl>
+
+                <p>{{ $t('sw-app.component.sw-app-wrong-app-url-modal.checkIntro') }}</p>
+                <ul class="sw-app-wrong-app-url-modal__checks">
+                    <li>{{ $t('sw-app.component.sw-app-wrong-app-url-modal.checkPointsToShop') }}</li>
+                    <li>{{ $t('sw-app.component.sw-app-wrong-app-url-modal.checkNotBlocked') }}</li>
+                </ul>
+                <p>{{ $t('sw-app.component.sw-app-wrong-app-url-modal.checkAgain') }}</p>
+                <span class="sw-app-wrong-app-url-modal__command">
+                    <code>{{ verifyCommand }}</code>
+                    <mt-tooltip :content="commandCopied ? $t('global.sw-field-copyable.tooltip.wasCopied') : $t('global.sw-field-copyable.tooltip.canCopy')">
+                        <template #default="tooltipProps">
+                            <mt-button
+                                v-bind="tooltipProps"
+                                size="small"
+                                variant="tertiary"
+                                square
+                                :aria-label="$t('global.default.copy')"
+                                @click="copyVerifyCommand"
+                            >
+                                <template #iconFront>
+                                    <mt-icon
+                                        :name="commandCopied ? 'regular-checkmark' : 'regular-copy'"
+                                        size="16px"
+                                    />
+                                </template>
+                            </mt-button>
+                        </template>
+                    </mt-tooltip>
+                </span>
+
+                <mt-button
+                    class="sw-app-wrong-app-url-modal__content-link-button"
+                    :link="$t('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+                    variant="secondary"
+                >
+                    {{ $t('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+                </mt-button>
             </div>
         </div>
     </template>

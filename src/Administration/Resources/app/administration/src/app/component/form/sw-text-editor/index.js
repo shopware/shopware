@@ -1015,13 +1015,6 @@ export default {
             const textData = clipboardData.getData('text/plain');
             const htmlData = clipboardData.getData('text/html');
 
-            let insertableNode;
-            if (htmlData && !this.isShiftPressed) {
-                insertableNode = document.createRange().createContextualFragment(this.$sanitize(htmlData, settings));
-            } else {
-                insertableNode = document.createTextNode(this.$sanitize(textData));
-            }
-
             const selection = window.getSelection();
 
             // if user has not clicked anywhere on the page
@@ -1029,9 +1022,13 @@ export default {
                 return;
             }
 
-            selection.deleteFromDocument();
+            // execCommand records the paste in the native undo history, which the undo/redo buttons rely on
+            if (htmlData && !this.isShiftPressed) {
+                document.execCommand('insertHTML', false, this.$sanitize(htmlData, settings));
+                return;
+            }
 
-            selection.getRangeAt(0).insertNode(insertableNode);
+            document.execCommand('insertText', false, this.$sanitize(textData));
         },
 
         emitContent() {

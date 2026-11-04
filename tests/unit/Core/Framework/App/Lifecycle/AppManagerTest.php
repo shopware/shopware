@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
@@ -29,6 +29,8 @@ use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -187,7 +189,17 @@ class AppManagerTest extends TestCase
             ->install(ManifestFixture::empty(), new AppInstallParameters(), Context::createDefaultContext());
     }
 
-    public function testInstallRollsBackAppDataWhenRegistrationFails(): void
+    /**
+     * @return iterable<string, array{AppException}>
+     */
+    public static function registrationFailures(): iterable
+    {
+        yield 'app rejects the registration' => [AppException::registrationFailed('test', 'registration failed')];
+        yield 'APP_URL fails verification' => [AppException::appUrlFailedVerification(new VerificationState('http://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'unreachable', statusCode: null))];
+    }
+
+    #[DataProvider('registrationFailures')]
+    public function testInstallRollsBackAppDataWhenRegistrationFails(AppException $failure): void
     {
         $context = Context::createDefaultContext();
         $manifest = ManifestFixture::empty()->withSetup();
@@ -200,7 +212,7 @@ class AppManagerTest extends TestCase
 
         $this->registrationService->expects($this->once())
             ->method('registerApp')
-            ->willThrowException(AppException::registrationFailed('test', 'registration failed'));
+            ->willThrowException($failure);
 
         $this->integrationRepository = new StaticEntityRepository([]);
         $this->permissionLifecycle->expects($this->once())->method('removeRole');
@@ -217,7 +229,8 @@ class AppManagerTest extends TestCase
             $this->createAppManager($appRepository)
                 ->install($manifest, new AppInstallParameters(), $context);
             static::fail('Expected app registration to fail');
-        } catch (AppRegistrationException) {
+        } catch (AppException $e) {
+            static::assertSame($failure, $e);
             static::assertCount(1, $appRepository->getPayloads(StaticEntityRepository::UPSERT));
             static::assertSame([['id' => $installedApp->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
             static::assertSame([['id' => 'integration-id']], $this->integrationRepository->getPayloads(StaticEntityRepository::DELETE));

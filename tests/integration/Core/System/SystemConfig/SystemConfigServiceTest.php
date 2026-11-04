@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
@@ -380,6 +381,41 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->delete('foo', TestDefaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo', TestDefaults::SALES_CHANNEL);
         static::assertNull($actual);
+    }
+
+    public function testDeleteDoesNotLockUnrelatedConfigurationCommittedAfterTheTransactionStarted(): void
+    {
+        $values = array_fill_keys(array_map(static fn (int $index) => 'test.delete.key' . $index, range(1, 9)), null);
+        $this->systemConfigService->setMultiple(array_fill_keys(\array_slice(array_keys($values), 0, 6), 'delete me'));
+
+        $migrationConnection = static::getContainer()->get('doctrine.dbal.migration_connection');
+        $id = Uuid::randomBytes();
+
+        try {
+            // Commit outside the application's transaction, as a plugin migration does.
+            $migrationConnection->insert('system_config', [
+                'id' => $id,
+                'configuration_key' => 'test.unrelated.' . Uuid::randomHex(),
+                'configuration_value' => '{"_value":"keep me"}',
+                'created_at' => '2026-10-27 00:00:00.000',
+            ]);
+
+            $this->systemConfigService->setMultiple($values);
+
+            static::assertSame([], $this->systemConfigService->getDomain('test.delete'));
+            static::assertSame('1', $migrationConnection->fetchOne('SELECT COUNT(*) FROM system_config WHERE id = :id', ['id' => $id]));
+        } finally {
+            $migrationConnection->delete('system_config', ['id' => $id]);
+        }
+    }
+
+    public function testDeleteTrimsConfigurationKeys(): void
+    {
+        $this->systemConfigService->set('test.delete', 'value');
+
+        $this->systemConfigService->delete(' test.delete ');
+
+        static::assertNull($this->systemConfigService->get('test.delete'));
     }
 
     public function testWebhookEventsFired(): void

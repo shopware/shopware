@@ -244,6 +244,34 @@ class ThemeLifecycleHandlerTest extends TestCase
         )->refreshAllActiveThemeImportMaps($this->context, $configurationCollection);
     }
 
+    public function testRecompileAllActiveThemesNotifiesAsyncCompletionOnlyForTheLastCompilation(): void
+    {
+        $firstThemeId = Uuid::randomHex();
+        $lastThemeId = Uuid::randomHex();
+
+        $connectionMock = static::createStub(Connection::class);
+        $connectionMock->method('fetchAllAssociative')->willReturn([
+            ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => $firstThemeId],
+            ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => $lastThemeId],
+        ]);
+
+        $notifyOnAsyncCompletion = [];
+        $themeServiceMock = $this->createMock(ThemeService::class);
+        $themeServiceMock
+            ->expects($this->exactly(2))
+            ->method('compileTheme')
+            ->willReturnCallback(static function (string $salesChannelId, string $themeId) use (&$notifyOnAsyncCompletion): void {
+                $notifyOnAsyncCompletion[$themeId] = \func_get_args()[5] ?? true;
+            });
+
+        $this->buildHandler(
+            themeService: $themeServiceMock,
+            connection: $connectionMock
+        )->recompileAllActiveThemes($this->context);
+
+        static::assertSame([$firstThemeId => false, $lastThemeId => true], $notifyOnAsyncCompletion);
+    }
+
     /**
      * @param (EntityRepository<ThemeCollection>&MockObject)|null $themeRepository
      */

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
@@ -37,7 +38,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -959,7 +959,7 @@ class RecalculationServiceTest extends TestCase
         // checkout an order with a 100% shipping discount promotion (shipping delivery + discount delivery)
         $this->createShippingDiscount(100, 'FREESHIP');
         $cart = $this->generateDemoCart();
-        $cart->add(static::getContainer()->get(PromotionItemBuilder::class)->buildPlaceholderItem('FREESHIP'));
+        $cart->add((new PromotionLineItemFactory())->create(['referencedId' => 'FREESHIP'], $this->salesChannelContext));
         $cart = static::getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
         $orderId = $this->persistCart($cart)['orderId'];
 
@@ -1474,6 +1474,15 @@ class RecalculationServiceTest extends TestCase
         $orderAddressId = $order->getAddresses()->first()?->getId();
         static::assertIsString($orderAddressId);
 
+        static::getContainer()->get('order_address.repository')->update([
+            [
+                'id' => $orderAddressId,
+                'company' => 'ACME Corp',
+                'department' => 'Purchasing',
+                'additionalAddressLine1' => 'Building 2',
+            ],
+        ], $this->context->createWithVersionId($versionId));
+
         $firstName = 'Replace first name';
         $lastName = 'Replace last name';
         $street = 'Replace street';
@@ -1521,6 +1530,9 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($street, $orderAddress->getStreet());
         static::assertSame($city, $orderAddress->getCity());
         static::assertSame($zipcode, $orderAddress->getZipcode());
+        static::assertNull($orderAddress->getCompany());
+        static::assertNull($orderAddress->getDepartment());
+        static::assertNull($orderAddress->getAdditionalAddressLine1());
     }
 
     public function testRecalculationControllerWithEmptyLineItems(): void

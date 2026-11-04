@@ -1,7 +1,7 @@
 import { ui } from '@shopware-ag/meteor-admin-sdk';
-import initializeSidebar from './sidebar.init';
+import initializeSidebar from '../init';
 
-describe('src/app/init/sidebar.init', () => {
+describe('../init', () => {
     beforeAll(() => {
         // Execute the initializeSidebar function
         initializeSidebar();

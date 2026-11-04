@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
-import initializeSidebar from 'src/app/init/sidebar.init';
+import initializeSidebar from 'src/app/store/sidebar/init';
 
 type SidebarRendererVm = { sidebarDisplayOptions: { isOverlayMode: boolean } };
 

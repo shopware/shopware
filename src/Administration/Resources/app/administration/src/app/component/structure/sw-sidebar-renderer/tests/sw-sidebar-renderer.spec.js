@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
-import initializeSidebar from 'src/app/init/sidebar.init';
+import initializeSidebar from 'src/app/store/sidebar/init';
 
 describe('src/app/component/structure/sw-sidebar-renderer', () => {
     let mockLocalStorage;

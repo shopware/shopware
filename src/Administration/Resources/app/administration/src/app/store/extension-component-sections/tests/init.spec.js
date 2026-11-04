@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  */
-import initializeExtensionComponentSections from 'src/app/init/extension-component-sections.init';
+import initializeExtensionComponentSections from '../init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
-describe('src/app/init/extension-component-sections.init.ts', () => {
+describe('src/app/store/extension-component-sections/init', () => {
     beforeAll(() => {
         // Initialize component section handler
         initializeExtensionComponentSections();

@@ -1,11 +1,15 @@
 /**
  * @sw-package framework
- *
+ */
+import { useMenuItemStore } from './src/menu-item.store';
+import { useAdminMenuStore, useExtensionSdkModulesStore, useExtensionsStore } from './dependencies';
+
+/**
  * @private
  */
 export default function initMenuItems(): void {
     Shopware.ExtensionAPI.handle('menuItemAdd', async (menuItemConfig, additionalInformation) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -13,7 +17,7 @@ export default function initMenuItems(): void {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
-        await Shopware.Store.get('extensionSdkModules')
+        await useExtensionSdkModulesStore()
             .addModule({
                 heading: menuItemConfig.label,
                 locationId: menuItemConfig.locationId,
@@ -26,7 +30,7 @@ export default function initMenuItems(): void {
                     return;
                 }
 
-                Shopware.Store.get('menuItem').addMenuItem({
+                useMenuItemStore().addMenuItem({
                     ...menuItemConfig,
                     moduleId,
                 });
@@ -34,10 +38,10 @@ export default function initMenuItems(): void {
     });
 
     Shopware.ExtensionAPI.handle('menuCollapse', () => {
-        Shopware.Store.get('adminMenu').collapseSidebar();
+        useAdminMenuStore().collapseSidebar();
     });
 
     Shopware.ExtensionAPI.handle('menuExpand', () => {
-        Shopware.Store.get('adminMenu').expandSidebar();
+        useAdminMenuStore().expandSidebar();
     });
 }

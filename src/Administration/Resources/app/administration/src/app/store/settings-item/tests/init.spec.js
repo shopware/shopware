@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  */
-import initializeSettingItems from 'src/app/init/settings-item.init';
+import initializeSettingItems from '../init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 
-describe('src/app/init/settings-item.init.ts', () => {
+describe('src/app/store/settings-item/init', () => {
     beforeAll(() => {
         initializeSettingItems();
     });

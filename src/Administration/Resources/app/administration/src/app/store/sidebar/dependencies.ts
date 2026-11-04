@@ -13,3 +13,6 @@ export { defineStoreOptions, type StoreOf } from 'src/app/store/define-store-opt
 
 /** @private */
 export const getStore = <Id extends keyof PiniaRootState>(id: Id) => Shopware.Store.get(id);
+
+/** @private */
+export { useExtensionsStore } from 'src/app/store/extensions';

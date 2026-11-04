@@ -2789,11 +2789,6 @@
       "count": 1
     }
   },
-  "src/app/init/action-button.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/init/cms.init.ts": {
     "@typescript-eslint/no-restricted-types": {
       "count": 1
@@ -2865,11 +2860,6 @@
       "count": 1
     }
   },
-  "src/app/init/in-app-purchase-checkout.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/init/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -2888,19 +2878,9 @@
       "count": 1
     }
   },
-  "src/app/init/menu-item.init.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    }
-  },
   "src/app/init/mixin.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
-    }
-  },
-  "src/app/init/modals.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
     }
   },
   "src/app/init/modules.init.ts": {
@@ -2928,46 +2908,12 @@
       "count": 4
     }
   },
-  "src/app/init/settings-item.init.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 2
-    }
-  },
   "src/app/init/shortcut.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 8
     }
   },
-  "src/app/init/sidebar.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/app/init/tabs.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    },
-    "complexity": {
-      "count": 1
-    },
-    "max-nested-callbacks": {
-      "count": 1
-    }
-  },
-  "src/app/init/teaser-popover.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/init/theme.init.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/app/init/topbar-button.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
@@ -3659,7 +3605,17 @@
       "count": 2
     }
   },
+  "src/app/store/menu-item/init.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
   "src/app/store/menu-item/src/menu-item.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/modals/init.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
@@ -3679,9 +3635,19 @@
       "count": 2
     }
   },
+  "src/app/store/settings-item/init.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    }
+  },
   "src/app/store/shopware-apps/src/shopware-apps.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
+    }
+  },
+  "src/app/store/sidebar/init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
     }
   },
   "src/app/store/sidebar/src/sidebar.store.ts": {
@@ -3691,6 +3657,20 @@
   },
   "src/app/store/sw-bulk-edit/src/sw-bulk-edit.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/tabs/init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
       "count": 1
     }
   },

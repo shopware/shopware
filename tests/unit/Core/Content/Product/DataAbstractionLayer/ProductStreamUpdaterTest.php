@@ -182,8 +182,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $criteria->addFilter(new EqualsAnyFilter('id', $ids));
 
-        /** @var StaticEntityRepository<ProductCollection> */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $ids): array {
                 static::assertEquals($criteria, $actualCriteria);
 
@@ -231,8 +230,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $definition = new ProductDefinition();
         $newMatches = [Uuid::randomHex(), Uuid::randomHex()];
-        /** @var StaticEntityRepository<ProductCollection> */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -302,8 +300,7 @@ class ProductStreamUpdaterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertEquals($criteria, $actualCriteria);
 
@@ -366,8 +363,7 @@ class ProductStreamUpdaterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria): array {
                 static::assertEquals($criteria, $actualCriteria);
 
@@ -418,8 +414,7 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('transactional');
 
         $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (): array {
                 throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
             },

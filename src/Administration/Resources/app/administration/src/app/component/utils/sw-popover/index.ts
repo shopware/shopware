@@ -54,7 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        if (this.useMeteorComponent && this.resizeWidth === true) {
+        if (this.useMeteorComponent && this.resizeWidth) {
             Shopware.Utils.debug.warn(
                 'sw-popover',
                 'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',

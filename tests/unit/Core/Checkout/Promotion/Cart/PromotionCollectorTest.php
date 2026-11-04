@@ -120,15 +120,47 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithInvalidOrderCountPerCustomerCount(): void
     {
-        $customerId = $this->context->getCustomerId();
-        static::assertNotNull($customerId);
-        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 1, 2, 1, [$customerId => 1]);
+        $promotionId = Uuid::randomHex();
+        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], $promotionId, maxTotalUse: 2, maxUsePerCustomer: 1);
+        $this->connection->method('fetchAllKeyValue')->willReturn([$promotionId => '1']);
         $cartDataCollection = new CartDataCollection();
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
         $this->assertAlreadyRedeemedError($cart);
+    }
+
+    public function testPerCustomerLimitIsCountedFromOrdersInsteadOfStoredCounter(): void
+    {
+        $customerId = $this->context->getCustomerId();
+        static::assertNotNull($customerId);
+        $promotionId = Uuid::randomHex();
+        $cart = $this->prepareCart([Uuid::randomHex()], $promotionId, maxUsePerCustomer: 1, orderPerCustomerCount: [$customerId => 1]);
+        $this->connection->method('fetchAllKeyValue')->willReturn([]);
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
+        static::assertCount(1, $promotions);
+        static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
+    public function testCartWithoutCustomerIsNotHeldToThePerCustomerLimit(): void
+    {
+        $promotionId = Uuid::randomHex();
+        $cart = $this->prepareCart([Uuid::randomHex()], $promotionId, maxUsePerCustomer: 1);
+        $this->connection->method('fetchAllKeyValue')->willReturn([$promotionId => '1']);
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, Generator::generateSalesChannelContext(overrides: ['customer' => null]), new CartBehavior());
+
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
+        static::assertCount(1, $promotions);
+        static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
     }
 
     public function testUnknownPromotionCodeAddsNotFoundError(): void
@@ -304,25 +336,18 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxUsePerCustomerIsReachedInEditingOrder(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn('1');
-        $promotionCollector = $this->createPromotionCollector($connection);
         $discountId1 = Uuid::randomHex();
         $discountId2 = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
 
-        $customerId = $this->context->getCustomerId();
-        static::assertNotNull($customerId);
-        $cart = $this->prepareCart(
-            [$discountId1, $discountId2],
-            $promotionId,
-            1,
-            1,
-            1,
-            [$customerId => 1]
-        );
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn('1');
+        $connection->method('fetchAllKeyValue')->willReturn([$promotionId => '1']);
+        $promotionCollector = $this->createPromotionCollector($connection);
+
+        $cart = $this->prepareCart([$discountId1, $discountId2], $promotionId, maxTotalUse: 1, maxUsePerCustomer: 1);
         $cart->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct(Uuid::randomHex()));
 
         $cartDataCollection = new CartDataCollection();
@@ -458,7 +483,7 @@ class PromotionCollectorTest extends TestCase
         }
 
         if ($orderPerCustomerCount !== null) {
-            $promotion->setOrdersPerCustomerCount($orderPerCustomerCount);
+            Feature::silent('v6.8.0.0', static fn () => $promotion->setOrdersPerCustomerCount($orderPerCustomerCount));
         }
 
         return $promotion;

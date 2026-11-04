@@ -64,7 +64,7 @@ describe('components/media/sw-media-list-selection-v2', () => {
         await flushPromises();
 
         await wrapper.vm.onMediaItemDragSort({ id: 2, position: 1 }, { id: 1, position: 2 }, true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted()['item-sort']).toBeTruthy();
         expect(wrapper.emitted()['item-sort'][0]).toEqual([
@@ -78,7 +78,7 @@ describe('components/media/sw-media-list-selection-v2', () => {
         await flushPromises();
 
         await wrapper.vm.onMediaItemDragSort();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('item-sort')).not.toBeTruthy();
     });
@@ -117,5 +117,59 @@ describe('components/media/sw-media-list-selection-v2', () => {
         // First media item should contain the updated ID
         const updatedFirstMediaItem = wrapper.find('.sw-media-list-selection-item-v2');
         expect(updatedFirstMediaItem.text()).toContain('newId');
+    });
+
+    it('should render the same media added twice as two items after a reorder', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const [first, second, third] = entityMediaItems;
+
+        await wrapper.setProps({
+            entityMediaItems: reactive([
+                second,
+                first,
+                third,
+                first,
+            ]),
+        });
+        await flushPromises();
+
+        await wrapper.setProps({
+            entityMediaItems: reactive([
+                first,
+                third,
+                first,
+                second,
+            ]),
+        });
+        await flushPromises();
+
+        const items = wrapper.findAll('.sw-media-list-selection-item-v2').slice(0, 4);
+        expect(items.map((item) => item.text())).toEqual([
+            '1',
+            '3',
+            '1',
+            '2',
+        ]);
+    });
+
+    it('should pass the own position of each item to the drag and drop data', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const [first, second] = entityMediaItems;
+
+        await wrapper.setProps({
+            entityMediaItems: reactive([first, second, first]),
+        });
+        await flushPromises();
+
+        const positions = wrapper
+            .findAll('.sw-media-list-selection-item-v2')
+            .slice(0, 3)
+            .map((item) => item.element.dragConfig.data.position);
+
+        expect(positions).toEqual([0, 1, 2]);
     });
 });

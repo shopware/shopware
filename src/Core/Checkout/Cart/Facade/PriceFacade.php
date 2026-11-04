@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\Traits\PriceFactoryTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -108,13 +107,14 @@ class PriceFacade
      */
     public function change(PriceCollection $price): void
     {
-        $value = $this->getPriceForTaxState($price, $this->context);
+        $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->price->getTaxRules(), $this->context);
 
         $definition = new QuantityPriceDefinition(
-            $value,
+            $selected->getValue(),
             $this->price->getTaxRules(),
             $this->getQuantity()
         );
+        $definition->setIsCalculated($selected->isCalculated());
 
         $this->overwrite($definition);
     }
@@ -215,7 +215,25 @@ class PriceFacade
         $this->overwrite($definition);
     }
 
+    /**
+     * Returns the unit value authoritative for the customer group's price basis, run through the
+     * quantity price calculator first when that value still needs to be derived.
+     */
     protected function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
+    {
+        $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->price->getTaxRules(), $context);
+
+        if ($selected->isCalculated()) {
+            return $selected->getValue();
+        }
+
+        $definition = new QuantityPriceDefinition($selected->getValue(), $this->price->getTaxRules());
+        $definition->setIsCalculated(false);
+
+        return $this->priceStubs->calculateQuantity($definition, $context)->getUnitPrice();
+    }
+
+    private function getCurrencyPrice(PriceCollection $price): Price
     {
         $currency = $price->getCurrencyPrice($this->context->getCurrencyId());
 
@@ -223,11 +241,7 @@ class PriceFacade
             throw CartException::invalidPriceDefinition();
         }
 
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            return $currency->getGross();
-        }
-
-        return $currency->getNet();
+        return $currency;
     }
 
     private function overwrite(QuantityPriceDefinition $definition): void

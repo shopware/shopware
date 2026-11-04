@@ -324,7 +324,7 @@ export default Shopware.Component.wrapComponentConfig({
             exportRoot.children = [...this.diveModel.children];
 
             const buffer = await new AssetExporter().export(exportRoot, 'glb');
-            const file = new File([buffer], `${fileName}`, { type: 'model/gltf-binary' });
+            const file = new File([buffer], fileName, { type: 'model/gltf-binary' });
 
             const uploadData = {
                 src: file,

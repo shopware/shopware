@@ -277,7 +277,17 @@ export default {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.searchConfigId) {
+                this.loadData();
+            }
+        },
+
         onShowExampleModal() {
             this.showExampleModal = true;
         },

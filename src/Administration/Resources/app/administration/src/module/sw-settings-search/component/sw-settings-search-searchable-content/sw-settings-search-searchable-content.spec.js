@@ -3,15 +3,13 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], { featureActive = false } = {}) {
+async function createWrapper(
+    privileges = [],
+    { featureActive = false, searchConfigId = '', searchResult = { total: 0, length: 0 } } = {},
+) {
     const productSearchFieldRepository = {
         create: jest.fn(() => ({})),
-        search: jest.fn(() =>
-            Promise.resolve({
-                total: 0,
-                length: 0,
-            }),
-        ),
+        search: jest.fn(() => Promise.resolve(searchResult)),
         saveAll: jest.fn(() => Promise.resolve()),
         delete: jest.fn(() => Promise.resolve()),
     };
@@ -22,7 +20,7 @@ async function createWrapper(privileges = [], { featureActive = false } = {}) {
         }),
         {
             props: {
-                searchConfigId: '',
+                searchConfigId,
             },
 
             global: {
@@ -100,6 +98,7 @@ async function createWrapper(privileges = [], { featureActive = false } = {}) {
                     'router-link': true,
                     'sw-settings-search-searchable-content-general': {
                         name: 'sw-settings-search-searchable-content-general',
+                        props: ['searchConfigs'],
                         template: '<div class="sw-settings-search-searchable-content-general"></div>',
                     },
                     'sw-settings-search-searchable-content-customfields': {
@@ -158,6 +157,20 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.vm.defaultTab).toBe('customfields');
         expect(wrapper.findComponent({ name: 'sw-settings-search-searchable-content-general' }).exists()).toBe(false);
         expect(wrapper.findComponent({ name: 'sw-settings-search-searchable-content-customfields' }).exists()).toBe(true);
+    });
+
+    it('should load the config fields when it is created with a search config id', async () => {
+        const configFields = Object.assign([{ field: 'name' }], { total: 1 });
+        const wrapper = await createWrapper(['product_search_config.editor'], {
+            searchConfigId: 'search-config-id',
+            searchResult: configFields,
+        });
+        await flushPromises();
+
+        expect(
+            wrapper.getComponent({ name: 'sw-settings-search-searchable-content-general' }).props('searchConfigs'),
+        ).toEqual(configFields);
+        expect(wrapper.find('.sw-settings-search__searchable-content-reset-button').attributes('disabled')).toBeUndefined();
     });
 
     it('should keep parent name disabled in default configs', async () => {

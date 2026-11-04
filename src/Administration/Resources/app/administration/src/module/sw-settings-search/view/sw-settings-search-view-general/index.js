@@ -30,8 +30,11 @@ export default {
     },
 
     watch: {
-        productSearchConfigs(newValue) {
-            this.searchConfigId = newValue.id || '';
+        productSearchConfigs: {
+            handler(newValue) {
+                this.searchConfigId = newValue?.id || '';
+            },
+            immediate: true,
         },
     },
 

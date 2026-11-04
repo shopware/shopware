@@ -28,23 +28,15 @@
     "unused-export:scripts/extensionTooling/check-run.ts:checkTsconfigPath",
     "unused-export:scripts/extensionTooling/probe-live.ts:ESLINT_NOT_COMPOSED_DETAIL",
     "unused-export:scripts/extensionTooling/shared.ts:projectHasBridge",
-    "unused-export:src/app/adapter/composition-extension-system/index.ts:getScriptSetupDataScope",
     "unused-export:src/app/service/app-cms.service.js:BLOCKS_CATEGORIES",
     "unused-export:src/core/service/validation.service.js:regex",
-    "unused-export:src/module/sw-cms/elements/image/config.constant.ts:COMMON_MEDIA_CONFIG",
     "unused-export:src/module/sw-import-export/service/mocks/mappings.mock.js:default",
     "unused-export:src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.spec/fixtures.js:stateHistoryFixture",
-    "unused-export:src/module/sw-order/service/documentV2.service.ts:CANCELLATION_INVOICE_DOCUMENT_TYPES",
-    "unused-export:src/module/sw-order/service/documentV2.service.ts:CREDIT_NOTE_DOCUMENT_TYPES",
     "unused-export:src/module/sw-order/service/documentV2.service.ts:ZUGFERD_DOCUMENT_TYPES"
   ],
   "unused_types": [
-    "unused-type:src/core/service/api/store.api.service.ts:StoreApiService",
     "unused-type:src/core/service/entity-mapping.service.ts:EntityNameMapping",
-    "unused-type:src/core/service/entity-mapping.service.ts:PropertyDefinition",
-    "unused-type:src/module/sw-cms/service/cms.service.ts:EnrichedSlotData",
-    "unused-type:src/module/sw-dashboard/component/sw-dashboard-statistics/index.ts:HistoryDateRange",
-    "unused-type:src/module/sw-order/store/order.store.ts:SwOrderState"
+    "unused-type:src/core/service/entity-mapping.service.ts:PropertyDefinition"
   ],
   "private_type_leaks": [],
   "deprecated_exports_in_use": [],

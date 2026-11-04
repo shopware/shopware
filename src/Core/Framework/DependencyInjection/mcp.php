@@ -119,6 +119,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.admin.session.store')->nullOnInvalid(),
             service(McpListVersions::class),
             service('logger'),
+            service(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS)->nullOnInvalid(),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 

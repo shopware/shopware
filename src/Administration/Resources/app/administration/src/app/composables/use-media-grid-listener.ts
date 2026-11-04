@@ -37,7 +37,7 @@ export interface UseMediaGridListenerOptions {
  * The mixin's `_`-prefixed helpers stay private here. `showDetails` is the public equivalent of
  * `_singleSelect`; everything else was internal bookkeeping.
  *
- * Keep this and `src/module/sw-media/mixin/media-grid-listener.mixin.js` in sync — change both
+ * Keep this and `src/module/sw-media/mixin/media-grid-listener` in sync — change both
  * together.
  *
  * @private

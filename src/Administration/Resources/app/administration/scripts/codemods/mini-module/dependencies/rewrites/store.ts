@@ -11,6 +11,7 @@ import { isPath, literalArgument, replaceNode, accessorHead } from './helpers';
  * `Shopware.Store.get('x')` becomes a function in dependencies.ts that looks the store up by the id its file
  * exports, because a store is only there once it is registered. A store file without an exported id gets one.
  * A store the global `PiniaRootState` type does not list stays, because TypeScript would reject the lookup.
+ * A store mini-module already exports its `use…Store()`, so dependencies.ts re-exports that.
  *
  * @example
  * // Shopware.Store.get('swProductDetail').product
@@ -29,6 +30,12 @@ export const rewriteStore: UseRewrite = (use, context) => {
     const typing = context.index.typing('PiniaRootState', id);
     if (!typing || !context.isFree(name)) {
         return null;
+    }
+
+    if (store.useName) {
+        return replaceNode(use.call, context, `${name}()`, [
+            { kind: 'reexport', module: store.module, imported: store.useName, exported: name },
+        ]);
     }
 
     const outsideEdits: OutsideEdit[] = store.exportName ? [] : [{ kind: 'store-id', file: store.file, id, exportName }];

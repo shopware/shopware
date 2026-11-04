@@ -3,9 +3,9 @@
  */
 import './acl';
 import './page/sw-settings-language-detail/register';
+import './page/sw-settings-language-list/register';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-language-list', () => import('./page/sw-settings-language-list'));
 Shopware.Component.register('sw-settings-language-add-modal', () => import('./component/sw-settings-language-add-modal'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 

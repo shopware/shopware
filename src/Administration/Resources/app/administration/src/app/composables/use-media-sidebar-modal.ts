@@ -26,7 +26,7 @@ export interface UseMediaSidebarModalOptions {
  * `acl` for its permission checks; this composable resolves it through `Shopware.Service` instead, so
  * it needs nothing from the component. The mixin stays in place for Options API components.
  *
- * Keep this and `src/module/sw-media/mixin/media-sidebar-modal.mixin.js` in sync — change both
+ * Keep this and `src/module/sw-media/mixin/media-sidebar-modal-mixin` in sync — change both
  * together.
  *
  * @private

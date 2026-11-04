@@ -1,5 +1,3 @@
-const { Mixin } = Shopware;
-
 /**
  * Mixin to handle the selection of sw-media-media-item components.
  *
@@ -8,8 +6,9 @@ const { Mixin } = Shopware;
  * @sw-package discovery
  *
  * Duplicated in `src/app/composables/use-media-grid-listener`; change both together.
+ * @private
  */
-Mixin.register('media-grid-listener', {
+export default {
     emits: ['media-folder-change'],
 
     data() {
@@ -178,4 +177,4 @@ Mixin.register('media-grid-listener', {
             };
         },
     },
-});
+};

@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
+import 'src/module/sw-settings/mixin/sw-settings-list/register';
 
 const logEntryMock = {
     id: '018dc68776077179b6c51bdf18a4f25d',

@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-media/mixin/media-grid-listener.mixin';
+import 'src/module/sw-media/mixin/media-grid-listener/register';
 
 class Repository {
     constructor(entityName, amounts, total) {

@@ -11,7 +11,8 @@ const LOOKUPS = new Set(['Mixin.getByName', 'Shopware.Mixin.getByName']);
 
 /**
  * The mixins a component file looks up by name whose registration no file exports as its default, such as
- * `sw-settings-list`, which `src/module/sw-settings/index.js` registers by importing its file for the side effect.
+ * `export-channel-filter`, which `src/module/sw-export-channel-tracking/index.js` registers by importing its file
+ * for the side effect. A mixin module's `register.ts` does not count, because `src/` imports the mixin from the module.
  * `src/` could not import such a mixin, so the component waits until the mixin gets its own module.
  *
  * @example

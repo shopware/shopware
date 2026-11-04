@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import 'src/module/sw-media/mixin/video-cover.mixin';
+import '../register';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 

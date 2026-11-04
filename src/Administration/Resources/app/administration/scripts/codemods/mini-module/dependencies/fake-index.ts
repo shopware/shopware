@@ -43,11 +43,23 @@ export const fakeIndex: AdminIndex = {
     hasServiceName: (name) => name === 'repositoryFactory',
     typing: (container, name) => (container === 'ServiceContainer' && name === 'filterService' ? 'any' : 'typed'),
     findMixin: (name) =>
-        ({ notification: 'src/app/mixin/notification.mixin', placeholder: 'src/app/mixin/placeholder.mixin' })[name] ?? null,
-    isModuleLocalMixin: (name) => name === 'sw-settings-list',
+        (
+            ({
+                notification: { module: 'src/app/mixin/notification.mixin', isPrivate: false },
+                placeholder: { module: 'src/app/mixin/placeholder.mixin', isPrivate: false },
+                'sw-settings-list': { module: 'src/module/sw-settings/mixin/sw-settings-list/private', isPrivate: true },
+            }) as Record<string, { module: string; isPrivate: boolean }>
+        )[name] ?? null,
+    isModuleLocalMixin: (name) => name === 'media-grid-listener',
     findStore: (id) =>
         ({
             swProductDetail: { module: '../../page/sw-product-detail/store', file: '/admin/store.ts', exportName: null },
+            swCategoryDetail: {
+                module: '../../page/sw-category-detail/store',
+                file: '/admin/src/module/sw-category/page/sw-category-detail/store/src/sw-category-detail.store.ts',
+                exportName: 'swCategoryDetailStoreId',
+                useName: 'useSwCategoryDetailStore',
+            },
             notification: {
                 module: 'src/app/store/notification.store',
                 file: '/admin/n.ts',

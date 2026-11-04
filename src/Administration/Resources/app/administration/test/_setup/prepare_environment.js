@@ -118,6 +118,10 @@ import '../../src/module/sw-product/page/sw-product-detail/store/register';
 import '../../src/module/sw-profile/store/sw-profile.store';
 import '../../src/module/sw-promotion-v2/page/sw-promotion-v2-detail/store/register';
 import '../../src/module/sw-flow/store/flow.store';
+import '../../src/module/sw-media/mixin/media-grid-listener/register';
+import '../../src/module/sw-media/mixin/media-sidebar-modal-mixin/register';
+import '../../src/module/sw-media/mixin/video-cover/register';
+import '../../src/module/sw-settings/mixin/sw-settings-list/register';
 import findByAriaLabel from '../_helper_/find-by-aria-label';
 
 // Setup Vue Test Utils configuration

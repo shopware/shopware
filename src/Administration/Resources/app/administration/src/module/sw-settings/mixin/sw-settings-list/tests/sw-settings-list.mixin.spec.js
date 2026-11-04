@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
+import '../register';
 import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(existingSnippetKeys = []) {

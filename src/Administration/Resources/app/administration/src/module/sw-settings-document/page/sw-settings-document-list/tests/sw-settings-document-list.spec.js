@@ -1,6 +1,6 @@
 import 'src/app/mixin/notification.mixin';
 import 'src/app/mixin/listing.mixin';
-import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
+import 'src/module/sw-settings/mixin/sw-settings-list/register';
 import { mount } from '@vue/test-utils';
 
 /**

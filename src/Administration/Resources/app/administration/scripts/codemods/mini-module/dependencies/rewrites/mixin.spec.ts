@@ -55,4 +55,21 @@ export default {
 };
 `);
     });
+
+    it('imports a private mixin module through its private.ts, on a line that says why', () => {
+        // ARRANGE
+        const source = `export default {
+    mixins: [Shopware.Mixin.getByName('sw-settings-list')],
+};
+`;
+
+        // ACT
+        const { code, dependencies } = routeForSpec(source, { use: [rewriteMixin] });
+
+        // ASSERT
+        expect(code).toContain('mixins: [swSettingsListMixin],');
+        expect(dependencies).toBe(`/** @private */
+export { default as swSettingsListMixin } from 'src/module/sw-settings/mixin/sw-settings-list/private'; // eslint-disable-line sw-core-rules/mini-module-boundaries -- the mixin is private, extensions reach it with Mixin.getByName()
+`);
+    });
 });

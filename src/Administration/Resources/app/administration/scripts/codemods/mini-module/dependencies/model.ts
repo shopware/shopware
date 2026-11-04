@@ -20,6 +20,8 @@ export type Reexport = {
     imported: string;
     exported: string;
     typeOnly?: boolean;
+    /** Why `src/` may use the private API of another mini-module, written on the line that disables the boundary rule. */
+    privateReason?: string;
 };
 
 /** A name dependencies.ts imports for its own accessors, such as the id of a store. */
@@ -70,8 +72,15 @@ export type Rewrite = {
 /**
  * The file that registers a store or filter: `module` as dependencies.ts imports it, `file` as an absolute path,
  * and the name the file already exports for the registered string, if any.
+ * A store mini-module also names the `use…Store()` its `index.ts` exports, see `useName`.
  */
-export type Registered = { module: string; file: string; exportName: string | null };
+export type Registered = { module: string; file: string; exportName: string | null; useName?: string };
+
+/**
+ * The module whose default export is a registered mixin, as dependencies.ts imports it.
+ * `isPrivate` says it is the `private.ts` of a mixin mini-module, which another module imports only on purpose.
+ */
+export type MixinSource = { module: string; isPrivate: boolean };
 
 /**
  * Where a part of the `Shopware` global comes from: `import` names the module and export that hold the same
@@ -106,8 +115,8 @@ export type AdminIndex = {
     hasServiceName: (name: string) => boolean;
     /** How `ServiceContainer`, `PiniaRootState` or `FilterTypes` in the global types know a name. */
     typing: (container: 'ServiceContainer' | 'PiniaRootState' | 'FilterTypes', name: string) => Typing;
-    /** The module, as dependencies.ts imports it, whose default export is the registered mixin. */
-    findMixin: (name: string) => string | null;
+    /** The module whose default export is the registered mixin. */
+    findMixin: (name: string) => MixinSource | null;
     /** Whether a file registers the mixin without exporting it, so only the registry reaches it. */
     isModuleLocalMixin: (name: string) => boolean;
     findStore: (id: string) => Registered | null;

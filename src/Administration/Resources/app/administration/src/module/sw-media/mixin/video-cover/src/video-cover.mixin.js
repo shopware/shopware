@@ -1,10 +1,14 @@
 /**
  * @sw-package discovery
- *
- * Duplicated in `src/app/composables/use-video-cover`; change both together.
  */
-Shopware.Mixin.register('video-cover', {
-    inject: ['mediaService', 'acl'],
+import { aclService, getEventBus, mediaService } from '../dependencies';
+
+/**
+ * Duplicated in `src/app/composables/use-video-cover`; change both together.
+ * @private
+ */
+export default {
+    inject: [mediaService, aclService],
 
     data() {
         return {
@@ -68,7 +72,7 @@ Shopware.Mixin.register('video-cover', {
                     message: this.$t(snippetKey),
                 });
 
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                getEventBus().emit('sw-media-library-item-updated', this.item.id);
             } catch {
                 this.createNotificationError({
                     message: this.$t('global.sw-media-media-item.notification.coverSaveError.message'),
@@ -106,4 +110,4 @@ Shopware.Mixin.register('video-cover', {
             return item?.metaData?.video?.coverMediaId ?? null;
         },
     },
-});
+};

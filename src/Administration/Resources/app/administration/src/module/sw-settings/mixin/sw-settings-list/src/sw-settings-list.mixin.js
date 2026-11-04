@@ -1,16 +1,15 @@
 /**
  * @sw-package framework
  */
-const {
-    Mixin,
-    Data: { Criteria },
-} = Shopware;
-const { debug } = Shopware.Utils;
+import { Criteria, debug, listingMixin, notificationMixin, repositoryFactoryService } from '../dependencies';
 
-Mixin.register('sw-settings-list', {
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+/**
+ * @private
+ */
+export default {
+    mixins: [listingMixin, notificationMixin],
 
-    inject: ['repositoryFactory'],
+    inject: [repositoryFactoryService],
 
     data() {
         return {
@@ -136,4 +135,4 @@ Mixin.register('sw-settings-list', {
             this.getList();
         },
     },
-});
+};

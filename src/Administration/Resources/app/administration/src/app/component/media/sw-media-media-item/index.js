@@ -1,6 +1,5 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
-import 'src/module/sw-media/mixin/video-cover.mixin';
 
 const { Mixin } = Shopware;
 const { dom } = Shopware.Utils;

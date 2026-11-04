@@ -4846,11 +4846,6 @@
       "count": 1
     }
   },
-  "src/meta/baseline.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "src/meta/meta.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
@@ -8579,31 +8574,37 @@
       "count": 1
     }
   },
-  "src/module/sw-media/mixin/media-grid-listener.mixin.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    },
+  "src/module/sw-media/mixin/media-grid-listener/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/module/sw-media/mixin/media-sidebar-modal.mixin.js": {
+  "src/module/sw-media/mixin/media-grid-listener/src/media-grid-listener.mixin.js": {
     "filename-rules/not-match": {
       "count": 1
-    },
+    }
+  },
+  "src/module/sw-media/mixin/media-sidebar-modal-mixin/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/module/sw-media/mixin/video-cover.mixin.js": {
+  "src/module/sw-media/mixin/media-sidebar-modal-mixin/src/media-sidebar-modal.mixin.js": {
     "filename-rules/not-match": {
       "count": 1
-    },
+    }
+  },
+  "src/module/sw-media/mixin/video-cover/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/module/sw-media/mixin/video-cover.mixin.spec.js": {
+  "src/module/sw-media/mixin/video-cover/src/video-cover.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/mixin/video-cover/tests/video-cover.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 29
     }
@@ -13088,21 +13089,23 @@
   },
   "src/module/sw-settings/index.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "filename-rules/not-match": {
       "count": 1
     }
   },
-  "src/module/sw-settings/mixin/sw-settings-list.mixin.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    },
+  "src/module/sw-settings/mixin/sw-settings-list/register.ts": {
     "sw-core-rules/no-new-mixins": {
       "count": 1
     }
   },
-  "src/module/sw-settings/mixin/sw-settings-list.mixin.spec.js": {
+  "src/module/sw-settings/mixin/sw-settings-list/src/sw-settings-list.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/mixin/sw-settings-list/tests/sw-settings-list.mixin.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }

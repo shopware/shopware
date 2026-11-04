@@ -34,7 +34,7 @@ export interface UseVideoCoverOptions {
  * this composable resolves the services through `Shopware.Service` and the notifications through
  * `useNotification`, so an override of a notification helper no longer reaches its messages.
  *
- * Keep this and `src/module/sw-media/mixin/video-cover.mixin.js` in sync — change both together.
+ * Keep this and `src/module/sw-media/mixin/video-cover` in sync — change both together.
  *
  * @private
  */

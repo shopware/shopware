@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import './mixin/sw-settings-list.mixin';
+import './mixin/sw-settings-list/register';
 import './acl';
 import './component/sw-settings-item/register';
 import './component/sw-system-config/register';

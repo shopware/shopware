@@ -1,25 +1,36 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
+import {
+    aclService,
+    Criteria,
+    featureService,
+    getApiContext,
+    getCacheService,
+    listingMixin,
+    localeName,
+    notificationMixin,
+    repositoryFactoryService,
+    translationService,
+    useSnackbar,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'translationService',
-        'acl',
-        'feature',
+        repositoryFactoryService,
+        translationService,
+        aclService,
+        featureService,
     ],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {
@@ -291,7 +302,7 @@ export default {
                 return metadata.name;
             }
 
-            return Shopware.Utils.format.localeName(localeCode);
+            return localeName(localeCode);
         },
 
         getSnippetStatus(item) {
@@ -434,9 +445,7 @@ export default {
         },
 
         isDefault(languageId) {
-            return Shopware.Context.api.systemLanguageId
-                ? Shopware.Context.api.systemLanguageId.includes(languageId)
-                : false;
+            return getApiContext().systemLanguageId ? getApiContext().systemLanguageId.includes(languageId) : false;
         },
 
         tooltipDelete(languageId) {
@@ -461,7 +470,7 @@ export default {
         },
 
         invalidateLanguageCaches() {
-            Shopware.Service('cacheService').invalidateCaches({
+            getCacheService().invalidateCaches({
                 cacheKey: ['shared-data', 'active-languages'],
             });
         },
@@ -495,7 +504,7 @@ export default {
             this.isDeleting = true;
 
             try {
-                await this.languageRepository.syncDeleted(ids, Shopware.Context.api);
+                await this.languageRepository.syncDeleted(ids, getApiContext());
                 await this.removeTranslationFiles(locales);
             } catch {
                 this.createNotificationError({

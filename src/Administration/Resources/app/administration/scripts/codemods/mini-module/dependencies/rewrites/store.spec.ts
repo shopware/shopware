@@ -56,4 +56,26 @@ export const useProductDetailStore = () => Shopware.Store.get(swProductDetailSto
         expect(dependencies).toContain('export const useNotificationStore = () => Shopware.Store.get(notificationStoreId);');
         expect(outsideEdits).toEqual([]);
     });
+
+    it('re-exports the use function of a store mini-module', () => {
+        // ARRANGE
+        const source = `export default {
+    computed: {
+        category() {
+            return Shopware.Store.get('swCategoryDetail').category;
+        },
+    },
+};
+`;
+
+        // ACT
+        const { code, dependencies, outsideEdits } = routeForSpec(source, { use: [rewriteStore] });
+
+        // ASSERT
+        expect(code).toContain('return useCategoryDetailStore().category;');
+        expect(dependencies).toBe(`/** @private */
+export { useSwCategoryDetailStore as useCategoryDetailStore } from '../../page/sw-category-detail/store';
+`);
+        expect(outsideEdits).toEqual([]);
+    });
 });

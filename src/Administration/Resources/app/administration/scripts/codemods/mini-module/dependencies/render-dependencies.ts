@@ -36,7 +36,10 @@ const specifier = ({ imported, exported }: Reexport) => {
 
 /** One `export … from` statement per module and kind, with the names sorted. */
 const renderReexports = (reexports: Reexport[]) => {
-    const statements = new Map<string, { module: string; typeOnly: boolean; names: string[]; namespace?: string }>();
+    const statements = new Map<
+        string,
+        { module: string; typeOnly: boolean; names: string[]; namespace?: string; privateReason?: string }
+    >();
 
     reexports.forEach((reexport) => {
         if (reexport.imported === '*') {
@@ -52,17 +55,23 @@ const renderReexports = (reexports: Reexport[]) => {
         const key = `${reexport.module}\0${reexport.typeOnly ? 'type' : 'value'}`;
         const statement = statements.get(key) ?? { module: reexport.module, typeOnly: !!reexport.typeOnly, names: [] };
         statement.names.push(specifier(reexport));
+        statement.privateReason ??= reexport.privateReason;
         statements.set(key, statement);
     });
 
     return [...statements.values()]
         .sort((a, b) => compareModules(a.module, b.module) || Number(a.typeOnly) - Number(b.typeOnly))
-        .map(({ module, typeOnly, names, namespace }) => {
+        .map(({ module, typeOnly, names, namespace, privateReason }) => {
             if (namespace) {
                 return `/** @private */\nexport * as ${namespace} from '${module}';`;
             }
 
-            return `/** @private */\nexport ${typeOnly ? 'type ' : ''}{ ${[...new Set(names)].sort(byName).join(', ')} } from '${module}';`;
+            // At the end of the line, so the @private marker stays the comment right above the export.
+            const disable = privateReason
+                ? ` // eslint-disable-line sw-core-rules/mini-module-boundaries -- ${privateReason}`
+                : '';
+
+            return `/** @private */\nexport ${typeOnly ? 'type ' : ''}{ ${[...new Set(names)].sort(byName).join(', ')} } from '${module}';${disable}`;
         });
 };
 

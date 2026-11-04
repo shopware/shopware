@@ -1,7 +1,6 @@
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
-import 'src/module/sw-media/mixin/video-cover.mixin';
 
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;

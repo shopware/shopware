@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
+import 'src/module/sw-settings/mixin/sw-settings-list/register';
 
 function mockCustomFieldSetData() {
     const _customFieldSets = [];

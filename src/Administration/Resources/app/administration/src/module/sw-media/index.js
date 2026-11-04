@@ -1,9 +1,9 @@
 /**
  * @sw-package discovery
  */
-import './mixin/media-grid-listener.mixin';
-import './mixin/media-sidebar-modal.mixin';
-import './mixin/video-cover.mixin';
+import './mixin/media-grid-listener/register';
+import './mixin/media-sidebar-modal-mixin/register';
+import './mixin/video-cover/register';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 import './component/sw-media-collapse/register';

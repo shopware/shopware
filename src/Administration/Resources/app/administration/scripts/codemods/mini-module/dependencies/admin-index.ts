@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import { createGlobalResolver } from './global-resolver';
-import type { AdminIndex, Registered, Typing } from './model';
+import type { AdminIndex, MixinSource, Registered, Typing } from './model';
 import { findRegisterCall, REGISTER_CALLEES, type RegistryKind } from './registrations';
 
 const parse = (file: string) => ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
@@ -208,6 +208,23 @@ const exportedNames = (file: string) =>
         : [];
 
 /**
+ * The mini-module whose `register.ts` is the file, with the entry other code imports it through:
+ * `index` for a public module, `private` for one with only a `private.ts`. Null for any other file.
+ */
+const registeringModule = (file: string): { root: string; entry: 'index' | 'private' } | null => {
+    const root = path.dirname(file);
+    if (path.basename(file) !== 'register.ts' || !['src', 'tests'].every((dir) => fs.existsSync(path.join(root, dir)))) {
+        return null;
+    }
+
+    if (fs.existsSync(path.join(root, 'index.ts'))) {
+        return { root, entry: 'index' };
+    }
+
+    return fs.existsSync(path.join(root, 'private.ts')) ? { root, entry: 'private' } : null;
+};
+
+/**
  * Builds what the rewrites know about the Administration, for the module at `moduleRoot`.
  * Module paths for dependencies.ts are relative when the file is in the same `src/module/<name>`, `src/…` otherwise.
  */
@@ -263,6 +280,38 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
     const toRegistered = (found: ReturnType<typeof registeredStore>): Registered | null =>
         found ? { module: modulePath(found.file), file: found.file, exportName: found.call.exportName } : null;
 
+    const mixinSource = (name: string): MixinSource | null => {
+        const found = registeredMixin(name);
+        if (!found) {
+            return null;
+        }
+
+        const owner = registeringModule(found.file);
+        if (owner) {
+            return { module: modulePath(path.join(owner.root, `${owner.entry}.ts`)), isPrivate: owner.entry === 'private' };
+        }
+
+        return found.call.isDefaultExport ? { module: modulePath(found.file), isPrivate: false } : null;
+    };
+
+    // A store module registers its options, not a literal, so it is found by the id its src/ exports.
+    const storeModule = (id: string): Registered | null => {
+        const exportName = `${id}StoreId`;
+        const file = grepFiles(adminRoot, `export const ${exportName} = '${id}'`).find(
+            (candidate) =>
+                path.basename(path.dirname(candidate)) === 'src' &&
+                ['index.ts', 'tests'].every((entry) => fs.existsSync(path.join(candidate, '../..', entry))),
+        );
+        if (!file) {
+            return null;
+        }
+
+        const index = path.join(file, '../../index.ts');
+        const useName = /\b(use\w+Store)\b/.exec(fs.readFileSync(index, 'utf8'))?.[1];
+
+        return { module: modulePath(index), file, exportName, ...(useName ? { useName } : {}) };
+    };
+
     const globalTypes = parse(path.join(adminRoot, 'src/global.types.ts'));
     const typings = new Map<string, Map<string, Typing>>();
     const typing = (container: string, name: string): Typing => {
@@ -294,15 +343,9 @@ export function createAdminIndex(adminRoot: string, moduleRoot: string): AdminIn
         isService: (name) => serviceNames().has(name),
         hasServiceName: (name) => exported.has(name),
         typing,
-        findMixin: (name) => {
-            const found = registeredMixin(name);
-            return found?.call.isDefaultExport ? modulePath(found.file) : null;
-        },
-        isModuleLocalMixin: (name) => {
-            const found = registeredMixin(name);
-            return !!found && !found.call.isDefaultExport;
-        },
-        findStore: (id) => toRegistered(registeredStore(id)),
+        findMixin: mixinSource,
+        isModuleLocalMixin: (name) => !!registeredMixin(name) && !mixinSource(name),
+        findStore: (id) => storeModule(id) ?? toRegistered(registeredStore(id)),
         findFilter: (name) => toRegistered(registeredFilter(name)),
         findComponentHelper: (name) => {
             helpers ??= readComponentHelpers(adminRoot, moduleOf);

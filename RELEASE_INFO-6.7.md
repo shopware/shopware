@@ -322,7 +322,6 @@ The customer group detail page offers both settings separately. Plugins customiz
 ### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
 
 The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
-The component no longer uses them, so overriding them has no effect anymore.
 
 ### Apps can add tabs to the media modal they open
 

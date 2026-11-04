@@ -30,6 +30,7 @@ describe('components/sw-select-result-list', () => {
                 stubs: {
                     'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                    'sw-icon': true,
                 },
             },
         });

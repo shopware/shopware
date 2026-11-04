@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -1059,52 +1058,33 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('searchIds')->willReturn(
-            new IdSearchResult(0, [], new Criteria(), $this->context)
-        );
-
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
-        $this->getThemeService()->updateTheme($themeId, null, null, $this->context);
+        $this->getThemeService(themeRepository: StaticEntityRepository::of(ThemeCollection::class, [[]]))->updateTheme($themeId, null, null, $this->context);
     }
 
     public function testResetTheme(): void
     {
         $themeId = Uuid::randomHex();
 
-        $themeRepository = $this->createMock(EntityRepository::class);
-        $themeRepository->method('searchIds')->willReturn(
-            new IdSearchResult(1, [$themeId => ['primaryKey' => $themeId, 'data' => []]], new Criteria(), $this->context)
-        );
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [[$themeId]]);
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher->expects($this->once())->method('dispatch')->with(
             new ThemeConfigResetEvent($themeId, $this->context)
         );
 
-        $themeRepository->expects($this->once())->method('update')->with(
-            [
-                [
-                    'id' => $themeId,
-                    'configValues' => null,
-                ],
-            ],
-            $this->context
-        );
-
         $this->getThemeService(themeRepository: $themeRepository, eventDispatcher: $eventDispatcher)->resetTheme($themeId, $this->context);
+
+        static::assertSame([[['id' => $themeId, 'configValues' => null]]], $themeRepository->updates);
     }
 
     public function testResetThemeNoTheme(): void
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('searchIds')->willReturn(
-            new IdSearchResult(0, [], new Criteria(), $this->context)
-        );
-
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
-        $this->getThemeService()->resetTheme($themeId, $this->context);
+        $this->getThemeService(themeRepository: StaticEntityRepository::of(ThemeCollection::class, [[]]))->resetTheme($themeId, $this->context);
     }
 
     public function testAsyncCompilationIsSkippedWhenUsingStaticConfigLoader(): void

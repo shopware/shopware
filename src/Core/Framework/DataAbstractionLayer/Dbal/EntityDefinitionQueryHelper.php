@@ -42,25 +42,49 @@ class EntityDefinitionQueryHelper
     public static function escape(string $string): string
     {
         if (!self::isValidIdentifier($string)) {
-            throw new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
+            throw new \InvalidArgumentException('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
         }
 
         return '`' . $string . '`';
     }
 
     /**
-     * Rejects the characters that break out of the backtick quoting escape() applies: the backtick,
-     * plus question marks and colons (parsed as placeholders by PDO MySQL emulated prepares even
-     * inside backtick-quoted identifiers on PHP < 8.4) and control characters.
-     *
-     * @see https://www.php.net/manual/en/regexp.reference.unicode.php \p{Cc} matches control characters
+     * Guards identifiers that escape() wraps in backticks and reflects into SQL, such as aggregation
+     * names chosen by the API client. Until PHP 8.4 the PDO MySQL emulated-prepare scanner ignores
+     * backtick quoting, so a quote, a comment marker (double-dash or the slash-star block comment) or
+     * a placeholder character (question mark, colon) inside the alias can desync placeholder parsing
+     * and enable SQL injection. Those, plus the backtick and backslash that would break the quoting
+     * outright, the semicolon, and control characters, are rejected.
      */
     public static function isValidIdentifier(string $identifier): bool
     {
-        return !str_contains($identifier, '`')
-            && !str_contains($identifier, '?')
-            && !str_contains($identifier, ':')
-            && preg_match('/\p{Cc}/u', $identifier) !== 1;
+        // `#` is intentionally absent: the pre-PHP-8.4 PDO emulated-prepare scanner does not treat it as a comment,
+        // and it's can't desync scanner (validated during testing). Also core relies on # as a delimiter in few places
+        // (see self::addTranslationSelect or EntityReader).
+        foreach (['`', '?', ':', '\'', '"', '\\', ';', '--', '/*', '*/'] as $forbidden) {
+            if (str_contains($identifier, $forbidden)) {
+                return false;
+            }
+        }
+
+        return preg_match('/\p{Cc}/u', $identifier) === 0;
+    }
+
+    /**
+     * Guards a JSON path segment before it is embedded as an SQL string literal (via JSON_EXTRACT).
+     * Because quote() wraps the path, it is harmless on its own and only matters as the closing half
+     * of a block comment an identifier opened elsewhere, so only the slash-star block-comment markers
+     * and control characters are rejected.
+     */
+    public static function isValidJsonPath(string $path): bool
+    {
+        foreach (['/*', '*/'] as $forbidden) {
+            if (str_contains($path, $forbidden)) {
+                return false;
+            }
+        }
+
+        return preg_match('/\p{Cc}/u', $path) === 0;
     }
 
     public static function columnExists(Connection $connection, string $table, string $column): bool
@@ -96,11 +120,24 @@ class EntityDefinitionQueryHelper
     }
 
     /**
+     * Removes whole `extensions` path segments from a field accessor. A segment that only contains the
+     * text as a substring is left unchanged. Field-access validation and SQL construction must share this
+     * normalization so an accessor is interpreted consistently.
+     */
+    public static function removeExtensionPathSegments(string $accessor): string
+    {
+        return implode('.', array_filter(
+            explode('.', $accessor),
+            static fn (string $segment): bool => $segment !== 'extensions',
+        ));
+    }
+
+    /**
      * @return array<Field>
      */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
-        $parts = explode('.', $accessor);
+        $parts = explode('.', self::removeExtensionPathSegments($accessor));
         if ($definition->getEntityName() === $parts[0]) {
             array_shift($parts);
         }
@@ -110,10 +147,6 @@ class EntityDefinitionQueryHelper
         $source = $definition;
 
         foreach ($parts as $part) {
-            if ($part === 'extensions') {
-                continue;
-            }
-
             $fields = $source->getFields();
             $field = $fields->get($part);
 
@@ -284,7 +317,7 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = self::removeExtensionPathSegments($fieldName);
 
         $original = $fieldName;
         $prefix = $root . '.';
@@ -305,11 +338,7 @@ class EntityDefinitionQueryHelper
         $parts = explode('.', $fieldName);
         $associationKey = array_shift($parts);
 
-        if ($associationKey === 'extensions') {
-            $associationKey = array_shift($parts);
-        }
-
-        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
+        if (!$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
         }
 
@@ -413,7 +442,7 @@ class EntityDefinitionQueryHelper
         Context $context,
         ?CriteriaPartInterface $criteriaPart = null
     ): void {
-        $accessor = str_replace('extensions.', '', $accessor);
+        $accessor = self::removeExtensionPathSegments($accessor);
 
         $parts = explode('.', $accessor);
 

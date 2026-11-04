@@ -117,12 +117,6 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                             'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/import-export-log-entries', $baseUrl),
                         ],
                     ],
-                    'recoveryUser' => [
-                        'data' => null,
-                        'links' => [
-                            'related' => \sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/recovery-user', $baseUrl),
-                        ],
-                    ],
                     'aclRoles' => [
                         'data' => [],
                         'links' => [

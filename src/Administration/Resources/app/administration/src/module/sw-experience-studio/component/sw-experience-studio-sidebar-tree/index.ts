@@ -1,5 +1,7 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentLayoutEntity } from '../../util/content-layout-repository.util';
+import type { ScrollNavigationAnchor } from '../../util/scroll-navigation-settings.util';
+import { readScrollNavigationSettings } from '../../util/scroll-navigation-settings.util';
 
 import template from './sw-experience-studio-sidebar-tree.html.twig';
 import './sw-experience-studio-sidebar-tree.scss';
@@ -56,11 +58,16 @@ export default Shopware.Component.wrapComponentConfig({
         'duplicate-element',
         'delete-element',
         'move-element',
+        'open-page-settings',
     ],
 
     computed: {
         layoutElements(): ContentElementNode[] {
             return this.layout?.layout ?? [];
+        },
+
+        anchors(): Record<string, ScrollNavigationAnchor> {
+            return readScrollNavigationSettings(this.layout).anchors;
         },
 
         hasElements(): boolean {
@@ -87,6 +94,10 @@ export default Shopware.Component.wrapComponentConfig({
                 slotName: null,
                 anchorElement: event.currentTarget as HTMLElement | null,
             });
+        },
+
+        onOpenPageSettings(): void {
+            this.$emit('open-page-settings');
         },
 
         onDuplicateElement(elementId: string): void {

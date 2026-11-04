@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -32,6 +33,8 @@ class ContentLayoutDefinition extends EntityDefinition
     final public const LAYOUT_FIELD = 'layout';
 
     final public const ROOT_SOURCE_FIELD = 'root_source';
+
+    final public const SETTINGS_FIELD = 'settings';
 
     public function getEntityName(): string
     {
@@ -61,6 +64,7 @@ class ContentLayoutDefinition extends EntityDefinition
             (new StringField('version', 'version', 20))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new StoredElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new StringField(self::ROOT_SOURCE_FIELD, 'rootSource'))->addFlags(new ApiAware(AdminApiSource::class), new Required(), new Immutable()),
+            (new JsonField(self::SETTINGS_FIELD, 'settings'))->addFlags(new ApiAware(AdminApiSource::class)),
 
             (new OneToManyAssociationField('productContentLayouts', ProductContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('categoryContentLayouts', CategoryContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),

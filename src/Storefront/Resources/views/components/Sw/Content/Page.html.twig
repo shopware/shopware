@@ -6,10 +6,20 @@
     page = null
 %}
 
+{% set scrollNavigation = page.settings.scrollNavigation ?? null %}
+
 {% set attributeDefaults = {
     'data-page-id': page.id
 } %}
 
 <div class="sw-content-page" {{ attributes.defaults(attributeDefaults) }}>
+    {% if scrollNavigation.active ?? false %}
+        <twig:Sw:Content:ScrollNavigation
+            :page="page"
+            :mode="scrollNavigation.mode ?? 'sidebar'"
+            :position="scrollNavigation.position ?? 'right'"
+        />
+    {% endif %}
+
     <twig:Slot :elements="page.elements" />
 </div>

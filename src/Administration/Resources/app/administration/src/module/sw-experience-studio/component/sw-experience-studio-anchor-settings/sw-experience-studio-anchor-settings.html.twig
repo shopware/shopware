@@ -1,0 +1,29 @@
+{% block sw_experience_studio_anchor_settings %}
+<div class="sw-experience-studio-anchor-settings">
+    <mt-switch
+        class="sw-experience-studio-anchor-settings__toggle"
+        :label="$t('sw-experience-studio.detail.anchorSettings.enable')"
+        :help-text="$t('sw-experience-studio.detail.anchorSettings.enableHelp')"
+        :model-value="isAnchor"
+        :disabled="!allowEdit || undefined"
+        @update:model-value="onAnchorToggle"
+    />
+
+    <mt-text-field
+        class="sw-experience-studio-anchor-settings__label"
+        :label="$t('sw-experience-studio.detail.anchorSettings.label')"
+        :placeholder="$t('sw-experience-studio.detail.anchorSettings.labelPlaceholder')"
+        :model-value="anchorLabel"
+        :disabled="!allowEdit || !isAnchor || undefined"
+        @update:model-value="onAnchorLabelChange"
+    />
+
+    <mt-banner
+        v-if="isNavigationInactive"
+        variant="attention"
+        class="sw-experience-studio-anchor-settings__banner"
+    >
+        {{ $t('sw-experience-studio.detail.anchorSettings.navigationInactive') }}
+    </mt-banner>
+</div>
+{% endblock %}

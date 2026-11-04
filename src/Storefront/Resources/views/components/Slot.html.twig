@@ -47,6 +47,13 @@
 
             {% set elementStyleClasses = '' %}
 
+            {# Scroll-navigation anchors are stamped onto any element type by the finalization listener. #}
+            {% if elementProperties.scrollNavigation is defined %}
+                {% set elementProperties = elementProperties|filter((value, key) => key != 'scrollNavigation') %}
+                {% set elementProperties = elementProperties|merge({ id: 'sw-scroll-nav-' ~ element.id }) %}
+                {% set elementStyleClasses = 'sw-scroll-navigation__target' %}
+            {% endif %}
+
             {% if element.style.values is not empty %}
                 {% for optionName, optionValue in element.style.values %}
                     {% if optionValue is mapping %}

@@ -2950,6 +2950,12 @@ Move the definitions into a dedicated `Resources/config/custom-fields.xml` file 
 </custom-fields>
 ```
 
+## `AppCmsExtensionException` removed
+
+`Shopware\Core\Framework\App\Exception\AppCmsExtensionException` was removed.
+A missing CMS block file and a CMS block outside of the `cms/blocks` directory of the App are thrown as `Shopware\Core\Framework\App\AppException` instead.
+Catch `AppException` and check the error codes `FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING` and `FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY`.
+
 </details>
 
 # Hosting & Configuration

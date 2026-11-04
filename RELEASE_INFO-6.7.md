@@ -123,6 +123,16 @@ To read a user, use `GET /api/user/{id}` with `user:read`.
 To change a user, use `PATCH /api/user/{id}` with `user:update`.
 That route requires an admin integration or a directly authenticated user, because a non-admin caller may only change its own user.
 
+### App files must be inside the App directory
+
+Shopware now only reads App files that are located inside the App directory.
+This applies to the App icon, the icons of payment methods, shipping methods and flow actions, and the scripts of rule conditions.
+Files outside of the App directory are treated like a missing file, so the icon is skipped.
+CMS blocks whose name leaves the `cms/blocks` directory of the App are rejected, so the App cannot be installed or updated.
+Until 6.8, both CMS block errors are still thrown as the deprecated `Shopware\Core\Framework\App\Exception\AppCmsExtensionException`.
+With 6.8 they are thrown as `Shopware\Core\Framework\App\AppException`.
+Apps that keep their files inside their own directory are not affected.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes

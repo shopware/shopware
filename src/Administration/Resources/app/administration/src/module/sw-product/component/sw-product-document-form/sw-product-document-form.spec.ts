@@ -4,6 +4,7 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
+import fileValidationService from 'src/app/service/file-validation.service';
 
 import { createWrapper, createMedia, addMedia, clickButton, getDocuments } from './sw-product-document-form.spec/helpers';
 
@@ -35,6 +36,24 @@ describe('sw-product-document-form', () => {
             changes: { documents: [expect.objectContaining({ mediaId: media.id, title: 'manual', position: 0 })] },
         });
         expect(JSON.stringify(payload)).not.toContain('"media":');
+    });
+
+    it.each([
+        ['manual.pdf', 'application/pdf'],
+        ['manual.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        ['manual.jpg', 'image/jpeg'],
+        ['manual.jpeg', 'image/jpeg'],
+        ['manual.png', 'image/png'],
+    ])('accepts %s through the media modal upload validation', async (name, type) => {
+        const wrapper = await createWrapper();
+        await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
+        wrapper.getComponent<ComponentPublicInstance>('sw-media-upload-v2-stub').vm.$emit('media-upload-sidebar-open');
+        await flushPromises();
+
+        const accept = wrapper.getComponent('sw-media-modal-v2-stub').attributes('file-accept')!;
+        const { checkByType } = fileValidationService();
+        expect(checkByType(new File(['document'], name, { type }), accept)).toBe(true);
+        expect(checkByType(new File(['video'], 'video.mp4', { type: 'video/mp4' }), accept)).toBe(false);
     });
 
     it('rejects duplicate and private media', async () => {

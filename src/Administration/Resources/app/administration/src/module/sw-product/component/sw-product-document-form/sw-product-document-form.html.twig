@@ -299,7 +299,7 @@
                 :can-edit="canEdit"
                 :is-removing-document="isRemovingDocument"
                 :has-variants="hasVariants"
-                @close="removingDocument = null"
+                @close="closeRemoveDocumentModal"
                 @remove="removeDocument"
             />
         {% endblock %}

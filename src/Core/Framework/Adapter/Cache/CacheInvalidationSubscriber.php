@@ -367,7 +367,15 @@ class CacheInvalidationSubscriber
                     IF(variant.id IS NULL,  NULL, LOWER(HEX(variant.id))) as variant_id
                     FROM product_media AS pm
                     LEFT JOIN product as variant ON (pm.product_id = variant.parent_id)
-                    WHERE media_id IN (:ids)',
+                    WHERE media_id IN (:ids)
+                UNION ALL
+                SELECT
+                    LOWER(HEX(pd.product_id)) as product_id,
+                    IF(variant.id IS NULL, NULL, LOWER(HEX(variant.id))) as variant_id
+                    FROM product_document_translation AS pdt
+                    INNER JOIN product_document AS pd ON (pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id)
+                    LEFT JOIN product as variant ON (pd.product_id = variant.parent_id)
+                    WHERE pdt.media_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($event->getIds())],
             ['ids' => ArrayParameterType::STRING]
         );

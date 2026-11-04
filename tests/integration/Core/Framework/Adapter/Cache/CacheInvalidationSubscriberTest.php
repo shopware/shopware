@@ -6,8 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
@@ -126,6 +129,43 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->logger->expects($this->never())->method('log');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
+    }
+
+    public function testInvalidateMediaClearsTheProductsAndVariantsWhoseDocumentsUseTheFile(): void
+    {
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('media.repository')->create([
+            ['id' => $this->ids->create('manual')],
+            ['id' => $this->ids->create('handbuch')],
+        ], $context);
+
+        $drill = (new ProductBuilder($this->ids, 'drill'))
+            ->price(10)
+            ->variant((new ProductBuilder($this->ids, 'drill-red'))->build())
+            ->build();
+        $drill['documents'] = [[
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->ids->get('manual')],
+                $this->getDeDeLanguageId() => ['title' => 'Handbuch', 'mediaId' => $this->ids->get('handbuch')],
+            ],
+        ]];
+        $hammer = (new ProductBuilder($this->ids, 'hammer'))->price(10)->build();
+        $hammer['documents'] = [['title' => 'Manual', 'mediaId' => $this->ids->get('manual')]];
+        static::getContainer()->get('product.repository')->create([$drill, $hammer], $context);
+
+        $tags = [];
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
+        $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
+            $tags = $invalidated;
+        });
+        $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), productStreamIndexerEnabled: true);
+
+        // only the German version of the drill's document uses this file
+        $subscriber->invalidateMedia(new MediaIndexerEvent([$this->ids->get('handbuch')], $context, []));
+
+        static::assertContains(ProductDetailRoute::buildName($this->ids->get('drill')), $tags);
+        static::assertContains(ProductDetailRoute::buildName($this->ids->get('drill-red')), $tags);
+        static::assertNotContains(ProductDetailRoute::buildName($this->ids->get('hammer')), $tags);
     }
 
     private function insertDefaultPropertyGroup(): void

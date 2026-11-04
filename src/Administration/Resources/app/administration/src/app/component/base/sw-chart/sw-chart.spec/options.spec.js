@@ -2,66 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
-import en from 'apexcharts/dist/locales/en.json';
-import nl from 'apexcharts/dist/locales/nl.json';
-
-// mock data
-const chartOptions = {
-    title: { text: 'Phenomenal chart' },
-    chart: {
-        toolbar: {
-            show: true,
-        },
-    },
-};
-
-const chartSeries = [
-    {
-        name: 'Demo Serie',
-        data: [
-            10,
-            41,
-            35,
-            51,
-            49,
-            62,
-            69,
-            91,
-            148,
-        ],
-    },
-    {
-        name: 'Another demo Serie',
-        data: [
-            12,
-            24,
-            35,
-            58,
-            88,
-            95,
-            125,
-            145,
-            148,
-        ],
-    },
-];
-
-// initial component setup
-const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
-    return mount(await wrapTestComponent('sw-chart', { sync: true }), {
-        props: {
-            type: type || 'line',
-            series: series || chartSeries,
-            options: options || chartOptions,
-            fillEmptyValues: fillEmptyValues,
-            sort: sort || false,
-        },
-        global: {
-            stubs: ['apexchart'],
-        },
-    });
-};
+import { setup } from './sw-chart.fixtures';
 
 describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
@@ -330,31 +271,5 @@ describe('asyncComponent/base/sw-chart', () => {
         });
 
         expect(wrapper.vm.optimizedSeries).toEqual(convertedSeriesStructure);
-    });
-
-    it('should load the correct default locale', async () => {
-        Shopware.Store.get('session').setAdminLocaleState({
-            locale: 'nl-NL',
-            locales: ['en-GB', 'nl-NL'],
-        });
-
-        const wrapper = await setup();
-        await flushPromises();
-
-        expect(wrapper.vm.defaultLocale).toBe('nl');
-        expect(wrapper.vm.localeConfig).toEqual(nl);
-    });
-
-    it('should load the fallback locale when default locale does not exist', async () => {
-        Shopware.Store.get('session').setAdminLocaleState({
-            locale: 'foo-BAR',
-            locales: ['en-GB', 'nl-NL', 'foo-BAR'],
-        });
-
-        const wrapper = await setup();
-        await flushPromises();
-
-        expect(wrapper.vm.defaultLocale).toBe('en');
-        expect(wrapper.vm.localeConfig).toEqual(en);
     });
 });

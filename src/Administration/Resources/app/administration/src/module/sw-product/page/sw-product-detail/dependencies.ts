@@ -12,8 +12,6 @@ import { cmsPageStoreId } from 'src/module/sw-cms/store/cms-page.store';
 import { swSeoUrlStoreId } from 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 /** @private */
-export { default as ChangesetGenerator } from 'src/core/data/changeset-generator.data';
-/** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { types } from 'src/core/service/util.service';
@@ -72,6 +70,15 @@ export const useShopwareAppsStore = () => Shopware.Store.get(shopwareAppsStoreId
 
 /** @private */
 export const getApiContext = () => Shopware.Context.api;
+
+/** @private */
+export const getEntityDefinition = () => Shopware.EntityDefinition;
+
+/** @private */
+export const trackTelemetry = (...args: Parameters<typeof Shopware.Telemetry.track>) => Shopware.Telemetry.track(...args);
+
+/** Whether the store of the SEO URL card is registered, which happens only once the card has loaded. @private */
+export const isSeoUrlStoreRegistered = () => Shopware.Store.list().includes(swSeoUrlStoreId);
 
 /** @private */
 export const isFeatureActive = (flag: string) => Shopware.Feature.isActive(flag);

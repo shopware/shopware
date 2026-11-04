@@ -7,7 +7,6 @@ import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 import {
     aclService,
-    ChangesetGenerator,
     cloneDeep,
     Criteria,
     customFieldDataProviderService as customFieldDataProviderServiceName,
@@ -18,8 +17,10 @@ import {
     getApiContext,
     getCacheService,
     getCustomFieldDataProviderService,
+    getEntityDefinition,
     getUserConfigService,
     isFeatureActive,
+    isSeoUrlStoreRegistered,
     mapPageErrors,
     mediaService,
     notificationMixin,
@@ -29,6 +30,7 @@ import {
     repositoryFactoryService,
     seoUrlService,
     systemConfigApiService,
+    trackTelemetry,
     types,
     useCmsPageStore,
     useContextStore,
@@ -38,8 +40,13 @@ import {
     useSessionStore,
     useShopwareAppsStore,
 } from '../dependencies';
+import { collectSlotOverrides, stripSlotConfigMetadata } from './cms-page-overrides/private';
+import { createProductDetailTabs } from './detail-tabs/private';
+import { createDefaultFeatureSetCriteria, createProductCriteria, createPropertyCriteria } from './product-criteria/private';
+import { describeSaveError, describeSeoUrlErrors } from './save-errors/private';
+import { hasValidPurchaseLimits, normalizeReferencePrices } from './save-validation/private';
+import { getInheritedTitle, syncVariantPriceInheritance } from './variant-inheritance/private';
 
-const { EntityDefinition } = Shopware;
 const type = types;
 
 const ADVANCED_MODE_SETTINGS_KEY = 'mode.setting.advancedModeSettings';
@@ -171,49 +178,17 @@ export default {
         },
 
         productDetailTabs() {
-            const createRouteTab = (label, routeName, additionalProperties = {}) => {
-                const route = {
-                    name: routeName,
-                    params: { id: this.$route.params.id },
-                };
-
-                return {
-                    label: this.$t(label),
-                    name: route.name,
-                    onClick: () => {
-                        void this.$router.push(route);
-                    },
-                    ...additionalProperties,
-                };
-            };
-
-            const tabs = [
-                createRouteTab('sw-product.detail.tabGeneral', 'sw.product.detail.base', {
-                    hasError: this.swProductDetailBaseError,
-                }),
-                createRouteTab('sw-product.detail.tabSpecifications', 'sw.product.detail.specifications'),
-            ];
-
-            if (this.showModeSetting) {
-                tabs.push(createRouteTab('sw-product.detail.tabAdvancedPrices', 'sw.product.detail.prices'));
-            }
-
-            if (!this.isChild && this.showModeSetting) {
-                tabs.push(createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'));
-            }
-
-            if (this.showModeSetting) {
-                tabs.push(
-                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
-                    createRouteTab('sw-product.detail.tabSeo', 'sw.product.detail.seo'),
-                    createRouteTab('sw-product.detail.tabCrossSelling', 'sw.product.detail.crossSelling', {
-                        hasError: this.swProductDetailCrossSellingError,
-                    }),
-                    createRouteTab('sw-product.detail.tabReviews', 'sw.product.detail.reviews'),
-                );
-            }
-
-            return tabs;
+            return createProductDetailTabs({
+                productId: this.$route.params.id,
+                isChild: this.isChild,
+                showModeSetting: this.showModeSetting,
+                generalError: this.swProductDetailBaseError,
+                crossSellingError: this.swProductDetailCrossSellingError,
+                translate: (...args) => this.$t(...args),
+                navigate: (route) => {
+                    void this.$router.push(route);
+                },
+            });
         },
 
         /**
@@ -297,58 +272,11 @@ export default {
         },
 
         productCriteria() {
-            const criteria = new Criteria(1, 1);
-            criteria.setTotalCountMode(0);
-
-            criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
-            criteria.addAssociation('media.media');
-
-            criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
-
-            criteria.getAssociation('tags').addSorting(Criteria.sort('name', 'ASC'));
-
-            criteria.getAssociation('seoUrls').addFilter(Criteria.equals('isCanonical', true));
-
-            criteria
-                .getAssociation('crossSellings')
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .getAssociation('assignedProducts')
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('product')
-                .getAssociation('product')
-                .addAssociation('options.group');
-
-            criteria
-                .addAssociation('cover.media')
-                .addAssociation('openGraphMedia')
-                .addAssociation('categories')
-                .addAssociation('visibilities.salesChannel')
-                .addAssociation('options')
-                .addAssociation('configuratorSettings.option')
-                .addAssociation('unit')
-                .addAssociation('productReviews')
-                .addAssociation('seoUrls')
-                .addAssociation('mainCategories')
-                .addAssociation('options.group')
-                .addAssociation('customFieldSets')
-                .addAssociation('featureSet')
-                .addAssociation('cmsPage')
-                .addAssociation('translations')
-                .addAssociation('downloads.media');
-
-            criteria.getAssociation('manufacturer').addAssociation('media');
-
-            return criteria;
+            return createProductCriteria();
         },
 
         defaultFeatureSetCriteria() {
-            const criteria = new Criteria(1, 1);
-
-            criteria
-                .addSorting(Criteria.sort('createdAt', 'ASC'))
-                .addFilter(Criteria.equalsAny('name', ['Default', 'Standard']));
-
-            return criteria;
+            return createDefaultFeatureSetCriteria();
         },
 
         tooltipSave() {
@@ -483,7 +411,7 @@ export default {
                 return null;
             }
 
-            return Object.keys(EntityDefinition.getTranslatedFields(this.product.getEntityName()));
+            return Object.keys(getEntityDefinition().getTranslatedFields(this.product.getEntityName()));
         },
 
         ignoreFieldsValidation() {
@@ -852,10 +780,7 @@ export default {
                     }
 
                     if (product.propertyIds?.length > 0) {
-                        const propertyCriteria = new Criteria(1, null);
-                        propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
-                        propertyCriteria.setIds(product.propertyIds);
-                        propertyCriteria.addFilter(Criteria.equals('productProperties.id', product.id));
+                        const propertyCriteria = createPropertyCriteria(product.propertyIds, product.id);
 
                         const result = await this.propertyRepository.search(propertyCriteria);
                         result.source = product.properties.source;
@@ -876,7 +801,7 @@ export default {
 
                     if (this.productId === product.id && this.lastViewedProductId !== product.id) {
                         this.lastViewedProductId = product.id;
-                        Shopware.Telemetry.track({
+                        trackTelemetry({
                             eventName: 'sw_product.detail.product_viewed',
                             product_type: product.type,
                         });
@@ -909,19 +834,7 @@ export default {
         },
 
         syncVariantPriceInheritance() {
-            const priceInherited = this.product.price === null;
-            const purchasePricesInherited = this.product.purchasePrices === null;
-
-            // Price is inherited — purchasePrices must also inherit
-            if (priceInherited) {
-                this.product.purchasePrices = null;
-                return;
-            }
-
-            // Price is overridden but purchasePrices still inherited — copy from parent
-            if (purchasePricesInherited) {
-                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
-            }
+            syncVariantPriceInheritance(this.product, this.parentProduct);
         },
 
         getDefaultPurchasePrices() {
@@ -951,9 +864,7 @@ export default {
                     }
 
                     if (parent.propertyIds?.length > 0) {
-                        const propertyCriteria = new Criteria(1, null);
-                        propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
-                        propertyCriteria.setIds(parent.propertyIds);
+                        const propertyCriteria = createPropertyCriteria(parent.propertyIds);
 
                         const result = await this.propertyRepository.search(propertyCriteria);
                         result.source = parent.properties.source;
@@ -1178,57 +1089,12 @@ export default {
         },
 
         validatePrices(priceLabel, prices) {
-            if (!prices) {
-                return;
-            }
-
-            prices.forEach((price) => {
-                if (!price[priceLabel]) {
-                    return;
-                }
-
-                if (!price[priceLabel].gross && !price[priceLabel].net) {
-                    price[priceLabel] = null;
-                    return;
-                }
-
-                if (!price[priceLabel].gross) {
-                    price[priceLabel].gross = 0;
-                    return;
-                }
-
-                if (!price[priceLabel].net) {
-                    price[priceLabel].net = 0;
-                }
-            });
+            normalizeReferencePrices(prices, priceLabel);
         },
 
         onSaveFinished(response) {
             if (response !== 'success' && response !== 'empty') {
-                const errorCode = response?.response?.data?.errors?.[0]?.code;
-
-                if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
-                    const titleSaveError = this.$t('global.default.error');
-                    const messageSaveError = this.$t('sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
-                        productNo: response.response.data.errors[0].meta.parameters.number,
-                    });
-
-                    this.createNotificationError({
-                        title: titleSaveError,
-                        message: messageSaveError,
-                    });
-                    return;
-                }
-
-                const errorDetail = response?.response?.data?.errors?.[0]?.detail;
-                const titleSaveError = this.$t('global.default.error');
-                const messageSaveError =
-                    errorDetail ?? this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
-
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError,
-                });
+                this.createNotificationError(describeSaveError(response, (...args) => this.$t(...args)));
                 return;
             }
 
@@ -1268,7 +1134,7 @@ export default {
 
             this.updateSeoPromises = [];
 
-            if (Shopware.Store.list().includes('swSeoUrl')) {
+            if (isSeoUrlStoreRegistered()) {
                 const seoUrls = useSeoUrlStore().newOrModifiedUrls;
                 const defaultSeoUrl = useSeoUrlStore().defaultSeoUrl;
 
@@ -1283,26 +1149,9 @@ export default {
 
                         this.updateSeoPromises.push(
                             this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
-                                if (error.response?.data?.errors) {
-                                    error.response.data.errors.forEach((apiError) => {
-                                        const messageKey = `global.error-codes.${apiError.detail}`;
-                                        const params = apiError.meta?.parameters || {};
-                                        const translated = this.$t(messageKey, params);
-
-                                        const message =
-                                            translated !== messageKey
-                                                ? translated
-                                                : apiError.detail ||
-                                                  apiError.title ||
-                                                  this.$t('global.notification.unspecifiedSaveErrorMessage');
-
-                                        this.createNotificationError({ message });
-                                    });
-                                } else {
-                                    const message =
-                                        error.message || this.$t('global.notification.unspecifiedSaveErrorMessage');
+                                describeSeoUrlErrors(error, (...args) => this.$t(...args)).forEach((message) => {
                                     this.createNotificationError({ message });
-                                }
+                                });
 
                                 return Promise.reject(error);
                             }),
@@ -1327,7 +1176,7 @@ export default {
                 this.syncRepository
                     .save(this.product, this.productApiContext)
                     .then(() => {
-                        Shopware.Telemetry.track({
+                        trackTelemetry({
                             eventName: 'sw_product.detail.product_saved',
                             product_type: productType,
                             product_is_new: productIsNew,
@@ -1379,21 +1228,7 @@ export default {
         },
 
         getInheritTitle() {
-            if (
-                this.product.hasOwnProperty('translated') &&
-                this.product.translated.hasOwnProperty('name') &&
-                this.product.translated.name !== null
-            ) {
-                return this.product.translated.name;
-            }
-            if (this.product.name !== null) {
-                return this.product.name;
-            }
-            if (this.parentProduct && this.parentProduct.hasOwnProperty('translated')) {
-                const pProduct = this.parentProduct;
-                return pProduct.translated.hasOwnProperty('name') ? pProduct.translated.name : pProduct.name;
-            }
-            return '';
+            return getInheritedTitle(this.product, this.parentProduct);
         },
 
         onDuplicate() {
@@ -1409,11 +1244,7 @@ export default {
         },
 
         validateProductPurchase() {
-            if (this.product.maxPurchase && this.product.minPurchase > this.product.maxPurchase) {
-                return false;
-            }
-
-            return true;
+            return hasValidPurchaseLimits(this.product);
         },
 
         /**
@@ -1426,68 +1257,14 @@ export default {
 
             this.deleteSpecifcKeys(this.currentPage.sections);
 
-            const changesetGenerator = new ChangesetGenerator();
-            const { changes } = changesetGenerator.generate(this.currentPage);
-
-            const slotOverrides = {};
-            if (changes === null) {
-                return slotOverrides;
-            }
-
-            if (type.isArray(changes.sections)) {
-                changes.sections.forEach((section) => {
-                    if (type.isArray(section.blocks)) {
-                        section.blocks.forEach((block) => {
-                            if (type.isArray(block.slots)) {
-                                block.slots.forEach((slot) => {
-                                    slotOverrides[slot.id] = slot.config;
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-
-            return slotOverrides;
+            return collectSlotOverrides(this.currentPage);
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         deleteSpecifcKeys(sections) {
-            if (!sections) {
-                return;
-            }
-
-            sections.forEach((section) => {
-                if (!section.blocks) {
-                    return;
-                }
-
-                section.blocks.forEach((block) => {
-                    if (!block.slots) {
-                        return;
-                    }
-
-                    block.slots.forEach((slot) => {
-                        if (!slot.config) {
-                            return;
-                        }
-
-                        Object.values(slot.config).forEach((configField) => {
-                            if (configField.entity) {
-                                delete configField.entity;
-                            }
-                            if (configField.hasOwnProperty('required')) {
-                                delete configField.required;
-                            }
-                            if (configField.type) {
-                                delete configField.type;
-                            }
-                        });
-                    });
-                });
-            });
+            stripSlotConfigMetadata(sections);
         },
 
         async loadLanguage(newLanguageId) {

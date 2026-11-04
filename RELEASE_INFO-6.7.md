@@ -328,6 +328,12 @@ Saving is not blocked.
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
 
+### Refused removal of a Composer-managed app keeps it installed
+
+`POST /api/_action/extension/remove/app/{technicalName}` now refuses an app that Composer manages before it changes anything.
+The refusal now answers `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED` instead of `FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED`, still with HTTP 400.
+To remove such an app, uninstall it and remove its package with Composer.
+
 ### Cookie groups response contains a hash per cookie
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
@@ -365,6 +371,10 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Native setup stays experimental until 6.9
+
+The experimental phase of native setup and the Composition API extension system now ends with 6.9 instead of 6.8, like the composables in `shopware:composables`.
+Until then, they can change in any release without a deprecation.
 ### Apps can add tabs to the media modal they open
 
 `ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).
@@ -743,6 +753,39 @@ See `UPGRADE-6.8.md` for what themes have to adjust.
 `core.cart.showLegalGuaranteeNotice` now declares `false` as its default.
 This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
 Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
+
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore.
+Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested.
+This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL.
+Indexing does not repair this, because the fallback is marked as modified.
+List the affected categories with:
+
+```bash
+bin/console seo:repair:link-category-takeover
+```
+
+A category whose SEO URL was set manually can appear in the list as well.
+The "Likely cause" column guesses whether the indexing locked the URL (`indexing`) or it was set manually (`manual`).
+With `--apply`, the command asks for each listed category whether it should get its URL back:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply
+```
+
+To repair without being asked, for example in a script, pass the ids of the categories to repair:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply --no-interaction <category-id>...
+```
+
+The categories get their SEO URLs back, and their fallback URLs redirect to them.
+The command is deprecated and will be removed in 6.9.0.0.
 
 ## Hosting & Configuration
 

@@ -1,8 +1,15 @@
-import { collectSlotOverrides, createPage, stripSlotConfigMetadata } from './cms-page-overrides.harness';
+import { collectSlotOverrides, stripSlotConfigMetadata } from '../private';
 
 /**
  * @sw-package inventory
  */
+
+/**
+ * A page, or a changeset of one, with one section and one block holding the given slots.
+ */
+function createPage(slots: Array<{ id: string; config: Record<string, Record<string, unknown>> | null }>) {
+    return { sections: [{ blocks: [{ slots }] }] };
+}
 
 // A product can override the content of the slots in its layout, and stores those overrides by slot id.
 // The overrides are what the merchant changed on the layout page, without the fields the layout editor keeps for itself.

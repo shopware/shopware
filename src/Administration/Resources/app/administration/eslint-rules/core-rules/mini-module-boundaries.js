@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+const fs = require('fs');
 const path = require('path');
 const { CONTRACT_SPEC, findEnclosingModule, findMiniModule } = require('./mini-module');
 
@@ -18,7 +19,7 @@ module.exports = {
             nestedPrivateImport:
                 "'{{source}}' is the private module of '{{enclosing}}'. Only the src/ of '{{enclosing}}' may import it.",
             contractTestImport:
-                "Requirements, pinned, regressions and public-api specs import their module only through '../index'.",
+                "Requirements, pinned, regressions and public-api specs import their module only through its entry file: '../index', or '../private' when it has no index.ts.",
         },
         schema: [],
     },
@@ -27,6 +28,13 @@ module.exports = {
         const toRelative = (absolutePath) => path.relative(cwd, absolutePath).split(path.sep).join('/');
         const importer = toRelative(context.filename ?? context.getFilename());
         const importerModule = findMiniModule(importer, cwd);
+
+        /**
+         * Whether an import points at the file other code enters a module through: its `index.ts`, or its
+         * `private.ts` when it has no `index.ts`, like a nested private module.
+         */
+        const isEntryFile = (targetModule) =>
+            targetModule.part === 'private' && !fs.existsSync(path.join(cwd, targetModule.root, 'index.ts'));
 
         function check(node) {
             const source = node.source?.value;
@@ -70,7 +78,7 @@ module.exports = {
                 return;
             }
 
-            if (importerModule.part === 'tests' && CONTRACT_SPEC.test(importerModule.rest)) {
+            if (importerModule.part === 'tests' && CONTRACT_SPEC.test(importerModule.rest) && !isEntryFile(targetModule)) {
                 context.report({ node: node.source, messageId: 'contractTestImport' });
             }
         }

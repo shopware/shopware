@@ -14,7 +14,7 @@ const ruleTester = new RuleTester({
 });
 
 // A made-up mini-module, so the rule finds the `index.ts`, `src/` and `tests/` it looks for on disk,
-// with a nested private module in its src/ that has only a `private.ts`.
+// with two nested private modules in its src/ that have only a `private.ts`, and a second module beside it.
 const moduleRoot = 'src/core/example-module';
 const nestedRoot = `${moduleRoot}/src/example-card`;
 const realExistsSync = fs.existsSync;
@@ -24,7 +24,8 @@ describe('mini-module-boundaries', () => {
         jest.spyOn(fs, 'existsSync').mockImplementation(
             (file) =>
                 /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) ||
-                /(^|\/)src\/core\/example-module\/src\/example-card\/(private\.ts|src|tests)$/.test(file) ||
+                /(^|\/)src\/core\/example-module\/src\/(example|other)-card\/(private\.ts|src|tests)$/.test(file) ||
+                /(^|\/)src\/core\/other-module\/(index\.ts|private\.ts|src|tests)$/.test(file) ||
                 realExistsSync(file),
         );
     });
@@ -60,6 +61,16 @@ describe('mini-module-boundaries', () => {
                 name: 'contract tests import the index',
                 filename: `${moduleRoot}/tests/requirements.spec.ts`,
                 code: "import { helper } from '../index';",
+            },
+            {
+                name: 'contract tests import the index with its extension',
+                filename: `${moduleRoot}/tests/public-api.spec.ts`,
+                code: "import { helper } from '../index.ts';",
+            },
+            {
+                name: 'the contract tests of a module without an index.ts import its private.ts',
+                filename: `${nestedRoot}/tests/requirements.spec.ts`,
+                code: "import { helper } from '../private';",
             },
             {
                 name: 'the enclosing module imports the private.ts of its nested module',
@@ -130,6 +141,30 @@ describe('mini-module-boundaries', () => {
                 filename: `${moduleRoot}/tests/regressions.spec.ts`,
                 code: "import { helper } from '../private';",
                 errors: [{ messageId: 'contractTestImport' }],
+            },
+            {
+                name: 'the contract tests of a module without an index.ts reach into its src',
+                filename: `${nestedRoot}/tests/requirements.spec.ts`,
+                code: "import { helper } from '../src/helper';",
+                errors: [{ messageId: 'contractTestImport' }],
+            },
+            {
+                name: 'the contract tests of a module without an index.ts import its dependencies',
+                filename: `${nestedRoot}/tests/requirements.spec.ts`,
+                code: "import { helper } from '../dependencies';",
+                errors: [{ messageId: 'contractTestImport' }],
+            },
+            {
+                name: 'the contract tests of a nested module use the private.ts of another nested module',
+                filename: `${nestedRoot}/tests/requirements.spec.ts`,
+                code: "import { other } from '../../other-card/private';",
+                errors: [{ messageId: 'nestedPrivateImport' }],
+            },
+            {
+                name: 'contract tests use the private API of another module',
+                filename: `${moduleRoot}/tests/requirements.spec.ts`,
+                code: "import { other } from 'src/core/other-module/private';",
+                errors: [{ messageId: 'privateImport' }],
             },
         ],
     });

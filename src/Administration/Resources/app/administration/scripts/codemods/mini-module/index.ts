@@ -797,8 +797,9 @@ ${routed.leftovers.map((line) => `   - ${line}`).join('\n') || '   - nothing'}
 2. Complete the lists in ${entryFile} where the codemod could not read them:
 ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unresolved'}
    Add one sentence to the doc comment of ${entryFile} that says what the component is for.
-3. Add tests/<name>.harness.ts and the contract tests: requirements.spec.ts tells the module's story from the user's view, details go in pinned.spec.ts.
-   The harness may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
+3. Add the contract tests: requirements.spec.ts tells the module's story from the user's view, details go in pinned.spec.ts.
+   They import the module through its entry file. Fixtures too large for a spec go into tests/<name>.harness.ts,
+   which may arrange state through ../dependencies. The moved specs in tests/ stay workshop specs.
    ${apiSpec}
    If present, bugs that must not come back go into regressions.spec.ts.
    A contract spec over 500 lines splits into a directory, e.g. tests/pinned.spec/search.spec.ts.
@@ -806,7 +807,7 @@ ${api.unresolved.map((item) => `   - ${item}`).join('\n') || '   - nothing unres
 4. ${describeOwner(root, shape, owner)}
 5. ${
         shape.kind === 'nested'
-            ? 'Jest knows no name for a nested component, so the harness mounts (await SwExample.load()).default from ../private.'
+            ? 'Jest knows no name for a nested component, so the specs mount (await SwExample.load()).default from ../private.'
             : shape.isPrivate
               ? 'Run npm run unit-setup, so Jest finds the moved component by its name.'
               : `Run npm run generate-shopware-modules, so extensions can import the module as shopware:components/${name}.

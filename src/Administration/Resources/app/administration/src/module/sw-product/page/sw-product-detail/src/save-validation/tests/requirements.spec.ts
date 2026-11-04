@@ -1,4 +1,4 @@
-import { hasValidPurchaseLimits, normalizeReferencePrices } from './save-validation.harness';
+import { hasValidPurchaseLimits, normalizeReferencePrices } from '../private';
 
 /**
  * @sw-package inventory

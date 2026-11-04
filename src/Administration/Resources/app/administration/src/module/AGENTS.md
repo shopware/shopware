@@ -253,8 +253,10 @@ it('shows an order with its primary delivery', () => {
 `// ARRANGE` may be left out when nothing needs setting up.
 `sw-test-rules/arrange-act-assert` checks the comments and their order.
 
-Requirements, pinned, regressions and public-api specs import the module only through `../index`, so they test what other code sees.
-They may arrange state through a harness in `tests/`, and the harness may import from `../dependencies`.
+Requirements, pinned, regressions and public-api specs import the module only through its entry file, so they test what other code sees.
+The entry file is `../index`, or `../private` for a module without an `index.ts`, like a nested private module.
+Small fixtures live in the spec.
+Fixtures too large for it, like a mount with its stubs, go into a harness in `tests/`, and the harness may import from `../dependencies`.
 A change to `index.ts`, a requirement or a regression needs the owning team.
 `mini-module-owners.json` names the owner of each mini-module, with `? ` in front when the team is only optional, as in `.codeowners`.
 `composer admin:generate-mini-module-owners` writes the mini-modules block of `.codeowners` from it, and a spec fails when the block is stale.

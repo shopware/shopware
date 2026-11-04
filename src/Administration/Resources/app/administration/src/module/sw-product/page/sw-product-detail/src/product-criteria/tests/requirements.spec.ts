@@ -1,13 +1,15 @@
-import {
-    createDefaultFeatureSetCriteria,
-    createProductCriteria,
-    createPropertyCriteria,
-    toRequest,
-} from './product-criteria.harness';
+import { createDefaultFeatureSetCriteria, createProductCriteria, createPropertyCriteria } from '../private';
 
 /**
  * @sw-package inventory
  */
+
+/**
+ * The request body a criteria sends to the API, which is what the server sees.
+ */
+function toRequest(criteria: ReturnType<typeof createProductCriteria>): Record<string, unknown> {
+    return criteria.parse() as Record<string, unknown>;
+}
 
 // The product detail page loads a product once with everything its tabs show, so switching tabs needs no new request.
 // A variant's parent loads with the same criteria, so inherited data looks like the variant's own.

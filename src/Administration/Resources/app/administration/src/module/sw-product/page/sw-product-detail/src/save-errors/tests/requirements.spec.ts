@@ -1,8 +1,26 @@
-import { createFailedRequest, createTranslate, describeSaveError, describeSeoUrlErrors } from './save-errors.harness';
+import { describeSaveError, describeSeoUrlErrors } from '../private';
 
 /**
  * @sw-package inventory
  */
+
+/**
+ * A translator that knows the given snippets and, like vue-i18n, returns the key for any other.
+ */
+function createTranslate(snippets: Record<string, string> = {}) {
+    return (key: string, values: Record<string, unknown> = {}) =>
+        Object.entries(values).reduce(
+            (text, [name, value]) => text.replace(`{${name}}`, String(value)),
+            snippets[key] ?? key,
+        );
+}
+
+/**
+ * A failed request with the errors the API returned.
+ */
+function createFailedRequest(errors: Record<string, unknown>[]) {
+    return { response: { data: { errors } } };
+}
 
 // When the API refuses to save a product or one of its SEO URLs, the product detail page shows the merchant why.
 // The messages come from the errors in the API response, translated where the Administration has a snippet for them.

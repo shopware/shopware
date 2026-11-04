@@ -1,8 +1,15 @@
-import { createPrices, getInheritedTitle, syncVariantPriceInheritance } from './variant-inheritance.harness';
+import { getInheritedTitle, syncVariantPriceInheritance } from '../private';
 
 /**
  * @sw-package inventory
  */
+
+/**
+ * A price list with one price in the default currency.
+ */
+function createPrices(gross: number) {
+    return [{ currencyId: 'default-currency', gross, net: gross, linked: true }];
+}
 
 // A variant on the product detail page shows what it inherits from its parent product until the merchant overrides it.
 // Its price and purchase prices inherit together, and a variant without a name of its own shows the name of its parent.

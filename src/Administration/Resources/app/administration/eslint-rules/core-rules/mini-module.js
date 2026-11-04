@@ -7,8 +7,8 @@ const path = require('path');
 const { parse } = require('@typescript-eslint/parser');
 
 /**
- * The spec files in a mini-module's `tests/` that test what other code sees, so they import only `../index`.
- * A nested private module's specs reach it through a harness that imports `../private`.
+ * The spec files in a mini-module's `tests/` that test what other code sees, so they import only the module's
+ * entry file: `../index`, or `../private` for a module without an `index.ts`, like a nested private module.
  *
  * @example
  * CONTRACT_SPEC.test('src/core/order/primary-delivery/tests/pinned.spec.ts') // → true

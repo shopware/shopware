@@ -218,6 +218,40 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertSame(['cascade_child' => [$childId]], $affected);
     }
 
+    #[TestDox('Deleted keys of several tree levels that are equal as numbers are all kept')]
+    public function testNestedCascadesKeepKeysThatAreEqualAsNumbers(): void
+    {
+        $levelOneId = '00000000000000000000000000000001';
+        $levelTwoId = '1e000000000000000000000000000000';
+        $resultsPerLevel = [[['id' => $levelOneId]], [['id' => $levelTwoId]]];
+
+        $this->connection->method('getDatabasePlatform')->willReturn(new MariaDBPlatform());
+        $this->connection->method('executeQuery')->willReturnCallback(
+            function () use (&$resultsPerLevel): Result {
+                $result = static::createStub(Result::class);
+                $result->method('fetchAllAssociative')->willReturn(array_shift($resultsPerLevel) ?? []);
+
+                return $result;
+            }
+        );
+
+        $definition = new CascadeTreeNodeDefinition();
+
+        new StaticDefinitionInstanceRegistry(
+            [$definition],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $affected = $this->resolver->getAffectedDeletes(
+            $definition,
+            [['id' => Uuid::randomHex()]],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(['cascade_tree_node' => [$levelOneId, $levelTwoId]], $affected);
+    }
+
     #[TestDox('An entity with a composite primary key, like a translation, restricts the delete with all its key properties')]
     public function testCompositePrimaryKeyRestrictsDelete(): void
     {
@@ -441,6 +475,27 @@ class CompositeRestrictRootTargetDefinition extends MappingEntityDefinition
             (new FkField('target_id', 'targetId', CompositeRestrictTargetDefinition::class))->addFlags(new Required(), new PrimaryKey()),
             new ManyToOneAssociationField('root', 'root_id', CompositeRestrictRootDefinition::class, 'id', false),
             new ManyToOneAssociationField('target', 'target_id', CompositeRestrictTargetDefinition::class, 'id', false),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CascadeTreeNodeDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'cascade_tree_node';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('parent_id', 'parentId', self::class),
+            new ManyToOneAssociationField('parent', 'parent_id', self::class, 'id'),
+            (new OneToManyAssociationField('children', self::class, 'parent_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

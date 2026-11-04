@@ -13,6 +13,8 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -200,6 +202,36 @@ class GenerateThumbnailsCommandTest extends TestCase
         $commandTester->execute(['--folder-name' => 'Products']);
     }
 
+    #[TestDox('A known folder name restricts the media to that folder')]
+    public function testFiltersMediaByFolderName(): void
+    {
+        $folderId = Uuid::randomHex();
+        $mediaCriteria = null;
+
+        $mediaRepository = new StaticEntityRepository([
+            static function (Criteria $criteria) use (&$mediaCriteria): MediaCollection {
+                $mediaCriteria = $criteria;
+
+                return new MediaCollection();
+            },
+        ], new TestEntityDefinition());
+
+        $commandTester = new CommandTester(new GenerateThumbnailsCommand(
+            static::createStub(ThumbnailService::class),
+            $mediaRepository,
+            StaticEntityRepository::of(MediaFolderCollection::class, [[$folderId]], new TestEntityDefinition()),
+            new CollectingMessageBus()
+        ));
+
+        static::assertSame(Command::SUCCESS, $commandTester->execute([
+            '--folder-name' => 'Products',
+            '--async' => true,
+        ]));
+
+        static::assertInstanceOf(Criteria::class, $mediaCriteria);
+        static::assertContainsEquals(new EqualsAnyFilter('mediaFolderId', [$folderId]), $mediaCriteria->getFilters());
+    }
+
     private function createMediaEntity(): MediaEntity
     {
         $media = new MediaEntity();
@@ -227,7 +259,7 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private function createFolderRepository(): StaticEntityRepository
     {
-        $repository = new StaticEntityRepository([new MediaFolderCollection()], new TestEntityDefinition());
+        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[]], new TestEntityDefinition());
 
         return $repository;
     }

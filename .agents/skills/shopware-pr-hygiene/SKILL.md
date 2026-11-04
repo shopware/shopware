@@ -1,6 +1,6 @@
 ---
 name: shopware-pr-hygiene
-description: Prepare or update Shopware pull requests. Use when writing or editing a PR description or PR text (incl. "output a PR description"), choosing a PR title, responding to review feedback, or updating a PR after CI failures.
+description: Prepare or update Shopware pull requests. Use when opening a PR, writing or editing a PR description or PR text (incl. "output a PR description"), choosing a PR title, responding to review feedback, or updating a PR after CI failures.
 license: MIT
 ---
 
@@ -18,3 +18,11 @@ Keep PR metadata predictable.
 - Use a commit message body when it adds useful context; keep one-line commits when the subject is enough.
 - Never add AI-agent attribution trailers such as `Co-authored-by`, `Co-committed-by`, or `Signed-off-by`.
 - Never open a public PR for a security fix. Report it privately as described in [SECURITY.md](../../../SECURITY.md).
+
+## Before opening a PR
+
+- Explicitly load and follow [sw-review](../sw-review/SKILL.md) to review the final branch diff against the intended PR target branch.
+  Reuse an existing review only when the diff and target branch are unchanged.
+- Resolve confirmed blocking and major findings, then review the resulting fixes.
+  Surface unresolved findings and review coverage gaps to the user before opening the PR.
+- Requests to write or edit PR text alone do not require this review.

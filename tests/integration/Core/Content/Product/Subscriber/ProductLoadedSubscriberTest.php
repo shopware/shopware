@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
@@ -1280,6 +1281,12 @@ class ProductLoadedSubscriberTest extends TestCase
 
             // test different tax states
             $context->setTaxState($case->taxState);
+            $displayGross = $case->taxState === CartPrice::TAX_STATE_GROSS;
+            $context->assign(['currentCustomerGroup' => (new CustomerGroupEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'displayGross' => $displayGross,
+                'priceBasis' => $displayGross ? CustomerGroupEntity::PRICE_BASIS_GROSS : CustomerGroupEntity::PRICE_BASIS_NET,
+            ])]);
 
             // create a new product for this case
             $id = $ids->create('product-' . $i);

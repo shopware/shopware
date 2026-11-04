@@ -6,7 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
-use Shopware\Core\Framework\Api\Acl\ApiCallerType;
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
@@ -59,10 +60,15 @@ class AppEventPolicyTest extends TestCase
      */
     public static function appEventSubscriberProvider(): \Generator
     {
+        $user = ApiCaller::of(new AdminApiSource('user-id'));
+        static::assertNotNull($user);
+        $integration = ApiCaller::of(new AdminApiSource(null, 'integration-id'));
+        static::assertNotNull($integration);
+
         yield 'app' => [Subscriber::app(static::createStub(Manifest::class)), true];
         yield 'documentation' => [Subscriber::none(), true];
-        yield 'a user through the API' => [Subscriber::api(ApiCallerType::User), false];
-        yield 'an integration through the API' => [Subscriber::api(ApiCallerType::Integration), false];
+        yield 'a user through the API' => [Subscriber::api($user), false];
+        yield 'an integration through the API' => [Subscriber::api($integration), false];
     }
 
     public function testWebhooksWithoutAnAppDoNotReceiveAppEvents(): void

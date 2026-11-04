@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
-use Shopware\Core\Framework\Webhook\Authorization\WebhookSubscription;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
@@ -242,80 +240,6 @@ class WebhookLoaderTest extends TestCase
         static::assertCount(1, $loader->getWebhooks());
 
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
-    }
-
-    public function testGetSubscriptionsOfAUserOwnedWebhook(): void
-    {
-        $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
-        $roleId = $this->createAclRole(['product:read']);
-        WebhookBuilder::ownedByUser($owner->getUserId())
-            ->id($this->ids->get('wh-1'))
-            ->aclRoleIds([$roleId])
-            ->inactive()
-            ->insert($this->connection);
-
-        static::assertEquals(
-            [$this->ids->get('wh-1') => new WebhookSubscription(
-                $this->ids->get('wh-1'),
-                SubscriberType::User,
-                $owner->getUserId(),
-                'product.written',
-                [$roleId],
-            )],
-            static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
-        );
-    }
-
-    public function testGetSubscriptionsOfAnIntegrationOwnedWebhook(): void
-    {
-        $integrationId = TestIntegration::create($this->connection, ['product:read'])->getId();
-        WebhookBuilder::ownedByIntegration($integrationId)
-            ->id($this->ids->get('wh-1'))
-            ->insert($this->connection);
-
-        static::assertEquals(
-            [$this->ids->get('wh-1') => new WebhookSubscription(
-                $this->ids->get('wh-1'),
-                SubscriberType::Integration,
-                $integrationId,
-                'product.written',
-                null,
-            )],
-            static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
-        );
-    }
-
-    public function testGetSubscriptionsOfAnAppWebhook(): void
-    {
-        $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
-        $appId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM app WHERE name = :name', ['name' => 'minimal']);
-        static::assertIsString($appId);
-
-        WebhookBuilder::ofApp($appId)
-            ->id($this->ids->get('wh-1'))
-            ->insert($this->connection);
-
-        static::assertEquals(
-            [$this->ids->get('wh-1') => new WebhookSubscription(
-                $this->ids->get('wh-1'),
-                SubscriberType::App,
-                $appId,
-                'product.written',
-                null,
-            )],
-            static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
-        );
-
-        $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
-    }
-
-    public function testGetSubscriptionsSkipsAWebhookWithoutAnAppOrOwner(): void
-    {
-        WebhookBuilder::withoutOwner()
-            ->id($this->ids->get('wh-1'))
-            ->insert($this->connection);
-
-        static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')]));
     }
 
     /**

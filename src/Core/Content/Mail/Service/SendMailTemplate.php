@@ -77,6 +77,12 @@ class SendMailTemplate
         try {
             $this->emailService->send($data->all(), $context, $templateData);
         } catch (\Exception $e) {
+            if (MailLogData::isSensitive($data->all(), $templateData)) {
+                $this->logger->error('Could not send mail.', MailLogData::create($data->all(), $e));
+
+                return;
+            }
+
             $this->logger->error(
                 "Could not send mail:\n"
                 . $e->getMessage() . "\n"

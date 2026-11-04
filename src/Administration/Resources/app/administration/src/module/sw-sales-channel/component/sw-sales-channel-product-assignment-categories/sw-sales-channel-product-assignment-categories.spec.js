@@ -77,6 +77,7 @@ const products = [
         categoryIds: ['3', '1'],
     },
 ];
+products.total = 1024;
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-product-assignment-categories', { sync: true }), {
@@ -223,12 +224,20 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
         await treeItemSelections.at(0).setChecked();
         await flushPromises();
         expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['1']);
-        expect(wrapper.emitted('selection-change')[1]).toEqual([products, 'categoryProducts']);
+        expect(wrapper.emitted('selection-change')[1]).toEqual([
+            products,
+            'categoryProducts',
+            { ids: ['1'], total: 1024 },
+        ]);
 
         // Check 3rd item
         await treeItemSelections.at(2).setChecked();
         expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['1', '3']);
-        expect(wrapper.emitted('selection-change')[2]).toEqual([products, 'categoryProducts']);
+        expect(wrapper.emitted('selection-change')[2]).toEqual([
+            products,
+            'categoryProducts',
+            { ids: ['1', '3'], total: 1024 },
+        ]);
     });
 
     it('should emit selection-change when toggling search item checkbox', async () => {
@@ -243,16 +252,28 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
         // Check 2nd item
         await searchItemSelections.at(1).trigger('click');
         expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['2']);
-        expect(wrapper.emitted('selection-change')[1]).toEqual([products, 'categoryProducts']);
+        expect(wrapper.emitted('selection-change')[1]).toEqual([
+            products,
+            'categoryProducts',
+            { ids: ['2'], total: 1024 },
+        ]);
 
         // Check 5th item
         await searchItemSelections.at(4).trigger('click');
         expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['2', '5']);
-        expect(wrapper.emitted('selection-change')[2]).toEqual([products, 'categoryProducts']);
+        expect(wrapper.emitted('selection-change')[2]).toEqual([
+            products,
+            'categoryProducts',
+            { ids: ['2', '5'], total: 1024 },
+        ]);
 
         // Uncheck 2nd item
         await searchItemSelections.at(1).trigger('click');
         expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['5']);
-        expect(wrapper.emitted('selection-change')[3]).toEqual([products, 'categoryProducts']);
+        expect(wrapper.emitted('selection-change')[3]).toEqual([
+            products,
+            'categoryProducts',
+            { ids: ['5'], total: 1024 },
+        ]);
     });
 });

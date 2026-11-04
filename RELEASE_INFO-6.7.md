@@ -267,6 +267,7 @@ Check import files that relied on `0` being ignored.
 A promotion that passes its rules but grants no discount, for example because its discount is limited to products that are not in the cart, no longer blocks the promotions it excludes or refuses to combine with.
 Exclusions and "Prevent combination with other promotions" take effect only for promotions that were applied to the cart.
 Previously such a promotion excluded the others anyway, and a code could be refused as excluded while no discount was applied at all.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

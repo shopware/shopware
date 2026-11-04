@@ -55,14 +55,21 @@
                 border-color: var(--color-border-brand-default);
             }
 
-            .mt-field--checkbox {
-                margin: 0;
-                width: 16px;
+            .sw-cms-layout-modal__content-radio {
                 position: absolute;
-                grid-template-columns: 16px;
                 top: 24px;
                 left: 24px;
+                z-index: 1;
             }
+        }
+    }
+
+    .sw-cms-layout-modal__radio-group.mt-radio-group-root {
+        display: block;
+        margin-bottom: 0;
+
+        .mt-radio-group-root__options {
+            display: block;
         }
     }
 

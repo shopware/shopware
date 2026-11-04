@@ -122,10 +122,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         await flushPromises();
     });
 
-    it('should be able to instantiate', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('has the correct class', async () => {
         expect(wrapper.get('.mt-card').classes()).toContain(classes.componentRoot);
     });

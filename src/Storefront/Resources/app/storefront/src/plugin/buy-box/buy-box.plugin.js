@@ -18,7 +18,9 @@ export default class BuyBoxPlugin extends Plugin {
      */
     init() {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this._httpClient = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this._httpClient = new HttpClient();
+        }
         this._registerEvents();
     }
 
@@ -43,7 +45,9 @@ export default class BuyBoxPlugin extends Plugin {
 
         ElementLoadingIndicatorUtil.create(this.el);
 
-        this._httpClient.get(`${event.detail.url}`, (response) => {
+        fetch(event.detail.url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        }).then(response => response.text()).then((response) => {
             ElementReplaceHelper.replaceFromMarkup(response, `${this.options.buyWidgetSelector}-${this.options.elementId}`);
             ElementLoadingIndicatorUtil.remove(this.el);
 

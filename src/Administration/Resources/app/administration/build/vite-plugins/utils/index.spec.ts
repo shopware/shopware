@@ -4,10 +4,53 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { createPluginDevJson, getDevServerHttpsConfig, readFeatureFlags, runForEachExtension } from './index';
+import {
+    createPluginDevJson,
+    getDevServerHttpsConfig,
+    getMainViteServerConfig,
+    readFeatureFlags,
+    runForEachExtension,
+} from './index';
 import type { ExtensionDefinition } from './index';
 
 describe('build/vite-plugins/utils', () => {
+    describe('getMainViteServerConfig', () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it('targets the IPv4 listener of each extension even when localhost resolves to the main server', () => {
+            jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+            jest.spyOn(fs, 'readFileSync').mockReturnValue(
+                JSON.stringify({
+                    vitePort: 5173,
+                    extensions: {
+                        storefront: { basePath: '/_internal_ext/storefront/', port: 5174 },
+                        'example-app': { basePath: '/_internal_ext/example-app/', port: 5175 },
+                    },
+                }),
+            );
+
+            expect(getMainViteServerConfig()).toEqual({
+                port: 5173,
+                proxy: {
+                    '/_internal_ext/storefront/': {
+                        target: 'http://127.0.0.1:5174',
+                        changeOrigin: true,
+                        ws: true,
+                        rewriteWsOrigin: true,
+                    },
+                    '/_internal_ext/example-app/': {
+                        target: 'http://127.0.0.1:5175',
+                        changeOrigin: true,
+                        ws: true,
+                        rewriteWsOrigin: true,
+                    },
+                },
+            });
+        });
+    });
+
     describe('getDevServerHttpsConfig', () => {
         it('serves plain HTTP without a configured certificate', () => {
             expect(getDevServerHttpsConfig({})).toBeUndefined();

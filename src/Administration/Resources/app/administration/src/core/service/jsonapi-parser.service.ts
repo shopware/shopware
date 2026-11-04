@@ -237,7 +237,7 @@ function renameObjectPropertiesToCamelCase(attributesCollection: Record<string, 
     const attributes: Record<string, unknown> = {};
     Object.keys(attributesCollection).forEach((attributeKey) => {
         const attribute = attributesCollection[attributeKey];
-        const key = String(attributeKey).replace(/-([a-z])/g, (_, item: string) => item.toUpperCase());
+        const key = attributeKey.replace(/-([a-z])/g, (_, item: string) => item.toUpperCase());
         attributes[key] = attribute;
     });
 

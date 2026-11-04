@@ -222,6 +222,41 @@ class LanguageSubscriberTest extends TestCase
         $subscriber->onLanguageWritten($event);
     }
 
+    public function testOnLanguageWrittenSchedulesReindexBeforeRethrowing(): void
+    {
+        $esHelper = static::createStub(ElasticsearchHelper::class);
+        $esHelper->method('allowIndexing')->willReturn(true);
+        $esHelper->method('getIndexName')->willReturn('sw_product');
+        $esHelper->method('logAndThrowException')->willReturnCallback(static fn (\Throwable $exception) => throw $exception);
+
+        $esProductDefinition = static::createStub(ElasticsearchProductDefinition::class);
+        $esProductDefinition->method('getEntityDefinition')->willReturn(new ProductDefinition());
+        $esProductDefinition->method('getMapping')->willReturn(['properties' => []]);
+
+        $namespace = static::createStub(IndicesNamespace::class);
+        $namespace->method('exists')->willReturn(true);
+        $namespace->method('putMapping')->willThrowException(
+            new BadRequestHttpException('mapper [field] cannot be changed from type [text] to [keyword]'),
+        );
+
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($namespace);
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn([]);
+        $storage->expects($this->once())->method('set')->with(SystemUpdateListener::CONFIG_KEY, [ProductDefinition::ENTITY_NAME]);
+
+        $subscriber = new LanguageSubscriber($esHelper, new ElasticsearchRegistry([$esProductDefinition]), $client, $storage);
+
+        $writeResult = new EntityWriteResult(Uuid::randomHex(), [], LanguageDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT);
+        $event = static::createStub(EntityWrittenEvent::class);
+        $event->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
+
+        $this->expectException(ElasticsearchProductException::class);
+
+        $subscriber->onLanguageWritten($event);
+    }
+
     public function testOnLanguageWrittenDoesNotScheduleReindexForNonReindexableMappingError(): void
     {
         $exception = new BadRequestHttpException('unrelated mapping error');

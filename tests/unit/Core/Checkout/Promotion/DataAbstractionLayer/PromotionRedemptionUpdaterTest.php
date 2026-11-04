@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -123,14 +124,15 @@ class PromotionRedemptionUpdaterTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willReturnOnConsecutiveCalls(
-                // beforeDelete: the deleted promotion line item (no individual code in the payload)
-                [['promotion_id' => Uuid::randomHex(), 'payload' => '{}', 'order_id' => Uuid::randomHex()]],
-                // update(): recalculated totals
-                []
-            );
+            // beforeDelete: the deleted promotion line item (no individual code in the payload, order without customer)
+            ->willReturn([['promotion_id' => Uuid::randomHex(), 'payload' => '{}', 'order_id' => Uuid::randomHex(), 'customer_id' => null]]);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllKeyValue')
+            // lineItemDeleted: recounted orders of the promotion
+            ->willReturn([]);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [OrderLineItemDefinition::class],
@@ -168,21 +170,16 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willReturnOnConsecutiveCalls(
-                // beforeDelete: the deleted promotion line item redeemed an individual code
-                [['promotion_id' => Uuid::randomHex(), 'payload' => '{"code": "individual-code"}', 'order_id' => $orderId]],
-                // update(): recalculated totals
-                []
-            );
+            // beforeDelete: the deleted promotion line item redeemed an individual code
+            ->willReturn([['promotion_id' => Uuid::randomHex(), 'payload' => '{"code": "individual-code"}', 'order_id' => $orderId, 'customer_id' => null]]);
 
-        $countStatement = static::createStub(Statement::class);
         $releaseStatement = $this->createMock(Statement::class);
 
         $connection
             ->method('prepare')
-            ->willReturnCallback(static fn (string $sql) => str_contains($sql, 'promotion_individual_code') ? $releaseStatement : $countStatement);
+            ->willReturn($releaseStatement);
 
         $params = [
             ['code', 'individual-code'],
@@ -223,6 +220,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $updater->lineItemDeleted(new EntityDeletedEvent('order_line_item', [], Context::createDefaultContext()));
     }
 
+    #[DisabledFeatures(['PROMOTION_REDEMPTION_OPTIMIZATION'])]
     public function testUpdateValidCase(): void
     {
         $promotionId = Uuid::randomHex();
@@ -269,7 +267,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($shouldCalled ? $this->once() : $this->never())
-            ->method('fetchAllAssociative')
+            ->method('fetchAllKeyValue')
             ->willReturn([]);
 
         $this->getUpdater($connection)->lineItemCreated(new EntityWrittenEvent(
@@ -285,39 +283,39 @@ class PromotionRedemptionUpdaterTest extends TestCase
     public static function itemCreatedProvider(): iterable
     {
         yield 'created line item without promotion payload is ignored' => [
-            new EntityWriteResult('id', ['some-field' => 'some-value'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['some-field' => 'some-value'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             false,
         ];
         yield 'created line item without promotion id or type is ignored' => [
-            new EntityWriteResult('id', ['promotionId' => null], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['promotionId' => null], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             false,
         ];
         yield 'created non-promotion line item without promotion id is ignored' => [
-            new EntityWriteResult('id', ['promotionId' => null, 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['promotionId' => null, 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             false,
         ];
         yield 'created promotion line item without promotion id is ignored' => [
-            new EntityWriteResult('id', ['promotionId' => null, 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['promotionId' => null, 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             false,
         ];
         yield 'created promotion line item without promotion payload is ignored' => [
-            new EntityWriteResult('id', ['type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             false,
         ];
         yield 'created promotion line item with promotion id is counted' => [
-            new EntityWriteResult('id', ['promotionId' => Uuid::randomHex(), 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['promotionId' => Uuid::randomHex(), 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             true,
         ];
         // The recount aggregates every row carrying a promotion_id regardless of its type, so the
         // same rule has to decide what triggers it, or such a row inflates the count without ever
         // being recounted away again.
         yield 'created line item with promotion id but another type is counted' => [
-            new EntityWriteResult('id', ['promotionId' => Uuid::randomHex(), 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult(Uuid::randomHex(), ['promotionId' => Uuid::randomHex(), 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             true,
         ];
         // An update payload carries only the fields the writer supplied, so the type is absent here.
         yield 'updated line item with promotion id is counted' => [
-            new EntityWriteResult('id', ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
+            new EntityWriteResult(Uuid::randomHex(), ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
             true,
         ];
     }

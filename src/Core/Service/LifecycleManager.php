@@ -4,9 +4,7 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Permission\PermissionsService;
-use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -32,25 +30,23 @@ class LifecycleManager
         private readonly string $enabled,
         private readonly string $appEnv,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ServiceStorage $serviceStorage,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly AllServiceInstaller $serviceInstaller,
         private readonly PermissionsService $permissionsService,
-        private readonly Client $client,
     ) {
     }
 
     public function sync(Context $context): void
     {
-        $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
+        $this->serviceInstaller->uninstallRetired($context);
         $this->serviceLifecycle->reevaluateInstalled($context);
     }
 
     /**
      * Level-triggered counterpart to the update push (ServiceController::triggerUpdate): installs new
-     * services, updates installed ones to the registry's latest revision, then re-evaluates every
-     * installed service against its requirements. Only runs if ENABLE_SERVICES allows it. No orphan
-     * removal, that stays in sync().
+     * services, updates installed ones to the registry's latest revision, uninstalls the ones it lists as
+     * retired, then re-evaluates every installed service against its requirements. Only runs if
+     * ENABLE_SERVICES allows it.
      *
      * @return array<string> The newly installed services
      */
@@ -102,30 +98,5 @@ class LifecycleManager
         }
 
         return !$enabled;
-    }
-
-    /**
-     * @param list<Service> $services
-     */
-    private function removeOrphanedServices(array $services, Context $context): void
-    {
-        $registryServices = $this->client->getAll();
-
-        if ($registryServices === []) {
-            // this is not safe to do if there are zero services.
-            // it could be a transient error or a misconfiguration.
-            return;
-        }
-
-        $registryServiceNames = [];
-        foreach ($registryServices as $registryService) {
-            $registryServiceNames[$registryService->name] = true;
-        }
-
-        foreach ($services as $service) {
-            if (!isset($registryServiceNames[$service->name])) {
-                $this->serviceLifecycle->uninstall($service->name, $context);
-            }
-        }
     }
 }

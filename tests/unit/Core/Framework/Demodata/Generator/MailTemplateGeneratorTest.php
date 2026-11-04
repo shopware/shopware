@@ -11,7 +11,6 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator;
@@ -43,13 +42,7 @@ class MailTemplateGeneratorTest extends TestCase
     {
         $typeIds = array_map(static fn () => Uuid::randomHex(), range(1, 11));
 
-        $mailTemplateTypeRepository = StaticEntityRepository::of(MailTemplateTypeCollection::class, [
-            static function (Criteria $criteria) use ($typeIds): array {
-                static::assertEquals([new EqualsFilter('mail_template_type.mailTemplates.id', null)], $criteria->getFilters());
-
-                return $typeIds;
-            },
-        ]);
+        $mailTemplateTypeRepository = StaticEntityRepository::of(MailTemplateTypeCollection::class, [$typeIds]);
 
         $entityWriter = new StaticEntityWriter();
 
@@ -72,6 +65,10 @@ class MailTemplateGeneratorTest extends TestCase
             new MailTemplateDefinition(),
         ))->generate(11, $context);
 
+        static::assertEquals(
+            [new EqualsFilter('mail_template_type.mailTemplates.id', null)],
+            $mailTemplateTypeRepository->searchedCriteria[0]->getFilters(),
+        );
         static::assertSame($typeIds, array_column($entityWriter->upserts, 'mailTemplateTypeId'));
         foreach ($entityWriter->upserts as $upsert) {
             static::assertFalse($upsert['isSystemDefault']);

@@ -1,0 +1,18 @@
+meta:
+  label: "Product Review Indicator"
+  description: "Compact rating stars with a link showing the number of reviews. Clicking the link opens and scrolls to the product reviews on the page."
+  icon: "regular-star"
+  category: "content"
+  copilot:
+    summary: "Compact product rating with a link to the reviews."
+    hints:
+      - "Use on a product detail page, typically in the buy box next to the price."
+      - "The link reveals the Product Reviews element wherever it is placed, also inside a closed tab, so no ids need to be configured."
+      - "Renders nothing while the product has no reviews or reviews are disabled."
+
+properties:
+  reviews:
+    type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
+    required: false
+    title: "Reviews"
+    description: "Hydrated review result the indicator reads its average rating and review count from. Received as root-scoped context from the page, which loads it once, so the indicator shares the load with the other review elements."

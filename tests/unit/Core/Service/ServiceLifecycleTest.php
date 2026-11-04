@@ -362,7 +362,7 @@ class ServiceLifecycleTest extends TestCase
                 static::assertSame('selfManaged', $filters[1]->getField());
                 static::assertFalse($filters[1]->getValue());
 
-                return [$app->getId()];
+                return [$app];
             },
             static function (Criteria $criteria) use ($app) { // load service for activation
                 $app->setSelfManaged(true);
@@ -931,7 +931,7 @@ class ServiceLifecycleTest extends TestCase
         }
 
         return new StaticEntityRepository(array_map(
-            static fn (array $apps) => $apps === [] ? [] : new AppCollection($apps),
+            static fn (array $apps) => new AppCollection($apps),
             $searches
         ));
     }

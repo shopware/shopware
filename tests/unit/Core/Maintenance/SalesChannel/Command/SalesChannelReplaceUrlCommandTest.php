@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelReplaceUrlCommand;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -29,9 +31,17 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $previousUrl = 'https://old-domain.com';
         $newUrl = 'https://new-domain.com';
 
+        $domainEntity = new SalesChannelDomainEntity();
+        $domainEntity->setId($domainId);
+        $domainEntity->setUrl($previousUrl);
+
+        $searchResultMock = static::createStub(EntitySearchResult::class);
+        $searchResultMock->method('getEntities')
+            ->willReturn(new SalesChannelDomainCollection([$domainEntity]));
+
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->once())
-            ->method('searchIds')
+            ->method('search')
             ->with(
                 static::callback(static function (Criteria $criteria) use ($previousUrl) {
                     $filters = $criteria->getFilters();
@@ -45,7 +55,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
                 }),
                 static::isInstanceOf(Context::class)
             )
-            ->willReturn(new IdSearchResult(1, [$domainId => ['primaryKey' => $domainId, 'data' => []]], new Criteria(), Context::createDefaultContext()));
+            ->willReturn($searchResultMock);
 
         $repositoryMock->expects($this->once())
             ->method('update')
@@ -73,10 +83,14 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $previousUrl = 'https://non-existent-domain.com';
         $newUrl = 'https://new-domain.com';
 
+        $searchResultMock = static::createStub(EntitySearchResult::class);
+        $searchResultMock->method('first')
+            ->willReturn(null);
+
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->once())
-            ->method('searchIds')
-            ->willReturn(new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()));
+            ->method('search')
+            ->willReturn($searchResultMock);
 
         $repositoryMock->expects($this->never())
             ->method('update');
@@ -100,7 +114,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
     {
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->never())
-            ->method('searchIds');
+            ->method('search');
         $repositoryMock->expects($this->never())
             ->method('update');
 
@@ -118,9 +132,17 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $previousUrl = 'https://old-domain.com';
         $newUrl = 'https://new-domain.com';
 
+        $domainEntity = new SalesChannelDomainEntity();
+        $domainEntity->setId($domainId);
+        $domainEntity->setUrl($previousUrl);
+
+        $searchResultMock = static::createStub(EntitySearchResult::class);
+        $searchResultMock->method('getEntities')
+            ->willReturn(new SalesChannelDomainCollection([$domainEntity]));
+
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->once())
-            ->method('searchIds')
+            ->method('search')
             ->with(
                 static::callback(static function (Criteria $criteria) use ($previousUrl) {
                     $filters = $criteria->getFilters();
@@ -133,7 +155,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
                 }),
                 static::isInstanceOf(Context::class)
             )
-            ->willReturn(new IdSearchResult(1, [$domainId => ['primaryKey' => $domainId, 'data' => []]], new Criteria(), Context::createDefaultContext()));
+            ->willReturn($searchResultMock);
 
         $repositoryMock->expects($this->once())
             ->method('update')

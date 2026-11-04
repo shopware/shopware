@@ -150,13 +150,13 @@ class GenerateThumbnailsCommand extends Command
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('name', $rawInput));
 
-        $searchResult = $this->mediaFolderRepository->searchIds($criteria, $context);
+        $searchResult = $this->mediaFolderRepository->search($criteria, $context);
 
         if ($searchResult->getTotal() === 0) {
             throw MediaException::mediaFolderNameNotFound($rawInput);
         }
 
-        return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
+        return new EqualsAnyFilter('mediaFolderId', $searchResult->getEntities()->getIds());
     }
 
     /**

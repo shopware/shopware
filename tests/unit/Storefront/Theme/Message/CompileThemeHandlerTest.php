@@ -77,6 +77,9 @@ class CompileThemeHandlerTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, Uuid::randomHex(), true, $context, false, $notifyOnCompletion);
 
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
+
         $notificationService = $this->createMock(NotificationService::class);
         $notificationService->expects($this->exactly($expectedNotifications))->method('createNotification');
 
@@ -85,7 +88,7 @@ class CompileThemeHandlerTest extends TestCase
             static::createStub(AbstractConfigLoader::class),
             static::createStub(StorefrontPluginRegistry::class),
             $notificationService,
-            StaticEntityRepository::of(SalesChannelCollection::class, [[TestDefaults::SALES_CHANNEL]]),
+            StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection([$salesChannel])]),
             static::createStub(ThemeRuntimeConfigService::class),
             static::createStub(EntityRepository::class),
             static::createStub(EventDispatcherInterface::class),

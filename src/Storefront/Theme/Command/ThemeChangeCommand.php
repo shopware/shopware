@@ -118,8 +118,8 @@ class ThemeChangeCommand extends Command
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $themeName));
 
-        $themeId = $this->themeRepository->searchIds($criteria, $this->context)->firstId();
-        if ($themeId === null) {
+        $theme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        if (!$theme) {
             $this->io->error('Invalid theme name');
 
             return self::INVALID;
@@ -134,11 +134,11 @@ class ThemeChangeCommand extends Command
 
         foreach ($selectedSalesChannel as $salesChannel) {
             $this->io->writeln(
-                \sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $themeId, $salesChannel->getName() ?? $salesChannel->getId())
+                \sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName() ?? $salesChannel->getId())
             );
 
             $this->themeService->assignTheme(
-                $themeId,
+                $theme->getId(),
                 $salesChannel->getId(),
                 $this->context,
                 $input->getOption('no-compile')

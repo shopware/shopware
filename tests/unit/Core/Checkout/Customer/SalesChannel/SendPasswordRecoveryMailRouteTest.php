@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -76,14 +75,18 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId('foo');
 
+        $customerCollection = new CustomerCollection([$customer]);
+
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
             ->expects($this->once())
-            ->method('searchIds')
+            ->method('search')
             ->willReturn(
-                new IdSearchResult(
+                new EntitySearchResult(
+                    'customer',
                     1,
-                    [$customer->getId() => ['primaryKey' => $customer->getId(), 'data' => []]],
+                    $customerCollection,
+                    null,
                     new Criteria(),
                     Context::createDefaultContext()
                 )
@@ -120,24 +123,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $customerRecoveryCollection = new CustomerRecoveryCollection([$customerRecovery]);
 
         $customerRecoveryRepository
-            ->expects($this->once())
-            ->method('searchIds')
-            ->willReturn(
-                new IdSearchResult(
-                    1,
-                    [$customerRecovery->getId() => ['primaryKey' => $customerRecovery->getId(), 'data' => []]],
-                    new Criteria(),
-                    Context::createDefaultContext()
-                )
-            );
-
-        $customerRecoveryRepository
-            ->expects($this->once())
-            ->method('delete')
-            ->with([['id' => $customerRecovery->getId()]], $this->context->getContext());
-
-        $customerRecoveryRepository
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(

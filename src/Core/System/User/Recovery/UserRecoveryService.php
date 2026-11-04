@@ -49,19 +49,20 @@ class UserRecoveryService
 
     public function generateUserRecovery(string $userEmail, Context $context): void
     {
-        $userId = $this->getUserIdByEmail($userEmail, $context);
+        $user = $this->getUserByEmail($userEmail, $context);
 
-        if ($userId === null) {
+        if (!$user) {
             return;
         }
+
+        $userId = $user->getId();
 
         $userIdCriteria = new Criteria();
         $userIdCriteria->addFilter(new EqualsFilter('userId', $userId));
         $userIdCriteria->addAssociation('user');
 
-        $existingRecoveryId = $this->userRecoveryRepo->searchIds($userIdCriteria, $context)->firstId();
-        if ($existingRecoveryId !== null) {
-            $this->userRecoveryRepo->delete([['id' => $existingRecoveryId]], $context);
+        if ($existingRecovery = $this->getUserRecovery($userIdCriteria, $context)) {
+            $this->deleteRecoveryForUser($existingRecovery, $context);
         }
 
         $recoveryData = [
@@ -160,7 +161,7 @@ class UserRecoveryService
         return $user?->getUser();
     }
 
-    private function getUserIdByEmail(string $userEmail, Context $context): ?string
+    private function getUserByEmail(string $userEmail, Context $context): ?UserEntity
     {
         $criteria = new Criteria();
 
@@ -168,7 +169,7 @@ class UserRecoveryService
             new EqualsFilter('email', $userEmail)
         );
 
-        return $this->userRepo->searchIds($criteria, $context)->firstId();
+        return $this->userRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function getUserRecovery(Criteria $criteria, Context $context): ?UserRecoveryEntity

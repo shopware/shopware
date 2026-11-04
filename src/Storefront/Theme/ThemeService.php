@@ -302,7 +302,8 @@ class ThemeService implements ResetInterface
 
     public function resetTheme(string $themeId, Context $context): void
     {
-        if (!$this->themeRepository->searchIds(new Criteria([$themeId]), $context)->has($themeId)) {
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->first();
+        if (!$theme) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 

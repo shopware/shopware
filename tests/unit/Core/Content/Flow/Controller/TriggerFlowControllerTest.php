@@ -8,7 +8,11 @@ use Shopware\Core\Content\Flow\Controller\TriggerFlowController;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -30,8 +34,20 @@ class TriggerFlowControllerTest extends TestCase
 
     protected function setUp(): void
     {
+        $appFlowEvent = new AppFlowEventEntity();
+        $appFlowEvent->setUniqueIdentifier(Uuid::randomHex());
+        $appFlowEvent->setAware(['customerId']);
+        $appFlowEvent->setName('custom.checkout.event');
+
         $appFlowEventRepository = new StaticEntityRepository([
-            [Uuid::randomHex()],
+            new EntitySearchResult(
+                'app_flow_event',
+                1,
+                new AppFlowEventCollection([$appFlowEvent]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
         ]);
 
         $this->triggerFlowController = new TriggerFlowController(new EventDispatcher(), $appFlowEventRepository);
@@ -45,7 +61,14 @@ class TriggerFlowControllerTest extends TestCase
         $request->setMethod('POST');
         $context = Context::createDefaultContext();
         $appFlowEventRepository = StaticEntityRepository::of(AppFlowEventCollection::class, [
-            [],
+            new EntitySearchResult(
+                'app_flow_event',
+                1,
+                new EntityCollection([]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
         ]);
 
         $triggerFlowController = new TriggerFlowController(new EventDispatcher(), $appFlowEventRepository);
@@ -61,7 +84,14 @@ class TriggerFlowControllerTest extends TestCase
         $request->setMethod('POST');
         $context = Context::createDefaultContext();
         $appFlowEventRepository = StaticEntityRepository::of(AppFlowEventCollection::class, [
-            [],
+            new EntitySearchResult(
+                'app_flow_event',
+                1,
+                new EntityCollection([]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
         ]);
 
         $triggerFlowController = new TriggerFlowController(new EventDispatcher(), $appFlowEventRepository);

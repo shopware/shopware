@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
@@ -91,10 +92,12 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         }
 
         try {
-            $customerId = $this->getCustomerIdByEmail($data->get('email'), $context);
+            $customer = $this->getCustomerByEmail($data->get('email'), $context);
         } catch (CustomerException) {
             return new SuccessResponse();
         }
+
+        $customerId = $customer->getId();
 
         $customerIdCriteria = new Criteria();
         $customerIdCriteria->addFilter(new EqualsFilter('customerId', $customerId));
@@ -102,9 +105,9 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         $repoContext = $context->getContext();
 
-        $existingRecoveryId = $this->customerRecoveryRepository->searchIds($customerIdCriteria, $repoContext)->firstId();
-        if ($existingRecoveryId !== null) {
-            $this->customerRecoveryRepository->delete([['id' => $existingRecoveryId]], $repoContext);
+        $existingRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->getEntities()->first();
+        if ($existingRecovery) {
+            $this->deleteRecoveryForCustomer($existingRecovery, $repoContext);
         }
 
         $recoveryData = [
@@ -213,7 +216,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         throw new ConstraintViolationException($violations, $data);
     }
 
-    private function getCustomerIdByEmail(string $email, SalesChannelContext $context): string
+    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('customer.active', 1))
@@ -224,12 +227,21 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
                 new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannelId()),
             ]));
 
-        $customerId = $this->customerRepository->searchIds($criteria, $context->getContext())->firstId();
-        if ($customerId === null) {
+        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$customer) {
             throw CustomerException::customerNotFound($email);
         }
 
-        return $customerId;
+        return $customer;
+    }
+
+    private function deleteRecoveryForCustomer(CustomerRecoveryEntity $existingRecovery, Context $context): void
+    {
+        $recoveryData = [
+            'id' => $existingRecovery->getId(),
+        ];
+
+        $this->customerRecoveryRepository->delete([$recoveryData], $context);
     }
 
     private function getRecoverUrl(

@@ -56,7 +56,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
         }
 
         // If there is already more than one sales channel domain, do nothing.
-        if ($this->countCurrentSalesChannelDomains($context, $storefrontSalesChannelId) > 1) {
+        if ($this->getCurrentSalesChannelDomains($context, $storefrontSalesChannelId)->count() > 1) {
             $context->getConsole()->note('Skipping sales_channel_domain generation. Already exists.');
 
             return;
@@ -150,13 +150,13 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
         return $snippetSetRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 
-    private function countCurrentSalesChannelDomains(DemodataContext $context, string $storefrontSalesChannelId): int
+    private function getCurrentSalesChannelDomains(DemodataContext $context, string $storefrontSalesChannelId): SalesChannelDomainCollection
     {
         /** @var EntityRepository<SalesChannelDomainCollection> $salesChannelDomainRepository */
         $salesChannelDomainRepository = $this->registry->getRepository('sales_channel_domain');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $storefrontSalesChannelId));
 
-        return \count($salesChannelDomainRepository->searchIds($criteria, $context->getContext())->getIds());
+        return $salesChannelDomainRepository->search($criteria, $context->getContext())->getEntities();
     }
 }

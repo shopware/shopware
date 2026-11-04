@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -1059,8 +1058,15 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('searchIds')->willReturn(
-            new IdSearchResult(0, [], new Criteria(), $this->context)
+        $this->themeRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'theme',
+                1,
+                new ThemeCollection([]),
+                null,
+                new Criteria(),
+                $this->context
+            )
         );
 
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
@@ -1073,8 +1079,23 @@ class ThemeServiceTest extends TestCase
         $themeId = Uuid::randomHex();
 
         $themeRepository = $this->createMock(EntityRepository::class);
-        $themeRepository->method('searchIds')->willReturn(
-            new IdSearchResult(1, [$themeId => ['primaryKey' => $themeId, 'data' => []]], new Criteria(), $this->context)
+        $themeRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'theme',
+                1,
+                new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                '_uniqueIdentifier' => $themeId,
+                            ]
+                        ),
+                    ]
+                ),
+                null,
+                new Criteria(),
+                $this->context
+            )
         );
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
@@ -1099,8 +1120,15 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('searchIds')->willReturn(
-            new IdSearchResult(0, [], new Criteria(), $this->context)
+        $this->themeRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'theme',
+                1,
+                new ThemeCollection([]),
+                null,
+                new Criteria(),
+                $this->context
+            )
         );
 
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));

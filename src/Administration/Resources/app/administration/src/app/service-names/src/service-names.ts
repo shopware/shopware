@@ -289,6 +289,16 @@ export const entityHydrator = 'entityHydrator';
 export const entityMappingService = 'entityMappingService';
 
 /**
+ * The name the entityValidationService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [entityValidationService] };
+ *
+ * @public
+ */
+export const entityValidationService = 'entityValidationService';
+
+/**
  * The name the excludedSearchTermService service is registered and injected under.
  *
  * @example
@@ -821,6 +831,16 @@ export const searchService = 'searchService';
  * @public
  */
 export const searchTypeService = 'searchTypeService';
+
+/**
+ * The name the seoUrlService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [seoUrlService] };
+ *
+ * @public
+ */
+export const seoUrlService = 'seoUrlService';
 
 /**
  * The name the seoUrlTemplateService service is registered and injected under.

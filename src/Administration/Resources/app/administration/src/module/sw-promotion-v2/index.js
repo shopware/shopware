@@ -21,12 +21,9 @@ import './page/sw-promotion-v2-list/register';
 import './view/sw-promotion-detail-discounts/register';
 import './view/sw-promotion-v2-conditions/register';
 import './view/sw-promotion-v2-detail-base/register';
+import './page/sw-promotion-v2-detail/register';
 
 const { Module } = Shopware;
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-promotion-v2-detail', () => import('./page/sw-promotion-v2-detail'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-promotion-v2', {

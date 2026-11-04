@@ -399,3 +399,7 @@ import '../src/module/sw-users-permissions/view/sw-users-permissions-role-view-g
 import '../src/module/sw-cms/component/sw-cms-block/global';
 import '../src/module/sw-order/component/sw-order-state-change-modal/global';
 import '../src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/global';
+import '../src/module/sw-product/page/sw-product-detail/global';
+import '../src/module/sw-category/page/sw-category-detail/global';
+import '../src/module/sw-promotion-v2/page/sw-promotion-v2-detail/global';
+import '../src/module/sw-settings-shipping/page/sw-settings-shipping-detail/global';

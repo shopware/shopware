@@ -9,12 +9,9 @@ import './component/sw-settings-shipping-price-matrices/register';
 import './component/sw-price-rule-modal/register';
 import './component/sw-settings-shipping-tax-cost/register';
 import './page/sw-settings-shipping-list/register';
+import './page/sw-settings-shipping-detail/register';
 
 const { Module } = Shopware;
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-shipping-detail', () => import('./page/sw-settings-shipping-detail'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-shipping', {

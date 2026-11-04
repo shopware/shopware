@@ -58,7 +58,7 @@ describe('module/sw-product/page/sw-product-detail analytics', () => {
     beforeAll(() => {
         Shopware.Component.override('sw-product-detail', {
             // Skip page initialization so each test controls when loading and saving happen.
-            methods: { createdComponent() {} },
+            methods: { async createdComponent() {} },
         });
     });
 

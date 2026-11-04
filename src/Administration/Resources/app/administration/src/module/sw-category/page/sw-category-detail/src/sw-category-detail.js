@@ -1,27 +1,49 @@
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
-
-const { Context, Mixin } = Shopware;
-const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
-const { isArray, isEmpty, isEqual } = Shopware.Utils.types;
+import {
+    aclService,
+    ChangesetGenerator,
+    cmsService,
+    Criteria,
+    customFieldDataProviderService,
+    EntityCollection,
+    getApiContext,
+    getAssetFilter,
+    isArray,
+    isEmpty,
+    isEqual,
+    notificationMixin,
+    placeholderMixin,
+    publishData,
+    repositoryFactoryService,
+    seoUrlService,
+    ShopwareError,
+    systemConfigApiService,
+    useCategoryDetailStore,
+    useCmsPageStore,
+    useErrorStore,
+    useSeoUrlStore,
+    useShopwareAppsStore,
+} from '../dependencies';
 
 /**
  * @sw-package discovery
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'acl',
-        'cmsService',
-        'repositoryFactory',
-        'seoUrlService',
-        'systemConfigApiService',
-        'customFieldDataProviderService',
+        aclService,
+        cmsService,
+        repositoryFactoryService,
+        seoUrlService,
+        systemConfigApiService,
+        customFieldDataProviderService,
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -56,7 +78,7 @@ export default {
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            currentLanguageId: Shopware.Context.api.languageId,
+            currentLanguageId: getApiContext().languageId,
             forceDiscardChanges: false,
             categoryCheckedItem: 0,
             landingPageCheckedItem: 0,
@@ -97,19 +119,19 @@ export default {
         },
 
         landingPage() {
-            if (!Shopware.Store.get('swCategoryDetail')) {
+            if (!useCategoryDetailStore()) {
                 return {};
             }
 
-            return Shopware.Store.get('swCategoryDetail').landingPage;
+            return useCategoryDetailStore().landingPage;
         },
 
         category() {
-            if (!Shopware.Store.get('swCategoryDetail')) {
+            if (!useCategoryDetailStore()) {
                 return {};
             }
 
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useCategoryDetailStore().category;
         },
 
         showEntryPointOverwriteModal() {
@@ -117,11 +139,11 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
 
         cmsPageId() {
@@ -233,7 +255,7 @@ export default {
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
     },
 
@@ -264,7 +286,7 @@ export default {
     },
 
     beforeCreate() {
-        Shopware.Store.get('cmsPage').resetCmsPageState();
+        useCmsPageStore().resetCmsPageState();
     },
 
     created() {
@@ -274,14 +296,14 @@ export default {
     beforeRouteLeave(to, from, next) {
         if (this.forceDiscardChanges) {
             this.forceDiscardChanges = false;
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
         }
 
         if (!this.category) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
@@ -293,7 +315,7 @@ export default {
          */
         const { changes, deletionQueue } = this.changesetGenerator.generate(this.category);
         if (changes === null) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
@@ -314,14 +336,14 @@ export default {
             changes.cmsPageId === null &&
             !hasDeletions
         ) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
         }
 
         if (changedKeys.length === 0 && !hasDeletions) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
@@ -334,13 +356,13 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-category-detail__category',
                 path: 'category',
                 scope: this,
             });
 
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-category-detail__cmsPage',
                 path: 'cmsPage',
                 scope: this,
@@ -461,18 +483,18 @@ export default {
 
             try {
                 if (this.landingPageId === null) {
-                    Shopware.Store.get('shopwareApps').selectedIds = [];
+                    useShopwareAppsStore().selectedIds = [];
 
-                    Shopware.Store.get('swCategoryDetail').landingPage = null;
+                    useCategoryDetailStore().landingPage = null;
                     this.cmsPageState.resetCmsPageState();
 
                     return;
                 }
 
-                Shopware.Store.get('shopwareApps').selectedIds = [this.landingPageId];
-                await Shopware.Store.get('swCategoryDetail').loadActiveLandingPage({
+                useShopwareAppsStore().selectedIds = [this.landingPageId];
+                await useCategoryDetailStore().loadActiveLandingPage({
                     repository: this.landingPageRepository,
-                    apiContext: Shopware.Context.api,
+                    apiContext: getApiContext(),
                     id: this.landingPageId,
                     criteria: this.landingPageCriteria,
                 });
@@ -494,19 +516,19 @@ export default {
             this.isLoading = true;
 
             if (this.categoryId === null) {
-                Shopware.Store.get('shopwareApps').selectedIds = [];
+                useShopwareAppsStore().selectedIds = [];
 
-                Shopware.Store.get('swCategoryDetail').category = null;
+                useCategoryDetailStore().category = null;
                 this.cmsPageState.resetCmsPageState();
                 this.isLoading = false;
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [this.categoryId];
-            Shopware.Store.get('swCategoryDetail')
+            useShopwareAppsStore().selectedIds = [this.categoryId];
+            useCategoryDetailStore()
                 .loadActiveCategory({
                     repository: this.categoryRepository,
-                    apiContext: Shopware.Context.api,
+                    apiContext: getApiContext(),
                     id: this.categoryId,
                     criteria: this.categoryCriteria,
                 })
@@ -527,7 +549,7 @@ export default {
             return this.customFieldDataProviderService
                 .getCustomFieldSets('category', false, null)
                 .then((customFieldSet) => {
-                    Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
+                    useCategoryDetailStore().customFieldSets = customFieldSet;
                 })
                 .finally(() => {
                     this.isCustomFieldLoading = true;
@@ -540,7 +562,7 @@ export default {
             return this.customFieldDataProviderService
                 .getCustomFieldSets('landing_page', false, null)
                 .then((customFieldSet) => {
-                    Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
+                    useCategoryDetailStore().customFieldSets = customFieldSet;
                 })
                 .finally(() => {
                     this.isCustomFieldLoading = true;
@@ -563,7 +585,7 @@ export default {
 
         onLeaveModalConfirm(destination) {
             // Discard all category related errors that may have occurred
-            Shopware.Store.get('error').removeApiError('category');
+            useErrorStore().removeApiError('category');
 
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
@@ -641,7 +663,7 @@ export default {
                     this.category.cmsPageId = null;
                 }
 
-                await this.categoryRepository.save(this.category, { ...Shopware.Context.api });
+                await this.categoryRepository.save(this.category, { ...getApiContext() });
 
                 this.isSaveSuccessful = true;
                 this.entryPointOverwriteConfirmed = false;
@@ -661,7 +683,7 @@ export default {
         },
 
         checkForEntryPointOverwrite() {
-            this.entryPointOverwriteSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api);
+            this.entryPointOverwriteSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', getApiContext());
 
             this.category.navigationSalesChannels.forEach((salesChannel) => {
                 if (salesChannel.navigationCategoryId !== null && salesChannel.navigationCategoryId !== this.categoryId) {
@@ -711,7 +733,7 @@ export default {
 
             this.isLoading = true;
             return this.landingPageRepository
-                .save(this.landingPage, Shopware.Context.api)
+                .save(this.landingPage, getApiContext())
                 .then(() => {
                     this.isSaveSuccessful = true;
 
@@ -741,13 +763,13 @@ export default {
         },
 
         addLandingPageSalesChannelError() {
-            const shopwareError = new Shopware.Classes.ShopwareError({
+            const shopwareError = new ShopwareError({
                 code: 'landing_page_sales_channel_blank',
                 detail: 'This value should not be blank.',
                 status: '400',
             });
 
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: `landing_page.${this.landingPage.id}.salesChannels`,
                 error: shopwareError,
             });
@@ -861,7 +883,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+            const seoUrls = useSeoUrlStore().newOrModifiedUrls;
 
             return Promise.all(
                 seoUrls.map((seoUrl) => {
@@ -901,11 +923,11 @@ export default {
         },
 
         onLandingPageDelete() {
-            Shopware.Store.get('swCategoryDetail').landingPagesToDelete = null;
+            useCategoryDetailStore().landingPagesToDelete = null;
         },
 
         onCategoryDelete() {
-            Shopware.Store.get('swCategoryDetail').categoriesToDelete = null;
+            useCategoryDetailStore().categoriesToDelete = null;
         },
     },
 };

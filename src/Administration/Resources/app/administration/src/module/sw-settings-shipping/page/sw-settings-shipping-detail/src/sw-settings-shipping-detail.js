@@ -1,25 +1,35 @@
-import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
-
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
+import {
+    aclService,
+    Criteria,
+    customFieldDataProviderService,
+    getApiContext,
+    mapPropertyErrors,
+    notificationMixin,
+    placeholderMixin,
+    repositoryFactoryService,
+    ruleConditionDataProviderService,
+    useContextStore,
+    useShippingDetailStore,
+    warn,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
+ *
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
-        'ruleConditionDataProviderService',
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
+        ruleConditionDataProviderService,
+        repositoryFactoryService,
+        aclService,
+        customFieldDataProviderService,
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -54,15 +64,15 @@ export default {
 
     computed: {
         shippingMethod() {
-            return Shopware.Store.get('swShippingDetail').shippingMethod;
+            return useShippingDetailStore().shippingMethod;
         },
 
         currencies() {
-            return Shopware.Store.get('swShippingDetail').currencies;
+            return useShippingDetailStore().currencies;
         },
 
         restrictedRuleIds() {
-            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+            return useShippingDetailStore().restrictedRuleIds;
         },
 
         ...mapPropertyErrors('shippingMethod', [
@@ -171,7 +181,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+                useContextStore().resetLanguageToDefault();
 
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();
@@ -180,7 +190,7 @@ export default {
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);
-                Shopware.Store.get('swShippingDetail').shippingMethod = shippingMethod;
+                useShippingDetailStore().shippingMethod = shippingMethod;
             } else {
                 this.loadEntityData();
             }
@@ -195,8 +205,8 @@ export default {
             this.currenciesLoading = true;
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('salesChannels');
-            this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
-                Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
+            this.currencyRepository.search(criteria, getApiContext()).then((currencyResponse) => {
+                useShippingDetailStore().currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });
         },
@@ -209,12 +219,12 @@ export default {
             this.isLoading = true;
 
             this.shippingMethodRepository
-                .get(this.shippingMethodId, Shopware.Context.api, this.shippingMethodCriteria)
+                .get(this.shippingMethodId, getApiContext(), this.shippingMethodCriteria)
                 .then((res) => {
-                    Shopware.Store.get('swShippingDetail').shippingMethod = res;
+                    useShippingDetailStore().shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.restrictedRuleIds.concat(result);
+                        useShippingDetailStore().restrictedRuleIds = this.restrictedRuleIds.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {
@@ -248,7 +258,7 @@ export default {
             this.isProcessLoading = true;
 
             return this.shippingMethodRepository
-                .save(this.shippingMethod, Context.api)
+                .save(this.shippingMethod, getApiContext())
                 .then(() => {
                     this.isSaveSuccessful = true;
                     if (!this.shippingMethodId) {
@@ -303,7 +313,7 @@ export default {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, Context.api).then((updatedMedia) => {
+            this.mediaRepository.get(targetId, getApiContext()).then((updatedMedia) => {
                 this.logoMediaItem = updatedMedia;
             });
             this.shippingMethod.mediaId = targetId;

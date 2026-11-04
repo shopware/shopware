@@ -3,21 +3,34 @@
  */
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
+import {
+    aclService,
+    Criteria,
+    discardDetailPageChangesMixin,
+    featureService,
+    getApiContext,
+    mapPageErrors,
+    notificationMixin,
+    placeholderMixin,
+    publishData,
+    repositoryFactoryService,
+    useContextStore,
+    usePromotionDetailStore,
+    useShopwareAppsStore,
+} from '../dependencies';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { mapPageErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: [repositoryFactoryService, aclService, featureService],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('promotion'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('promotion'),
     ],
 
     shortcuts: {
@@ -157,24 +170,24 @@ export default {
     },
 
     beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
     },
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
+            publishData({
                 id: 'sw-promotion-detail__promotion',
                 path: 'promotion',
                 scope: this,
             });
             this.isLoading = true;
 
-            Shopware.Store.get('shopwareApps').selectedIds = this.promotionId ? [this.promotionId] : [];
+            useShopwareAppsStore().selectedIds = this.promotionId ? [this.promotionId] : [];
 
             if (!this.promotionId) {
                 // set language to system language
-                if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                    Shopware.Store.get('context').resetLanguageToDefault();
+                if (!useContextStore().isSystemDefaultLanguage) {
+                    useContextStore().resetLanguageToDefault();
                 }
 
                 this.promotion = this.promotionRepository.create();
@@ -192,7 +205,7 @@ export default {
             }
 
             return this.promotionRepository
-                .get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
+                .get(this.promotionId, getApiContext(), this.promotionCriteria)
                 .then((promotion) => {
                     if (promotion === null) {
                         return;
@@ -207,7 +220,7 @@ export default {
                     // Needed to enrich the VueX state below
                     this.promotion.hasOrders = promotion.orderCount !== null ? promotion.orderCount > 0 : false;
 
-                    Shopware.Store.get('swPromotionDetail').promotion = this.promotion;
+                    usePromotionDetailStore().promotion = this.promotion;
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -270,7 +283,7 @@ export default {
                 await this.promotionRepository.save(this.promotion);
                 await this.savePromotionSetGroups();
 
-                Shopware.Store.get('swPromotionDetail').setGroupIdsDelete = [];
+                usePromotionDetailStore().setGroupIdsDelete = [];
                 this.isSaveSuccessful = true;
                 await this.loadEntityData();
 
@@ -297,7 +310,7 @@ export default {
         },
 
         savePromotionSetGroups() {
-            const setGroupIdsDelete = Shopware.Store.get('swPromotionDetail').setGroupIdsDelete;
+            const setGroupIdsDelete = usePromotionDetailStore().setGroupIdsDelete;
 
             if (setGroupIdsDelete !== null) {
                 const deletePromises = setGroupIdsDelete.map((groupId) => {

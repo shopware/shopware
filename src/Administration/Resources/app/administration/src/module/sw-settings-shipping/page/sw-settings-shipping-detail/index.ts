@@ -1,0 +1,85 @@
+import { definePublicComponent } from 'src/core/public-component';
+
+/**
+ * @sw-package checkout
+ *
+ * This file is the public API, also for extensions. The files in `./src` are private.
+ * The lists hold everything the component offered before it became a mini-module,
+ * because Component.override could reach all of it. Shrink them only through the deprecation process.
+ */
+/** @public */
+export default definePublicComponent({
+    name: 'sw-settings-shipping-detail',
+    load: () => import('./src/sw-settings-shipping-detail'),
+    public: {
+        props: [
+            'shippingMethodId',
+        ],
+        blocks: [
+            'sw_settings_shipping_detail',
+            'sw_settings_shipping_detail_header',
+            'sw_settings_shipping_detail_actions',
+            'sw_settings_shipping_detail_actions_abort',
+            'sw_settings_shipping_detail_actions_save',
+            'sw_settings_shipping_detail_language_switch',
+            'sw_settings_shipping_detail_content',
+            'sw_settings_shipping_detail_content_language_info',
+            'sw_settings_shipping_detail_base',
+            'sw_settings_shipping_detail_base_content_field_name',
+            'sw_settings_shipping_detail_content_field_technical_name',
+            'sw_settings_shipping_detail_base_content_field_position',
+            'sw_settings_shipping_detail_base_content_field_active',
+            'sw_settings_shipping_detail_base_content_field_description',
+            'sw_settings_shipping_detail_base_content_media_upload',
+            'sw_settings_shipping_detail_base_content_field_delivery_time',
+            'sw_settings_shipping_detail_base_content_tracking_url_field',
+            'sw_settings_shipping_detail_base_content_tags_field',
+            'sw_settings_shipping_detail_top_ruleshippingPriceStore',
+            'sw_settings_shipping_detail_top_rule_select',
+            'sw_settings_shipping_detail_tax_cost',
+            'sw_settings_shipping_detail_price_matrices',
+            'sw_settings_shipping_detail_custom_field_sets',
+            'sw_settings_shipping_detail_sidebar',
+            'sw_setting_shipping_detail_sidebar_media_item',
+        ],
+        computed: [
+            'shippingMethod',
+            'currencies',
+            'restrictedRuleIds',
+            'identifier',
+            'shippingMethodRepository',
+            'shippingMethodPricesRepository',
+            'currencyRepository',
+            'isNewShippingMethod',
+            'mediaRepository',
+            'deliveryTimeRepository',
+            'deliveryTimeCriteria',
+            'tooltipSave',
+            'tooltipCancel',
+            'ruleFilter',
+            'shippingMethodCriteria',
+            'showCustomFields',
+        ],
+        methods: [
+            'createdComponent',
+            'onSaveRule',
+            'loadCurrencies',
+            'loadEntityData',
+            'loadCustomFieldSets',
+            'abortOnLanguageChange',
+            'saveOnLanguageChange',
+            'onChangeLanguage',
+            'onSave',
+            'onError',
+            'filterIncompletePrices',
+            'getIncompletePrices',
+            'onCancel',
+            'setMediaItem',
+            'onDropMedia',
+            'setMediaFromSidebar',
+            'onUnlinkLogo',
+            'openMediaSidebar',
+            'sortCurrencies',
+        ],
+    },
+});

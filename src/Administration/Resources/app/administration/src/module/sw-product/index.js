@@ -48,6 +48,7 @@ import './view/sw-product-detail-reviews/register';
 import './view/sw-product-detail-seo/register';
 import './view/sw-product-detail-specifications/register';
 import './view/sw-product-detail-variants/register';
+import './page/sw-product-detail/register';
 
 const { Module } = Shopware;
 
@@ -58,7 +59,6 @@ const { Module } = Shopware;
 if (!Shopware.Feature.isActive('v6.8.0.0')) {
     Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
 }
-Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

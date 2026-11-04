@@ -317,6 +317,9 @@
             "sw-bulk-edit-save-modal-success": [
                 "default"
             ],
+            "sw-category-detail": [
+                "default"
+            ],
             "sw-category-detail-base": [
                 "default"
             ],
@@ -878,6 +881,9 @@
             "sw-product-deliverability-form": [
                 "default"
             ],
+            "sw-product-detail": [
+                "default"
+            ],
             "sw-product-detail-base": [
                 "default"
             ],
@@ -987,6 +993,9 @@
                 "default"
             ],
             "sw-promotion-v2-conditions": [
+                "default"
+            ],
+            "sw-promotion-v2-detail": [
                 "default"
             ],
             "sw-promotion-v2-detail-base": [
@@ -1316,6 +1325,9 @@
             "sw-settings-seo": [
                 "default"
             ],
+            "sw-settings-shipping-detail": [
+                "default"
+            ],
             "sw-settings-shipping-list": [
                 "default"
             ],
@@ -1465,6 +1477,7 @@
             "sw-bulk-edit-save-modal-error": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error",
             "sw-bulk-edit-save-modal-process": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process",
             "sw-bulk-edit-save-modal-success": "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success",
+            "sw-category-detail": "src/module/sw-category/page/sw-category-detail",
             "sw-category-detail-base": "src/module/sw-category/view/sw-category-detail-base",
             "sw-category-detail-cms": "src/module/sw-category/view/sw-category-detail-cms",
             "sw-category-detail-menu": "src/module/sw-category/component/sw-category-detail-menu",
@@ -1652,6 +1665,7 @@
             "sw-product-cross-selling-form": "src/module/sw-product/component/sw-product-cross-selling-form",
             "sw-product-deliverability-downloadable-form": "src/module/sw-product/component/sw-product-deliverability-downloadable-form",
             "sw-product-deliverability-form": "src/module/sw-product/component/sw-product-deliverability-form",
+            "sw-product-detail": "src/module/sw-product/page/sw-product-detail",
             "sw-product-detail-base": "src/module/sw-product/view/sw-product-detail-base",
             "sw-product-detail-context-prices": "src/module/sw-product/view/sw-product-detail-context-prices",
             "sw-product-detail-cross-selling": "src/module/sw-product/view/sw-product-detail-cross-selling",
@@ -1689,6 +1703,7 @@
             "sw-profile-index-search-preferences": "src/module/sw-profile/view/sw-profile-index-search-preferences",
             "sw-promotion-v2-cart-condition-form": "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form",
             "sw-promotion-v2-conditions": "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions",
+            "sw-promotion-v2-detail": "src/module/sw-promotion-v2/page/sw-promotion-v2-detail",
             "sw-promotion-v2-detail-base": "src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base",
             "sw-promotion-v2-generate-codes-modal": "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal",
             "sw-promotion-v2-individual-codes-behavior": "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior",
@@ -1798,6 +1813,7 @@
             "sw-settings-search-view-general": "src/module/sw-settings-search/view/sw-settings-search-view-general",
             "sw-settings-search-view-live-search": "src/module/sw-settings-search/view/sw-settings-search-view-live-search",
             "sw-settings-seo": "src/module/sw-settings-seo/page/sw-settings-seo",
+            "sw-settings-shipping-detail": "src/module/sw-settings-shipping/page/sw-settings-shipping-detail",
             "sw-settings-shipping-list": "src/module/sw-settings-shipping/page/sw-settings-shipping-list",
             "sw-settings-shipping-price-matrices": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices",
             "sw-settings-shipping-price-matrix": "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix",
@@ -1881,6 +1897,7 @@
                 "entityFactory",
                 "entityHydrator",
                 "entityMappingService",
+                "entityValidationService",
                 "excludedSearchTermService",
                 "exportTemplateService",
                 "extensionHelperService",
@@ -1935,6 +1952,7 @@
                 "searchRankingService",
                 "searchService",
                 "searchTypeService",
+                "seoUrlService",
                 "seoUrlTemplateService",
                 "serviceRegistryClient",
                 "shopIdChangeService",

@@ -23,12 +23,9 @@ import './view/sw-category-detail-products/register';
 import './view/sw-category-detail-seo/register';
 import './view/sw-landing-page-detail-base/register';
 import './view/sw-landing-page-detail-cms/register';
+import './page/sw-category-detail/register';
 
 const { Module } = Shopware;
-
-/* eslint-disable sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-category-detail', () => import('./page/sw-category-detail'));
-/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-category', {

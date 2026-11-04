@@ -5385,7 +5385,7 @@
       "count": 1
     }
   },
-  "src/module/sw-category/page/sw-category-detail/index.js": {
+  "src/module/sw-category/page/sw-category-detail/src/sw-category-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -5404,7 +5404,7 @@
       "count": 4
     }
   },
-  "src/module/sw-category/page/sw-category-detail/sw-category-detail.spec.js": {
+  "src/module/sw-category/page/sw-category-detail/tests/sw-category-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
@@ -9935,7 +9935,7 @@
       "count": 1
     }
   },
-  "src/module/sw-product/page/sw-product-detail/index.js": {
+  "src/module/sw-product/page/sw-product-detail/src/sw-product-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -9952,12 +9952,12 @@
       "count": 2
     }
   },
-  "src/module/sw-product/page/sw-product-detail/sw-product-detail.analytics.spec.ts": {
+  "src/module/sw-product/page/sw-product-detail/tests/sw-product-detail.analytics.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 12
     }
   },
-  "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": {
+  "src/module/sw-product/page/sw-product-detail/tests/sw-product-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10304,7 +10304,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/index.js": {
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/src/sw-promotion-v2-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -10312,7 +10312,7 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/sw-promotion-v2-detail.spec.js": {
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/tests/sw-promotion-v2-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 3
     }
@@ -12559,7 +12559,7 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/index.js": {
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/src/sw-settings-shipping-detail.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
@@ -12572,7 +12572,7 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/sw-settings-shipping-detail.spec.js": {
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/tests/sw-settings-shipping-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 22
     }

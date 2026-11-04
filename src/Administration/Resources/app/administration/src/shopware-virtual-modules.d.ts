@@ -1090,6 +1090,12 @@ declare module 'shopware:components/sw-bulk-edit-save-modal-success' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-category-detail' {
+    export { default } from 'src/module/sw-category/page/sw-category-detail';
+    export type * from 'src/module/sw-category/page/sw-category-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-category-detail-base' {
     export { default } from 'src/module/sw-category/view/sw-category-detail-base';
     export type * from 'src/module/sw-category/view/sw-category-detail-base';
@@ -2212,6 +2218,12 @@ declare module 'shopware:components/sw-product-deliverability-form' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-product-detail' {
+    export { default } from 'src/module/sw-product/page/sw-product-detail';
+    export type * from 'src/module/sw-product/page/sw-product-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-product-detail-base' {
     export { default } from 'src/module/sw-product/view/sw-product-detail-base';
     export type * from 'src/module/sw-product/view/sw-product-detail-base';
@@ -2431,6 +2443,12 @@ declare module 'shopware:components/sw-promotion-v2-cart-condition-form' {
 declare module 'shopware:components/sw-promotion-v2-conditions' {
     export { default } from 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
     export type * from 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-promotion-v2-detail' {
+    export { default } from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail';
+    export type * from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail';
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -3088,6 +3106,12 @@ declare module 'shopware:components/sw-settings-seo' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:components/sw-settings-shipping-detail' {
+    export { default } from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
+    export type * from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:components/sw-settings-shipping-list' {
     export { default } from 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
     export type * from 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
@@ -3384,6 +3408,7 @@ declare module 'shopware:framework/service-names' {
         entityFactory,
         entityHydrator,
         entityMappingService,
+        entityValidationService,
         excludedSearchTermService,
         exportTemplateService,
         extensionHelperService,
@@ -3438,6 +3463,7 @@ declare module 'shopware:framework/service-names' {
         searchRankingService,
         searchService,
         searchTypeService,
+        seoUrlService,
         seoUrlTemplateService,
         serviceRegistryClient,
         shopIdChangeService,

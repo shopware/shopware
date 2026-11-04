@@ -597,6 +597,8 @@
       "cardSubtitle": "Dateien, die Kunden auf der Produktdetailseite in der Storefront herunterladen können.",
       "emptyState": "Noch keine Dokumente",
       "emptyDescription": "Füge Dateien wie Anleitungen, Datenblätter oder Zertifikate hinzu. Kunden laden sie auf der Produktdetailseite in der Storefront herunter.",
+      "emptyDescriptionOtherLanguage": "Wechsle zur Standard-Inhaltssprache {language}, um Dokumente hinzuzufügen.",
+      "defaultLanguage": "Standardsprache",
       "buttonAdd": "Dokumente hinzufügen",
       "columnPosition": "Position",
       "columnTitle": "Name",

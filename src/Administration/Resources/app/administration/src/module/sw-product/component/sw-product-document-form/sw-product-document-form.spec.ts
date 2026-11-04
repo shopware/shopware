@@ -89,8 +89,11 @@ describe('sw-product-document-form', () => {
     it('requires new documents to be created in the default language', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         const wrapper = await createWrapper();
-        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
-        expect(wrapper.text()).toContain('sw-product.documentForm.languageHint');
+        await flushPromises();
+        expect(wrapper.find('.sw-product-document-form__empty-state .mt-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-document-form__language-hint').exists()).toBe(false);
+        await wrapper.get('.sw-product-document-form__empty-state .mt-link').trigger('click');
+        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
     it('accepts the tenth document and rejects additional media from the same selection', async () => {

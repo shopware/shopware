@@ -597,6 +597,8 @@
       "cardSubtitle": "Files customers can download on the product detail page in the Storefront.",
       "emptyState": "No documents yet",
       "emptyDescription": "Add files such as manuals, datasheets or certificates. Customers download them on the product detail page in the Storefront.",
+      "emptyDescriptionOtherLanguage": "Switch the content language to the default language {language} to add documents.",
+      "defaultLanguage": "default language",
       "buttonAdd": "Add documents",
       "columnPosition": "Position",
       "columnTitle": "Name",

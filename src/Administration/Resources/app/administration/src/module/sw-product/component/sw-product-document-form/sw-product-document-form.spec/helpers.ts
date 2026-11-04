@@ -44,6 +44,9 @@ export async function createWrapper(
             },
             stubs: {
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
+                'sw-product-document-empty-state': await wrapTestComponent('sw-product-document-empty-state', {
+                    sync: true,
+                }),
                 'sw-product-document-edit-modal': await wrapTestComponent('sw-product-document-edit-modal', { sync: true }),
                 'sw-product-document-remove-modal': await wrapTestComponent('sw-product-document-remove-modal', {
                     sync: true,
@@ -71,6 +74,7 @@ export async function createWrapper(
                 'mt-modal': { template: '<div class="upload-modal"><slot/><slot name="footer"/></div>' },
                 'sw-modal': { template: '<div class="modal"><slot/><slot name="modal-footer"/></div>' },
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
+                'i18n-t': { template: '<span><slot name="language"/></span>' },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),

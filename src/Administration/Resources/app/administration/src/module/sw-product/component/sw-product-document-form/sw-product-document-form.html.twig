@@ -63,7 +63,7 @@
                 <template #grid>
                 {% block sw_product_document_form_language_hint %}
                     <mt-banner
-                        v-if="!isDefaultLanguage"
+                        v-if="!isDefaultLanguage && currentValue.length"
                         variant="info"
                         class="sw-product-document-form__language-hint"
                     >
@@ -75,23 +75,11 @@
                         v-if="!currentValue.length"
                         class="sw-product-document-form__empty-state"
                     >
-                        <mt-empty-state
-                            centered
-                            icon="regular-file-text"
-                            :headline="$t('sw-product.documentForm.emptyState')"
-                            :description="$t('sw-product.documentForm.emptyDescription')"
-                        >
-                            <template #button>
-                                <mt-button
-                                    :disabled="isInherited || !canAddDocuments"
-                                    size="small"
-                                    variant="secondary"
-                                    @click="showUploadModal = true"
-                                >
-                                    {{ $t('sw-product.documentForm.buttonAdd') }}
-                                </mt-button>
-                            </template>
-                        </mt-empty-state>
+                        <sw-product-document-empty-state
+                            :can-add-documents="!isInherited && canAddDocuments"
+                            @add-documents="showUploadModal = true"
+                            @change-language="$emit('change-language', $event)"
+                        />
                     </div>
                 {% endblock %}
 

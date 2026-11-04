@@ -2,10 +2,10 @@
  * @sw-package framework
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { flushPromises, mount, shallowMount } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
-import { h } from 'vue';
+import { createApp, h } from 'vue';
 import { createApplication, prepareVueAdapterEnvironment, resetVueAdapterTestState } from './vue-adapter-test-setup';
 
 describe('ASYNC app/adapter/view/vue.adapter.js - components', () => {
@@ -371,5 +371,30 @@ describe('ASYNC app/adapter/view/vue.adapter.js - components', () => {
 
         expect(mountedComponent.classes()).toContain('sw-foo');
         expect(mountedComponent.text()).toBe('Some text');
+    });
+
+    it('should render a lazily overridden component on first mount when it is not marked as sync', async () => {
+        Shopware.Component.register('sw-deferred-base', () =>
+            Promise.resolve({
+                template: '<div class="sw-deferred-base">{% block content %}base{% endblock %}</div>',
+            }),
+        );
+        Shopware.Component.override('sw-deferred-base', () =>
+            Promise.resolve({
+                template: '{% block content %}override{% endblock %}',
+            }),
+        );
+        vueAdapter.app = createApp({});
+
+        const deferredComponent = await vueAdapter.createComponent('sw-deferred-base');
+        const wrapper = mount(
+            { template: '<sw-deferred-base />' },
+            {
+                global: { components: { 'sw-deferred-base': deferredComponent } },
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.get('.sw-deferred-base').text()).toBe('override');
     });
 });

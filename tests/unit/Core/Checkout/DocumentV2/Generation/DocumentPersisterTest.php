@@ -498,7 +498,7 @@ class DocumentPersisterTest extends TestCase
 
         [$persister] = $this->createPersister($documentTypeId, existingDocumentIds: [$existingDocumentId]);
 
-        $this->expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
+        $this->expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345', self::DOCUMENT_TYPE));
 
         $persister->persist(
             $this->generationRequest,

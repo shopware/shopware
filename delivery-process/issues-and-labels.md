@@ -88,7 +88,7 @@ The task of adding descriptions to every [label](https://github.com/shopware/sho
 * `Extension:`: pulls items related to Shopware extensions into the shopware/shopware issues backlog.
 * `good first issue`: issues friendly to brand-new hires or contributors.
 * `lifecycle/`: set by cleanup automation, or by people to opt out of it with `lifecycle/DoNotClose`.
-  See [Pull request lifecycle](pull-request-lifecycle.md#inactive-pull-requests).
+  See [Stale pull requests](https://github.com/shopware/gh-project-automation/blob/main/docs/stale-pull-requests.md).
 * `needs-triage`: applies automatically to every newly created issue. Helps Product Quality Ops to identify what they must review during their daily triage.
 * `no-sync` (temporary): a label that stops the creation of a matching issue in Shopware Jira. You must apply this label manually. Will deprecate when all Shopware delivery teams have migrated to GitHub.
 * `pr/`: to identify pull request status.

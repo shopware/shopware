@@ -149,21 +149,21 @@ export const array = {
 /**
  * @private
  */
-const genericRuleCondition = {
+export const genericRuleCondition = {
     getPlaceholderSnippet: genericRuleConditionUtils.getPlaceholderSnippet,
 };
 
 /**
  * @private
  */
-const unitConversion = {
+export const unitConversion = {
     convert: unitConversionUtils.convertUnit,
 };
 
 /**
  * @private
  */
-const extension = {
+export const extension = {
     getExtensionNameByOrigin: MeteorTelemetry.getSourceExtensionName,
 };
 

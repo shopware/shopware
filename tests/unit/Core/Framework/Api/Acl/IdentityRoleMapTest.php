@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Acl\IdentityRoleMap;
 use Shopware\Core\Framework\Api\Acl\IdentityType;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -26,11 +27,13 @@ class IdentityRoleMapTest extends TestCase
         static::assertSame($integrationRoles, $owners->rolesFor('id', IdentityType::Integration));
     }
 
-    public function testAnAppHasNoRoles(): void
+    public function testAnAppHasNoRolesOfItsOwn(): void
     {
         $owners = new IdentityRoleMap([], ['id' => new AclRoles(false, ['role'])]);
 
-        static::assertNull($owners->rolesFor('id', IdentityType::App));
+        $this->expectExceptionObject(ApiException::appHasNoRoles());
+
+        $owners->rolesFor('id', IdentityType::App);
     }
 
     public function testAnUnknownIdHasNoRoles(): void

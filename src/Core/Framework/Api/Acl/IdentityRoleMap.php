@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Acl;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -23,14 +24,15 @@ final readonly class IdentityRoleMap
     }
 
     /**
-     * The roles of the given identity, or null if it is unknown. An app's roles are not loaded here.
+     * The roles of the given user or integration, or null if it is unknown.
+     * An app has no roles of its own: it acts through its integration, so look up the integration instead.
      */
     public function rolesFor(string $id, IdentityType $type): ?AclRoles
     {
         return match ($type) {
             IdentityType::User => $this->userRoles[$id] ?? null,
             IdentityType::Integration => $this->integrationRoles[$id] ?? null,
-            IdentityType::App => null,
+            IdentityType::App => throw ApiException::appHasNoRoles(),
         };
     }
 }

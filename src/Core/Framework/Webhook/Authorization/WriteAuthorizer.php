@@ -191,8 +191,8 @@ class WriteAuthorizer
     private function resolveRoles(array $rows, array $written): array
     {
         $owners = $this->aclRoleLoader->getRoles(
-            $this->ownerIdsOf($written, IdentityType::User),
-            $this->ownerIdsOf($written, IdentityType::Integration),
+            $this->getOwnerIdsOf($written, IdentityType::User),
+            $this->getOwnerIdsOf($written, IdentityType::Integration),
         );
         $listedRoleIds = array_merge(...array_map(
             static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
@@ -231,7 +231,7 @@ class WriteAuthorizer
      *
      * @return list<string>
      */
-    private function ownerIdsOf(array $written, IdentityType $type): array
+    private function getOwnerIdsOf(array $written, IdentityType $type): array
     {
         return array_column(
             array_filter($written, static fn (WebhookSubscription $webhook): bool => $webhook->ownerType === $type),

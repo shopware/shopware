@@ -30,7 +30,7 @@ class AclRoleLoader
      */
     public function getRoles(array $userIds, array $integrationIds): IdentityRoleMap
     {
-        return new IdentityRoleMap($this->userRoles($userIds), $this->integrationRoles($integrationIds));
+        return new IdentityRoleMap($this->fetchUserRoles($userIds), $this->fetchIntegrationRoles($integrationIds));
     }
 
     /**
@@ -72,7 +72,7 @@ class AclRoleLoader
      *
      * @return array<string, AclRoles> keyed by user id
      */
-    private function userRoles(array $userIds): array
+    private function fetchUserRoles(array $userIds): array
     {
         if ($userIds === []) {
             return [];
@@ -93,7 +93,7 @@ class AclRoleLoader
      *
      * @return array<string, AclRoles> keyed by integration id
      */
-    private function integrationRoles(array $integrationIds): array
+    private function fetchIntegrationRoles(array $integrationIds): array
     {
         if ($integrationIds === []) {
             return [];

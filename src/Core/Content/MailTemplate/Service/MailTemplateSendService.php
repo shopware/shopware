@@ -50,6 +50,10 @@ class MailTemplateSendService
     ): ?Email {
         $data = $mailPayload->toArray();
 
+        // The media ids are attached by the MailAttachmentsBuilder via the MailSendSubscriberConfig below.
+        // Keeping them in the data would attach every media a second time as url attachment.
+        unset($data['mediaIds']);
+
         $extension = new MailSendSubscriberConfig(
             false,
             $mailPayload->documentIds,

@@ -252,7 +252,7 @@ class SystemConfigService implements ResetInterface
                 'SELECT configuration_key, id FROM system_config WHERE ' . $where . ' and configuration_key IN (:configurationKeys)',
                 [
                     'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                    'configurationKeys' => array_keys($values),
+                    'configurationKeys' => array_map('trim', array_keys($values)),
                 ],
                 [
                     'configurationKeys' => ArrayParameterType::STRING,
@@ -275,7 +275,9 @@ class SystemConfigService implements ResetInterface
 
             // On null value, delete the config
             if ($value === null) {
-                $toBeDeleted[] = $key;
+                if (isset($existingIds[$key])) {
+                    $toBeDeleted[] = $existingIds[$key];
+                }
 
                 $events[] = new SystemConfigChangedEvent($key, $value, $salesChannelId);
 
@@ -313,22 +315,13 @@ class SystemConfigService implements ResetInterface
             $events[] = new SystemConfigChangedEvent($key, $value, $salesChannelId);
         }
 
-        // Delete all null values
+        // Delete by primary key to avoid locking unrelated rows outside the transaction's snapshot on MariaDB.
         if ($toBeDeleted !== []) {
-            $qb = $this->connection
-                ->createQueryBuilder()
-                ->where('configuration_key IN (:keys)')
-                ->setParameter('keys', $toBeDeleted, ArrayParameterType::STRING);
-
-            if ($salesChannelId) {
-                $qb->andWhere('sales_channel_id = :salesChannelId')
-                    ->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
-            } else {
-                $qb->andWhere('sales_channel_id IS NULL');
-            }
-
-            $qb->delete('system_config')
-                ->executeStatement();
+            $this->connection->executeStatement(
+                'DELETE FROM system_config WHERE id IN (:ids)',
+                ['ids' => $toBeDeleted],
+                ['ids' => ArrayParameterType::BINARY]
+            );
         }
 
         $insertQueue->execute();

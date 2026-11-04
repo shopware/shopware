@@ -28,8 +28,10 @@ describe('src/module/sw-cms/elements/sidebar-category-navigation/component', () 
         await import('src/module/sw-cms/elements/sidebar-category-navigation');
     });
 
-    it('mounts the component', async () => {
+    it('should render the navigation heading above the category placeholders', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeDefined();
+
+        expect(wrapper.get('h2').text()).toBe('sw-cms.elements.sidebarCategoryNavigation.component.label.navigation');
+        expect(wrapper.find('.sw-cms-el-category-placeholder-listing').exists()).toBe(true);
     });
 });

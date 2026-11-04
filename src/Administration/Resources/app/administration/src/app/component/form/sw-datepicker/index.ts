@@ -13,6 +13,8 @@ import template from './sw-datepicker.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    emits: ['update:value', 'update:modelValue'],
+
     props: {
         value: {
             type: String,

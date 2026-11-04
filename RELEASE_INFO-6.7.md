@@ -429,7 +429,8 @@ Repeated `Component.build()` calls no longer remove methods, props or other opti
 ### `sw-chart` loads only the chart locale it needs
 
 `sw-chart` now loads the ApexCharts locale of the current Administration language on demand instead of importing all 33 locales up front.
-The chart renders once that locale has loaded.
+English uses the locale built into ApexCharts and loads nothing.
+The chart renders once the locale has loaded.
 `createdComponent()` and `loadLocaleConfig()` of `sw-chart` now return a promise.
 If your override reads `localeConfig` after calling the base method, await it:
 

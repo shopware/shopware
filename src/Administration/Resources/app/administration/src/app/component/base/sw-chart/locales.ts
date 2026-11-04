@@ -11,7 +11,6 @@ export default {
     cs: () => import('apexcharts/dist/locales/cs.json'),
     de: () => import('apexcharts/dist/locales/de.json'),
     el: () => import('apexcharts/dist/locales/el.json'),
-    en: () => import('apexcharts/dist/locales/en.json'),
     es: () => import('apexcharts/dist/locales/es.json'),
     fa: () => import('apexcharts/dist/locales/fa.json'),
     fi: () => import('apexcharts/dist/locales/fi.json'),

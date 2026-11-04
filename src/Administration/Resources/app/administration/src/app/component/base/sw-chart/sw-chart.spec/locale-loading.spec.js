@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-import en from 'apexcharts/dist/locales/en.json';
 import nl from 'apexcharts/dist/locales/nl.json';
 import localeLoaders from '../locales';
 import { apexchartStub, setup } from './sw-chart.fixtures';
@@ -53,33 +52,27 @@ describe('asyncComponent/base/sw-chart - locale loading', () => {
         [
             'nl-NL',
             ['nl'],
-            ['nl', 'en'],
-            en,
-        ],
-        [
-            'nl-NL',
-            ['nl', 'en'],
-            ['nl', 'en'],
+            ['nl'],
             null,
         ],
         [
             'en-GB',
-            ['en'],
-            ['en'],
+            [],
+            [],
             null,
         ],
         [
             'foo-BAR',
             [],
-            ['en'],
-            en,
+            [],
+            null,
         ],
     ])(
         'renders the chart for admin locale %s when %j fail to load',
         async (adminLocale, failingLocales, expectedRequests, expectedLocale) => {
             setAdminLocale(adminLocale);
             const requested = [];
-            ['nl', 'en'].forEach((locale) => {
+            Object.keys(localeLoaders).forEach((locale) => {
                 const load = localeLoaders[locale];
                 jest.spyOn(localeLoaders, locale).mockImplementation(() => {
                     requested.push(locale);
@@ -101,7 +94,6 @@ describe('asyncComponent/base/sw-chart - locale loading', () => {
         setAdminLocale('nl-NL');
         const nlLocale = deferred();
         jest.spyOn(localeLoaders, 'nl').mockReturnValue(nlLocale.promise);
-        const enLoader = jest.spyOn(localeLoaders, 'en');
 
         const wrapper = await setup();
         await flushPromises();
@@ -112,7 +104,6 @@ describe('asyncComponent/base/sw-chart - locale loading', () => {
         await flushPromises();
 
         expect(chartOptions(wrapper).defaultLocale).toBe('nl');
-        expect(enLoader).not.toHaveBeenCalled();
     });
 
     it('lets an async override wait for the base locale loader', async () => {

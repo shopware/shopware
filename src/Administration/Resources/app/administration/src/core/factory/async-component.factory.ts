@@ -725,12 +725,20 @@ async function initComponent(componentName: string): Promise<void> {
  * Once the factory composed it with other components, a script edit needs a page reload to compose it again.
  */
 function requirePageReloadOnHotUpdate(config: ComponentConfig): void {
-    if (process.env.NODE_ENV !== 'production' && config.__shopwareSetupHmr) {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
+    if (config.__shopwareSetupHmr) {
         config.__shopwareSetupHmr.data.reloadPage = true;
     }
 }
 
 function requirePageReloadIfComposed(componentName: string, config: ComponentConfig): void {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
     if (overrideRegistry.has(componentName) || config.extends || config.mixins?.length) {
         requirePageReloadOnHotUpdate(config);
     }

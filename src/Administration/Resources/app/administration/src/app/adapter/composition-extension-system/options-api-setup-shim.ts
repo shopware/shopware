@@ -55,13 +55,13 @@ export function attachSetupOverrideShim(componentName: string, config: Component
     // so previousState would be empty. An existing setup() keeps its own return value as the starting
     // content instead of being replaced.
     config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
-        trackSetupHmrComponent(componentName);
-
         const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
 
         if (!_overridesMap[componentName]?.length) {
             return originalResult;
         }
+
+        trackSetupHmrComponent(componentName);
 
         const bag: AnyRecord = originalResult ?? {};
 

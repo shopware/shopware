@@ -31,25 +31,28 @@ function isSelfAccept(statement: Statement, code: string): boolean {
     );
 }
 
-// Runs in the module that is replaced, so `version` is the script version the page runs.
-function acceptHandler({ mode, version }: ShopwareSetupHmrMeta): string {
+// Runs in the module that is replaced, so the metadata is the one of the version the page runs.
+function acceptHandler({ mode, file, version, structure }: ShopwareSetupHmrMeta): string {
     // The factory keeps its own copy of a base, a copy that is not mounted would keep the old script.
     const unmountedBase = mode === 'base' ? ' || !data.instances?.size' : '';
+    const invalidate = `import.meta.hot.invalidate(${JSON.stringify(reloadReason)})`;
 
     return `import.meta.hot.accept((mod) => {
     const component = mod?.default;
     const data = import.meta.hot.data;
     const runtime = globalThis.__VUE_HMR_RUNTIME__;
     if (!component?.__hmrId) return;
-    if (!runtime || data.reloadPage${unmountedBase}) {
-        import.meta.hot.invalidate(${JSON.stringify(reloadReason)});
+    if (!runtime || data.reloadPage || component.__shopwareSetupHmr?.structure !== ${JSON.stringify(structure)}${unmountedBase}) {
+        ${invalidate};
         return;
     }
-    if (component.__shopwareSetupHmr?.version === ${JSON.stringify(version)}) {
+    // An edit of an imported file keeps the version, but needs the new module to run.
+    if (component.__shopwareSetupHmr.version === ${JSON.stringify(version)} && runtime.CHANGED_FILE === ${JSON.stringify(file)}) {
         runtime.rerender(component.__hmrId, component.render);
-        return;
+    } else {
+        runtime.reload(component.__hmrId, component);
     }
-    runtime.reload(component.__hmrId, component);
+    __swNextTick().catch(() => ${invalidate});
 })`;
 }
 
@@ -58,7 +61,8 @@ function acceptHandler({ mode, version }: ShopwareSetupHmrMeta): string {
  *
  * Its own handler reloads the module export, which drops what the component factory and the
  * override registry added at boot. This handler rerenders template edits, reloads script edits
- * together with the overridden components, and reloads the page when neither is possible.
+ * together with the overridden components, and reloads the page when neither is possible or when
+ * rendering the update fails.
  *
  * @private
  */
@@ -92,6 +96,7 @@ export default function ShopwareSetupHmrPlugin(): Plugin {
                 return { code: output.toString(), map: output.generateMap({ hires: true, source: id }) };
             }
 
+            output.prepend("import { nextTick as __swNextTick } from 'vue';\n");
             output.prependLeft(component.start, 'Object.assign(');
             output.appendRight(
                 component.end,

@@ -17,7 +17,7 @@ import type { ShopwareSetupHmrMeta } from '../index';
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
 type LoadedModule = { code: string; map: SourceMap; meta?: { shopwareSetupHmr?: ShopwareSetupHmrMeta } };
-type HotUpdateModule = { id: string; importers?: Set<HotUpdateModule> };
+type HotUpdateModule = { id: string };
 type HotUpdateOptions = {
     file: string;
     modules: HotUpdateModule[];
@@ -88,4 +88,4 @@ function spyOnTransform() {
 /**
  * @private
  */
-export { type HotUpdateModule, type HotUpdateOptions, createPlugin, createVueFile, resolveAndLoadVueFile, spyOnTransform };
+export { type HotUpdateOptions, createPlugin, createVueFile, resolveAndLoadVueFile, spyOnTransform };

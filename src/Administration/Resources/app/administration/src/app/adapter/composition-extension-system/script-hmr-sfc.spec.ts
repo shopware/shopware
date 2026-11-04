@@ -57,24 +57,21 @@ swDefineOverride({});
 describe('src/app/adapter/composition-extension-system/script-hmr with transformed SFCs', () => {
     beforeEach(resetCompositionOverrides);
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])(
-        'applies a script edit to an override whose block reads script locals',
-        async () => {
-            const Base = Object.assign({}, BlockBase, { __hmrId: 'sw-jest-transform-block-fixture:base' });
-            const Override = compileOverride('script v1', '1');
-            const wrapper = mount(defineComponent({ setup: () => () => h('main', [h(Override), h(Base)]) }), {
-                global: {
-                    components: { 'sw-block': await wrapTestComponent('sw-block', { sync: true }) },
-                    plugins: [createDataScopeFixture()],
-                },
-            });
-            await flushPromises();
-            expect(wrapper.get('.label').text()).toBe('script v1');
+    it('applies a script edit to an override whose block reads script locals', async () => {
+        const Base = Object.assign({}, BlockBase, { __hmrId: 'sw-jest-transform-block-fixture:base' });
+        const Override = compileOverride('script v1', '1');
+        const wrapper = mount(defineComponent({ setup: () => () => h('main', [h(Override), h(Base)]) }), {
+            global: {
+                components: { 'sw-block': await wrapTestComponent('sw-block', { sync: true }) },
+                plugins: [createDataScopeFixture()],
+            },
+        });
+        await flushPromises();
+        expect(wrapper.get('.label').text()).toBe('script v1');
 
-            runtime.reload(overrideId, compileOverride('script v2', '2'));
-            await flushPromises();
+        runtime.reload(overrideId, compileOverride('script v2', '2'));
+        await flushPromises();
 
-            expect(wrapper.get('.label').text()).toBe('script v2');
-        },
-    );
+        expect(wrapper.get('.label').text()).toBe('script v2');
+    });
 });

@@ -2,12 +2,12 @@
  * @sw-package framework
  */
 
-import type { EnvironmentModuleNode, Plugin } from 'vite';
+import type { Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
-import { parse } from '@vue/compiler-sfc';
+import { parse, type SFCBlock } from '@vue/compiler-sfc';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
 import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
@@ -33,52 +33,40 @@ function withoutQuery(id: string): string {
 
 /**
  * @private
- * Module meta of a setup SFC, read by `shopware-setup-hmr`. A template edit keeps the `version`.
+ * Module meta of a setup SFC, read by `shopware-setup-hmr`.
  */
-export type ShopwareSetupHmrMeta = Pick<ShopwareSetupTransformResult, 'componentName' | 'mode'> & { version: string };
+export type ShopwareSetupHmrMeta = Pick<ShopwareSetupTransformResult, 'componentName' | 'mode'> & {
+    /** The authored file, which `@vitejs/plugin-vue` reports as changed when it is saved. */
+    file: string;
+    /**
+     * Hash of the generated scripts, not of the authored ones: an override's generated script also depends on
+     * which script locals its template reads. A template edit keeps it.
+     */
+    version: string;
+    /**
+     * Hash of what the Administration reads once at boot: the block names, and the plain `<script>` that
+     * registers the extension targets before Twig templates resolve.
+     */
+    structure: string;
+};
 
-/**
- * Hashes the generated scripts, not the authored ones: an override's generated script also depends on
- * which script locals its template reads.
- */
-function scriptVersion(code: string, fileName: string): string {
-    const { descriptor } = parse(code, { filename: fileName, sourceMap: false });
-
-    return createHash('sha256')
-        .update(
-            JSON.stringify(
-                [descriptor.script, descriptor.scriptSetup].map((block) => block && [block.content, block.attrs]),
-            ),
-        )
-        .digest('hex');
+function hash(value: unknown): string {
+    return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
-/**
- * `structure` is what the Administration reads once at boot: the extended component, its block names,
- * and the plain `<script>` that registers the extension targets before Twig templates resolve.
- */
-function describeForHmr(
-    source: string,
-    fileName: string,
-    result: ShopwareSetupTransformResult | null,
-): { structure: string; meta: ShopwareSetupHmrMeta | null } {
-    const { descriptor } = parse(source, { filename: fileName, sourceMap: false });
-    const script = descriptor.script && [descriptor.script.content, descriptor.script.attrs];
-    const structure = JSON.stringify([
-        result?.mode,
-        result?.componentName,
-        result?.ownedBlockNames,
-        result?.extendedBlockNames,
-        script,
-    ]);
+function scripts(code: string, file: string): Array<[string, SFCBlock['attrs']] | null> {
+    const { descriptor } = parse(code, { filename: file, sourceMap: false });
 
+    return [descriptor.script, descriptor.scriptSetup].map((block) => block && [block.content, block.attrs]);
+}
+
+function describeForHmr(source: string, file: string, result: ShopwareSetupTransformResult): ShopwareSetupHmrMeta {
     return {
-        structure,
-        meta: result && {
-            componentName: result.componentName,
-            mode: result.mode,
-            version: scriptVersion(result.code, fileName),
-        },
+        componentName: result.componentName,
+        mode: result.mode,
+        file,
+        version: hash(scripts(result.code, file)),
+        structure: hash([result.ownedBlockNames, result.extendedBlockNames, scripts(source, file)[0]]),
     };
 }
 
@@ -145,8 +133,6 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
     // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
-    // Original file -> structure of the version the client loaded, only tracked with `scriptHmr`.
-    const loadedStructures = new Map<string, string>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
@@ -183,14 +169,11 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     /**
-     * Transforms a saved file and returns its result, or its formatted diagnostic when it does not compile.
+     * Transforms a saved file and returns its formatted diagnostic, or `null` when it compiles.
      *
      * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
      */
-    async function transformChangedFile(
-        fileName: string,
-        source: string,
-    ): Promise<{ failure: string } | { result: ShopwareSetupTransformResult | null }> {
+    async function transformChangedFile(fileName: string, source: string): Promise<string | null> {
         try {
             const result = await transformSource(source, fileName);
 
@@ -198,9 +181,9 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 resolvedTransforms.set(fileName, { source, result });
             }
 
-            return { result };
+            return null;
         } catch (error) {
-            return { failure: formatTransformError(error, fileName, source) };
+            return formatTransformError(error, fileName, source);
         }
     }
 
@@ -220,33 +203,6 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         }
 
         baseComponentFiles.set(result.componentName, fileName);
-    }
-
-    /** Whether a changed module is imported, directly or not, by a setup SFC the client loaded. */
-    function importsLoadedSetupFile(modules: EnvironmentModuleNode[]): boolean {
-        const pending = [...modules];
-        const visited = new Set<EnvironmentModuleNode>();
-
-        for (let module = pending.pop(); module; module = pending.pop()) {
-            if (visited.has(module)) {
-                continue;
-            }
-
-            visited.add(module);
-            const id = module.id && withoutQuery(module.id);
-
-            if (
-                id &&
-                virtualSourcemap.isVirtualFileName(id) &&
-                loadedStructures.has(virtualSourcemap.getOriginalFileName(id))
-            ) {
-                return true;
-            }
-
-            pending.push(...module.importers);
-        }
-
-        return false;
     }
 
     /**
@@ -347,16 +303,11 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             assertUniqueBaseComponent(result, originalFileName);
 
             virtualSourcemap.rememberSetupMap(fileName, result.map);
-            const hmr = options.scriptHmr ? describeForHmr(source, originalFileName, result) : null;
-
-            if (hmr) {
-                loadedStructures.set(originalFileName, hmr.structure);
-            }
 
             return {
                 code: result.code,
                 map: result.map,
-                meta: hmr ? { shopwareSetupHmr: hmr.meta } : undefined,
+                meta: options.scriptHmr ? { shopwareSetupHmr: describeForHmr(source, originalFileName, result) } : undefined,
             };
         },
 
@@ -395,18 +346,6 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
         async hotUpdate({ type, file, modules, read }) {
-            // A setup SFC would keep its script version when only an imported file changes.
-            if (
-                options.scriptHmr &&
-                this.environment.name === 'client' &&
-                /\.(?:[cm]?[jt]sx?|json)$/.test(file) &&
-                importsLoadedSetupFile(modules)
-            ) {
-                this.environment.hot.send({ type: 'full-reload', path: '*' });
-
-                return [];
-            }
-
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
@@ -415,11 +354,9 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             // Vite runs this hook once per environment (client and ssr); report only once.
             if (type !== 'delete' && this.environment.name === 'client') {
-                const source = await read();
-                const transformed = await transformChangedFile(file, source);
+                const failure = await transformChangedFile(file, await read());
 
-                if ('failure' in transformed) {
-                    const { failure } = transformed;
+                if (failure) {
                     this.environment.logger.error(failure);
                     this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
 
@@ -427,19 +364,6 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                     if (virtualModule) {
                         this.environment.moduleGraph.invalidateModule(virtualModule);
                     }
-
-                    return [];
-                }
-
-                const loadedStructure = loadedStructures.get(file);
-
-                if (
-                    virtualModule &&
-                    loadedStructure &&
-                    loadedStructure !== describeForHmr(source, file, transformed.result).structure
-                ) {
-                    this.environment.moduleGraph.invalidateModule(virtualModule);
-                    this.environment.hot.send({ type: 'full-reload', path: '*' });
 
                     return [];
                 }
@@ -457,7 +381,6 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // Not a `buildStart` reset: that runs per environment and would drop live claims.
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
-                loadedStructures.delete(withoutQuery(id));
             }
         },
 

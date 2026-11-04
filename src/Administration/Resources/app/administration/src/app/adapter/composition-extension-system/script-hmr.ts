@@ -2,7 +2,7 @@
  * @sw-package framework
  * @private
  *
- * Hot updates the scripts of native setup SFCs while the Vite 8 watcher runs.
+ * Hot updates the scripts of native setup SFCs while the watcher runs.
  * The generated accept handler of each SFC reloads it through Vue's HMR runtime,
  * this module keeps override callbacks and the components they change in step with that.
  */
@@ -23,7 +23,7 @@ type HmrRuntime = {
 // Overrides target a component name, while Vue's HMR runtime knows components only by their id.
 const mountedInstances = new Map<string, Set<ComponentInternalInstance>>();
 // Keyed by the HMR id of the override SFC, so an edit replaces its callback instead of adding another one.
-const registrations = new Map<string, { callback: OverrideFn; version: string }>();
+const registrations = new Map<string, OverrideFn>();
 
 function hmrRuntime(): HmrRuntime | undefined {
     return (globalThis as typeof globalThis & { __VUE_HMR_RUNTIME__?: HmrRuntime }).__VUE_HMR_RUNTIME__;
@@ -33,9 +33,13 @@ function hmrRuntime(): HmrRuntime | undefined {
  * @private
  */
 export function trackSetupHmrComponent(componentName: string): void {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
     const instance = getCurrentInstance();
 
-    if (process.env.NODE_ENV === 'production' || !instance || !Shopware.Feature.isActive('ADMIN_VITE_8')) {
+    if (!instance || !hmrRuntime()) {
         return;
     }
 
@@ -67,11 +71,11 @@ function remountComponents(componentName: string, runtime: HmrRuntime): void {
         }
     });
 
-    components.forEach((component, id) => runtime.reload(id, { ...component }));
+    components.forEach((component, id) => runtime.reload(id, component));
 }
 
-/** The override SFC whose hidden component is setting up, when it was compiled for hot updates. */
-function currentOverrideSfc(componentName: string): { owner: string; version: string } | null {
+/** The HMR id of the override SFC whose hidden component is setting up, when it was compiled for hot updates. */
+function currentOverrideSfc(componentName: string): string | null {
     const component = getCurrentInstance()?.type as HmrComponent | undefined;
     const metadata = component?.__shopwareSetupHmr;
 
@@ -79,12 +83,13 @@ function currentOverrideSfc(componentName: string): { owner: string; version: st
         return null;
     }
 
-    return { owner: component.__hmrId, version: metadata.version };
+    return component.__hmrId;
 }
 
 /**
- * Replaces the callback of an edited override SFC and remounts the components it overrides.
- * Returns false when the caller has to add the callback, which includes the first registration of an override SFC.
+ * Replaces the callback of an override SFC that sets up again, after an edit, and remounts the components it
+ * overrides. Returns false when the caller has to add the callback, which includes the first registration of an
+ * override SFC.
  *
  * @private
  */
@@ -93,23 +98,21 @@ export function registerSetupOverrideForHmr(
     callback: OverrideFn,
     overrides: Record<string, OverrideFn[]>,
 ): boolean {
-    const overrideSfc = process.env.NODE_ENV === 'production' ? null : currentOverrideSfc(componentName);
-    const runtime = hmrRuntime();
-
-    if (!overrideSfc || !runtime) {
+    if (process.env.NODE_ENV === 'production') {
         return false;
     }
 
-    const { owner, version } = overrideSfc;
-    const previous = registrations.get(owner);
-    const chain = overrides[componentName] ?? [];
-    const index = previous ? chain.indexOf(previous.callback) : -1;
+    const owner = currentOverrideSfc(componentName);
+    const runtime = hmrRuntime();
 
-    if (index >= 0 && previous?.version === version) {
-        return true;
+    if (!owner || !runtime) {
+        return false;
     }
 
-    registrations.set(owner, { callback, version });
+    const previous = registrations.get(owner);
+    const chain = overrides[componentName] ?? [];
+    const index = previous ? chain.indexOf(previous) : -1;
+    registrations.set(owner, callback);
 
     if (index < 0) {
         return false;

@@ -4,7 +4,7 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import type { VueWrapper } from '@vue/test-utils';
 import type { Component } from 'vue';
-import { computed, defineComponent, h, ref } from 'vue';
+import { computed, defineComponent, h, nextTick, ref } from 'vue';
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
@@ -21,13 +21,23 @@ type ModuleHot = {
 type AcceptHandler = (module?: { default: unknown }) => void;
 type EvaluatedModule = { component: Component; hot: ModuleHot; acceptHandlers: AcceptHandler[] };
 
+type Version = { version: string; label: string; count: number; structure?: string };
+
+const file = '/plugin/src/sw-hmr.vue';
+const runtime = (globalThis as typeof globalThis & { __VUE_HMR_RUNTIME__: { CHANGED_FILE?: string } }).__VUE_HMR_RUNTIME__;
+
 let sequence = 0;
 
 /**
  * The tail @vitejs/plugin-vue 6 appends to an SFC module in development, around a small component
  * whose script is `count` and whose template is `label`.
  */
-function pluginVueOutput({ hmrId, name, label, count }: { hmrId: string; name: string; label: string; count: number }) {
+function pluginVueOutput({
+    hmrId,
+    name,
+    label,
+    count,
+}: Omit<Version, 'version' | 'structure'> & { hmrId: string; name: string }) {
     return `
 const _sfc_main = {
     setup(__props, context) {
@@ -73,7 +83,7 @@ function transform(code: string, metadata?: ShopwareSetupHmrMeta) {
 }
 
 /** Evaluates a transformed module the way Vite does, sharing `import.meta.hot.data` with earlier versions. */
-function evaluate(code: string, data: HotData): EvaluatedModule {
+function evaluate(code: string, data: HotData, flush: () => Promise<void> = nextTick): EvaluatedModule {
     const acceptHandlers: EvaluatedModule['acceptHandlers'] = [];
     const hot: ModuleHot = {
         data,
@@ -82,13 +92,16 @@ function evaluate(code: string, data: HotData): EvaluatedModule {
         accept: (callback) => typeof callback === 'function' && acceptHandlers.push(callback as AcceptHandler),
         invalidate: jest.fn(),
     };
-    const body = `${code.replaceAll('import.meta.hot', '__hot').replace('export default', 'const __default =')}
+    const body = `${code
+        .replace(/^import \{ nextTick as __swNextTick \} from 'vue';$/m, '')
+        .replaceAll('import.meta.hot', '__hot')
+        .replace('export default', 'const __default =')}
 return __default;`;
     // eslint-disable-next-line @typescript-eslint/no-implied-eval -- evaluates the module code the plugin generated
-    const run = new Function('__hot', 'h', 'ref', 'computed', 'createExtendableSetup', body) as (
+    const run = new Function('__hot', 'h', 'ref', 'computed', 'createExtendableSetup', '__swNextTick', body) as (
         ...args: unknown[]
     ) => EvaluatedModule['component'];
-    const component = run(hot, h, ref, computed, createExtendableSetup);
+    const component = run(hot, h, ref, computed, createExtendableSetup, flush);
 
     return { component, hot, acceptHandlers };
 }
@@ -100,16 +113,23 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
 
     function load(
         mode: ShopwareSetupHmrMeta['mode'],
-        { version, label, count }: { version: string; label: string; count: number },
+        { version, structure = 'structure-1', ...output }: Version,
         data: HotData = {},
     ) {
-        const { result } = transform(pluginVueOutput({ hmrId, name, label, count }), { componentName: name, mode, version });
+        const { result } = transform(pluginVueOutput({ hmrId, name, ...output }), {
+            componentName: name,
+            mode,
+            file,
+            version,
+            structure,
+        });
 
         return evaluate(result!.code, data);
     }
 
-    /** Runs the accept handlers of the loaded module with the next version, as Vite does on an update. */
-    function hotUpdate(current: EvaluatedModule, next: EvaluatedModule) {
+    /** Runs the accept handlers of the loaded module with the next version, as Vite does after a save of `changedFile`. */
+    function hotUpdate(current: EvaluatedModule, next: EvaluatedModule, changedFile = file) {
+        runtime.CHANGED_FILE = changedFile;
         current.acceptHandlers.forEach((accept) => accept({ default: next.component }));
     }
 
@@ -132,7 +152,7 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])('rerenders a template edit and keeps the component state', async () => {
+    it('rerenders a template edit and keeps the component state', async () => {
         const current = load('base', { version: 'script-1', label: 'Before', count: 1 });
         const wrapper = await mountComponent(current.component);
 
@@ -144,7 +164,7 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
         expect(current.hot.invalidate).not.toHaveBeenCalled();
     });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])('remounts a component after a script edit', async () => {
+    it('remounts a component after a script edit', async () => {
         const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
         const wrapper = await mountComponent(current.component);
 
@@ -156,7 +176,54 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
         expect(current.hot.invalidate).not.toHaveBeenCalled();
     });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])('reloads the page for a base that is not mounted', async () => {
+    it('remounts a component after an edit of a file it imports', async () => {
+        const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
+        const wrapper = await mountComponent(current.component);
+
+        hotUpdate(
+            current,
+            load('base', { version: 'script-1', label: 'Count', count: 2 }, current.hot.data),
+            '/plugin/src/use-count.ts',
+        );
+        await flushPromises();
+
+        expect(wrapper.find('p').text()).toBe('Count 2');
+        expect(current.hot.invalidate).not.toHaveBeenCalled();
+    });
+
+    it('reloads the page when an edit changes the structure', async () => {
+        const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
+        const wrapper = await mountComponent(current.component);
+
+        hotUpdate(
+            current,
+            load('base', { version: 'script-1', label: 'Count', count: 1, structure: 'structure-2' }, current.hot.data),
+        );
+        await flushPromises();
+
+        expect(current.hot.invalidate).toHaveBeenCalled();
+        expect(wrapper.find('p').text()).toBe('Count 1');
+    });
+
+    it('reloads the page when Vue fails to apply the update', async () => {
+        const { result } = transform(pluginVueOutput({ hmrId, name, label: 'Count', count: 1 }), {
+            componentName: name,
+            mode: 'base',
+            file,
+            version: 'script-1',
+            structure: 'structure-1',
+        });
+        // Vue rejects the flush promise of an update whose render throws, and leaves its scheduler broken.
+        const current = evaluate(result!.code, {}, () => Promise.reject(new Error('Render failed')));
+        await mountComponent(current.component);
+
+        hotUpdate(current, load('base', { version: 'script-2', label: 'Count', count: 2 }, current.hot.data));
+        await flushPromises();
+
+        expect(current.hot.invalidate).toHaveBeenCalled();
+    });
+
+    it('reloads the page for a base that is not mounted', async () => {
         const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
         const wrapper = await mountComponent(current.component);
         wrapper.unmount();
@@ -196,21 +263,18 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
             },
         },
     ].forEach(({ base, compose }) => {
-        it.activeFeatureFlags(['ADMIN_VITE_8'])(
-            `reloads the page for ${base} when the component factory composed it`,
-            async () => {
-                const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
-                ComponentFactory.register(name, () => Promise.resolve(current.component as ComponentConfig));
-                await compose(name, current.component as ComponentConfig);
-                const wrapper = await mountComponent(current.component);
+        it(`reloads the page for ${base} when the component factory composed it`, async () => {
+            const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
+            ComponentFactory.register(name, () => Promise.resolve(current.component as ComponentConfig));
+            await compose(name, current.component as ComponentConfig);
+            const wrapper = await mountComponent(current.component);
 
-                hotUpdate(current, load('base', { version: 'script-2', label: 'Count', count: 2 }, current.hot.data));
-                await flushPromises();
+            hotUpdate(current, load('base', { version: 'script-2', label: 'Count', count: 2 }, current.hot.data));
+            await flushPromises();
 
-                expect(current.hot.invalidate).toHaveBeenCalled();
-                expect(wrapper.find('p').text()).toBe('Count 1');
-            },
-        );
+            expect(current.hot.invalidate).toHaveBeenCalled();
+            expect(wrapper.find('p').text()).toBe('Count 1');
+        });
     });
 
     it('reloads the page on every edit when the output of @vitejs/plugin-vue is not recognised', async () => {
@@ -218,7 +282,13 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
             /import\.meta\.hot\.accept\(mod => \{[\s\S]*?\n\}\)/,
             "import.meta.hot.accept(['./other.ts'], () => {})",
         );
-        const { result, warn } = transform(code, { componentName: name, mode: 'base', version: 'script-1' });
+        const { result, warn } = transform(code, {
+            componentName: name,
+            mode: 'base',
+            file,
+            version: 'script-1',
+            structure: 'structure-1',
+        });
         const current = evaluate(result!.code, {});
         const wrapper = await mountComponent(current.component);
 
@@ -234,7 +304,9 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
         const { result, warn } = transform('const view = <div />;\nexport default {};', {
             componentName: name,
             mode: 'base',
+            file,
             version: 'script-1',
+            structure: 'structure-1',
         });
 
         expect(result).not.toBeNull();

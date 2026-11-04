@@ -103,7 +103,7 @@ describe('src/app/adapter/composition-extension-system/script-hmr', () => {
         delete _overridesMap[name];
     });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8']).each([
+    it.each([
         ['native', nativeBase],
         ['Options API', optionsApiBase],
     ])(
@@ -133,7 +133,7 @@ describe('src/app/adapter/composition-extension-system/script-hmr', () => {
         },
     );
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])('applies an override that registers after its base mounted', async () => {
+    it('applies an override that registers after its base mounted', async () => {
         const Base = nativeBase(name);
         const showOverride = ref(false);
         const Override = overrideSfc(name, `${name}:override`, '1', 1);
@@ -147,152 +147,137 @@ describe('src/app/adapter/composition-extension-system/script-hmr', () => {
         expect(totals(wrapper)).toEqual(['11']);
     });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])(
-        'keeps the position of an edited override between the overrides of other extensions',
-        async () => {
-            const owner = `${name}:second`;
-            const wrapper = mountAll(
-                overrideSfc(name, `${name}:first`, '1', 1),
-                overrideSfc(name, owner, '1', 100),
+    it('keeps the position of an edited override between the overrides of other extensions', async () => {
+        const owner = `${name}:second`;
+        const wrapper = mountAll(
+            overrideSfc(name, `${name}:first`, '1', 1),
+            overrideSfc(name, owner, '1', 100),
+            defineComponent({
+                setup() {
+                    overrideComponentSetup()(
+                        name as never,
+                        ((previous: Total) => ({
+                            total: computed(() => previous.total.value * 2),
+                        })) as never,
+                    );
+
+                    return () => null;
+                },
+            }),
+            nativeBase(name),
+        );
+        await flushPromises();
+        expect(totals(wrapper)).toEqual(['222']);
+
+        runtime.reload(owner, overrideSfc(name, owner, '2', 1000));
+        await flushPromises();
+
+        expect(totals(wrapper)).toEqual(['2022']);
+    });
+
+    it('does not register an override twice when it mounts again without a script change', async () => {
+        const owner = `${name}:override`;
+        const show = ref(true);
+        const Override = overrideSfc(name, owner, '1', 1);
+        const wrapper = mountAll(
+            defineComponent({ setup: () => () => (show.value ? h(Override) : null) }),
+            nativeBase(name),
+        );
+        await flushPromises();
+
+        show.value = false;
+        await flushPromises();
+        show.value = true;
+        await flushPromises();
+
+        expect(totals(wrapper)).toEqual(['11']);
+        expect(_overridesMap[name]).toHaveLength(1);
+    });
+
+    it('gives an edited override that destructures its previous state the fresh base state', async () => {
+        const owner = `${name}:override`;
+        const destructuring = (add: number) =>
+            Object.assign(
                 defineComponent({
                     setup() {
                         overrideComponentSetup()(
                             name as never,
-                            ((previous: Total) => ({
-                                total: computed(() => previous.total.value * 2),
+                            (({ total }: Total) => ({
+                                total: computed(() => total.value + add),
                             })) as never,
                         );
 
                         return () => null;
                     },
                 }),
-                nativeBase(name),
+                {
+                    __hmrId: owner,
+                    __shopwareSetupHmr: {
+                        componentName: name,
+                        mode: 'override',
+                        version: String(add),
+                        data: {},
+                    } satisfies SetupHmrMetadata,
+                },
             );
-            await flushPromises();
-            expect(totals(wrapper)).toEqual(['222']);
+        const showBase = ref(false);
+        const Base = nativeBase(name);
+        const wrapper = mountAll(
+            destructuring(1),
+            defineComponent({ setup: () => () => (showBase.value ? h(Base) : null) }),
+        );
+        await flushPromises();
+        showBase.value = true;
+        await flushPromises();
+        expect(totals(wrapper)).toEqual(['11']);
 
-            runtime.reload(owner, overrideSfc(name, owner, '2', 1000));
-            await flushPromises();
+        runtime.reload(owner, destructuring(2));
+        await flushPromises();
 
-            expect(totals(wrapper)).toEqual(['2022']);
-        },
-    );
+        expect(totals(wrapper)).toEqual(['12']);
+    });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])(
-        'does not register an override twice when it mounts again without a script change',
-        async () => {
-            const owner = `${name}:override`;
-            const show = ref(true);
-            const Override = overrideSfc(name, owner, '1', 1);
-            const wrapper = mountAll(
-                defineComponent({ setup: () => () => (show.value ? h(Override) : null) }),
-                nativeBase(name),
-            );
-            await flushPromises();
+    it('applies an Options API override converted after an override was edited', async () => {
+        const owner = `${name}:override`;
+        const wrapper = mountAll(overrideSfc(name, owner, '1', 1), nativeBase(name));
+        await flushPromises();
+        runtime.reload(owner, overrideSfc(name, owner, '2', 2));
+        await flushPromises();
 
-            show.value = false;
-            await flushPromises();
-            show.value = true;
-            await flushPromises();
-
-            expect(totals(wrapper)).toEqual(['11']);
-            expect(_overridesMap[name]).toHaveLength(1);
-        },
-    );
-
-    it.activeFeatureFlags(['ADMIN_VITE_8'])(
-        'gives an edited override that destructures its previous state the fresh base state',
-        async () => {
-            const owner = `${name}:override`;
-            const destructuring = (add: number) =>
-                Object.assign(
-                    defineComponent({
-                        setup() {
-                            overrideComponentSetup()(
-                                name as never,
-                                (({ total }: Total) => ({
-                                    total: computed(() => total.value + add),
-                                })) as never,
-                            );
-
-                            return () => null;
-                        },
-                    }),
-                    {
-                        __hmrId: owner,
-                        __shopwareSetupHmr: {
-                            componentName: name,
-                            mode: 'override',
-                            version: String(add),
-                            data: {},
-                        } satisfies SetupHmrMetadata,
-                    },
-                );
-            const showBase = ref(false);
-            const Base = nativeBase(name);
-            const wrapper = mountAll(
-                destructuring(1),
-                defineComponent({ setup: () => () => (showBase.value ? h(Base) : null) }),
-            );
-            await flushPromises();
-            showBase.value = true;
-            await flushPromises();
-            expect(totals(wrapper)).toEqual(['11']);
-
-            runtime.reload(owner, destructuring(2));
-            await flushPromises();
-
-            expect(totals(wrapper)).toEqual(['12']);
-        },
-    );
-
-    it.activeFeatureFlags(['ADMIN_VITE_8'])(
-        'applies an Options API override converted after an override was edited',
-        async () => {
-            const owner = `${name}:override`;
-            const wrapper = mountAll(overrideSfc(name, owner, '1', 1), nativeBase(name));
-            await flushPromises();
-            runtime.reload(owner, overrideSfc(name, owner, '2', 2));
-            await flushPromises();
-
-            jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-            _overridesMap[name].push(
-                convertOptionsApiOverrideToCompositionApi(name, {
-                    computed: {
-                        total(this: { $super: (name: string) => number }): number {
-                            return this.$super('total') + 100;
-                        },
-                    },
-                }),
-            );
-            await flushPromises();
-
-            expect(totals(wrapper)).toEqual(['112']);
-        },
-    );
-
-    it.activeFeatureFlags(['ADMIN_VITE_8'])(
-        'applies a Component.override() of the base once after an override was edited',
-        async () => {
-            const owner = `${name}:override`;
-            Shopware.Component.override(name, {
+        jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
+        _overridesMap[name].push(
+            convertOptionsApiOverrideToCompositionApi(name, {
                 computed: {
                     total(this: { $super: (name: string) => number }): number {
                         return this.$super('total') + 100;
                     },
                 },
-            });
-            jest.spyOn(console, 'warn').mockImplementation(() => {});
-            const wrapper = mountAll(overrideSfc(name, owner, '1', 1), nativeBase(name));
-            await flushPromises();
-            expect(totals(wrapper)).toEqual(['111']);
+            }),
+        );
+        await flushPromises();
 
-            runtime.reload(owner, overrideSfc(name, owner, '2', 2));
-            await flushPromises();
+        expect(totals(wrapper)).toEqual(['112']);
+    });
 
-            expect(totals(wrapper)).toEqual(['112']);
-        },
-    );
+    it('applies a Component.override() of the base once after an override was edited', async () => {
+        const owner = `${name}:override`;
+        Shopware.Component.override(name, {
+            computed: {
+                total(this: { $super: (name: string) => number }): number {
+                    return this.$super('total') + 100;
+                },
+            },
+        });
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const wrapper = mountAll(overrideSfc(name, owner, '1', 1), nativeBase(name));
+        await flushPromises();
+        expect(totals(wrapper)).toEqual(['111']);
+
+        runtime.reload(owner, overrideSfc(name, owner, '2', 2));
+        await flushPromises();
+
+        expect(totals(wrapper)).toEqual(['112']);
+    });
 
     it('adds every registration of an override without hot update data', async () => {
         const show = ref(true);

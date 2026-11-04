@@ -281,6 +281,29 @@ class AllowanceChargeViewTest extends TestCase
         $view = $views[0];
 
         static::assertTrue($view->isCharge);
+        static::assertNull($view->reasonCode);
+        static::assertSame(10.0, $view->actualAmount);
+    }
+
+    public function testListFromOrderOmitsReasonCodeForZeroRatedSurchargeDiscountLineItem(): void
+    {
+        $surcharge = $this->createPromotionLineItem(
+            label: 'script-surcharge',
+            type: LineItem::DISCOUNT_LINE_ITEM,
+            unitPrice: 10.0,
+            total: 10.0,
+            taxes: [],
+            payload: [],
+        );
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, deliveries: [], lineItems: [$surcharge]);
+
+        $views = AllowanceChargeView::listFromOrder($order);
+        static::assertCount(1, $views);
+        $view = $views[0];
+
+        static::assertTrue($view->isCharge);
+        static::assertNull($view->reasonCode);
         static::assertSame(10.0, $view->actualAmount);
     }
 

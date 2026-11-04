@@ -17,7 +17,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                             template: '<div><slot></slot></div>',
                         },
                         'sw-plugin-card': true,
-                        'sw-loader': true,
+                        'mt-loader': true,
                         'sw-color-badge': true,
                     },
                     provide: {

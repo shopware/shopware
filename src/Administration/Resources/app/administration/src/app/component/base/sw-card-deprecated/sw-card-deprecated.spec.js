@@ -10,7 +10,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -61,7 +61,7 @@ describe('src/app/component/base/sw-card-deprecated', () => {
         };
         const wrapper = await createWrapper(options);
 
-        expect(wrapper.find('sw-loader-stub').exists()).toBeTruthy();
+        expect(wrapper.find('mt-loader-stub').exists()).toBeTruthy();
     });
 
     it('should leave an implemented sw-card unaffected if `context-action` has not been slotted', async () => {

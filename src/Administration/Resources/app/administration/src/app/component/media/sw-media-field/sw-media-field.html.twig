@@ -117,9 +117,10 @@
                         {% endblock %}
 
                         {% block sw_media_field_media_list %}
-                        <sw-loader
+                        <mt-loader
                             v-if="isLoadingSuggestions"
                             class="sw-media-field__picker-loader"
+                            :backdrop="false"
                         />
 
                         <ul

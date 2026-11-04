@@ -184,7 +184,8 @@ $sw-modal-gap: var(--scale-size-64);
         padding: 0 32px;
     }
 
-    .sw-loader {
+    .sw-loader,
+    .mt-loader {
         z-index: $z-index-modal + 1;
     }
 }

@@ -6,7 +6,10 @@
 >
     {% block sw_customer_base_info_metadata %}
     {% block sw_customer_base_info_metadata_left %}
-    <sw-loader v-if="isLoading" />
+    <mt-loader
+        v-if="isLoading"
+        :backdrop="false"
+    />
 
     <div
         v-else

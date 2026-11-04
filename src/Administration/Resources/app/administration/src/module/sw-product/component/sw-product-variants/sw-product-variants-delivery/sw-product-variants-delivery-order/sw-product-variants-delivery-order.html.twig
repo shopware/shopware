@@ -27,7 +27,10 @@
         {% endblock %}
 
         {% block sw_product_variants_delivery_order_loader %}
-        <sw-loader v-else />
+        <mt-loader
+            v-else
+            :backdrop="false"
+        />
         {% endblock %}
     </div>
     {% endblock %}

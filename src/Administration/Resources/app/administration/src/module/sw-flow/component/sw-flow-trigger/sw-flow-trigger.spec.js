@@ -141,7 +141,7 @@ async function createWrapper(propsData) {
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-highlight-text': true,
                     'sw-field-error': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-field-copyable': true,
                 },
             },

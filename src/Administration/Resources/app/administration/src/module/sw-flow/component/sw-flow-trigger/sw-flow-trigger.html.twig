@@ -31,10 +31,11 @@
                 {% endblock %}
 
                 {% block sw_flow_trigger_loader %}
-                <sw-loader
+                <mt-loader
                     v-if="isLoading"
                     class="sw-flow-trigger__loader"
                     size="16px"
+                    :backdrop="false"
                 />
                 {% endblock %}
 

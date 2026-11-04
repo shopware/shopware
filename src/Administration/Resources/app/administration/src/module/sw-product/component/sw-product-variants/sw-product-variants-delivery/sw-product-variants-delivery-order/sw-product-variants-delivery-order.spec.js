@@ -64,7 +64,7 @@ async function createWrapper() {
                     mediaService: {},
                 },
                 stubs: {
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-tree': true,
                     'sw-tree-item': true,
                 },

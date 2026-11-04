@@ -34,7 +34,7 @@ async function createWrapper() {
                 stubs: {
                     'sw-simple-search-field': true,
                     'sw-data-grid': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
             props: {

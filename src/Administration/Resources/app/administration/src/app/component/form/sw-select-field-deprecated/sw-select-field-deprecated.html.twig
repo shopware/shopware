@@ -46,10 +46,11 @@
             </slot>
         </select>
 
-        <sw-loader
+        <mt-loader
             v-if="!$slots.default && !hasOptions"
             class="sw-field--select__loader"
             size="20px"
+            :backdrop="false"
         />
 
         <div class="sw-field--select__options">

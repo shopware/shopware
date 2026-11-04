@@ -26,10 +26,12 @@ describe('build/vite-plugins/extension-dev-server', () => {
         const technicalName = name.toLowerCase();
         Object.entries({
             'administration/src/main.js': `export default "${technicalName} plugin";`,
-            // Counts the starts of the dev server and fails while the marker file exists
+            // Counts the starts of the dev server and fails while the marker file exists.
+            // The socket options must not move the HMR client away from the port of the Administration.
             'administration/src/vite.config.js': `
                 import { appendFileSync, existsSync } from 'fs';
                 export default {
+                    server: { hmr: { port: 24679 }, ws: { host: 'hmr.invalid', protocol: 'wss' } },
                     plugins: [{
                         name: 'count-starts',
                         configureServer: {
@@ -114,9 +116,12 @@ describe('build/vite-plugins/extension-dev-server', () => {
                 const hmr = async (name) => {
                     const client = await text(${JSON.stringify(hmrClient('NAME'))}.replace('NAME', name));
                     const token = (client.match(/wsToken = "([^"]+)"/) || [])[1];
+                    // Runs the lines of the client that resolve the socket address from the options of the dev server
+                    const socketLines = client.match(/const socketProtocol = [^;]+;\\s*const hmrPort = [^;]+;\\s*const socketHost = [^;]+;/)[0];
+                    const socketUrl = new Function('importMetaUrl', socketLines + ' return socketProtocol + "://" + socketHost;');
                     return new Promise((resolve) => {
                         const socket = new WebSocket(
-                            origin().replace('http', 'ws') + '/_internal_ext/' + name + '/?token=' + token,
+                            socketUrl(new URL(origin() + '/')) + '?token=' + token,
                             'vite-hmr',
                         );
                         socket.onmessage = (event) => {

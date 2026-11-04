@@ -506,7 +506,8 @@ Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
 
 With the flag, the watcher serves the Administration code and the meteor-apps of extensions through its own port.
 The separate `Extensions` process and the port per extension are gone.
-A `server.port`, `server.host` or `server.ws` in the `vite.config` of an extension has no effect anymore.
+The `vite.config` of an extension can no longer change the address of its dev server.
+The watcher ignores `server.port`, `server.host`, `server.ws` and the connection options of `server.hmr` (`protocol`, `host`, `port`, `clientPort`, `path` and `server`) there.
 
 ### Customer group registration SEO URLs for headless sales channels
 

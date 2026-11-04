@@ -7,7 +7,7 @@ import fs from 'fs';
 import { createServer } from 'http';
 import type { IncomingMessage, Server, ServerResponse } from 'http';
 import type { Duplex } from 'stream';
-import type { Connect, Plugin, ResolvedConfig, UserConfig, ViteDevServer } from 'vite';
+import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { getExtensionDevConfig } from '../extension-config';
 import { compareBasePathPrecedence, getExtensionBasePath, writePluginDevJson } from '../utils';
 import type { ExtensionDefinition } from '../utils';
@@ -171,6 +171,16 @@ export default function ExtensionDevServerPlugin(
     };
 }
 
+// Vite copies these options of `server.hmr` to `server.ws`
+const hmrSocketOptions = [
+    'protocol',
+    'host',
+    'port',
+    'clientPort',
+    'path',
+    'server',
+] as const;
+
 async function createExtensionServer(
     toolchain: ViteToolchain,
     extension: ExtensionDefinition,
@@ -179,13 +189,6 @@ async function createExtensionServer(
     upgrades: Server,
 ): Promise<ViteDevServer> {
     const config = getExtensionDevConfig(toolchain, extension, useBundledDev);
-    const serverOptions: UserConfig['server'] = {
-        middlewareMode: { server: upgrades },
-        host: parent.config.server.host,
-        allowedHosts: parent.config.server.allowedHosts,
-    };
-    // Typed with Vite 6, which only knows `ws: false`
-    Object.assign(serverOptions, { ws: { server: upgrades } });
     let startingServer: ViteDevServer | undefined;
 
     try {
@@ -200,7 +203,21 @@ async function createExtensionServer(
                     config: {
                         // Runs after the vite.config of the extension, which must not open its own port
                         order: 'post',
-                        handler: () => ({ server: serverOptions }),
+                        handler(extensionConfig) {
+                            // A returned config would only be merged, so the socket options of the extension would stay
+                            const server = (extensionConfig.server ??= {});
+                            Object.assign(server, {
+                                middlewareMode: { server: upgrades },
+                                host: parent.config.server.host,
+                                allowedHosts: parent.config.server.allowedHosts,
+                                // Typed with Vite 6, which only knows `ws: false`
+                                ws: { server: upgrades },
+                            });
+                            const hmr = server.hmr;
+                            if (typeof hmr === 'object') {
+                                hmrSocketOptions.forEach((key) => delete hmr[key]);
+                            }
+                        },
                     },
                     configureServer: {
                         order: 'pre',

@@ -73,13 +73,12 @@ describe('module/sw-property/page/sw-property-detail', () => {
         global.activeAclRoles = ['property.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 

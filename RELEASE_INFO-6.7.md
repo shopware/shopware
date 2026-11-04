@@ -369,6 +369,15 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+## App System
+
+### Inline `<custom-fields>` in `manifest.xml` stay supported
+
+The deprecation of the inline `<custom-fields>` element in `manifest.xml` was withdrawn, and it keeps working in 6.8.
+Apps no longer trigger a deprecation when they install or update with inline custom fields.
+`Resources/config/custom-fields.xml` stays the preferred format for new apps.
+If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
+
 ## Administration
 
 ### Native setup stays experimental until 6.9
@@ -3385,7 +3394,8 @@ Apps can now register custom fields on the `media_folder` and `media_folder_conf
 
 Relating a custom field set to `media_folder_configuration` is particularly useful because it inherits Shopware's existing folder configuration inheritance: folders that inherit their parent's configuration (`useParentConfiguration`) automatically share these custom field values.
 
-Define the fields in `Resources/config/custom-fields.xml` (the inline `<custom-fields>` element in `manifest.xml` is deprecated since 6.7.13.0):
+Define the fields in `Resources/config/custom-fields.xml`, the preferred format.
+The inline `<custom-fields>` element in `manifest.xml` works as well, its deprecation was withdrawn in 6.7.17.0:
 
 ```xml
 <custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -3673,7 +3683,8 @@ Plugins and apps can now define custom fields declaratively in a `Resources/conf
 Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
 
 This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins.
-For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
+For apps, the same file-based approach is the preferred alternative to the inline `<custom-fields>` section in `manifest.xml`.
+The deprecation of the inline section announced here was withdrawn in 6.7.17.0.
 
 The XML format is the same one already used by apps in the manifest:
 
@@ -3995,6 +4006,9 @@ The route is guarded by the existing `media:read` ACL privilege and returns a sm
 Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
 
 When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
+This deprecation was withdrawn in 6.7.17.0.
+Inline custom fields stay supported in 6.8, see "Inline `<custom-fields>` in `manifest.xml` stay supported" in the 6.7.17.0 section.
 
 ### Tax provider priority is preserved across app updates
 

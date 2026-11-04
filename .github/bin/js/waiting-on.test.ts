@@ -163,6 +163,25 @@ test('one open question outweighs an answered thread, and a conflict outweighs b
     assert.equal(classify({ ...open, mergeable: 'CONFLICTING' }).reason, 'needs-rebase');
 });
 
+test('a question the author left open outweighs a missing second approval', () => {
+    // Regression: this is #21823, approved once while another reviewer's inline questions
+    // stayed open, so `second-review-missing` sent it back to us.
+    const facts = {
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 2,
+        approvals: 1,
+        lastMaintainerActivityAt: '2026-10-23T06:58:15Z',
+        lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+    } as const;
+
+    const verdict = classify(facts);
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'open-question');
+    assert.equal(verdict.since, '2026-10-22T11:23:24Z');
+
+    assert.equal(classify({ ...facts, lastOpenQuestionAt: undefined, lastOpenAnswerAt: '2026-10-24T00:00:00Z' }).reason, 'second-review-missing');
+});
+
 test('summarizeOpenThreads reads who wrote last in each unresolved thread and skips the rest', () => {
     const comment = (login: string, createdAt: string, __typename = 'User') => ({ createdAt, author: { login, __typename } });
 

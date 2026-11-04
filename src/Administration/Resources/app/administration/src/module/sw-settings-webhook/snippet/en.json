@@ -43,8 +43,7 @@
       "buttonGenerate": "Generate",
       "hintShownOnce": "Copy the secret before you save. It can't be shown again.",
       "messageSaveSuccess": "The signing secret of \"{name}\" has been saved.",
-      "messageSaveError": "The signing secret of \"{name}\" could not be saved.",
-      "errorTooLong": "The secret can have at most {max} characters."
+      "messageSaveError": "The signing secret of \"{name}\" could not be saved."
     },
     "deliveries": {
       "title": "Deliveries of \"{name}\"",

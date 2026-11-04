@@ -43,8 +43,7 @@
       "buttonGenerate": "Generieren",
       "hintShownOnce": "Kopiere das Secret, bevor Du speicherst. Es kann nicht erneut angezeigt werden.",
       "messageSaveSuccess": "Das Signatur-Secret von \"{name}\" wurde gespeichert.",
-      "messageSaveError": "Das Signatur-Secret von \"{name}\" konnte nicht gespeichert werden.",
-      "errorTooLong": "Das Secret darf höchstens {max} Zeichen lang sein."
+      "messageSaveError": "Das Signatur-Secret von \"{name}\" konnte nicht gespeichert werden."
     },
     "deliveries": {
       "title": "Zustellungen von \"{name}\"",

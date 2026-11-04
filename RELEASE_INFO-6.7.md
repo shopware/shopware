@@ -1,5 +1,12 @@
 # 6.7.17.0 (upcoming)
 
+## Critical Fixes
+
+### Many-to-many associations restrict deletes again
+
+Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
+Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while another entity still references them.
+
 ## Core
 
 ### Services can be reset between requests in long running runtimes
@@ -136,6 +143,12 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Deleting a tree reports every level as deleted
+
+Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted.
+Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them.
+Webhook and app consumers now receive these additional deletes.
+
 ### Sync requests report products deleted earlier in the request as deleted
 
 A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
@@ -165,6 +178,12 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Units have a standard unit code
+
+The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
+
+Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
+
 ### Duplicate document number errors name the document type
 
 When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters.
@@ -176,6 +195,14 @@ The order document card in the Administration names the document type as well.
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
+### ZUGFeRD e-invoices send the real unit code
+
+Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
+
+ZUGFeRD and XRechnung invoices use this code for the invoiced quantity and the price base quantity of each line, instead of always `H87` (piece).
+The code is only used when one pack is exactly one unit (no purchase unit, or a purchase unit of 1), so the quantity on the invoice still matches the order.
+Lines without a code, packed goods, and orders placed before this change still get `H87`.
 
 ### Retired services are uninstalled by the daily service reconcile
 
@@ -221,6 +248,13 @@ Check import files that relied on `0` being ignored.
 
 ## API
 
+### Plain JSON becomes the default Admin API response format in 6.8
+
+Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
+With the `v6.8.0.0` feature flag enabled, Admin API entity responses use plain JSON when the `Accept` header is missing or contains only `*/*`.
+Clients that expect JSON:API should explicitly send `Accept: application/vnd.api+json`; this header also works on earlier Shopware 6 versions.
+Clients can already opt into plain JSON with `Accept: application/json`.
+
 ### Usernames with surrounding whitespace
 
 User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.
@@ -258,6 +292,10 @@ The route requires the `product_visibility:create` and `product:read` privileges
 For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
 Before, such a request cleared both, while the customer stayed a business customer.
 Requests that send `accountType` behave as before.
+
+### Admin API lists the unit codes
+
+The new route `GET /api/_action/unit/unece-codes` returns every code that can be saved as `uneceCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
 
 ### Check a document number range pattern for collisions
 
@@ -305,6 +343,24 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
 ## Administration
+
+### Apps can add tabs to the media modal they open
+
+`ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).
+They are shown after the built-in tabs of that opening of the media modal only, and each renders the given location of the app that opened the modal.
+The location passes its selection to the modal's `callback` and closes the modal with `ui.mediaModal.select({ selection })`.
+Only the app that opened the modal can select.
+The tabs are shown with the Meteor tabs of the media modal (major feature flag `v6.8.0.0`), in the new Twig block `sw_media_modal_v2_mt_tab_content_extension` of `sw-media-modal-v2`.
+
+```js
+ui.mediaModal.open({
+    tabs: [{ label: 'Primitives', locationId: 'my-app-primitives-tab' }],
+    callback: (selection) => {},
+});
+
+// In the location "my-app-primitives-tab"
+ui.mediaModal.select({ selection: [{ id: 'cube' }] });
+```
 
 ### CMS layout overview places the page type navigation in a grid
 
@@ -433,6 +489,17 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 ### Bulk order status handler results
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
+
+### Meteor Component Library updated to 5.10.0
+
+The Administration now uses Meteor Component Library `5.10.0`, Meteor Admin SDK `6.17.0` and Meteor Icon Kit `5.12.0`.
+
+Check your Administration extensions for these changes:
+
+- Clicks on links, buttons and form controls inside `mt-radio-group-custom-item` no longer select it.
+- `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
+- `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
+- New component `mt-extension-icon`.
 
 ## API
 
@@ -631,6 +698,13 @@ Shops that sell goods to consumers in the EU should enable "Show legal guarantee
 
 Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
 This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
+
+### FTP sources for media upload by URL are accepted again
+
+`POST /api/_action/media/{mediaId}/upload` and `POST /api/_action/media/upload_by_url` accept `ftp://` URLs again, which were rejected since 6.7.13.1.
+All connections of the download go to the checked address, so `shopware.media.enable_url_validation` and `shopware.media.url_upload_max_size` apply to FTP as they do to HTTP.
+FTP transfers credentials unencrypted, so HTTPS remains the recommended source.
+The accepted schemes are configured with `shopware.media.allowed_protocols`, which defaults to `['http', 'https', 'ftp']`.
 
 ### Storefront readiness checks skip pages restricted by extensions
 

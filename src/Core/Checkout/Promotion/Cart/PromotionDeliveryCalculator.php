@@ -71,7 +71,12 @@ class PromotionDeliveryCalculator
 
         // build exclusions list before reducing line items
         $exclusions = $this->buildExclusions($discountLineItems);
-        $eligibility = [];
+        $applied = [];
+        foreach ($discountLineItems as $discountItem) {
+            if ($discountItem->getPayloadValue('discountScope') !== PromotionDiscountEntity::SCOPE_DELIVERY) {
+                $applied[$discountItem->getId()] = $toCalculate->getLineItems()->exists($discountItem);
+            }
+        }
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
@@ -90,10 +95,9 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            $isEligible = $this->isRequirementValid($discountItem, $toCalculate, $context);
-            $eligibility[$discountItem->getId()] = $isEligible;
+            $applied[$discountItem->getId()] = false;
 
-            if (!$isEligible) {
+            if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDiscount($discountItem)) {
                     $name = $discountItem->getLabel() ?? $discountItem->getId();
@@ -115,13 +119,14 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $toCalculate, $context)) {
+            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $applied, $toCalculate, $context)) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
             }
 
             $deliveryItemAdded = $this->calculateDeliveryPromotion($toCalculate, $discountItem, $context, $notDiscountedDeliveriesValue);
+            $applied[$discountItem->getId()] = $deliveryItemAdded;
 
             if ($deliveryItemAdded) {
                 // ensure that a lineItem will be added to cart if a discount has been added

@@ -93,7 +93,7 @@ class PromotionCalculator
         });
 
         $exclusions = $this->buildExclusions($discountLineItems);
-        $eligibility = [];
+        $applied = [];
 
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
@@ -114,12 +114,11 @@ class PromotionCalculator
 
             $isAutomaticDiscount = $this->isAutomaticDiscount($discountItem);
 
+            $applied[$discountItem->getId()] = false;
+
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
-            $isEligible = $this->isRequirementValid($discountItem, $calculated, $context);
-            $eligibility[$discountItem->getId()] = $isEligible;
-
-            if (!$isEligible) {
+            if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$isAutomaticDiscount) {
                     $name = $discountItem->getLabel() ?? $discountItem->getId();
@@ -141,7 +140,7 @@ class PromotionCalculator
             }
 
             // if promotion is on exclusions stack it is ignored
-            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $calculated, $context)) {
+            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $applied, $calculated, $context)) {
                 if (!$isAutomaticDiscount) {
                     $calculated->addErrors(new PromotionExcludedError($discountItem->getDescription() ?? $discountItem->getId()));
                 }
@@ -181,6 +180,7 @@ class PromotionCalculator
 
             // add our discount item to the cart
             $calculated->add($discountItem);
+            $applied[$discountItem->getId()] = true;
 
             $this->addPromotionAddedNotice($original, $calculated, $discountItem);
 

@@ -102,9 +102,7 @@ class PromotionCalculatorTest extends TestCase
 
     public function testPromotionPrioritySorting(): void
     {
-        $lineItems = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $lineItems->setPriceDefinition(new AbsolutePriceDefinition(50.0));
-        $lineItems->setLabel('Product');
+        $this->promotionCalculator = $this->getCalculatorWithProductPackage();
 
         $firstDiscountItem = $this->getDiscountItem('frist-promotion')
             ->setPayloadValue('code', 'code-1')
@@ -117,8 +115,7 @@ class PromotionCalculatorTest extends TestCase
             ->setPayloadValue('priority', 1)
             ->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
 
-        $cart = new Cart('promotion-test');
-        $cart->addLineItems(new LineItemCollection([$lineItems]));
+        $cart = $this->getCartWithProduct();
 
         $this->promotionCalculator->calculate(
             new LineItemCollection([$secondDiscountItem, $firstDiscountItem]),
@@ -283,6 +280,43 @@ class PromotionCalculatorTest extends TestCase
         static::assertFalse($cart->getErrors()->has('promotion-excluded'));
         static::assertNull($cart->getLineItems()->get($dependentDiscountItem->getId()));
         static::assertSame($appliedDiscountItem, $cart->getLineItems()->get($appliedDiscountItem->getId()));
+    }
+
+    /**
+     * An automatic promotion whose rules pass but whose discount matches nothing in the cart is not applied,
+     * so it must not block the promotions it excludes either.
+     */
+    public function testEligiblePromotionWithoutDiscountDoesNotExcludeLaterPromotions(): void
+    {
+        $saleDiscountItem = $this->getDiscountItem('sale-promotion')
+            ->setLabel('Sale')
+            ->setPayloadValue('exclusions', ['code-promotion'])
+            ->setPayloadValue('priority', 2);
+        $codeDiscountItem = $this->getDiscountItem('code-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('exclusions', ['sale-promotion'])
+            ->setPayloadValue('priority', 1);
+
+        $productPackages = new DiscountPackageCollection([
+            new DiscountPackage(new LineItemQuantityCollection([new LineItemQuantity($this->ids->get('line-item-1'), 1)])),
+        ]);
+        $this->promotionCalculator = $this->getCalculatorWithPackages(
+            static fn (DiscountLineItem $discount) => $discount->getLabel() === 'Sale' ? new DiscountPackageCollection([]) : $productPackages
+        );
+
+        $cart = $this->getCartWithProduct();
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$saleDiscountItem, $codeDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertFalse($cart->getErrors()->has('promotion-excluded'));
+        static::assertNull($cart->getLineItems()->get($saleDiscountItem->getId()));
+        static::assertSame($codeDiscountItem, $cart->getLineItems()->get($codeDiscountItem->getId()));
     }
 
     /**
@@ -645,10 +679,10 @@ class PromotionCalculatorTest extends TestCase
         return $this->getCalculatorWithPackages(new DiscountPackageCollection([]));
     }
 
-    private function getCalculatorWithPackages(DiscountPackageCollection $packages): PromotionCalculator
+    private function getCalculatorWithPackages(DiscountPackageCollection|\Closure $packages): PromotionCalculator
     {
         $cartPackager = static::createStub(DiscountPackager::class);
-        $cartPackager->method('getMatchingItems')->willReturn($packages);
+        $cartPackager->method('getMatchingItems')->willReturnCallback($packages instanceof \Closure ? $packages : static fn () => $packages);
 
         $splitter = static::createStub(LineItemQuantitySplitter::class);
         $splitter->method('split')->willReturnCallback(static fn (LineItem $item) => $item);

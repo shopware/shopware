@@ -8,7 +8,7 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 - `CacheInvalidationSubscriber` - Invalidates cached pages when content entities change
 - `MappedMediaCacheInvalidator` - Invalidates dependencies on mapped media after media/translation writes, deletions, and media indexing
 - `EntityCacheTagResolver` - Resolves entity definitions to cache tag patterns
-- `RenderingCacheContext` - Tracks tags + disabled state through the pipeline
+- `RenderingCacheContext` - Created in `ContentRoute`, passed through the pipeline; tags accumulate, `disable()` is irreversible
 
 ## Cache Tag Patterns
 

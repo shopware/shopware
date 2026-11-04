@@ -4,6 +4,8 @@ A field mapping binds one declared `mappable: true` element property to a typed 
 
 Admission needs the layout's source ID for a catalogue lookup; it cannot infer it from resolved entity data. Without that ID, whole-field mappings remain unjudged. Diagnostics additionally reports explicit inline tokens as requiring a bound source when the root context is also null. A supplied root context without a source ID runs no mapping checks. The write gate supplies its known source for static provider backing while leaving mapping errors to the dedicated validator. A client cannot invent a source or member path to bypass admission.
 
+Design rules and rationale: [data-mapping principles](../docs/principles/data-mapping.md).
+
 ## Guides
 
 - [Source providers](docs/source-providers.md) — registration, candidate identity, admission, resolution, and exposure constraints.

@@ -1,8 +1,6 @@
 # Mutation Errors
 
-The failure conditions that abort a stateless draft mutation action ([mutation.md](mutation.md)) instead of being reported in its diagnostics body.
-
-A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`); the structural impossibilities are `400 Bad Request`:
+A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`). The structural impossibilities are `400 Bad Request`:
 
 | Condition                                                                                                | HTTP | Factory                                           |
 |----------------------------------------------------------------------------------------------------------|------|---------------------------------------------------|
@@ -31,3 +29,5 @@ Mapping findings discovered during analysis are returned as property-specific `i
 The authored-input limit above is an actual throwing validation failure. Runtime inline-output exhaustion is separate: the content pipeline aborts with `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE`. Store API and preview propagate it as HTTP 500 and return no successful partial or blanked content result. Storefront content loading instead catches that exception and returns a null content page, allowing its caller to render a successful response without that content. See [runtime error handling](../../Mapping/README.md#runtime-error-handling) for the request boundaries and provider-fault behavior.
 
 Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.
+
+The mutation-structural codes above (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`) are not client defects. See [Client-Defect Error Codes](../../docs/client-defect-codes.md).

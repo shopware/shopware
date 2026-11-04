@@ -1,10 +1,6 @@
 # Custom Data Loaders
 
-The plugin-facing guide to registering a new data source: what to extend, what to tag, the config and serializer pair it needs, and how it declares cache behavior.
-
 Data loaders fetch external data—APIs, computed values, aggregations. The built-in `entity` loader handles Shopware entities; other built-in loaders handle known data structures like product listing, navigation, language, currency, payment method, and shipping method.
-
-A data loader consists of three classes:
 
 | Component  | Base Class                                  | Service Tag                        | Purpose                |
 |------------|---------------------------------------------|------------------------------------|------------------------|
@@ -79,7 +75,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 }
 ```
 
-`load()` never reads the config or the element itself. `LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. Declare the fallback in `configSpecification()` — an in-body `??` would drift from what the schema advertises.
+`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call. Every declared key has an entry, dereferenced and type-checked. Reading a key the loader did not declare throws. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
 
 **Service registration:**
 
@@ -94,7 +90,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 </service>
 ```
 
-A loader whose `PropertyReference` config key resolves to an entity id, and whose collaborator throws, additionally needs an id guard and a degradation wrap: [entity-id-guard-example.md](entity-id-guard-example.md).
+A loader whose `PropertyReference` key resolves to an entity id needs a `Uuid::isValid()` guard. One whose service call throws needs a `ShopwareHttpException` catch: [entity-id-guard-example.md](entity-id-guard-example.md).
 
 ## Cache Awareness
 
@@ -107,7 +103,7 @@ All data loaders must return `ContentDataLoaderResult` to indicate cache behavio
 | `cachedExternally($data)` | Data loaded via delegated route that handles its own tags |
 | `uncacheable($data)`      | External APIs or data that cannot be cache-tracked        |
 
-If any loader returns uncacheable data, the entire page becomes uncacheable.
+If any loader returns uncacheable data, the entire page becomes uncacheable (`RenderingCacheContext::disable()`).
 
 For entity-based data, provide cache tags that match Shopware's existing invalidation patterns:
 
@@ -122,4 +118,4 @@ Reference: `../EntityLoader/`
 
 ## Discoverability
 
-A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live definition registry. See [Data Loader Introspection](introspection.md).
+A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`. The Administration reads it to offer the data source when authoring `dataRequirements`. See [Data Loader Introspection](introspection.md).

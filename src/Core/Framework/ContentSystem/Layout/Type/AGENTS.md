@@ -1,43 +1,25 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
-## Key Relationship
-
-Type spec `properties` = schema for hydrated API output, NOT storage format
-- FQCN-typed property → filled by pipeline (data loader or context)
-- Primitive-typed property → set statically at design time
-- The storage format is published too, on the same endpoint: the `storageSchema` fold derived by `StoredSchemaResolver` (see below). `properties` is not it
-- Shared key links: type spec property key = dataRequirements key = acceptsContext key = the key `Rendering/RenderedElementFactory` writes the resolved value under
-
-## Source Code References
-
-- **Registry**: `Registry/AbstractContentSystemElementTypeRegistry` (abstract, decoration pattern), `Registry/ContentSystemElementTypeRegistry` (stateless aggregator), `Registry/CachedContentSystemElementTypeRegistry` (`cache.system` pool decorator)
-- **Compiler Pass**: `Framework/DependencyInjection/CompilerPass/ContentSystemCompilerPass` (discovers from core, bundles, plugins, apps; injects the type-directory set into both `YamlTypeLoader` and the binding system's `YamlBindingSpecificationLoader`, and the parallel `Resources/content-system/presets` directory set into `Layout/Preset/Loader/YamlLayoutPresetLoader`)
-- **Loaders**: `Loader/AbstractContentSystemElementTypeLoader` (base contract), `Loader/YamlTypeLoader` (filesystem; also exposes `loadOverlayFromDirectory(directory, source, prefix): array<string, ContentSystemElementTypeSpecification>`, a registry-independent single-directory load keyed by resolved type name, see [Binding/docs/inline-bindings.md](../../Binding/docs/inline-bindings.md)), `Loader/DatabaseTypeLoader` (app types, prod only), `Loader/ElementTypeNameResolver` (path → name)
-- **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
-- **API Endpoint**: `Api/Controller/InfoController::getContentSystemElementTypes()` (`GET /api/_info/content-system-element-types.json`)
-- **Storage schema**: `StoredSchemaResolver::resolve(ContentSystemElementTypeSpecification): array<string, array{kind, type, required, default?}>` — the per-type `storageSchema` fold on that endpoint, keyed by STORED key. See [docs/introspection.md#storageschema](docs/introspection.md#storageschema) for the three kinds, their precedence, and the typing rules
-- **App Integration**: `App/Lifecycle/Persister/ContentSystemElementTypePersister`, `App/Validation/ContentSystemElementTypeAppValidator`, `App/Lifecycle/Handler/ContentSystemElementTypeLifecycleHandler` (persists app types on install/update)
-- **Collision Detection**: `Validation/ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types)
-- **Type Map Bridge**: `Schema/ContentSystemDataLoaderMap` — connects FQCNs to loader sources
-- **Stored defaults**: `StoredDefaultProvider::forType(AbstractContentSystemElementTypeRegistry $registry, string $type): array<string, string|int|float|bool|array<string, mixed>>`. The single per-type rule: a primitive property contributes its non-null `default()`, while a property with nested members contributes an object containing recursively collected member defaults; a property with neither contributes nothing. The one definition of a type's stored defaults, consumed by `Mutation/AbstractLayoutMutation` (scaffold + replace seeding) and `Layout/LayoutDefaultSeeder` (write-boundary seeding). The caller guarantees the type is registered
-- **Specification accessors**: `Specification/ContentSystemElementTypeSpecification` exposes `name(): string` (the type's unique identifier — the key consumers match/look up by), `source(): string` (the source-label prefix, e.g. `core` / `plugin:Name`, default `''`), `properties(): array<string, PropertySpecification>` (the declared property map the `Resolution/` kernel — `Resolution/ElementResolver`, `Resolution/AvailableContextResolver` — iterates to resolve each property, reading each `PropertySpecification` and its `PropertyType::isPrimitive()`), `slots(): list<SlotSpecification>` (the declared slots; each `SlotSpecification` exposes `name(): string`, consumed by `Mutation/Op/ReplaceElement` to decide which slot children a new type can keep), and `toSchema(): array` (serializes the spec to the `ElementTypeSchema` wire shape served by `GET /api/_info/content-system-element-types.json`)
-
 ## Constraints
 
-- Type names must be unique across all sources (core, bundles, plugins, apps) — duplicates caught at compile time and persist time with source labels: `"core"`, `"bundle:BundleName"`, `"plugin:PluginName"`, `"app:AppName"`
-- YAML: one type per file, name is derived from the file path (directory structure + filename → PascalCase colon-separated name) via `ElementTypeNameResolver`. `meta.name` is ignored — the serializer does not read it; names come exclusively from file paths.
-- Name prefix is auto-injected: `Sw` for core/bundles, the plugin bundle name (the short `Plugin::getName()` value, not the FQCN) for plugins, app name for apps
-- Filenames and directories must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
-- Both `.yaml` and `.yml` extensions are accepted
-- Registry uses Shopware decoration pattern: `AbstractContentSystemElementTypeRegistry` → `ContentSystemElementTypeRegistry` (leaf) → `CachedContentSystemElementTypeRegistry` (decorator, `cache.system` pool). `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it. Consumers type-hint `AbstractContentSystemElementTypeRegistry`.
-- `DatabaseTypeLoader` returns empty in dev (apps load from filesystem via compiler pass in dev)
-- Plugin type directory customizable via `Plugin::getContentTypeDirectory()`
-- `TranslatableTypeValidator` enforces: `translatable` only on `string` type
-- `TypedEnumValidator` enforces: `enum` only on primitives, must be list, values match declared type
-- `TypedDefaultValidator` enforces: `default` only on primitives, value matches declared type
-- `mappable` defaults to false and has no opt-in validator. Leave it off for self-filled properties unless an author override is intended; [custom types](docs/custom-types.md#mappable) documents admission and `RenderedElementFactory` precedence.
-- Canonical primitive set: `string`, `integer`, `number`, `boolean`; any other `type` value is treated as a `class-string<Struct>` FQCN (filled by the pipeline). The set is exposed once as `PropertyType::PRIMITIVE_TYPES`, which `PropertyType::isPrimitive()`, `TypedEnumValidator`, `TypedDefaultValidator`, and `Binding/Validation/TypeConsistentBindingSpecificationValidator` all key off, rather than each keeping a private copy. The `enum` / `default` rules use this primitive-vs-FQCN distinction; `translatable` is narrower — it keys off `type === 'string'` only (see above)
-- Whether a *stored value* conforms to a declared type is `PropertyType`'s alone (the schema-literal rules `TypedEnumValidator` / `TypedDefaultValidator` still keep their own table): `enforceableTypes()` answers which primitives may be enforced (`null` for `object`, an FQCN, or a union carrying either) and `admits()` judges a value against them, treating `null` as admissible under every primitive. `Layout/Codec/PropertyTypeConformanceValidator`, the `MismatchedPropertyType` arm of `Diagnostics/LayoutDiagnostics`, and `Mutation/Op/ReplaceElement`'s property carry-over all delegate here rather than keeping their own copy
-- `DatabaseTypeLoader` joins `app` and queries `WHERE app.active = 1` (deactivation mechanics in [docs/architecture.md](docs/architecture.md)). `ElementTypeCollisionDetector` also considers types of inactive apps to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard. It deserializes all active-app rows and validates them together; a missing name or a schema that fails to decode, deserialize, or validate aborts the whole load, matching `YamlTypeLoader`'s fail-fast behavior, while validator infrastructure failures propagate unchanged.
+- Allow `translatable` only on a property declared `type: string`. Never put the flag on a [binding or storage key](docs/introspection.md#storageschema). Check: does the change set `translatable` on a non-string property, a binding or a storage key? [custom-types.md](docs/custom-types.md#yaml-structure)
+- Declare no context provider or consumer on a type. Check: does the change add a wiring field to `PropertySpecificationDto`? `resolvedBy` and `defaultMapping` are the declared initialization exceptions, not mandatory consumers. Their tests pin the rules. [type-declarations.md](../../docs/principles/type-declarations.md)
+- Set `required` from this type's own behaviour, never by copying a sibling. Check: can the element render something useful without the value? Then it is optional. `LayoutDiagnosticsTest` pins both outcomes. [type-declarations.md](../../docs/principles/type-declarations.md)
+- Never read `adminUI` server-side to decide storage, validation or normalization. Declare a storage-relevant kind as its own typed key. Check: does any PHP outside a serializer, a schema generator or a shape check read the block's content? [type-declarations.md](../../docs/principles/type-declarations.md)
+- Decide whether a stored value conforms to a declared type only through `PropertyType::enforceableTypes()` and `admits()`. Check: does a caller keep its own type table? [values.md](../../docs/principles/values.md)
+- Ship an element capability as a declaration the module reads, never as a core edit per entity or per element. Check: could an app ship it with no core edit? [extension-surface.md](../../docs/principles/extension-surface.md)
+- Fail a declaration or registration defect at registry load or container build, before any request uses the declaration. Throw on a malformed database registry row as on a malformed file, never skip it or give it a placeholder name. Check: does a registry loader skip, log or rename a malformed declaration? `ContentSystemDataLoaderCompilerPassTest` pins the build side. [failure-and-loss.md](../../docs/principles/failure-and-loss.md)
+- Mapping is an opt-in: `mappable` and `inlineMappable` are mutually exclusive; inline mapping requires exactly `string`. Check: validators reject invalid declarations, and candidate admission uses the declared type. [custom types](docs/custom-types.md#mappable)
+
+## Where to look
+
+- Type properties as the hydrated output schema, and the property key shared by type spec, `dataRequirements`, `acceptsContext` and the rendered element: [output-schema.md](docs/output-schema.md#key-based-linkage)
+- The `storageSchema` derived by `StoredSchemaResolver`: [introspection.md](docs/introspection.md#storageschema)
+- Loaders, registry decoration, compiler pass, `DatabaseTypeLoader` and app integration: [architecture.md](docs/architecture.md)
+- Naming alignment with Storefront Twig components: [architecture.md](docs/architecture.md#naming-alignment-with-storefront-twig-components)
+- Registering a type from a plugin or app, and the plugin type directory hook: [custom-types.md](docs/custom-types.md#registration)
+- Type name derivation from the file path, the source prefixes and the kebab-case filename rule: [custom-types.md](docs/custom-types.md#name-resolution)
+- Type YAML, property fields, the canonical primitive set and the `enum` and `default` rules: [custom-types.md](docs/custom-types.md#yaml-structure)
+- Name uniqueness across sources, collision detection and the source labels: [custom-types.md](docs/custom-types.md#collision-detection), [introspection.md](docs/introspection.md)
+- App activation and the cached registry: [custom-types.md](docs/custom-types.md#app-lifecycle)
+- Inline `bindings:` sections in a type YAML: [README.md](README.md#inline-bindings-sections)
+- Why the value rules hold, and what was decided against: [values.md](../../docs/principles/values.md)
+- Mapping opt-ins, `defaultMapping`, and candidate cardinalities: [custom types](docs/custom-types.md#mappable), [introspection](docs/introspection.md), [mapping principles](../../docs/principles/data-mapping.md)

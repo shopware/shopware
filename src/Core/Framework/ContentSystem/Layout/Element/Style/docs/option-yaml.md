@@ -1,7 +1,5 @@
 # Style Option YAML
 
-The file format of one option declaration, and the breakpoint key set its values are keyed by.
-
 ## YAML Structure
 
 The declaration is **flat** — there is no `meta:` wrapper (this differs from element-type YAML):
@@ -35,16 +33,16 @@ adminUI:
 - **`type`** (required): one of `string`, `integer`, `number`, `boolean`.
 - **`enum`** (optional, primitives): the allowed value set.
 - **`range`** (optional, `integer` / `number`): `min` and/or `max` bounds.
-- **`maxLength`** (optional, declarable on `string` only): caps the stored string. A `string` or `number` with no `maxLength` declared is still capped at 255, so a client cannot store an unbounded value (including a long numeric string); `integer` and `boolean` are unaffected.
-- **`default`** (optional): advisory only — an introspection and Admin pre-fill hint. It is **not** seeded into stored elements and **not** applied at serve time, so an element's `style` stays omitted when empty.
-- **`adminUI`** (optional): an opaque block passed through verbatim to the Administration; the backend never interprets it. An option shown as a `radio-panel` declares its values in `enum`, unless it is a `string` option with `breakpointAware: false`; without one, a click on one of its options throws an error in the Administration and emits no value.
-- **`kind`** (optional): declares that the option's value gets a kind-specific canonicalisation at the write boundary. Its only defined value is `box-spacing`, which canonicalises the value into explicit four-part CSS (`top right bottom left`). Any other value is rejected at load. Omitted, the value is stored as authored.
+- **`maxLength`** (optional, declarable on `string` only): caps the stored string. A `string` or `number` with no `maxLength` declared is still capped at 255, so a client cannot store an unbounded value (including a long numeric string). `integer` and `boolean` are unaffected.
+- **`default`** (optional): pre-fills the editor; the write boundary fills the missing breakpoints of a partial map from it, see [option-model.md](option-model.md).
+- **`adminUI`** (optional): an opaque block passed through verbatim to the Administration. An option shown as a `radio-panel` declares its values in `enum`, unless it is a `string` option with `breakpointAware: false`; without one, a click on one of its options throws an error in the Administration and emits no value. See [Presentation hints belong to the editor, and the server never branches on them](../../../../docs/principles/type-declarations.md#presentation-hints-belong-to-the-editor-and-the-server-never-branches-on-them).
+- **`kind`** (optional): declares that the option's value is normalized at the [write boundary](../../../../docs/principles/README.md#terms-that-are-easy-to-confuse). Its only defined value is `box-spacing`, which normalizes the value into explicit four-part CSS (`top right bottom left`). Any other value fails the declaration's `Assert\Choice`: both `YamlStyleOptionLoader` and `DatabaseStyleOptionLoader` fail the load with `STYLE_OPTION_LOAD_FAILED`. No shipped core option declares `kind`. Omitted, the value is stored as authored.
 
-There is deliberately no `pattern` / regex: an app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector, so strings are bounded by `maxLength` instead.
+There is no `pattern`: strings are bounded by `maxLength`, see [A style option value carries no regex pattern](../../../../docs/principles/type-declarations.md#a-style-option-value-carries-no-regex-pattern).
 
 ## Breakpoints
 
-Values are set per breakpoint. The breakpoint key set is the fixed framework primitive `xs, sm, md, lg, xl, xxl`; it is not extensible. Each breakpoint is optional, so a responsive option may set only some of them. Breakpoints are **mobile first**, mirroring the Storefront's Bootstrap breakpoints: a value applies from its breakpoint upward until a larger breakpoint overrides it, so a value set only at `xs` affects every width. The backend stores and serves the map verbatim; rendering consumers apply this cascade. On an element, the stored shape is `option => breakpoint => value`:
+Values are set per breakpoint. The breakpoint key set is the fixed framework primitive `xs, sm, md, lg, xl, xxl`; it is not extensible. Each breakpoint is optional, so a responsive option may set only some of them. Breakpoints are **mobile first**, mirroring the Storefront's Bootstrap breakpoints. A value applies from its breakpoint upward until a larger breakpoint overrides it, so a value set only at `xs` affects every width. The backend stores and serves the map verbatim; rendering consumers apply this cascade. On an element, the stored shape is `option => breakpoint => value`:
 
 ```json
 { "col-span": { "md": 6, "lg": 4 }, "display": { "xs": false } }

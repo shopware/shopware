@@ -1,20 +1,22 @@
 # Rendering
 
-Turns one stored element forest into the rendered forest it serves as: resolves each element's data, expands inline mappings, resolves what context every element received, and mints the rendered tree. The wiring step that precedes it — context-wiring validation and redistribute derivation, both still on stored elements — lives here too, in `WiringPlanner`.
+Turns one stored element forest into the rendered forest it serves as: resolves each element's data, expands authored inline mappings, resolves what context every element received, and creates the rendered tree. The wiring step that precedes it (context-wiring validation and the derivation in `WiringPlanner::plan()`, both still on stored elements) lives here too.
 
 ## Render Layers
 
 `ElementLowering::lower()` drives these stages:
 
-1. **Data resolution**: `ElementDataResolver` runs ONE element's `DataRequirement`s and returns what they resolved to, keyed by requirement key. Each loader returns `ContentDataLoaderResult` with cache info. The walk over the whole forest lives in `ElementLowering` itself — each element before the elements under it, slot by slot. See [Hydration/DataLoader/AGENTS.md](../Hydration/DataLoader/AGENTS.md).
-2. **Inline expansion**: `Mapping/Inline/InlineMappingExpander` expands authored tokens using their captured spans and the loaded values. It produces the forest used for context delivery and rendering, so provided text and keyed selection use expanded properties.
-3. **Context delivery resolution**: `ContextDeliveryResolver` walks the whole forest top-down and returns a `ContextDeliveryIndex` recording what every element received. It takes the collected loader values as an argument rather than resolving them itself.
-4. **Tree minting**: `RenderedTreeFactory` folds `RenderedElementFactory` over the stored forest bottom-up and returns a `LoweringResult`: the rendered forest plus the provenance recorded for every property key in it.
+1. **Data resolution**: `ElementDataResolver` runs ONE element's `DataRequirement`s and returns one `ResolvedLoaderValue` per requirement key: the loader's value and the `Output/Index/LoaderValueIdentity` it dedups by. `LoaderInputResolver` builds the requirement's `LoaderInputs` from its input source element before `load()`: the element itself, or for page-level requirements the [virtual root](../docs/principles/README.md#glossary), whose stored properties are the specification's placeholder values. Each loader returns `ContentDataLoaderResult` with cache info. The walk over the whole forest lives in `ElementLowering`, each element before the elements under it, slot by slot. See [Hydration/DataLoader/AGENTS.md](../Hydration/DataLoader/AGENTS.md).
+2. **Inline expansion**: after forest and consumed page loading, expand the authored spans captured during preparation. Context providers and keyed selection read the expanded forest. The original stored text stays intact; placeholder-inserted mapping syntax is never reparsed.
+3. **Context delivery resolution**: `ContextDeliveryResolver` walks the whole forest top-down and returns a `ContextDeliveryIndex` recording what every element received. It takes the loader values without their identities as an argument rather than resolving them itself.
+4. **Tree creation**: `RenderedTreeFactory` folds `RenderedElementFactory` over the stored forest bottom-up, from the resolved loader values and the `ContextDeliveryIndex`. It returns a `LoweringResult`: the rendered forest plus each property key's provenance, the member that produced it.
 
-In SKELETON mode no loader runs and no delivery is computed — the mint is handed an empty index and an empty loader-value map, and produces structure only. The traversal that shapes the tree is one code path in both modes.
+`ElementLowering` owns the mode split. In SKELETON mode no loader runs, inline text is not expanded, and no delivery is computed. The tree factory gets an empty index and an empty loader-value map, so it records structure only and no provenance, in [one code path in both modes](../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode).
 
 ## Distribution
 
-`ContextDistributor` is the rule for one parent and its direct children; carrying element-provided context further down takes explicit re-providing (`acceptsContext` + `providesContext`). Root-ambient context does not travel this way at all: it is an argument to `ContextDeliveryResolver::resolve()` and fills each element's `ConsumerScope::Root` consumers directly, at any depth. The forest walk is separate and belongs to `ContextDeliveryResolver`; it runs top-down, so a container that receives context and re-provides it distributes what it was given.
+`ContextDistributor` is the rule for one parent and its direct children. [Root context](../docs/principles/README.md#glossary) is an argument to `ContextDeliveryResolver::resolve()` and fills each element's `ConsumerScope::Root` consumers directly. The forest walk is separate, belongs to `ContextDeliveryResolver` and runs top-down. See [Context flows only between adjacent elements](../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
 
-The strategies `ContextDistributor` dispatches on are declared in `Layout/Element/Context/Distribution/`. What each one means, and the context-flow rules bounding how far a distributed context reaches, are owned by [Layout/Element/Context/docs/distribution-strategies.md](../Layout/Element/Context/docs/distribution-strategies.md).
+The strategies `ContextDistributor` dispatches on are declared in `Layout/Element/Context/Distribution/` and explained in [Layout/Element/Context/docs/distribution-strategies.md](../Layout/Element/Context/docs/distribution-strategies.md).
+
+Whole-field fallback/omission, explicit null, and runtime failures follow [data mapping](../Mapping/README.md#stored-mappings-and-rendering). The finalization event may enrich product variant options for the selected rendered product; see [listener execution order](../Event/Listener/README.md#execution-order).

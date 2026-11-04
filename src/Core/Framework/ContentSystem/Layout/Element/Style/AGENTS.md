@@ -1,45 +1,20 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
-## Key Relationship
-
-One declaration, two consumers that cannot drift:
-- `StyleOptionConstraintDeriver` turns a `StyleOptionValueType` into the Symfony constraints the write boundary enforces.
-- `StyleOptionSpecification::toSchema()` turns the same declaration into the introspection schema.
-- Both read the one `AbstractContentSystemStyleOptionRegistry`, so an option that is introspected is enforced and vice versa.
-
-## Source Code References
-
-- **Registry**: `Registry/AbstractContentSystemStyleOptionRegistry` — strict `all()`, lenient `allResolved()`, `invalidate()`; leaf `ContentSystemStyleOptionRegistry`, `cache.system` decorator `CachedContentSystemStyleOptionRegistry`
-- **Loaders**: `Loader/AbstractContentSystemStyleOptionLoader` — `YamlStyleOptionLoader` (filesystem, all environments), `DatabaseStyleOptionLoader` (active app options, prod only)
-- **Compiler Pass**: `Framework/DependencyInjection/CompilerPass/ContentSystemStyleOptionCompilerPass` — discovers the YAML directories and injects them into `YamlStyleOptionLoader`
-- **Serializer**: `Serialization/StyleOptionSpecificationSerializer` — declaration ↔ validation DTO
-- **Specification**: `Specification/StyleOptionSpecification` and `Specification/StyleOptionValueType`, both immutable; DTOs in `Specification/Dto/`
-- **Constraint deriver**: `Validation/StyleOptionConstraintDeriver::derive(StyleOptionValueType): list<Constraint>`
-- **Write constraints**: `Layout/Codec/StoredTreeConstraints::styleConstraints()` — the write boundary, reached from `Layout/Field/StoredElementListFieldSerializer::buildConstraints()`
-- **Read**: `Layout/Codec/StoredElementCodec::decodeStyle()` — registry-free and structural; every malformed shape throws, nothing is dropped
-- **API endpoints**: `Api/Controller/InfoController::getContentSystemStyleOptions()` (`GET /api/_info/content-system-style-options.json`) and the folded `styleOptions` key on `getContentSystemElementTypes()`
-- **App integration**: `App/Aggregate/AppContentSystemStyleOption/`, `App/Lifecycle/Persister/ContentSystemStyleOptionPersister`, `App/Lifecycle/Handler/ContentSystemStyleOptionLifecycleHandler`, `App/Validation/ContentSystemStyleOptionAppValidator`
-- **Collision detection**: `Validation/StyleOptionCollisionDetector` — proposed names against the registry plus inactive app options; the DB `UNIQUE KEY` is the authoritative guard
-- **Value object**: `ElementStyle` — `final readonly`, `toArray()`, `isEmpty()`; `option => (scalar | breakpoint => scalar)`
-
 ## Constraints
 
-- Option names are flat global wire keys (`col-span`), **not** source-prefixed like element type names
-- `Breakpoint` is a fixed framework primitive (`xs, sm, md, lg, xl, xxl`); it is not plugin- or app-extensible. `Breakpoint::values()` is the allowed key set; per-breakpoint values are individually optional
-- Value types are limited to the canonical primitives (`string`, `integer`, `number`, `boolean`) — no FQCN, no nested object, no regex
-- The constraint `Collection` is derived fresh per write and reused across every element within that write
-- Registry uses the Shopware decoration pattern (abstract → leaf → `cache.system` decorator); `invalidate()` throws `DecorationPatternException` unless the decorator overrides it
-- The `Plugin` base class is untouched: bundles and plugins share the fixed `Resources/content-system/style-options` convention, so no customization hook exists
-- `ElementStyle` immutability is load-bearing: the mutation subsystem aliases an untouched element's style by reference rather than copying it
+- Derive the write constraints and the introspection schema from the one declaration through the one registry. Check: does a validation or introspection path read option data from anywhere but `StyleOptionSpecification` via `AbstractContentSystemStyleOptionRegistry`? [write-and-read.md](docs/write-and-read.md#strict-write-registry-free-read)
+- Keep option names flat, global and unique: the name is the kebab-case filename and the wire key, never source-prefixed. Check: does the change prefix a name, or admit a duplicate name from any source? [custom-options.md](docs/custom-options.md#name-resolution)
+- Keep style value types to `string`, `integer`, `number` and `boolean`, every string or number bounded. Check: does the change add an FQCN, nested or regex value type, or lift the `DEFAULT_STRING_MAX_LENGTH` bound? [option-model.md](docs/option-model.md#the-option-model)
+- Keep the style write strict over what `ElementStyleNormalizer` leaves, and the read registry-free and structural. Check: does `StoredElementCodec::decodeStyle()` consult the registry, or does the write admit an unknown option, an unknown breakpoint or a flat option sent as a breakpoint map? [wire-contract.md](../../../docs/principles/wire-contract.md)
+- Keep `default` an authoring hint: it reaches stored JSON only through `ElementStyleNormalizer` at the write boundary, and `style` stays omitted when empty. Check: does a serve, diagnostics or output path apply a default or emit an empty `style`? [stored-model.md](../../../docs/principles/stored-model.md)
+- Derive the style constraint `Collection` fresh per write, never memoized across writes. Check: does the change cache the `StoredTreeConstraints` output beyond one write? [write-and-read.md](docs/write-and-read.md#strict-write-registry-free-read)
+- Add no `Plugin::getStyleOptionDirectory()` hook: bundles and plugins share the fixed `Resources/content-system/style-options` directory. Check: does the change touch the `Plugin` base class? [custom-options.md](docs/custom-options.md#registration)
+- Keep `ElementStyle` immutable. Check: does the change add a setter or an in-place edit? [option-model.md](docs/option-model.md#the-option-model)
 
-## Navigation
+## Where to look
 
-- [docs/option-model.md](docs/option-model.md) - what an option is, its naming and uniqueness rules, and what `default` does
-- [docs/option-yaml.md](docs/option-yaml.md) - the declaration file: fields, `breakpointAware`, `kind`
-- [docs/write-and-read.md](docs/write-and-read.md) - the strict write, the registry-free read, and where the value surfaces
-- [docs/architecture.md](docs/architecture.md) - the seven stages from value object to app integration
-- [docs/introspection.md](docs/introspection.md) - the published schema
-- [docs/custom-options.md](docs/custom-options.md) - declaring an option from a bundle, plugin or app
-- [README.md](README.md) - the mental model
+- The declaration file format and `kind`: [option-yaml.md](docs/option-yaml.md#yaml-structure); the breakpoint key set and cascade: [option-yaml.md](docs/option-yaml.md#breakpoints)
+- Universal-not-per-type, `breakpointAware`, `Breakpoint`, `default` and the value objects of a declaration: [option-model.md](docs/option-model.md)
+- The strict write, the registry-free read, unknown-option reporting and the output formats: [write-and-read.md](docs/write-and-read.md)
+- Loaders, registry decoration, `all()` versus `allResolved()`, collision precedence and app integration: [architecture.md](docs/architecture.md)
+- Registering an option from a plugin or app, name resolution, collision detection and the app lifecycle: [custom-options.md](docs/custom-options.md)
+- The two read surfaces one declaration feeds and the Admin API endpoint: [introspection.md](docs/introspection.md)
+- The loader and serializer surfaces the app persister reuses: [README.md](README.md#shared-surfaces)

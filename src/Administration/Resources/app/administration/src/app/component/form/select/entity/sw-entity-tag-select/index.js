@@ -81,12 +81,11 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(1, 1);
-            criteria.setTotalCountMode(0);
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', term));
 
-            return this.repository.searchIds(criteria, this.context).then((response) => {
-                this.tagExists = response.data.length > 0;
+            return this.repository.search(criteria, this.context).then((response) => {
+                this.tagExists = response.total > 0;
             });
         },
 

@@ -218,7 +218,6 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
-            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('salutationKey', this.salutation.salutationKey),
@@ -227,9 +226,9 @@ export default {
             );
 
             this.salutationRepository
-                .searchIds(criteria)
-                .then(({ data }) => {
-                    this.invalidKey = data.length > 0;
+                .search(criteria)
+                .then(({ total }) => {
+                    this.invalidKey = total > 0;
                     this.isKeyChecking = false;
                 })
                 .catch(() => {

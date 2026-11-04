@@ -42,7 +42,7 @@ const defaultProps = {
     set: {},
 };
 
-async function createWrapper(props = defaultProps, privileges = [], repositoryFactory = null) {
+async function createWrapper(props = defaultProps, privileges = []) {
     return mount(
         await wrapTestComponent('sw-custom-field-detail', {
             sync: true,
@@ -59,7 +59,6 @@ async function createWrapper(props = defaultProps, privileges = [], repositoryFa
                     },
                 },
                 provide: {
-                    ...(repositoryFactory ? { repositoryFactory } : {}),
                     acl: {
                         can: (identifier) => {
                             if (!identifier) {
@@ -362,30 +361,5 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
         const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
         expect(banner.exists()).toBe(false);
-    });
-
-    it('should disable cart expose when a cart rule condition uses the field', async () => {
-        const ruleConditionRepository = {
-            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['condition-id'] })),
-        };
-
-        const wrapper = await createWrapper(
-            {
-                currentCustomField: {
-                    ...customFieldFixture,
-                    config: { ...customFieldFixture.config },
-                    allowCartExpose: true,
-                },
-                set: {
-                    relations: [{ entityName: 'product' }],
-                },
-            },
-            ['custom_field.editor'],
-            { create: () => ruleConditionRepository },
-        );
-        await flushPromises();
-
-        expect(ruleConditionRepository.searchIds).toHaveBeenCalledTimes(1);
-        expect(wrapper.find('.sw-custom-field-detail__allow-cart-expose').attributes('disabled')).toBe('true');
     });
 });

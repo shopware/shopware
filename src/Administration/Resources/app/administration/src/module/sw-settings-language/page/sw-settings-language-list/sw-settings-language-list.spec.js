@@ -23,7 +23,6 @@ async function createWrapper(privileges = [], customStubs = {}) {
                 },
             ]);
         },
-        searchIds: () => Promise.resolve({ total: 0, data: [] }),
         syncDeleted: jest.fn().mockResolvedValue(),
     };
 
@@ -471,9 +470,8 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         await flushPromises();
 
         wrapper.vm.showAddLanguageModal = true;
-        jest.spyOn(wrapper.vm.languageRepository, 'searchIds').mockResolvedValue({
-            total: 1,
-            data: ['new-language-id'],
+        jest.spyOn(wrapper.vm.languageRepository, 'search').mockResolvedValue({
+            first: () => ({ id: 'new-language-id' }),
         });
 
         await wrapper.vm.onLanguageAdded('fr-FR');
@@ -490,9 +488,8 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        jest.spyOn(wrapper.vm.languageRepository, 'searchIds').mockResolvedValue({
-            total: 0,
-            data: [],
+        jest.spyOn(wrapper.vm.languageRepository, 'search').mockResolvedValue({
+            first: () => null,
         });
         const getListSpy = jest.spyOn(wrapper.vm, 'getList').mockResolvedValue();
 

@@ -60,9 +60,6 @@ async function createWrapper(routeParams = {}) {
                     $route: { params: routeParams },
                 },
                 provide: {
-                    mediaDefaultFolderService: {
-                        getDefaultFolderId: () => Promise.resolve('default-folder-id'),
-                    },
                     repositoryFactory: {
                         create: (name) => {
                             switch (name) {

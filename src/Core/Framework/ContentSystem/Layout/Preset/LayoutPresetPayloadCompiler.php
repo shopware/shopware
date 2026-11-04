@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class LayoutPresetPayloadCompiler
 {
+    public const MAX_EXPANDED_PRESETS = 1000;
+
     public function __construct(
         private readonly DraftLayoutDecoder $decoder,
         private readonly StoredElementCodec $codec,
@@ -65,7 +67,7 @@ class LayoutPresetPayloadCompiler
      *
      * @return list<array<string, mixed>>
      */
-    private function resolveNestedPresets(array $nodes, array $presets, array $path): array
+    private function resolveNestedPresets(array $nodes, array $presets, array $path, int &$size = 0): array
     {
         $resolved = [];
 
@@ -81,7 +83,11 @@ class LayoutPresetPayloadCompiler
                     throw ContentSystemException::layoutPresetCircularReference([...$path, $preset]);
                 }
 
-                array_push($resolved, ...$this->resolveNestedPresets($presets[$preset]->layout, $presets, [...$path, $preset]));
+                if (++$size >= self::MAX_EXPANDED_PRESETS) {
+                    throw ContentSystemException::layoutPresetTooManyReferences($path[0] ?? '', self::MAX_EXPANDED_PRESETS);
+                }
+
+                array_push($resolved, ...$this->resolveNestedPresets($presets[$preset]->layout, $presets, [...$path, $preset], $size));
 
                 continue;
             }
@@ -89,7 +95,7 @@ class LayoutPresetPayloadCompiler
             if (\is_array($node['slots'] ?? null)) {
                 foreach ($node['slots'] as $slot => $children) {
                     if (\is_array($children) && array_is_list($children)) {
-                        $node['slots'][$slot] = $this->resolveNestedPresets($children, $presets, $path);
+                        $node['slots'][$slot] = $this->resolveNestedPresets($children, $presets, $path, $size);
                     }
                 }
             }

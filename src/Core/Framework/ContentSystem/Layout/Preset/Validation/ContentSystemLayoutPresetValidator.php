@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -39,7 +40,7 @@ class ContentSystemLayoutPresetValidator
      * @param array<string, LayoutPresetSpecificationDto> $presets
      * @param non-empty-list<string> $path
      */
-    private function collectUnresolvableReferences(array $nodes, array $presets, array $path, ConstraintViolationList $violations): void
+    private function collectUnresolvableReferences(array $nodes, array $presets, array $path, ConstraintViolationList $violations, int &$size = 0): void
     {
         foreach ($nodes as $node) {
             $reference = $node['preset'] ?? null;
@@ -53,13 +54,20 @@ class ContentSystemLayoutPresetValidator
                     'Layout preset "{{ id }}" has a circular reference: {{ chain }}',
                     ContentSystemException::LAYOUT_PRESET_CIRCULAR_REFERENCE,
                 ));
-            } elseif (\is_string($reference)) {
-                $this->collectUnresolvableReferences($presets[$reference]->layout, $presets, [...$path, $reference], $violations);
+            } elseif (\is_string($reference) && ++$size === LayoutPresetPayloadCompiler::MAX_EXPANDED_PRESETS) {
+                $violations->add($this->violation(
+                    $path,
+                    $path[0],
+                    \sprintf('Layout preset "{{ id }}" reaches the limit of %d nested presets', LayoutPresetPayloadCompiler::MAX_EXPANDED_PRESETS),
+                    ContentSystemException::LAYOUT_PRESET_TOO_MANY_REFERENCES,
+                ));
+            } elseif (\is_string($reference) && $size < LayoutPresetPayloadCompiler::MAX_EXPANDED_PRESETS) {
+                $this->collectUnresolvableReferences($presets[$reference]->layout, $presets, [...$path, $reference], $violations, $size);
             }
 
             foreach (\is_array($node['slots'] ?? null) ? $node['slots'] : [] as $children) {
                 if (\is_array($children) && array_is_list($children)) {
-                    $this->collectUnresolvableReferences($children, $presets, $path, $violations);
+                    $this->collectUnresolvableReferences($children, $presets, $path, $violations, $size);
                 }
             }
         }

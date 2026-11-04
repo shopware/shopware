@@ -69,6 +69,23 @@ class ContentSystemLayoutPresetValidatorTest extends TestCase
         ], $messages);
     }
 
+    #[TestDox('stops at the limit and reports a preset whose references expand exponentially')]
+    public function testExponentialExpansionIsReportedAsTooManyReferences(): void
+    {
+        $presets = ['Sw:Level40' => $this->preset([['component' => 'Sw:Content:Text']])];
+        for ($level = 39; $level >= 0; --$level) {
+            $next = 'Sw:Level' . ($level + 1);
+            $presets['Sw:Level' . $level] = $this->preset([['preset' => $next], ['preset' => $next]]);
+        }
+
+        $violations = (new ContentSystemLayoutPresetValidator())->validate('Sw:Level0', $presets);
+
+        static::assertCount(1, $violations);
+        static::assertSame('Sw:Level0', $violations->get(0)->getPropertyPath());
+        static::assertSame(ContentSystemException::LAYOUT_PRESET_TOO_MANY_REFERENCES, $violations->get(0)->getCode());
+        static::assertSame('Layout preset "Sw:Level0" reaches the limit of 1000 nested presets', $violations->get(0)->getMessage());
+    }
+
     #[TestDox('reports an unknown reference when the validated preset itself is missing')]
     public function testMissingValidatedPreset(): void
     {

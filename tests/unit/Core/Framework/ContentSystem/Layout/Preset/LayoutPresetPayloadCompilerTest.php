@@ -213,6 +213,22 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         ], ['Sw:A']);
     }
 
+    #[TestDox('throws before expanding more nested presets than the limit')]
+    public function testCompileThrowsWhenTheExpansionExceedsTheLimit(): void
+    {
+        $presets = ['Sw:Level40' => $this->preset([['component' => 'Sw:Content:Text']])];
+        for ($level = 39; $level >= 0; --$level) {
+            $next = 'Sw:Level' . ($level + 1);
+            $presets['Sw:Level' . $level] = $this->preset([['preset' => $next], ['preset' => $next]]);
+        }
+
+        $compiler = $this->createCompiler(static::createStub(DraftLayoutDecoder::class));
+
+        $this->expectExceptionObject(ContentSystemException::layoutPresetTooManyReferences('Sw:Level0', LayoutPresetPayloadCompiler::MAX_EXPANDED_PRESETS));
+
+        $compiler->compile($presets['Sw:Level0']->layout, $presets, ['Sw:Level0']);
+    }
+
     #[TestDox('expands the same preset twice side by side without treating it as circular')]
     public function testCompileAllowsRepeatedNonCircularReferences(): void
     {

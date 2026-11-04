@@ -650,6 +650,13 @@ class ContentSystemExceptionTest extends TestCase
             'Layout preset "App:A" references unknown preset "App:Missing" via App:A -> App:B -> App:Missing',
         ];
 
+        yield 'layout preset too many references' => [
+            ContentSystemException::layoutPresetTooManyReferences('App:A', 1000),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES',
+            'Layout preset "App:A" reaches the limit of 1000 nested presets',
+        ];
+
         yield 'style option duplicate' => [
             ContentSystemException::styleOptionDuplicate('padding', 'core', 'MyPlugin'),
             Response::HTTP_CONFLICT,

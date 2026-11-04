@@ -62,6 +62,7 @@ class ContentSystemException extends HttpException
     public const LAYOUT_PRESET_INVALID_FILENAME = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME';
     public const LAYOUT_PRESET_CIRCULAR_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE';
     public const LAYOUT_PRESET_UNKNOWN_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE';
+    public const LAYOUT_PRESET_TOO_MANY_REFERENCES = 'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -749,6 +750,16 @@ class ContentSystemException extends HttpException
             self::LAYOUT_PRESET_UNKNOWN_REFERENCE,
             'Layout preset "{{ id }}" references unknown preset "{{ reference }}" via {{ chain }}',
             ['id' => $path[0] ?? '', 'reference' => $reference, 'chain' => implode(' -> ', [...$path, $reference])]
+        );
+    }
+
+    public static function layoutPresetTooManyReferences(string $id, int $limit): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_TOO_MANY_REFERENCES,
+            'Layout preset "{{ id }}" reaches the limit of {{ limit }} nested presets',
+            ['id' => $id, 'limit' => $limit]
         );
     }
 

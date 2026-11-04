@@ -166,18 +166,44 @@ describe('build/vite-plugins/shopware-setup-hmr', () => {
         expect(current.hot.invalidate).toHaveBeenCalled();
     });
 
-    it.activeFeatureFlags(['ADMIN_VITE_8'])('reloads the page for a base the component factory composed', async () => {
-        const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
-        ComponentFactory.register(name, () => Promise.resolve(current.component as ComponentConfig));
-        ComponentFactory.extend(`${name}-child`, name, {});
-        await ComponentFactory.build(`${name}-child`);
-        const wrapper = await mountComponent(current.component);
+    [
+        {
+            composition: 'extends',
+            compose: async (base: string) => {
+                ComponentFactory.extend(`${base}-child`, base, {});
+                await ComponentFactory.build(`${base}-child`);
+            },
+        },
+        {
+            composition: 'overrides',
+            compose: async (base: string) => {
+                ComponentFactory.override(base, {});
+                await ComponentFactory.build(base);
+            },
+        },
+        {
+            composition: 'adds mixins to',
+            compose: async (base: string, component: ComponentConfig) => {
+                component.mixins = [{}];
+                await ComponentFactory.build(base);
+            },
+        },
+    ].forEach(({ composition, compose }) => {
+        it.activeFeatureFlags(['ADMIN_VITE_8'])(
+            `reloads the page when the component factory ${composition} a base`,
+            async () => {
+                const current = load('base', { version: 'script-1', label: 'Count', count: 1 });
+                ComponentFactory.register(name, () => Promise.resolve(current.component as ComponentConfig));
+                await compose(name, current.component as ComponentConfig);
+                const wrapper = await mountComponent(current.component);
 
-        hotUpdate(current, load('base', { version: 'script-2', label: 'Count', count: 2 }, current.hot.data));
-        await flushPromises();
+                hotUpdate(current, load('base', { version: 'script-2', label: 'Count', count: 2 }, current.hot.data));
+                await flushPromises();
 
-        expect(current.hot.invalidate).toHaveBeenCalled();
-        expect(wrapper.find('p').text()).toBe('Count 1');
+                expect(current.hot.invalidate).toHaveBeenCalled();
+                expect(wrapper.find('p').text()).toBe('Count 1');
+            },
+        );
     });
 
     it('reloads the page on every edit when the output of @vitejs/plugin-vue is not recognised', async () => {

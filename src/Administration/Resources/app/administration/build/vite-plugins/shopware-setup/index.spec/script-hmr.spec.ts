@@ -66,6 +66,27 @@ describe('build/vite-plugins/shopware-setup script hot updates', () => {
         expect(scriptEdit?.meta?.shopwareSetupHmr?.version).not.toBe(version);
     });
 
+    it('gives an override template edit that starts reading a script local a new script version', async () => {
+        const override = (template: string) => `<template>
+<sw-block extends="sw_hot_body">
+    ${template}
+</sw-block>
+</template>
+<script setup>
+const badge = 'new';
+
+swDefineOverride({});
+</script>`;
+        const plugin = createPlugin({ administrationRoot: process.cwd(), scriptHmr: true });
+        const vueFile = await createVueFile(override('<p>static</p>'), 'sw-hot-component.override.vue');
+        const { loaded, resolvedId } = await resolveAndLoadVueFile(plugin, vueFile);
+
+        await fs.writeFile(vueFile, override('<p>{{ badge }}</p>'));
+        const templateEdit = await plugin.load.call({ addWatchFile: jest.fn() }, resolvedId as string);
+
+        expect(templateEdit?.meta?.shopwareSetupHmr?.version).not.toBe(loaded?.meta?.shopwareSetupHmr?.version);
+    });
+
     it('hot updates a script edit', async () => {
         const setup = await loadedSetupFile();
 

@@ -38,6 +38,22 @@ function withoutQuery(id: string): string {
 export type ShopwareSetupHmrMeta = Pick<ShopwareSetupTransformResult, 'componentName' | 'mode'> & { version: string };
 
 /**
+ * Hashes the generated scripts, not the authored ones: an override's generated script also depends on
+ * which script locals its template reads.
+ */
+function scriptVersion(code: string, fileName: string): string {
+    const { descriptor } = parse(code, { filename: fileName, sourceMap: false });
+
+    return createHash('sha256')
+        .update(
+            JSON.stringify(
+                [descriptor.script, descriptor.scriptSetup].map((block) => block && [block.content, block.attrs]),
+            ),
+        )
+        .digest('hex');
+}
+
+/**
  * `structure` is what the Administration reads once at boot: the extended component, its block names,
  * and the plain `<script>` that registers the extension targets before Twig templates resolve.
  */
@@ -47,9 +63,7 @@ function describeForHmr(
     result: ShopwareSetupTransformResult | null,
 ): { structure: string; meta: ShopwareSetupHmrMeta | null } {
     const { descriptor } = parse(source, { filename: fileName, sourceMap: false });
-    const [script, scriptSetup] = [descriptor.script, descriptor.scriptSetup].map(
-        (block) => block && [block.content, block.attrs],
-    );
+    const script = descriptor.script && [descriptor.script.content, descriptor.script.attrs];
     const structure = JSON.stringify([
         result?.mode,
         result?.componentName,
@@ -63,9 +77,7 @@ function describeForHmr(
         meta: result && {
             componentName: result.componentName,
             mode: result.mode,
-            version: createHash('sha256')
-                .update(JSON.stringify([script, scriptSetup]))
-                .digest('hex'),
+            version: scriptVersion(result.code, fileName),
         },
     };
 }

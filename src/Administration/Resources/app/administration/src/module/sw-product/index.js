@@ -48,6 +48,7 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-product-document-add-button', () => import('./component/sw-product-document-add-button'));
 Shopware.Component.register('sw-product-document-form', () => import('./component/sw-product-document-form'));
+Shopware.Component.register('sw-product-document-download', () => import('./component/sw-product-document-download'));
 Shopware.Component.register('sw-product-document-empty-state', () => import('./component/sw-product-document-empty-state'));
 Shopware.Component.register('sw-product-document-edit-modal', () => import('./component/sw-product-document-edit-modal'));
 Shopware.Component.register(

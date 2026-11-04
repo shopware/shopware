@@ -4,6 +4,7 @@
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import documentColumns, { allowedExtensions, maxFileSize, maxDocuments } from './document-form.config';
+import { resetDocumentTranslation } from './document-translation.utils';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -20,7 +21,6 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'entityFactory',
         'acl',
-        'mediaService',
         'fileValidationService',
     ],
 
@@ -82,6 +82,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
+
+        contentLanguageName(): string {
+            const language = Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            const code = language?.locale?.code.split('-')[0];
+            const locale = Shopware.Store.get('session').currentLocale || 'en-GB';
+            const names = new Intl.DisplayNames([locale], { type: 'language' });
+            return code ? names.of(code) || '' : language?.name || '';
+        },
 
         editingMedia(): Entity<'media'> | undefined {
             return (
@@ -171,48 +179,6 @@ export default Shopware.Component.wrapComponentConfig({
         getFileName(document: ProductDocument): string {
             const media = this.getMedia(document);
             return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
-        },
-
-        async downloadDocument(document: ProductDocument): Promise<void> {
-            const media = this.getMedia(document);
-            if (!this.acl.can('media.viewer') || !media) {
-                return;
-            }
-
-            try {
-                const downloadConfig = (await this.mediaService.prepareDownloadMedia(media.id)) as
-                    | { type: 'external'; url: string }
-                    | { type: 'blob' };
-                if (downloadConfig.type === 'external') {
-                    this.triggerDownload(downloadConfig.url);
-                    return;
-                }
-
-                const data = (await this.mediaService.downloadMedia(media.id)) as Blob;
-                const url = URL.createObjectURL(data);
-                try {
-                    this.triggerDownload(url, this.getFileName(document));
-                } finally {
-                    URL.revokeObjectURL(url);
-                }
-            } catch {
-                useNotification().createNotificationError({
-                    message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
-                });
-            }
-        },
-
-        triggerDownload(url: string, fileName?: string): void {
-            const link = document.createElement('a');
-            link.href = url;
-            if (fileName) {
-                link.download = fileName;
-            } else {
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-            }
-            link.dispatchEvent(new MouseEvent('click'));
-            link.remove();
         },
 
         async successfulUpload(
@@ -393,7 +359,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         confirmRemoveDocument(document: ProductDocument): void {
-            if (!this.canChangeDocuments()) {
+            if (!this.canChangeDocuments() || (!this.isDefaultLanguage && !document.title && !document.mediaId)) {
                 return;
             }
 
@@ -433,12 +399,18 @@ export default Shopware.Component.wrapComponentConfig({
                 if (mediaId) {
                     this.stageVariantDocumentRemovals(variants, mediaId);
                 }
-                this.documents.remove(document.id);
+                if (this.isDefaultLanguage) {
+                    this.documents.remove(document.id);
+                } else {
+                    Object.assign(document, resetDocumentTranslation(document, Shopware.Store.get('context').api.language));
+                }
                 const store = Shopware.Store.get('swProductDetail');
                 store.documentSaveNotifications = store.documentSaveNotifications.filter(
                     (entry) => entry.documentId !== document.id,
                 );
-                this.updatePositions();
+                if (this.isDefaultLanguage) {
+                    this.updatePositions();
+                }
                 this.closeRemoveDocumentModal();
             } catch {
                 if (isCurrentRemoval()) {
@@ -466,6 +438,7 @@ export default Shopware.Component.wrapComponentConfig({
                 criteria.addSorting(Criteria.sort('id'));
                 criteria.addFilter(Criteria.equals('parentId', productId));
                 criteria.addFilter(Criteria.equals('documents.mediaId', mediaId));
+                criteria.addAssociation('documents.translations.media');
                 criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
                 result = await productRepository.search(criteria, context);
                 variants.push(...result);
@@ -536,10 +509,18 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!children.has(variant.id)) {
                     children.add(variant);
                 }
-                matching.forEach((copy) => documents.remove(copy.id));
-                documents.forEach((copy, index) => {
-                    copy.position = index;
+                matching.forEach((copy) => {
+                    if (this.isDefaultLanguage) {
+                        documents.remove(copy.id);
+                    } else {
+                        Object.assign(copy, resetDocumentTranslation(copy, Shopware.Store.get('context').api.language));
+                    }
                 });
+                if (this.isDefaultLanguage) {
+                    documents.forEach((copy, index) => {
+                        copy.position = index;
+                    });
+                }
             });
             this.product.children = children;
             origin.children = originChildren;

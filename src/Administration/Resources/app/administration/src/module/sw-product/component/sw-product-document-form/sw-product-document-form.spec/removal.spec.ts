@@ -43,7 +43,7 @@ describe('sw-product-document-form removal', () => {
         const germanLanguageId = repositoryFactory.create('language').create().id;
         const media = createMedia();
         const germanMedia = createMedia('handbuch');
-        Shopware.Context.api.languageId = germanLanguageId;
+        Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const { repositoryFactoryMock } = global as typeof globalThis & {
             repositoryFactoryMock: {
                 responses: {
@@ -89,8 +89,8 @@ describe('sw-product-document-form removal', () => {
                             productId,
                             versionId,
                             position,
-                            title: 'Handbuch',
-                            mediaId: germanMedia.id,
+                            title: 'Manual',
+                            mediaId: media.id,
                         },
                         relationships: {
                             translations: {
@@ -175,7 +175,7 @@ describe('sw-product-document-form removal', () => {
         expect(syncSpy.mock.calls[0][1]).toEqual(operations);
         expect(syncSpy.mock.calls[1][1]).toEqual(operations);
         expect(syncSpy.mock.calls[1][2]).toMatchObject({
-            headers: { 'single-operation': true, 'sw-language-id': germanLanguageId },
+            headers: { 'single-operation': true, 'sw-language-id': Shopware.Context.api.systemLanguageId },
         });
         expect(deleteSpy).not.toHaveBeenCalled();
 

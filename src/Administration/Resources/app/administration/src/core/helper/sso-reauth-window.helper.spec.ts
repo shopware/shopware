@@ -26,6 +26,10 @@ describe('src/core/helper/sso-reauth-window.helper.ts', () => {
         expect(close).toHaveBeenCalledTimes(1);
     });
 
+    it('checks the current window by default', () => {
+        expect(completeSsoReauthWindow()).toBe(false);
+    });
+
     it('leaves a window alone that was not opened for the re-authentication', () => {
         const { win, postMessage, close } = createWindow({ name: '' });
 

@@ -363,6 +363,27 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(deleteFunction).not.toHaveBeenCalled();
     });
 
+    it('should not delete the user when the verification is cancelled', async () => {
+        const deleteFunction = jest.fn().mockResolvedValue(undefined);
+        wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: false }, deleteFunction);
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+        Shopware.Store.get('session').setCurrentUser({ id: 'current-user' });
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-user-list__user-delete-action').trigger('click');
+        await flushPromises();
+
+        const confirmButton = wrapper
+            .findAll('.sw-settings-user-list__delete-modal .mt-button')
+            .find((button) => button.text() === 'global.default.delete');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(deleteFunction).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-settings-user-list__delete-modal').exists()).toBe(false);
+    });
+
     it('should delete an SSO user without password verification', async () => {
         const deleteFunction = jest.fn().mockResolvedValue(undefined);
         wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: true }, deleteFunction);

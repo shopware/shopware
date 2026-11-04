@@ -683,6 +683,26 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
     });
 
+    it('should not save the role when the verification is cancelled', async () => {
+        const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            {
+                aclPrivileges: ['users_and_permissions.editor'],
+            },
+            {},
+            { isSso: false },
+            saveFunction,
+        );
+        await flushPromises();
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+
+        await wrapper.find('.sw-users-permissions-role-detail__button-save').trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(saveFunction).not.toHaveBeenCalled();
+    });
+
     it('should show the name of the role as the title', async () => {
         wrapper = await createWrapper();
         await flushPromises();

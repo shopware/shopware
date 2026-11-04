@@ -15,6 +15,10 @@ const userVerificationService = {
     verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
 };
 
+const validationApiService = {
+    validateEmailAddress: jest.fn(() => Promise.resolve(true)),
+};
+
 async function createWrapper(
     privileges = [],
     isSso = { isSso: false },
@@ -157,11 +161,7 @@ async function createWrapper(
                         return Promise.resolve(isSso);
                     },
                 },
-                validationApiService: {
-                    validateEmailAddress: () => {
-                        return Promise.resolve(true);
-                    },
-                },
+                validationApiService,
                 feature: {
                     isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                 },
@@ -400,6 +400,53 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         const saveButton = wrapper.find('.sw-profile__save-action');
         await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(updateFunction).not.toHaveBeenCalled();
+    });
+
+    it('should not verify the user when the email address is invalid', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        validationApiService.validateEmailAddress.mockResolvedValueOnce(false);
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        await flushPromises();
+
+        await wrapper.find('.sw-profile__save-action').trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+        expect(updateFunction).not.toHaveBeenCalled();
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'sw-profile.index.notificationInvalidEmailErrorMessage' }),
+        );
+    });
+
+    it('should not verify the user when the new passwords differ', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        await flushPromises();
+        await wrapper.setData({ newPassword: 'Shopware', newPasswordConfirm: 'Shopwar' });
+
+        await wrapper.find('.sw-profile__save-action').trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+        expect(updateFunction).not.toHaveBeenCalled();
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'sw-profile.index.notificationPasswordErrorMessage' }),
+        );
+    });
+
+    it('should not save when the verification is cancelled', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        await flushPromises();
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+
+        await wrapper.find('.sw-profile__save-action').trigger('click');
         await flushPromises();
 
         expect(userVerificationService.verify).toHaveBeenCalledTimes(1);

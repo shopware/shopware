@@ -147,6 +147,36 @@ describe('src/core/service/user-verification.service.ts', () => {
         });
     });
 
+    it('reports an unexpected SSO failure as a start failure', async () => {
+        sessionStorage.setItem('sw-sso-session', 'true');
+        reauthenticate.mockRejectedValueOnce(new Error('network'));
+
+        await expect(createService().verify()).rejects.toEqual(UserVerificationError.ssoNotConfigured());
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.sso-not-configured' }),
+        );
+    });
+
+    it('falls back to the error message while the administration has no root', async () => {
+        sessionStorage.setItem('sw-sso-session', 'true');
+        reauthenticate.mockRejectedValueOnce(UserVerificationError.ssoWindowBlocked());
+        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue(false);
+
+        await expect(createService().verify()).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
+        expect(createNotification).toHaveBeenCalledWith({
+            variant: 'critical',
+            title: '',
+            message: UserVerificationError.ssoWindowBlocked().message,
+        });
+    });
+
+    it('ignores a cancel without a running verification', () => {
+        const service = createService();
+
+        expect(() => service.cancel()).not.toThrow();
+        expect(store().requested).toBe(false);
+    });
+
     it('rejects when the identity provider returned without a session', async () => {
         sessionStorage.setItem('sw-sso-session', 'true');
         (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(false);
@@ -189,6 +219,10 @@ describe('src/core/service/user-verification.service.ts', () => {
         expect(service.isVerified()).toBe(true);
 
         (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce('not-a-jwt');
+        expect(service.isVerified()).toBe(false);
+
+        const withoutScopeList = `header.${window.btoa(JSON.stringify({ scopes: 'user-verified' }))}.signature`;
+        (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(withoutScopeList);
         expect(service.isVerified()).toBe(false);
     });
 

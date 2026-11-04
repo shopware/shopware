@@ -55,6 +55,34 @@ describe('src/core/service/sso-reauth.service.ts', () => {
         expect(windowEvents.removeEventListener).toHaveBeenCalledTimes(1);
     });
 
+    it('keeps waiting while the window stays open', async () => {
+        let settled = false;
+        const result = createService()
+            .reauthenticate()
+            .finally(() => {
+                settled = true;
+            });
+        await jest.advanceTimersByTimeAsync(10 * 3);
+
+        expect(settled).toBe(false);
+
+        postMessage('https://shop.test', SSO_REAUTH_COMPLETE_MESSAGE);
+        await expect(result).resolves.toBeUndefined();
+    });
+
+    it('opens the window through the browser by default', async () => {
+        const open = jest.spyOn(window, 'open').mockReturnValue(null);
+
+        await expect(new SsoReauthService(loginService).reauthenticate()).rejects.toEqual(
+            UserVerificationError.ssoWindowBlocked(),
+        );
+        expect(open).toHaveBeenCalledWith(
+            expect.stringContaining('usePromptLogin=1'),
+            SSO_REAUTH_WINDOW_NAME,
+            expect.any(String),
+        );
+    });
+
     it('ignores messages from other origins and other messages', async () => {
         const result = createService().reauthenticate();
         await jest.advanceTimersByTimeAsync(0);

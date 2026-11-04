@@ -185,6 +185,35 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         expect(deleteFunction).not.toHaveBeenCalled();
     });
 
+    it('should not delete the role when the verification is cancelled', async () => {
+        const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            ['users_and_permissions.deleter', 'users_and_permissions.editor'],
+            { isSso: false },
+            deleteFunction,
+        );
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'anyId',
+                    name: 'anyName',
+                },
+            ],
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-users-permissions-role-listing__context-menu-delete').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button').trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(deleteFunction).not.toHaveBeenCalled();
+    });
+
     it('should delete role without pw confirmation', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(

@@ -8,11 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber;
 use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
@@ -39,41 +34,31 @@ class SystemLanguageChangedSubscriberTest extends TestCase
     {
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection()]);
 
+        $localeRepository = new StaticEntityRepository([]);
+
         $subscriber = new SystemLanguageChangedSubscriber(
-            $localeRepository = $this->createMock(EntityRepository::class),
+            $localeRepository,
             $snippetRepository
         );
-
-        $localeRepository->expects($this->never())
-            ->method('searchIds');
 
         $subscriber->onSystemLanguageChanged(new SystemLanguageChangeEvent(
             'previous-language-id',
             'en-GB',
             'en-US',
         ));
+
+        static::assertSame([], $localeRepository->searchedCriteria);
     }
 
     public function testOnSystemLanguageChangedThrowsExceptionWhenNewLocaleDoesNotExist(): void
     {
-        $localeRepository = static::createStub(EntityRepository::class);
-        $snippetRepository = static::createStub(EntityRepository::class);
-
-        $snippetCollection = new AppAdministrationSnippetCollection([
+        $localeRepository = new StaticEntityRepository([[]]);
+        $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
             (new AppAdministrationSnippetEntity())->assign([
                 'id' => 'snippet-id',
                 'appId' => 'app-id',
             ]),
-        ]);
-
-        $snippetSearchResult = static::createStub(EntitySearchResult::class);
-        $snippetSearchResult->method('getEntities')->willReturn($snippetCollection);
-
-        $snippetRepository->method('search')->willReturn($snippetSearchResult);
-
-        $localeRepository->method('searchIds')->willReturn(
-            new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext())
-        );
+        ])]);
 
         $subscriber = new SystemLanguageChangedSubscriber(
             $localeRepository,

@@ -4,7 +4,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { defineComponent, h } from 'vue';
 import type { Component } from 'vue';
-import vueJestTransformer from '@vue/vue3-jest';
 import { transformShopwareSetupSfc } from '../../../../build/vue-setup-transform';
 import resetCompositionOverrides from 'test/_helper_/reset-composition-overrides';
 import 'src/app/store/block-override.store';
@@ -16,9 +15,9 @@ type HmrRuntime = { reload: (id: string, component: unknown) => void };
 const runtime = (globalThis as typeof globalThis & { __VUE_HMR_RUNTIME__: HmrRuntime }).__VUE_HMR_RUNTIME__;
 const overrideFile = `${__dirname}/../_mocks_/sw-jest-transform-block-fixture.override.vue`;
 const overrideId = 'sw-jest-transform-block-fixture:override';
-const vueJest = vueJestTransformer as {
+const vueJest = jest.requireActual<{
     process: (source: string, filename: string, config: unknown, options: unknown) => { code: string };
-};
+}>('@vue/vue3-jest');
 
 function compileOverride(label: string, version: string): Component {
     const source = `<template>

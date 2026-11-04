@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\DependencyInjection;
 
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
+use Shopware\Core\System\Unit\Api\UnitUneceCodeController;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitUneceCodes;
 use Shopware\Core\System\Unit\UnitValidator;
@@ -24,4 +25,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UnitValidator::class)
         ->args([service(UnitUneceCodes::class)])
         ->tag('kernel.event_subscriber');
+
+    $services->set(UnitUneceCodeController::class)
+        ->public()
+        ->args([service(UnitUneceCodes::class)]);
 };

@@ -5,6 +5,7 @@ import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
+import type { UnitUneceCode } from '../../../../core/service/api/unit-unece-code.api.service';
 
 const { Component, Mixin } = Shopware;
 
@@ -16,7 +17,12 @@ export default Component.wrapComponentConfig({
 
     mixins: [Mixin.getByName('notification')],
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'unitUneceCodeService',
+    ],
 
     props: {
         /**
@@ -47,7 +53,18 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', ['name', 'shortCode']),
+        uneceCodeOptions(): Array<{ value: string; label: string }> {
+            return this.uneceCodes.map(({ code, name }) => {
+                const snippetKey = `sw-settings-units.uneceCodes.${code}`;
+
+                return {
+                    value: code,
+                    label: `${code} - ${this.$te(snippetKey) ? this.$t(snippetKey) : name}`,
+                };
+            });
+        },
+
+        ...mapPropertyErrors('unit', ['name', 'shortCode', 'uneceCode']),
     },
 
     data(): {
@@ -55,12 +72,16 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         isSaveSuccessful: boolean;
         customFieldSets: Entity<'custom_field_set'>[];
+        uneceCodes: UnitUneceCode[];
+        isUneceCodesLoading: boolean;
     } {
         return {
             unit: null,
             isLoading: true,
             isSaveSuccessful: false,
             customFieldSets: [],
+            uneceCodes: [],
+            isUneceCodesLoading: true,
         };
     },
 
@@ -81,6 +102,8 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
+        this.loadUneceCodes();
+
         const customFieldDataProviderService = this.customFieldDataProviderService as {
             getCustomFieldSets(
                 entityName: string,
@@ -113,6 +136,22 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        loadUneceCodes(): void {
+            this.unitUneceCodeService
+                .getUneceCodes()
+                .then((uneceCodes) => {
+                    this.uneceCodes = uneceCodes;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-units.notification.errorLoadingUneceCodes'),
+                    });
+                })
+                .finally(() => {
+                    this.isUneceCodesLoading = false;
+                });
+        },
+
         loadUnit(): void {
             if (this.unitId === null) {
                 return;

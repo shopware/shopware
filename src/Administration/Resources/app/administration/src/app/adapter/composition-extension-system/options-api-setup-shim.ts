@@ -15,6 +15,7 @@ import { computed, customRef, getCurrentInstance, isReadonly, isRef, unref } fro
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
+import { trackSetupHmrComponent } from './script-hmr';
 import {
     createOverrideLocalState,
     exposeOverrideLocalState,
@@ -54,6 +55,8 @@ export function attachSetupOverrideShim(componentName: string, config: Component
     // so previousState would be empty. An existing setup() keeps its own return value as the starting
     // content instead of being replaced.
     config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
+        trackSetupHmrComponent(componentName);
+
         const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
 
         if (!_overridesMap[componentName]?.length) {

@@ -23,6 +23,7 @@ import {
     setDataScopeForInstance,
 } from './data-scope-helper';
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
+import { registerSetupOverrideForHmr, trackSetupHmrComponent } from './script-hmr';
 
 /** @private */
 export { getScriptSetupDataScope } from './data-scope-helper';
@@ -276,6 +277,8 @@ export function createExtendableSetup<
         private?: TPrivateSetupResult;
     },
 ): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
+    trackSetupHmrComponent(options.name as string);
+
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     const propKeys = new Set(Object.keys(options.props));
     const modelBindings = new Set(options.modelBindings ?? []);
@@ -522,13 +525,19 @@ export function overrideComponentSetup<TOriginalComponent>() {
             context: SetupContext,
         ) => ReturnType<OverrideFn>,
     ): void {
+        // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
+        const callback = override as unknown as OverrideFn;
+
+        if (registerSetupOverrideForHmr(String(componentName), callback, _overridesMap)) {
+            return;
+        }
+
         // Initialize the overrides array for this component if it doesn't exist
         if (!_overridesMap[componentName]) {
             _overridesMap[componentName] = reactive([]);
         }
 
-        // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
-        _overridesMap[componentName].push(override as unknown as OverrideFn);
+        _overridesMap[componentName].push(callback);
     };
 }
 

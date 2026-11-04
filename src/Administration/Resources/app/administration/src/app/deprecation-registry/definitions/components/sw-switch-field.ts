@@ -3,6 +3,7 @@
  */
 
 import {
+    onlyAfterConversion,
     componentMigration,
     removeProp,
     removeSlot,
@@ -36,9 +37,11 @@ export default componentMigration({
         removeProp({
             prop: 'size',
         }),
-        removeProp({
-            prop: 'id',
-        }),
+        onlyAfterConversion(
+            removeProp({
+                prop: 'id',
+            }),
+        ),
         renameProp({
             from: 'value',
             to: 'model-value',

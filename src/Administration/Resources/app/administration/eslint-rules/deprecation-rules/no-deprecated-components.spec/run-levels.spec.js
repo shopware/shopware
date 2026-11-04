@@ -28,6 +28,14 @@ tester.run('no-deprecated-components (safe level)', rule, {
             errors: [{ message: /^"sw-text-field" is deprecated\. Please use "mt-text-field" instead\.\n/ }],
         },
         {
+            name: 'converts a select whose options move into the options prop',
+            filename: 'test.html.twig',
+            settings: atLevel('safe'),
+            code: '<template>\n<sw-select-field v-model:value="y" label="L"><option value="a">A</option></sw-select-field>\n</template>',
+            output: '<template>\n<mt-select :options="[{ value: \'a\', label: \'A\' }]" v-model="y" label="L" hide-clearable-button />\n</template>',
+            errors: [{ message: /^"sw-select-field" is deprecated\. Please use "mt-select" instead\.\n/ }],
+        },
+        {
             name: 'keeps an element with a part that needs a review',
             filename: 'test.html.twig',
             settings: atLevel('safe'),

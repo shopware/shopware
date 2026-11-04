@@ -258,6 +258,8 @@ function applyRunLevel(level, sourceCode, descriptor, message) {
 function withRunLevel(rule) {
     return {
         ...rule,
+        // At `partial` and `manual` every report can get a review comment fix
+        meta: { ...rule.meta, fixable: rule.meta?.fixable ?? 'code' },
         create(context) {
             if (isFixDisabled(context)) {
                 return rule.create(context);

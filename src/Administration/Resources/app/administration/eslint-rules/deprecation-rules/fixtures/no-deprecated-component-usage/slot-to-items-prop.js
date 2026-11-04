@@ -98,6 +98,11 @@ const slotToItemsPropInvalidTests = [
         'A <option> element has "selected", which an item of "options" cannot hold.',
     ),
     manualCase(
+        'an option without value stays, because the select used its text as value',
+        `<template><mt-select v-model="x"><option>Alpha</option></mt-select></template>`,
+        'A <option> element has no "value", which every item needs.',
+    ),
+    manualCase(
         'an option that iterates over a number stays',
         `<template><mt-select v-model="x"><option v-for="i in 48" :value="i">{{ i }}</option></mt-select></template>`,
         'A <option> element iterates over a number.',

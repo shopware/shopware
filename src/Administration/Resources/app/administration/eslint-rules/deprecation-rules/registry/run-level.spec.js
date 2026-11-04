@@ -127,6 +127,33 @@ new RuleTester({ languageOptions: { ecmaVersion: 2020, sourceType: 'module' } })
     ],
 });
 
+const reportOnlyRule = withRunLevel({
+    meta: { schema: [] },
+    create(context) {
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor({
+            VElement(node) {
+                if (node.name === 'old-manual') {
+                    context.report({ node, message: 'Found old-manual.' });
+                }
+            },
+        });
+    },
+});
+
+tester.run('withRunLevel (rule without fixes)', reportOnlyRule, {
+    valid: [],
+    invalid: [
+        {
+            name: 'partial: a rule that never fixes still gets its review comment',
+            filename: 'test.html.twig',
+            settings: atLevel('partial'),
+            code: template('<old-manual />'),
+            output: template('<!-- TODO Codemod: Found old-manual. -->', '<old-manual />'),
+            errors: [{ message: 'Found old-manual.' }],
+        },
+    ],
+});
+
 describe('registry/run-level', () => {
     it('rejects an unknown level', () => {
         const config = {

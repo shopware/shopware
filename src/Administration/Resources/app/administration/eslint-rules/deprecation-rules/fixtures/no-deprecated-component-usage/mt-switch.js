@@ -1,5 +1,10 @@
 const mtSwitchValidChecks = [
     {
+        name: '"mt-switch" written with an id keeps it when the codemod did not convert it',
+        filename: 'test.html.twig',
+        code: '<template>\n    <mt-switch id="foo" />\n</template>',
+    },
+    {
         name: '"sw-switch-field" usage is allowed',
         filename: 'test.html.twig',
         code: `
@@ -153,10 +158,12 @@ const mtSwitchInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch id="example-identifier" />
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch />
             </template>`,
         errors: [{
@@ -169,6 +176,7 @@ const mtSwitchInvalidChecks = [
         options: ['disableFix'],
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch id="example-identifier" />
             </template>`,
         errors: [{
@@ -180,10 +188,12 @@ const mtSwitchInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch id />
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch />
             </template>`,
         errors: [{
@@ -196,6 +206,7 @@ const mtSwitchInvalidChecks = [
         options: ['disableFix'],
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch id />
             </template>`,
         errors: [{
@@ -207,10 +218,12 @@ const mtSwitchInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch :id="myId" />
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch />
             </template>`,
         errors: [{
@@ -223,6 +236,7 @@ const mtSwitchInvalidChecks = [
         options: ['disableFix'],
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                 <mt-switch :id="myId" />
             </template>`,
         errors: [{

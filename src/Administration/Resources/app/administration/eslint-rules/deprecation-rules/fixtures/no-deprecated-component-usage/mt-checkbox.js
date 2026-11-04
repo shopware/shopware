@@ -133,10 +133,12 @@ const mtCheckboxInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
                 <mt-checkbox id="checkbox-id" />
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
                 <mt-checkbox />
             </template>`,
         errors: [{
@@ -149,6 +151,7 @@ const mtCheckboxInvalidTests = [
         options: ['disableFix'],
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
                 <mt-checkbox id="checkbox-id" />
             </template>`,
         errors: [{
@@ -160,10 +163,12 @@ const mtCheckboxInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
                 <mt-checkbox :id="checkboxId" />
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
                 <mt-checkbox />
             </template>`,
         errors: [{
@@ -176,6 +181,7 @@ const mtCheckboxInvalidTests = [
         options: ['disableFix'],
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
                 <mt-checkbox :id="checkboxId" />
             </template>`,
         errors: [{

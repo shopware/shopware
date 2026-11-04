@@ -255,10 +255,12 @@ const mtButtonInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button>Hello</mt-button>
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button variant="secondary">Hello</mt-button>
             </template>`,
         errors: [
@@ -272,10 +274,12 @@ const mtButtonInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button v-bind="buttonProps">Hello</mt-button>
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button variant="secondary" v-bind="buttonProps">Hello</mt-button>
             </template>`,
         errors: [
@@ -289,6 +293,7 @@ const mtButtonInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip.bottom="tooltipCancel"
                     :disabled="isLoading"
@@ -299,6 +304,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip.bottom="tooltipCancel"
                     :disabled="isLoading"
@@ -454,6 +460,11 @@ const RUNTIME_VARIANT =
     '[mt-button] The bound "variant" value is only known at runtime. Make sure it never passes one of the deprecated values "ghost", "danger", "contrast", "context", "ghost-danger".';
 
 const runtimeVariantValidChecks = [
+    {
+        name: '"mt-button" written without variant keeps the mt-button default when the codemod did not convert it',
+        filename: 'test.html.twig',
+        code: '<template>\n    <mt-button @click="save">Save</mt-button>\n</template>',
+    },
     {
         name: '"mt-button" bound variant is not reported on an element the codemod did not convert',
         filename: 'test.html.twig',

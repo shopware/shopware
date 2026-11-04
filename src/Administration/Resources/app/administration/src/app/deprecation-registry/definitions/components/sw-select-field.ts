@@ -67,6 +67,7 @@ export default componentMigration({
             fields: {
                 value: {
                     attribute: 'value',
+                    required: true,
                     emptyAsNull: true,
                     boundReview:
                         'sw-select-field passed the selected value on as a string, mt-select passes it on as it is: check that the bound value has the type the model expects.',

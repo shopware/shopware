@@ -197,9 +197,14 @@ module.exports = withRunLevel({
                 }
 
                 if (level === 'safe') {
+                    const partFixes = parts.flatMap((part) => part.fixes);
+                    // A part that turns the element self-closing replaces the end tag itself
+                    const replacesEndTag = node.endTag && partFixes.some((fix) => {
+                        return fix.range[0] <= node.endTag.range[0] && node.endTag.range[1] <= fix.range[1];
+                    });
                     const fixes = [
-                        ...renameFixes(RANGE_FIXER),
-                        ...parts.flatMap((part) => part.fixes),
+                        ...renameFixes(RANGE_FIXER).slice(0, replacesEndTag ? 1 : undefined),
+                        ...partFixes,
                     ];
                     const overlapping = haveOverlappingRanges(fixes);
 

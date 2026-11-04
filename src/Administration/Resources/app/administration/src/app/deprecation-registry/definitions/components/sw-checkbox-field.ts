@@ -3,6 +3,7 @@
  */
 
 import {
+    onlyAfterConversion,
     componentMigration,
     removeProp,
     renameComponent,
@@ -35,9 +36,11 @@ export default componentMigration({
             slot: 'hint',
             prop: 'label',
         }),
-        removeProp({
-            prop: 'id',
-        }),
+        onlyAfterConversion(
+            removeProp({
+                prop: 'id',
+            }),
+        ),
         removeProp({
             prop: 'ghost-value',
         }),

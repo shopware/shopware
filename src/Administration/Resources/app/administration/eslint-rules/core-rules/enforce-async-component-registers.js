@@ -57,26 +57,15 @@ module.exports = {
                     return;
                 }
 
-                const call = context.sourceCode.getText(callee);
                 const config = node.arguments[index];
-
-                if (!config) {
-                    context.report({
-                        node,
-                        message: '{{ call }} requires at least {{ count }} arguments',
-                        data: { call, count: index + 1 },
-                    });
-                    return;
-                }
-
-                if (config.type === 'ArrowFunctionExpression') {
+                if (!config || config.type === 'ArrowFunctionExpression') {
                     return;
                 }
 
                 context.report({
                     node: config,
                     message: "The component config of {{ call }} must be a dynamic import: () => import('./sw-example')",
-                    data: { call },
+                    data: { call: context.sourceCode.getText(callee) },
                 });
             },
         };

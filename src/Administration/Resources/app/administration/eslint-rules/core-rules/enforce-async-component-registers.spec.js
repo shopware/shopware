@@ -26,6 +26,10 @@ ruleTester.run('enforce-async-component-registers', rule, {
             code: "Shopware.Component.override('sw-example', () => import('./sw-example-override'));",
         },
         {
+            name: 'allows an extend without its own config',
+            code: "Component.extend('sw-example-child', 'sw-example');",
+        },
+        {
             name: 'ignores other methods of the component facade',
             code: "Shopware.Component.build('sw-example');",
         },
@@ -54,11 +58,6 @@ ruleTester.run('enforce-async-component-registers', rule, {
             name: 'reports an inline config passed to override',
             code: "Component.override('sw-example', { methods: {} });",
             errors: [{ message: dynamicImportMessage('Component.override') }],
-        },
-        {
-            name: 'reports an extend without a config',
-            code: "Component.extend('sw-example-child', 'sw-example');",
-            errors: [{ message: 'Component.extend requires at least 3 arguments' }],
         },
     ],
 });

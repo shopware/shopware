@@ -136,6 +136,12 @@ Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to
 The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
 Use `name` and `description` instead.
 
+## Removed `seo:repair:link-category-takeover` command
+
+The `seo:repair:link-category-takeover` command has been removed.
+It repaired categories whose SEO URL was taken over by a link category of the same name during category indexing in 6.7.
+Run it before upgrading if you have not done so yet, and remove it from your deployment scripts.
+
 ## Removed `category_url` and `category_linknewtab` Twig functions
 
 The `category_url` and `category_linknewtab` Twig functions have been removed.

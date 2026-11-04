@@ -24,7 +24,6 @@ export default [
     {
         property: 'fileName',
         label: 'sw-product.documentForm.columnFileName',
-        visible: false,
         width: '190px',
     },
     {
@@ -37,6 +36,7 @@ export default [
         property: 'fileSize',
         label: 'sw-product.documentForm.columnFileSize',
         width: '100px',
+        visible: false,
         align: 'right',
     },
 ].map((column) => ({ ...column, sortable: false, resizable: false }));

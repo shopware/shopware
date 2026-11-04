@@ -63,7 +63,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), hasChanges = true } = {},
+        {
+            featureActive = false,
+            routeName = 'sw.product.detail.base',
+            routerPush = jest.fn(),
+            hasChanges = true,
+            routedComponent = null,
+            languageSwitchInput = null,
+        } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -158,12 +165,23 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-button-process': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-language-switch': true,
+                    'sw-language-switch': languageSwitchInput
+                        ? {
+                              template: '<div/>',
+                              props: ['abortChangeFunction', 'saveChangesFunction'],
+                              methods: { onInput: languageSwitchInput },
+                          }
+                        : true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
                     'sw-language-info': true,
-                    'router-view': true,
+                    'router-view': routedComponent
+                        ? {
+                              components: { RoutedContent: routedComponent },
+                              template: '<slot :Component="$options.components.RoutedContent"/>',
+                          }
+                        : true,
 
                     'sw-context-menu-divider': true,
                     'sw-checkbox-field': true,
@@ -928,6 +946,25 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
         expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
         expect(store.documentSaveNotifications).toHaveLength(1);
+    });
+
+    it('routes a document language request through the normal language-switch input', async () => {
+        wrapper.unmount();
+        const languageSwitchInput = jest.fn();
+        wrapper = await createWrapper(undefined, undefined, undefined, {
+            languageSwitchInput,
+            routedComponent: {
+                template:
+                    '<button class="request-default-language" @click="$emit(\'change-language\', \'default-language\')">Switch language</button>',
+            },
+        });
+        await flushPromises();
+        const product = Shopware.Store.get('swProductDetail').product;
+        await wrapper.get('.request-default-language').trigger('click');
+
+        expect(languageSwitchInput).toHaveBeenCalledWith('default-language');
+        expect(wrapper.getComponent({ ref: 'languageSwitch' }).props('abortChangeFunction')()).toBe(true);
+        expect(Shopware.Store.get('swProductDetail').product).toBe(product);
     });
 
     it('does not announce discarded variant edits after changing language and saving again', async () => {

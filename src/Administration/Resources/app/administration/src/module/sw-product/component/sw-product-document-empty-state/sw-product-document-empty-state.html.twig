@@ -1,0 +1,54 @@
+{% block sw_product_document_empty_state %}
+<div
+    class="sw-product-document-empty-state"
+    :class="{ 'sw-product-document-empty-state--translated': !isDefaultLanguage }"
+>
+    <mt-empty-state
+        centered
+        icon="regular-file-text"
+        :headline="$t('sw-product.documentForm.emptyState')"
+        :description="isDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
+    >
+        <template
+            v-if="isDefaultLanguage"
+            #button
+        >
+            {% block sw_product_document_empty_state_add %}
+            <mt-button
+                :disabled="!canAddDocuments"
+                size="small"
+                variant="secondary"
+                @click="$emit('add-documents')"
+            >
+                {{ $t('sw-product.documentForm.buttonAdd') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+    </mt-empty-state>
+
+    {% block sw_product_document_empty_state_language_hint %}
+    <mt-text
+        v-if="!isDefaultLanguage"
+        size="xs"
+        color="color-text-secondary-default"
+        class="sw-product-document-empty-state__language-hint"
+    >
+        <i18n-t
+            keypath="sw-product.documentForm.emptyDescriptionOtherLanguage"
+            scope="global"
+        >
+            <template #language>
+                {% block sw_product_document_empty_state_language_link %}
+                <mt-link
+                    as="button"
+                    @click.prevent="$emit('change-language', defaultLanguageId)"
+                >
+                    '{{ defaultLanguageName || $t('sw-product.documentForm.defaultLanguage') }}'
+                </mt-link>
+                {% endblock %}
+            </template>
+        </i18n-t>
+    </mt-text>
+    {% endblock %}
+</div>
+{% endblock %}

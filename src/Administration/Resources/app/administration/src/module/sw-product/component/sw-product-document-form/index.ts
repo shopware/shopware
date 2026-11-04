@@ -24,6 +24,8 @@ export default Shopware.Component.wrapComponentConfig({
         'fileValidationService',
     ],
 
+    emits: ['change-language'],
+
     props: {
         disabled: {
             type: Boolean,

@@ -504,6 +504,10 @@ Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
 * Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
   Relative paths are resolved from the project root.
 
+With the flag, the watcher serves the Administration code and the meteor-apps of extensions through its own port.
+The separate `Extensions` process and the port per extension are gone.
+A `server.port`, `server.host` or `server.ws` in the `vite.config` of an extension has no effect anymore.
+
 ### Customer group registration SEO URLs for headless sales channels
 
 Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0).

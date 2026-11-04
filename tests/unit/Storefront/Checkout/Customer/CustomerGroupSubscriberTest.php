@@ -57,7 +57,7 @@ class CustomerGroupSubscriberTest extends TestCase
         $customerGroup->setRegistrationSalesChannels(new SalesChannelCollection([$salesChannel]));
         $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation]));
 
-        $customerGroupRepository = new StaticEntityRepository([
+        $customerGroupRepository = StaticEntityRepository::of(CustomerGroupCollection::class, [
             static function (Criteria $criteria) use ($customerGroup): CustomerGroupCollection {
                 static::assertEquals(
                     [new EqualsFilter('active', true)],

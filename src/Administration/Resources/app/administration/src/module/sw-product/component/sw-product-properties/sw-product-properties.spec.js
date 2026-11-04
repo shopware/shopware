@@ -236,7 +236,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
         Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
 
@@ -248,7 +247,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
         Store.get('swProductDetail').product = {};
         await wrapper.vm.getGroupIds();
 

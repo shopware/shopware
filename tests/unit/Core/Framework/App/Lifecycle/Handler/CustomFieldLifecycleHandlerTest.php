@@ -4,18 +4,18 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
@@ -25,6 +25,8 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 #[CoversClass(CustomFieldLifecycleHandler::class)]
 class CustomFieldLifecycleHandlerTest extends TestCase
 {
+    private const FIXTURE_FILE = __DIR__ . '/../../../../System/CustomField/_fixtures/custom-fields.xml';
+
     private string $tmpDir;
 
     private SymfonyFilesystem $fs;
@@ -43,8 +45,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
 
     public function testPersistWithExternalFile(): void
     {
-        $fixtureFile = \dirname(__DIR__, 4) . '/System/CustomField/_fixtures/custom-fields.xml';
-        $this->fs->copy($fixtureFile, $this->tmpDir . '/Resources/config/custom-fields.xml');
+        $this->fs->copy(self::FIXTURE_FILE, $this->tmpDir . '/Resources/config/custom-fields.xml');
 
         $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
         $sharedPersister->expects($this->once())
@@ -61,7 +62,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
                 'en-GB'
             );
 
-        $handler = new CustomFieldLifecycleHandler($sharedPersister);
+        $handler = new CustomFieldLifecycleHandler($sharedPersister, new NullLogger());
         $handler->install($this->createContext($this->tmpDir));
     }
 
@@ -79,51 +80,49 @@ class CustomFieldLifecycleHandlerTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $handler = new CustomFieldLifecycleHandler($sharedPersister);
+        $handler = new CustomFieldLifecycleHandler($sharedPersister, new NullLogger());
         $handler->install($this->createContext($this->tmpDir));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed together with inline custom-fields support in manifest.xml
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPersistWithInlineManifestCustomFields(): void
     {
-        $fixtureFile = \dirname(__DIR__, 4) . '/System/CustomField/_fixtures/custom-fields.xml';
-        $inlineCustomFields = CustomFieldXmlLoader::load($fixtureFile);
+        $inlineCustomFields = CustomFieldXmlLoader::load(self::FIXTURE_FILE);
 
         $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
         $sharedPersister->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function (CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context) use ($inlineCustomFields): void {
-                static::assertSame($inlineCustomFields, $customFields);
-                static::assertSame('app-id-123', $appId);
-                static::assertSame('TestApp', $extensionName);
-            });
+            ->with($inlineCustomFields, 'app-id-123', 'TestApp');
 
-        $handler = new CustomFieldLifecycleHandler($sharedPersister);
-        $handler->install($this->createContext($this->tmpDir, $inlineCustomFields));
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $handler = new CustomFieldLifecycleHandler($sharedPersister, $logger);
+        $handler->update($this->createContext($this->tmpDir, $inlineCustomFields));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed together with inline custom-fields support in manifest.xml
-     */
-    public function testPersistWithInlineManifestCustomFieldsThrowsWithMajorFlag(): void
+    public function testExternalFileTakesPrecedenceOverInlineManifestCustomFields(): void
     {
-        $fixtureFile = \dirname(__DIR__, 4) . '/System/CustomField/_fixtures/custom-fields.xml';
-        $inlineCustomFields = CustomFieldXmlLoader::load($fixtureFile);
+        $this->fs->copy(self::FIXTURE_FILE, $this->tmpDir . '/Resources/config/custom-fields.xml');
+        $inlineCustomFields = CustomFields::fromArray([]);
 
         $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
-        $sharedPersister->expects($this->never())->method('sync');
+        $sharedPersister->expects($this->once())
+            ->method('sync')
+            ->with(
+                static::callback(function (CustomFields $customFields) use ($inlineCustomFields): bool {
+                    return $customFields !== $inlineCustomFields && \count($customFields->getCustomFieldSets()) === 2;
+                }),
+                'app-id-123',
+                'TestApp'
+            );
 
-        $handler = new CustomFieldLifecycleHandler($sharedPersister);
-        $context = $this->createContext($this->tmpDir, $inlineCustomFields);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('The inline definition in manifest.xml is ignored.'), ['appName' => 'TestApp']);
 
-        $this->expectExceptionObject(FeatureException::error(
-            'Tried to access deprecated functionality: Defining custom fields inline in manifest.xml is deprecated, use Resources/config/custom-fields.xml instead.'
-        ));
-
-        $handler->install($context);
+        $handler = new CustomFieldLifecycleHandler($sharedPersister, $logger);
+        $handler->install($this->createContext($this->tmpDir, $inlineCustomFields));
     }
 
     private function createContext(string $appDir, ?CustomFields $inlineCustomFields = null): AppPersistContext

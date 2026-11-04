@@ -123,7 +123,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
             service(PluginFinder::class),
             service(VersionSanitizer::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(PluginLifecycleService::class)
         ->args([

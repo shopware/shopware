@@ -328,6 +328,13 @@ shopware:
             enabled: false
 ```
 
+### Server-side cookie consent logging
+
+The built-in cookie banner can now record consent decisions on the server, as proof that consent was given. It is off by default. Enable it with `shopware.cookie_consent.log_storage`: `database` or `filesystem`, or your own storage implementing `CookieConsentLogStorageInterface`.
+
+- While logging is on, a new technically required cookie `cookie-consent-id` is set, and visitors see the banner once more.
+- Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).
+- Headless frontends log decisions via `POST /store-api/cookie-consent-log`.
 ### Price calculation basis per customer group
 
 Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new customer group field `priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.

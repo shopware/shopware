@@ -1,0 +1,46 @@
+name: "Buy box"
+description: "Price, delivery information, variant selection, quantity selector and buy button for a product, stacked in a grid container."
+icon: "regular-shopping-cart"
+layout:
+  - component: Sw:Grid:Container
+    properties:
+      gap: 10
+      align: start
+      justify: start
+      justifyContent: start
+    slots:
+      content:
+        - component: Sw:Product:PriceDisplay
+          properties:
+            large: true
+        - component: Sw:Product:Delivery
+        - component: Sw:Product:VariantSelection
+        - component: Sw:Grid:Container
+          properties:
+            mode: explicit
+            columns: 3
+            rows: 1
+            gap: 16
+            align: start
+            margin:
+              xs: "0 0 16px 0"
+              sm: "0 0 16px 0"
+              md: "0 0 16px 0"
+              lg: "0 0 16px 0"
+              xl: "0 0 16px 0"
+              xxl: "0 0 16px 0"
+          slots:
+            content:
+              - component: Sw:Product:QuantitySelector
+              - component: Sw:Product:BuyButton
+                style:
+                  col-span:
+                    xs: 2
+                    sm: 2
+                    md: 2
+                    lg: 2
+                    xl: 2
+                    xxl: 2
+        - component: Sw:Content:Text
+          properties:
+            text: "<p><b>Product number:</b> SW_01a0d3ad222573a7a6337cd87df6690f</p>"

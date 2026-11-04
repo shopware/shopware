@@ -4,9 +4,9 @@
  * Everything sw-users-permissions-user-detail needs from outside its mini-module.
  */
 import { localeHelper, timezoneService } from 'src/app/service-names';
-import { contextStoreId } from 'src/app/store/context.store';
-import { errorStoreId } from 'src/app/store/error.store';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { contextStoreId } from 'src/app/store/context';
+import { errorStoreId } from 'src/app/store/error';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

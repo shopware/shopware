@@ -4,7 +4,7 @@
  */
 import { mount, type VueWrapper } from '@vue/test-utils';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
-import '../../../../store/block-override.store';
+import '../../../../store/block-override/register';
 
 /**
  * A component the SFC migration produced: its whole template is one `<sw-block>`. Everything here

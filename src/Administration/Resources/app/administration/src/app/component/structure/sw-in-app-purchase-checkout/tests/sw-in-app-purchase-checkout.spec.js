@@ -1,4 +1,4 @@
-import 'src/app/store/in-app-purchase-checkout.store';
+import 'src/app/store/in-app-purchase-checkout/register';
 
 /**
  * @sw-package checkout

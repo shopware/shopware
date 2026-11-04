@@ -7,7 +7,7 @@ import { dateFilterName } from 'src/app/filter/date.filter';
 import { fileSizeFilterName } from 'src/app/filter/file-size.filter';
 import { mediaNameFilterName } from 'src/app/filter/media-name.filter';
 import { repositoryFactory } from 'src/app/service-names';
-import { actionButtonsStoreId } from 'src/app/store/action-buttons.store';
+import { actionButtonsStoreId } from 'src/app/store/action-buttons';
 
 /** @private */
 export { default as notificationMixin } from 'src/app/mixin/notification.mixin';

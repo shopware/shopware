@@ -3,7 +3,7 @@
  *
  * Everything sw-media-quickinfo needs from outside its mini-module.
  */
-import { actionButtonsStoreId } from 'src/app/store/action-buttons.store';
+import { actionButtonsStoreId } from 'src/app/store/action-buttons';
 
 /** @private */
 export { default as EventBus } from 'src/core/service/utils/eventBus.utils';

@@ -3,7 +3,7 @@
  *
  * Everything mt-datepicker needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as MtDatepickerOriginal } from '@shopware-ag/meteor-component-library/dist/esm/MtDatepicker';

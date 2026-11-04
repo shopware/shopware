@@ -863,6 +863,16 @@ export const seoUrlTemplateService = 'seoUrlTemplateService';
 export const shopIdChangeService = 'shopIdChangeService';
 
 /**
+ * The name the shopwareDiscountCampaignService service is registered and injected under.
+ *
+ * @example
+ * export default { inject: [shopwareDiscountCampaignService] };
+ *
+ * @public
+ */
+export const shopwareDiscountCampaignService = 'shopwareDiscountCampaignService';
+
+/**
  * The name the shopwareExtensionService service is registered and injected under.
  *
  * @example

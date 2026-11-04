@@ -3,7 +3,7 @@
  *
  * Everything sw-extension-my-extensions-index needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { acl as aclService } from 'src/app/service-names';

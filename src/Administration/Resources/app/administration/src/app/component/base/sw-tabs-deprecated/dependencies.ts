@@ -3,7 +3,7 @@
  *
  * Everything sw-tabs-deprecated needs from outside its mini-module.
  */
-import { tabsStoreId } from 'src/app/store/tabs.store';
+import { tabsStoreId } from 'src/app/store/tabs';
 
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';

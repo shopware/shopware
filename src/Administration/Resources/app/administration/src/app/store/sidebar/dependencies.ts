@@ -1,0 +1,15 @@
+/**
+ * @sw-package framework
+ *
+ * Everything sidebar store needs from outside its mini-module.
+ */
+/** @private */
+export type { uiSidebarAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/sidebar';
+/** @private */
+export { reactive } from 'vue';
+
+/** @private */
+export { defineStoreOptions, type StoreOf } from 'src/app/store/define-store-options';
+
+/** @private */
+export const getStore = <Id extends keyof PiniaRootState>(id: Id) => Shopware.Store.get(id);

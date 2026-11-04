@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import useNotification from './use-notification';
-import type { NotificationType } from '../store/notification.store';
+import type { NotificationType } from '../store/notification';
 
 type NotificationApi = ReturnType<typeof useNotification>;
 type VoidNotificationMethod = Exclude<keyof NotificationApi, 'createNotification'>;

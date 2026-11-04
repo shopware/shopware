@@ -3,8 +3,8 @@
  *
  * Everything sw-extension-component-section needs from outside its mini-module.
  */
-import { extensionComponentSectionsStoreId } from 'src/app/store/extension-component-sections.store';
-import { extensionsStoreId } from 'src/app/store/extensions.store';
+import { extensionComponentSectionsStoreId } from 'src/app/store/extension-component-sections';
+import { extensionsStoreId } from 'src/app/store/extensions';
 
 /** @private */
 export type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
@@ -13,7 +13,7 @@ export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
 export { feature as featureService } from 'src/app/service-names';
 /** @private */
-export type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
+export type { ComponentSectionEntry } from 'src/app/store/extension-component-sections';
 
 /** @private */
 export const useExtensionComponentSectionsStore = () => Shopware.Store.get(extensionComponentSectionsStoreId);

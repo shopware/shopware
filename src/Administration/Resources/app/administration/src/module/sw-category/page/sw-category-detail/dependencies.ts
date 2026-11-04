@@ -4,8 +4,8 @@
  * Everything sw-category-detail needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { errorStoreId } from 'src/app/store/error.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { errorStoreId } from 'src/app/store/error';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 import { cmsPageStoreId } from 'src/module/sw-cms/store/cms-page.store';
 import { swSeoUrlStoreId } from 'src/module/sw-settings-seo/component/sw-seo-url/store';
 

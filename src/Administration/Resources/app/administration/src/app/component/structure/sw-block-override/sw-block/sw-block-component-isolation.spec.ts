@@ -8,7 +8,7 @@
  * that stamping.
  */
 import { mount } from '@vue/test-utils';
-import '../../../../store/block-override.store';
+import '../../../../store/block-override/register';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 async function createWrapper(template: string) {

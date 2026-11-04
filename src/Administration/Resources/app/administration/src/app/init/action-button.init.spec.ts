@@ -4,7 +4,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import initActionButtons from 'src/app/init/action-button.init';
 import { add } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
-import type { ActionButtonsStore } from '../store/action-buttons.store';
+import type { ActionButtonsStore } from '../store/action-buttons';
 
 describe('src/app/init/action-button.init.ts', () => {
     let store: ActionButtonsStore;

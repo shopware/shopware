@@ -4,7 +4,7 @@
  * Everything sw-order-create-address-modal needs from outside its mini-module.
  */
 import { repositoryFactory } from 'src/app/service-names';
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 import { swOrderStoreId } from '../../store/order.store';
 
 /** @private */

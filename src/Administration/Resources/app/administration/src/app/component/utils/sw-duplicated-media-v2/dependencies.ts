@@ -5,7 +5,7 @@
  */
 import { dateFilterName } from 'src/app/filter/date.filter';
 import { fileSizeFilterName } from 'src/app/filter/file-size.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

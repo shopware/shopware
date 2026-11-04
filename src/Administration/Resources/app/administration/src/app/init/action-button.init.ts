@@ -3,7 +3,7 @@
  *
  * @private
  */
-import '../store/action-buttons.store';
+import '../store/action-buttons/register';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeActionButtons(): void {

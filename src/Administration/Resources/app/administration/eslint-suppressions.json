@@ -3561,25 +3561,17 @@
       "count": 1
     }
   },
-  "src/app/store/admin-menu.store.spec.ts": {
+  "src/app/store/admin-menu/src/admin-menu.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/admin-menu.store.ts": {
+  "src/app/store/admin-menu/tests/admin-menu.store.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/error.store.spec.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 7
-    },
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 6
-    }
-  },
-  "src/app/store/error.store.ts": {
+  "src/app/store/error/src/error.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 5
     },
@@ -3590,27 +3582,35 @@
       "count": 1
     }
   },
-  "src/app/store/extension-component-sections.store.ts": {
+  "src/app/store/error/tests/error.store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 7
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 6
+    }
+  },
+  "src/app/store/extension-component-sections/src/extension-component-sections.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/extension-sdk-module.store.spec.ts": {
+  "src/app/store/extension-sdk-module/src/extension-sdk-module.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/extension-sdk-module/tests/extension-sdk-module.store.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }
   },
-  "src/app/store/extension-sdk-module.store.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/app/store/extensions.store.spec.ts": {
+  "src/app/store/extensions/tests/extensions.store.spec.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
     }
   },
-  "src/app/store/in-app-purchase-checkout.store.ts": {
+  "src/app/store/in-app-purchase-checkout/src/in-app-purchase-checkout.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     }
@@ -3620,57 +3620,57 @@
       "count": 1
     }
   },
-  "src/app/store/main-module.store.ts": {
+  "src/app/store/main-module/src/main-module.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/marketing.store.spec.ts": {
+  "src/app/store/marketing/tests/marketing.store.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/media-modal.store.ts": {
+  "src/app/store/media-modal/src/media-modal.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }
   },
-  "src/app/store/menu-item.store.ts": {
+  "src/app/store/menu-item/src/menu-item.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/modals.store.ts": {
+  "src/app/store/modals/src/modals.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/notification.store.ts": {
+  "src/app/store/notification/src/notification.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
     }
   },
-  "src/app/store/rule-conditions-config.store.ts": {
+  "src/app/store/rule-conditions-config/src/rule-conditions-config.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }
   },
-  "src/app/store/shopware-apps.store.ts": {
+  "src/app/store/shopware-apps/src/shopware-apps.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     }
   },
-  "src/app/store/sidebar.store.ts": {
+  "src/app/store/sidebar/src/sidebar.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/sw-bulk-edit.store.ts": {
+  "src/app/store/sw-bulk-edit/src/sw-bulk-edit.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
-  "src/app/store/teaser-popover.store.ts": {
+  "src/app/store/teaser-popover/src/teaser-popover.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
     }

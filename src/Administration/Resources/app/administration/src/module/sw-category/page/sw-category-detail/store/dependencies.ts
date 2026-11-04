@@ -22,4 +22,4 @@ export type { default as CriteriaType } from '@shopware-ag/meteor-admin-sdk/es/d
 export type { default as Repository } from 'src/core/data/repository.data';
 
 /** @private */
-export type { ContextStore } from 'src/app/store/context.store';
+export type { ContextStore } from 'src/app/store/context';

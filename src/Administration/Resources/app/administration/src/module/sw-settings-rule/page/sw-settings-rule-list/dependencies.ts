@@ -4,7 +4,7 @@
  * Everything sw-settings-rule-list needs from outside its mini-module.
  */
 import { dateFilterName } from 'src/app/filter/date.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

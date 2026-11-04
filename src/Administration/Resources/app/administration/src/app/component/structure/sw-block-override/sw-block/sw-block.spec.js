@@ -3,7 +3,7 @@
  * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
-import blockOverrideStore from '../../../../store/block-override.store';
+import { useBlockOverrideStore as blockOverrideStore } from '../../../../store/block-override';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 async function createWrapper({

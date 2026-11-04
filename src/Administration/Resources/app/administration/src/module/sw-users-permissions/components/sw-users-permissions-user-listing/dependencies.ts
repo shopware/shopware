@@ -3,7 +3,7 @@
  *
  * Everything sw-users-permissions-user-listing needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

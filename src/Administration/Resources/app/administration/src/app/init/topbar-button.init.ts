@@ -5,7 +5,7 @@
  * @description Apply for upselling service only, no public usage
  */
 
-import 'src/app/store/topbar-button.store';
+import 'src/app/store/topbar-button/register';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeTopBarButtons(): void {

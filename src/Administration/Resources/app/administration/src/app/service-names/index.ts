@@ -99,6 +99,7 @@ export {
     seoUrlTemplateService,
     serviceRegistryClient,
     shopIdChangeService,
+    shopwareDiscountCampaignService,
     shopwareExtensionService,
     shopwareServicesService,
     shortcutService,

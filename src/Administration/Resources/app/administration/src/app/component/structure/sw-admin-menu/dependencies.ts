@@ -3,11 +3,11 @@
  *
  * Everything sw-admin-menu needs from outside its mini-module.
  */
-import { adminMenuStoreId } from 'src/app/store/admin-menu.store';
-import { menuItemStoreId } from 'src/app/store/menu-item.store';
-import { notificationStoreId } from 'src/app/store/notification.store';
-import { sessionStoreId } from 'src/app/store/session.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { adminMenuStoreId } from 'src/app/store/admin-menu';
+import { menuItemStoreId } from 'src/app/store/menu-item';
+import { notificationStoreId } from 'src/app/store/notification';
+import { sessionStoreId } from 'src/app/store/session';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 
 /** @private */
 export { createFocusTrap } from 'focus-trap';

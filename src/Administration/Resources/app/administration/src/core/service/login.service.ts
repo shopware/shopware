@@ -5,7 +5,7 @@
 import { CookieStorage } from 'cookie-storage';
 import type { CookieOptions } from 'cookie-storage/lib/cookie-options';
 import type { Router } from 'vue-router';
-import type { ContextStore } from '../../app/store/context.store';
+import type { ContextStore } from '../../app/store/context';
 
 /** @private */
 export interface AuthObject {

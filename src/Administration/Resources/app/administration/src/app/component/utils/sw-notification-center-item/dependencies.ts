@@ -3,7 +3,7 @@
  *
  * Everything sw-notification-center-item needs from outside its mini-module.
  */
-import { notificationStoreId } from 'src/app/store/notification.store';
+import { notificationStoreId } from 'src/app/store/notification';
 
 /** @private */
 export { default as notificationTranslationMixin } from 'src/app/mixin/notification-translation.mixin';

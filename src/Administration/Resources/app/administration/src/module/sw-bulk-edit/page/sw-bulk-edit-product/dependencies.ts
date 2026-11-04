@@ -4,8 +4,8 @@
  * Everything sw-bulk-edit-product needs from outside its mini-module.
  */
 import { userConfigService } from 'src/app/service-names';
-import { contextStoreId } from 'src/app/store/context.store';
-import { swBulkEditStoreId } from 'src/app/store/sw-bulk-edit.store';
+import { contextStoreId } from 'src/app/store/context';
+import { swBulkEditStoreId } from 'src/app/store/sw-bulk-edit';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

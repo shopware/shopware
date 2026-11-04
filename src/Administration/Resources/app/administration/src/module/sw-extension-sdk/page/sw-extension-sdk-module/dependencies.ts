@@ -3,8 +3,8 @@
  *
  * Everything sw-extension-sdk-module needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
-import { extensionSdkModulesStoreId } from 'src/app/store/extension-sdk-module.store';
+import { contextStoreId } from 'src/app/store/context';
+import { extensionSdkModulesStoreId } from 'src/app/store/extension-sdk-module';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

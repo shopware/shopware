@@ -3,7 +3,7 @@
  *
  * Everything sw-generic-custom-entity-detail needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';

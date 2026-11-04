@@ -4,7 +4,7 @@
  * Everything sw-search-bar-item needs from outside its mini-module.
  */
 import { mediaNameFilterName } from 'src/app/filter/media-name.filter';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as useModuleIconColors } from 'src/app/composables/use-module-icon-colors';

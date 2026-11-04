@@ -3,7 +3,7 @@
  *
  * Everything sw-sidebar-renderer needs from outside its mini-module.
  */
-import { sidebarStoreId } from 'src/app/store/sidebar.store';
+import { sidebarStoreId } from 'src/app/store/sidebar';
 
 /** @private */
 export { createFocusTrap } from 'focus-trap';

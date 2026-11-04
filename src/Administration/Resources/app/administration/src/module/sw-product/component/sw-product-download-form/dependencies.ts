@@ -3,7 +3,7 @@
  *
  * Everything sw-product-download-form needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';

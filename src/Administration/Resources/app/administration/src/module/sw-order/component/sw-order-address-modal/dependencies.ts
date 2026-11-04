@@ -4,7 +4,7 @@
  * Everything sw-order-address-modal needs from outside its mini-module.
  */
 import { salutationFilterName } from 'src/app/filter/salutation.filter';
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

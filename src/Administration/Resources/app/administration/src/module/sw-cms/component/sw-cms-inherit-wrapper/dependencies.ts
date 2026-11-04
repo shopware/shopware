@@ -3,7 +3,7 @@
  *
  * Everything sw-cms-inherit-wrapper needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

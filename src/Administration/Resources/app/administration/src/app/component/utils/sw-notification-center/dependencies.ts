@@ -3,7 +3,7 @@
  *
  * Everything sw-notification-center needs from outside its mini-module.
  */
-import { notificationStoreId } from 'src/app/store/notification.store';
+import { notificationStoreId } from 'src/app/store/notification';
 
 /** @private */
 export { default as EventBus } from 'src/core/service/utils/eventBus.utils';

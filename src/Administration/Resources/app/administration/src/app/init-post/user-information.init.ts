@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-import { initializeUserNotifications } from 'src/app/store/notification.store';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- boot code loads the user's stored notifications into the store
+import { initializeUserNotifications } from 'src/app/store/notification/private';
 import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 

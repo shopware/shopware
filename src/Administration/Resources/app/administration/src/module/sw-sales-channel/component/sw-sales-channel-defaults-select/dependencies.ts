@@ -3,7 +3,7 @@
  *
  * Everything sw-sales-channel-defaults-select needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';

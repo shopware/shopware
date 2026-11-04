@@ -3,7 +3,7 @@
  *
  * Everything sw-extension-review-creation needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 import { shopwareExtensionsStoreId } from '../../../store/extensions.store';
 
 /** @private */

@@ -4,7 +4,7 @@
  * Everything sw-order-customer-grid needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 import { swOrderStoreId } from '../../store/order.store';
 
 /** @private */

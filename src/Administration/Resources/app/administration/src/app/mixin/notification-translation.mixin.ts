@@ -3,7 +3,7 @@
  */
 
 import { defineComponent } from 'vue';
-import type { NotificationType } from '../store/notification.store';
+import type { NotificationType } from '../store/notification';
 
 const { Mixin } = Shopware;
 

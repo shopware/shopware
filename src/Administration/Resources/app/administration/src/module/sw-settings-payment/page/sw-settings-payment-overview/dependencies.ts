@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-payment-overview needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 import { paymentOverviewCardStoreId } from '../../store/overview-cards.store';
 
 /** @private */

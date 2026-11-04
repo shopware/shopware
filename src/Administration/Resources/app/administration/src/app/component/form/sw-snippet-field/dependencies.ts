@@ -3,7 +3,7 @@
  *
  * Everything sw-snippet-field needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { repositoryFactory as repositoryFactoryService, snippetSetService } from 'src/app/service-names';

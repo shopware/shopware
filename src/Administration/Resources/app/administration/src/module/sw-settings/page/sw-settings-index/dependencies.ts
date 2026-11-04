@@ -4,7 +4,7 @@
  * Everything sw-settings-index needs from outside its mini-module.
  */
 import { userConfigService } from 'src/app/service-names';
-import { settingsItemsStoreId } from 'src/app/store/settings-item.store';
+import { settingsItemsStoreId } from 'src/app/store/settings-item';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
@@ -13,7 +13,7 @@ export { hasOwnProperty } from 'src/core/service/utils/object.utils';
 /** @private */
 export { acl as aclService, feature as featureService } from 'src/app/service-names';
 /** @private */
-export type { SettingsItem } from 'src/app/store/settings-item.store';
+export type { SettingsItem } from 'src/app/store/settings-item';
 
 /** @private */
 export const getUserConfigService = () => Shopware.Service(userConfigService);

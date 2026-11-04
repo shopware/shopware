@@ -3,7 +3,7 @@
  *
  * Everything sw-extension-teaser-popover needs from outside its mini-module.
  */
-import { teaserPopoverStoreId } from 'src/app/store/teaser-popover.store';
+import { teaserPopoverStoreId } from 'src/app/store/teaser-popover';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

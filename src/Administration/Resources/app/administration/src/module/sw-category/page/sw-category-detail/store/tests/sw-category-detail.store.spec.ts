@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import type Repository from 'src/core/data/repository.data';
-import type { ContextStore } from 'src/app/store/context.store';
+import type { ContextStore } from 'src/app/store/context';
 
 const newLandingPageMock = {
     cmsPageId: '12345',

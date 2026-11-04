@@ -1,7 +1,15 @@
 /**
  * @sw-package framework
  */
-import type { DefineStoreOptions, StateTree, Store, _GettersTree } from 'pinia';
+import type {
+    DefineStoreOptions,
+    StateTree,
+    Store,
+    _ExtractActionsFromSetupStore,
+    _ExtractGettersFromSetupStore,
+    _ExtractStateFromSetupStore,
+    _GettersTree,
+} from 'pinia';
 
 /**
  * @private
@@ -36,3 +44,19 @@ export function defineStoreOptions<
  */
 export type StoreOf<Options> =
     Options extends DefineStoreOptions<infer Id, infer S, infer G, infer A> ? Store<Id, S, G, A> : never;
+
+/**
+ * @private
+ *
+ * The store that a setup function creates, as `Shopware.Store.get()` returns it. Use it for a store module whose
+ * `register.ts` registers a composable instead of options.
+ *
+ * @example
+ * export type ContextStore = SetupStoreOf<typeof contextStoreId, typeof useContext>;
+ */
+export type SetupStoreOf<Id extends string, Setup extends () => object> = Store<
+    Id,
+    _ExtractStateFromSetupStore<ReturnType<Setup>>,
+    _ExtractGettersFromSetupStore<ReturnType<Setup>>,
+    _ExtractActionsFromSetupStore<ReturnType<Setup>>
+>;

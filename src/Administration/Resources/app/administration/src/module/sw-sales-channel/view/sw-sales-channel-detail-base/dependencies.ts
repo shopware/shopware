@@ -5,7 +5,7 @@
  */
 import { dateFilterName } from 'src/app/filter/date.filter';
 import { timezoneService } from 'src/app/service-names';
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { default as Data } from 'src/core/data';

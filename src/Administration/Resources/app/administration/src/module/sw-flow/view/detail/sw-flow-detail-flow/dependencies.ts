@@ -3,7 +3,7 @@
  *
  * Everything sw-flow-detail-flow needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 import { swFlowStoreId } from '../../../store/flow.store';
 
 /** @private */

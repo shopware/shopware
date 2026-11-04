@@ -3,7 +3,7 @@
  *
  * Everything the service card needs from outside its mini-module.
  */
-import { notificationStoreId } from 'src/app/store/notification.store';
+import { notificationStoreId } from 'src/app/store/notification';
 import { assetFilterName } from 'src/app/filter/asset.filter';
 import { dateFilterName } from 'src/app/filter/date.filter';
 import { shopwareServicesService } from 'src/app/service-names';

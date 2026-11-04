@@ -4,8 +4,8 @@
  * Everything sw-customer-card needs from outside its mini-module.
  */
 import { decodeIdnEmailFilterName } from 'src/app/filter/decode-idn-email.filter';
-import { errorStoreId } from 'src/app/store/error.store';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { errorStoreId } from 'src/app/store/error';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

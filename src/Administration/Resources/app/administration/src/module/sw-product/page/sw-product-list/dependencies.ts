@@ -8,7 +8,7 @@ import { currencyFilterName } from 'src/app/filter/currency.filter';
 import { dateFilterName } from 'src/app/filter/date.filter';
 import { stockColorVariantFilterName } from 'src/app/filter/stock-color-variant.filter';
 import { filterService } from 'src/app/service-names';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

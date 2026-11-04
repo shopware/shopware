@@ -3,9 +3,9 @@
  *
  * Everything sw-extension-app-module-page needs from outside its mini-module.
  */
-import { extensionSdkModulesStoreId } from 'src/app/store/extension-sdk-module.store';
-import { sessionStoreId } from 'src/app/store/session.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { extensionSdkModulesStoreId } from 'src/app/store/extension-sdk-module';
+import { sessionStoreId } from 'src/app/store/session';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

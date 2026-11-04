@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-measurement-default-units needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { acl as aclService } from 'src/app/service-names';

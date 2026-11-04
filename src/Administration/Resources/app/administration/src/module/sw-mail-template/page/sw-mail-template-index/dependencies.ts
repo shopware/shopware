@@ -3,7 +3,7 @@
  *
  * Everything sw-mail-template-index needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as listingMixin } from 'src/app/mixin/listing.mixin';

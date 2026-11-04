@@ -4,7 +4,7 @@
  * Everything sw-product-detail-variants needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

@@ -3,7 +3,7 @@
  *
  * Everything sw-error-summary needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

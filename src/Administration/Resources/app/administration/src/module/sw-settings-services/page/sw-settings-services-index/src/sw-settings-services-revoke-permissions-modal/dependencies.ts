@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-services-revoke-permissions-modal needs from outside its mini-module.
  */
-import { notificationStoreId } from 'src/app/store/notification.store';
+import { notificationStoreId } from 'src/app/store/notification';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

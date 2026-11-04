@@ -3,8 +3,8 @@
  *
  * Everything sw-desktop needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { contextStoreId } from 'src/app/store/context';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as useTheme, THEME_LABELS, THEMES } from 'src/app/composables/use-theme';

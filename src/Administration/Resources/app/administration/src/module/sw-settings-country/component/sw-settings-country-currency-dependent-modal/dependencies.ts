@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-country-currency-dependent-modal needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';

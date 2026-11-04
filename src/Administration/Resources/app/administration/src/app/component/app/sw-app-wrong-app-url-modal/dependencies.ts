@@ -4,8 +4,8 @@
  * Everything sw-app-wrong-app-url-modal needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { contextStoreId } from 'src/app/store/context.store';
-import { notificationStoreId } from 'src/app/store/notification.store';
+import { contextStoreId } from 'src/app/store/context';
+import { notificationStoreId } from 'src/app/store/notification';
 
 /** @private */
 export { default as notificationMixin } from 'src/app/mixin/notification.mixin';

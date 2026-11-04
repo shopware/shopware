@@ -1,4 +1,4 @@
-import type { NotificationVariant } from 'src/app/store/notification.store';
+import type { NotificationVariant } from 'src/app/store/notification';
 
 /**
  * @sw-package framework

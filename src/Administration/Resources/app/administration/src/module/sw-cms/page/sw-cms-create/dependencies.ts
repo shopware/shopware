@@ -3,7 +3,7 @@
  *
  * Everything sw-cms-create needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 import { cmsPageStoreId } from '../../store/cms-page.store';
 
 /** @private */

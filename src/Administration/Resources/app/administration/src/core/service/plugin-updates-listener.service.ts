@@ -4,7 +4,7 @@
  * @module core/service/plugin-updates-listener
  */
 import type { LoginService } from './login.service';
-import type { NotificationType } from '../../app/store/notification.store';
+import type { NotificationType } from '../../app/store/notification';
 import useSession from '../../app/composables/use-session';
 
 type UpdatedListResponse = {

@@ -4,7 +4,7 @@
  * Everything sw-oauth-authorize-index needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

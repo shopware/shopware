@@ -3,7 +3,7 @@
  *
  * Everything sw-first-run-wizard-finish needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { firstRunWizardService } from 'src/app/service-names';

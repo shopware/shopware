@@ -4,8 +4,8 @@
  * Everything sw-customer-create needs from outside its mini-module.
  */
 import { salutationFilterName } from 'src/app/filter/salutation.filter';
-import { contextStoreId } from 'src/app/store/context.store';
-import { errorStoreId } from 'src/app/store/error.store';
+import { contextStoreId } from 'src/app/store/context';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

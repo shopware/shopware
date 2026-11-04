@@ -3,7 +3,7 @@
  *
  * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
-import type { NotificationType, NotificationVariant } from '../store/notification.store';
+import type { NotificationType, NotificationVariant } from '../store/notification';
 
 /**
  * Composable alternative to the `notification` mixin.

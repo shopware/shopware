@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
-import useExtensionsStore from 'src/app/store/extensions.store';
+import { useExtensionsStore as useExtensionsStore } from 'src/app/store/extensions';
 import useConsentStore from 'src/core/consent/consent.store';
 import { handleConsentRequest, handleConsentStatus, sendConsentRequestResponse } from 'src/core/consent/sdk-handler';
 

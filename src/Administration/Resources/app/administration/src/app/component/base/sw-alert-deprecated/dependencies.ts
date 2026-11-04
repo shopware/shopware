@@ -6,4 +6,4 @@
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';
 /** @private */
-export type { NotificationVariant } from 'src/app/store/notification.store';
+export type { NotificationVariant } from 'src/app/store/notification';

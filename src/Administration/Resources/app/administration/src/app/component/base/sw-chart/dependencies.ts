@@ -3,7 +3,7 @@
  *
  * Everything sw-chart needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as ar } from 'apexcharts/dist/locales/ar.json';

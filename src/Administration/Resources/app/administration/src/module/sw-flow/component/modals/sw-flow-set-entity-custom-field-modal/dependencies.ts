@@ -3,7 +3,7 @@
  *
  * Everything sw-flow-set-entity-custom-field-modal needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 import { swFlowStoreId } from '../../../store/flow.store';
 
 /** @private */

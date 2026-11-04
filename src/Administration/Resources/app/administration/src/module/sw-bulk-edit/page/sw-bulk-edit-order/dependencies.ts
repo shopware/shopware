@@ -3,7 +3,7 @@
  *
  * Everything sw-bulk-edit-order needs from outside its mini-module.
  */
-import { swBulkEditStoreId } from 'src/app/store/sw-bulk-edit.store';
+import { swBulkEditStoreId } from 'src/app/store/sw-bulk-edit';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

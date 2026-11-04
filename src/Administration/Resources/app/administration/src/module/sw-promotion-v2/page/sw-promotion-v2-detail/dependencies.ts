@@ -3,8 +3,8 @@
  *
  * Everything sw-promotion-v2-detail needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { contextStoreId } from 'src/app/store/context';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

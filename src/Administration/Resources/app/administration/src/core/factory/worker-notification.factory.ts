@@ -9,7 +9,7 @@ import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import type { App } from 'vue';
-import type { NotificationType } from '../../app/store/notification.store';
+import type { NotificationType } from '../../app/store/notification';
 
 /**
  * @private

@@ -3,7 +3,7 @@
  *
  * Everything sw-customer-convert-guest-modal needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
+import { errorStoreId } from 'src/app/store/error';
 
 /** @private */
 export { default as ShopwareError } from 'src/core/data/ShopwareError';

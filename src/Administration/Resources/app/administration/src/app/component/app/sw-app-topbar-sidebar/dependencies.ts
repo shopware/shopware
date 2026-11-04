@@ -3,7 +3,7 @@
  *
  * Everything sw-app-topbar-sidebar needs from outside its mini-module.
  */
-import { sidebarStoreId } from 'src/app/store/sidebar.store';
+import { sidebarStoreId } from 'src/app/store/sidebar';
 
 /** @private */
 export const useSidebarStore = () => Shopware.Store.get(sidebarStoreId);

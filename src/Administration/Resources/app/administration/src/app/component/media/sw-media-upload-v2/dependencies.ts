@@ -4,7 +4,7 @@
  * Everything sw-media-upload-v2 needs from outside its mini-module.
  */
 import { mediaNameFilterName } from 'src/app/filter/media-name.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as notificationMixin } from 'src/app/mixin/notification.mixin';

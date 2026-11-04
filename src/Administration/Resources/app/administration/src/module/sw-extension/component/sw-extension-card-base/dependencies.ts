@@ -5,8 +5,8 @@
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
 import { dateFilterName } from 'src/app/filter/date.filter';
-import { contextStoreId } from 'src/app/store/context.store';
-import { extensionMainModulesStoreId } from 'src/app/store/main-module.store';
+import { contextStoreId } from 'src/app/store/context';
+import { extensionMainModulesStoreId } from 'src/app/store/main-module';
 
 /** @private */
 export { cacheApiService, extensionStoreActionService, shopwareExtensionService } from 'src/app/service-names';

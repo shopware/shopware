@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { defineComponent } from 'vue';
-import type { NotificationType, NotificationVariant } from '../store/notification.store';
+import type { NotificationType, NotificationVariant } from '../store/notification';
 
 const { Mixin } = Shopware;
 

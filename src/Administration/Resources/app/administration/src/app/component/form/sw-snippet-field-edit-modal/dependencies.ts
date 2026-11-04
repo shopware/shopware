@@ -3,7 +3,7 @@
  *
  * Everything sw-snippet-field-edit-modal needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Sanitizer } from 'src/core/helper/sanitizer.helper';

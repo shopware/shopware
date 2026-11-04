@@ -5,8 +5,8 @@
  * @description Apply for upselling service only, no public usage
  */
 
-import 'src/app/store/teaser-popover.store';
-import type { TeaserSalesChannelConfig, TeaserPopoverConfig } from 'src/app/store/teaser-popover.store';
+import 'src/app/store/teaser-popover/register';
+import type { TeaserSalesChannelConfig, TeaserPopoverConfig } from 'src/app/store/teaser-popover';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeTeaserPopovers(): void {
     const store = Shopware.Store.get('teaserPopover');

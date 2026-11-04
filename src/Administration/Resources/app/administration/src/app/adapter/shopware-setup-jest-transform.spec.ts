@@ -6,7 +6,7 @@ import { defineComponent, ref } from 'vue';
 import { mount } from '@vue/test-utils';
 import resetCompositionOverrides from 'test/_helper_/reset-composition-overrides';
 // Registers the `blockOverride` store as a side effect.
-import 'src/app/store/block-override.store';
+import 'src/app/store/block-override/register';
 import createDataScopeFixture from 'src/app/component/structure/sw-block-override/sw-block-override.spec/test-utils/create-data-scope-fixture';
 import ShopwareSetupJestTransformOverride from './_mocks_/sw-jest-transform-fixture.override.vue';
 import ShopwareSetupJestTransformBase from './_mocks_/sw-jest-transform-fixture.vue';

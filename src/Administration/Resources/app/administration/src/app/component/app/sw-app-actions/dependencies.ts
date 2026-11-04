@@ -4,8 +4,8 @@
  * Everything sw-app-actions needs from outside its mini-module.
  */
 import { userConfigService } from 'src/app/service-names';
-import { actionButtonsStoreId } from 'src/app/store/action-buttons.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { actionButtonsStoreId } from 'src/app/store/action-buttons';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 
 /** @private */
 export { createRouter as createRouterVue, createWebHistory } from 'vue-router';

@@ -5,7 +5,7 @@
  */
 import { useI18n } from 'vue-i18n';
 import Sanitizer from 'src/core/helper/sanitizer.helper';
-import type { NotificationType } from '../store/notification.store';
+import type { NotificationType } from '../store/notification';
 
 /**
  * Composable alternative to the `notification-translation` mixin: the shared rendering helpers of the

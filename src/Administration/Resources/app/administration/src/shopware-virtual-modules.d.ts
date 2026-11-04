@@ -3539,6 +3539,7 @@ declare module 'shopware:framework/service-names' {
         seoUrlTemplateService,
         serviceRegistryClient,
         shopIdChangeService,
+        shopwareDiscountCampaignService,
         shopwareExtensionService,
         shopwareServicesService,
         shortcutService,

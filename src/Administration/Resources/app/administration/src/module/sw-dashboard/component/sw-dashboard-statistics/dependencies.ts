@@ -5,7 +5,7 @@
  */
 import { currencyFilterName } from 'src/app/filter/currency.filter';
 import { dateFilterName } from 'src/app/filter/date.filter';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

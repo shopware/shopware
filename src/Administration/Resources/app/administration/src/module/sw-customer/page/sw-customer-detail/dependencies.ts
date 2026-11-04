@@ -3,9 +3,9 @@
  *
  * Everything sw-customer-detail needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
-import { errorStoreId } from 'src/app/store/error.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { contextStoreId } from 'src/app/store/context';
+import { errorStoreId } from 'src/app/store/error';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

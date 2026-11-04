@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios';
 import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
-import type { ContextStore } from 'src/app/store/context.store';
+import type { ContextStore } from 'src/app/store/context';
 import type { BasicHeaders } from 'src/core/service/api.service';
 
 import ApiService from 'src/core/service/api.service';

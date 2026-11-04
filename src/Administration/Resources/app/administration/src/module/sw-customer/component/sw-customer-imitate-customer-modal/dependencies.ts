@@ -3,7 +3,7 @@
  *
  * Everything sw-customer-imitate-customer-modal needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

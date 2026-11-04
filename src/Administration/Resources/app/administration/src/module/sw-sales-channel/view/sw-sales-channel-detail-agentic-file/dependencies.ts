@@ -3,7 +3,7 @@
  *
  * Everything sw-sales-channel-detail-agentic-file needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';

@@ -14,4 +14,4 @@ export { default as useConsentStore } from 'src/core/consent/consent.store';
 /** @private */
 export { sendConsentRequestResponse } from 'src/core/consent/sdk-handler';
 /** @private */
-export { default as useNotificationStore } from 'src/app/store/notification.store';
+export { useNotificationStore as useNotificationStore } from 'src/app/store/notification';

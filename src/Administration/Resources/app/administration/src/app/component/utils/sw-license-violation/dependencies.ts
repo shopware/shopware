@@ -3,7 +3,7 @@
  *
  * Everything sw-license-violation needs from outside its mini-module.
  */
-import { licenseViolationStoreId } from 'src/app/store/license-violation.store';
+import { licenseViolationStoreId } from 'src/app/store/license-violation';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

@@ -3,7 +3,7 @@
  *
  * Everything sw-first-run-wizard-defaults needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';

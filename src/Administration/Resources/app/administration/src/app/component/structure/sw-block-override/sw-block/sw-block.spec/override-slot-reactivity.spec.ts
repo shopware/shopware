@@ -4,7 +4,7 @@
  */
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils';
 // Registers the `blockOverride` store as a side effect.
-import '../../../../../store/block-override.store';
+import '../../../../../store/block-override/register';
 import createDataScopeFixture from '../../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 /**

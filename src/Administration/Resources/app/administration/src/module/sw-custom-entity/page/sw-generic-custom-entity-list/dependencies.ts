@@ -4,7 +4,7 @@
  * Everything sw-generic-custom-entity-list needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { defineComponent as wrapComponentConfig } from 'vue';

@@ -3,11 +3,12 @@
  */
 import { nextTick } from 'vue';
 import initializeUserContext from 'src/app/init-post/user-information.init';
-import { initializeUserNotifications } from 'src/app/store/notification.store';
+// eslint-disable-next-line sw-core-rules/mini-module-boundaries -- boot code loads the user's stored notifications into the store
+import { initializeUserNotifications } from 'src/app/store/notification/private';
 import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
 import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 
-jest.mock('src/app/store/notification.store', () => ({
+jest.mock('src/app/store/notification/private', () => ({
     initializeUserNotifications: jest.fn(),
 }));
 

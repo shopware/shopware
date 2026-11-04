@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-product-feature-sets-list needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

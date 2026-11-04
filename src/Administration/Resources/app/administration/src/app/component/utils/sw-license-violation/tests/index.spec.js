@@ -3,7 +3,7 @@
  */
 
 import LicenseViolationComponent from '../src/sw-license-violation';
-import 'src/app/store/license-violation.store';
+import 'src/app/store/license-violation/register';
 
 describe('src/app/component/utils/sw-license-violation', () => {
     const violation = {

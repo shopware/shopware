@@ -3,7 +3,7 @@
  *
  * Everything sw-date-filter needs from outside its mini-module.
  */
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { zonedTimeToUtc } from 'date-fns-tz';

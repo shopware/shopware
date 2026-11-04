@@ -3,7 +3,7 @@
  *
  * Everything sw-sales-channel-menu needs from outside its mini-module.
  */
-import { adminMenuStoreId } from 'src/app/store/admin-menu.store';
+import { adminMenuStoreId } from 'src/app/store/admin-menu';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

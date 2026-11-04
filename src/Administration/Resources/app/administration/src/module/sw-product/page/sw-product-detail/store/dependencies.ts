@@ -14,4 +14,4 @@ export const getStore = <Id extends keyof PiniaRootState>(id: Id) => Shopware.St
 export type { default as EntityCollection } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 
 /** @private */
-export type { ContextStore } from 'src/app/store/context.store';
+export type { ContextStore } from 'src/app/store/context';

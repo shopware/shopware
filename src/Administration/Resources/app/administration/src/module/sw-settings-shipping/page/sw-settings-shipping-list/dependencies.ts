@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-shipping-list needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { acl as aclService, repositoryFactory as repositoryFactoryService } from 'src/app/service-names';

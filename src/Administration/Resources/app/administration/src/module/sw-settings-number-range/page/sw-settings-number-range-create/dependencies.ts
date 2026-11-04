@@ -3,7 +3,7 @@
  *
  * Everything sw-settings-number-range-create needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { default as Utils } from 'src/core/service/util.service';

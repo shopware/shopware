@@ -3,7 +3,7 @@
  *
  * Everything sw-condition-base-line-item needs from outside its mini-module.
  */
-import { ruleConditionsConfigStoreId } from 'src/app/store/rule-conditions-config.store';
+import { ruleConditionsConfigStoreId } from 'src/app/store/rule-conditions-config';
 
 /** @private */
 export { default as EntityCollection } from 'src/core/data/entity-collection.data';

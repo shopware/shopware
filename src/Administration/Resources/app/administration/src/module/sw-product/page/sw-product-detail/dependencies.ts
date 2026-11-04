@@ -4,10 +4,10 @@
  * Everything sw-product-detail needs from outside its mini-module.
  */
 import { cacheService, customFieldDataProviderService, userConfigService } from 'src/app/service-names';
-import { contextStoreId } from 'src/app/store/context.store';
-import { errorStoreId } from 'src/app/store/error.store';
-import { sessionStoreId } from 'src/app/store/session.store';
-import { shopwareAppsStoreId } from 'src/app/store/shopware-apps.store';
+import { contextStoreId } from 'src/app/store/context';
+import { errorStoreId } from 'src/app/store/error';
+import { sessionStoreId } from 'src/app/store/session';
+import { shopwareAppsStoreId } from 'src/app/store/shopware-apps';
 import { cmsPageStoreId } from 'src/module/sw-cms/store/cms-page.store';
 import { swSeoUrlStoreId } from 'src/module/sw-settings-seo/component/sw-seo-url/store';
 

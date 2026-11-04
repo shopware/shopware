@@ -3,8 +3,8 @@
  *
  * Everything sw-flow-rule-modal needs from outside its mini-module.
  */
-import { errorStoreId } from 'src/app/store/error.store';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { errorStoreId } from 'src/app/store/error';
+import { sessionStoreId } from 'src/app/store/session';
 import { swFlowStoreId } from '../../../store/flow.store';
 
 /** @private */

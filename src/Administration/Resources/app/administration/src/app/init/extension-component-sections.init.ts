@@ -1,4 +1,4 @@
-import '../store/extension-component-sections.store';
+import '../store/extension-component-sections/register';
 
 /**
  * @sw-package framework

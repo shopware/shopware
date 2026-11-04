@@ -4,8 +4,8 @@
  * Everything sw-profile-index needs from outside its mini-module.
  */
 import { localeHelper, timezoneService, userConfigService } from 'src/app/service-names';
-import { errorStoreId } from 'src/app/store/error.store';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { errorStoreId } from 'src/app/store/error';
+import { sessionStoreId } from 'src/app/store/session';
 import { swProfileStoreId } from '../../store/sw-profile.store';
 
 /** @private */

@@ -3,9 +3,9 @@
  *
  * Everything sw-settings-rule-detail needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
-import { errorStoreId } from 'src/app/store/error.store';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { contextStoreId } from 'src/app/store/context';
+import { errorStoreId } from 'src/app/store/error';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

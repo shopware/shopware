@@ -3,7 +3,7 @@
  *
  * Everything sw-first-run-wizard-mailer-smtp needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 
 /** @private */
 export { systemConfigApiService } from 'src/app/service-names';

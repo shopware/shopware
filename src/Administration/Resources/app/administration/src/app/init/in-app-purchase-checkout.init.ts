@@ -3,7 +3,7 @@
  *
  * @private
  */
-import 'src/app/store/in-app-purchase-checkout.store';
+import 'src/app/store/in-app-purchase-checkout/register';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeInAppPurchaseCheckout(): void {

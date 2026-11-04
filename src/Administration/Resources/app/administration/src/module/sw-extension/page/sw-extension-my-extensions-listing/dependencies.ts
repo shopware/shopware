@@ -4,7 +4,7 @@
  * Everything sw-extension-my-extensions-listing needs from outside its mini-module.
  */
 import { assetFilterName } from 'src/app/filter/asset.filter';
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 import { shopwareExtensionsStoreId } from '../../store/extensions.store';
 
 /** @private */

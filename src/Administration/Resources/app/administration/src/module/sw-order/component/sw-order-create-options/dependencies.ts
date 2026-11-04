@@ -3,7 +3,7 @@
  *
  * Everything sw-order-create-options needs from outside its mini-module.
  */
-import { contextStoreId } from 'src/app/store/context.store';
+import { contextStoreId } from 'src/app/store/context';
 import { swOrderStoreId } from '../../store/order.store';
 
 /** @private */

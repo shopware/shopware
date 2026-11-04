@@ -2,7 +2,7 @@
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
-import type { ContextStore } from '../app/store/context.store';
+import type { ContextStore } from '../app/store/context';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
  * @sw-package framework

@@ -7,10 +7,10 @@ import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
-import type { ContextStore } from '../store/context.store';
+import type { ContextStore } from '../store/context';
 import type { NotificationService, NotificationWorkerOptions } from '../../core/factory/worker-notification.factory';
 import type WorkerNotificationFactory from '../../core/factory/worker-notification.factory';
-import type { NotificationType } from '../store/notification.store';
+import type { NotificationType } from '../store/notification';
 
 type ContextAppConfig = ContextStore['app']['config'];
 

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import useNotificationTranslation from './use-notification-translation';
-import type { NotificationType } from '../store/notification.store';
+import type { NotificationType } from '../store/notification';
 
 const t = jest.fn();
 const te = jest.fn();

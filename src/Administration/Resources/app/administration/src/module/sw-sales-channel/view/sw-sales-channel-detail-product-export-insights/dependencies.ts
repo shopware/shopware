@@ -4,7 +4,7 @@
  * Everything sw-sales-channel-detail-product-export-insights needs from outside its mini-module.
  */
 import { currencyFilterName } from 'src/app/filter/currency.filter';
-import { sessionStoreId } from 'src/app/store/session.store';
+import { sessionStoreId } from 'src/app/store/session';
 
 /** @private */
 export { default as Criteria } from 'src/core/data/criteria.data';

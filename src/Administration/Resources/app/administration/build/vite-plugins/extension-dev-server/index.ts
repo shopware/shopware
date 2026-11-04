@@ -2,30 +2,76 @@
  * @sw-package framework
  */
 import colors from 'picocolors';
-import type { IncomingMessage, ServerResponse } from 'http';
-import type { Connect, Plugin, UserConfig, ViteDevServer } from 'vite';
+import { createHash } from 'crypto';
+import fs from 'fs';
+import { createServer } from 'http';
+import type { IncomingMessage, Server, ServerResponse } from 'http';
+import type { Duplex } from 'stream';
+import type { Connect, Plugin, ResolvedConfig, UserConfig, ViteDevServer } from 'vite';
 import { getExtensionDevConfig } from '../extension-config';
 import { compareBasePathPrecedence, getExtensionBasePath, writePluginDevJson } from '../utils';
 import type { ExtensionDefinition } from '../utils';
 import type { ViteToolchain } from '../vite-toolchain';
 
-type HttpServer = NonNullable<ViteDevServer['httpServer']>;
-
 // Typed with Vite 6, which does not know the `closeServer` hook of Vite 8
-type Vite8Plugin = Plugin & { closeServer: () => Promise<void> };
+type Vite8Plugin = Plugin & { closeServer: (options: { reason: 'close' | 'restart' }) => Promise<void> };
+
+type ExtensionServer = {
+    signature: string;
+    server: ViteDevServer;
+    // Receives the WebSocket upgrades of the current Administration server, which a restart replaces
+    upgrades: Server;
+};
+
+// Vite loads the config again on every restart, so the extension servers have to outlive this module
+const extensionServersKey = Symbol.for('shopware-vite-plugin-extension-dev-server');
+
+function getExtensionServers(): Map<string, ExtensionServer> {
+    const store = globalThis as typeof globalThis & { [extensionServersKey]?: Map<string, ExtensionServer> };
+    store[extensionServersKey] ??= new Map();
+
+    return store[extensionServersKey];
+}
+
+// Edits to the build plugins restart the Administration server and have to reach the extension servers as well
+function hashConfigDependencies(config: ResolvedConfig): string {
+    const hash = createHash('sha1');
+    config.configFileDependencies
+        .filter((file) => file !== config.configFile)
+        .sort()
+        .forEach((file) => hash.update(file).update(fs.readFileSync(file)));
+
+    return hash.digest('hex');
+}
+
+function forwardUpgrades(
+    source: NonNullable<ViteDevServer['httpServer']>,
+    findTarget: (request: IncomingMessage) => Server | undefined,
+): void {
+    function forward(request: IncomingMessage, socket: Duplex, head: Buffer): void {
+        findTarget(request)?.emit('upgrade', request, socket, head);
+    }
+
+    function stop(): void {
+        source.off('upgrade', forward);
+    }
+
+    source.on('upgrade', forward);
+    source.once('close', stop);
+}
 
 /**
  * @private
  *
  * Runs the dev servers of the extensions as middlewares of the Administration dev server, so the watcher needs one port.
+ * A restart of the Administration server keeps the extension servers whose configuration did not change.
  */
 export default function ExtensionDevServerPlugin(
     toolchain: ViteToolchain,
     extensions: ExtensionDefinition[],
     useBundledDev: boolean,
 ): Vite8Plugin {
-    // A restart configures the new server before it closes the old one, and both can use this plugin instance
-    const generations: Map<string, ViteDevServer>[] = [];
+    const servers = getExtensionServers();
 
     return {
         name: 'shopware-vite-plugin-extension-dev-server',
@@ -37,43 +83,69 @@ export default function ExtensionDevServerPlugin(
                 throw new Error('The extension dev servers need the HTTP server of the Administration.');
             }
 
-            const servers = new Map<string, ViteDevServer>();
-            generations.push(servers);
-
-            // Each extension listens for the WebSocket upgrades of its HMR client, 0 means no limit
-            const maxListeners = httpServer.getMaxListeners();
-            if (maxListeners > 0) {
-                httpServer.setMaxListeners(maxListeners + extensions.length);
-            }
-
             writePluginDevJson(parent.config.root, extensions, useBundledDev);
 
-            await Promise.all(
-                extensions.map(async (extension) => {
-                    try {
-                        const server = await createExtensionServer(toolchain, extension, useBundledDev, parent, httpServer);
-                        servers.set(getExtensionBasePath(extension), server);
-                    } catch (error) {
-                        const message = error instanceof Error ? error.message : String(error);
-                        parent.config.logger.error(
-                            colors.red(
-                                `# Failed to start ${extension.isApp ? 'app' : 'plugin'} "${extension.name}": ${message}`,
-                            ),
-                        );
-                    }
-                }),
+            const { host, allowedHosts } = parent.config.server;
+            const environment = [
+                hashConfigDependencies(parent.config),
+                useBundledDev,
+                host,
+                allowedHosts,
+            ];
+            const wanted = new Map(
+                extensions.map((extension) => [
+                    getExtensionBasePath(extension),
+                    { extension, signature: JSON.stringify([extension, ...environment]) },
+                ]),
             );
 
-            const basePaths = extensions.map(getExtensionBasePath).sort(compareBasePathPrecedence);
+            await Promise.allSettled(
+                [...servers]
+                    .filter(([basePath, { signature }]) => wanted.get(basePath)?.signature !== signature)
+                    .map(([basePath, { server }]) => {
+                        servers.delete(basePath);
+                        return server.close();
+                    }),
+            );
+
+            await Promise.all(
+                [...wanted]
+                    .filter(([basePath]) => !servers.has(basePath))
+                    .map(async ([basePath, { extension, signature }]) => {
+                        try {
+                            const upgrades = createServer();
+                            const server = await createExtensionServer(
+                                toolchain,
+                                extension,
+                                useBundledDev,
+                                parent,
+                                upgrades,
+                            );
+                            servers.set(basePath, { signature, server, upgrades });
+                        } catch (error) {
+                            const message = error instanceof Error ? error.message : String(error);
+                            parent.config.logger.error(
+                                colors.red(
+                                    `# Failed to start ${extension.isApp ? 'app' : 'plugin'} "${extension.name}": ${message}`,
+                                ),
+                            );
+                        }
+                    }),
+            );
+
+            const basePaths = [...wanted.keys()].sort(compareBasePathPrecedence);
+            const findBasePath = (url = '') => basePaths.find((candidate) => url.startsWith(candidate));
+
+            forwardUpgrades(httpServer, (request) => servers.get(findBasePath(request.url) ?? '')?.upgrades);
 
             parent.middlewares.use((request, response, next) => {
-                const basePath = basePaths.find((candidate) => request.url?.startsWith(candidate));
+                const basePath = findBasePath(request.url);
                 if (!basePath) {
                     next();
                     return;
                 }
 
-                const server = servers.get(basePath);
+                const server = servers.get(basePath)?.server;
                 if (!server) {
                     response.writeHead(503, { 'Content-Type': 'text/plain' });
                     response.end('The dev server of this extension did not start. Check the log of the watcher.');
@@ -87,13 +159,14 @@ export default function ExtensionDevServerPlugin(
             });
         },
 
-        async closeServer() {
-            const servers = generations.shift();
-            if (!servers) {
+        async closeServer({ reason }) {
+            if (reason === 'restart') {
                 return;
             }
 
-            await Promise.allSettled([...servers.values()].map((server) => server.close()));
+            const closing = [...servers.values()].map(({ server }) => server.close());
+            servers.clear();
+            await Promise.allSettled(closing);
         },
     };
 }
@@ -103,16 +176,16 @@ async function createExtensionServer(
     extension: ExtensionDefinition,
     useBundledDev: boolean,
     parent: ViteDevServer,
-    httpServer: HttpServer,
+    upgrades: Server,
 ): Promise<ViteDevServer> {
     const config = getExtensionDevConfig(toolchain, extension, useBundledDev);
     const serverOptions: UserConfig['server'] = {
-        middlewareMode: { server: httpServer },
+        middlewareMode: { server: upgrades },
         host: parent.config.server.host,
         allowedHosts: parent.config.server.allowedHosts,
     };
     // Typed with Vite 6, which only knows `ws: false`
-    Object.assign(serverOptions, { ws: { server: httpServer } });
+    Object.assign(serverOptions, { ws: { server: upgrades } });
     let startingServer: ViteDevServer | undefined;
 
     try {
@@ -122,9 +195,13 @@ async function createExtensionServer(
                 ...(config.plugins ?? []),
                 {
                     name: 'shopware-vite-plugin-extension-middleware',
-                    // Runs after the vite.config of the extension, which must not open its own port
-                    enforce: 'post',
-                    config: () => ({ server: serverOptions }),
+                    // Runs before the configureServer hooks of the extension, which can fail
+                    enforce: 'pre',
+                    config: {
+                        // Runs after the vite.config of the extension, which must not open its own port
+                        order: 'post',
+                        handler: () => ({ server: serverOptions }),
+                    },
                     configureServer: {
                         order: 'pre',
                         handler(server) {
@@ -150,7 +227,7 @@ async function createExtensionServer(
             ],
         });
     } catch (error) {
-        // A server that fails after its configureServer hooks already listens on the shared HTTP server
+        // A server that fails in a configureServer hook already watches files
         await startingServer?.close();
         throw error;
     }

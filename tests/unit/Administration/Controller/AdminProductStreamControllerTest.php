@@ -148,7 +148,7 @@ class AdminProductStreamControllerTest extends TestCase
             $this->requestCriteriaBuilder,
         );
 
-        $this->requestCriteriaBuilder->method('handleRequest')->willReturn(new Criteria());
+        $this->requestCriteriaBuilder->expects($this->once())->method('handleRequest')->willReturn(new Criteria());
 
         $matched = $this->createProduct('matched-variant', 'parent', $variantListingConfig);
         $products = [

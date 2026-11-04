@@ -309,15 +309,6 @@ declare module 'shopware:data/Repository' {
     export default member;
 }
 
-/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
-declare module 'shopware:composables' {
-    import type branch from 'src/app/composables/index';
-
-    const members: typeof branch;
-
-    export default members;
-}
-
 /** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/ruleConditionsConfig' {
     const useStore: () => PiniaRootState['ruleConditionsConfig'];

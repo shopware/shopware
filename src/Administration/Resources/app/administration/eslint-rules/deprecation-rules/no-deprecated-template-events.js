@@ -8,11 +8,13 @@ const { appendRegistryContext } = require('./registry/format-migration-message')
 const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
 const { insertTemplateCodemodComment } = require('./registry/codemod-comment');
 const {
+    areTwigAlternatives,
+    defineTemplateBodyVisitor,
     findMatchingEventAttribute,
     findObjectVOnAttribute,
     getDirectiveName,
+    hasSameValue,
     matchesTemplateName,
-    defineTemplateBodyVisitor,
 } = require('./registry/template-ast');
 
 /**
@@ -68,6 +70,38 @@ module.exports = {
     create(context) {
         const usages = selectedUsages(loadRegistry().templateEventMigrations);
 
+        /**
+         * Reports a deprecated listener next to a listener for its replacement event. The component no
+         * longer emits the deprecated event, so the listener is dead: it is removed when both run the same
+         * handler, otherwise its handler has to be merged by hand.
+         */
+        function reportExistingListener(attribute, existingListener, migration, usage) {
+            const sameHandler = hasSameValue(context.sourceCode, attribute, existingListener);
+            const hint = sameHandler
+                ? `The element already listens to "${usage.to}" with the same handler, so this listener is removed.`
+                : `The element already listens to "${usage.to}" with another handler. This listener does not fire anymore: merge its handler manually.`;
+
+            context.report({
+                node: attribute,
+                message: appendRegistryContext(
+                    [`[${usage.component}] The "${usage.from}" event is deprecated.`, hint],
+                    migration,
+                ),
+                fix: sameHandler && canAutoFix(context, usage) ? (fixer) => fixer.removeRange(getAttributeRemovalRange(attribute)) : null,
+            });
+        }
+
+        function getAttributeRemovalRange(attribute) {
+            const text = context.sourceCode.text;
+            let start = attribute.range[0];
+
+            while (start > 0 && /\s/.test(text[start - 1])) {
+                start -= 1;
+            }
+
+            return [start, attribute.range[1]];
+        }
+
         return defineTemplateBodyVisitor(context, {
             VElement(node) {
                 const componentUsages = usages.filter(({ usage }) => usage.component === node.name);
@@ -88,6 +122,14 @@ module.exports = {
                     const objectVOnHint = findObjectVOnAttribute(node)
                         ? `Object v-on can hide the replacement event. Review the bound listener object and rename "${usage.from}" to "${usage.to}" manually if needed.`
                         : '';
+                    const existingListener = findMatchingEventAttribute(node, usage.to);
+                    const listensTwice = existingListener && !areTwigAlternatives(context.sourceCode, attribute, existingListener);
+
+                    if (listensTwice) {
+                        reportExistingListener(attribute, existingListener, migration, usage);
+
+                        return;
+                    }
 
                     context.report({
                         node: attribute,
@@ -96,8 +138,7 @@ module.exports = {
                             objectVOnHint,
                         ]),
                         *fix(fixer) {
-                            // A second listener for the new event would be a duplicate attribute, which Vue rejects.
-                            if (!canAutoFix(context, usage) || objectVOnHint || findMatchingEventAttribute(node, usage.to)) {
+                            if (!canAutoFix(context, usage) || objectVOnHint) {
                                 return;
                             }
 

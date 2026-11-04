@@ -189,6 +189,34 @@ function getAttributeValueSource(sourceCode, attribute) {
 }
 
 /**
+ * Tells whether two attributes sit in different branches of a Twig `{% if %}`, so only one of them is
+ * rendered and both may carry the same name.
+ *
+ * @example
+ * // <mt-text-field {% if VUE2 %}v-model="x"{% else %}v-model:value="x"{% endif %} />
+ * areTwigAlternatives(sourceCode, vModel, vModelValue); // true
+ */
+function areTwigAlternatives(sourceCode, left, right) {
+    const [first, second] = left.range[0] < right.range[0] ? [left, right] : [right, left];
+
+    return /{%-?\s*(?:else|elseif)\b/.test(sourceCode.text.slice(first.range[1], second.range[0]));
+}
+
+/**
+ * Tells whether two attributes pass the same value, so the deprecated one is redundant.
+ *
+ * @example
+ * hasSameValue(sourceCode, attributeOf(':value="name"'), attributeOf(':model-value="name"')); // true
+ */
+function hasSameValue(sourceCode, left, right) {
+    const valueOf = (attribute) => (attribute.value ? sourceCode.getText(attribute.value) : '');
+
+    return (
+        (getDirectiveName(left) === null) === (getDirectiveName(right) === null) && valueOf(left) === valueOf(right)
+    );
+}
+
+/**
  * Registers template visitors through vue-eslint-parser. A file without a Vue template, such as a
  * `.ts` file a CLI `--rule` reaches, gets only the script visitors instead of a crash.
  *
@@ -202,6 +230,8 @@ function defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor = {})
 }
 
 module.exports = {
+    areTwigAlternatives,
+    hasSameValue,
     defineTemplateBodyVisitor,
     findMatchingEventAttribute,
     findMatchingPropAttribute,

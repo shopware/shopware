@@ -133,7 +133,7 @@ tester.run('no-deprecated-template-events', rule, {
             output: null,
             errors: [
                 {
-                    message: /Use "update:value" instead/,
+                    message: /already listens to "update:value" with another handler\. This listener does not fire anymore/,
                 },
             ],
         },
@@ -144,7 +144,7 @@ tester.run('no-deprecated-template-events', rule, {
             output: null,
             errors: [
                 {
-                    message: /Use "update:modelValue" instead/,
+                    message: /already listens to "update:modelValue" with another handler\. This listener does not fire anymore/,
                 },
             ],
         },
@@ -155,7 +155,29 @@ tester.run('no-deprecated-template-events', rule, {
             output: null,
             errors: [
                 {
-                    message: /Use "update:modelValue" instead/,
+                    message: /already listens to "update:modelValue" with another handler/,
+                },
+            ],
+        },
+        {
+            name: 'removes the deprecated listener when the replacement listener runs the same handler',
+            filename: 'test.html.twig',
+            code: '<template>\n<sw-single-select\n    @change="onChange"\n    @update:value="onChange"\n/>\n</template>',
+            output: '<template>\n<sw-single-select\n    @update:value="onChange"\n/>\n</template>',
+            errors: [
+                {
+                    message: /already listens to "update:value" with the same handler, so this listener is removed/,
+                },
+            ],
+        },
+        {
+            name: 'renames the listener of the other branch of a Twig condition',
+            filename: 'test.html.twig',
+            code: '<template><sw-single-select {% if VUE2 %}@change="onChange"{% else %}@update:value="onChange"{% endif %} /></template>',
+            output: '<template><sw-single-select {% if VUE2 %}@update:value="onChange"{% else %}@update:value="onChange"{% endif %} /></template>',
+            errors: [
+                {
+                    message: /Use "update:value" instead/,
                 },
             ],
         },

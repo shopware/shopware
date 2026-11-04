@@ -36,7 +36,7 @@ describe('sw-product-document-form editing', () => {
         await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
         const replacement = createMedia('replacement');
         await selectMedia(wrapper, [replacement]);
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(getDocuments()?.[0]).toMatchObject({ title: 'manual', position: 0, mediaId: replacement.id });
     });
 
@@ -49,7 +49,7 @@ describe('sw-product-document-form editing', () => {
         wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', '   ');
         await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
         expect(wrapper.get('.sw-product-document-form__save-document').attributes('disabled')).toBeUndefined();
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(wrapper.get('.sw-product-document-form__name-input').classes()).toContain('has--error');
         expect(wrapper.get('.sw-product-document-form__file-error').text()).toContain(
             'sw-product.documentForm.errorFileRequired',
@@ -62,7 +62,7 @@ describe('sw-product-document-form editing', () => {
         expect(wrapper.find('.sw-product-document-form__file-error').exists()).toBe(true);
         await selectMedia(wrapper, [media]);
         expect(wrapper.find('.sw-product-document-form__file-error').exists()).toBe(false);
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(getDocuments()?.[0].title).toBe('Manual');
     });
 
@@ -72,7 +72,7 @@ describe('sw-product-document-form editing', () => {
         await addMedia(wrapper, [media]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(wrapper.find('.sw-product-document-form__file-error').exists()).toBe(true);
         await clickButton(wrapper, 'global.default.cancel');
         expect(getDocuments()?.[0].mediaId).toBe(media.id);
@@ -95,7 +95,7 @@ describe('sw-product-document-form editing', () => {
         await flushPromises();
 
         expect(wrapper.get('.sw-product-document-form__file-name').text()).toBe('uploaded-replacement.pdf');
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(getDocuments()?.[0].mediaId).toBe(replacement.id);
     });
 
@@ -126,7 +126,7 @@ describe('sw-product-document-form editing', () => {
         await flushPromises();
 
         expect(wrapper.get('.sw-product-document-form__file-name').text()).toBe('original.pdf');
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(getDocuments()?.[0].mediaId).toBe(original.id);
     });
 });

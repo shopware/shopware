@@ -13,7 +13,7 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'entityFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -84,10 +84,6 @@ export default {
 
         productMediaRepository() {
             return this.repositoryFactory.create(this.product.media.entity);
-        },
-
-        productDocumentRepository() {
-            return this.repositoryFactory.create('product_document');
         },
 
         mediaDefaultFolderRepository() {
@@ -185,36 +181,6 @@ export default {
             this.$refs.productMediaInheritance.forceInheritanceRemove = true;
 
             return this.product.media;
-        },
-
-        documentRemoveInheritanceFunction(inheritedDocuments) {
-            if (!this.acl.can('product.editor')) {
-                return this.product.documents;
-            }
-
-            this.$refs.productDocumentInheritance.forceInheritanceRemove = true;
-            inheritedDocuments.forEach((source) => {
-                const document = this.productDocumentRepository.create(Context.api);
-                document.productId = this.product.id;
-                document.position = source.position;
-                document.title = source.title;
-                document.mediaId = source.mediaId;
-                document.customFields = Shopware.Utils.object.cloneDeep(source.customFields);
-
-                source.translations?.forEach((sourceTranslation) => {
-                    const translation = this.entityFactory.create('product_document_translation', null, Context.api);
-                    translation.productDocumentId = document.id;
-                    translation.languageId = sourceTranslation.languageId;
-                    translation.mediaId = sourceTranslation.mediaId;
-                    translation.title = sourceTranslation.title;
-                    translation.customFields = Shopware.Utils.object.cloneDeep(sourceTranslation.customFields);
-                    document.translations.add(translation);
-                    translation.media = sourceTranslation.media;
-                });
-                this.product.documents.add(document);
-            });
-
-            return this.product.documents;
         },
 
         mediaRestoreInheritanceFunction() {

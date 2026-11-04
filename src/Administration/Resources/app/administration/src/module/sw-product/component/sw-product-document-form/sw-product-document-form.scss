@@ -90,23 +90,25 @@
         max-width: var(--scale-size-48);
     }
 
-    &.is--disabled {
-        .mt-card__content {
-            &::after {
-                content: "";
-                position: absolute;
-                z-index: 10;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                background: var(--color-background-tertiary-default);
-                mix-blend-mode: multiply;
-            }
+    &-wrapper {
+        &.is--disabled {
+            .mt-card__content {
+                &::after {
+                    content: "";
+                    position: absolute;
+                    z-index: 10;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    background: var(--color-background-tertiary-default);
+                    mix-blend-mode: multiply;
+                }
 
-            .sw-data-grid {
-                border-bottom-left-radius: var(--border-radius-card);
-                border-bottom-right-radius: var(--border-radius-card);
+                .sw-data-grid {
+                    border-bottom-left-radius: var(--border-radius-card);
+                    border-bottom-right-radius: var(--border-radius-card);
+                }
             }
         }
     }

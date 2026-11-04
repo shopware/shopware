@@ -71,7 +71,7 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
             expect(first.documents?.[0]).toMatchObject({
@@ -128,7 +128,7 @@ describe('sw-product-document-form variant editing', () => {
             await addMedia(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Parent only');
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
             expect(searchSpy).not.toHaveBeenCalled();
@@ -143,7 +143,8 @@ describe('sw-product-document-form variant editing', () => {
             const original = createMedia();
             const variant = createVariant(original);
             const productRepository = repositoryFactory.create('product');
-            jest.spyOn(productRepository, 'search')
+            const searchSpy = jest
+                .spyOn(productRepository, 'search')
                 .mockResolvedValueOnce(
                     new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
                 )
@@ -157,9 +158,10 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
             expect(store.documentSaveNotifications[0].variantIds).toEqual([variant.id]);
+            const previousMediaId = variant.documents![0].mediaId;
 
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
@@ -167,9 +169,13 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
+            expect(searchSpy.mock.calls[1][0].filters).toEqual([
+                { type: 'equals', field: 'parentId', value: store.product.id },
+                { type: 'equals', field: 'documents.mediaId', value: previousMediaId },
+            ]);
             expect(variant.documents?.[0].mediaId).toBe(original.id);
             expect(store.documentSaveNotifications).toHaveLength(0);
         });
@@ -196,10 +202,11 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
             expect(searchSpy).toHaveBeenCalledTimes(2);
+            expect(searchSpy.mock.calls[0][0].page).toBe(1);
             expect(searchSpy).toHaveBeenNthCalledWith(
                 2,
                 expect.objectContaining({ page: 2, limit: 100, totalCountMode: 0 }),
@@ -229,7 +236,7 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await clickButton(wrapper, 'global.default.cancel');
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New draft title');
@@ -245,7 +252,7 @@ describe('sw-product-document-form variant editing', () => {
             expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props()).toMatchObject({
                 modelValue: 'New draft title',
             });
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
             expect(getDocuments()![0].title).toBe('New draft title');
         });
@@ -261,7 +268,7 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.save');
+            await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
             expect(getDocuments()?.[0].title).toBe('manual');

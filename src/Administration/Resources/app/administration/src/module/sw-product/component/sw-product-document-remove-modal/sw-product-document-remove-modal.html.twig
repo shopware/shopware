@@ -1,6 +1,5 @@
 {% block sw_product_document_remove_modal %}
 <mt-modal-root
-
     :is-open="true"
     @change="!$event && $emit('close')"
 >
@@ -21,14 +20,13 @@
                 :checked="removeFromVariants"
                 class="sw-product-document-form__remove-from-variants"
                 :label="$t('sw-product.documentForm.removeFromVariants')"
-                :help-text="$t('sw-product.documentForm.removeFromVariantsHelp')"
+                :help-text="$t('sw-product.documentForm.applyToVariantsHelp')"
                 :disabled="!canEdit || isRemovingDocument"
                 @update:checked="$emit('update:removeFromVariants', $event)"
             />
         {% endblock %}
             <mt-text
                 size="xs"
-                color="color-text-secondary-default"
             >
                 {{ $t('sw-product.documentForm.draftHint') }}
             </mt-text>

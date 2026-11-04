@@ -126,7 +126,6 @@
         {% endblock %}
             <mt-text
                 size="xs"
-                color="color-text-secondary-default"
             >
                 {{ $t('sw-product.documentForm.draftHint') }}
             </mt-text>
@@ -147,7 +146,7 @@
                     :disabled="!canEdit || isSavingDocument"
                     @click="$emit('save')"
                 >
-                    {{ $t('global.default.save') }}
+                    {{ $t('global.default.apply') }}
                 </mt-button>
             </div>
         </template>

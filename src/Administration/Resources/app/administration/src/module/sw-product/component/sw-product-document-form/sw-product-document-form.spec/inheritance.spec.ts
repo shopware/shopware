@@ -8,7 +8,7 @@ import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import { createWrapper, createMedia, clickButton, getDocuments } from './helpers';
 
-describe('sw-product-detail-base document inheritance', () => {
+describe('sw-product-document-form inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     beforeEach(() => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
@@ -40,23 +40,19 @@ describe('sw-product-detail-base document inheritance', () => {
         });
         parentDocument.translations?.add(translation);
         store.parentProduct.documents?.add(parentDocument);
-        const wrapper = await createWrapper(undefined, undefined, undefined, { baseView: true });
+        const wrapper = await createWrapper();
         expect(wrapper.text()).toContain('Parent manual');
         expect(wrapper.get('.sw-product-document-form__add-button').attributes('disabled')).toBeDefined();
 
-        await wrapper
-            .get('.sw-product-detail-base__documents .sw-inheritance-switch--is-inherited .mt-icon')
-            .trigger('click');
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
         expect(getDocuments()?.[0].id).not.toBe(parentDocument.id);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Variant manual');
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         expect(parentDocument.title).toBe('Parent manual');
         expect(wrapper.text()).toContain('Variant manual');
 
-        await wrapper
-            .get('.sw-product-detail-base__documents .sw-inheritance-switch--is-not-inherited .mt-icon')
-            .trigger('click');
+        await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
         expect(getDocuments()).toHaveLength(0);
         expect(wrapper.text()).toContain('Parent manual');
     });
@@ -78,11 +74,9 @@ describe('sw-product-detail-base document inheritance', () => {
         Object.assign(document, { mediaId: media.id, title: 'Translated manual' });
         document.translations.add(translation);
         store.parentProduct.documents?.add(document);
-        const wrapper = await createWrapper(undefined, undefined, undefined, { baseView: true });
+        const wrapper = await createWrapper();
 
-        await wrapper
-            .get('.sw-product-detail-base__documents .sw-inheritance-switch--is-inherited .mt-icon')
-            .trigger('click');
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
 
         const copiedDocument = getDocuments()?.[0];
         expect(copiedDocument?.translations[0]).not.toBe(translation);
@@ -98,5 +92,50 @@ describe('sw-product-detail-base document inheritance', () => {
                 ],
             },
         });
+    });
+
+    it('detaches an empty inherited list and restores inheritance without adding assignments', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.parentId = store.parentProduct.id;
+        const wrapper = await createWrapper();
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
+
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeUndefined();
+        expect(getDocuments()).toHaveLength(0);
+        expect(store.parentProduct.documents).toHaveLength(0);
+
+        await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
+        expect(getDocuments()).toHaveLength(0);
+    });
+
+    it('resets the inheritance override when navigating to another variant', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.parentId = store.parentProduct.id;
+        const wrapper = await createWrapper();
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeUndefined();
+
+        const nextVariant = repositoryFactory.create('product').create();
+        nextVariant.parentId = store.parentProduct.id;
+        store.product = nextVariant;
+        await flushPromises();
+
+        expect(wrapper.find('.sw-inheritance-switch--is-inherited').exists()).toBe(true);
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
+        expect(nextVariant.documents).toHaveLength(0);
+    });
+
+    it('prevents a viewer from removing document inheritance', async () => {
+        Object.assign(global, { activeAclRoles: ['product.viewer'] });
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.parentId = store.parentProduct.id;
+        const wrapper = await createWrapper();
+
+        expect(wrapper.get('.sw-inheritance-switch').classes()).toContain('sw-inheritance-switch--disabled');
+        await wrapper.get('.sw-inheritance-switch .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-inheritance-switch--is-inherited').exists()).toBe(true);
+        expect(getDocuments()).toHaveLength(0);
     });
 });

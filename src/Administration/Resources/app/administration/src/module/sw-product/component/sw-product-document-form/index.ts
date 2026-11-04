@@ -1,11 +1,14 @@
 /**
  * @sw-package inventory
  */
+import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
+import documentColumns, { allowedExtensions, maxFileSize, maxDocuments } from './document-form.config';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
 type ProductDocument = Entity<'product_document'>;
+type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean };
 
 /**
  * @private
@@ -15,18 +18,13 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
+        'entityFactory',
         'acl',
         'mediaService',
     ],
 
     props: {
         disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        isInherited: {
             type: Boolean,
             default: false,
         },
@@ -49,40 +47,23 @@ export default Shopware.Component.wrapComponentConfig({
             isSavingDocument: false,
             documentValidationSubmitted: false,
             uploadedMedia: {} as Record<string, Entity<'media'>>,
-            // Use the epic defaults until the product-document configuration is exposed by the backend.
-            allowedExtensions: [
-                'pdf',
-                'docx',
-                'jpg',
-                'jpeg',
-                'png',
-            ],
-            maxFileSize: 20 * 1024 * 1024,
-            maxDocuments: 10,
+            allowedExtensions: [...allowedExtensions],
+            maxFileSize,
+            maxDocuments,
         };
     },
 
     computed: {
-        product() {
-            return Shopware.Store.get('swProductDetail').product;
-        },
+        product: () => Shopware.Store.get('swProductDetail').product,
 
-        parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
-        },
+        parentProduct: () => Shopware.Store.get('swProductDetail').parentProduct,
 
         documents(): EntityCollection<'product_document'> {
-            return (
-                this.isInherited ? this.parentProduct.documents : this.product.documents
-            ) as EntityCollection<'product_document'>;
+            return this.product.documents as EntityCollection<'product_document'>;
         },
 
         documentRepository() {
             return this.repositoryFactory.create('product_document');
-        },
-
-        mediaRepository() {
-            return this.repositoryFactory.create('media');
         },
 
         uploadTag(): string {
@@ -90,16 +71,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            return this.acl.can('product.editor');
+            return !this.disabled && this.acl.can('product.editor');
         },
 
         canAddDocuments(): boolean {
-            return this.canChangeDocuments() && this.isDefaultLanguage && this.documents.length < this.maxDocuments;
+            return this.canEdit && this.isDefaultLanguage && this.documents.length < this.maxDocuments;
         },
 
-        isDefaultLanguage(): boolean {
-            return Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
-        },
+        isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
 
         editingMedia(): Entity<'media'> | undefined {
             return (
@@ -129,19 +108,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         documentColumns() {
-            return [
-                { property: 'number', label: '#', width: '56px', align: 'center' },
-                { property: 'position', label: this.$t('sw-product.documentForm.columnPosition'), width: '110px' },
-                { property: 'title', label: this.$t('sw-product.documentForm.columnTitle'), primary: true, width: '300px' },
-                { property: 'fileName', label: this.$t('sw-product.documentForm.columnFileName'), width: '190px' },
-                { property: 'fileType', label: this.$t('sw-product.documentForm.columnFileType'), width: '104px' },
-                {
-                    property: 'fileSize',
-                    label: this.$t('sw-product.documentForm.columnFileSize'),
-                    width: '100px',
-                    align: 'right',
-                },
-            ].map((column) => ({ ...column, sortable: false, resizable: false }));
+            return documentColumns.map(({ label, ...column }) => ({
+                ...column,
+                label: label === '#' ? label : this.$t(label),
+            }));
         },
 
         uploadHint(): string {
@@ -169,7 +139,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         canChangeDocuments(): boolean {
-            return this.canEdit && !this.isInherited;
+            const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
+            return this.canEdit && inheritance?.isInherited === false;
         },
 
         getMedia(document: ProductDocument): Entity<'media'> | undefined {
@@ -247,7 +218,7 @@ export default Shopware.Component.wrapComponentConfig({
             const editSession = this.documentEditSession;
 
             try {
-                const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
+                const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);
                 if (product !== this.product || languageId !== Shopware.Context.api.languageId || !media) {
                     return;
                 }
@@ -494,9 +465,8 @@ export default Shopware.Component.wrapComponentConfig({
             mediaId: EntityKey<'media'>,
             title: string,
         ): string[] {
-            const product = this.product;
             const children =
-                product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+                this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             const candidates = new Map(variants.map((variant) => [variant.id, variant]));
             children.forEach((variant) => candidates.set(variant.id, variant));
             const updatedVariantIds: string[] = [];
@@ -524,15 +494,14 @@ export default Shopware.Component.wrapComponentConfig({
                     updatedVariantIds.push(variant.id);
                 }
             });
-            product.children = children;
+            this.product.children = children;
             return updatedVariantIds;
         },
 
         stageVariantDocumentRemovals(variants: Entity<'product'>[], mediaId: EntityKey<'media'>): void {
-            const product = this.product;
             const children =
-                product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const origin = product.getOrigin();
+                this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const origin = this.product.getOrigin();
             const originChildren =
                 origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             const candidates = new Map(variants.map((variant) => [variant.id, variant]));
@@ -557,8 +526,44 @@ export default Shopware.Component.wrapComponentConfig({
                     copy.position = index;
                 });
             });
-            product.children = children;
+            this.product.children = children;
             origin.children = originChildren;
+        },
+
+        documentRemoveInheritanceFunction(
+            inheritedDocuments: EntityCollection<'product_document'>,
+        ): EntityCollection<'product_document'> {
+            if (!this.canEdit) {
+                return this.documents;
+            }
+
+            (this.$refs.documentInheritance as DocumentInheritance).forceInheritanceRemove = true;
+            inheritedDocuments.forEach((source) => {
+                const document = this.documentRepository.create(Shopware.Context.api);
+                document.productId = this.product.id;
+                document.position = source.position;
+                document.title = source.title;
+                document.mediaId = source.mediaId;
+                document.customFields = Shopware.Utils.object.cloneDeep(source.customFields);
+
+                source.translations?.forEach((sourceTranslation) => {
+                    const translation = (this.entityFactory as EntityFactory).create(
+                        'product_document_translation',
+                        null,
+                        Shopware.Context.api,
+                    ) as Entity<'product_document_translation'>;
+                    translation.productDocumentId = document.id;
+                    translation.languageId = sourceTranslation.languageId;
+                    translation.mediaId = sourceTranslation.mediaId;
+                    translation.title = sourceTranslation.title;
+                    translation.customFields = Shopware.Utils.object.cloneDeep(sourceTranslation.customFields);
+                    document.translations.add(translation);
+                    translation.media = sourceTranslation.media;
+                });
+                this.documents.add(document);
+            });
+
+            return this.documents;
         },
 
         updatePositions(): void {

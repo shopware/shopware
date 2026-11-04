@@ -112,15 +112,6 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-secret-mo
         expect(wrapper.find('.sw-settings-webhook-secret-modal__save').attributes('disabled')).toBeDefined();
     });
 
-    it('cannot save a secret longer than 255 characters and says why', async () => {
-        const { wrapper } = await createWrapper();
-
-        await wrapper.find('.mt-text-field').setValue('a'.repeat(256));
-
-        expect(wrapper.find('.mt-field-error').text()).toBe('sw-settings-webhook.secret.errorTooLong');
-        expect(wrapper.find('.sw-settings-webhook-secret-modal__save').attributes('disabled')).toBeDefined();
-    });
-
     it('stays open and shows an error when saving fails', async () => {
         const { wrapper, createNotification } = await createWrapper({
             save: jest.fn(() => Promise.reject(new Error('refused'))),

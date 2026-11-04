@@ -8,8 +8,6 @@ import './sw-settings-webhook-secret-modal.scss';
 
 const { Component, Mixin } = Shopware;
 
-const MAX_SECRET_LENGTH = 255;
-
 /**
  * @private
  */
@@ -46,20 +44,8 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('webhook');
         },
 
-        isTooLong(): boolean {
-            return Array.from(this.secret).length > MAX_SECRET_LENGTH;
-        },
-
-        secretError(): { detail: string } | null {
-            if (!this.isTooLong) {
-                return null;
-            }
-
-            return { detail: this.$t('sw-settings-webhook.secret.errorTooLong', { max: MAX_SECRET_LENGTH }) };
-        },
-
         canSave(): boolean {
-            return this.secret.trim() !== '' && !this.isTooLong;
+            return this.secret.trim() !== '';
         },
     },
 

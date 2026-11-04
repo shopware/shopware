@@ -98,7 +98,7 @@ describe('module/sw-settings-language/component/sw-settings-language-add-modal',
         expect(select.attributes('disabled')).toBeUndefined();
 
         wrapper.vm.isLoading = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(select.attributes('disabled')).toBe('true');
     });

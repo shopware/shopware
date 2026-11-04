@@ -2,9 +2,14 @@
 
 .sw-cms-list {
     .sw-cms-list__content {
-        max-width: $content-width;
-        position: relative;
-        margin: auto;
+        display: grid;
+        grid-template-columns: 180px minmax(0, $content-width);
+        column-gap: var(--scale-size-24);
+        justify-content: center;
+    }
+
+    &.sw-cms-list--compact .sw-cms-list__content {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
@@ -22,14 +27,11 @@
     }
 
     .sw-cms-list__sidebar {
-        width: 180px;
         padding-top: 64px;
-        position: absolute;
-        left: -180px;
+    }
 
-        @media screen and (max-width: 1400px) {
-            display: none;
-        }
+    &.sw-cms-list--compact .sw-cms-list__sidebar {
+        padding-top: 0;
     }
 
     .sw-cms-list__actions {

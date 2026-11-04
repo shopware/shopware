@@ -368,6 +368,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js - components', () => {
 
         const component = vueAdapter.buildAndCreateComponent(componentDefinition);
         const mountedComponent = shallowMount(component);
-        expect(mountedComponent.vm).toBeTruthy();
+
+        expect(mountedComponent.classes()).toContain('sw-foo');
+        expect(mountedComponent.text()).toBe('Some text');
     });
 });

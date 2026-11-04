@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+const { defineTemplateBodyVisitor } = require('./registry/template-ast');
+
 const FEATURE_FLAG = 'v6.8.0.0';
 
 function getDirective(node, name) {
@@ -147,6 +149,6 @@ module.exports = {
             },
         };
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor(templateVisitor);
+        return defineTemplateBodyVisitor(context, templateVisitor);
     },
 };

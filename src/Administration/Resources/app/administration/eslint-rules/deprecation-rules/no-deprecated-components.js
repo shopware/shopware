@@ -7,7 +7,11 @@ const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { canAutoFix } = require('./registry/fix-policy');
 const { convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
-const { findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
+const {
+    defineTemplateBodyVisitor,
+    findObjectVBindAttribute,
+    findObjectVOnAttribute,
+} = require('./registry/template-ast');
 const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
 
 // Stands in for ESLint's fixer when a fix only has to be built, not applied.
@@ -115,7 +119,7 @@ module.exports = {
             }))
             .filter(({ renameUsage }) => renameUsage);
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor({
+        return defineTemplateBodyVisitor(context, {
             VElement(node) {
                 const match = renameMigrations.find(({ migration }) => migration.component === node.name);
 
@@ -126,7 +130,9 @@ module.exports = {
                 const { migration, renameUsage } = match;
                 const oldName = migration.component;
                 const newName = migration.replacement;
-                const manualParts = allowsPartialConversion ? [] : findManualParts(context, node, migration);
+                // A rename that is manual anyway never converts, so its follow-up steps are not the reason.
+                const manualParts =
+                    allowsPartialConversion || renameUsage.fix === 'manual' ? [] : findManualParts(context, node, migration);
 
                 if (manualParts.length > 0) {
                     context.report({

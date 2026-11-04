@@ -188,7 +188,21 @@ function getAttributeValueSource(sourceCode, attribute) {
     return attribute.value.value;
 }
 
+/**
+ * Registers template visitors through vue-eslint-parser. A file without a Vue template, such as a
+ * `.ts` file a CLI `--rule` reaches, gets only the script visitors instead of a crash.
+ *
+ * @example
+ * return defineTemplateBodyVisitor(context, { VElement(node) { … } });
+ */
+function defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor = {}) {
+    const define = context.sourceCode.parserServices?.defineTemplateBodyVisitor;
+
+    return define ? define(templateVisitor, scriptVisitor) : scriptVisitor;
+}
+
 module.exports = {
+    defineTemplateBodyVisitor,
     findMatchingEventAttribute,
     findMatchingPropAttribute,
     findMatchingVModelAttribute,

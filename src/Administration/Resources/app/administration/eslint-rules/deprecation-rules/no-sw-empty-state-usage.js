@@ -8,6 +8,7 @@
  */
 
 const { isMigrationSelected } = require('./registry/filter-migrations');
+const { defineTemplateBodyVisitor } = require('./registry/template-ast');
 const {
     containsTwig,
     getInnerSource,
@@ -570,6 +571,6 @@ module.exports = {
             },
         };
 
-        return sourceCode.parserServices.defineTemplateBodyVisitor(templateVisitor);
+        return defineTemplateBodyVisitor(context, templateVisitor);
     },
 };

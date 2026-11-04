@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+const { defineTemplateBodyVisitor } = require('./registry/template-ast');
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
 const { FIX_OPTION_SCHEMA } = require('./registry/fix-policy');
@@ -28,7 +29,7 @@ module.exports = {
     create(context) {
         const migrations = filterMigrations(loadRegistry().componentApiMigrations);
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor({
+        return defineTemplateBodyVisitor(context, {
             VElement(node) {
                 migrations
                     .filter((migration) => (migration.replacement ?? migration.component) === node.name)

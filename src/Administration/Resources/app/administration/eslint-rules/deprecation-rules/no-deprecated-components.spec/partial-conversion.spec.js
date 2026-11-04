@@ -40,4 +40,17 @@ tester.run('no-deprecated-components (partial conversion)', rule, {
     ],
 });
 
-module.exports = { rule };
+
+tester.run('no-deprecated-components (partial conversion of a manual rename)', rule, {
+    valid: [],
+    invalid: [
+        {
+            name: 'reports a component with a manual rename without listing its follow-up steps',
+            filename: 'test.html.twig',
+            options: [{ partial: false }],
+            code: '<template>\n<sw-tabs><sw-tabs-item name="a">A</sw-tabs-item></sw-tabs>\n</template>',
+            output: null,
+            errors: [{ message: /^"sw-tabs" is deprecated\. Please use "mt-tabs" instead\.\n(?!It is not converted)/ }],
+        },
+    ],
+});

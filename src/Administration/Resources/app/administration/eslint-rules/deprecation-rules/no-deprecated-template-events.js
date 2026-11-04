@@ -12,6 +12,7 @@ const {
     findObjectVOnAttribute,
     getDirectiveName,
     matchesTemplateName,
+    defineTemplateBodyVisitor,
 } = require('./registry/template-ast');
 
 /**
@@ -67,7 +68,7 @@ module.exports = {
     create(context) {
         const usages = selectedUsages(loadRegistry().templateEventMigrations);
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor({
+        return defineTemplateBodyVisitor(context, {
             VElement(node) {
                 const componentUsages = usages.filter(({ usage }) => usage.component === node.name);
 

@@ -344,13 +344,10 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
-### Six Administration components are built on first render
+### Three Administration settings components are built on first render
 
 The following components are no longer built while the Administration boots, but when they render for the first time:
 
-- `sw-sales-channel-products-assignment-single-products`
-- `sw-sales-channel-product-assignment-categories`
-- `sw-sales-channel-products-assignment-dynamic-product-groups`
 - `sw-settings-document-detail`
 - `sw-settings-product-feature-sets-detail`
 - `sw-settings-search-searchable-content`
@@ -358,7 +355,6 @@ The following components are no longer built while the Administration boots, but
 Overrides of these components still apply.
 A parent component can't read their `$refs` in its own `created` or `mounted` hook anymore, because they mount later.
 Use `@vue:mounted` on the child element instead, or restore the eager build from your extension with `Shopware.Component.markComponentAsSync('<component-name>')`.
-If you override a tab block of `sw-sales-channel-products-assignment-modal`, keep the `@vue:mounted` handler of the tab element, or the tab loses its layout.
 
 ### Apps can add tabs to the media modal they open
 

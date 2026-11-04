@@ -7,6 +7,8 @@ use Symfony\Component\Validator\Constraint;
 
 /**
  * @internal only for use by the content-system layout presets
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]

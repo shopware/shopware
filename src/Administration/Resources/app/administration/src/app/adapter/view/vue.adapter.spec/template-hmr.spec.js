@@ -65,22 +65,40 @@ describe('app/adapter/view/vue.adapter.js - template hot updates', () => {
         expect(child.text()).toBe('AfterChild');
     });
 
-    it('updates an edited template override', async () => {
+    it('updates an extending component when only the extending one is rendered', async () => {
+        const template = '<div>{% block hmr_base_text %}<span class="text">Before</span>{% endblock %}</div>';
+        Shopware.Component.register('hmr-base', { template });
+        Shopware.Component.extend('hmr-only-child', 'hmr-base', {
+            template: '{% block hmr_base_text %}{% parent %}<span class="child">Child</span>{% endblock %}',
+        });
+        const child = await mountComponent('hmr-only-child');
+
+        const updated = await vueAdapter.hotUpdateTemplate(template, template.replace('Before', 'After'));
+        await flushPromises();
+
+        expect(updated).toBe(true);
+        expect(child.text()).toBe('AfterChild');
+    });
+
+    it('updates an edited template override on every save', async () => {
         Shopware.Component.register('hmr-overridden', {
             template: '<div>{% block hmr_overridden_text %}Original{% endblock %}</div>',
         });
         const overrideTemplate = '{% block hmr_overridden_text %}Override before{% endblock %}';
+        const firstEdit = overrideTemplate.replace('before', 'after');
         Shopware.Component.override('hmr-overridden', { template: overrideTemplate });
         const wrapper = await mountComponent('hmr-overridden');
 
-        const updated = await vueAdapter.hotUpdateTemplate(
-            overrideTemplate,
-            overrideTemplate.replace('Override before', 'Override after'),
-        );
+        const updated = await vueAdapter.hotUpdateTemplate(overrideTemplate, firstEdit);
         await flushPromises();
 
         expect(updated).toBe(true);
         expect(wrapper.text()).toBe('Override after');
+
+        await vueAdapter.hotUpdateTemplate(firstEdit, firstEdit.replace('after', 'again'));
+        await flushPromises();
+
+        expect(wrapper.text()).toBe('Override again');
     });
 
     it('applies further edits of the same template', async () => {

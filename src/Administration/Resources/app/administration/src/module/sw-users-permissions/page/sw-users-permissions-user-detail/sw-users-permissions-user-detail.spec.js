@@ -750,22 +750,44 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
             {
                 global: {
                     config: { errorHandler: jest.fn() },
-                    stubs: {
-                        'sw-verify-user-modal': {
-                            template: '<button class="confirm-save" @click="$emit(\'verified\')">Confirm</button>',
-                        },
-                    },
+                    stubs: {},
                 },
             },
             save,
         );
 
         await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
-        await wrapper.find('.confirm-save').trigger('click');
         await flushPromises();
 
         expect(notification).toHaveBeenCalledWith(expect.objectContaining({ message }));
         expect(save).toHaveBeenCalled();
+    });
+
+    it('should save with the context of the user verification', async () => {
+        const context = { ...Shopware.Context.api, authToken: { access: 'verified-token' } };
+        userVerificationService.verify.mockResolvedValueOnce(context);
+        const save = jest.fn(() => Promise.resolve());
+        await wrapper.unmount();
+        wrapper = await createWrapper(['users_and_permissions.editor'], { global: { stubs: {} } }, save);
+
+        await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(save).toHaveBeenCalledWith(expect.anything(), context);
+    });
+
+    it('should not save when the user verification is cancelled', async () => {
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+        const save = jest.fn(() => Promise.resolve());
+        await wrapper.unmount();
+        wrapper = await createWrapper(['users_and_permissions.editor'], { global: { stubs: {} } }, save);
+
+        await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-settings-user-detail__save-action').attributes('disabled')).toBeUndefined();
     });
 
     it('should stop loading when email validation fails', async () => {

@@ -9,13 +9,30 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
+use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -199,6 +216,220 @@ class CreateMigrationCommandTest extends TestCase
         ];
     }
 
+    /**
+     * @param list<string> $options
+     * @param list<string> $expectedClassNames
+     */
+    #[DataProvider('relatedDefinitionsProvider')]
+    public function testRelatedDefinitions(string $entities, array $options, array $expectedClassNames): void
+    {
+        new StaticDefinitionInstanceRegistry(
+            [
+                $entity = new MigrationTestEntityDefinition(),
+                $translation = new MigrationTestEntityTranslationDefinition(),
+                new MigrationTestTagDefinition(),
+                $mapping = new MigrationTestEntityTagDefinition(),
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getByEntityName')->willReturnMap([
+            [MigrationTestEntityDefinition::ENTITY_NAME, $entity],
+            [MigrationTestEntityTranslationDefinition::ENTITY_NAME, $translation],
+            [MigrationTestEntityTagDefinition::ENTITY_NAME, $mapping],
+        ]);
+
+        $queryGenerator = static::createStub(MigrationQueryGenerator::class);
+        $queryGenerator->method('generateQueries')->willReturn(['CREATE TABLE test (id INT);']);
+
+        $classNames = [];
+        $migrationFileRenderer = static::createStub(MigrationFileRenderer::class);
+        $migrationFileRenderer->method('render')->willReturnCallback(
+            static function (string $namespace, string $className) use (&$classNames): string {
+                $classNames[] = $className;
+
+                return 'Migration file content';
+            }
+        );
+
+        $command = new CreateMigrationCommand(
+            $registry,
+            $queryGenerator,
+            static::createStub(KernelInterface::class),
+            static::createStub(Filesystem::class),
+            $migrationFileRenderer,
+            '/path/to/core',
+            '6.7.0',
+            new MockClock(new \DateTimeImmutable('@1000'))
+        );
+
+        $input = ['entities' => $entities];
+        foreach ($options as $option) {
+            $input[$option] = true;
+        }
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute($input);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertSame($expectedClassNames, $classNames);
+    }
+
+    public static function relatedDefinitionsProvider(): \Generator
+    {
+        yield 'without options' => [
+            'migration_test_entity',
+            [],
+            ['Migration1000MigrationTestEntity'],
+        ];
+
+        yield 'with translations' => [
+            'migration_test_entity',
+            ['--auto-translation'],
+            ['Migration1000MigrationTestEntity', 'Migration1001MigrationTestEntityTranslation'],
+        ];
+
+        yield 'with mappings' => [
+            'migration_test_entity',
+            ['--auto-mapping'],
+            ['Migration1000MigrationTestEntity', 'Migration1001MigrationTestEntityTag'],
+        ];
+
+        yield 'with translations and mappings' => [
+            'migration_test_entity',
+            ['--auto-translation', '--auto-mapping'],
+            [
+                'Migration1000MigrationTestEntity',
+                'Migration1001MigrationTestEntityTranslation',
+                'Migration1002MigrationTestEntityTag',
+            ],
+        ];
+
+        yield 'related definitions that are passed explicitly are not created twice' => [
+            'migration_test_entity,migration_test_entity_translation',
+            ['--auto-translation', '--auto-mapping'],
+            [
+                'Migration1000MigrationTestEntity',
+                'Migration1000MigrationTestEntityTranslation',
+                'Migration1001MigrationTestEntityTag',
+            ],
+        ];
+    }
+
+    #[DataProvider('pluginProvider')]
+    public function testPluginOption(string $plugin, string $expectedNamespace, string $expectedDirectory): void
+    {
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+
+        $queryGenerator = static::createStub(MigrationQueryGenerator::class);
+        $queryGenerator->method('generateQueries')->willReturn(['CREATE TABLE test (id INT);']);
+
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getBundles')->willReturn($this->getPlugins());
+
+        $namespaces = [];
+        $migrationFileRenderer = static::createStub(MigrationFileRenderer::class);
+        $migrationFileRenderer->method('render')->willReturnCallback(
+            static function (string $namespace) use (&$namespaces): string {
+                $namespaces[] = $namespace;
+
+                return 'Migration file content';
+            }
+        );
+
+        $paths = [];
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $filesystem->expects($this->never())->method('mkdir');
+        $filesystem->method('dumpFile')->willReturnCallback(static function (string $path) use (&$paths): void {
+            $paths[] = $path;
+        });
+
+        $command = new CreateMigrationCommand(
+            $registry,
+            $queryGenerator,
+            $kernel,
+            $filesystem,
+            $migrationFileRenderer,
+            '/path/to/core',
+            '6.7.0',
+            new MockClock(new \DateTimeImmutable('@1000'))
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['entities' => 'test_entity', '--plugin' => $plugin]);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertSame([$expectedNamespace], $namespaces);
+        static::assertSame([$expectedDirectory . '/Migration1000TestEntity.php'], $paths);
+    }
+
+    public static function pluginProvider(): \Generator
+    {
+        yield 'exact name that is also a prefix of another plugin' => ['SwagMigrationTest', 'SwagMigrationTest\Migration', '/plugins/SwagMigrationTest/src/Migration'];
+        yield 'unique prefix' => ['SwagMigrationTestExt', 'SwagMigrationTestExtension\Migration', '/plugins/SwagMigrationTestExtension/src/Migration'];
+    }
+
+    public function testPluginOptionWithAmbiguousPrefix(): void
+    {
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getBundles')->willReturn($this->getPlugins());
+
+        $command = new CreateMigrationCommand(
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(MigrationQueryGenerator::class),
+            $kernel,
+            static::createStub(Filesystem::class),
+            static::createStub(MigrationFileRenderer::class),
+            '/path/to/core',
+            '6.7.0',
+            new MockClock()
+        );
+
+        $this->expectExceptionObject(
+            MigrationException::moreThanOnePluginFound('SwagMigration', ['SwagMigrationTest', 'SwagMigrationTestExtension'])
+        );
+
+        (new CommandTester($command))->execute(['entities' => 'test_entity', '--plugin' => 'SwagMigration']);
+    }
+
+    public function testPluginOptionWithUnknownPlugin(): void
+    {
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getBundles')->willReturn($this->getPlugins());
+
+        $command = new CreateMigrationCommand(
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(MigrationQueryGenerator::class),
+            $kernel,
+            static::createStub(Filesystem::class),
+            static::createStub(MigrationFileRenderer::class),
+            '/path/to/core',
+            '6.7.0',
+            new MockClock()
+        );
+
+        $this->expectExceptionObject(MigrationException::pluginNotFound('Unknown'));
+
+        (new CommandTester($command))->execute(['entities' => 'test_entity', '--plugin' => 'Unknown']);
+    }
+
+    /**
+     * @return array<string, Bundle>
+     */
+    private function getPlugins(): array
+    {
+        return [
+            'SwagMigrationTest' => MigrationTestPlugin::create('SwagMigrationTest'),
+            'SwagMigrationTestExtension' => MigrationTestPlugin::create('SwagMigrationTestExtension'),
+            // Bundles that are not plugins are ignored, even if their name matches
+            'SwagMigrationTestBundle' => new MigrationTestBundle(),
+        ];
+    }
+
     private function getBundle(): Bundle
     {
         $bundle = static::createStub(Bundle::class);
@@ -206,5 +437,132 @@ class CreateMigrationCommandTest extends TestCase
         $bundle->method('getMigrationPath')->willReturn('/path/to/core/TestPlugin/Migration');
 
         return $bundle;
+    }
+}
+
+/**
+ * @internal
+ */
+class MigrationTestPlugin extends Plugin
+{
+    public static function create(string $name): self
+    {
+        $plugin = new self(true, '/plugins/' . $name);
+        $plugin->name = $name;
+        $plugin->path = '/plugins/' . $name . '/src';
+
+        return $plugin;
+    }
+
+    public function getMigrationNamespace(): string
+    {
+        return $this->name . '\Migration';
+    }
+
+    public function getMigrationPath(): string
+    {
+        return $this->path . '/Migration';
+    }
+}
+
+/**
+ * @internal
+ */
+class MigrationTestBundle extends Bundle
+{
+    public function __construct()
+    {
+        $this->name = 'SwagMigrationTestBundle';
+    }
+}
+
+/**
+ * @internal
+ */
+class MigrationTestEntityDefinition extends EntityDefinition
+{
+    final public const ENTITY_NAME = 'migration_test_entity';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new TranslatedField('name'),
+            (new TranslationsAssociationField(MigrationTestEntityTranslationDefinition::class, 'migration_test_entity_id'))->addFlags(new Required()),
+            new ManyToManyAssociationField('tags', MigrationTestTagDefinition::class, MigrationTestEntityTagDefinition::class, 'migration_test_entity_id', 'migration_test_tag_id'),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class MigrationTestEntityTranslationDefinition extends EntityTranslationDefinition
+{
+    final public const ENTITY_NAME = 'migration_test_entity_translation';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return MigrationTestEntityDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('name', 'name'))->addFlags(new Required()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class MigrationTestTagDefinition extends EntityDefinition
+{
+    final public const ENTITY_NAME = 'migration_test_tag';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class MigrationTestEntityTagDefinition extends MappingEntityDefinition
+{
+    final public const ENTITY_NAME = 'migration_test_entity_tag';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new FkField('migration_test_entity_id', 'migrationTestEntityId', MigrationTestEntityDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('migration_test_tag_id', 'migrationTestTagId', MigrationTestTagDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            new ManyToOneAssociationField('migrationTestEntity', 'migration_test_entity_id', MigrationTestEntityDefinition::class, 'id', false),
+            new ManyToOneAssociationField('migrationTestTag', 'migration_test_tag_id', MigrationTestTagDefinition::class, 'id', false),
+        ]);
     }
 }

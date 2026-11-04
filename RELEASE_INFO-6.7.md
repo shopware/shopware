@@ -262,6 +262,20 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### `dal:migration:create` creates translation and mapping migrations and accepts a plugin name
+
+`dal:migration:create` has three new options:
+
+- `--plugin` (`-p`) takes a plugin name, or a unique prefix of it, instead of `--bundle` and `--namespace`, like `database:create-migration`.
+- `--auto-translation` also creates migrations for the translation definitions of the given entities.
+- `--auto-mapping` also creates migrations for the mapping definitions of their many-to-many associations.
+
+The additional migrations get later timestamps, so they run after the tables they reference.
+
+```bash
+bin/console dal:migration:create --plugin=SwagExample --auto-translation --auto-mapping swag_example
+```
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

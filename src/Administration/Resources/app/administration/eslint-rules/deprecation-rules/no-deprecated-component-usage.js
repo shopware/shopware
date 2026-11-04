@@ -8,6 +8,7 @@ const { appendRegistryContext } = require('./registry/format-migration-message')
 const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
 const { hasCodemodComment, insertTemplateCodemodComment, isConvertedFrom } = require('./registry/codemod-comment');
 const ast = require('./registry/template-ast');
+const { containsTwig, getInnerSource, getRemovalRange, slotContentToValue, toPropAttribute } = require('./registry/slot-content');
 
 /**
  * Names what an attribute passes to the element, in the shape registry steps declare as `produces`.
@@ -133,6 +134,11 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
             getStaticAttributeName: ast.getStaticAttributeName,
             getAttributeValueSource: (attribute) => ast.getAttributeValueSource(sourceCode, attribute),
             hasCodemodComment: (element, text) => hasCodemodComment(sourceCode, element, text),
+            getSlotContentValue: (slot) => {
+                return containsTwig(getInnerSource(sourceCode, slot)) ? null : slotContentToValue(sourceCode, slot.children);
+            },
+            getRemovalRange: (node) => getRemovalRange(sourceCode.text, node),
+            toPropAttribute,
         },
     };
 }

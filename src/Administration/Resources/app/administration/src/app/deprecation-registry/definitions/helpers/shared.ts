@@ -28,6 +28,8 @@ type UsageReport = UsagePlan & {
     apiName: string;
     /** The replacement named in the default headline. */
     replacement?: string;
+    /** Replaces the default headline when "The "<api>" API is deprecated." does not describe the usage. */
+    headline?: string;
 };
 
 /**
@@ -46,7 +48,7 @@ type UsageReport = UsagePlan & {
  */
 export function reportUsage(api: ComponentUsageRuleApi, report: UsageReport): void {
     const { node, apiName, replacement, manualReason, produces, fix } = report;
-    const headline = api.usage.message ?? defaultHeadline(apiName, replacement);
+    const headline = api.usage.message ?? report.headline ?? defaultHeadline(apiName, replacement);
     const text = manualReason ? `${headline}\n${manualReason}` : headline;
 
     api.report({

@@ -8,6 +8,14 @@
  */
 
 const { isMigrationSelected } = require('./registry/filter-migrations');
+const {
+    containsTwig,
+    getInnerSource,
+    getRemovalRange,
+    isWhitespaceText,
+    slotContentToValue,
+    toPropAttribute,
+} = require('./registry/slot-content');
 
 // The deprecation registry delegates this migration to this rule through a `codemodRule` step.
 const MIGRATION_ID = 'component.sw-empty-state';
@@ -22,9 +30,6 @@ const REMOVED_PROPS = {
     color: 'color',
 };
 
-// Elements that only wrap the description text and can be unwrapped into the "description" prop
-const DESCRIPTION_WRAPPERS = ['p', 'span', 'div'];
-
 // Elements in the "icon" slot that can be converted to the "icon" prop
 const ICON_ELEMENTS = ['mt-icon', 'sw-icon'];
 
@@ -34,8 +39,6 @@ const MODULE_ICON_FALLBACK = '$route.meta.$module.icon';
 
 // Translation functions always return a string
 const TRANSLATION_FUNCTIONS = ['$t', '$tc'];
-
-const MUSTACHE_PATTERN = /{{([\s\S]*?)}}/;
 
 const REASONS = {
     iconSlot: 'the "icon" slot renders custom content, but "mt-empty-state" only supports the "icon" prop',
@@ -51,29 +54,8 @@ function normalizeName(name) {
     return name.replace(/-/g, '').toLowerCase();
 }
 
-// vue-eslint-parser drops Twig tags from text nodes, so they are only visible in the source text
-function containsTwig(text) {
-    return /{%|%}|{#|#}/.test(text);
-}
-
-function getInnerSource(sourceCode, element) {
-    return sourceCode.text.slice(element.startTag.range[1], element.endTag?.range[0] ?? element.startTag.range[1]);
-}
-
-function isWhitespaceText(node) {
-    return node.type === 'VText' && node.value.trim() === '';
-}
-
-function encodeAttributeValue(text) {
-    return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
-
 function toJsString(text) {
     return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-}
-
-function toTemplateLiteralText(text) {
-    return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 
 function wrapCondition(code) {
@@ -100,34 +82,6 @@ function isNeverNullish(expression) {
         default:
             return false;
     }
-}
-
-/**
- * Returns the attribute text for a bound value, or null if the expression
- * can't be put into a quoted attribute.
- */
-function boundAttribute(name, code) {
-    if (!code.includes('"')) {
-        return `:${name}="${code}"`;
-    }
-
-    if (!code.includes("'")) {
-        return `:${name}='${code}'`;
-    }
-
-    return null;
-}
-
-/**
- * Builds the attribute text for a value, which is either
- * `{ kind: 'static', text }` or `{ kind: 'expr', code }`.
- */
-function valueAttribute(name, value) {
-    if (value.kind === 'static') {
-        return `${name}="${encodeAttributeValue(value.text)}"`;
-    }
-
-    return boundAttribute(name, value.code);
 }
 
 function valueToExpression(value) {
@@ -227,75 +181,6 @@ function getSlotName(element) {
  */
 function hasSlotDirectives(template) {
     return template.startTag.attributes.some((attribute) => parseAttribute(attribute).kind !== 'slot');
-}
-
-/**
- * Converts the content of the default slot into a description value.
- * Returns null if the content contains markup which can't be expressed as plain text.
- */
-function contentToDescription(sourceCode, nodes) {
-    const meaningfulNodes = nodes.filter((node) => !isWhitespaceText(node));
-
-    if (meaningfulNodes.length === 0) {
-        return { kind: 'none' };
-    }
-
-    // Twig blocks inside the content would get lost when it is moved into the prop
-    const firstNode = meaningfulNodes[0];
-    const lastNode = meaningfulNodes[meaningfulNodes.length - 1];
-    if (containsTwig(sourceCode.text.slice(firstNode.range[0], lastNode.range[1]))) {
-        return null;
-    }
-
-    if (
-        meaningfulNodes.length === 1
-        && firstNode.type === 'VElement'
-        && DESCRIPTION_WRAPPERS.includes(firstNode.name)
-        && firstNode.startTag.attributes.length === 0
-    ) {
-        return contentToDescription(sourceCode, firstNode.children);
-    }
-
-    const parts = [];
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const node of nodes) {
-        if (node.type === 'VText') {
-            // Mustaches are only parsed in .vue files, in .twig files they are part of the text
-            node.value.split(MUSTACHE_PATTERN).forEach((segment, index) => {
-                parts.push(index % 2 === 0 ? { text: segment.replace(/\s+/g, ' ') } : { code: segment.trim() });
-            });
-        } else if (node.type === 'VExpressionContainer' && node.expression) {
-            parts.push({ code: sourceCode.getText(node.expression) });
-        } else {
-            return null;
-        }
-    }
-
-    const firstPart = parts[0];
-    const lastPart = parts[parts.length - 1];
-    if (firstPart.text !== undefined) {
-        firstPart.text = firstPart.text.trimStart();
-    }
-    if (lastPart.text !== undefined) {
-        lastPart.text = lastPart.text.trimEnd();
-    }
-
-    const filteredParts = parts.filter((part) => part.text !== '');
-
-    if (filteredParts.every((part) => part.text !== undefined)) {
-        return { kind: 'static', text: filteredParts.map((part) => part.text).join('') };
-    }
-
-    if (filteredParts.length === 1) {
-        return { kind: 'expr', code: filteredParts[0].code };
-    }
-
-    const templateLiteral = filteredParts.map((part) => {
-        return part.text !== undefined ? toTemplateLiteralText(part.text) : `\${${part.code}}`;
-    }).join('');
-
-    return { kind: 'expr', code: `\`${templateLiteral}\`` };
 }
 
 /**
@@ -420,7 +305,7 @@ function analyze(sourceCode, node) {
         const hasTwigInTemplate = result.defaultTemplate
             && containsTwig(getInnerSource(sourceCode, result.defaultTemplate));
 
-        result.slotDescription = hasTwigInTemplate ? null : contentToDescription(
+        result.slotDescription = hasTwigInTemplate ? null : slotContentToValue(
             sourceCode,
             result.defaultTemplate ? result.defaultTemplate.children : result.defaultNodes,
         );
@@ -493,7 +378,7 @@ function buildNewAttributes(sourceCode, analysis) {
     }
 
     if (!renamedSubline && description.kind !== 'none') {
-        const descriptionAttribute = valueAttribute('description', description);
+        const descriptionAttribute = toPropAttribute('description', description);
 
         if (!descriptionAttribute) {
             return { reason: REASONS.quotes };
@@ -503,7 +388,7 @@ function buildNewAttributes(sourceCode, analysis) {
     }
 
     if (analysis.icon) {
-        const iconAttribute = valueAttribute('icon', analysis.icon);
+        const iconAttribute = toPropAttribute('icon', analysis.icon);
 
         if (!iconAttribute) {
             return { reason: REASONS.quotes };
@@ -522,27 +407,6 @@ function buildNewAttributes(sourceCode, analysis) {
     }
 
     return { renamedSubline, description, lostFallbacks, newAttributes };
-}
-
-/**
- * Range of a child node including the whitespace before it, so removing it doesn't leave an empty line.
- * Text nodes keep their trailing whitespace, which separates them from the next sibling.
- */
-function getRemovalRange(sourceText, node) {
-    let start = node.range[0];
-    let end = node.range[1];
-
-    if (node.type === 'VText') {
-        const text = sourceText.slice(start, end);
-        start += text.length - text.trimStart().length;
-        end -= text.length - text.trimEnd().length;
-    }
-
-    while (start > 0 && /\s/.test(sourceText[start - 1])) {
-        start -= 1;
-    }
-
-    return [start, end];
 }
 
 function buildTodoComment(analysis, { description, lostFallbacks }) {

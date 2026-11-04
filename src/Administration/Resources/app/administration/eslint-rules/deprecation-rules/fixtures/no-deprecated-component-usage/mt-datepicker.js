@@ -139,12 +139,11 @@ const mtDatepickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-datepicker>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-datepicker label="My Label">
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" API is deprecated.',
+            message: '[mt-datepicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -160,7 +159,7 @@ const mtDatepickerInvalidTests = [
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" API is deprecated.',
+            message: '[mt-datepicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -176,12 +175,11 @@ const mtDatepickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-datepicker>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-datepicker label="My Label">
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" API is deprecated.',
+            message: '[mt-datepicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -197,7 +195,7 @@ const mtDatepickerInvalidTests = [
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" API is deprecated.',
+            message: '[mt-datepicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
 ];

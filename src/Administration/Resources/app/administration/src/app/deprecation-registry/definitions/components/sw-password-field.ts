@@ -46,7 +46,6 @@ export default componentMigration({
         slotToProp({
             slot: 'label',
             prop: 'label',
-            fix: 'unsafe-auto',
         }),
     ],
 });

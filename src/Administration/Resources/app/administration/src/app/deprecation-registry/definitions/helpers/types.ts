@@ -32,7 +32,9 @@ export type Fixer = {
     insertTextBefore(target: TemplateNode, text: string): Fix;
     insertTextBeforeRange(range: [number, number], text: string): Fix;
     remove(target: TemplateNode): Fix;
+    removeRange(range: [number, number]): Fix;
     replaceText(target: TemplateNode, text: string): Fix;
+    replaceTextRange(range: [number, number], text: string): Fix;
 };
 
 /** An attribute a fix writes, so the rule can drop the fix when the element already has that attribute. */
@@ -84,8 +86,17 @@ export type ComponentUsageRuleApi = {
         findObjectVBindAttribute(node: TemplateNode): TemplateNode | null | undefined;
         /** The `v-on="object"` attribute, which can hide or override any listener. */
         findObjectVOnAttribute(node: TemplateNode): TemplateNode | null | undefined;
+        /** Slot content as a prop value; null when it holds markup or Twig, which a prop cannot carry. */
+        getSlotContentValue(slot: TemplateNode): PropValue | null;
+        /** The range of a child node including the whitespace before it, so removing it leaves no empty line. */
+        getRemovalRange(node: TemplateNode): [number, number];
+        /** Attribute text for a prop value; null for an expression that mixes both quote styles. */
+        toPropAttribute(name: string, value: Exclude<PropValue, { kind: 'none' }>): string | null;
     };
 };
+
+/** A prop value read from template content: plain text, a JavaScript expression, or nothing. */
+export type PropValue = { kind: 'static'; text: string } | { kind: 'expr'; code: string } | { kind: 'none' };
 
 type UsageStepBase = {
     fix: FixLevel;

@@ -247,12 +247,11 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-password-field label="My Label">
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" API is deprecated.',
+            message: '[mt-password-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -268,7 +267,7 @@ const mtPasswordFieldInvalidTests = [
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" API is deprecated.',
+            message: '[mt-password-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -284,12 +283,11 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-password-field label="My Label">
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" API is deprecated.',
+            message: '[mt-password-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -305,7 +303,7 @@ const mtPasswordFieldInvalidTests = [
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" API is deprecated.',
+            message: '[mt-password-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     }
 ];

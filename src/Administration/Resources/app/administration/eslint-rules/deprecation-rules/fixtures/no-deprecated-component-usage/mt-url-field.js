@@ -212,12 +212,11 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-url-field label="My Label">
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" API is deprecated.',
+            message: '[mt-url-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -233,7 +232,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" API is deprecated.',
+            message: '[mt-url-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -249,12 +248,11 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-url-field label="My Label">
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" API is deprecated.',
+            message: '[mt-url-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -270,7 +268,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" API is deprecated.',
+            message: '[mt-url-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {

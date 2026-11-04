@@ -63,12 +63,11 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox>
-                    <!-- Slot "hint" was removed and should be replaced with "label" prop. Previous value was:  Hello Shopware  -->
+                <mt-checkbox label="Hello Shopware">
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" API is deprecated.',
+            message: '[mt-checkbox] The "hint" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -84,7 +83,7 @@ const mtCheckboxInvalidTests = [
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" API is deprecated.',
+            message: '[mt-checkbox] The "hint" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -100,12 +99,11 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox>
-                    <!-- Slot "hint" was removed and should be replaced with "label" prop. Previous value was:  Hello Shopware  -->
+                <mt-checkbox label="Hello Shopware">
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" API is deprecated.',
+            message: '[mt-checkbox] The "hint" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -121,7 +119,7 @@ const mtCheckboxInvalidTests = [
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" API is deprecated.',
+            message: '[mt-checkbox] The "hint" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {

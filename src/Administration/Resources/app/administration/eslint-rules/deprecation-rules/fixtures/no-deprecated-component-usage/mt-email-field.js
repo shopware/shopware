@@ -308,12 +308,11 @@ const mtEmailFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-email-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-email-field label="My Label">
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" API is deprecated.',
+            message: '[mt-email-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -329,7 +328,7 @@ const mtEmailFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" API is deprecated.',
+            message: '[mt-email-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -345,12 +344,11 @@ const mtEmailFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-email-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-email-field label="My Label">
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" API is deprecated.',
+            message: '[mt-email-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -366,7 +364,7 @@ const mtEmailFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" API is deprecated.',
+            message: '[mt-email-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
 ];

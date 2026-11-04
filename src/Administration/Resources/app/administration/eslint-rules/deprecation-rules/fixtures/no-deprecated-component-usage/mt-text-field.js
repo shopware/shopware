@@ -293,12 +293,11 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-text-field label="My Label">
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "label" API is deprecated.',
+            message: '[mt-text-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -314,7 +313,7 @@ const mtTextFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "label" API is deprecated.',
+            message: '[mt-text-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -330,12 +329,11 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-text-field label="My Label">
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "label" API is deprecated.',
+            message: '[mt-text-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -351,7 +349,7 @@ const mtTextFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "label" API is deprecated.',
+            message: '[mt-text-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
 ];

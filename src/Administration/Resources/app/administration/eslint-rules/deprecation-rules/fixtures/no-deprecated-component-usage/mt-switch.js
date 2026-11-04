@@ -593,12 +593,11 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  Foobar  -->
+                <mt-switch label="Foobar">
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" API is deprecated.',
+            message: '[mt-switch] The "label" slot is removed. Pass its content as the "label" prop.',
         }],
     },
     {
@@ -614,7 +613,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" API is deprecated.',
+            message: '[mt-switch] The "label" slot is removed. Pass its content as the "label" prop.',
         }],
     },
     {
@@ -630,12 +629,11 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  Foobar  -->
+                <mt-switch label="Foobar">
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" API is deprecated.',
+            message: '[mt-switch] The "label" slot is removed. Pass its content as the "label" prop.',
         }],
     },
     {
@@ -651,7 +649,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" API is deprecated.',
+            message: '[mt-switch] The "label" slot is removed. Pass its content as the "label" prop.',
         }],
     },
     {

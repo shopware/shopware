@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access -- vue-eslint-parser template nodes are untyped records */
 /**
  * @sw-package framework
  */
 
 import type {
     ComponentUsageRuleApi,
+    Fixer,
     FixLevel,
     FlagSlotForManualMoveStep,
     RemoveSlotStep,
@@ -11,6 +13,7 @@ import type {
     StepConfig,
     TemplateNode,
 } from '../types';
+import type { UsagePlan } from '../shared';
 import { defineUsageStep, reportUsage } from '../shared';
 
 /**
@@ -41,11 +44,13 @@ export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotSte
 }
 
 /**
- * Replaces a slot whose content moves to a prop with a comment that keeps the content, for the
- * developer to move it into the prop.
+ * Moves the content of a removed slot into a prop: plain text becomes a static prop, a single mustache a
+ * bound prop, mixed text and mustaches a template literal. Markup, Twig, a conditional or scoped slot,
+ * or a prop that is already set leave the slot for a manual move.
  *
  * @example
- * slotToProp({ slot: 'label', prop: 'label', fix: 'unsafe-auto' });
+ * slotToProp({ slot: 'label', prop: 'label' });
+ * // <template #label>{{ $t('sw-foo.label') }}</template> → :label="$t('sw-foo.label')"
  */
 export function slotToProp({ fix = 'auto', ...config }: StepConfig<SlotToPropStep>): SlotToPropStep {
     return defineUsageStep<SlotToPropStep>({ kind: 'slot-to-prop', fix, ...config }, (api, step) => {
@@ -55,17 +60,65 @@ export function slotToProp({ fix = 'auto', ...config }: StepConfig<SlotToPropSte
             return;
         }
 
-        const content = api.ast.getCondensedTextContent(slot);
-
         reportUsage(api, {
             node: slot,
             apiName: step.slot,
-            fix: (fixer) =>
-                fixer.replaceText(
-                    slot,
-                    `<!-- Slot "${step.slot}" was removed and should be replaced with "${step.prop}" prop. Previous value was: ${content} -->`,
-                ),
+            headline: `The "${step.slot}" slot is removed. Pass its content as the "${step.prop}" prop.`,
+            ...planSlotToProp(api, step, slot),
         });
+    });
+}
+
+function planSlotToProp(api: ComponentUsageRuleApi, step: SlotToPropStep, slot: TemplateNode): UsagePlan {
+    const manualMove = `Move the content of the "${step.slot}" slot into the "${step.prop}" prop manually.`;
+
+    if (isConditionalOrScopedSlot(api, slot)) {
+        return { manualReason: `The slot is rendered conditionally or uses slot props. ${manualMove}` };
+    }
+
+    if (api.ast.hasMatchingPropAttribute(api.node, step.prop)) {
+        return { manualReason: `The element already sets "${step.prop}". ${manualMove}` };
+    }
+
+    const value = api.ast.getSlotContentValue(slot);
+
+    if (value === null) {
+        return { manualReason: `The slot contains markup or Twig, which a prop cannot hold. ${manualMove}` };
+    }
+
+    const removeSlotElement = (fixer: Fixer) => fixer.removeRange(api.ast.getRemovalRange(slot));
+
+    if (value.kind === 'none') {
+        return { fix: removeSlotElement };
+    }
+
+    const attribute = api.ast.toPropAttribute(step.prop, value);
+
+    if (attribute === null) {
+        return { manualReason: `The slot content mixes single and double quotes. ${manualMove}` };
+    }
+
+    const tagNameEnd = (api.node.startTag.range[0] as number) + 1 + (api.node.rawName as string).length;
+
+    return {
+        produces: { kind: 'prop', name: step.prop },
+        fix: (fixer) => [
+            fixer.insertTextAfterRange([tagNameEnd, tagNameEnd], ` ${attribute}`),
+            removeSlotElement(fixer),
+        ],
+    };
+}
+
+/**
+ * Tells whether a slot template renders conditionally (`v-if` and the like) or receives slot props,
+ * so its content cannot become a plain prop value.
+ *
+ * @example
+ * isConditionalOrScopedSlot(api, slot); // true for <template #label="{ item }"> and <template v-if="x" #label>
+ */
+function isConditionalOrScopedSlot(api: ComponentUsageRuleApi, slot: TemplateNode): boolean {
+    return (slot.startTag.attributes as TemplateNode[]).some((attribute) => {
+        return api.ast.getDirectiveName(attribute) !== 'slot' || Boolean(attribute.value);
     });
 }
 

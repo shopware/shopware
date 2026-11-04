@@ -104,12 +104,11 @@ const mtNumberFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-number-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-number-field label="My Label">
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" API is deprecated.',
+            message: '[mt-number-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -125,7 +124,7 @@ const mtNumberFieldInvalidTests = [
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" API is deprecated.',
+            message: '[mt-number-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -141,12 +140,11 @@ const mtNumberFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-number-field>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-number-field label="My Label">
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" API is deprecated.',
+            message: '[mt-number-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -162,7 +160,7 @@ const mtNumberFieldInvalidTests = [
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" API is deprecated.',
+            message: '[mt-number-field] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {

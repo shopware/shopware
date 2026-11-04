@@ -131,12 +131,11 @@ const mtTextareaInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-textarea>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-textarea label="My Label">
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" API is deprecated.',
+            message: '[mt-textarea] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -152,7 +151,7 @@ const mtTextareaInvalidTests = [
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" API is deprecated.',
+            message: '[mt-textarea] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -168,12 +167,11 @@ const mtTextareaInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-textarea>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-textarea label="My Label">
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" API is deprecated.',
+            message: '[mt-textarea] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -189,7 +187,7 @@ const mtTextareaInvalidTests = [
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" API is deprecated.',
+            message: '[mt-textarea] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
 ]

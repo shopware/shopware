@@ -34,7 +34,6 @@ export default componentMigration({
         slotToProp({
             slot: 'hint',
             prop: 'label',
-            fix: 'unsafe-auto',
         }),
         removeProp({
             prop: 'id',

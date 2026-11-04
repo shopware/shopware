@@ -131,12 +131,11 @@ const mtColorpickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-colorpicker>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-colorpicker label="My Label">
                 </mt-colorpicker>
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "label" API is deprecated.',
+            message: '[mt-colorpicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -152,7 +151,7 @@ const mtColorpickerInvalidTests = [
                 </mt-colorpicker>
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "label" API is deprecated.',
+            message: '[mt-colorpicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -168,12 +167,11 @@ const mtColorpickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-colorpicker>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  My Label  -->
+                <mt-colorpicker label="My Label">
                 </mt-colorpicker>
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "label" API is deprecated.',
+            message: '[mt-colorpicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -189,7 +187,7 @@ const mtColorpickerInvalidTests = [
                 </mt-colorpicker>
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "label" API is deprecated.',
+            message: '[mt-colorpicker] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
 ];

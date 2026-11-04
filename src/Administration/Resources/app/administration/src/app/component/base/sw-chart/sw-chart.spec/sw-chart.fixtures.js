@@ -25,7 +25,7 @@ const chartOptions = {
     },
 };
 
-export const chartSeries = [
+const chartSeries = [
     {
         name: 'Demo Serie',
         data: [

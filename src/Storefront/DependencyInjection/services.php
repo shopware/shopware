@@ -833,6 +833,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(KernelInterface::class),
             service('logger'),
             service(ClockInterface::class),
+            service('services_resetter'),
         ]);
 
     $services->set(SalesChannelsReadinessCheck::class)

@@ -271,6 +271,25 @@
     </router-link>
     {% endblock %}
 
+    {% block sw_search_bar_item_custom_route %}
+    <router-link
+        v-else-if="customItemRoute"
+        ref="routerLink"
+        class="sw-search-bar-item__link"
+        :to="customItemRoute"
+        @click="onClickSearchResult(type, item.id)"
+    >
+        {% block sw_search_bar_item_custom_route_label %}
+        <span class="sw-search-bar-item__label">
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="displayValue"
+            />
+        </span>
+        {% endblock %}
+    </router-link>
+    {% endblock %}
+
     {% block sw_search_bar_item_other_entity %}
     <router-link
         v-else-if="detailRoute && displayValue.length > 0"

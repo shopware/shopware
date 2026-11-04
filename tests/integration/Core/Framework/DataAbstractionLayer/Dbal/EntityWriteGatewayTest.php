@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -439,7 +440,8 @@ class EntityWriteGatewayTest extends TestCase
             $connection,
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(ExceptionHandlerRegistry::class),
-            $definitionRegistry
+            $definitionRegistry,
+            new RowLoader($connection),
         );
 
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());

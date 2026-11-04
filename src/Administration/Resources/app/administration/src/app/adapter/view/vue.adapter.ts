@@ -595,6 +595,10 @@ export default class VueAdapter extends ViewAdapter {
      * @private
      */
     async hotUpdateTemplate(previousTemplate: string, nextTemplate: string): Promise<boolean> {
+        if (process.env.NODE_ENV === 'production') {
+            return false;
+        }
+
         const runtime = (window as Window & { __VUE_HMR_RUNTIME__?: VueHmrRuntime }).__VUE_HMR_RUNTIME__;
         if (!runtime) {
             return false;
@@ -610,12 +614,10 @@ export default class VueAdapter extends ViewAdapter {
         try {
             const updates = await Promise.all(
                 builtComponents.map(async (name) => {
-                    const current = await this.resolvedComponentConfigs.get(name);
-                    const next = await Component.build(name);
+                    const config = await this.resolvedComponentConfigs.get(name);
+                    const template = await Component.getTemplate(name);
 
-                    return isTemplateConfig(current) && isTemplateConfig(next)
-                        ? { name, config: current, template: next.template }
-                        : null;
+                    return isTemplateConfig(config) && typeof template === 'string' ? { name, config, template } : null;
                 }),
             );
 

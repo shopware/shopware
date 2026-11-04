@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\RateLimit;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Authentication\McpPrincipalResolver;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -15,8 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Wraps the core rate limiter for the MCP endpoints. The throttle handling is
  * shared, while the rate-limit key and the configured limits differ per API:
- * the Admin API keys on the OAuth access token, the Store API on the
- * sales-channel context plus a stable per-IP backstop.
+ * the Admin API keys on the principal (see {@see McpPrincipalResolver}), the
+ * Store API on the sales-channel context plus a stable per-IP backstop.
  */
 #[Package('framework')]
 class McpRateLimiter
@@ -24,13 +25,18 @@ class McpRateLimiter
     /**
      * @internal
      */
-    public function __construct(private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly RateLimiter $rateLimiter,
+        private readonly McpPrincipalResolver $principalResolver = new McpPrincipalResolver(),
+    ) {
     }
 
+    /**
+     * Keyed on the principal, not the token id, so a refreshed or newly issued token keeps the bucket.
+     */
     public function enforceForAdminApi(Request $request): void
     {
-        $key = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)
+        $key = $this->principalResolver->resolve($request)
             ?: $request->getClientIp()
             ?: 'unknown';
 

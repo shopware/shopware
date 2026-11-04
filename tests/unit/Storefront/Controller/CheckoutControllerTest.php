@@ -324,16 +324,25 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
+        $orderId = Uuid::randomHex();
+
         $page = new CheckoutFinishPage();
         $page->setPaymentFailed(true);
 
         $this->finishPageLoaderMock->method('load')->willReturn($page);
 
-        $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
+        // the order is forwarded from the checkout, so the order id is only a request attribute
+        $request = new Request(attributes: ['orderId' => $orderId, 'paymentFailed' => true]);
+
+        $response = $this->controller->finishPage($request, $context, new RequestDataBag());
 
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.account.edit-order.page', $response->headers->get('Location'));
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('frontend.account.edit-order.page', $response->headers->get('Location'));
+        static::assertSame(
+            ['orderId' => $orderId, 'error-code' => 'CHECKOUT__UNKNOWN_ERROR'],
+            $this->controller->recorder()->redirected['frontend.account.edit-order.page'][0]['parameters']
+        );
     }
 
     public function testFinishPageGuestLogout(): void

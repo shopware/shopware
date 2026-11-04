@@ -122,7 +122,71 @@ class CheckoutFinishPageLoaderTest extends TestCase
         );
     }
 
-    public function testItemRoundingIsSetInContext(): void
+    /**
+     * @param array<string, mixed> $query
+     * @param array<string, mixed> $attributes
+     */
+    #[DataProvider('provideRequestsWithFailedPayment')]
+    public function testOrderIdAndPaymentFlagsAreReadFromTheRequest(string $orderId, array $query, array $attributes): void
+    {
+        $pageLoader = static::createStub(GenericPageLoader::class);
+        $pageLoader->method('load')
+            ->willReturn(new Page());
+
+        $page = $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId))->load(
+            new Request($query, [], $attributes),
+            Generator::generateSalesChannelContext(),
+        );
+
+        static::assertSame($orderId, $page->getOrder()->getId());
+        static::assertTrue($page->isChangedPayment());
+        static::assertTrue($page->isPaymentFailed());
+    }
+
+    public static function provideRequestsWithFailedPayment(): \Generator
+    {
+        $orderId = Uuid::randomHex();
+
+        yield 'redirect to the finish page passes the values as query parameters' => [
+            $orderId,
+            ['orderId' => $orderId, 'changedPayment' => '1', 'paymentFailed' => '1'],
+            [],
+        ];
+
+        yield 'forward to the finish page passes the values as request attributes' => [
+            $orderId,
+            [],
+            ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true],
+        ];
+    }
+
+    #[DataProvider('provideGuestLogoutConstellations')]
+    public function testLogoutCustomerSetCorrectly(bool $isGuest, bool $guestLogoutSetting, bool $expected): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $pageLoader = static::createStub(GenericPageLoader::class);
+        $pageLoader->method('load')
+            ->willReturn(new Page());
+
+        $request = new Request([
+            'orderId' => $orderId,
+            'changedPayment' => false,
+            'paymentFailed' => false,
+        ]);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getCustomer()?->setGuest($isGuest);
+        $config = [
+            $context->getSalesChannelId() => ['core.cart.logoutGuestAfterCheckout' => $guestLogoutSetting],
+        ];
+
+        $page = $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId), $config)->load($request, $context);
+
+        static::assertSame($expected, $page->isLogoutCustomer());
+    }
+
+    public function testRoundingIsSetInContext(): void
     {
         $orderId = Uuid::randomHex();
         $itemRounding = new CashRoundingConfig(2, 2.0, false);

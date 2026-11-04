@@ -25,6 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 
 /**
  * @internal
@@ -38,7 +39,7 @@ class CategoryMediaMappingCacheInvalidationTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private CacheStore $store;
+    private StoreInterface $store;
 
     private CacheInvalidator $invalidator;
 

@@ -415,7 +415,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function getSchemeAndHttpHost(Request $request): string
     {
-        return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
+        return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost(), \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46);
     }
 
     private function getSchemeAndAsciiHttpHost(Request $request): string
@@ -425,7 +425,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function isHttpHostPunycode(Request $request): bool
     {
-        return $request->getHttpHost() !== idn_to_utf8($request->getHttpHost());
+        return $request->getHttpHost() !== idn_to_utf8($request->getHttpHost(), \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46);
     }
 
     /**

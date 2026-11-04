@@ -68,6 +68,18 @@ class EmailFieldSerializerTest extends TestCase
         static::assertSame($expected, $encodedEmail->current());
     }
 
+    public function testInvalidInternationalDomainNameIsRejectedInsteadOfPersisted(): void
+    {
+        $this->expectException(WriteConstraintViolationException::class);
+
+        $this->serializer->encode(
+            new EmailField('email', 'email'),
+            EntityExistence::createEmpty(),
+            new KeyValuePair('email', 'customer@täst..de', true),
+            $this->createWriteParameterBag()
+        )->current();
+    }
+
     public static function emailProvider(): \Generator
     {
         yield 'email with umlauts' => ['test@xn--tst-qla.de', 'test@täst.de'];

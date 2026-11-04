@@ -16,7 +16,7 @@ class EmailIdnConverter
             return $email;
         }
 
-        $convertedDomainPart = idn_to_utf8($parts[1]);
+        $convertedDomainPart = idn_to_utf8($parts[1], \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46);
         if (!\is_string($convertedDomainPart)) {
             return $email;
         }
@@ -32,7 +32,7 @@ class EmailIdnConverter
             return $email;
         }
 
-        $convertedDomainPart = idn_to_ascii($parts[1]);
+        $convertedDomainPart = idn_to_ascii($parts[1], \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46);
         if (!\is_string($convertedDomainPart)) {
             return $email;
         }
@@ -52,7 +52,7 @@ class EmailIdnConverter
     {
         $email = $data->get($name);
         if (\is_string($email)) {
-            $data->set($name, EmailIdnConverter::encode($email));
+            $data->set($name, EmailIdnConverter::decode($email));
         }
     }
 }

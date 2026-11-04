@@ -95,7 +95,7 @@ class LoginRouteTest extends TestCase
     public function testValidLogin(): void
     {
         $email = Uuid::randomHex() . '@exämple.com';
-        $this->createCustomer($email);
+        $customerId = $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -109,8 +109,55 @@ class LoginRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertSame(200, $response->getStatusCode());
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($contextToken);
         static::assertNotSame('', $contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->request('GET', '/store-api/account/customer');
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($customerId, $customer['id']);
+    }
+
+    public function testLoginWithUnicodeUsernameForStoredPunycodeEmail(): void
+    {
+        $email = Uuid::randomHex() . '@straße.de';
+        $customerId = $this->createCustomer($email);
+        $storedEmail = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first()?->getEmail();
+
+        static::assertStringEndsWith('@xn--strae-oqa.de', (string) $storedEmail);
+
+        $this->browser->request('POST', '/store-api/account/login', [
+            'username' => $email,
+            'password' => 'shopware',
+        ]);
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($contextToken);
+        static::assertNotSame('', $contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->request('GET', '/store-api/account/customer');
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($customerId, $customer['id']);
+    }
+
+    public function testLoginDoesNotTreatSharpSAndAsciiSAsEquivalentDomains(): void
+    {
+        $localPart = 'foo-' . Uuid::randomHex();
+        $this->createCustomer($localPart . '@strasse.de');
+
+        $this->browser->request('POST', '/store-api/account/login', [
+            'email' => $localPart . '@straße.de',
+            'password' => 'shopware',
+        ]);
+
+        static::assertSame(401, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testItNotUpdatesCustomerLanguageIdOnValidLogin(): void

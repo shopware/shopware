@@ -50,8 +50,7 @@ class LoginRoute extends AbstractLoginRoute
 
     private function _login(#[\SensitiveParameter] RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
-        EmailIdnConverter::encodeDataBag($data);
-        $email = (string) $data->get('email', $data->get('username'));
+        $email = EmailIdnConverter::encode((string) $data->get('email', $data->get('username')));
 
         $combinedKey = null;
         $clientIpKey = null;

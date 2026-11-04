@@ -22,6 +22,15 @@ import type { TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 
 /**
+ * @private
+ */
+type LowerOptions = {
+    filename: string;
+    /** The output is served for hot updates, see `transformShopwareSetupSfc`. */
+    hotUpdates: boolean;
+};
+
+/**
  * Dispatches to the mode-specific lowering path after shared analysis has completed.
  *
  * Narrowing on `analysis.mode` (rather than `block.mode`) is what gives each lowerer a parameter type
@@ -33,13 +42,14 @@ function lowerShopwareSetupBlock(
     // The template pass runs after script analysis, so its result arrives as its own argument rather
     // than folded onto `analysis`. Each mode reads only the parts its own template shape produces.
     templateAnalysis: TemplateAnalysis,
+    options: LowerOptions,
 ): SourceEdit[] {
     return analysis.mode === 'base'
         ? buildBaseScript(block, analysis, templateAnalysis)
-        : buildOverrideScript(block, analysis, templateAnalysis);
+        : buildOverrideScript(block, analysis, templateAnalysis, options);
 }
 
 /**
  * @private
  */
-export { lowerShopwareSetupBlock };
+export { lowerShopwareSetupBlock, type LowerOptions };

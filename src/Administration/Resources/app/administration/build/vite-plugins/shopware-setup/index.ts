@@ -151,6 +151,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
+    const transformOptions = { hotUpdates: options.scriptHmr };
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
         transformPromise ??= importShopwareSetupTransform(options.administrationRoot);
@@ -171,14 +172,14 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
         const source = await fs.readFile(fileName, 'utf8');
 
-        return { source, result: transformShopwareSetupSfc(source, fileName) };
+        return { source, result: transformShopwareSetupSfc(source, fileName, transformOptions) };
     }
 
     /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
     async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
-        return transformShopwareSetupSfc(code, fileName);
+        return transformShopwareSetupSfc(code, fileName, transformOptions);
     }
 
     /**

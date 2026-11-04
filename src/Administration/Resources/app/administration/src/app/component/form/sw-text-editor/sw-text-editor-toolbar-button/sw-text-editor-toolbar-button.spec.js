@@ -89,6 +89,14 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
         expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child')).toHaveLength(2);
     });
 
+    it('should label the search input of searchable children', async () => {
+        const wrapper = await createChildrenWrapper({ searchable: true });
+
+        const label = wrapper.find('label.sw-text-editor-toolbar-button__children-search');
+        expect(label.find('input').exists()).toBe(true);
+        expect(label.find('.visually-hidden').text()).toBe('sw-text-editor-toolbar.childSearch.label');
+    });
+
     it('should filter searchable children by name and title case-insensitively', async () => {
         const wrapper = await createChildrenWrapper({ searchable: true });
         const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search input');

@@ -1312,6 +1312,7 @@
       "placeholderCategory": "Kategorie auswählen ..."
     },
     "childSearch": {
+      "label": "Einträge durchsuchen",
       "placeholder": "Suchen ...",
       "noResults": "Keine Ergebnisse gefunden."
     },

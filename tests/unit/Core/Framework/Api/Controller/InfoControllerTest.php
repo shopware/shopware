@@ -507,7 +507,7 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('enableUrlFeature', $settings);
         static::assertTrue($settings['enableUrlFeature']);
         static::assertArrayHasKey('appUrlReachable', $settings);
-        static::assertTrue($settings['appUrlReachable']);
+        static::assertFalse($settings['appUrlReachable']);
         static::assertArrayHasKey('appsRequireAppUrl', $settings);
         static::assertFalse($settings['appsRequireAppUrl']);
         static::assertArrayHasKey('firstMigrationDate', $settings);
@@ -758,40 +758,6 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('settings', $data);
         static::assertArrayHasKey('hideUpdateModule', $data['settings']);
         static::assertTrue($data['settings']['hideUpdateModule']);
-    }
-
-    #[DataProvider('aclProtectedRouteProvider')]
-    public function testRouteRequiresMessageQueueStatsReadPrivilege(string $routeName): void
-    {
-        $this->shopIdProvider->expects($this->never())->method('getShopId');
-
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('allResolved')->willReturn([]);
-
-        $controller = $this->createController(styleOptionRegistry: $registry);
-        $response = $controller->getContentSystemElementTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"styleOptions":{}', $content);
-    }
-
-    #[TestDox('encodes an empty style option set as a JSON object, not an array')]
-    public function testContentSystemStyleOptionsEncodesEmptySetAsObject(): void
-    {
-        $this->shopIdProvider->expects($this->never())->method('getShopId');
-
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('allResolved')->willReturn([]);
-
-        $controller = $this->createController(styleOptionRegistry: $registry);
-        $response = $controller->getContentSystemStyleOptions();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
     /**

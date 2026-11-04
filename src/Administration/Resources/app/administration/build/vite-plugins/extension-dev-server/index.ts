@@ -24,7 +24,8 @@ export default function ExtensionDevServerPlugin(
     useBundledDev: boolean,
 ): Vite8Plugin {
     const servers = new Map<string, ViteDevServer>();
-    const findBasePath = (url = '') => extensions.map(getExtensionBasePath).find((basePath) => url.startsWith(basePath));
+    const basePaths = extensions.map(getExtensionBasePath);
+    const findBasePath = (url = '') => basePaths.find((basePath) => url.startsWith(basePath));
     let httpServer: ViteDevServer['httpServer'] = null;
 
     // The running extension servers answer the WebSocket upgrades of their base path themselves

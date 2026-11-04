@@ -822,29 +822,6 @@
       }
     ]
   },
-  "cartLineItemDimensionGirth": {
-    "operatorSet": {
-      "operators": [
-        "=",
-        ">",
-        ">=",
-        "<",
-        "<=",
-        "!=",
-        "empty"
-      ],
-      "isMatchAny": true
-    },
-    "fields": [
-      {
-        "name": "amount",
-        "type": "float",
-        "config": {
-          "unit": "dimension"
-        }
-      }
-    ]
-  },
   "cartLineItemDimensionLongestAndGirth": {
     "operatorSet": {
       "operators": [

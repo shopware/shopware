@@ -2,9 +2,9 @@
 
 ## Core
 
-### Rule Builder: new "Item with girth" and "Item with longest side + girth" conditions
+### Rule Builder: new "Item with longest side and girth" condition
 
-Two new line item rule conditions `LineItemDimensionGirthRule` (`cartLineItemDimensionGirth`) and `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) were added. They match the cart against the girth of each individual line item, and the longest side plus girth, respectively. Girth is calculated as `2 * (shortest side + second shortest side)` and the longest side plus girth is calculated as `longest side + 2 * (shortest side + second shortest side)`. These conditions allow for more precise shipping rules based on the dimensions of the items in the cart.
+A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
 
 ### Services can be reset between requests in long running runtimes
 

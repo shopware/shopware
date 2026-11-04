@@ -604,13 +604,6 @@ export const CONDITIONS: ConditionDefinition[] = [
         group: GROUPS.ITEM,
     },
     {
-        type: 'cartLineItemDimensionGirth',
-        component: COMPONENTS.GENERIC_LINE_ITEM,
-        label: 'global.sw-condition.condition.lineItemDimensionGirthRule',
-        scopes: [SCOPES.LINE_ITEM],
-        group: GROUPS.ITEM,
-    },
-    {
         type: 'cartLineItemDimensionLongestAndGirth',
         component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemDimensionLongestAndGirthRule',

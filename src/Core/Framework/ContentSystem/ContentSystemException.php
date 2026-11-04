@@ -72,6 +72,9 @@ class ContentSystemException extends HttpException
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
+    public const CONTENT_LAYOUT_BRANCH_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_BRANCH_NOT_FOUND';
+    public const CONTENT_LAYOUT_REVISION_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_REVISION_NOT_FOUND';
+    public const LAYOUT_PUBLISH_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT';
     public const PREVIEW_PAYLOAD_STORE_FAILED = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_STORE_FAILED';
     public const PREVIEW_PAYLOAD_INVALID = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID';
     public const UNKNOWN_ROOT_SOURCE = 'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE';
@@ -835,6 +838,36 @@ class ContentSystemException extends HttpException
             self::CONTENT_LAYOUT_NOT_FOUND,
             'Content layout "{{ layoutId }}" was not found.',
             ['layoutId' => $layoutId]
+        );
+    }
+
+    public static function contentLayoutBranchNotFound(string $layoutId, string $branchId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CONTENT_LAYOUT_BRANCH_NOT_FOUND,
+            'Content layout "{{ layoutId }}" has no branch "{{ branchId }}".',
+            ['layoutId' => $layoutId, 'branchId' => $branchId]
+        );
+    }
+
+    public static function contentLayoutRevisionNotFound(string $layoutId, string $revisionId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CONTENT_LAYOUT_REVISION_NOT_FOUND,
+            'Content layout "{{ layoutId }}" has no revision "{{ revisionId }}".',
+            ['layoutId' => $layoutId, 'revisionId' => $revisionId]
+        );
+    }
+
+    public static function layoutPublishConflict(string $layoutId, string $publishedRevisionId): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::LAYOUT_PUBLISH_CONFLICT,
+            'Content layout "{{ layoutId }}" was published as revision "{{ publishedRevisionId }}" in the meantime; publishing would replace that state unseen.',
+            ['layoutId' => $layoutId, 'publishedRevisionId' => $publishedRevisionId]
         );
     }
 

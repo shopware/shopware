@@ -48,7 +48,8 @@
       "columnCreatedAt": "Erstellt am",
       "columnUpdatedAt": "Aktualisiert am",
       "emptyStateTitle": "Noch keine Inhaltslayouts",
-      "emptyStateSubline": "Erstelle Dein erstes Inhaltslayout, um loszulegen."
+      "emptyStateSubline": "Erstelle Dein erstes Inhaltslayout, um loszulegen.",
+      "actionShowDrafts": "Entwürfe anzeigen"
     },
     "createWizard": {
       "title": "Inhaltslayout erstellen",
@@ -80,7 +81,15 @@
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
         "assignments": "Zuweisungen",
-        "save": "Layout speichern"
+        "save": "Layout speichern",
+        "saveDraft": "Entwurf speichern",
+        "publish": "Veröffentlichen",
+        "discardDraft": "Entwurf verwerfen",
+        "statusDraft": "Entwurf",
+        "statusLive": "Live",
+        "statusUnsaved": "Ungespeichert",
+        "statusDraftNamed": "Entwurf: {name}",
+        "history": "Verlauf"
       },
       "assignmentModal": {
         "title": "Layout-Zuweisungen",
@@ -153,7 +162,61 @@
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
       "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",
       "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}",
-      "messageReloadError": "Das Inhaltslayout wurde gespeichert, konnte aber nicht neu geladen werden."
+      "messageReloadError": "Das Inhaltslayout wurde gespeichert, konnte aber nicht neu geladen werden.",
+      "messageDraftSaved": "Entwurf erfolgreich gespeichert.",
+      "messagePublished": "Entwurf erfolgreich veröffentlicht.",
+      "messageDraftDiscarded": "Entwurf verworfen.",
+      "messagePublishError": "Der Entwurf konnte nicht veröffentlicht werden. Bitte erneut versuchen.",
+      "messageDiscardError": "Der Entwurf konnte nicht verworfen werden. Bitte erneut versuchen.",
+      "discardDraftModal": {
+        "title": "Entwurf verwerfen",
+        "text": "Der Entwurf und alle seine Änderungen werden gelöscht. Das Live-Layout bleibt unverändert. Trotzdem fortfahren?"
+      },
+      "messageDraftNotFound": "Der Entwurf existiert nicht mehr. Stattdessen wurde das Live-Layout geöffnet.",
+      "draftDefaultName": "Entwurf",
+      "messageDraftConflict": "Der Draft wurde zwischenzeitlich geändert, Deine Änderungen konnten nicht gespeichert werden. Sie sind weiterhin im Editor sichtbar.",
+      "messageDraftLoadError": "Der Entwurf konnte nicht geladen werden. Stattdessen wurde das Live-Layout geöffnet.",
+      "messageDraftForked": "Der Draft \"{previous}\" wurde zwischenzeitlich geändert. Deine Änderungen wurden als neuer Draft \"{name}\" gespeichert.",
+      "messagePublishConflict": "Das Live-Layout wurde zwischenzeitlich geändert, daher wurde der Draft nicht veröffentlicht. Vergleiche den aktuellen Live-Stand in der Historie, bevor Du veröffentlichst."
+    },
+    "draftsModal": {
+      "title": "Entwürfe",
+      "titleWithName": "Entwürfe von „{name}“",
+      "columnName": "Name",
+      "columnUpdatedAt": "Zuletzt geändert",
+      "columnBase": "Basiert auf",
+      "deleteTitle": "Entwurf löschen",
+      "deleteText": "Alle Änderungen in diesem Entwurf gehen verloren. Das Live-Layout bleibt unverändert. Trotzdem fortfahren?",
+      "messageDeleted": "Entwurf gelöscht.",
+      "messageDeleteError": "Der Entwurf konnte nicht gelöscht werden. Bitte erneut versuchen.",
+      "emptyStateTitle": "Keine Entwürfe",
+      "emptyStateSubline": "Speichere Änderungen im Seiten-Editor, um einen Entwurf dieses Layouts anzulegen.",
+      "messageLoadError": "Die Entwürfe konnten nicht geladen werden. Bitte erneut versuchen."
+    },
+    "revisionsModal": {
+      "title": "Verlauf",
+      "columnCreatedAt": "Erstellt am",
+      "columnAuthor": "Autor",
+      "columnStatus": "Status",
+      "columnRevision": "Revision",
+      "badgeLive": "Live",
+      "actionPublish": "Veröffentlichen",
+      "actionOpenAsDraft": "Als Entwurf öffnen",
+      "emptyStateTitle": "Kein Verlauf",
+      "emptyStateSubline": "Gespeicherte und veröffentlichte Stände dieses Layouts erscheinen hier.",
+      "messageLoadError": "Der Verlauf konnte nicht geladen werden. Bitte erneut versuchen.",
+      "messagePublished": "Revision erfolgreich veröffentlicht.",
+      "messagePublishError": "Die Revision konnte nicht veröffentlicht werden. Bitte erneut versuchen.",
+      "messageOpenAsDraftError": "Aus dieser Revision konnte kein Entwurf erstellt werden. Bitte erneut versuchen.",
+      "publishModal": {
+        "title": "Revision veröffentlichen",
+        "text": "Diese Revision ersetzt das Live-Layout. Ungespeicherte Änderungen im Editor gehen verloren. Trotzdem fortfahren?"
+      },
+      "messagePublishConflict": "Das Live-Layout wurde zwischenzeitlich geändert. Die Historie wurde neu geladen, prüfe den aktuellen Stand, bevor Du veröffentlichst.",
+      "openAsDraftModal": {
+        "title": "Als Draft öffnen",
+        "text": "Im Editor gibt es ungespeicherte Änderungen. Sie gehen verloren, wenn Du diese Revision als Draft öffnest. Trotzdem fortfahren?"
+      }
     }
   }
 }

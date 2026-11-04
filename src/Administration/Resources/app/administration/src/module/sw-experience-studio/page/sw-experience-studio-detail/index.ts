@@ -1,5 +1,11 @@
 import type Repository from 'src/core/data/repository.data';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type ContentSystemLayoutRevisionApiService from 'src/core/service/api/content-system-layout-revision.api.service';
+import type {
+    ContentLayoutBranch,
+    ContentLayoutCreateBranchPayload,
+    ContentLayoutSavedRevision,
+} from 'src/core/service/api/content-system-layout-revision.api.service';
 import type {
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
@@ -119,6 +125,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): {
         layout: ContentLayoutEntity | null;
+        branch: ContentLayoutBranch | null;
+        lastSavedSnapshot: string;
+        showDiscardDraftModal: boolean;
+        showRevisionsModal: boolean;
         isLoading: boolean;
         isSaveSuccessful: boolean;
         currentViewport: Viewport;
@@ -141,6 +151,10 @@ export default Shopware.Component.wrapComponentConfig({
     } {
         return {
             layout: null,
+            branch: null,
+            lastSavedSnapshot: '',
+            showDiscardDraftModal: false,
+            showRevisionsModal: false,
             isLoading: false,
             isSaveSuccessful: false,
             currentViewport: 'desktop',
@@ -184,6 +198,12 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$route.params.id as string;
         },
 
+        routeBranchId(): string | null {
+            const branchId = this.$route.query.branch;
+
+            return typeof branchId === 'string' && branchId.length > 0 ? branchId : null;
+        },
+
         layoutRootSource(): string | null {
             return this.getLayoutRootSource(this.layout);
         },
@@ -212,6 +232,18 @@ export default Shopware.Component.wrapComponentConfig({
 
         isCreateMode(): boolean {
             return this.$route.name === 'sw.experience.studio.create';
+        },
+
+        hasDraft(): boolean {
+            return this.branch !== null;
+        },
+
+        branchId(): string | null {
+            return this.branch?.id ?? null;
+        },
+
+        isDirty(): boolean {
+            return this.createLayoutSnapshot(this.layout) !== this.lastSavedSnapshot;
         },
 
         canManageAssignments(): boolean {
@@ -326,6 +358,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        routeBranchId(branchId: string | null): void {
+            if (this.isCreateMode || branchId === this.branchId) {
+                return;
+            }
+
+            void this.reloadForBranchSwitch();
+        },
+    },
+
     created(): void {
         Shopware.Store.get('adminMenu').collapseSidebar();
         this.historyKeydownHandler = (event: KeyboardEvent): void => {
@@ -364,15 +406,78 @@ export default Shopware.Component.wrapComponentConfig({
                 this.layout.version = '1.0.0';
                 this.layout.layout = [];
             } else {
-                this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
+                await this.loadPersistedLayout();
             }
 
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
             this.createWizardName = this.layout?.name ?? '';
             this.createWizardSelectedType = this.layoutRootSource;
             this.applyPreviewContextDefaults();
             await this.loadDefaultPreviewEntity();
             this.editorStore.initialize(this.layoutId);
             this.isLoading = false;
+        },
+
+        async loadPersistedLayout(): Promise<void> {
+            const branchId = this.routeBranchId;
+
+            this.branch = null;
+            this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
+
+            if (!branchId || !this.layout) {
+                return;
+            }
+
+            try {
+                const { branch, layout } = await this.revisionService().getBranch(this.layoutId, branchId);
+
+                this.layout.layout = layout;
+                this.branch = branch;
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$t(
+                        this.getErrorStatus(error) === 404
+                            ? 'sw-experience-studio.detail.messageDraftNotFound'
+                            : 'sw-experience-studio.detail.messageDraftLoadError',
+                    ),
+                });
+                void this.navigateToBranch(null);
+            }
+        },
+
+        async reloadForBranchSwitch(): Promise<void> {
+            // The history holds states of the branch that is being left.
+            this.editorStore.reset();
+            this.selectedElementId = null;
+            await this.loadLayout();
+        },
+
+        navigateToBranch(branchId: string | null): Promise<unknown> {
+            return this.$router.replace({
+                name: 'sw.experience.studio.detail',
+                params: { id: this.layoutId },
+                query: branchId ? { branch: branchId } : {},
+            });
+        },
+
+        async reloadPersistedLayout(): Promise<void> {
+            await this.loadPersistedLayout();
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+            this.applyPreviewContextDefaults();
+        },
+
+        createLayoutSnapshot(layout: ContentLayoutEntity | null): string {
+            return JSON.stringify(layout?.layout ?? null);
+        },
+
+        revisionService(): ContentSystemLayoutRevisionApiService {
+            return Shopware.Service('contentSystemLayoutRevisionService');
+        },
+
+        getErrorStatus(error: unknown): number | null {
+            const status = (error as { response?: { status?: unknown } } | null)?.response?.status;
+
+            return typeof status === 'number' ? status : null;
         },
 
         onClickBack(): void {
@@ -548,12 +653,15 @@ export default Shopware.Component.wrapComponentConfig({
             return null;
         },
 
-        resolvePreviewContext(layout: Entity<'content_layout'> | null): LayoutPreviewContext | null {
+        resolvePreviewContext(
+            layout: Entity<'content_layout'> | null,
+            assignmentSource: Entity<'content_layout'> | null = layout,
+        ): LayoutPreviewContext | null {
             if (!layout) {
                 return null;
             }
 
-            const assignedContext = this.resolveAssignedPreviewContext(layout);
+            const assignedContext = this.resolveAssignedPreviewContext(assignmentSource);
             const rootSource = this.getLayoutRootSource(layout);
 
             if (!rootSource) {
@@ -1297,59 +1405,70 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        async onSave(): Promise<void> {
-            if (!this.layout || !this.allowSave) {
-                return;
+        hasRequiredLayoutMetadata(): boolean {
+            if (this.layout?.name?.trim() && this.layoutRootSource) {
+                return true;
             }
 
-            if (!this.layout.name?.trim() || !this.layoutRootSource) {
-                this.createNotificationWarning({
-                    message: this.$t('sw-experience-studio.createWizard.missingFields'),
-                });
+            this.createNotificationWarning({
+                message: this.$t('sw-experience-studio.createWizard.missingFields'),
+            });
 
+            return false;
+        },
+
+        async onSave(): Promise<void> {
+            if (!this.layout || !this.allowSave || !this.hasRequiredLayoutMetadata()) {
                 return;
             }
 
             const layout = this.layout;
-            // Working-tree layout data crossing an outbound boundary is cloned at the call site.
-            layout.layout = cloneDeep(layout.layout);
-
             this.isLoading = true;
 
             try {
-                await this.layoutRepository.save(layout, Shopware.Context.api);
+                if (this.isCreateMode) {
+                    await this.saveNewLayout(layout);
+
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-experience-studio.detail.messageSaved'),
+                    });
+
+                    void this.$router.push({
+                        name: 'sw.experience.studio.detail',
+                        params: { id: layout.id },
+                    });
+
+                    return;
+                }
+
+                const savedAsNewDraft = await this.saveDraft(layout);
+
+                if (this.routeBranchId !== this.branchId) {
+                    await this.navigateToBranch(this.branchId);
+                }
+
+                if (!savedAsNewDraft) {
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-experience-studio.detail.messageDraftSaved'),
+                    });
+                }
             } catch (error) {
-                this.isLoading = false;
                 this.notifySaveError(error);
-
-                return;
-            }
-
-            this.createNotificationSuccess({
-                message: this.$t('sw-experience-studio.detail.messageSaved'),
-            });
-
-            try {
-                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
-                this.applyPreviewContextDefaults();
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('sw-experience-studio.detail.messageReloadError'),
-                });
             } finally {
                 this.isLoading = false;
-            }
-
-            if (this.isCreateMode) {
-                void this.$router.push({
-                    name: 'sw.experience.studio.detail',
-                    params: { id: layout.id },
-                });
             }
         },
 
         // Resolvability is a write-time gate, so a draft that previews cleanly can still be refused on save.
         notifySaveError(error: unknown): void {
+            if (this.getErrorStatus(error) === 409) {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageDraftConflict'),
+                });
+
+                return;
+            }
+
             const detail = this.extractApiErrorDetail(error);
 
             this.createNotificationError({
@@ -1377,6 +1496,238 @@ export default Shopware.Component.wrapComponentConfig({
             const detail = responseErrors.find((item) => typeof item.detail === 'string' && item.detail.trim())?.detail;
 
             return typeof detail === 'string' ? detail : null;
+        },
+
+        async saveNewLayout(layout: ContentLayoutEntity): Promise<void> {
+            // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+            layout.layout = cloneDeep(layout.layout);
+
+            await this.layoutRepository.save(layout, Shopware.Context.api);
+
+            try {
+                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+                this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+                this.applyPreviewContextDefaults();
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageReloadError'),
+                });
+            }
+        },
+
+        /**
+         * Resolves `true` when the changes went into a new draft because the open one was saved elsewhere meanwhile.
+         */
+        async saveDraft(workingLayout: ContentLayoutEntity): Promise<boolean> {
+            const branch = this.branch;
+
+            if (!branch) {
+                await this.saveToNewDraft(workingLayout, { name: this.createDefaultDraftName() });
+
+                return false;
+            }
+
+            try {
+                await this.saveRevision(branch, workingLayout);
+
+                return false;
+            } catch (error) {
+                if (this.getErrorStatus(error) !== 409) {
+                    throw error;
+                }
+            }
+
+            // Branching from the head the changes were made on keeps both the other save and these changes.
+            const name = this.createDefaultDraftName();
+            await this.saveToNewDraft(workingLayout, { name, fromRevisionId: branch.head });
+
+            this.createNotificationWarning({
+                message: this.$t('sw-experience-studio.detail.messageDraftForked', { previous: branch.name, name }),
+            });
+
+            return true;
+        },
+
+        async saveToNewDraft(workingLayout: ContentLayoutEntity, payload: ContentLayoutCreateBranchPayload): Promise<void> {
+            const branch = await this.revisionService().createBranch(this.layoutId, payload);
+
+            try {
+                await this.saveRevision(branch, workingLayout);
+            } catch (error) {
+                this.discardEmptyDraft(branch.id);
+
+                throw error;
+            }
+        },
+
+        async saveRevision(branch: ContentLayoutBranch, workingLayout: ContentLayoutEntity): Promise<void> {
+            const response = await this.revisionService().saveRevision(this.layoutId, branch.id, {
+                // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+                layout: cloneDeep(workingLayout.layout),
+                expectedHead: branch.head,
+                name: workingLayout.name ?? undefined,
+            });
+
+            this.applySavedRevision(response);
+        },
+
+        applySavedRevision(response: ContentLayoutSavedRevision): void {
+            if (this.layout) {
+                this.layout.layout = response.layout;
+            }
+
+            this.branch = response.branch;
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+        },
+
+        discardEmptyDraft(branchId: string): void {
+            // Create and first save are two requests; a save that failed in between must not leave an empty draft.
+            this.revisionService()
+                .deleteBranch(this.layoutId, branchId)
+                .catch(() => undefined);
+        },
+
+        createDefaultDraftName(): string {
+            const date = Shopware.Utils.format.date(new Date().toISOString());
+
+            return `${this.$t('sw-experience-studio.detail.draftDefaultName')} ${date}`;
+        },
+
+        async onPublish(): Promise<void> {
+            if (!this.layout || !this.allowSave || this.isCreateMode) {
+                return;
+            }
+
+            if (this.isDirty && !this.hasRequiredLayoutMetadata()) {
+                return;
+            }
+
+            const wasDraftMode = this.hasDraft;
+
+            if (!wasDraftMode && !this.isDirty) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                if (this.isDirty) {
+                    await this.saveDraft(this.layout);
+                }
+            } catch (error) {
+                this.notifySaveError(error);
+                this.isLoading = false;
+
+                return;
+            }
+
+            const branch = this.branch;
+
+            if (!branch) {
+                this.isLoading = false;
+
+                return;
+            }
+
+            try {
+                await this.revisionService().publish(this.layoutId, {
+                    revisionId: branch.head,
+                    deleteBranchId: branch.id,
+                });
+                this.branch = null;
+
+                if (wasDraftMode) {
+                    await this.navigateToBranch(null);
+                    await this.reloadForBranchSwitch();
+                } else {
+                    await this.reloadPersistedLayout();
+                }
+
+                this.createNotificationSuccess({
+                    message: this.$t('sw-experience-studio.detail.messagePublished'),
+                });
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$t(
+                        this.getErrorStatus(error) === 409
+                            ? 'sw-experience-studio.detail.messagePublishConflict'
+                            : 'sw-experience-studio.detail.messagePublishError',
+                    ),
+                });
+
+                if (this.routeBranchId !== branch.id) {
+                    // The changes are saved in a draft by now; continue there instead of on stale state.
+                    await this.navigateToBranch(branch.id);
+                }
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onDiscardDraft(): void {
+            if (!this.branch || !this.allowSave) {
+                return;
+            }
+
+            this.showDiscardDraftModal = true;
+        },
+
+        onCloseDiscardDraftModal(): void {
+            this.showDiscardDraftModal = false;
+        },
+
+        async onConfirmDiscardDraft(): Promise<void> {
+            this.showDiscardDraftModal = false;
+
+            const branchId = this.branchId;
+
+            if (!branchId) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                await this.revisionService().deleteBranch(this.layoutId, branchId);
+                this.branch = null;
+                await this.navigateToBranch(null);
+                await this.reloadForBranchSwitch();
+
+                this.createNotificationSuccess({
+                    message: this.$t('sw-experience-studio.detail.messageDraftDiscarded'),
+                });
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageDiscardError'),
+                });
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onOpenRevisionsModal(): void {
+            this.showRevisionsModal = true;
+        },
+
+        onCloseRevisionsModal(): void {
+            this.showRevisionsModal = false;
+        },
+
+        async onRevisionPublished(): Promise<void> {
+            this.showRevisionsModal = false;
+            this.branch = null;
+
+            if (this.routeBranchId) {
+                await this.navigateToBranch(null);
+            }
+
+            await this.reloadForBranchSwitch();
+        },
+
+        async onOpenRevisionAsDraft(branchId: string): Promise<void> {
+            this.showRevisionsModal = false;
+
+            await this.navigateToBranch(branchId);
         },
     },
 });

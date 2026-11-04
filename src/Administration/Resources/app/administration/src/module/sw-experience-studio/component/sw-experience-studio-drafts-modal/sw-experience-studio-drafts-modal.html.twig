@@ -1,0 +1,91 @@
+{% block sw_experience_studio_drafts_modal %}
+<sw-confirm-modal
+    v-if="branchPendingDelete"
+    class="sw-experience-studio-drafts-modal__delete-modal"
+    type="delete"
+    :title="$t('sw-experience-studio.draftsModal.deleteTitle')"
+    :text="$t('sw-experience-studio.draftsModal.deleteText')"
+    @confirm="onConfirmDelete"
+    @cancel="onCancelDelete"
+    @close="onCancelDelete"
+/>
+
+<sw-modal
+    v-else
+    class="sw-experience-studio-drafts-modal"
+    variant="large"
+    :title="title"
+    @modal-close="onClose"
+>
+    {% block sw_experience_studio_drafts_modal_content %}
+    <sw-loader v-if="isLoading && branches.length === 0" />
+
+    <mt-empty-state
+        v-else-if="branches.length === 0"
+        class="sw-experience-studio-drafts-modal__empty-state"
+        icon="regular-file"
+        :headline="$t('sw-experience-studio.draftsModal.emptyStateTitle')"
+        :description="$t('sw-experience-studio.draftsModal.emptyStateSubline')"
+    />
+
+    <sw-data-grid
+        v-else
+        class="sw-experience-studio-drafts-modal__grid"
+        :data-source="branches"
+        :columns="columns"
+        :is-loading="isLoading"
+        :show-selection="false"
+        :show-settings="false"
+        :allow-inline-edit="false"
+        :allow-column-edit="false"
+        plain-appearance
+    >
+        <template #column-updatedAt="{ item }">
+            {{ formatDate(item.updatedAt || item.createdAt) }}
+        </template>
+
+        <template #column-base="{ item }">
+            <code class="sw-experience-studio-drafts-modal__revision-id">
+                {{ shortRevisionId(item.base) }}
+            </code>
+        </template>
+
+        <template #actions="{ item }">
+            <sw-context-menu-item
+                class="sw-experience-studio-drafts-modal__open-action"
+                @click="onOpenBranch(item.id)"
+            >
+                {{ $t('global.default.open') }}
+            </sw-context-menu-item>
+
+            <sw-context-menu-item
+                v-tooltip.bottom="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: allowDelete,
+                    showOnDisabledElements: true,
+                    zIndex: 9050,
+                }"
+                class="sw-experience-studio-drafts-modal__delete-action"
+                variant="danger"
+                :disabled="!allowDelete || undefined"
+                @click="onDeleteBranch(item.id)"
+            >
+                {{ $t('global.default.delete') }}
+            </sw-context-menu-item>
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_experience_studio_drafts_modal_footer %}
+    <template #modal-footer>
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $t('global.default.close') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

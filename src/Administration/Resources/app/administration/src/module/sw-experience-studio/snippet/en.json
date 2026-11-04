@@ -48,7 +48,8 @@
       "columnCreatedAt": "Created at",
       "columnUpdatedAt": "Updated at",
       "emptyStateTitle": "No content layouts yet",
-      "emptyStateSubline": "Create your first content layout to get started."
+      "emptyStateSubline": "Create your first content layout to get started.",
+      "actionShowDrafts": "Show drafts"
     },
     "createWizard": {
       "title": "Create content layout",
@@ -80,7 +81,15 @@
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
         "assignments": "Assignments",
-        "save": "Save layout"
+        "save": "Save layout",
+        "saveDraft": "Save draft",
+        "publish": "Publish",
+        "discardDraft": "Discard draft",
+        "statusDraft": "Draft",
+        "statusLive": "Live",
+        "statusUnsaved": "Unsaved",
+        "statusDraftNamed": "Draft: {name}",
+        "history": "History"
       },
       "assignmentModal": {
         "title": "Layout assignments",
@@ -153,7 +162,61 @@
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
-      "messageReloadError": "The content layout was saved but could not be reloaded."
+      "messageReloadError": "The content layout was saved but could not be reloaded.",
+      "messageDraftSaved": "Draft saved successfully.",
+      "messagePublished": "Draft published successfully.",
+      "messageDraftDiscarded": "Draft discarded.",
+      "messagePublishError": "The draft could not be published. Please try again.",
+      "messageDiscardError": "The draft could not be discarded. Please try again.",
+      "discardDraftModal": {
+        "title": "Discard draft",
+        "text": "The draft and all its changes will be deleted. The live layout is not affected. Continue anyway?"
+      },
+      "messageDraftNotFound": "The draft no longer exists. The live layout has been opened instead.",
+      "draftDefaultName": "Draft",
+      "messageDraftConflict": "The draft was changed in the meantime and your changes could not be saved. They are still shown in the editor.",
+      "messageDraftLoadError": "The draft could not be loaded. The live layout has been opened instead.",
+      "messageDraftForked": "The draft \"{previous}\" was changed in the meantime. Your changes were saved as the new draft \"{name}\".",
+      "messagePublishConflict": "The live layout was changed in the meantime, so the draft was not published. Compare the current live state in the history before publishing."
+    },
+    "draftsModal": {
+      "title": "Drafts",
+      "titleWithName": "Drafts of \"{name}\"",
+      "columnName": "Name",
+      "columnUpdatedAt": "Last changed",
+      "columnBase": "Based on",
+      "deleteTitle": "Delete draft",
+      "deleteText": "All changes in this draft will be lost. The live layout is not affected. Continue anyway?",
+      "messageDeleted": "Draft deleted.",
+      "messageDeleteError": "The draft could not be deleted. Please try again.",
+      "emptyStateTitle": "No drafts",
+      "emptyStateSubline": "Save changes in the page builder to create a draft of this layout.",
+      "messageLoadError": "The drafts could not be loaded. Please try again."
+    },
+    "revisionsModal": {
+      "title": "History",
+      "columnCreatedAt": "Created at",
+      "columnAuthor": "Author",
+      "columnStatus": "Status",
+      "columnRevision": "Revision",
+      "badgeLive": "Live",
+      "actionPublish": "Publish",
+      "actionOpenAsDraft": "Open as draft",
+      "emptyStateTitle": "No history",
+      "emptyStateSubline": "Saved and published states of this layout appear here.",
+      "messageLoadError": "The history could not be loaded. Please try again.",
+      "messagePublished": "Revision published successfully.",
+      "messagePublishError": "The revision could not be published. Please try again.",
+      "messageOpenAsDraftError": "No draft could be created from this revision. Please try again.",
+      "publishModal": {
+        "title": "Publish revision",
+        "text": "This revision replaces the live layout. Unsaved changes in the editor are lost. Continue anyway?"
+      },
+      "messagePublishConflict": "The live layout was changed in the meantime. The history has been reloaded, check the current state before publishing.",
+      "openAsDraftModal": {
+        "title": "Open as draft",
+        "text": "The editor has unsaved changes. They are lost when you open this revision as a draft. Continue anyway?"
+      }
     }
   }
 }

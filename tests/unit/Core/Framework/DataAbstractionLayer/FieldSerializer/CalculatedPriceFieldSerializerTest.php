@@ -217,6 +217,33 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertNull($arrayEncoded['regulationPrice'] ?? null);
     }
 
+    public function testEncodeAcceptsTheRegulationPriceSaving(): void
+    {
+        $calculatedPrice = new CalculatedPrice(
+            75,
+            75,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection([new TaxRule(19, 100)]),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(75, 100),
+            RegulationPrice::createFromUnitPrice(75, 80)
+        );
+
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $calculatedPrice, true),
+            $this->parameters
+        ));
+
+        static::assertSame([], iterator_to_array($this->parameters->getContext()->getExceptions()->getErrors(), false));
+
+        $arrayEncoded = \json_decode($encoded['calculatedPrice'], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(['price' => 80.0, 'discount' => -5.0, 'percentage' => 6.25], $arrayEncoded['regulationPrice']);
+    }
+
     public function testDecodeRoundtrip(): void
     {
         $calculatedPrice = new CalculatedPrice(
@@ -227,7 +254,7 @@ class CalculatedPriceFieldSerializerTest extends TestCase
             1,
             new ReferencePrice(100, 100, 100, 'reference unit'),
             ListPrice::createFromUnitPrice(100, 100),
-            new RegulationPrice(100)
+            RegulationPrice::createFromUnitPrice(100, 100)
         );
 
         $encoded = iterator_to_array($this->serializer->encode(
@@ -359,5 +386,52 @@ class CalculatedPriceFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $result);
         static::assertNull($result->getListPrice());
+    }
+
+    public function testDecodeWithZeroRegulationPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        $data = [
+            'unitPrice' => 100,
+            'totalPrice' => 100,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'regulationPrice' => [
+                'price' => 0,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        static::assertNull($result->getRegulationPrice());
+    }
+
+    public function testDecodeWithValidRegulationPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        // Scenario: current price 75, lowest price of the last 30 days 80 => 6.25% saved.
+        $data = [
+            'unitPrice' => 75,
+            'totalPrice' => 75,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'regulationPrice' => [
+                'price' => 80,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        $regulationPrice = $result->getRegulationPrice();
+        static::assertInstanceOf(RegulationPrice::class, $regulationPrice);
+        static::assertSame(80.0, $regulationPrice->getPrice());
+        static::assertSame(-5.0, $regulationPrice->getDiscount());
+        static::assertSame(6.25, $regulationPrice->getPercentage());
     }
 }

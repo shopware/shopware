@@ -121,6 +121,10 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($results));
+        if ($fieldSetIds === []) {
+            return;
+        }
+
         $uniqueSetIds = array_values(array_unique($fieldSetIds));
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($uniqueSetIds);
         $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($uniqueSetIds);
@@ -168,7 +172,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
     ): void {
         $customFieldIds = $containerEvent->getPrimaryKeysWithPropertyChange(
             CustomFieldDefinition::ENTITY_NAME,
-            ['includeInSearch']
+            ['includeInSearch', 'customFieldSetId']
         );
 
         if ($customFieldIds === []) {
@@ -188,7 +192,9 @@ class CustomFieldUpdater implements EventSubscriberInterface
             }
 
             $payload = $writeResult->getPayload();
-            if (!\array_key_exists('includeInSearch', $payload) || !(bool) $payload['includeInSearch']) {
+            $becameSearchable = \array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch'];
+            $setAssigned = \array_key_exists('customFieldSetId', $payload) && $payload['customFieldSetId'] !== null;
+            if (!$becameSearchable && !$setAssigned) {
                 continue;
             }
 

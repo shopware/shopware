@@ -58,6 +58,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
@@ -170,7 +171,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -211,7 +212,7 @@ class SendMailActionTest extends TestCase
                 $admins = static::getContainer()->get(Connection::class)->fetchAllAssociative(
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
-                static::assertNotEmpty($admins, 'Expected at least one admin user to exist');
+                static::assertNotCount(0, $admins, 'Expected at least one admin user to exist');
 
                 $expectedRecipients = [];
                 foreach ($admins as $admin) {
@@ -295,7 +296,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -324,7 +325,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -357,7 +358,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -391,7 +392,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -431,7 +432,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -463,7 +464,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -571,7 +572,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -628,7 +629,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -761,7 +762,7 @@ class SendMailActionTest extends TestCase
 
             foreach ($config['documentTypeIds'] as $sequenzDocumentTypeId) {
                 $documentInfos = $this->getMatchingDocument($sequenzDocumentTypeId, $documentTypes);
-                static::assertNotEmpty($documentInfos);
+                static::assertNotCount(0, $documentInfos);
 
                 static::assertArrayHasKey('filename', $documentInfos);
                 $found = $this->isDocumentPartOfAttachments($attachments, $documentInfos['filename']);
@@ -1170,7 +1171,8 @@ class SendMailActionTest extends TestCase
     private function getMailTemplateId(string $technicalName): ?string
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
-        static::assertNotEmpty($mailTemplateTypeId);
+        static::assertIsString($mailTemplateTypeId);
+        static::assertNotSame('', $mailTemplateTypeId);
 
         $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',

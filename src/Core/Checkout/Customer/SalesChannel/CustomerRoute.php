@@ -50,11 +50,11 @@ class CustomerRoute extends AbstractCustomerRoute
         return $this->extensions->publish(
             name: CustomerRouteExtension::NAME,
             extension: new CustomerRouteExtension($request, $context, $criteria, $customer),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse => $this->_load($context, $criteria, $customer),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {
         $criteria->setIds([$customer->getId()]);
 

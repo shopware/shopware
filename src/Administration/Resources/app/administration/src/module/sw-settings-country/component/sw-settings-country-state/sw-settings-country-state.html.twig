@@ -43,7 +43,7 @@
                 showOnDisabledElements: true
             }"
             class="sw-settings-country-state__add-country-state-button"
-            size="x-small"
+            size="small"
             variant="primary"
             :disabled="!acl.can('country.editor') || undefined"
             @click="onAddCountryState"
@@ -128,4 +128,3 @@
     {% endblock %}
 </mt-card>
 {% endblock %}
-

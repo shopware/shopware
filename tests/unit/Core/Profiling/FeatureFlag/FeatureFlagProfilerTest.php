@@ -24,7 +24,6 @@ class FeatureFlagProfilerTest extends TestCase
             'FEATURE_ABC' => [
                 'name' => 'Feature ABC',
                 'default' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
             ],
         ]);
@@ -40,7 +39,6 @@ class FeatureFlagProfilerTest extends TestCase
             'FEATURE_ABC' => [
                 'name' => 'FEATURE_ABC',
                 'default' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
                 'active' => true,
             ],

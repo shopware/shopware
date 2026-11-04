@@ -15,64 +15,41 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Builds the telemetry value PHPUnit attaches to every event, for subscriber tests that need a well-formed
  * event and never read its telemetry. PHPUnit 13 added CPU time to `Snapshot` (4 to 7 constructor arguments)
- * and to `Info` (5 to 11). Both constructors are filled up to their declared parameter count, each missing
- * parameter with a zero value of its own type, so the same tests run on PHPUnit 11, 12 and 13.
+ * and to `Info` (5 to 11). When the CPU time class exists, the extra arguments are appended as zero values,
+ * so the same tests run on PHPUnit 11, 12 and 13.
  */
 #[Package('framework')]
 final class TelemetryInfoFactory
 {
+    /**
+     * Named by string so this file never references a class that PHPUnit 11 and 12 do not ship.
+     */
+    private const CPU_TIME_CLASS = 'PHPUnit\Event\Telemetry\CpuTime';
+
     public static function create(): Info
     {
         $duration = Duration::fromSecondsAndNanoseconds(0, 0);
         $memory = MemoryUsage::fromBytes(0);
 
-        $snapshot = self::construct(Snapshot::class, [
+        $snapshotArguments = [
             HRTime::fromSecondsAndNanoseconds(0, 0),
             $memory,
             $memory,
             new GarbageCollectorStatus(0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, false, false, false, 0),
-        ]);
+        ];
+        $infoCpuTimes = [];
 
-        return self::construct(Info::class, [$snapshot, $duration, $memory, $duration, $memory]);
-    }
+        if (class_exists(self::CPU_TIME_CLASS)) {
+            $cpuTime = [self::CPU_TIME_CLASS, 'fromSecondsAndNanoseconds'];
+            \assert(\is_callable($cpuTime));
+            $zeroCpuTime = $cpuTime(0, 0);
 
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $class
-     * @param list<object> $arguments the leading arguments every supported PHPUnit version declares
-     *
-     * @return T
-     */
-    private static function construct(string $class, array $arguments): object
-    {
-        $reflection = new \ReflectionClass($class);
-        $constructor = $reflection->getConstructor();
-        \assert($constructor !== null);
-
-        foreach (\array_slice($constructor->getParameters(), \count($arguments)) as $parameter) {
-            $arguments[] = self::zeroValueOf($parameter);
+            // user, system and total CPU time
+            array_push($snapshotArguments, $zeroCpuTime, $zeroCpuTime, $zeroCpuTime);
+            // the same three, each since start and since the previous event
+            $infoCpuTimes = array_fill(0, 6, $zeroCpuTime);
         }
 
-        return $reflection->newInstanceArgs($arguments);
-    }
-
-    /**
-     * The telemetry value classes PHPUnit added later (`CpuTime`) share the `fromSecondsAndNanoseconds()`
-     * named constructor with `HRTime` and `Duration`; the class is taken from the parameter type so this
-     * file never names a class that older PHPUnit versions do not ship.
-     */
-    private static function zeroValueOf(\ReflectionParameter $parameter): object
-    {
-        $type = $parameter->getType();
-        \assert($type instanceof \ReflectionNamedType);
-
-        $factory = [$type->getName(), 'fromSecondsAndNanoseconds'];
-        \assert(\is_callable($factory));
-
-        $value = $factory(0, 0);
-        \assert(\is_object($value));
-
-        return $value;
+        return new Info(new Snapshot(...$snapshotArguments), $duration, $memory, $duration, $memory, ...$infoCpuTimes);
     }
 }

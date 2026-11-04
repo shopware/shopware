@@ -45,6 +45,8 @@ export default {
         },
     },
 
+    emits: ['click-search-result'],
+
     props: {
         item: {
             type: Object,
@@ -97,12 +99,20 @@ export default {
             return module.manifest;
         },
 
+        customItemRoute() {
+            const searchType = Object.values(this.searchTypes).find((type) => {
+                return type.entityName === this.type && typeof type.itemRoute === 'function';
+            });
+
+            return searchType ? searchType.itemRoute(this.item) : null;
+        },
+
         detailRoute() {
             return this.moduleManifest?.routes?.detail?.name;
         },
 
         displayValue() {
-            if (!this.moduleManifest.hasOwnProperty('entityDisplayProperty')) {
+            if (!this.moduleManifest?.hasOwnProperty('entityDisplayProperty')) {
                 return this.item.hasOwnProperty('name') ? this.item.name : this.item.id;
             }
 
@@ -265,6 +275,7 @@ export default {
 
         onClickSearchResult(entity, id, payload = {}) {
             this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
+            this.$emit('click-search-result', entity, id, payload);
         },
     },
 };

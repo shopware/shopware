@@ -26,7 +26,7 @@ class SalesChannelFilePublicRequestTest extends TestCase
     public function testEnabledSalesChannelFileIsServedThroughNotFoundFallback(): void
     {
         $salesChannelId = $this->getSalesChannelId();
-        static::assertNotEmpty($salesChannelId);
+        static::assertNotSame('', $salesChannelId);
 
         $this->getSalesChannelFileRepository()->upsert([
             [
@@ -55,7 +55,7 @@ class SalesChannelFilePublicRequestTest extends TestCase
     public function testAgentFileLookupPreservesLowercaseConfigurationAndIgnoresCase(): void
     {
         $salesChannelId = $this->getSalesChannelId();
-        static::assertNotEmpty($salesChannelId);
+        static::assertNotSame('', $salesChannelId);
 
         $this->getSalesChannelFileRepository()->upsert([
             [
@@ -82,7 +82,7 @@ class SalesChannelFilePublicRequestTest extends TestCase
     public function testEnabledAiCatalogDoesNotExposeAdminMcpServer(): void
     {
         $salesChannelId = $this->getSalesChannelId();
-        static::assertNotEmpty($salesChannelId);
+        static::assertNotSame('', $salesChannelId);
 
         $this->getSalesChannelFileRepository()->upsert([
             [
@@ -112,7 +112,7 @@ class SalesChannelFilePublicRequestTest extends TestCase
     public function testCachedDiscoveryUsesCurrentTwigLoaderForLaterAppTemplates(): void
     {
         $salesChannelId = $this->getSalesChannelId();
-        static::assertNotEmpty($salesChannelId);
+        static::assertNotSame('', $salesChannelId);
 
         static::getContainer()->get('cache.object')->clear();
         static::getContainer()

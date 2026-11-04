@@ -142,7 +142,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             }
 
-            if (!$product instanceof SalesChannelProductEntity) {
+            if (!$product instanceof SalesChannelProductEntity || $this->isParentWithoutResolvedVariant($product, $resolveVariantIdEvent)) {
                 throw ProductException::productNotFound($productId);
             }
 
@@ -306,6 +306,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         return $variantId->firstId() ?? $productId;
     }
 
+    // the parent itself is only loaded when none of its variants could be resolved
+    private function isParentWithoutResolvedVariant(SalesChannelProductEntity $product, ResolveVariantIdEvent $event): bool
+    {
+        return $product->getParentId() === null
+            && $product->getChildCount() > 0
+            && $product->getId() !== $event->getResolvedVariantId();
+    }
+
     private function findBestVariantByTerm(string $term, string $productId, SalesChannelContext $context): ?string
     {
         $criteria = (new Criteria())
@@ -407,7 +415,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('BREADCRUMB_REWORK')) {
             if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
                 $referrerCategoryId = $request->query->get('referrerCategoryId');
 

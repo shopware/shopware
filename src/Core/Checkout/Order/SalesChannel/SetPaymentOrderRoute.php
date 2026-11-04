@@ -5,9 +5,10 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
+use Shopware\Core\Checkout\Cart\Order\RestoredOrder;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -52,7 +52,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         private readonly EntityRepository $orderRepository,
         private readonly OrderConverter $orderConverter,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly CartService $cartService,
+        private readonly OrderRestorer $orderRestorer,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
@@ -97,17 +97,17 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $order = $this->loadOrder($orderId, $context);
 
-        $context = $this->orderConverter->assembleSalesChannelContext(
+        $restored = $this->orderRestorer->restore(
             $order,
             $context->getContext(),
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
-        $this->validateRequest($request, $order, $context);
+        $this->validateRequest($request, $restored);
 
         $this->validatePaymentState($order);
 
-        $this->setPaymentMethod($paymentMethodId, $order, $context);
+        $this->setPaymentMethod($paymentMethodId, $order, $restored->context);
 
         return new SetPaymentOrderRouteResponse();
     }
@@ -166,16 +166,12 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $this->eventDispatcher->dispatch($event);
     }
 
-    private function validateRequest(Request $request, OrderEntity $order, SalesChannelContext $salesChannelContext): void
+    private function validateRequest(Request $request, RestoredOrder $restored): void
     {
         $paymentMethodId = $request->request->getAlnum('paymentMethodId');
-        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
-        $cart->setToken($salesChannelContext->getToken());
+        $request->attributes->set('orderId', $restored->order->getId());
 
-        $this->cartService->setCart($cart);
-        $request->attributes->set('orderId', $order->getId());
-
-        $response = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
+        $response = $this->checkoutGatewayRoute->load($request, $restored->cart, $restored->context);
 
         $paymentMethods = $response->getPaymentMethods();
 
@@ -274,9 +270,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             ->addAssociation('transactions')
             ->addAssociation('primaryOrderTransaction.stateMachineState');
 
-        $criteria->getAssociation('transactions')
-            ->addSorting(new FieldSorting('createdAt'));
-
         $customer = $context->getCustomer();
         \assert($customer !== null);
 
@@ -291,6 +284,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 'transactions.stateMachineState',
                 'stateMachineState',
             ]);
+
+        $this->orderRestorer->addRequiredAssociations($criteria);
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 

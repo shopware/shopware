@@ -11,8 +11,19 @@ If you want more details about available licensing or the contribution agreement
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
 For repository-specific code-level guidance, see [AGENTS.md](AGENTS.md) for concise global rules and [coding-guidelines/](coding-guidelines/) for detailed guidelines.
 Task-specific guidance lives in Agent Skills under [`.agents/skills/`](.agents/skills/README.md).
-Also, make sure that if you change something in a manner that is relevant to external developers please describe your change in a meaningful way.
-For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
+
+## Pull request checklist
+
+- **Comments**: Comment only non-obvious code.
+  Do not restate what the code already says.
+- **Tests**: Add tests that fail without your change.
+- **Release notes**: Needed only if the change is relevant for external developers.
+  - Informational change: add a short entry to `RELEASE_INFO-6.<current major line>.md` in the upcoming version section.
+    Cover what changed, who is affected, and how to adapt.
+  - Breaking change or deprecation: add an entry to `UPGRADE-6.<next major>.md`.
+    Cover what changed, who is affected, and how to adapt.
+  - See [Documenting a release](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
+- **Documentation**: Update docs and agent skills under `.agents/skills/` that your change affects.
 
 ## Docker Setup (Recommended)
 

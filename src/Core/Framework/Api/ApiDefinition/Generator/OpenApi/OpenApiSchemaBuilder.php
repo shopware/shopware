@@ -516,11 +516,11 @@ EOF,
         return [
             'description' => $title,
             'content' => [
-                'application/vnd.api+json' => [
+                'application/json' => [
                     'schema' => $schema,
                     'example' => $example,
                 ],
-                'application/json' => [
+                'application/vnd.api+json' => [
                     'schema' => $schema,
                     'example' => $example,
                 ],

@@ -53,7 +53,7 @@ class RuleCondition extends XmlElement
             );
         }
 
-        $data['config'] = array_map(static fn (CustomFieldType $field) => $field->toEntityPayload(), $this->constraints);
+        $data['config'] = array_map(static fn (CustomFieldType $field) => $field->toEntityPayload($defaultLocale), $this->constraints);
 
         return $data;
     }

@@ -75,7 +75,10 @@ class LineItemInCategoryRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
-            ->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true);
+            ->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true, [
+                'descriptionProperty' => 'breadcrumb',
+                'descriptionFormatter' => 'breadcrumb',
+            ]);
     }
 
     /**

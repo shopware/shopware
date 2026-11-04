@@ -1,0 +1,34 @@
+{
+  "persona": "ux",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-storefront-ignore",
+    "title": "refactor(storefront): inline pagination focus resume",
+    "body": "Wraps the page number in its own span for styling and inlines a private helper of the pagination plugin.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-storefront-ignore",
+    "additions": 2,
+    "deletions": 12,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Storefront/Resources/views/storefront/component/pagination.html.twig",
+    "src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js"
+  ],
+  "guides": [
+    "guides/bc-storefront.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "storefront_ui"
+    ],
+    "guides": [
+      "bc-storefront"
+    ]
+  }
+}

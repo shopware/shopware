@@ -72,7 +72,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('laptop', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertArrayHasKey('product', $results);
         static::assertGreaterThan(0, $results['product']['total']);
 
@@ -82,7 +82,7 @@ class AdminSearcherTest extends TestCase
 
         $prefixResults = $this->searcher->search('LAPTO', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($prefixResults, 'Case-insensitive product-name prefix search should find "Laptop Computer".');
+        static::assertNotCount(0, $prefixResults, 'Case-insensitive product-name prefix search should find "Laptop Computer".');
         static::assertArrayHasKey('product', $prefixResults);
         static::assertInstanceOf(ProductCollection::class, $prefixResults['product']['data']);
         static::assertContains($productLaptopId, $prefixResults['product']['data']->getIds(), 'Laptop should be found when searching for the uppercase prefix "LAPTO"');
@@ -117,7 +117,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('38000', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertArrayHasKey('product', $results);
         static::assertGreaterThanOrEqual(3, $results['product']['total'], 'Should find at least 3 products containing "3800"');
 
@@ -158,7 +158,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('3800', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertArrayHasKey('product', $results);
 
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
@@ -207,7 +207,7 @@ class AdminSearcherTest extends TestCase
         // Control arm: the relevance order OpenSearch itself returned for the query the searcher sent.
         $hits = $this->recordedProductHits($profiler);
 
-        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for a short numeric prefix in the product name.');
+        static::assertNotCount(0, $hits, 'Raw OpenSearch search must return hits for a short numeric prefix in the product name.');
         static::assertSame(
             $productId,
             $hits[0]['id'],
@@ -217,7 +217,7 @@ class AdminSearcherTest extends TestCase
             )
         );
 
-        static::assertNotEmpty($results, 'Search must return hits for a short numeric prefix in the product name.');
+        static::assertNotCount(0, $results, 'Search must return hits for a short numeric prefix in the product name.');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
@@ -287,7 +287,7 @@ class AdminSearcherTest extends TestCase
         // Control arm: the relevance order OpenSearch itself returned for the query the searcher sent.
         $hits = $this->recordedProductHits($profiler);
 
-        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for the exact EAN.');
+        static::assertNotCount(0, $hits, 'Raw OpenSearch search must return hits for the exact EAN.');
         $topHit = $hits[0];
         static::assertSame(
             $ownerId,
@@ -299,7 +299,7 @@ class AdminSearcherTest extends TestCase
             )
         );
 
-        static::assertNotEmpty($results, 'Search must return hits for the exact EAN.');
+        static::assertNotCount(0, $results, 'Search must return hits for the exact EAN.');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
@@ -343,7 +343,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('shirt', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
+        static::assertNotCount(0, $results, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
@@ -392,7 +392,7 @@ class AdminSearcherTest extends TestCase
 
         $responses = $requests[0]['response']['responses'] ?? null;
         static::assertIsArray($responses, 'The recorded msearch response must contain a responses list.');
-        static::assertNotEmpty($responses, 'The recorded msearch response must contain at least one sub-response.');
+        static::assertNotCount(0, $responses, 'The recorded msearch response must contain at least one sub-response.');
 
         $hits = $responses[0]['hits']['hits'] ?? [];
         static::assertIsArray($hits);

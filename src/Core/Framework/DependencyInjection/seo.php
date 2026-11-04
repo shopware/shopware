@@ -102,6 +102,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->lazy()
         ->args([
             tagged_iterator('shopware.seo_url.route'),
+            tagged_iterator('shopware.seo_url.route_loader'),
         ]);
 
     $services->set(ProductStoreApiUrlRoute::class)
@@ -193,8 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('twig.extension.routing'),
             service(CategoryUrlGenerator::class),
         ])
-        ->tag('twig.extension')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->tag('twig.extension');
 
     $services->set(SeoUrlPlaceholderHandlerInterface::class, SeoUrlPlaceholderHandler::class)
         ->public()

@@ -182,7 +182,9 @@ class DocumentRouteTest extends TestCase
         $headers = $response->headers;
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertNotEmpty($response->getContent());
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        static::assertNotSame('', $content);
         static::assertSame('inline; filename=invoice_1000.pdf', $headers->get('content-disposition'));
         static::assertSame('application/pdf', $headers->get('content-type'));
     }
@@ -391,7 +393,9 @@ class DocumentRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertNotEmpty($response->getContent());
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        static::assertNotSame('', $content);
         static::assertSame(
             'inline; filename=invoice_1000.' . $expectedFileType,
             $response->headers->get('content-disposition')

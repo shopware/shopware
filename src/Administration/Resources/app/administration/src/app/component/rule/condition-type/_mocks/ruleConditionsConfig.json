@@ -1014,5 +1014,26 @@
       "isMatchAny": false
     },
     "fields": []
+  },
+  "cartLineItemInCategory": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "categoryIds",
+        "type": "multi-entity-id-select",
+        "config": {
+          "entity": "category",
+          "descriptionProperty": "breadcrumb",
+          "descriptionFormatter": "breadcrumb"
+        }
+      }
+    ]
   }
 }

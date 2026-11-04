@@ -148,6 +148,7 @@ class StorybookServiceTest extends TestCase
             'validProp' => 'hello',
             '123invalid' => 'bad',
             'also-invalid' => 'bad',
+            "trailing_newline\n" => 'bad',
             'valid_prop2' => 'world',
         ]);
 
@@ -157,6 +158,7 @@ class StorybookServiceTest extends TestCase
         static::assertArrayHasKey('valid_prop2', $result);
         static::assertArrayNotHasKey('123invalid', $result);
         static::assertArrayNotHasKey('also-invalid', $result);
+        static::assertArrayNotHasKey("trailing_newline\n", $result);
     }
 
     public function testResolveComponentPropsResolvesProductEntityProperty(): void

@@ -238,7 +238,7 @@ class StoreApiSchemaMigrationReporter
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition, StoreApiSchemaMigrationScopeProviderInterface $scopeProvider): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (preg_match('/_translation$/D', $definition->getEntityName())) {
             return false;
         }
 

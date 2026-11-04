@@ -117,7 +117,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->filterUndefinedRequiredProperties($finalSpecs);
         /** @var OpenApiSpec $finalSpecs */
         $this->resolveParameterGroups($finalSpecs);
-        $this->injectLanguageIdHeader($finalSpecs);
+        $this->injectHeaderParameters($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
         return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
@@ -137,7 +137,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (preg_match('/_translation$/D', $definition->getEntityName())) {
             return false;
         }
 
@@ -168,7 +168,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * Adds the generated schemas and the shared language header parameter to the default components. The key order
+     * Adds the generated schemas and the shared header parameters to the default components. The key order
      * of previous versions is kept: generated schemas come first, an empty schema map last.
      *
      * @param array<string, array<array-key, mixed>> $components
@@ -194,6 +194,16 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 'schema' => [
                     'type' => 'string',
                     'pattern' => '^[0-9a-f]{32}$',
+                ],
+            ],
+            'swContextSource' => [
+                'name' => 'sw-context-source',
+                'in' => 'header',
+                'description' => 'Set to `session` to resolve the context from the storefront session cookie instead of a context token. Mutually exclusive with `sw-context-token`: sending both fails with HTTP 400 and `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE`, as does a session that cannot be resumed.',
+                'required' => false,
+                'schema' => [
+                    'type' => 'string',
+                    'const' => 'session',
                 ],
             ],
         ];
@@ -453,19 +463,25 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * Injects the sw-language-id header into Store API operations whose
-     * responses can surface translated content. DELETE operations are skipped
-     * because they only confirm removal and do not return localised payloads,
-     * and tooling endpoints under /_info/* are skipped because they serve
-     * schema and routing metadata. The HTTP-method filter is portable across
-     * third-party plugins and apps that contribute their own Store API
-     * endpoints. Operations that already declare the header (by name or $ref)
-     * are left untouched so bundle-provided schemas with an explicit
+     * @param OpenApiSpec $specs
+     */
+    private function injectHeaderParameters(array &$specs): void
+    {
+        // a DELETE only confirms removal and returns no localised payload
+        $this->injectHeaderParameter($specs, 'swLanguageId', 'sw-language-id', skipDelete: true);
+        $this->injectHeaderParameter($specs, 'swContextSource', 'sw-context-source', skipDelete: false);
+    }
+
+    /**
+     * Tooling endpoints under /_info/* are skipped because they serve schema and routing
+     * metadata. The HTTP-method filter is portable across third-party plugins and apps that
+     * contribute their own Store API endpoints. Operations that already declare the header
+     * (by name or $ref) are left untouched so bundle-provided schemas with an explicit
      * declaration are never duplicated.
      *
      * @param OpenApiSpec $specs
      */
-    private function injectLanguageIdHeader(array &$specs): void
+    private function injectHeaderParameter(array &$specs, string $parameter, string $header, bool $skipDelete): void
     {
         foreach ($specs['paths'] as $path => &$pathDefinition) {
             if (str_starts_with((string) $path, '/_info/')) {
@@ -473,7 +489,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             }
 
             foreach (self::OPERATION_KEYS as $method) {
-                if ($method === 'delete') {
+                if ($skipDelete && $method === 'delete') {
                     continue;
                 }
 
@@ -487,14 +503,14 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
                 foreach ($pathDefinition[$method]['parameters'] as $param) {
                     if (
-                        (isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id')
-                        || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
+                        (isset($param['name']) && strtolower((string) $param['name']) === $header)
+                        || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/' . $parameter)
                     ) {
                         continue 2;
                     }
                 }
 
-                $pathDefinition[$method]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
+                $pathDefinition[$method]['parameters'][] = ['$ref' => '#/components/parameters/' . $parameter];
             }
         }
     }
@@ -564,7 +580,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $ref = $operation['responses']['200']['$ref'];
             // Extract entity name from response reference like "ProductListResponse" -> "product"
             // Match pattern: components/responses/{Entity}[List|Detail]Response
-            if (\is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#', $ref, $matches)) {
+            if (\is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#D', $ref, $matches)) {
                 $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $matches[1]);
                 if (!\is_string($converted)) {
                     return null;
@@ -645,7 +661,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         // EntitySearchResult -> generic, skip
 
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)Result$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)Result$#D', $ref, $matches)) {
             return null;
         }
 
@@ -658,7 +674,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         // Handle patterns like "ProductListing" -> "product"
         // Remove common suffixes before converting
-        $schemaName = preg_replace('/(?:Listing|Search|Collection)$/', '', $schemaName);
+        $schemaName = preg_replace('/(?:Listing|Search|Collection)$/D', '', $schemaName);
         if (!\is_string($schemaName)) {
             return null;
         }
@@ -679,7 +695,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function extractEntityFromRouteResponseRef(string $ref): ?string
     {
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)RouteResponse$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)RouteResponse$#D', $ref, $matches)) {
             return null;
         }
 
@@ -701,7 +717,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function extractEntityFromDetailResponseRef(string $ref): ?string
     {
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)DetailResponse$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)DetailResponse$#D', $ref, $matches)) {
             return null;
         }
 
@@ -723,7 +739,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function extractEntityNameFromRef(string $ref): ?string
     {
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)$#D', $ref, $matches)) {
             return null;
         }
 

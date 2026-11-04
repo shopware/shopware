@@ -21,15 +21,20 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -72,6 +77,23 @@ class MediaRepositoryTest extends TestCase
         $this->documentRepository = static::getContainer()->get('document.repository');
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
+    }
+
+    public function testDeletingAProductWithACoverReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], $this->context);
+
+        $event = $productRepository->delete([['id' => $ids->get('cover-product')]], $this->context);
+
+        static::assertSame([$ids->get('cover-product')], $event->getDeletedPrimaryKeys('product'));
+        static::assertSame([], $this->getProductUpdates($event));
+        static::assertNull($productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->getEntities()->first());
     }
 
     public function testPrivateMediaNotReadable(): void
@@ -705,6 +727,54 @@ class MediaRepositoryTest extends TestCase
         static::assertNull($deletedMedia);
     }
 
+    public function testPathWithLiteralPercentIsPersistedAndUrlEncodedAsStorageKey(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'fileName' => 'fifty-off',
+                    'fileExtension' => 'png',
+                    'mimeType' => 'image/png',
+                    'private' => false,
+                    'path' => 'media/ab/cd/50%20off.png',
+                    'thumbnails' => [
+                        [
+                            'width' => 100,
+                            'height' => 100,
+                            'path' => 'media/ab/cd/50%20off_100x100.png',
+                            'mediaThumbnailSize' => [
+                                'id' => Uuid::randomHex(),
+                                'width' => 100,
+                                'height' => 100,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $this->context
+        );
+
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId));
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('media/ab/cd/50%20off.png', $media->getPath());
+        static::assertStringContainsString('/media/ab/cd/50%2520off.png?ts=', $media->getUrl());
+
+        $thumbnail = $media->getThumbnails()?->first();
+        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
+        static::assertSame('media/ab/cd/50%20off_100x100.png', $thumbnail->getPath());
+        static::assertStringContainsString('/media/ab/cd/50%2520off_100x100.png', $thumbnail->getUrl());
+
+        $legacyMedia = Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId));
+        static::assertInstanceOf(MediaEntity::class, $legacyMedia);
+        static::assertStringContainsString('/media/ab/cd/50%20off.png?ts=', $legacyMedia->getUrl());
+    }
+
     public function testAltTextLongerThan255CharactersIsRejected(): void
     {
         $mediaId = Uuid::randomHex();
@@ -728,6 +798,22 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->first();
         static::assertNotNull($media);
         static::assertSame(str_repeat('a', 255), $media->getAlt());
+    }
+
+    /**
+     * @return list<EntityWriteResult>
+     */
+    private function getProductUpdates(EntityWrittenContainerEvent $event): array
+    {
+        $productEvent = $event->getEventByEntityName('product');
+        if ($productEvent === null) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $productEvent->getWriteResults(),
+            static fn (EntityWriteResult $result): bool => $result->getOperation() !== EntityWriteResult::OPERATION_DELETE,
+        ));
     }
 
     /**

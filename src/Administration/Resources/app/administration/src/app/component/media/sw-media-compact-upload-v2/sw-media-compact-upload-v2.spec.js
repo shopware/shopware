@@ -120,7 +120,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             ],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.mediaPreview).toEqual([
             {
@@ -137,7 +137,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             sourceMultiselect: null,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.mediaPreview).toBeNull();
     });

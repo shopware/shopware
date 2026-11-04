@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
+use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -127,7 +128,7 @@ class GenerateDocumentActionTest extends TestCase
             ];
         }
 
-        static::assertEmpty($this->getDocumentId($order->getId()));
+        static::assertCount(0, $this->getDocumentId($order->getId()));
 
         if ($documentType === CreditNoteRenderer::TYPE) {
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
@@ -146,9 +147,9 @@ class GenerateDocumentActionTest extends TestCase
 
         $referenceDoctype = $documentType === StornoRenderer::TYPE || $documentType === CreditNoteRenderer::TYPE;
         if ($referenceDoctype && !$autoGenInvoiceDoc && $multipleDoc === false) {
-            static::assertEmpty($this->getDocumentId($order->getId()));
+            static::assertCount(0, $this->getDocumentId($order->getId()));
         } else {
-            static::assertNotEmpty($this->getDocumentId($order->getId()));
+            static::assertNotCount(0, $this->getDocumentId($order->getId()));
         }
     }
 
@@ -169,7 +170,7 @@ class GenerateDocumentActionTest extends TestCase
             'documentRangerType' => $documentRangerType,
         ]);
 
-        static::assertEmpty($this->getDocumentId($order->getId()));
+        static::assertCount(0, $this->getDocumentId($order->getId()));
 
         if ($documentType === CreditNoteRenderer::TYPE) {
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
@@ -186,8 +187,8 @@ class GenerateDocumentActionTest extends TestCase
 
         $subscriber->handleFlow($flow);
 
-        static::assertNotEmpty($handler->getRecords());
-        static::assertNotEmpty($record = $handler->getRecords()[0]);
+        static::assertNotCount(0, $handler->getRecords());
+        static::assertInstanceOf(LogRecord::class, $record = $handler->getRecords()[0]);
         static::assertSame(
             \sprintf(
                 'Unable to generate document. Can not generate %s document because no invoice document exists. OrderId: %s',
@@ -231,7 +232,7 @@ class GenerateDocumentActionTest extends TestCase
         );
 
         $before = $this->getDocumentId($order->getId());
-        static::assertEmpty($before);
+        static::assertCount(0, $before);
 
         /** @var FlowFactory $flowFactory */
         $flowFactory = static::getContainer()->get(FlowFactory::class);
@@ -241,7 +242,7 @@ class GenerateDocumentActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         $after = $this->getDocumentId($order->getId());
-        static::assertNotEmpty($after);
+        static::assertNotCount(0, $after);
         $property->setValue(
             $registry,
             $oldValue
@@ -265,7 +266,7 @@ class GenerateDocumentActionTest extends TestCase
         ];
 
         $before = $this->getDocumentId($order->getId());
-        static::assertEmpty($before);
+        static::assertCount(0, $before);
 
         Feature::fake(['DOCUMENT_GENERATION_REWORK'], function () use ($event, $config, $subscriber): void {
             /** @var FlowFactory $flowFactory */
@@ -277,7 +278,7 @@ class GenerateDocumentActionTest extends TestCase
         });
 
         $after = $this->getDocumentId($order->getId());
-        static::assertNotEmpty($after);
+        static::assertNotCount(0, $after);
     }
 
     /**
@@ -316,7 +317,7 @@ class GenerateDocumentActionTest extends TestCase
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $context);
 
         $errors = $result->getErrors();
-        static::assertEmpty($errors, 'Invoice generation failed: ' . array_pop($errors)?->getMessage());
+        static::assertCount(0, $errors, 'Invoice generation failed: ' . array_pop($errors)?->getMessage());
     }
 
     /**
@@ -388,14 +389,14 @@ class GenerateDocumentActionTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
 
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
         $order = $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->getEntities()->get($orderId);
 
-        static::assertNotEmpty($order);
+        static::assertNotNull($order);
     }
 
     private function createVersionedOrder(string $orderId): string

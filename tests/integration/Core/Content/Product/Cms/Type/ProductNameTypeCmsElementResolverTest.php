@@ -89,7 +89,6 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
         /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
-        static::assertNotEmpty($textStruct->getContent());
         static::assertSame('Product 01', $textStruct->getContent());
     }
 

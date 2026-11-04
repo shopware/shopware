@@ -9,8 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CommandGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -24,55 +25,43 @@ class CommandGeneratorTest extends TestCase
         $generator = new CommandGenerator();
 
         $option = $generator->getCommandOption();
-
-        static::assertNotSame('', $option->getName());
+        static::assertSame(CommandGenerator::OPTION_NAME, $option->getName());
         static::assertNotSame('', $option->getDescription());
-        static::assertFalse($option->acceptValue());
+        static::assertSame('Custom Command', $generator->getCommandOptionTitle());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]
-    public function testAddScaffoldConfig(
-        bool $getOptionResponse,
-        bool $confirmResponse,
-        bool $expectedHasOption
-    ): void {
+    public function testAddScaffoldConfig(bool $optionAlreadySet, string $answer, bool $expectedHasOption): void
+    {
         $configuration = $this->getConfig();
 
-        $input = static::createStub(InputInterface::class);
-        $input->method('getOption')->willReturn($getOptionResponse);
-
-        $io = static::createStub(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
-
-        (new CommandGenerator())
-            ->addScaffoldConfig($configuration, $input, $io);
+        (new CommandGenerator())->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
+        );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(CommandGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator
     {
-        yield 'with command option and with confirm' => [
-            'getOptionResponse' => true,
-            'confirmResponse' => true,
+        yield 'cli option stores the scaffold option' => [
+            'optionAlreadySet' => true,
+            'answer' => '',
             'expectedHasOption' => true,
         ];
 
-        yield 'with command option and without confirm' => [
-            'getOptionResponse' => true,
-            'confirmResponse' => false,
+        yield 'answering yes stores the scaffold option' => [
+            'optionAlreadySet' => false,
+            'answer' => 'y',
             'expectedHasOption' => true,
         ];
 
-        yield 'without command option and with confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'expectedHasOption' => true,
-        ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
+        yield 'answering no skips the scaffold option' => [
+            'optionAlreadySet' => false,
+            'answer' => 'n',
             'expectedHasOption' => false,
         ];
     }
@@ -92,6 +81,36 @@ class CommandGeneratorTest extends TestCase
 
         foreach ($expected as $stub) {
             static::assertTrue($stubs->has($stub));
+        }
+    }
+
+    public function testGeneratedCommandIsInvokable(): void
+    {
+        $configuration = self::getConfig([CommandGenerator::OPTION_NAME => true]);
+        $stubs = new StubCollection();
+        (new CommandGenerator())->generateStubs($configuration, $stubs);
+
+        $content = $stubs->get('src/Command/ExampleCommand.php')?->getContent();
+        static::assertNotNull($content);
+
+        $filesystem = new Filesystem();
+        $path = $filesystem->tempnam(sys_get_temp_dir(), 'shopware-command-', '.php');
+
+        try {
+            $filesystem->dumpFile($path, $content);
+            require $path;
+
+            $class = $configuration->namespace . '\\Command\\ExampleCommand';
+            static::assertTrue(class_exists($class));
+            $command = new $class();
+            static::assertInstanceOf(Command::class, $command);
+            static::assertIsCallable($command);
+
+            $tester = new CommandTester($command);
+            static::assertSame(Command::SUCCESS, $tester->execute([]));
+            static::assertSame('It works!' . \PHP_EOL, $tester->getDisplay());
+        } finally {
+            $filesystem->remove($path);
         }
     }
 

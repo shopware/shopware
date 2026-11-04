@@ -19,6 +19,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
+use Shopware\Core\System\Snippet\Files\FilesystemSnippetFile;
 use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -50,6 +51,7 @@ class SnippetService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly FilesystemOperator $translationFilesystem,
         private readonly Filesystem $localFileSystem,
+        private readonly FilesystemOperator $privateFilesystem,
     ) {
     }
 
@@ -602,6 +604,8 @@ class SnippetService
     {
         if ($snippetFile instanceof RemoteSnippetFile) {
             $content = $this->translationFilesystem->read($snippetFile->getPath());
+        } elseif ($snippetFile instanceof FilesystemSnippetFile) {
+            $content = $this->privateFilesystem->read($snippetFile->getPath());
         } else {
             $content = $this->localFileSystem->readFile($snippetFile->getPath());
         }

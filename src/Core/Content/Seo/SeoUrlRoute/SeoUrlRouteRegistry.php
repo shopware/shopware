@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class SeoUrlRouteRegistry
 {
     /**
-     * @var SeoUrlRouteInterface[]
+     * @var array<string, SeoUrlRouteInterface>
      */
     private array $seoUrlRoutes = [];
 
@@ -21,9 +21,12 @@ class SeoUrlRouteRegistry
      * @internal
      *
      * @param iterable<SeoUrlRouteInterface> $seoUrlRoutes
+     * @param iterable<SeoUrlRouteLoaderInterface> $loaders
      */
-    public function __construct(iterable $seoUrlRoutes)
-    {
+    public function __construct(
+        iterable $seoUrlRoutes,
+        private readonly iterable $loaders = [],
+    ) {
         foreach ($seoUrlRoutes as $seoUrlRoute) {
             $config = $seoUrlRoute->getConfig();
 
@@ -39,12 +42,12 @@ class SeoUrlRouteRegistry
      */
     public function getSeoUrlRoutes(): iterable
     {
-        return $this->seoUrlRoutes;
+        return [...$this->seoUrlRoutes, ...$this->loadRuntimeRoutes()];
     }
 
     public function findByRouteName(string $routeName): ?SeoUrlRouteInterface
     {
-        return $this->seoUrlRoutes[$routeName] ?? null;
+        return $this->seoUrlRoutes[$routeName] ?? $this->loadRuntimeRoutes()[$routeName] ?? null;
     }
 
     /**
@@ -52,6 +55,36 @@ class SeoUrlRouteRegistry
      */
     public function findByDefinition(string $definitionName): array
     {
-        return $this->definitionToRoutes[$definitionName] ?? [];
+        $routes = $this->definitionToRoutes[$definitionName] ?? [];
+
+        foreach ($this->loadRuntimeRoutes() as $route) {
+            if ($route->getConfig()->getDefinition()->getEntityName() === $definitionName) {
+                $routes[] = $route;
+            }
+        }
+
+        return $routes;
+    }
+
+    /**
+     * @return array<string, SeoUrlRouteInterface>
+     */
+    private function loadRuntimeRoutes(): array
+    {
+        $routes = [];
+
+        foreach ($this->loaders as $loader) {
+            foreach ($loader->load() as $route) {
+                $routeName = $route->getConfig()->getRouteName();
+
+                if (isset($this->seoUrlRoutes[$routeName]) || isset($routes[$routeName])) {
+                    continue;
+                }
+
+                $routes[$routeName] = $route;
+            }
+        }
+
+        return $routes;
     }
 }

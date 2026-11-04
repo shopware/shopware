@@ -36,6 +36,7 @@ class GaranLabelTwigFilter extends AbstractExtension
         return [
             new TwigFilter('sw_garan_label_duration', $this->formatDuration(...)),
             new TwigFilter('sw_garan_label', $this->render(...), ['is_safe' => ['html']]),
+            // @deprecated tag:v6.8.0 - remove together with `renderNestedLabel()`
             new TwigFilter('sw_garan_label_nested', $this->renderNestedLabel(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_garan_label_data_uri', $this->renderAsDataUri(...)),
             new TwigFilter('sw_garan_label_nested_uri', $this->renderNestedAsDataUri(...)),
@@ -76,8 +77,16 @@ class GaranLabelTwigFilter extends AbstractExtension
         return $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_FULL);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, line items carry the GARAN label in their `payload.garanLabel` instead
+     */
     public function renderNestedLabel(?string $productId, Context $context): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'the `garanLabel` payload of the line item'),
+        );
+
         $product = $this->loadProduct($productId, $context);
 
         if ($product === null) {
@@ -104,7 +113,8 @@ class GaranLabelTwigFilter extends AbstractExtension
 
     public function renderNestedAsDataUri(?string $productId, Context $context): ?string
     {
-        $svg = $this->renderNestedLabel($productId, $context);
+        $product = $this->loadProduct($productId, $context);
+        $svg = $product !== null ? $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_NESTED) : null;
 
         if ($svg === null) {
             return null;

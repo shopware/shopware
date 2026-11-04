@@ -929,6 +929,23 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBe(true);
     });
 
+    it('should only show the inheritance switch of Meteor checkbox fields when a sales channel is selected', async () => {
+        const fieldName = 'ConfigRenderer.config.checkboxField';
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        let field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        expect(field.find('input[type="checkbox"]').exists()).toBe(true);
+        expect(field.find('.mt-inheritance-switch').exists()).toBe(false);
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        expect(field.find('.mt-inheritance-switch').exists()).toBe(true);
+    });
+
     it('should return ShopwareError when has error', async () => {
         Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.null.dummyKey',

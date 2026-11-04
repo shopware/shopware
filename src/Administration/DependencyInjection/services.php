@@ -20,6 +20,7 @@ use Shopware\Administration\Dashboard\OrderAmountService;
 use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
 use Shopware\Administration\Service\AdminSearcher;
+use Shopware\Administration\Snippet\AdministrationSnippetService;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Administration\Snippet\AppLifecycleSubscriber;
@@ -105,7 +106,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(TemplateFinder::class),
             service(FirstRunWizardService::class),
-            service(SnippetFinder::class),
+            service(AdministrationSnippetService::class),
             param('kernel.supported_api_versions'),
             service(KnownIpsCollector::class),
             service(Connection::class),
@@ -119,7 +120,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.asset'),
             param('shopware.service_registry.url'),
             service('language.repository'),
-            service(SymfonyBearerTokenValidator::class),
             env('PRODUCT_ANALYTICS_GATEWAY_URL'),
             service(CustomerEmailUniqueChecker::class),
             param('shopware.api.refresh_token_ttl'),
@@ -194,6 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('kernel'),
             service(Connection::class),
             service('shopware.filesystem.translation'),
+            service('shopware.filesystem.private'),
             service(TranslationConfig::class),
             service(TranslationLoader::class),
             service(HtmlSanitizer::class),
@@ -206,6 +207,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedSnippetFinder::class . '.inner'),
             service('cache.object'),
+        ]);
+
+    $services->set(AdministrationSnippetService::class)
+        ->args([
+            service(SnippetFinder::class),
+            service(SymfonyBearerTokenValidator::class),
         ]);
 
     $services->set(AppLifecycleSubscriber::class)

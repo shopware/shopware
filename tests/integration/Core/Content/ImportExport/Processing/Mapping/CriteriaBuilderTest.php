@@ -32,7 +32,7 @@ class CriteriaBuilderTest extends TestCase
         );
         $criteriaBuild->enrichCriteria($config, $criteria);
 
-        static::assertEmpty($criteria->getAssociations());
+        static::assertCount(0, $criteria->getAssociations());
     }
 
     public function testAssociations(): void
@@ -53,7 +53,7 @@ class CriteriaBuilderTest extends TestCase
         $criteriaBuild->enrichCriteria($config, $criteria);
 
         $associations = $criteria->getAssociations();
-        static::assertNotEmpty($associations);
+        static::assertNotCount(0, $associations);
 
         static::assertArrayHasKey('translations', $associations);
         static::assertArrayHasKey('visibilities', $associations);

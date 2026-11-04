@@ -86,7 +86,7 @@ class CategoryRepositoryTest extends TestCase
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testDeleteChildCategory(): void
@@ -131,14 +131,14 @@ class CategoryRepositoryTest extends TestCase
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId)]],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertNotEmpty($exists);
+        static::assertNotCount(0, $exists);
     }
 
     public function testWriterConsidersDeleteParent(): void

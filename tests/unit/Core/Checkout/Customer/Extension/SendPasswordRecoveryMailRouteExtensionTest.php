@@ -26,7 +26,7 @@ class SendPasswordRecoveryMailRouteExtensionTest extends TestCase
         $dispatcher->addSubscriber(new SendPasswordRecoveryMailRouteExample());
 
         $coreCalled = false;
-        $result = (new ExtensionDispatcher($dispatcher))->publish(
+        (new ExtensionDispatcher($dispatcher))->publish(
             name: SendPasswordRecoveryMailRouteExtension::NAME,
             extension: new SendPasswordRecoveryMailRouteExtension(
                 new RequestDataBag(),

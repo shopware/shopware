@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
@@ -78,6 +79,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber;
+use Shopware\Core\Content\Product\Garan\GaranLabelOrderSubscriber;
 use Shopware\Core\Content\Product\Garan\GaranLabelProductValidator;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
@@ -152,6 +154,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecode
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -324,6 +327,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(GaranLabelOrderSubscriber::class)
+        ->args([
+            service('product.repository'),
+            service(GaranLabelResolver::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(GaranLabelProductValidator::class)
         ->tag('kernel.event_subscriber');
 
@@ -486,6 +496,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('unit.repository'),
             service(QuantityPriceCalculator::class),
             service(ExtensionDispatcher::class),
+            service(PriceSelector::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
@@ -563,7 +574,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductLineItemCommandValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -575,6 +586,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ResolvedCriteriaProductSuggestRoute::class . '.inner'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSuggestRoute::class)
@@ -599,6 +611,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ResolvedCriteriaProductSearchRoute::class . '.inner'),
             service('event_dispatcher'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolveCriteriaProductListingRoute::class)
@@ -629,6 +642,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductStreamBuilder::class),
             service(CacheTagCollector::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductIndexer::class)
@@ -805,6 +819,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(Connection::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)

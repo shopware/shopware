@@ -72,6 +72,22 @@ class ConfigurationServiceTest extends TestCase
         $configService->getSystemConfigDefinition('invalid!', Context::createDefaultContext());
     }
 
+    public function testInvalidDomainWithTrailingNewline(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::invalidDomain());
+
+        $configService = new ConfigurationService(
+            [],
+            new ConfigReader(),
+            static::createStub(AppConfigReader::class),
+            new StaticEntityRepository([]),
+            new StaticSystemConfigService([]),
+            new NullLogger()
+        );
+
+        $configService->getSystemConfigDefinition("core.basicInformation\n", Context::createDefaultContext());
+    }
+
     public function testCheckConfigurationWithInvalidDomain(): void
     {
         $configService = new ConfigurationService(
@@ -230,7 +246,7 @@ class ConfigurationServiceTest extends TestCase
     {
         $actualConfig = $this->getConfiguration($this->getAppConfig());
 
-        static::assertEmpty($actualConfig);
+        static::assertCount(0, $actualConfig);
     }
 
     public function testConfigurationNoFeatureFlag(): void

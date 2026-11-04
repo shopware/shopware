@@ -63,7 +63,7 @@ class ContactFormRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
-        static::assertEmpty($response['individualSuccessMessage']);
+        static::assertSame('', $response['individualSuccessMessage']);
 
         static::assertInstanceOf(MailSentEvent::class, $mail);
         $html = $mail->getContents()['text/html'];
@@ -99,7 +99,7 @@ class ContactFormRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
-        static::assertEmpty($response['individualSuccessMessage']);
+        static::assertSame('', $response['individualSuccessMessage']);
 
         static::assertInstanceOf(MailSentEvent::class, $mail);
         static::assertArrayHasKey('h.mac@example.com', $mail->getRecipients());

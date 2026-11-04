@@ -64,10 +64,7 @@ class CmsRouteTest extends TestCase
         $criteria = $this->getExpectedCriteria($slots);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
-        $pageLoader
-            ->method('load')
-            ->willReturn($searchResult);
+        $pageLoader = $this->createPageLoader($criteria, $searchResult);
 
         $actualCmsPage = (new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher())))->load($this->ids->get('cms-page'), $request, $context)->getCmsPage();
         static::assertSame($expectedCmsPage, $actualCmsPage);
@@ -91,10 +88,7 @@ class CmsRouteTest extends TestCase
         $criteria = $this->getExpectedCriteria($expectedSlots);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
-        $pageLoader
-            ->method('load')
-            ->willReturn($searchResult);
+        $pageLoader = $this->createPageLoader($criteria, $searchResult);
 
         $actualCmsPage = (new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher())))->load($this->ids->get('cms-page'), $request, $context)->getCmsPage();
         static::assertSame($expectedCmsPage, $actualCmsPage);
@@ -109,10 +103,7 @@ class CmsRouteTest extends TestCase
         $criteria = new Criteria([$this->ids->get('cms-page')]);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
-        $pageLoader
-            ->method('load')
-            ->willReturn($searchResult);
+        $pageLoader = $this->createPageLoader($criteria, $searchResult);
 
         $actualCmsPage = (new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher())))->load($this->ids->get('cms-page'), $request, $context)->getCmsPage();
         static::assertSame($expectedCmsPage, $actualCmsPage);
@@ -129,10 +120,7 @@ class CmsRouteTest extends TestCase
         $criteria = new Criteria([$cmsPageId]);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
-        $pageLoader
-            ->method('load')
-            ->willReturn($searchResult);
+        $pageLoader = $this->createPageLoader($criteria, $searchResult);
 
         $route = new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher()));
 
@@ -161,6 +149,24 @@ class CmsRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->load($id, $request, $context));
+    }
+
+    /**
+     * @param EntitySearchResult<CmsPageCollection> $searchResult
+     */
+    private function createPageLoader(Criteria $expectedCriteria, EntitySearchResult $searchResult): SalesChannelCmsPageLoaderInterface
+    {
+        $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
+        $pageLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (Request $request, Criteria $criteria) use ($expectedCriteria, $searchResult): EntitySearchResult {
+                static::assertEquals($expectedCriteria, $criteria);
+
+                return $searchResult;
+            });
+
+        return $pageLoader;
     }
 
     /**

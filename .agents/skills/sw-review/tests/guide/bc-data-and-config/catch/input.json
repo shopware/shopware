@@ -1,0 +1,37 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-data-and-config-catch",
+    "title": "feat(checkout): require a phone number on customer addresses",
+    "body": "Merchants need a phone number for every delivery. The migration fills empty values and makes the column NOT NULL; the DAL field is marked required.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-data-and-config-catch",
+    "additions": 30,
+    "deletions": 1,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Migration/V6_7/Migration1791538877MakeCustomerAddressPhoneNumberRequired.php",
+    "src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php"
+  ],
+  "guides": [
+    "guides/bc-data-and-config.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "migration",
+      "php_src",
+      "php_src_without_tests",
+      "public_surface"
+    ],
+    "guides": [
+      "bc-data-and-config"
+    ]
+  }
+}

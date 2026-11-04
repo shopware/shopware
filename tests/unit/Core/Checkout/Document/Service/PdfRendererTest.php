@@ -92,7 +92,7 @@ class PdfRendererTest extends TestCase
         );
 
         $generatorOutput = $pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
 
         static::assertSame($rendered->getFileExtension(), PdfRenderer::FILE_EXTENSION);
         static::assertSame($rendered->getContentType(), PdfRenderer::FILE_CONTENT_TYPE);
@@ -153,7 +153,7 @@ class PdfRendererTest extends TestCase
         );
 
         $generatorOutput = $pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
 
         $text = (new Parser())->parseContent($generatorOutput)->getText();
 

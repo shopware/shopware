@@ -15,12 +15,12 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory;
-use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Covers what a decorating extension implements while subscribe() is deprecated and
@@ -125,14 +125,15 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
      */
     public function testRouteSuppliesTheArgumentADecoratorDoesNotDefault(): void
     {
-        $attributes = (new \ReflectionMethod(NewsletterSubscribeRoute::class, 'subscribeWithResponse'))
-            ->getAttributes(Route::class);
+        $route = (new AttributeRouteControllerLoader())
+            ->load(NewsletterSubscribeRoute::class)
+            ->get('store-api.newsletter.subscribe');
 
-        static::assertCount(1, $attributes);
+        static::assertNotNull($route);
 
         $request = new Request();
         // The router adds the route defaults to the request attributes before argument resolution.
-        $request->attributes->add($attributes[0]->newInstance()->defaults);
+        $request->attributes->add($route->getDefaults());
         // In a request these two come from Shopware's own resolvers; only the third one is at stake.
         $request->attributes->set('dataBag', $this->dataBag);
         $request->attributes->set('context', $this->context);

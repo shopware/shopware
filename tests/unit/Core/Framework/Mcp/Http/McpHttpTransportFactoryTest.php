@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Http;
 
+use Mcp\Server\Transport\CallbackStream;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,7 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal
@@ -74,136 +76,85 @@ class McpHttpTransportFactoryTest extends TestCase
         $body = (string) $response->getContent();
         static::assertSame(2, substr_count($body, 'event: message'), 'each JSON-RPC message must be its own SSE event');
         static::assertStringContainsString('data: {"jsonrpc":"2.0","method":"notifications\/tools\/list_changed"}', $body);
+        static::assertStringContainsString('data: {"jsonrpc":"2.0","id":2,"result":{}}', $body, 'an empty object must stay an object');
     }
 
-    public function testCreateResponsePassesThroughAnEventStream(): void
+    public function testCreateResponsePassesThroughAnEventStreamVerbatim(): void
     {
-        $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', "event: message\ndata: {}\n\n"));
+        $sse = "event: message\nid: 1\ndata: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"tools\":[{\"name\":\"t\",\"inputSchema\":{\"type\":\"object\",\"properties\":{}}}]}}\n\n";
+
+        $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
 
         static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
+        $this->expectOutputString($sse);
+        $response->sendContent();
+    }
+
+    public function testCreateResponseLeavesTheSdkEventStreamUnreadUntilItIsSent(): void
+    {
+        $psr17 = new Psr17Factory();
+        $frame = "event: message\ndata: {\"jsonrpc\":\"2.0\",\"method\":\"notifications/progress\"}\n\n";
+        $stream = new CallbackStream(static function () use ($frame): void {
+            echo $frame;
+        });
+
+        $response = $this->factory()->createResponse(
+            $psr17->createResponse(200)
+                ->withHeader('Content-Type', 'text/event-stream')
+                ->withHeader(PlatformRequest::HEADER_MCP_SESSION_ID, 'session-1')
+                ->withBody($stream),
+        );
+
+        static::assertFalse($stream->eof(), 'the callback must not run before the headers are sent');
+        static::assertInstanceOf(StreamedResponse::class, $response);
+        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
+        static::assertSame('session-1', $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+
+        $this->expectOutputString($frame);
+        $response->sendContent();
     }
 
     /**
-     * A parameterless tool encodes its empty properties map as `[]`, but JSON Schema requires an
-     * object there. Strict clients reject the whole payload over it — OpenAI answers
-     * `400 invalid_function_parameters: "[] is not of type 'object'"` — and because
-     * shopware-toolsets-list is advertised in every session, that breaks every request such a
-     * client makes, not just calls to that tool.
+     * A parameterless tool has an empty `properties` object. JSON Schema requires an object there,
+     * and strict clients reject the whole tools/list if it arrives as `[]`, for example OpenAI with
+     * `400 invalid_function_parameters: "[] is not of type 'object'"`. The SDK already emits `{}`;
+     * the transport must not collapse it while passing the single object through.
      */
-    public function testCreateResponseForcesEmptyToolPropertiesToAnObject(): void
+    public function testCreateResponseKeepsEmptyToolPropertiesOfASingleJsonObject(): void
     {
-        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"shopware-toolsets-list","inputSchema":{"type":"object","properties":[]}}]}}';
+        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"shopware-toolsets-list","inputSchema":{"type":"object","properties":{}}}]}}';
 
-        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
-
-        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
-        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
-    }
-
-    public function testCreateResponseForcesEmptyToolPropertiesInsideAnEventStreamBatch(): void
-    {
-        // What tools/list looks like right after a toolset-enable: the list_changed notification
-        // is batched alongside the response, so the tools travel the SSE path instead.
-        $json = '[{"jsonrpc":"2.0","method":"notifications/tools/list_changed"},'
-            . '{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"shopware-toolsets-list","inputSchema":{"type":"object","properties":[]}}]}}]';
-
-        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
-
-        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
-        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
-        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
-    }
-
-    public function testCreateResponseForcesEmptyToolPropertiesInsideANativeEventStream(): void
-    {
-        // The SDK can answer a tools/list directly as an SSE stream when the client accepts
-        // text/event-stream (the shape right after a toolset-enable). That skips the JSON branch,
-        // so the `data:` frame must still be normalized while the SSE framing (event:/id:) stays
-        // intact for resumability.
-        $data = '{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"swag-dev-tools-list-skills","inputSchema":{"type":"object","properties":[]}}]}}';
-        $sse = "event: message\nid: 1\ndata: " . $data . "\n\n";
-
-        $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
-
-        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
-
-        $body = (string) $response->getContent();
-        static::assertStringContainsString('"properties":{}', $body);
-        static::assertStringNotContainsString('"properties":[]', $body);
-        static::assertStringContainsString("event: message\nid: 1\ndata: ", $body, 'SSE framing must be preserved');
-    }
-
-    public function testCreateResponseLeavesScalarEventStreamDataFramesUntouched(): void
-    {
-        // A `data:` frame whose payload is a JSON scalar (not an object/array) cannot carry a tool
-        // list, so it must be passed through verbatim while a sibling tools/list frame is normalized.
-        $tools = '{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":[]}}]}}';
-        $sse = "event: message\ndata: 42\n\nevent: message\ndata: " . $tools . "\n\n";
-
-        $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
-
-        $body = (string) $response->getContent();
-        static::assertStringContainsString('data: 42', $body, 'scalar data frame must be preserved verbatim');
-        static::assertStringContainsString('"properties":{}', $body);
-        static::assertStringNotContainsString('"properties":[]', $body);
-    }
-
-    public function testCreateResponseForcesEmptyNestedObjectPropertiesToAnObject(): void
-    {
-        // A nested object parameter with no members hits the same `[]` vs `{}` problem, one level
-        // deeper than the tool's top-level input schema.
-        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"filter":{"type":"object","properties":[]}}}}]}}';
-
-        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
-
-        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
-        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
-    }
-
-    public function testCreateResponseForcesEmptyOutputSchemaPropertiesToAnObject(): void
-    {
-        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"q":{"type":"string"}}},"outputSchema":{"type":"object","properties":[]}}]}}';
-
-        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
-
-        static::assertStringContainsString('"properties":{}', (string) $response->getContent());
-        static::assertStringNotContainsString('"properties":[]', (string) $response->getContent());
-    }
-
-    public function testCreateResponsePreservesResponseHeadersWhenRewritingTheBody(): void
-    {
-        // Rewriting the body must not drop headers the SDK set; the untouched path keeps them all,
-        // so the normalized path has to as well (including the Content-Type charset).
-        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":[]}}]}}';
-
-        $psrResponse = $this->psrResponse('application/json; charset=utf-8', $json)
-            ->withHeader('X-Custom-Header', 'kept');
-
-        $response = $this->factory()->createResponse($psrResponse);
-
-        static::assertSame('kept', $response->headers->get('X-Custom-Header'));
-        static::assertStringContainsString('charset=utf-8', (string) $response->headers->get('Content-Type'));
-    }
-
-    public function testCreateResponseLeavesPopulatedToolPropertiesUntouched(): void
-    {
-        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":{"q":{"type":"string"}}}}]}}';
-
-        $response = $this->factory()->createResponse($this->psrResponse('application/json', $json));
+        $response = $this->factory()->createResponse($this->psrResponse('application/json; charset=utf-8', $json)->withHeader('X-Custom-Header', 'kept'));
 
         static::assertSame($json, $response->getContent());
+        static::assertSame('kept', $response->headers->get('X-Custom-Header'));
     }
 
-    public function testCreateResponseKeepsTheSessionHeaderWhenRewritingTheBody(): void
+    public function testCreateResponseKeepsEmptyObjectsWhenReEmittingABatchAsEventStream(): void
     {
-        $json = '{"jsonrpc":"2.0","id":1,"result":{"tools":[{"name":"t","inputSchema":{"type":"object","properties":[]}}]}}';
+        // What tools/list looks like right after a toolset-enable: the list_changed notification
+        // is batched alongside the response, so the batch is decoded and re-encoded per message.
+        $tools = '{"jsonrpc":"2.0","id":2,"result":{"tools":['
+            . '{"name":"shopware-toolsets-list","inputSchema":{"type":"object","properties":{}}},'
+            . '{"name":"nested","inputSchema":{"type":"object","properties":{"filter":{"type":"object","properties":{}}}},"outputSchema":{"type":"object","properties":{}}}'
+            . ']}}';
+        $batch = '[{"jsonrpc":"2.0","method":"notifications/tools/list_changed"},' . $tools . ']';
 
-        $psrResponse = $this->psrResponse('application/json', $json)
-            ->withHeader(PlatformRequest::HEADER_MCP_SESSION_ID, 'session-123');
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', $batch));
 
-        $response = $this->factory()->createResponse($psrResponse);
+        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
 
-        static::assertSame('session-123', $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+        $body = (string) $response->getContent();
+        static::assertStringContainsString('data: ' . $tools . "\n\n", $body);
+        static::assertStringNotContainsString('"properties":[]', $body);
+    }
+
+    public function testCreateResponsePassesThroughAnEmptyJsonArray(): void
+    {
+        $response = $this->factory()->createResponse($this->psrResponse('application/json', '[]'));
+
+        static::assertStringStartsWith('application/json', (string) $response->headers->get('Content-Type'));
+        static::assertSame('[]', $response->getContent());
     }
 
     private function psrResponse(string $contentType, string $body): ResponseInterface

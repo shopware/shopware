@@ -107,7 +107,7 @@ class HtmlRendererTest extends TestCase
 
         $generatorOutput = $htmlRenderer->render($rendered);
 
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
         static::assertSame($html, $generatorOutput);
 
         static::assertSame(HtmlRenderer::FILE_EXTENSION, $rendered->getFileExtension());

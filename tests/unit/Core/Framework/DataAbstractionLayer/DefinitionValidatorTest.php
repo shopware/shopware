@@ -129,7 +129,7 @@ class DefinitionValidatorTest extends TestCase
             static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
         );
 
-        static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
+        static::assertCount(0, $primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
     }
 
     public function testPrimaryKeyValidationSkipsNonExistentTable(): void
@@ -147,7 +147,7 @@ class DefinitionValidatorTest extends TestCase
         );
 
         // When table doesn't exist in the schema, validatePrimaryKeyConsistency skips validation
-        static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
+        static::assertCount(0, $primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
 
         static::assertContains(
             'Table "definition_validator_test" referenced by definition but not found in schema',
@@ -196,7 +196,7 @@ class DefinitionValidatorTest extends TestCase
 
         // The non-StorageAware field should be skipped (line 990 coverage)
         // So only 'id' should be considered, which matches the database
-        static::assertEmpty($primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
+        static::assertCount(0, $primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
     }
 
     public function testForeignKeyReferencingFullCompositePrimaryKeyReportsNoViolation(): void
@@ -328,7 +328,7 @@ class DefinitionValidatorTest extends TestCase
     public function testFeatureGatedIgnoreFieldsAreValidatedWithFeatureActive(string $key): void
     {
         [$entityName, $fieldName] = explode('.', $key);
-        static::assertNotEmpty($entityName);
+        static::assertNotSame('', $entityName);
 
         Feature::fake([], function () use ($entityName, $fieldName): void {
             static::assertSame([], $this->getUnmappedColumnViolations($entityName, $fieldName));
@@ -407,7 +407,7 @@ class DefinitionValidatorTest extends TestCase
             $violations[DefinitionInstanceRegistry::class] ?? [],
             static fn (string $v): bool => str_contains($v, 'not a complete PRIMARY or UNIQUE key')
         );
-        static::assertEmpty($registryFkViolations, 'FK violation should not fall back to the registry key when a definition owns the table');
+        static::assertCount(0, $registryFkViolations, 'FK violation should not fall back to the registry key when a definition owns the table');
 
         static::assertArrayHasKey($owningClass, $violations);
         $ownerFkViolations = array_filter(
@@ -742,7 +742,7 @@ class DefinitionValidatorTest extends TestCase
         if ($dbPrimaryKeys !== []) {
             $pkColumns = array_map(
                 static function (string $col): UnqualifiedName {
-                    static::assertNotEmpty($col);
+                    static::assertNotSame('', $col);
 
                     return new UnqualifiedName(Identifier::unquoted($col));
                 },
@@ -801,7 +801,7 @@ class DefinitionValidatorTest extends TestCase
         if ($dbPrimaryKeys !== []) {
             $pkColumns = array_map(
                 static function (string $col): UnqualifiedName {
-                    static::assertNotEmpty($col);
+                    static::assertNotSame('', $col);
 
                     return new UnqualifiedName(Identifier::unquoted($col));
                 },
@@ -982,7 +982,7 @@ class DefinitionValidatorTest extends TestCase
         if ($primaryKeyColumns !== []) {
             $pkColumns = array_map(
                 static function (string $columnName): UnqualifiedName {
-                    static::assertNotEmpty($columnName);
+                    static::assertNotSame('', $columnName);
 
                     return new UnqualifiedName(Identifier::unquoted($columnName));
                 },

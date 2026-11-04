@@ -692,6 +692,12 @@ See `UPGRADE-6.8.md` for what themes have to adjust.
 This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
 Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
 
+### Affiliate tracking works with the HTTP cache
+
+Pages opened with the `affiliateCode` or `campaignCode` URL parameter are served from the HTTP cache now.
+The `CartWidget` JavaScript plugin forwards both parameters with its request to `frontend.checkout.info`, which stores them in the session.
+Themes that replace the `fetch()` method of the `CartWidget` plugin should request the URL returned by `getInfoUrl()`, otherwise the codes are only stored for pages that are not cached.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests

@@ -136,6 +136,8 @@ shopware:
             - 'klar_source'
             - 'klar_cpid'
             - 'klar_adid'
+            - 'affiliateCode' # Shopware
+            - 'campaignCode' # Shopware
 
         # Cache policies (feature flag CACHE_REWORK)
         policies:

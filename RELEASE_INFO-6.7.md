@@ -442,6 +442,16 @@ On the stateless revision there is no MCP session:
 * Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
   Account for it in `pm.max_children`.
 
+The new PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a `#[McpTool]` method whose native return type is `string`, `?string` or a union containing `string`.
+For now it is registered in `core-rules.neon` only, which the Shopware PHPStan extension doesn't load for extensions by default, so it does not fail your build in 6.7.
+It moves to `rules.neon` with 6.8.0.
+To check your tools today, add it to the `rules` of your `phpstan.neon`:
+
+```neon
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
+```
+
 ## API
 
 ### MCP clients can log in with OAuth

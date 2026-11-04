@@ -262,9 +262,10 @@ export async function exportViteServerMapping(): Promise<void> {
  * @private
  *
  * A bundle can ship an Administration entry and a meteor-app, which run as two servers under the same technical name.
+ * Sibling roots keep the two paths from being prefixes of each other.
  */
 export function getExtensionBasePath(extension: ExtensionDefinition): string {
-    return `/_internal_ext/${extension.technicalName}/${extension.isApp ? 'meteor-app/' : ''}`;
+    return `/${extension.isApp ? '_internal_app' : '_internal_ext'}/${extension.technicalName}/`;
 }
 
 function readViteServerMapping(): { vitePort: number; extensions: ViteServerMapping[] } {
@@ -300,9 +301,6 @@ export function getMainViteServerConfig(): {
 } {
     const { vitePort, extensions } = readViteServerMapping();
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
-
-    // Vite uses the first matching proxy, so the meteor-app path must come before the path of its plugin
-    extensions.sort((a, b) => b.basePath.length - a.basePath.length);
 
     for (const value of extensions) {
         proxyConfig[value.basePath] = {

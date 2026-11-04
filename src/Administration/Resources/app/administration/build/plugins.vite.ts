@@ -216,17 +216,14 @@ const main = async () => {
 
         await runForEachExtension(extensionEntries, 'start', async (extension) => {
             const base = getExtensionBasePath(extension);
+            const serverConfig = { host: '127.0.0.1', port: extensionPorts[base], strictPort: true, cors: true };
             let server;
 
             if (extension.isApp) {
                 server = await toolchain.vite.createServer({
                     root: extension.path,
                     base,
-                    server: {
-                        host: '127.0.0.1',
-                        port: extensionPorts[base],
-                        cors: true,
-                    },
+                    server: serverConfig,
                     plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
                 });
 
@@ -235,11 +232,7 @@ const main = async () => {
                 server = await toolchain.vite.createServer({
                     ...getBaseConfig(toolchain, extension, false, useBundledDev),
                     base,
-                    server: {
-                        host: '127.0.0.1',
-                        port: extensionPorts[base],
-                        cors: true,
-                    },
+                    server: serverConfig,
                 });
 
                 console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));

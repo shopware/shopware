@@ -480,7 +480,7 @@ To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extensi
 
 An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.
 Both servers shared one proxy path, so the Administration only reached one of them.
-The watcher now serves meteor-apps under `/_internal_ext/<technical-name>/meteor-app/`, also for extensions without an Administration entry.
+The watcher now serves meteor-apps under `/_internal_app/<technical-name>/`, also for extensions without an Administration entry.
 The Administration reads the new URL from `sw-plugin-dev.json`, so you only need to adjust tooling that calls the old URL of a meteor-app directly.
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag

@@ -30,7 +30,17 @@ export function mapPropValue({ fix = 'auto', ...config }: MapPropValueConfig): M
 function reportMapPropValue(api: ComponentUsageRuleApi, step: MapPropValueStep): void {
     const attribute = api.ast.findMatchingPropAttribute(api.node, step.prop);
 
-    if (!attribute || api.ast.getDirectiveName(attribute) === 'bind' || attribute.value?.value !== step.from) {
+    if (!attribute) {
+        return;
+    }
+
+    if (api.ast.getDirectiveName(attribute) === 'bind') {
+        reportBoundValue(api, step, attribute);
+
+        return;
+    }
+
+    if (attribute.value?.value !== step.from) {
         return;
     }
 
@@ -40,6 +50,41 @@ function reportMapPropValue(api: ComponentUsageRuleApi, step: MapPropValueStep):
         replacement: step.to,
         ...planValueMapping(api, step, attribute),
     });
+}
+
+/**
+ * Flags a bound expression that contains the deprecated value as a string literal, for example
+ * `:variant="hasError ? 'error' : 'info'"`. Only a developer can rewrite the expression; expressions
+ * without the literal are not reported, because their runtime value is unknown.
+ */
+function reportBoundValue(api: ComponentUsageRuleApi, step: MapPropValueStep, attribute: TemplateNode): void {
+    const source = api.ast.getAttributeValueSource(attribute) ?? '';
+
+    if (!containsStringLiteral(source, step.from)) {
+        return;
+    }
+
+    const replacementHint = step.to === undefined ? '' : ` with "${step.to}"`;
+
+    reportUsage(api, {
+        node: attribute,
+        apiName: step.prop,
+        replacement: step.to,
+        manualReason: `The bound expression can pass the deprecated value "${step.from}". Replace it${replacementHint} in the expression manually.`,
+    });
+}
+
+/**
+ * Tells whether a JavaScript expression source contains the value as a quoted string literal.
+ *
+ * @example
+ * containsStringLiteral("isError ? 'error' : 'info'", 'error'); // true
+ * containsStringLiteral('variant', 'error'); // false
+ */
+function containsStringLiteral(source: string, value: string): boolean {
+    const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    return new RegExp(`(['"\`])${escapedValue}\\1`).test(source);
 }
 
 function planValueMapping(api: ComponentUsageRuleApi, step: MapPropValueStep, attribute: TemplateNode): UsagePlan {

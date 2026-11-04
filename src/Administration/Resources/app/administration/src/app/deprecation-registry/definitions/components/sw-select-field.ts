@@ -6,6 +6,8 @@ import {
     componentMigration,
     flagSlotForManualMove,
     mapOptionsPropKeys,
+    missingProp,
+    onlyAfterConversion,
     removeProp,
     renameComponent,
     renameEvent,
@@ -51,6 +53,13 @@ export default componentMigration({
             unsafeMessage:
                 'Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }),
+        onlyAfterConversion(
+            missingProp({
+                prop: 'hide-clearable-button',
+                message:
+                    'mt-select shows a clear button by default, which sw-select-field never had. Add "hide-clearable-button" to keep the field unclearable.',
+            }),
+        ),
         flagSlotForManualMove({ slot: 'label', toProp: 'label' }),
         flagSlotForManualMove({ slot: 'default', toProp: 'options' }),
     ],

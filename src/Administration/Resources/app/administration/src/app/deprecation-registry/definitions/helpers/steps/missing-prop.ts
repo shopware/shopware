@@ -13,6 +13,7 @@ import { defineUsageStep, reportUsage } from '../shared';
  *
  * @example
  * missingProp({ prop: 'variant', value: 'secondary' });
+ * missingProp({ prop: 'hide-clearable-button' }); // a valueless boolean attribute
  * missingProp({ prop: 'is-opened', value: 'true', bind: true, insertPosition: 'after-name', unlessProps: ['is-opened', 'open'] });
  */
 export function missingProp({ fix = 'auto', ...config }: StepConfig<MissingPropStep>): MissingPropStep {
@@ -66,7 +67,7 @@ function planAddition(api: ComponentUsageRuleApi, step: MissingPropStep, unlessP
  * object, so values in the object still win.
  */
 function insertProp(api: ComponentUsageRuleApi, fixer: Fixer, step: MissingPropStep, objectVBind: TemplateNode | null): Fix {
-    const propSource = `${step.bind ? ':' : ''}${step.prop}="${step.value}"`;
+    const propSource = step.value === undefined ? step.prop : `${step.bind ? ':' : ''}${step.prop}="${step.value}"`;
 
     if (objectVBind) {
         const startTagLine = api.node.startTag.loc?.start?.line as number | undefined;

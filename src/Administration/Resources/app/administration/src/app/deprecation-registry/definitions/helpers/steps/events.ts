@@ -57,7 +57,7 @@ export function removeEvent({ fix = 'auto', ...config }: StepConfig<RemoveEventS
                 ? {
                       manualReason: `Object v-on can hide this event. Review the bound listener object and remove "${step.event}" manually if needed.`,
                   }
-                : { fix: (fixer) => fixer.remove(attribute) }),
+                : { fix: (fixer) => api.removeAttribute(fixer, attribute) }),
         });
     });
 }

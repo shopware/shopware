@@ -76,7 +76,7 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" API is deprecated.',
+            message: '[mt-text-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" API is deprecated.',
+            message: '[mt-text-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -127,7 +127,7 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field  />
+                <mt-text-field />
             </template>`,
         errors: [{
             message: '[mt-text-field] The "is-invalid" API is deprecated.',
@@ -154,7 +154,7 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field  />
+                <mt-text-field />
             </template>`,
         errors: [{
             message: '[mt-text-field] The "is-invalid" API is deprecated.',
@@ -181,7 +181,7 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field  />
+                <mt-text-field />
             </template>`,
         errors: [{
             message: '[mt-text-field] The "ai-badge" API is deprecated.',
@@ -208,7 +208,7 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field  />
+                <mt-text-field />
             </template>`,
         errors: [{
             message: '[mt-text-field] The "ai-badge" API is deprecated.',
@@ -262,7 +262,7 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field  />
+                <mt-text-field />
             </template>`,
         errors: [{
             message: '[mt-text-field] The "base-field-mounted" API is deprecated.',

@@ -2,7 +2,15 @@
  * @sw-package framework
  */
 
-import { aiBadgeTitleSlot, componentMigration, removeProp, renameComponent, replaceProp, upgradeGuide } from '../helpers';
+import {
+    aiBadgeTitleSlot,
+    componentMigration,
+    removeProp,
+    renameComponent,
+    renameSlot,
+    replaceProp,
+    upgradeGuide,
+} from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-card',
@@ -25,5 +33,12 @@ export default componentMigration({
         removeProp({
             prop: 'content-padding',
         }),
+        removeProp({
+            prop: 'hero',
+            fix: 'manual',
+            message:
+                'mt-card has no "hero" prop, so the card loses its borderless, centered hero look. Remove the prop and restyle the card manually if needed.',
+        }),
+        renameSlot({ from: 'header-right', to: 'headerRight' }),
     ],
 });

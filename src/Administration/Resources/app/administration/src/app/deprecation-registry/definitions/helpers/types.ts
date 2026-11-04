@@ -68,6 +68,10 @@ export type ComponentUsageRuleApi = {
     buildMessage(text: string): string;
     report(descriptor: ComponentUsageReport): void;
     /** Inserts a codemod review comment with `text` before the target, on its own line with the target's indentation. */
+    /** Removes an attribute with the whitespace that separates it, leaving no double space or empty line. */
+    removeAttribute(fixer: Fixer, attribute: TemplateNode): Fix;
+    /** Tells whether the codemod converted this element from the migration's deprecated component. */
+    isConverted(): boolean;
     insertCodemodCommentBefore(fixer: Fixer, target: TemplateNode, text: string): Fix;
     ast: {
         findMatchingPropAttribute(node: TemplateNode, propName: string): TemplateNode | undefined;
@@ -197,8 +201,8 @@ export type MapOptionsPropKeysStep = ComponentUsageStepBase & {
 export type MissingPropStep = ComponentUsageStepBase & {
     kind: 'missing-prop';
     prop: string;
-    /** The value source the fix writes into the added attribute. */
-    value: string;
+    /** The value source the fix writes into the added attribute; unset adds a valueless boolean attribute. */
+    value?: string;
     /** Adds the prop as a `:prop` binding instead of a static attribute. */
     bind?: boolean;
     /** Where the prop goes in the start tag; defaults to `before-end`. */
@@ -214,6 +218,12 @@ export type RemoveSlotStep = ComponentUsageStepBase & {
     slot: string;
     /** The review comment above a slot with content; defaults to a generic "not rendered anymore" hint. */
     hint?: string;
+};
+
+export type RenameSlotStep = ComponentUsageStepBase & {
+    kind: 'rename-slot';
+    from: string;
+    to: string;
 };
 
 export type SlotToPropStep = ComponentUsageStepBase & {
@@ -265,6 +275,7 @@ export type ComponentUsageStep =
     | MapOptionsPropKeysStep
     | MissingPropStep
     | RemoveSlotStep
+    | RenameSlotStep
     | SlotToPropStep
     | FlagSlotForManualMoveStep
     | SlotToItemsPropStep

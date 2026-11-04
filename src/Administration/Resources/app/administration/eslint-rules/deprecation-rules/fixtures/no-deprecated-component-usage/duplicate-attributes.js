@@ -1,4 +1,4 @@
-// A fix is dropped when the element already has the attribute it would write.
+// A fix that writes an attribute the element already has is dropped, unless both pass the same value or sit in different Twig branches.
 const duplicateReplacementInvalidTests = [
     {
         name: 'does not fix value rename when model-value already exists',
@@ -7,7 +7,8 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
+                message:
+                    '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.\nNot fixed: the element already passes "model-value" with a different value. Merge them manually.',
             },
         ],
     },
@@ -18,7 +19,8 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
+                message:
+                    '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.\nNot fixed: the element already passes "model-value" with a different value. Merge them manually.',
             },
         ],
     },
@@ -29,7 +31,8 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
+                message:
+                    '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.\nNot fixed: the element already passes "model-value" with a different value. Merge them manually.',
             },
         ],
     },
@@ -40,7 +43,8 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
+                message:
+                    '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.\nNot fixed: the element already passes "model-value" with a different value. Merge them manually.',
             },
         ],
     },
@@ -51,18 +55,31 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" API is deprecated.',
+                message:
+                    '[mt-text-field] The "v-model:value" binding is deprecated. Use "v-model" instead.\nNot fixed: the element already passes "v-model" with a different value. Merge them manually.',
             },
         ],
     },
     {
-        name: 'does not fix camelCase prop rename when replacement already exists',
+        name: 'removes the deprecated prop when the replacement already passes the same value',
         filename: 'test.html.twig',
         code: '<template><mt-switch remove-top-margin no-margin-top /></template>',
-        output: null,
+        output: '<template><mt-switch remove-top-margin /></template>',
         errors: [
             {
-                message: '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.',
+                message:
+                    '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.\nThe element already passes "remove-top-margin" with the same value, so the deprecated attribute is removed.',
+            },
+        ],
+    },
+    {
+        name: 'renames the deprecated prop when the replacement sits in another Twig branch',
+        filename: 'test.html.twig',
+        code: '<template><mt-text-field {% if VUE3 %}:model-value="name"{% else %}:value="name"{% endif %} /></template>',
+        output: '<template><mt-text-field {% if VUE3 %}:model-value="name"{% else %}:model-value="name"{% endif %} /></template>',
+        errors: [
+            {
+                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
             },
         ],
     },
@@ -73,7 +90,8 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
+                message:
+                    '[mt-text-field] The "update:value" API is deprecated. Use "update:model-value" instead.\nNot fixed: the element already passes "update:model-value" with a different value. Merge them manually.',
             },
         ],
     },

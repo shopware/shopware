@@ -7,6 +7,7 @@ import {
     removeProp,
     removeSlot,
     renameComponent,
+    renameEvent,
     renameProp,
     renameVModelArgument,
     slotToProp,
@@ -27,6 +28,7 @@ export default componentMigration({
     usage: [
         renameComponent({ from: 'sw-switch-field', to: 'mt-switch' }),
         renameVModelArgument({ from: 'value', to: null }),
+        renameEvent({ from: 'update:value', to: 'update:modelValue' }),
         renameProp({
             from: 'no-margin-top',
             to: 'remove-top-margin',

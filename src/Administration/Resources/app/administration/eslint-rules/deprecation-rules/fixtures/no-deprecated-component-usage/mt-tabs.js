@@ -250,14 +250,17 @@ const mtTabsInvalidTests = [
         errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
-        name: '"mt-tabs" property "isVertical" should not be fixed when "vertical" already exists',
+        name: '"mt-tabs" property "isVertical" is removed when "vertical" already passes the same value',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-tabs vertical is-vertical />
             </template>`,
-        output: null,
-        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
+        output: `
+            <template>
+                <mt-tabs vertical />
+            </template>`,
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.\nThe element already passes "vertical" with the same value, so the deprecated attribute is removed.' }],
     },
     {
         name: '"mt-tabs" property "isVertical" was renamed to "vertical" [expression]',
@@ -301,7 +304,7 @@ const mtTabsInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-tabs  />
+                <mt-tabs />
             </template>`,
         errors: [{ message: '[mt-tabs] The "align-right" API is deprecated.' }],
     },
@@ -324,7 +327,7 @@ const mtTabsInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-tabs  />
+                <mt-tabs />
             </template>`,
         errors: [{ message: '[mt-tabs] The "align-right" API is deprecated.' }],
     },

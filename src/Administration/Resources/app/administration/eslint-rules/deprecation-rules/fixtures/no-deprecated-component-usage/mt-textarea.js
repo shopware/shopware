@@ -76,7 +76,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" API is deprecated.',
+            message: '[mt-textarea] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" API is deprecated.',
+            message: '[mt-textarea] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {

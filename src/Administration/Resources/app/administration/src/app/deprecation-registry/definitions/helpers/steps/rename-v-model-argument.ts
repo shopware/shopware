@@ -31,18 +31,19 @@ function reportRenameVModelArgument(api: ComponentUsageRuleApi, step: RenameVMod
     }
 
     const to = step.to ?? null;
+    const binding = (argument: string | null) => (argument === null ? 'v-model' : `v-model:${argument}`);
 
     reportUsage(api, {
         node: attribute,
-        apiName: step.from ?? 'v-model',
-        replacement: to ?? undefined,
+        apiName: binding(step.from),
+        headline: `The "${binding(step.from)}" binding is deprecated. Use "${binding(to)}" instead.`,
         ...(hasObjectVBind(api)
             ? {
                   manualReason:
                       'Object v-bind can hide the replacement model prop. Review the bound object and rename this v-model manually if needed.',
               }
             : {
-                  produces: { kind: 'model', name: to === null ? 'v-model' : `v-model:${to}` },
+                  produces: { kind: 'model', name: binding(to) },
                   fix: (fixer) =>
                       to === null || !attribute.key.argument
                           ? fixer.replaceText(attribute.key, buildVModelKey(attribute.key, to))

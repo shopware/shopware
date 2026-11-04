@@ -4,7 +4,7 @@
 
 const { appendRegistryContext } = require('./format-migration-message');
 const { canAutoFix } = require('./fix-policy');
-const { hasCodemodComment, insertTemplateCodemodComment } = require('./codemod-comment');
+const { hasCodemodComment, insertTemplateCodemodComment, isConvertedFrom } = require('./codemod-comment');
 const ast = require('./template-ast');
 const { containsTwig, getInnerSource, getRemovalRange, slotContentToValue, toPropAttribute } = require('./slot-content');
 
@@ -55,31 +55,65 @@ function isSameAttributeName(kind, left, right) {
 }
 
 /**
- * Tells whether the element already has the attribute a fix would write, apart from the attribute the
- * fix replaces. Vue rejects duplicate attributes, so such a fix is dropped and only the report stays.
+ * Returns the start tag attribute a report points at; reports may point at the attribute, its key or
+ * the key's argument.
+ */
+function findReportedAttribute(element, reportedNode) {
+    return (
+        element.startTag.attributes.find((attribute) => {
+            return attribute === reportedNode || attribute.key === reportedNode || attribute.key?.argument === reportedNode;
+        }) ?? null
+    );
+}
+
+/**
+ * Finds another attribute that already passes what a fix would write. Vue rejects duplicate attributes.
  *
  * @example
  * // <mt-text-field value="old" model-value="new" />, renaming value → model-value
- * producesDuplicateAttribute(node, { node: valueAttribute, produces: { kind: 'prop', name: 'model-value' } }); // true
+ * findProducedAttribute(node, valueAttribute, { kind: 'prop', name: 'model-value' }); // the model-value attribute
  */
-function producesDuplicateAttribute(element, descriptor) {
-    const { produces } = descriptor;
+function findProducedAttribute(element, replacedAttribute, produces) {
+    return (
+        element.startTag.attributes.find((attribute) => {
+            const description = describeAttribute(attribute);
 
-    if (!produces) {
-        return false;
+            return (
+                attribute !== replacedAttribute &&
+                description?.kind === produces.kind &&
+                isSameAttributeName(produces.kind, description.name, produces.name)
+            );
+        }) ?? null
+    );
+}
+
+/**
+ * Decides how a fix that writes `produces` handles an attribute the element already has: rename as
+ * planned when the two are Twig alternatives, remove the deprecated attribute when both pass the same
+ * value, otherwise leave both for a manual merge with the reason why.
+ *
+ * @example
+ * resolveDuplicate(context.sourceCode, node, descriptor, produces); // { fix, reason } or null without a duplicate
+ */
+function resolveDuplicate(sourceCode, element, descriptor, produces) {
+    const replacedAttribute = findReportedAttribute(element, descriptor.node);
+    const producedAttribute = replacedAttribute && findProducedAttribute(element, replacedAttribute, produces);
+
+    if (!producedAttribute || ast.areTwigAlternatives(sourceCode, replacedAttribute, producedAttribute)) {
+        return null;
     }
 
-    return element.startTag.attributes.some((attribute) => {
-        const isReplacedAttribute =
-            attribute === descriptor.node || attribute.key === descriptor.node || attribute.key?.argument === descriptor.node;
-        const description = describeAttribute(attribute);
+    if (ast.hasSameValue(sourceCode, replacedAttribute, producedAttribute)) {
+        return {
+            fix: descriptor.fix && ((fixer) => fixer.removeRange(ast.getAttributeRemovalRange(sourceCode, element, replacedAttribute))),
+            reason: `The element already passes "${produces.name}" with the same value, so the deprecated attribute is removed.`,
+        };
+    }
 
-        return (
-            !isReplacedAttribute &&
-            description?.kind === produces.kind &&
-            isSameAttributeName(produces.kind, description.name, produces.name)
-        );
-    });
+    return {
+        fix: null,
+        reason: `Not fixed: the element already passes "${produces.name}" with a different value. Merge them manually.`,
+    };
 }
 
 /**
@@ -105,18 +139,29 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
             return appendRegistryContext([text], migration);
         },
         report({ produces, ...descriptor }) {
+            const duplicate = produces ? resolveDuplicate(sourceCode, node, descriptor, produces) : null;
+
+            if (!duplicate) {
+                context.report(descriptor);
+
+                return;
+            }
+
+            const [headline, ...registryContext] = descriptor.message.split('\n');
+
             context.report({
                 ...descriptor,
-                fix:
-                    descriptor.fix &&
-                    ((fixer) => {
-                        return producesDuplicateAttribute(node, { node: descriptor.node, produces })
-                            ? null
-                            : descriptor.fix(fixer);
-                    }),
+                message: [headline, duplicate.reason, ...registryContext].join('\n'),
+                fix: duplicate.fix,
             });
         },
         insertCodemodCommentBefore: insertTemplateCodemodComment,
+        removeAttribute(fixer, attribute) {
+            return fixer.removeRange(ast.getAttributeRemovalRange(sourceCode, node, attribute));
+        },
+        isConverted() {
+            return isConvertedFrom(sourceCode, node, migration.component);
+        },
         ast: {
             findMatchingPropAttribute: ast.findMatchingPropAttribute,
             hasMatchingPropAttribute: ast.hasMatchingPropAttribute,

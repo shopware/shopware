@@ -9,6 +9,7 @@ import type {
     FixLevel,
     FlagSlotForManualMoveStep,
     RemoveSlotStep,
+    RenameSlotStep,
     SlotToPropStep,
     StepConfig,
     TemplateNode,
@@ -46,6 +47,54 @@ export function removeSlot({ fix = 'unsafe-auto', ...config }: StepConfig<Remove
                 : (fixer) => api.insertCodemodCommentBefore(fixer, slot, hint),
         });
     });
+}
+
+/**
+ * Renames a slot the replacement component renders under another name, keeping its slot props.
+ * Both `#from` and `v-slot:from` are matched.
+ *
+ * @example
+ * renameSlot({ from: 'header-right', to: 'headerRight' });
+ * // <template #header-right="{ item }"> → <template #headerRight="{ item }">
+ */
+export function renameSlot({ fix = 'auto', ...config }: StepConfig<RenameSlotStep>): RenameSlotStep {
+    return defineUsageStep<RenameSlotStep>({ kind: 'rename-slot', fix, ...config }, (api, step) => {
+        const slotDirective = findSlotDirective(api, step.from);
+
+        if (!slotDirective) {
+            return;
+        }
+
+        reportUsage(api, {
+            node: slotDirective,
+            apiName: step.from,
+            headline: `The "${step.from}" slot is renamed. Use "${step.to}" instead.`,
+            ...(findSlotDirective(api, step.to)
+                ? { manualReason: `The element already fills the "${step.to}" slot. Merge both slots manually.` }
+                : { fix: (fixer) => fixer.replaceText(slotDirective.key.argument as TemplateNode, step.to) }),
+        });
+    });
+}
+
+/**
+ * Finds the `v-slot` directive of a child template that fills the named slot. Slot names are compared
+ * case-insensitively only, because the parser lowercases them and `header-right` and `headerRight`
+ * are different slots.
+ *
+ * @example
+ * findSlotDirective(api, 'headerRight'); // the #headerRight attribute of <template #headerRight>
+ */
+function findSlotDirective(api: ComponentUsageRuleApi, slotName: string): TemplateNode | undefined {
+    const children = api.node.children as TemplateNode[];
+
+    return children
+        .filter((child) => child.type === 'VElement' && child.name === 'template')
+        .flatMap((child) => child.startTag.attributes as TemplateNode[])
+        .find((attribute) => {
+            const argumentName = api.ast.getDirectiveArgumentName(attribute);
+
+            return api.ast.getDirectiveName(attribute) === 'slot' && argumentName?.toLowerCase() === slotName.toLowerCase();
+        });
 }
 
 /**

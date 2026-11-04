@@ -76,7 +76,7 @@ const mtIconInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-icon name="regular-times-s"  size="32px" />
+                <mt-icon name="regular-times-s" size="32px" />
             </template>`,
         errors: [
             {
@@ -184,7 +184,7 @@ const mtIconInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-icon name="regular-times-s"  size="42px" />
+                <mt-icon name="regular-times-s" size="42px" />
             </template>`,
         errors: [
             {
@@ -272,7 +272,7 @@ const mtIconInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-icon name="regular-times-s"  size="42px" />
+                <mt-icon name="regular-times-s" size="42px" />
             </template>`,
         errors: [
             {
@@ -348,7 +348,7 @@ const mtIconInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-icon name="regular-times-s"  size="42px" />
+                <mt-icon name="regular-times-s" size="42px" />
             </template>`,
         errors: [
             {

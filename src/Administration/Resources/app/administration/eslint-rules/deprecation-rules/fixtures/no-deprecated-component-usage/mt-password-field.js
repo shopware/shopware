@@ -84,7 +84,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" API is deprecated.',
+            message: '[mt-password-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -96,7 +96,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" API is deprecated.',
+            message: '[mt-password-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -135,7 +135,7 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field  />
+                <mt-password-field />
             </template>`,
         errors: [{
             message: '[mt-password-field] The "is-invalid" API is deprecated.',
@@ -162,7 +162,7 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field  />
+                <mt-password-field />
             </template>`,
         errors: [{
             message: '[mt-password-field] The "is-invalid" API is deprecated.',
@@ -216,7 +216,7 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field  />
+                <mt-password-field />
             </template>`,
         errors: [{
             message: '[mt-password-field] The "base-field-mounted" API is deprecated.',

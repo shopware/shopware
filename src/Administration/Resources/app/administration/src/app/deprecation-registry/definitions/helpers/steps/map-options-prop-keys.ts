@@ -12,7 +12,8 @@ const DEFAULT_UNSAFE_MESSAGE =
 
 /**
  * Renames keys of the option objects passed to an options prop. Only literal option objects are
- * rewritten; any other expression is reported with `unsafeMessage` for a manual migration.
+ * rewritten; any other expression with a deprecated key, or any non-literal expression on a just
+ * converted element, is reported with `unsafeMessage` for a manual migration.
  *
  * @example
  * mapOptionsPropKeys({ prop: 'options', from: { name: 'label', id: 'value' }, unlessProps: ['label-property'] });
@@ -39,7 +40,7 @@ function reportMapOptionsPropKeys(api: ComponentUsageRuleApi, step: MapOptionsPr
     const attribute = api.ast.findMatchingPropAttribute(api.node, step.prop);
     const source = attribute ? api.ast.getAttributeValueSource(attribute) : null;
 
-    if (!attribute || !source || !hasDeprecatedKeys(source, step.from)) {
+    if (!attribute || !source || !(hasDeprecatedKeys(source, step.from) || isDynamicOnConvertedElement(api, attribute))) {
         return;
     }
 
@@ -48,6 +49,25 @@ function reportMapOptionsPropKeys(api: ComponentUsageRuleApi, step: MapOptionsPr
         apiName: step.prop,
         ...planKeyMapping(api, step, attribute),
     });
+}
+
+/**
+ * Tells whether a just converted element binds options the codemod cannot read, such as a computed
+ * property. Its keys may still be the deprecated ones, so the usage needs a manual review. Elements
+ * that were not converted are not flagged, because their options already follow the new API.
+ *
+ * @example
+ * isDynamicOnConvertedElement(api, attributeOf(':options="salutationOptions"')); // true below a conversion comment
+ */
+function isDynamicOnConvertedElement(api: ComponentUsageRuleApi, attribute: TemplateNode): boolean {
+    const expression = attribute.value?.expression as TemplateNode | undefined;
+
+    return (
+        api.ast.getDirectiveName(attribute) === 'bind' &&
+        Boolean(expression) &&
+        getLiteralOptionObjects(expression) === null &&
+        api.isConverted()
+    );
 }
 
 function planKeyMapping(api: ComponentUsageRuleApi, step: MapOptionsPropKeysStep, attribute: TemplateNode): UsagePlan {

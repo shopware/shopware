@@ -6,7 +6,15 @@ const mtBannerValidTests = [
             <template>
                 <sw-alert />
             </template>`
-    }
+    },
+    {
+        name: '"mt-banner" bound "variant" without a deprecated literal is allowed',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-banner :variant="bannerVariant" />
+            </template>`
+    },
 ];
 
 const mtBannerInvalidTests = [
@@ -30,14 +38,14 @@ const mtBannerInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-banner appearance="foobar" />
+                <mt-banner appearance="notification" />
             </template>`,
         output: `
             <template>
-                <mt-banner  />
+                <mt-banner />
             </template>`,
         errors: [{
-            message: '[mt-banner] The "appearance" API is deprecated.',
+            message: '[mt-banner] mt-banner has no "appearance" prop. An alert with the "notification" or "system" appearance loses that look and renders as a regular banner, so review it.',
         }]
     },
     {
@@ -49,7 +57,7 @@ const mtBannerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-banner  />
+                <mt-banner />
             </template>`,
         errors: [{
                 message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
@@ -188,6 +196,48 @@ const mtBannerInvalidTests = [
             </template>`,
         errors: [{
             message: '[mt-banner] The "actions" slot is removed.',
+        }]
+    },
+    {
+        name: '"mt-banner" bound "showIcon" true literal becomes a static inverted "hide-icon"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-banner :show-icon="true" />
+            </template>`,
+        output: `
+            <template>
+                <mt-banner :hide-icon="false" />
+            </template>`,
+        errors: [{
+            message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
+        }]
+    },
+    {
+        name: '"mt-banner" bound "showIcon" false literal becomes a static inverted "hide-icon"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-banner :show-icon="false" />
+            </template>`,
+        output: `
+            <template>
+                <mt-banner :hide-icon="true" />
+            </template>`,
+        errors: [{
+            message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
+        }]
+    },
+    {
+        name: '"mt-banner" bound "variant" with a deprecated literal is reported for a manual migration',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-banner :variant="count > 0 ? 'error' : 'info'" />
+            </template>`,
+        output: null,
+        errors: [{
+            message: '[mt-banner] The "variant" API is deprecated. Use "critical" instead.\nThe bound expression can pass the deprecated value "error". Replace it with "critical" in the expression manually.',
         }]
     },
 ];

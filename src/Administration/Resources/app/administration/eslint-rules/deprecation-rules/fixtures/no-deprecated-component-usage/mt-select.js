@@ -70,6 +70,23 @@ const mtSelectValidTests = [
                 <mt-select :options="[{ name: 'A', id: 'a' }]" value-property="id" />
             </template>`,
     },
+    {
+        name: '"mt-select" dynamic options are allowed when the element was not converted',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-select :options="salutationOptions" />
+            </template>`,
+    },
+    {
+        name: '"mt-select" converted from sw-select-field keeps its "hide-clearable-button"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <!-- TODO Codemod: Converted from sw-select-field - please check if everything works correctly -->
+                <mt-select hide-clearable-button />
+            </template>`,
+    },
 ]
 
 const mtSelectInvalidTests = [
@@ -139,7 +156,7 @@ const mtSelectInvalidTests = [
                 <mt-select v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "value" API is deprecated.',
+            message: '[mt-select] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -151,7 +168,7 @@ const mtSelectInvalidTests = [
                 <mt-select v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "value" API is deprecated.',
+            message: '[mt-select] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -163,7 +180,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-select  />
+                <mt-select />
             </template>`,
         errors: [{
             message: '[mt-select] The "aside" API is deprecated.',
@@ -190,7 +207,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-select  />
+                <mt-select />
             </template>`,
         errors: [{
             message: '[mt-select] The "aside" API is deprecated.',
@@ -217,7 +234,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-select  />
+                <mt-select />
             </template>`,
         errors: [{
             message: '[mt-select] The "aside" API is deprecated.',
@@ -446,6 +463,36 @@ const mtSelectInvalidTests = [
             </template>`,
         errors: [{
             message: '[mt-select] The "update:value" API is deprecated. Use "update:model-value" instead.',
+        }]
+    },
+    {
+        name: '"mt-select" converted from sw-select-field gets "hide-clearable-button"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <!-- TODO Codemod: Converted from sw-select-field - please check if everything works correctly -->
+                <mt-select label="Salutation" />
+            </template>`,
+        output: `
+            <template>
+                <!-- TODO Codemod: Converted from sw-select-field - please check if everything works correctly -->
+                <mt-select label="Salutation" hide-clearable-button />
+            </template>`,
+        errors: [{
+            message: '[mt-select] mt-select shows a clear button by default, which sw-select-field never had. Add "hide-clearable-button" to keep the field unclearable.',
+        }]
+    },
+    {
+        name: '"mt-select" converted from sw-select-field with dynamic options is reported for a manual key migration',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <!-- TODO Codemod: Converted from sw-select-field - please check if everything works correctly -->
+                <mt-select :options="salutationOptions" hide-clearable-button />
+            </template>`,
+        output: null,
+        errors: [{
+            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".\nMigrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }]
     },
 ]

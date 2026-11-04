@@ -96,7 +96,7 @@ function planBooleanToValue(api: ComponentUsageRuleApi, step: BooleanPropToValue
     }
 
     if (api.ast.hasMatchingPropAttribute(api.node, step.to)) {
-        return { fix: (fixer) => fixer.remove(attribute) };
+        return { fix: (fixer) => api.removeAttribute(fixer, attribute) };
     }
 
     // Two deprecated props that map to the same replacement (`small` and `large`) need a human decision.
@@ -119,10 +119,13 @@ function planInvertedRename(api: ComponentUsageRuleApi, step: InvertBooleanPropS
 
     // A valueless boolean attribute is true, so the inverted prop keeps its false default.
     if (!attribute.value) {
-        return { fix: (fixer) => fixer.remove(attribute) };
+        return { fix: (fixer) => api.removeAttribute(fixer, attribute) };
     }
 
-    if (isBound(api, attribute)) {
+    const expression = attribute.value.expression as TemplateNode | undefined;
+    const isBooleanLiteral = expression?.type === 'Literal' && typeof expression.value === 'boolean';
+
+    if (isBound(api, attribute) && !isBooleanLiteral) {
         const source = api.ast.getAttributeValueSource(attribute) ?? '';
 
         return {
@@ -131,7 +134,8 @@ function planInvertedRename(api: ComponentUsageRuleApi, step: InvertBooleanPropS
         };
     }
 
-    const invertedLiteral = invertBooleanLiteral(String(attribute.value.value));
+    const literal = isBooleanLiteral ? String(expression.value) : String(attribute.value.value);
+    const invertedLiteral = invertBooleanLiteral(literal);
 
     if (invertedLiteral === null) {
         return {

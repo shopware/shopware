@@ -12,6 +12,7 @@ const {
     defineTemplateBodyVisitor,
     findMatchingEventAttribute,
     findObjectVOnAttribute,
+    getAttributeRemovalRange,
     getDirectiveName,
     hasSameValue,
     matchesTemplateName,
@@ -87,19 +88,8 @@ module.exports = {
                     [`[${usage.component}] The "${usage.from}" event is deprecated.`, hint],
                     migration,
                 ),
-                fix: sameHandler && canAutoFix(context, usage) ? (fixer) => fixer.removeRange(getAttributeRemovalRange(attribute)) : null,
+                fix: sameHandler && canAutoFix(context, usage) ? (fixer) => fixer.removeRange(getAttributeRemovalRange(context.sourceCode, attribute.parent.parent, attribute)) : null,
             });
-        }
-
-        function getAttributeRemovalRange(attribute) {
-            const text = context.sourceCode.text;
-            let start = attribute.range[0];
-
-            while (start > 0 && /\s/.test(text[start - 1])) {
-                start -= 1;
-            }
-
-            return [start, attribute.range[1]];
         }
 
         return defineTemplateBodyVisitor(context, {

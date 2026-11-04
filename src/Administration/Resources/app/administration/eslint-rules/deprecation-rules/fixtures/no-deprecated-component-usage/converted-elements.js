@@ -31,7 +31,7 @@ const registryDrivenInvalidTests = [
         output: '<template><mt-text-field v-model.lazy.trim="myValue" /></template>',
         errors: [
             {
-                message: '[mt-text-field] The "value" API is deprecated.',
+                message: '[mt-text-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
             },
         ],
     },

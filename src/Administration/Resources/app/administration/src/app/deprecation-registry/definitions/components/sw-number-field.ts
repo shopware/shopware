@@ -4,6 +4,7 @@
 
 import {
     componentMigration,
+    mapPropValue,
     renameComponent,
     renameEvent,
     renameProp,
@@ -31,6 +32,11 @@ export default componentMigration({
         }),
         renameEvent({ from: 'update:value', to: 'update:model-value' }),
         renameVModelArgument({ from: 'value', to: null }),
+        mapPropValue({
+            prop: 'size',
+            from: 'medium',
+            to: 'default',
+        }),
         slotToProp({
             slot: 'label',
             prop: 'label',

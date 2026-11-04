@@ -76,7 +76,7 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" API is deprecated.',
+            message: '[mt-colorpicker] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtColorpickerInvalidTests = [
                 <mt-colorpicker v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-colorpicker] The "value" API is deprecated.',
+            message: '[mt-colorpicker] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {

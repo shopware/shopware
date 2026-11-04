@@ -4,6 +4,7 @@
  */
 
 import type { PropReplacement } from '../types';
+import {} from '../shared';
 
 /**
  * Rewrites the `router-link` prop of a button into a `@click` handler that pushes the same route.
@@ -39,7 +40,7 @@ export const aiBadgeTitleSlot: PropReplacement = {
             api.ast.getDirectiveName(attribute) === 'bind' ? ` v-if="${api.ast.getAttributeValueSource(attribute)}"` : '';
 
         return [
-            fixer.remove(attribute),
+            api.removeAttribute(fixer, attribute),
             fixer.insertTextAfter(
                 api.node.startTag,
                 `\n${indentation}<slot name="title"><sw-ai-copilot-badge${condition} /></slot>\n${indentation}`,

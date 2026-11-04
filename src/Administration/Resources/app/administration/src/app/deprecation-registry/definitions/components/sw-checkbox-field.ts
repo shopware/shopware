@@ -8,6 +8,7 @@ import {
     renameComponent,
     renameEvent,
     renameProp,
+    renameVModelArgument,
     slotToProp,
     upgradeGuide,
 } from '../helpers';
@@ -25,11 +26,10 @@ export default componentMigration({
     ],
     usage: [
         renameComponent({ from: 'sw-checkbox-field', to: 'mt-checkbox' }),
+        renameVModelArgument({ from: 'value', to: null }),
         renameProp({
             from: 'value',
-            to: 'v-model',
-            fix: 'manual',
-            message: 'The "value" prop is deprecated. Use "v-model" instead.',
+            to: 'model-value',
         }),
         slotToProp({
             slot: 'hint',

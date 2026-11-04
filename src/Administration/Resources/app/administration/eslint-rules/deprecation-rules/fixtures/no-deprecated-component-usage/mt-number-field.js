@@ -76,7 +76,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" API is deprecated.',
+            message: '[mt-number-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" API is deprecated.',
+            message: '[mt-number-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -189,6 +189,21 @@ const mtNumberFieldInvalidTests = [
         errors: [{
             message: '[mt-number-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
+    },
+    {
+        name: '"mt-number-field" "medium" size is replaced with "default"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-number-field size="medium" />
+            </template>`,
+        output: `
+            <template>
+                <mt-number-field size="default" />
+            </template>`,
+        errors: [{
+            message: '[mt-number-field] The "size" API is deprecated. Use "default" instead.',
+        }]
     },
 ];
 

@@ -76,7 +76,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" API is deprecated.',
+            message: '[mt-url-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" API is deprecated.',
+            message: '[mt-url-field] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -127,7 +127,7 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field  />
+                <mt-url-field />
             </template>`,
         errors: [{
             message: '[mt-url-field] The "is-invalid" API is deprecated.',
@@ -154,7 +154,7 @@ const mtUrlFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-url-field  />
+                <mt-url-field />
             </template>`,
         errors: [{
             message: '[mt-url-field] The "is-invalid" API is deprecated.',

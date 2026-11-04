@@ -73,7 +73,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "size" API is deprecated.',
@@ -88,7 +88,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch >Test</mt-switch>
+                <mt-switch>Test</mt-switch>
             </template>`,
         errors: [{
             message: '[mt-switch] The "size" API is deprecated.',
@@ -115,7 +115,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "size" API is deprecated.',
@@ -142,7 +142,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "size" API is deprecated.',
@@ -157,7 +157,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "id" API is deprecated.',
@@ -184,7 +184,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "id" API is deprecated.',
@@ -211,7 +211,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "id" API is deprecated.',
@@ -241,7 +241,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch v-model="myExampleValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" API is deprecated.',
+            message: '[mt-switch] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }],
     },
     {
@@ -253,7 +253,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch v-model:value="myExampleValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" API is deprecated.',
+            message: '[mt-switch] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }],
     },
     {
@@ -346,7 +346,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "ghost-value" API is deprecated.',
@@ -373,7 +373,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "ghost-value" API is deprecated.',
@@ -400,7 +400,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "ghost-value" API is deprecated.',
@@ -427,7 +427,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "padded" API is deprecated.',
@@ -454,7 +454,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "padded" API is deprecated.',
@@ -481,7 +481,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "padded" API is deprecated.',
@@ -508,7 +508,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "partly-checked" API is deprecated.',
@@ -535,7 +535,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "partly-checked" API is deprecated.',
@@ -562,7 +562,7 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch  />
+                <mt-switch />
             </template>`,
         errors: [{
             message: '[mt-switch] The "partly-checked" API is deprecated.',

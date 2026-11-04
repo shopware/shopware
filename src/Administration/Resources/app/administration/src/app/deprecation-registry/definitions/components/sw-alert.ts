@@ -32,6 +32,9 @@ export default componentMigration({
         }),
         removeProp({
             prop: 'appearance',
+            fix: 'unsafe-auto',
+            message:
+                'mt-banner has no "appearance" prop. An alert with the "notification" or "system" appearance loses that look and renders as a regular banner, so review it.',
         }),
         invertBooleanProp({
             from: 'show-icon',

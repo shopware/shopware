@@ -217,6 +217,34 @@ function hasSameValue(sourceCode, left, right) {
 }
 
 /**
+ * Returns the range that removes an attribute together with the whitespace separating it from its
+ * neighbour in the start tag, so the tag keeps neither a double space nor a whitespace-only line. It
+ * takes the whitespace after the attribute instead when the attribute starts its line and the next
+ * attribute follows on it, or when it is the first attribute on the tag's line.
+ *
+ * @example
+ * getAttributeRemovalRange(sourceCode, node, attribute);
+ * // <mt-banner appearance="notification" variant="info"> → <mt-banner variant="info">
+ */
+function getAttributeRemovalRange(sourceCode, element, attribute) {
+    const text = sourceCode.text;
+    const [tagStart, tagEnd] = element.startTag.range;
+    const [start, end] = attribute.range;
+    const before = text.slice(tagStart, start).match(/\s*$/)[0];
+    const after = text.slice(end, tagEnd).match(/^\s*/)[0];
+    const isFollowedOnSameLine = after !== '' && !after.includes('\n');
+    const sharesLineWithNext = isFollowedOnSameLine && !['/', '>'].includes(text.charAt(end + after.length));
+    // A first attribute keeps the space after the tag name, where other fixes insert attributes.
+    const isFirst = start - before.length === tagStart + 1 + element.rawName.length;
+
+    if ((before.includes('\n') && sharesLineWithNext) || (isFirst && isFollowedOnSameLine)) {
+        return [start, end + after.length];
+    }
+
+    return [start - before.length, end];
+}
+
+/**
  * Registers template visitors through vue-eslint-parser. A file without a Vue template, such as a
  * `.ts` file a CLI `--rule` reaches, gets only the script visitors instead of a crash.
  *
@@ -230,6 +258,7 @@ function defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor = {})
 }
 
 module.exports = {
+    getAttributeRemovalRange,
     areTwigAlternatives,
     hasSameValue,
     defineTemplateBodyVisitor,

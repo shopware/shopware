@@ -84,7 +84,7 @@ const mtProgressBarInvalidTests = [
                 <mt-progress-bar v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-progress-bar] The "value" API is deprecated.',
+            message: '[mt-progress-bar] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -96,7 +96,7 @@ const mtProgressBarInvalidTests = [
                 <mt-progress-bar v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-progress-bar] The "value" API is deprecated.',
+            message: '[mt-progress-bar] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {

@@ -117,16 +117,20 @@ const mtFloatingUiInvalidTests = [
         ],
     },
     {
-        name: '"mt-floating-ui" does not fix resize-width when match-reference-width already exists',
+        name: '"mt-floating-ui" removes resize-width when match-reference-width already passes the same value',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-floating-ui match-reference-width resize-width :is-opened="true" />
             </template>`,
-        output: null,
+        output: `
+            <template>
+                <mt-floating-ui match-reference-width :is-opened="true" />
+            </template>`,
         errors: [
             {
-                message: '[mt-floating-ui] The "resize-width" API is deprecated. Use "match-reference-width" instead.',
+                message:
+                    '[mt-floating-ui] The "resize-width" API is deprecated. Use "match-reference-width" instead.\nThe element already passes "match-reference-width" with the same value, so the deprecated attribute is removed.',
             },
         ],
     },
@@ -153,7 +157,7 @@ const mtFloatingUiInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-floating-ui :is-opened="true"  />
+                <mt-floating-ui :is-opened="true" />
             </template>`,
         errors: [
             {

@@ -84,7 +84,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" API is deprecated.',
+            message: '[mt-datepicker] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -96,7 +96,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" API is deprecated.',
+            message: '[mt-datepicker] The "v-model:value" binding is deprecated. Use "v-model" instead.',
         }]
     },
     {

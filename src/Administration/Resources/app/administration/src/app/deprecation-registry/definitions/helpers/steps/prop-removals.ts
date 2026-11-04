@@ -48,7 +48,7 @@ function planRemoval(api: ComponentUsageRuleApi, step: RemovePropStep, attribute
         };
     }
 
-    return { fix: (fixer) => fixer.remove(attribute) };
+    return { fix: (fixer) => api.removeAttribute(fixer, attribute) };
 }
 
 function planReplacement(api: ComponentUsageRuleApi, step: ReplacePropStep, attribute: TemplateNode): UsagePlan {

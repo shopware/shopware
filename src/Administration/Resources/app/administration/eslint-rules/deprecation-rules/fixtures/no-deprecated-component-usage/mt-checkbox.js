@@ -27,27 +27,33 @@ const mtCheckboxValidTests = [
 
 const mtCheckboxInvalidTests = [
     {
-        name: '"mt-checkbox" wrong "value" prop usage should be reported',
+        name: '"mt-checkbox" wrong "value" prop usage should be renamed to "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-checkbox value="yes" />
             </template>`,
-        output: null,
+        output: `
+            <template>
+                <mt-checkbox model-value="yes" />
+            </template>`,
         errors: [{
-            message: '[mt-checkbox] The "value" prop is deprecated. Use "v-model" instead.',
+            message: '[mt-checkbox] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-checkbox" wrong "value" prop usage should be reported [expression]',
+        name: '"mt-checkbox" wrong "value" prop usage should be renamed to "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-checkbox :value="myValue" />
             </template>`,
-        output: null,
+        output: `
+            <template>
+                <mt-checkbox :model-value="myValue" />
+            </template>`,
         errors: [{
-            message: '[mt-checkbox] The "value" prop is deprecated. Use "v-model" instead.',
+            message: '[mt-checkbox] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -131,7 +137,7 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox  />
+                <mt-checkbox />
             </template>`,
         errors: [{
             message: '[mt-checkbox] The "id" API is deprecated.',
@@ -158,7 +164,7 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox  />
+                <mt-checkbox />
             </template>`,
         errors: [{
             message: '[mt-checkbox] The "id" API is deprecated.',
@@ -185,7 +191,7 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox  />
+                <mt-checkbox />
             </template>`,
         errors: [{
             message: '[mt-checkbox] The "ghost-value" API is deprecated.',
@@ -212,7 +218,7 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox  />
+                <mt-checkbox />
             </template>`,
         errors: [{
             message: '[mt-checkbox] The "ghost-value" API is deprecated.',
@@ -293,7 +299,7 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox  />
+                <mt-checkbox />
             </template>`,
         errors: [{
             message: '[mt-checkbox] The "padded" API is deprecated.',

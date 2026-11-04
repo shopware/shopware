@@ -232,6 +232,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.app_manifest.validator');
 
     $services->set(AppNameValidator::class)
+        ->args([
+            service(SourceResolver::class),
+        ])
         ->tag('shopware.app_manifest.validator');
 
     $services->set(ManifestValidator::class)
@@ -242,6 +245,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
         ->tag('shopware.app_manifest.validator');
 

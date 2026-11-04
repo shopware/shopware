@@ -357,6 +357,14 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
+## Plain JSON is the default Admin API response format
+
+Admin API entity responses switched to plain JSON when the `Accept` header is missing or contains only `*/*`.
+Integrations that parse JSON:API responses must explicitly send `Accept: application/vnd.api+json`.
+This header also works on earlier Shopware 6 versions.
+Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
+Listing responses contain `data`, `total`, and `aggregations`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
@@ -621,7 +629,7 @@ public function updateThumbnails(MediaEntity $media, Context $context, bool $str
 
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer expose a collection API
 
-`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. The three classes remained supported result wrappers and `Struct` instances, so extensions, states, and JSON serialization kept working.
+`EntitySearchResult` no longer extends `EntityCollection`. It remained a supported result wrapper and a `Struct`, so extensions, states, and JSON serialization kept working. `ProductListingResult` and `ProductReviewResult` still extend `EntitySearchResult`, so they lost the collection API together with it.
 
 Previously, a result had two mutable entity lists: the collection inherited from `EntityCollection` and its typed `entities` collection. Collection helpers could operate on a different list from `getEntities()`, so the two lists could drift apart and callers could observe different entities depending on the method they used. The result wrapper is now separate from its one authoritative `entities` collection.
 
@@ -630,23 +638,29 @@ Changes affecting all three classes:
 - Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`; the `entities` property remained available in PHP and Twig as the single collection of result entities.
 - The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
 - Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
-- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
+- A parameter or return type declared as `EntityCollection` no longer matches a result — narrow it to `EntitySearchResult`. A type declared as `EntitySearchResult` still matches a `ProductListingResult` or a `ProductReviewResult`.
 
 `EntitySearchResult`:
 
 - The wrapper is immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
 - The entity name remains available through `$entity` and `getEntity()`. `setEntity()` was removed; construct the result with the correct entity name instead.
-- The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
+- The protected `createNew()` method was removed together with the collection methods that called it. Subclass overrides of it are no longer called.
 
 `ProductListingResult`:
 
-- Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
-- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+- `fromSearchResult()` was removed. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`) stayed mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, and `setStreamId()` remained available.
+- `setPage()` and `setLimit()` were removed with the parent. A result reports the page and limit of the criteria that was searched, so page the criteria in `AbstractListingProcessor::prepare()` instead:
+
+```php
+$criteria->setOffset(($page - 1) * $limit);
+$criteria->setLimit($limit);
+```
 
 `ProductReviewResult`:
 
 - Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
-- The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+- The setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 

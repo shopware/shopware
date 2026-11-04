@@ -6,10 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
@@ -102,6 +105,31 @@ class RenderedTreeFactoryTest extends TestCase
 
         static::assertSame(['headline' => 'first'], $tree[0]->slots['main'][0]->properties);
         static::assertSame(['headline' => 'second'], $tree[0]->slots['main'][1]->properties);
+    }
+
+    public function testForwardsFallbackDecisionsWithoutChangingOmissionOrExplicitNull(): void
+    {
+        $forest = [];
+        foreach (['fallback', 'omitted', 'explicit-null'] as $id) {
+            $forest[] = StoredElementBuilder::create('Sw:Text', $id)
+                ->withProperty('headline', 'Authored fallback')
+                ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))
+                ->build();
+        }
+        $deliveries = $this->indexFor([
+            'fallback' => new ContextDelivery('fallback', [], [], ['headline']),
+            'omitted' => new ContextDelivery('omitted', [], [], []),
+            'explicit-null' => new ContextDelivery('explicit-null', ['headline' => null], [], []),
+        ]);
+
+        $result = $this->mintResult($forest, $deliveries, [], RenderingMode::FULL);
+
+        static::assertSame(['headline' => 'Authored fallback'], $result->tree[0]->properties);
+        static::assertSame([], $result->tree[1]->properties);
+        static::assertSame(['headline' => null], $result->tree[2]->properties);
+        static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['fallback']['headline']->origin);
+        static::assertArrayNotHasKey('headline', $result->provenance['omitted'] ?? []);
+        static::assertSame(ValueOrigin::DeliveredContext, $result->provenance['explicit-null']['headline']->origin);
     }
 
     #[TestDox('carries a loader resolved value onto the element that resolved it')]

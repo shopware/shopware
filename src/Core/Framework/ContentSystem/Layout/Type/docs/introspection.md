@@ -22,10 +22,12 @@ Response:
       "properties": {
         "<propertyName>": {
           "type": "string",
+          "contextTypes": ["single"],
           "translatable": false,
           "enum": null,
           "default": null,
           "required": true,
+          "mappable": false,
           "title": "...",
           "description": "...",
           "adminUI": null
@@ -43,7 +45,11 @@ Response:
 }
 ```
 
-`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data. Each entry additionally carries a folded `bindingSpecifications` catalog, and the response carries one top-level `styleOptions` catalog covering every type — see [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
+`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data.
+
+`mappable` says whether the property may be mapped. `contextTypes` derives accepted candidate cardinalities from `type`. Primitives and non-`Collection` classes accept `single`; `Collection` classes accept `collection`; bare `object` accepts both. A union combines its members' kinds: `string|integer` accepts only `single`, while a union mixing collection and non-collection classes accepts both. The client filters a candidate's `contextType` against this list; the server still checks effective-type assignability.
+
+Each type entry carries a folded `bindingSpecifications` catalogue. The response also carries one top-level `styleOptions` catalogue. See [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
 
 ## `storageSchema`
 

@@ -20,6 +20,7 @@ import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.ap
 import type MediaService from 'src/core/service/api/media.api.service';
 import type ContentSystemElementTypeApiService from 'src/core/service/api/content-system-element-type.api.service';
 import type ContentSystemLayoutPresetApiService from 'src/core/service/api/content-system-layout-preset.api.service';
+import type ContentSystemMappingCandidateApiService from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
@@ -262,6 +263,7 @@ declare global {
         contentSystemElementTypeService: ContentSystemElementTypeApiService;
         contentSystemLayoutPresetService: ContentSystemLayoutPresetApiService;
         contentSystemStyleOptionService: $TSFixMe;
+        contentSystemMappingCandidateService: ContentSystemMappingCandidateApiService;
         contentSystemPreviewService: $TSFixMe;
         configService: ConfigApiService;
         contextStoreService: StoreContextService;

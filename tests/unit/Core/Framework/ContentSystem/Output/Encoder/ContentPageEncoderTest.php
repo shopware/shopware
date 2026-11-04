@@ -119,12 +119,13 @@ class ContentPageEncoderTest extends TestCase
         static::assertSame(['first' => ['encoded' => true]], $body['elements'][0]['properties']['gallery']);
     }
 
-    #[TestDox('passes a scalar property through untouched')]
-    public function testEncodeKeepsScalarPropertyValues(): void
+    #[TestDox('passes mapped text through untouched for the Store API response')]
+    public function testEncodeKeepsMappedTextAndMarkupUntouched(): void
     {
-        $body = $this->encode([new RenderedElement('leaf', 'Sw:Content:Text', ['text' => 'Alpha copy', 'gap' => 24])]);
+        $mappedText = '<p>Alpha &amp; <strong>mapped</strong></p><script>alert(1)</script>';
+        $body = $this->encode([new RenderedElement('leaf', 'Sw:Content:Text', ['text' => $mappedText, 'gap' => 24])]);
 
-        static::assertSame(['text' => 'Alpha copy', 'gap' => 24], $body['elements'][0]['properties']);
+        static::assertSame(['text' => $mappedText, 'gap' => 24], $body['elements'][0]['properties']);
     }
 
     #[TestDox('reports the page alias the carrier publishes')]

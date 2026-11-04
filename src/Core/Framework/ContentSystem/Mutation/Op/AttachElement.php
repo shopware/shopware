@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
  * (e.g. a preset fragment) still resolves, while any wiring it already carries wins. The supplied root's component
  * must be a registered element type (mutationUnknownType), matching the type check insert/replace/wrap run. Clients
  * never supply ids; the minted ids come back in affected().
+ * Copied and detached content retains its mapping choices. Preset insertion explicitly marks new scaffolds for
+ * default mapping seeding and consumer mirroring; minting ids alone does not initialize either.
  *
  * @internal
  */
@@ -32,6 +34,7 @@ final class AttachElement extends AbstractLayoutMutation
         private readonly ?string $parentElementId = null,
         private readonly ?string $slot = null,
         private readonly ?int $index = null,
+        private readonly bool $isNewScaffold = false,
     ) {
     }
 
@@ -48,6 +51,7 @@ final class AttachElement extends AbstractLayoutMutation
         $this->affected = $this->subtreeIds($clone);
         // created and affected are the same set here: every node of the fresh subtree.
         $this->created = $this->subtreeIds($clone);
+        $this->freshlyScaffolded = $this->isNewScaffold ? $this->created : [];
 
         if ($this->parentElementId === null) {
             return $tree->insertAtRoot($this->index, [$clone]);

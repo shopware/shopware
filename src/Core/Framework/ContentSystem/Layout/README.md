@@ -2,6 +2,8 @@
 
 Content layout tree structure and processing. Layouts are reusable templates containing nested content elements with slots.
 
+`StoredTree::$rootSource` keeps source-specific mutation decisions tied to the tree; null represents an unbound draft. Codecs serialize the forest, and the mutation boundary supplies its source separately. Preservation rules are in [AGENTS.md](AGENTS.md#constraints).
+
 ## Architecture
 
 1. **Element Structure** (Element/) — the stored element model (`StoredElement`, `StoredValue`) plus `RenderedTreeEditor`, the whole-tree edit idiom for a rendered forest
@@ -12,6 +14,8 @@ Content layout tree structure and processing. Layouts are reusable templates con
 ## Default Seeding
 
 `LayoutDefaultSeeder` walks an element [forest](../docs/principles/README.md#glossary). Per node, it fills each property of the node's `component` type whose primitive default is non-null, or whose nested members have defaults, and whose key is absent, recursing into every slot's children. It no-ops on an unregistered `component`. It takes a `StoredElement` forest only (the field serializer's `normalize` decodes either payload shape into a `StoredTree` before the [write boundary](../docs/principles/README.md#terms-that-are-easy-to-confuse) runs) and shares `Type/StoredDefaultProvider` with the layout mutations. A stored element is immutable, so seeding one rebuilds its subtree and returns a new forest. It runs in the `StoredElementListFieldSerializer::normalize` write step. See [Every layout write passes through the write boundary, a single choke point](../docs/principles/write-admission.md#every-layout-write-passes-through-the-write-boundary-a-single-choke-point).
+
+`defaultMapping` is not a stored value default; see [data mapping](../Mapping/README.md#stored-mappings-and-rendering).
 
 ## Multi-Root Layouts
 

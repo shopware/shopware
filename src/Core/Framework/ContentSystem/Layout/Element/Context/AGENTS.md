@@ -5,6 +5,7 @@
 - Derive the `redistribute: true` provider at runtime only and never persist it. Check: does an encode or write path put a derived provider into a stored `providesContext`? [redistribution.md](docs/redistribution.md#where-each-rule-is-enforced)
 - Keep a [child-facing delivery key](docs/providers.md) unique per element, computed only in `ProviderDeliveryKeyResolver`. Check: does the change derive a delivery key elsewhere? `AvailableContextResolverTest` pins the shared key resolver. [context-wiring.md](../../../docs/principles/context-wiring.md)
 - Serve direct children only. Check: does the change relay root context? [context-wiring.md](../../../docs/principles/context-wiring.md)
+- A typed `source` marks a mapping: require optional, root-scoped, unaliased, non-redistributing consumers keyed by the destination property. Check: codec and descriptor enforce the same shape; use `MappingConsumers` for classification. [mapping principles](../../../docs/principles/data-mapping.md)
 
 ## Where to look
 

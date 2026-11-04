@@ -8,3 +8,4 @@
 | **Specification Sources** | New URL patterns, entity types — authored per [Adapter/docs/custom-sources.md](../Adapter/docs/custom-sources.md) |
 | **Data Loaders**          | External APIs, calculations, aggregated data (with cache control) — authored per [Hydration/DataLoader/docs/custom-loaders.md](../Hydration/DataLoader/docs/custom-loaders.md) |
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags — authored per [Event/Listener/docs/custom-listeners.md](../Event/Listener/docs/custom-listeners.md) |
+| **Mapping Sources** | Curated typed sources through tagged plugin providers and intentional core overrides through the public guarded registry — [source providers](../Mapping/docs/source-providers.md), [plugin overrides](../Mapping/docs/plugin-sources.md) |

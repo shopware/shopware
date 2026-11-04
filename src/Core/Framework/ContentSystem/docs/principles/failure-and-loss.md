@@ -10,7 +10,7 @@ Why: A skipped defect appears later as a state that no write could produce. A de
 
 Decided against: A first-wins pick or a precedence rule that resolves an ambiguous entity-name derivation or an ambiguous default specification into a value.
 
-Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate). It degrades on an entity id that `Uuid::isValid()` rejects, so an unsubstituted placeholder never reaches an id parser. The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key. It stays lenient because the binding system reads the inline `bindings:` section of the same file.
+Exceptions: Mapping missing/empty values use documented fallback or token removal, and withdrawn/incompatible mappings are omitted. These are explicit [mapping outcomes](data-mapping.md#admission-and-missing-data-are-separate-outcomes); provider errors and parser/output-limit faults still abort the pipeline. The Storefront may catch the outer failure, while Store API and preview propagate it. A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate). It degrades on an entity id that `Uuid::isValid()` rejects, so an unsubstituted placeholder never reaches an id parser. The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key. It stays lenient because the binding system reads the inline `bindings:` section of the same file.
 
 In code:
 
@@ -33,6 +33,8 @@ In code:
 - `DefaultBindingSpecificationSynthesizer` fails the load on `resolvedBy` on a non-reference property and on a storage-key collision, and `TypedEnumValidator` on `enum` without exactly one primitive type.
 - `DatabaseTypeLoaderTest::testValidatesAllRowsTogetherAndFailsTheWholeLoad` pins that one invalid row fails the whole load.
 - See [architecture.md](../../Layout/Type/docs/architecture.md).
+
+Exceptions: Curated mapping candidates have a defined runtime collision policy: exclude every owner of the ambiguous name and warn, while unrelated candidates remain available. Stable declared collisions fail compilation; provider load faults still propagate. This is separate from skipping malformed installed declaration rows. See [mapping overrides and collisions](data-mapping.md#intentional-overrides-cannot-skip-source-admission).
 
 ## The module drops nothing silently and reports every loss
 
@@ -61,7 +63,7 @@ A code that a client causes through the element tree is a [client defect](README
 
 Why: A status derived from `CLIENT_DEFECT_CODES` would make a read of stored corruption a 400 that marks the client as the cause.
 
-Exceptions: `INVALID_LAYOUT_STRUCTURE` marks a structural defect of a submitted tree, such as a repeated element id, and stays off `CLIENT_DEFECT_CODES`. A mutation payload that its request object rejects is a 400 without an error code.
+Exceptions: Mapping admission findings use `MappingProblem`/`InvalidMapping` and dedicated write error codes, not the generic `CLIENT_DEFECT_CODES` catch path. See [mapping validation](../client-defect-codes.md#mapping-validation). `INVALID_LAYOUT_STRUCTURE` marks a structural defect of a submitted tree, such as a repeated element id, and stays off `CLIENT_DEFECT_CODES`. A mutation payload that its request object rejects is a 400 without an error code.
 
 In code:
 

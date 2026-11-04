@@ -25,3 +25,4 @@
 - A worked layout combining entity rendering, data loading and context distribution: [docs/product-detail-page.md](docs/product-detail-page.md#product-detail-page-example)
 - Admin preview API, its route constraints and its wire contract: [Api/AGENTS.md](Api/AGENTS.md#constraints), [Api/docs/preview-url.md](Api/docs/preview-url.md#preview-url)
 - Data access in this repository: [AGENTS.md](../../../../AGENTS.md#not-standard-symfonydoctrine)
+- Data-mapping admission, runtime outcomes, and the supported override boundary: [data-mapping principles](docs/principles/data-mapping.md), [Mapping/README.md](Mapping/README.md), [provider guide](Mapping/docs/source-providers.md), [plugin overrides](Mapping/docs/plugin-sources.md)

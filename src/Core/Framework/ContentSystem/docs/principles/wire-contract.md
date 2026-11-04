@@ -80,7 +80,7 @@ In code:
 
 ## Structural malformation and registry drift are different cases on read
 
-Decode throws on a malformed persisted row, on read as on write. A well-formed row that names a style option or an element type the registry no longer holds still decodes. Decode keeps that unknown name verbatim. A row that names a removed style option still renders.
+Decode throws on a malformed persisted row, on read as on write. A well-formed row that names a style option or an element type the registry no longer holds still decodes. Decode keeps that unknown name verbatim. A row that names a removed style option still renders. Mapping-source drift is separate: a stored typed reference still decodes, but rendering rechecks the live catalogue and omits a withdrawn source. See [mapping admission](data-mapping.md#admission-and-missing-data-are-separate-outcomes).
 
 Why: Uninstalling a plugin must not make layouts unreadable. A row that no supported path produces is corruption that an operator sees.
 

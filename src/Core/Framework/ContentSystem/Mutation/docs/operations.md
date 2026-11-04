@@ -12,7 +12,7 @@ type's default binding specification regardless of `$bindingSpecificationId` (`r
 `byType(type)` filtered by `isDefault()`). Zero is a no-op, one is fill-applied and attributed to its own qualified
 id via `BindingApplicator::applyFillOnly()`, more than one throws `bindingSpecificationDefaultAmbiguous` `409`.
 With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotRequired`), the parent must exist
-(`mutationTargetNotFound`), then it inserts into the slot. `affected = [newId]`; `created = [newId]`.
+(`mutationTargetNotFound`), then it inserts into the slot. `affected = [newId]`; `created = [newId]`; `freshlyScaffolded = [newId]`.
 
 When `$bindingSpecificationId` is also given, the named specification is resolved **first**, before any tree change
 (unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`, neither a
@@ -48,7 +48,7 @@ three drop channels: [replace-element.md](replace-element.md).
 
 Deep-clones the subtree with new ids and splices the clone as the next sibling. Target must exist
 (`mutationTargetNotFound`); `affected = subtreeIds($clone)` and `created` the same full clone set, never the
-original; splices at `$index ?? location.index + 1`. Context wiring is key-based and position-based, never id-based,
+original; splices at `$index ?? location.index + 1`. It reports no fresh scaffolds, preserving existing mapping choices and deliberate unmapping. Context wiring is key-based and position-based, never id-based,
 so it carries over unchanged with no internal id references to rewrite.
 
 ## WrapElements
@@ -59,7 +59,7 @@ slot (or all roots), else `mutationInvalidWrapTargets`. An empty id list and a l
 `mutationInvalidWrapTargets` too. Scaffolds the container with the targets (in original order) in `$slot` and places
 it at the lowest target index. The container becomes the wrapped elements' parent, changing the context they consume.
 `affected = [containerId, ...elementIds]`. `created = [containerId]` only, because the wrapped targets are
-moved, not created. The container provides no context of its own, so wrapping adds no provider.
+moved, not created. Only the new container is also `freshlyScaffolded()` and eligible for default mappings. The container provides no context of its own, so wrapping adds no provider.
 
 ## UnwrapElement
 
@@ -86,9 +86,11 @@ and `created` carries the same full new-id set: every node in the spliced subtre
 mirrors `Op/InsertElement` (slot required with a parent → `mutationSlotRequired`; parent must exist →
 `mutationTargetNotFound`). Detaches nothing: `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
 
+Ordinary attachment preserves authored mapping state, including a selected entity and deliberate unmapping. New IDs appear in `created()` but not `freshlyScaffolded()`, so mapping defaults and mirrored consumers are not recreated. Preset insertion passes the internal `isNewScaffold: true` option to initialize newly inserted content.
+
 ## AttachElements
 
-Attaches a list of caller-supplied element subtrees by running `AttachElement` over each one in list order, into the same parent slot (or the root). Every rule, error and result of `AttachElement` applies per element, so the first element that fails aborts the whole operation. With an `$index`, element `n` of the list is placed at `$index + n`, keeping list order; with none, each is appended. `affected` and `created` are the unions of the per-element sets. An empty list changes nothing. The preset-insert route is its caller.
+Attaches a list of caller-supplied element subtrees by running `AttachElement` over each one in list order, into the same parent slot (or the root). Every rule, error and result of `AttachElement` applies per element, so the first element that fails aborts the whole operation. With an `$index`, element `n` of the list is placed at `$index + n`, keeping list order; with none, each is appended. `affected` and `created` are the unions of the per-element sets. An empty list changes nothing. The preset-insert route passes `isNewScaffold: true`; that intent is forwarded to each attachment, whose IDs then also appear in `freshlyScaffolded()`.
 
 ## BindElement
 
@@ -106,3 +108,11 @@ present `StoredValue`. Every wired key's attribution is recorded into `attribute
 
 Keeps the same id. `affected = [elementId]`. `created` stays the empty default, because the element node is wired,
 not built. `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.
+
+## MapProperty
+
+Maps one declared property to an exactly catalogued typed source, deriving cardinality through `StoredMappingInspector`. Reads the source from `StoredTree::$rootSource`; a missing source is an internal precondition fault (`MAPPING_ROOT_SOURCE_MISSING`, 500), while request validation rejects missing/blank or unknown sources with 400. The target must exist and its type be registered. Ordinary destination/base-key collisions are rejected; an existing typed mapping at that property may be replaced. Authored properties and loader wiring remain available for fallback. `affected = [elementId]`; no fresh scaffold is reported.
+
+## UnmapProperty
+
+Removes only the source-bearing consumer at the destination property, preserving authored values and ordinary wiring. A missing target throws `mutationTargetNotFound`; an absent mapping returns the input tree unchanged. An actual removal reports `affected = [elementId]`. Neither saving nor ordinary attachment restores the removed mapping.

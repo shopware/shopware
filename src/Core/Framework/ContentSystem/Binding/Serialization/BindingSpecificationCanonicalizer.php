@@ -389,7 +389,7 @@ final class BindingSpecificationCanonicalizer
      * {@see ResolvedByLoaderBranch::EntityCollection} on the produced collection class, the same registry walk the two
      * built-in loaders perform in the forward direction. A {@see MappingEntityDefinition}, or a definition producing
      * the branch's bare, unaddressable base class ({@see ArrayEntity} / {@see EntityCollection}), is skipped. Zero or
-     * several matches is a hard error naming the explicit-entityName fix, preserved per branch.
+     * several distinct entity names are a hard error naming the explicit-entityName fix, preserved per branch.
      */
     private function deriveEntityName(ResolvedByLoaderBranch $branch, string $fqcn, string $refKey, string $id): string
     {
@@ -415,12 +415,12 @@ final class BindingSpecificationCanonicalizer
             $producer = $salesChannelDefinitions[$entityName] ?? $definition;
 
             if ($this->producedClass($branch, $producer) === $fqcn) {
-                $matches[] = $entityName;
+                $matches[$entityName] = $entityName;
             }
         }
 
         if (\count($matches) === 1) {
-            return $matches[0];
+            return array_values($matches)[0];
         }
 
         $reason = $matches === []

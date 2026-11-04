@@ -1,7 +1,7 @@
 # Consumer Mirroring
 
 `ContextConsumerMirror` is the creation-time step `MutationPipeline` runs after the diagnostics pass. It mirrors
-onto the created elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
+onto the freshly scaffolded elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
 is `@internal` and absent from `InternalClassRule`'s
 public-surface allowlist.
 
@@ -42,6 +42,6 @@ These skips apply per resolution:
 Mirroring rebuilds each element and its ancestors through its own recursion over the slots, because
 `StoredTree::locate()` carries no ancestors.
 
-A `ReplaceElement` target counts as `created()` ([replace-element.md](replace-element.md)).
+A `ReplaceElement` target is reported in `freshlyScaffolded()` ([replace-element.md](replace-element.md)). Copies and ordinary reattachments receive new IDs but report no fresh scaffolds, preserving authored mappings and deliberate unwiring. Preset insertion explicitly marks its attached subtrees as fresh scaffolds.
 
 See [The draft pipeline writes derived wiring only where proved](../../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).

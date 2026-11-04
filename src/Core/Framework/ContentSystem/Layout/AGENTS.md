@@ -12,6 +12,8 @@
 - On read, throw on a malformed row but keep a name no registry still lists. Check: does a read path now reject a stale option or component? [wire-contract.md](../docs/principles/wire-contract.md)
 - Admit every layout write through `LayoutWriteBoundary`: add no second write boundary and no per-route normalization. Check: can any DAL route store a tree `LayoutWriteBoundary::apply()` did not produce? [write-admission.md](../docs/principles/write-admission.md)
 - Keep the admission order and state where a new pass sits. Check: `StoredElementListFieldSerializerTest` pins the order. [write-admission.md](../docs/principles/write-admission.md)
+- Preserve `StoredTree::$rootSource` with `withRoots()` when rebuilding forests. Check: normalization, default seeding, and mutation transforms retain the bound source. [Layout/README.md](README.md)
+- Keep mapping defaults distinct from stored property defaults: initialize only `freshlyScaffolded()` IDs, never restore a removed mapping on save. [data mapping](../Mapping/README.md#stored-mappings-and-rendering)
 
 ## Where to look
 

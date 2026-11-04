@@ -46,6 +46,27 @@ class AttachElementsTest extends TestCase
         $expected = [$first->id, $first->slots['content'][0]->id, $second->id];
         static::assertSame($expected, $op->affected());
         static::assertSame($expected, $op->created());
+        static::assertSame([], $op->freshlyScaffolded());
+    }
+
+    #[TestDox('reports every root and nested preset node for default initialization')]
+    public function testNewScaffoldsReportEveryNestedId(): void
+    {
+        $elements = [
+            new StoredElement('first', 'Sw:Block', [], [], [
+                'content' => [new StoredElement('child', 'Sw:Card')],
+            ]),
+            new StoredElement('second', 'Sw:Card'),
+        ];
+        $op = $this->op($elements, isNewScaffold: true);
+
+        $result = $op->apply(new StoredTree([]));
+
+        static::assertSame([
+            $result->roots[0]->id,
+            $result->roots[0]->slots['content'][0]->id,
+            $result->roots[1]->id,
+        ], $op->freshlyScaffolded());
     }
 
     #[TestDox('inserts every element at an explicit index, preserving their order')]
@@ -79,7 +100,7 @@ class AttachElementsTest extends TestCase
     /**
      * @param list<StoredElement> $elements
      */
-    private function op(array $elements, ?string $parentElementId = null, ?string $slot = null, ?int $index = null): AttachElements
+    private function op(array $elements, ?string $parentElementId = null, ?string $slot = null, ?int $index = null, bool $isNewScaffold = false): AttachElements
     {
         return new AttachElements(
             $this->registry(),
@@ -89,6 +110,7 @@ class AttachElementsTest extends TestCase
             $parentElementId,
             $slot,
             $index,
+            isNewScaffold: $isNewScaffold,
         );
     }
 

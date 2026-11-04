@@ -26,6 +26,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSys
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
@@ -84,6 +87,8 @@ class InfoController extends AbstractController
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry,
         private readonly StoredSchemaResolver $storedSchemaResolver,
         private readonly AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry,
+        private readonly AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry,
+        private readonly InlineMappingTokenParser $inlineMappingTokenParser,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
@@ -199,6 +204,39 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['rootSources' => $rootSources]);
+    }
+
+    /**
+     * The data-mapping catalogue, keyed by root source, so the Administration can offer an author the dynamic
+     * data a layout of that type may be mapped to. Every known root source carries an entry, empty when it
+     * offers nothing mappable, which keeps the client from having to tell "no candidates" apart from
+     * "unknown source".
+     */
+    #[Route(
+        path: '/api/_info/content-system-mapping-candidates.json',
+        name: 'api.info.content-system-mapping-candidates',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']],
+        methods: ['GET']
+    )]
+    public function contentSystemMappingCandidates(): JsonResponse
+    {
+        $candidates = [];
+
+        foreach ($this->rootSourceRegistry->knownRootSources() as $rootSource) {
+            $candidates[$rootSource] = array_map(
+                function (MappingCandidate $candidate): array {
+                    return [
+                        ...$candidate->toSchema(),
+                        'canonicalToken' => InlineMappingTokenParser::isValidPath($candidate->path)
+                            ? $this->inlineMappingTokenParser->canonicalToken($candidate->path)
+                            : null,
+                    ];
+                },
+                array_values($this->mappingCandidateRegistry->forRootSource($rootSource))
+            );
+        }
+
+        return new JsonResponse(['mappingCandidates' => (object) $candidates]);
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]

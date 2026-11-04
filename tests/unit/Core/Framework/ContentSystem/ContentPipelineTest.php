@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -33,6 +34,18 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
@@ -56,7 +69,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\MappingTestFactory;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -216,6 +231,44 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['root-id'], $observed);
     }
 
+    public function testFullRenderPreservesOversizedLiteralMappingText(): void
+    {
+        $tree = $this->renderOversizedLiteralMappingText(null);
+        static::assertSame('Product prod-1', $this->renderedElement($tree, 'target-id')->properties['title']);
+        static::assertSame(str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}', $this->renderedElement($tree, 'sibling-id')->properties['literal']);
+    }
+
+    public function testPartialRenderDropsTheOversizedLiteralSibling(): void
+    {
+        $tree = $this->renderOversizedLiteralMappingText('target-id');
+        static::assertCount(1, $tree);
+        static::assertSame('target-id', $tree[0]->id);
+        static::assertSame('Product prod-1', $tree[0]->properties['title']);
+    }
+
+    public function testInlineParserFailureAbortsRendering(): void
+    {
+        $root = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', '{{map:product.name}} {{map:' . str_repeat('x', 500) . '}}')
+            ->build();
+        $pipeline = $this->createPipeline();
+        $layout = $this->createSingleRootLayout($root);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+        $context = Generator::generateSalesChannelContext();
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+        $previousLimit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($previousLimit);
+        static::assertNotFalse(ini_set('pcre.backtrack_limit', '100'));
+
+        try {
+            $this->expectExceptionObject(ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'));
+
+            $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, $context);
+        } finally {
+            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
+    }
+
     #[TestDox('exposes unresolved placeholders to preparation subscribers')]
     public function testPreparationSubscribersSeeUnresolvedPlaceholders(): void
     {
@@ -251,6 +304,163 @@ class ContentPipelineTest extends TestCase
         // Fixture guard: the placeholder really was resolvable, so the step ran after the dispatch.
         $elements = $result->tree;
         static::assertSame('resolved-product', $elements[0]->properties['title']);
+    }
+
+    #[TestDox('parses listener-added text before placeholder substitution and uses its token to load page data')]
+    public function testPreparationListenerTextIsParsedAndSubstitutedBeforeMappingDependenciesAreDerived(): void
+    {
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('section', 'root-id')->build());
+        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct(), 'product-1'));
+        $this->lowering = $this->createLowering(['product' => $loader]);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event): void {
+                $event->replaceTree([
+                    StoredElementBuilder::create('text', 'listener-text')
+                        ->withProperty('title', '{{query}} {{map:product.name}}')
+                        ->build(),
+                ]);
+            }
+        );
+        $specification = new RenderingSpecification(
+            [new DataRequirement('product', 'product', new StubLoaderConfig())],
+            PlaceholderValues::from(['query' => 'Listener text {{map:product.name}}']),
+            new Request(),
+            rootSource: 'product',
+        );
+
+        $result = $this->createPipeline($dispatcher)->load(
+            $layout,
+            $specification,
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
+
+        static::assertSame('Listener text {{map:product.name}} ', $result->tree[0]->properties['title']);
+    }
+
+    #[TestDox('orders preparation, page loading, inline expansion, and finalization')]
+    public function testInlineMappingRunsAfterPreparedTextAndPageRequirementsLoadBeforeFinalization(): void
+    {
+        $order = [];
+        $source = MappingSourceReference::root('product', 'name');
+        $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string', source: $source);
+        $candidateRegistry = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
+        $candidateRegistry->method('forRootSource')->willReturn(['product.name' => $candidate]);
+        $candidateRegistry->method('resolveAdmittedSource')->willReturnCallback(
+            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use (&$order): MappingSourceResolution {
+                $order[] = 'inline expansion';
+
+                return MappingSourceResolution::resolved('Mapped product');
+            }
+        );
+
+        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function () use (&$order): ContentDataLoaderResult {
+                $order[] = 'page requirement loading';
+
+                return ContentDataLoaderResult::cached(new StubStruct(), 'product-1');
+            });
+        $this->lowering = $this->createLowering(['product' => $loader], $candidateRegistry);
+
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('section', 'root-id')->build());
+        $finalizedText = null;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ContentTreePreparationEvent::class, static function (ContentTreePreparationEvent $event) use (&$order): void {
+            $order[] = 'preparation event';
+            $event->replaceTree([
+                StoredElementBuilder::create('text', 'listener-text')
+                    ->withProperty('title', '{{greeting}} {{map:product.name}}')
+                    ->build(),
+            ]);
+        });
+        $dispatcher->addListener(RenderedTreeFinalizationEvent::class, static function (RenderedTreeFinalizationEvent $event) use (&$order, &$finalizedText): void {
+            $order[] = 'rendered-tree finalization';
+            $finalizedText = $event->tree()[0]->properties['title'];
+        });
+
+        $this->createPipeline($dispatcher)->load(
+            $layout,
+            new RenderingSpecification(
+                [new DataRequirement('product', 'product', new StubLoaderConfig())],
+                PlaceholderValues::from(['greeting' => 'Hello']),
+                new Request(),
+                rootSource: 'product',
+            ),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
+
+        static::assertSame('Hello Mapped product', $finalizedText);
+        static::assertSame([
+            'preparation event',
+            'page requirement loading',
+            'inline expansion',
+            'rendered-tree finalization',
+        ], $order);
+    }
+
+    public function testInlineMappingProviderErrorAbortsRendering(): void
+    {
+        $failure = new \TypeError('provider resolution failed');
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([new MappingCandidate('product.name', 'Product name', '', 'basic', 'string')]);
+        $provider->method('resolveRootSource')->willThrowException($failure);
+        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'Hello {{map:product.name}}!')->build(),
+        );
+
+        try {
+            $this->createPipeline()->load(
+                $layout,
+                new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: 'product'),
+                new RenderingCacheContext(),
+                RenderingMode::FULL,
+                false,
+                Generator::generateSalesChannelContext(),
+            );
+            static::fail('Expected the provider failure to escape unchanged.');
+        } catch (\TypeError $exception) {
+            static::assertSame($failure, $exception);
+        }
+    }
+
+    public function testInlineMappingExpansionLimitAbortsRendering(): void
+    {
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([new MappingCandidate('product.name', 'Product name', '', 'basic', 'string')]);
+        $provider->method('resolveRootSource')->willReturn(MappingSourceResolution::resolved(str_repeat('x', 65536)));
+        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider], new NullLogger()));
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', str_repeat('{{map:product.name}}', 17))->build(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: 'product'),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
     }
 
     #[TestDox('exposes unexpanded redistribute consumers to preparation subscribers')]
@@ -943,6 +1153,8 @@ class ContentPipelineTest extends TestCase
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             $this->configSerializerProvider(),
             $this->dataLoaderProvider(),
+            new InlineMappingTokenParser(),
+            $this->typeRegistry(),
         ))->prepare($layout->elements, $specification, RenderingMode::FULL);
 
         $pageData = new StubStruct();
@@ -1083,6 +1295,8 @@ class ContentPipelineTest extends TestCase
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             $this->configSerializerProvider(),
             $this->dataLoaderProvider(),
+            new InlineMappingTokenParser(),
+            $this->typeRegistry(),
         ))->prepare($layout->elements, $specification, RenderingMode::SKELETON);
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
@@ -1447,6 +1661,38 @@ class ContentPipelineTest extends TestCase
         yield 'alias renames the key for children' => ['product', 'product'];
     }
 
+    /**
+     * @return list<RenderedElement>
+     */
+    private function renderOversizedLiteralMappingText(?string $targetElementId): array
+    {
+        $literal = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}';
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'target-id')->withProperty('title', 'Product {{productId}}')->build(),
+                StoredElementBuilder::create('text', 'sibling-id')->withProperty('literal', $literal)->build(),
+            ])
+            ->build();
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+        $specification = new RenderingSpecification(
+            [],
+            PlaceholderValues::from(['productId' => 'prod-1', 'map:product.name' => 'query supplied text']),
+            new Request(),
+            $targetElementId,
+        );
+
+        $result = $this->createPipeline()->load(
+            $this->createSingleRootLayout($root),
+            $specification,
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
+
+        return $result->tree;
+    }
+
     private function configSerializerProvider(): DataLoaderConfigSerializerProvider
     {
         $locator = static::createStub(ServiceLocator::class);
@@ -1479,6 +1725,8 @@ class ContentPipelineTest extends TestCase
                 new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
                 $this->configSerializerProvider(),
                 $this->dataLoaderProvider(),
+                new InlineMappingTokenParser(),
+                $this->typeRegistry(),
             ),
             new WiringPlanner(new ProviderDeliveryKeyResolver()),
             $this->lowering,
@@ -1497,7 +1745,7 @@ class ContentPipelineTest extends TestCase
      *
      * @param array<string, AbstractContentDataLoader<Struct>> $loaders keyed by loader source
      */
-    private function createLowering(array $loaders): ElementLowering
+    private function createLowering(array $loaders, ?AbstractContentSystemMappingCandidateRegistry $candidateRegistry = null): ElementLowering
     {
         $factories = [];
         $serializers = [];
@@ -1508,6 +1756,16 @@ class ContentPipelineTest extends TestCase
             // misconfiguration the real provider refuses, not a case these fixtures should model.
             $serializers[$source] = static fn (): StubLoaderConfigSerializer => new StubLoaderConfigSerializer();
         }
+
+        $types = $this->typeRegistry();
+        if ($candidateRegistry === null) {
+            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
+            $candidates->method('forRootSource')->willReturn([]);
+        } else {
+            $candidates = $candidateRegistry;
+        }
+        $parser = new InlineMappingTokenParser();
+        $mappingInspector = MappingTestFactory::inspector($types, $candidates, $parser);
 
         return new ElementLowering(
             new ElementDataResolver(
@@ -1521,10 +1779,42 @@ class ContentPipelineTest extends TestCase
             ),
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
-                new ContextPathResolver()
+                new ContextPathResolver(),
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
-            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+            new RenderedTreeFactory(new RenderedElementFactory($types)),
+            $this->inlineMappingExpander($candidates),
+            new MappingConsumers(),
             new ContextPathResolver(),
+        );
+    }
+
+    /**
+     * Uses the real expander: inline-mappable fixtures can supply a populated registry to exercise expansion.
+     * Without one, the empty catalogue makes authored text tokens unavailable; unflagged properties remain literal.
+     */
+    private function inlineMappingExpander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
+    {
+        if ($candidates === null) {
+            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
+            $candidates->method('forRootSource')->willReturn([]);
+        }
+        $types = $this->typeRegistry();
+        $parser = new InlineMappingTokenParser();
+        $mappingInspector = MappingTestFactory::inspector($types, $candidates, $parser);
+
+        return new InlineMappingExpander(
+            $mappingInspector,
+            $parser,
+            new InlineMappingInterpolator(
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
+            ),
         );
     }
 
@@ -1538,7 +1828,8 @@ class ContentPipelineTest extends TestCase
     {
         $specs = [
             'text' => ContentSystemElementTypeSpecificationBuilder::create('text')
-                ->primitive('title', 'string')
+                ->primitive('title', 'string', inlineMappable: true)
+                ->primitive('literal', 'string')
                 ->build(),
         ];
 

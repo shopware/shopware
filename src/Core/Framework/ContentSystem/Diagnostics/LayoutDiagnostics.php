@@ -16,6 +16,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
@@ -26,11 +28,20 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
  * root context.
+ *
+ * The root SOURCE is a third, separate input, and it is not derivable from the other two. Data-mapping
+ * admissibility is decided against the bound source's candidate catalogue, and a resolved root context
+ * cannot be turned back into a source id, so a caller that has the id passes it and a caller that does not
+ * gets only the inline-token check when the root context is also null; whole-field mappings stay unjudged.
+ * The diagnose route, both mutation routes and the persisted mutator all have the source;
+ * `Validation/LayoutGate` passes it for mapped provider backing but disables mapping-problem reporting:
+ * the write path uses `Validation/StoredMappingValidator` and its per-rule error codes for those findings.
  *
  * @internal
  *
@@ -48,6 +59,8 @@ class LayoutDiagnostics
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly ContextPathResolver $contextPathResolver,
+        private readonly MappingConsumers $mappingConsumers,
+        private readonly StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -55,12 +68,14 @@ class LayoutDiagnostics
      * Flattens the tree and runs the checks in a fixed order. The strict style option view is read once for
      * the whole analysis. The duplicate-id check runs once as a cross-element batch over the whole tree.
      * Every element then runs its intrinsic checks, resolves its available context, and resolves its
-     * properties. The binding checks run only when `$rootContext` is not null.
+     * properties. Ordinary binding checks run only when `$rootContext` is not null; mapping checks follow the
+     * explicit root source and reporting flag, including source-less inline findings with null root context.
      *
      * @param list<StoredElement> $tree
-     * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
+     * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null when none is bound
+     * @param string|null $rootSource the id of the bound source, or null when none is bound
      */
-    public function analyze(array $tree, ?array $rootContext): LayoutAnalysis
+    public function analyze(array $tree, ?array $rootContext, ?string $rootSource = null, bool $reportMappingProblems = true): LayoutAnalysis
     {
         $elements = $this->flatten($tree);
 
@@ -82,7 +97,7 @@ class LayoutDiagnostics
             }
 
             try {
-                $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? []);
+                $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? [], $rootSource);
             } catch (ContentSystemException $exception) {
                 if (!ContentSystemException::isClientDefect($exception)) {
                     throw $exception;
@@ -144,7 +159,72 @@ class LayoutDiagnostics
             }
         }
 
+        // Runs over the whole tree rather than per element, because the catalogue is fetched once per root
+        // source. Outside the per-element loop for the same reason the loop skips it: a mapping is judged
+        // against the source id, which the loop above never sees.
+        if ($reportMappingProblems && $rootSource !== null) {
+            foreach ($this->mappingViolations($tree, $rootSource) as $violation) {
+                $violations[] = $violation;
+            }
+        } elseif ($reportMappingProblems && $rootContext === null) {
+            foreach ($this->inlineMappingViolationsWithoutRootSource($tree) as $violation) {
+                $violations[] = $violation;
+            }
+        }
+
         return new LayoutAnalysis(new DiagnosticsReport($violations), $resolutions);
+    }
+
+    /**
+     * Mapping problems as diagnostics. The same {@see StoredMappingInspector} findings the write gate
+     * refuses a save over, reported here in a 200 body so the Experience Studio can mark the offending
+     * control while the author is still editing rather than at save time.
+     *
+     * Keyed on the mapped PROPERTY, not the mapped path, so the entry lands on the control the author acted
+     * on — the same choice {@see StoredMappingValidator} makes for its constraint violations.
+     *
+     * @param list<StoredElement> $tree
+     *
+     * @return list<Violation>
+     */
+    private function mappingViolations(array $tree, string $rootSource): array
+    {
+        $violations = [];
+
+        foreach ($this->mappingInspector->inspect($tree, $rootSource) as $problem) {
+            $violations[] = new Violation(
+                ViolationCode::InvalidMapping,
+                $problem->elementId,
+                $problem->propertyKey,
+                $problem->exception->getMessage(),
+            );
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Explicit inline mapping intent needs a bound source to resolve. Report that missing prerequisite even
+     * when the caller has no catalogue to check; whole-field mappings remain unjudged in this case.
+     *
+     * @param list<StoredElement> $tree
+     *
+     * @return list<Violation>
+     */
+    private function inlineMappingViolationsWithoutRootSource(array $tree): array
+    {
+        $violations = [];
+
+        foreach ($this->mappingInspector->inspectInlineWithoutRootSource($tree) as $problem) {
+            $violations[] = new Violation(
+                ViolationCode::InvalidMapping,
+                $problem->elementId,
+                $problem->propertyKey,
+                $problem->exception->getMessage(),
+            );
+        }
+
+        return $violations;
     }
 
     /**
@@ -456,6 +536,13 @@ class LayoutDiagnostics
             return [];
         }
 
+        // Mapped references normally have a Root pick and leave through the origin guard above. Defensively
+        // keep manual loader-input requirements off any supplied Stored pick for an explicitly mapped property:
+        // mapped delivery takes precedence over the picker value.
+        if (isset($this->mappingConsumers->mappedPaths($element)[$resolution->key])) {
+            return [];
+        }
+
         // A Stored resolution forms only when ElementResolver::storedCandidate() found a stored requirement for
         // this key and its registered loader resolved the produced type (Resolution/ElementResolver::resolveReference),
         // so the requirement is present and its loader, hence its config specification, is registered here. The
@@ -602,13 +689,18 @@ class LayoutDiagnostics
         $violations = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$consumer->required || $this->isSatisfied($available, (string) $consumerKey, $consumer->scope)) {
+            if (!$consumer->required) {
+                continue;
+            }
+
+            $sourceKey = (string) $consumerKey;
+            if ($this->isSatisfied($available, $sourceKey, $consumer->scope)) {
                 continue;
             }
 
             $message = $consumer->scope === ConsumerScope::Root
-                ? \sprintf('Required root-scoped context "%s" is supplied by no bound source.', $consumerKey)
-                : \sprintf('Required context "%s" is provided by no ancestor.', $consumerKey);
+                ? \sprintf('Required root-scoped context "%s" is supplied by no bound source.', $sourceKey)
+                : \sprintf('Required context "%s" is provided by no ancestor.', $sourceKey);
 
             $violations[] = new Violation(
                 ViolationCode::BrokenRequiredChain,

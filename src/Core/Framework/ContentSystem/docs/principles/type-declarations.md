@@ -8,7 +8,7 @@ A stored element's `providesContext` and `acceptsContext` entries in the layout 
 
 Why: A type-level required consumer would apply at element creation, without ancestors or [root context](README.md#glossary), and block the write where nothing supplies the key.
 
-Exceptions: `resolvedBy` on a reference property is the one type-level offer of a default wiring. `DefaultBindingSpecificationSynthesizer` turns that `resolvedBy` offer into the type's default binding.
+Exceptions: `resolvedBy` offers loader-backed default wiring through `DefaultBindingSpecificationSynthesizer`. A mappable property's `defaultMapping` offers an initial typed source only for compatible fresh scaffolds. Neither declares a mandatory consumer. Direct DAL writes do not seed mapping consumers; see [mapping initialization](data-mapping.md#initialization-preserves-authored-choices).
 
 In code:
 

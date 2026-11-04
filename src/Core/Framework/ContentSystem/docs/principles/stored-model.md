@@ -36,11 +36,11 @@ In code:
 
 ## The module seeds a property default at write time, never at serve time
 
-Creation and replacement write the property defaults of the element type in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any property default whose key is still absent. It never seeds over a present value, including an authored null and a map that carries only some members. Serving and diagnostics read only stored values. A stored non-null value therefore satisfies a required primitive, and the declaration never does.
+Creation and replacement write the property defaults of the element type in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any property default whose key is still absent. It never seeds over a present value, including an authored null and a map that carries only some members. Serving and diagnostics do not apply declaration defaults; live mappings follow the [mapping outcome rules](data-mapping.md#admission-and-missing-data-are-separate-outcomes). A stored non-null value therefore satisfies a required primitive, and the declaration never does.
 
 Why: A serve-time default makes an unfilled required property look filled. It also lets a later declaration change what stored layouts render.
 
-Exceptions: A storefront component that callers outside stored layouts also render, such as `Sw:Grid:Container`, keeps a prop fallback for those callers. The fallback repeats the declared default exactly. A property whose editor can store a null keeps a null fallback, because `RenderedElementFactory` [drops an authored null](values.md#a-present-null-and-an-absent-key-are-different-states). A cleared value therefore never renders as the declared default.
+Exceptions: `defaultMapping` initializes source wiring through mutation runners, not stored property values at the DAL boundary; [mapping initialization](data-mapping.md#initialization-preserves-authored-choices) governs it. A storefront component that callers outside stored layouts also render, such as `Sw:Grid:Container`, keeps a prop fallback for those callers. The fallback repeats the declared default exactly. A property whose editor can store a null keeps a null fallback, because `RenderedElementFactory` [drops an authored null](values.md#a-present-null-and-an-absent-key-are-different-states). A cleared value therefore never renders as the declared default.
 
 In code:
 

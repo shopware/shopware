@@ -11,8 +11,7 @@ enforceable type and whose value that type admits (`PropertyType::enforceableTyp
 write gate and the diagnostics apply, so a null and an all-primitive union both carry). It also carries wiring (data
 requirements, providers, consumers) keyed to a new-type property with no enforceable type (`object`, an FQCN, or a
 union carrying either), and children of slots present in the new type. It seeds the new type's stored defaults for
-uncarried keys (a carried or authored value wins). Wiring keyed to a lone primitive or an all-primitive union is
-dropped and reported in `droppedWiring()`.
+uncarried keys (a carried or authored value wins). Ordinary wiring keyed to a lone primitive or an all-primitive union is dropped and reported in `droppedWiring()`. Typed mapping consumers are handled separately through source-aware admission, as described below.
 A key the new type declares as `object` or an FQCN has no enforceable type, so nothing can vouch for the
 value's shape and it is dropped rather than carried across unexamined. The element's `style` carries over
 unconditionally, being universal and type-independent, and
@@ -22,6 +21,10 @@ A stored property under one of the new type's `resolvedBy` storage keys is likew
 maps the new type's default specification's `resolves` entries whose loader is one of the two built-in resolvedBy
 loaders (`Binding/ResolvedByLoaderBranch`) to their storage keys. It carries a value forward
 only when its shape strictly matches that branch (a string for `entity`, a list of strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
+
+With a bound source, whole-field mapping consumers survive only when they remain valid for the new type; invalid mappings are removed and reported as dropped wiring. An intentionally unbound tree drops mapping consumers without source-specific inspection, while compatible authored properties remain. Inline tokens remain authored property text rather than consumer wiring.
+
+Mapping cleanup applies only to the replaced element. Carried descendants keep their mapping consumers, and their mapping problems are reported against those descendants by normal diagnostics. A descendant's finding cannot remove a same-named consumer from the replacement or add a dropped-wiring entry for it.
 
 ## The default overlay
 
@@ -39,3 +42,5 @@ primitive with a default is reported as dropped even though that default then re
 the new type is reported and never re-filled, because the default overlay is keyed only by the new type's primitive
 keys. `affected = subtreeIds($replacement)`; `created = [$elementId]` only, because the carried-over children keep
 their own nodes while the replaced node is re-scaffolded under the same id.
+
+`freshlyScaffolded = [$elementId]` makes only the replacement eligible for default mappings and consumer mirroring; retained descendants keep their authored state. Mapping admission reads `StoredTree::$rootSource`.

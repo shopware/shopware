@@ -13,6 +13,8 @@ The module overview is in [../README.md](../README.md).
 - [definition-load-errors.md](definition-load-errors.md) - The status and code an invalid installed definition fails with at runtime, and how app installation reports it
 - [product-detail-page.md](product-detail-page.md) - A worked layout combining entity rendering, data loading, and context distribution
 - [service-tags-and-types.md](service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
-- [extending.md](extending.md) - The six extension mechanisms and where each one is authored
+- [extending.md](extending.md) - The supported extension mechanisms and where each one is authored
 - [data-flow.md](data-flow.md) - A diagram of the rendering pipeline's data flow
 - [principles/README.md](principles/README.md) - Why the module's design rules hold, and what was not chosen
+
+- [../Mapping/README.md](../Mapping/README.md) - Data-mapping admission, runtime outcomes, defaults, limits, and provider/plugin guides

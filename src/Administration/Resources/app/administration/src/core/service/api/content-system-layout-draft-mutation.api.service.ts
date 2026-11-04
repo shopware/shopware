@@ -56,10 +56,44 @@ export type ContentLayoutDraftInsertPresetPayload = ContentLayoutDraftMutationEn
     slot?: string | null;
 };
 
-type ContentLayoutDraftMutationDiagnostics = {
+/**
+ * @private
+ */
+export type ContentLayoutDraftMapPropertyPayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    propertyKey: string;
+    source: { type: string; id: string; config?: Record<string, unknown>; path?: string };
+    rootSource: string;
+};
+
+/**
+ * @private
+ */
+export type ContentLayoutDraftUnmapPropertyPayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    propertyKey: string;
+};
+
+/**
+ * @private
+ */
+export type ContentSystemViolation = {
+    code: string;
+    scope: 'intrinsic' | 'binding';
+    severity: 'error' | 'warning';
+    elementId: string;
+    key: string | null;
+    message: string;
+    candidates: ContentSystemResolutionCandidate[];
+};
+
+/**
+ * @private
+ */
+export type ContentLayoutDraftDiagnostics = {
     wellFormed: boolean;
     resolvable: boolean;
-    violations: unknown[];
+    violations: ContentSystemViolation[];
 };
 
 /**
@@ -102,11 +136,24 @@ export type ContentSystemPropertyResolution = {
 export type ContentLayoutDraftMutationResponse = {
     layout: ContentElementNode[];
     resolutions: Record<string, ContentSystemPropertyResolution[]>;
-    diagnostics: ContentLayoutDraftMutationDiagnostics;
+    diagnostics: ContentLayoutDraftDiagnostics;
     affectedElementIds: string[];
     orphaned: ContentElementNode[];
     droppedWiring: string[];
     droppedProperties: Record<string, unknown>;
+};
+
+/**
+ * @private
+ */
+export type ContentLayoutDiagnosePayload = ContentLayoutDraftMutationEnvelope;
+
+/**
+ * @private
+ */
+export type ContentLayoutDiagnoseResponse = {
+    resolutions: Record<string, ContentSystemPropertyResolution[]>;
+    diagnostics: ContentLayoutDraftDiagnostics;
 };
 
 /**
@@ -136,6 +183,22 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
 
     insertPreset(payload: ContentLayoutDraftInsertPresetPayload): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('insert-preset', payload);
+    }
+
+    mapProperty(payload: ContentLayoutDraftMapPropertyPayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('map-property', payload);
+    }
+
+    unmapProperty(payload: ContentLayoutDraftUnmapPropertyPayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('unmap-property', payload);
+    }
+
+    diagnose(payload: ContentLayoutDiagnosePayload): Promise<ContentLayoutDiagnoseResponse> {
+        return this.httpClient
+            .post<ContentLayoutDiagnoseResponse>('/_action/content-system/layout/diagnose', payload, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse<ContentLayoutDiagnoseResponse>(response));
     }
 
     private mutate(

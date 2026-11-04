@@ -154,12 +154,58 @@ class ElementTypeSpecificationSerializerTest extends TestCase
 
         static::assertFalse($prop->required);
         static::assertFalse($prop->translatable);
+        static::assertFalse($prop->mappable);
         static::assertSame('', $prop->title);
         static::assertSame('', $prop->description);
         static::assertNull($prop->enum);
         static::assertNull($prop->default);
         static::assertNull($prop->adminUI);
         static::assertNull($prop->properties);
+    }
+
+    /**
+     * @param 'mappable'|'inlineMappable' $flag
+     */
+    #[DataProvider('mappingFlagProvider')]
+    public function testRoundTripsTheMappingOptIn(string $flag): void
+    {
+        $dto = $this->serializer->denormalize([
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => ['text' => ['type' => 'string', $flag => true], 'height' => ['type' => 'string']],
+        ]);
+        static::assertTrue($dto->properties['text']->{$flag});
+        static::assertFalse($dto->properties['height']->{$flag});
+        $normalized = $this->serializer->normalize($dto);
+        static::assertTrue($normalized['properties']['text'][$flag]);
+        static::assertArrayNotHasKey($flag, $normalized['properties']['height']);
+    }
+
+    /**
+     * @return iterable<string, array{'mappable'|'inlineMappable'}>
+     */
+    public static function mappingFlagProvider(): iterable
+    {
+        yield 'whole-field mapping' => ['mappable'];
+        yield 'inline mapping' => ['inlineMappable'];
+    }
+
+    #[TestDox('round-trips a typed default mapping declaration')]
+    public function testRoundTripsDefaultMapping(): void
+    {
+        $source = ['type' => 'root', 'id' => 'product'];
+        $dto = $this->serializer->denormalize([
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => [
+                'product' => [
+                    'type' => 'Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity',
+                    'mappable' => true,
+                    'defaultMapping' => $source,
+                ],
+            ],
+        ]);
+
+        static::assertSame($source, $dto->properties['product']->defaultMapping);
+        static::assertSame($source, $this->serializer->normalize($dto)['properties']['product']['defaultMapping']);
     }
 
     #[TestDox('denormalizes and normalizes nested object property schemas')]

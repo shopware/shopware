@@ -20,13 +20,13 @@ In code:
 
 ## Preparation and resolution run in one fixed order
 
-Placeholder substitution runs first, then wiring validation and [redistribute derivation](../../Layout/Element/Context/docs/redistribution.md). Data resolution over the whole [forest](README.md#glossary) runs next, then the page-level data that forms the root context, then context delivery. A loader therefore never receives delivered context or the page entity. The preparation event fires before this order starts, as [rendering.md](rendering.md#the-two-tree-replacement-events-fire-at-fixed-points) states.
+The renderer captures authored mapping-token spans before placeholder substitution, then validates wiring and derives redistribution. Data resolution over the whole [forest](README.md#glossary) runs next, followed by consumed page-level requirements. Inline expansion then runs before context delivery and keyed selection. Page requirements include ordinary root consumers, whole-field mapping sources, and recognized inline paths. A loader therefore never receives delivered context or the page entity. The preparation event fires before this order starts, as [rendering.md](rendering.md#the-two-tree-replacement-events-fire-at-fixed-points) states.
 
 Why: A provider may hand a loaded value to a child, so delivery before data resolution would find that value not yet loaded. Placeholder substitution never descends into a map.
 
 In code:
 
-- `ElementLowering::lower()` loads data before it delivers context.
+- `ElementLowering::lower()` completes data loading and inline expansion before delivery and keyed selection.
 - `StoredTreePreparerTest` pins this order.
 - See [pipeline-steps.md](../pipeline-steps.md).
 
@@ -36,7 +36,7 @@ The [write gate](README.md#terms-that-are-easy-to-confuse) checks these delivery
 
 Why: A stricter gate rejects servable layouts. A looser gate accepts layouts that fail when served.
 
-Exceptions: The write gate does not guarantee a value for an optional reference or for a reference picked from a loader candidate. Resolvability inputs may change after the write. By design, the module does not check that change.
+Exceptions: The write gate does not guarantee a value for an optional reference or for a reference picked from a loader candidate. Ordinary wiring resolvability inputs may change after the write without another static gate. Mappings separately recheck the live catalogue and runtime type, so a withdrawn or incompatible mapping is omitted. See [data mapping](data-mapping.md#admission-and-missing-data-are-separate-outcomes).
 
 In code:
 
@@ -48,3 +48,5 @@ In code:
 ## Also true by construction
 
 - Each finished rendered key gets exactly one `ValueOrigin`. A key that a finalization listener added gets `ValueOrigin::Injected` instead of throwing or dropping. Each property-writing loop in `RenderedElementFactory` records the origin of its value. A contested key is therefore recorded for the member that won it. Reordering those loops can recategorise index entries while every value stays correct. The [decomposed and data formats](README.md#glossary) carry every key of the full format: [ValueOrigin.php](../../Output/Index/ValueOrigin.php)
+
+Ordinary root consumers distinguish an absent/null ambient root from a present root with an unresolvable dotted path; optional paths can deliver explicit null and required paths can fail. These rules are separate from mapping fallback. See [ordinary root delivery](../../Layout/Element/Context/docs/consumers.md#ordinary-root-delivery).

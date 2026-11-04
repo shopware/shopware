@@ -7,6 +7,94 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Create new layout"
     },
+    "mapping": {
+      "category": {
+        "name": {
+          "label": "Category name",
+          "description": "The name of the category the page shows."
+        },
+        "description": {
+          "label": "Category description",
+          "description": "The description text of the category."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the category."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the category."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the category."
+        },
+        "media": {
+          "label": "Category image",
+          "description": "The image assigned to the category."
+        }
+      },
+      "product": {
+        "entity": {
+          "label": "Product entity",
+          "description": "The full product shown on the page."
+        },
+        "name": {
+          "label": "Product name",
+          "description": "The name of the product the page shows."
+        },
+        "description": {
+          "label": "Product description",
+          "description": "The description text of the product."
+        },
+        "productNumber": {
+          "label": "Product number",
+          "description": "The order number of the product."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the product."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the product."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the product."
+        },
+        "cover": {
+          "label": "Cover image",
+          "description": "The main image of the product."
+        },
+        "media": {
+          "label": "Product images",
+          "description": "All images of the product, in the order set on the product."
+        }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landing page name",
+          "description": "The name of the landing page being shown."
+        },
+        "url": {
+          "label": "Landing page URL",
+          "description": "The URL path configured for the landing page."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the landing page."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the landing page."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the landing page."
+        }
+      }
+    },
     "elements": {
       "sw-grid-container": {
         "panels": {
@@ -136,8 +224,33 @@
         "boxSpacingLeft": "Left",
         "boxSpacingLinkSides": "Edit all sides together",
         "boxSpacingUnlinkSides": "Edit sides individually",
-        "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
-        "inlineTextEditingActive": "Inline editing is currently active in the preview."
+        "mapping": {
+          "mapAction": "Dynamic data",
+          "insertAction": "Insert dynamic data",
+          "unmapAction": "Remove dynamic data",
+          "modalTitle": "Select dynamic data",
+          "modalIntro": "Choose the data that fills \"{property}\" when the page is shown.",
+          "sourceIntro": "Choose a property to use for this field.",
+          "searchLabel": "Search",
+          "searchPlaceholder": "Search data fields",
+          "noCandidates": "No dynamic data is available for this field.",
+          "noSearchResults": "No data field matches your search.",
+          "loadingCandidates": "Loading dynamic data...",
+          "loadError": "Dynamic data could not be loaded.",
+          "loadingText": "Preparing text for editing...",
+          "parseError": "Dynamic data placeholders could not be checked. Your text has been preserved. Retry to check the placeholders.",
+          "retryAction": "Retry",
+          "groups": {
+            "basic": "Basic information",
+            "seo": "SEO",
+            "media": "Media",
+            "customFields": "Custom Fields"
+          },
+          "sources": {
+            "rootEntity": "Root entity",
+            "navigationLabel": "Data sources"
+          }
+        }
       },
       "elementPicker": {
         "title": "Add element",
@@ -150,10 +263,26 @@
           "other": "Other"
         }
       },
+      "mappingMutationErrors": {
+        "propertyNotMappable": "This property cannot use dynamic data. Choose a property that supports dynamic data.",
+        "unknownMappingPath": "This data source is no longer available. Choose another source for this property.",
+        "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source.",
+        "propertyAliasCollision": "This property already receives data from another source. Choose another property or change that source.",
+        "invalidMappingSource": "The selected source for dynamic data is invalid. Choose a source from the available list.",
+        "missingRootSource": "This layout has no data source, so dynamic data cannot be added."
+      },
+      "mutationErrors": {
+        "unknownRootSource": "The layout's data source is not available.",
+        "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
+        "unknownElementType": "This element type is no longer available. Choose an available element type.",
+        "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
+        "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
+      },
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
-      "messageReloadError": "The content layout was saved but could not be reloaded."
+      "messageReloadError": "The content layout was saved but could not be reloaded.",
+      "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable."
     }
   }
 }

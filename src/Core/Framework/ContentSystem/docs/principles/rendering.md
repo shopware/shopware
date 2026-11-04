@@ -3,10 +3,10 @@
 Rendering turns a layout's stored elements into the elements a Store API response or a Twig template reads.
 
 `ContentPipeline::load()` runs the preparation event, placeholder substitution, the virtual root wrap and the
-[partial prune](README.md#glossary). It then runs the duplicate-id and wiring checks, data resolution, context delivery
+[partial prune](README.md#glossary). It then runs the duplicate-id and wiring checks, data resolution, inline expansion, context delivery
 and the [finishing steps](README.md#glossary). It ends with the finalization event and a second duplicate-id check, in
 the order of [pipeline-steps.md](../pipeline-steps.md). [SKELETON](README.md#terms-that-are-easy-to-confuse) mode skips
-placeholder substitution, data resolution and context delivery.
+placeholder substitution, data resolution, inline expansion and context delivery.
 
 ## The render validates the whole stored forest in every mode
 
@@ -44,6 +44,7 @@ slots or style from a property value.
 |---|---|---|
 | Placeholder substitution | on | off |
 | Data resolution | on | off |
+| Inline mapping expansion | on | off |
 | Context delivery | on | off |
 
 Why: A client caches the skeleton and fills it with data later, so a structural difference from the full response breaks that fill. No runtime guard can compare the two within one request, so the identity must hold by construction, not by test.
@@ -58,14 +59,16 @@ In code:
 
 ## Rendering stages are direct calls handing each other typed immutable results
 
-Rendering stages run as direct calls in an order stated once at the call site, not as priority-ordered listeners. Each stage hands the next stage a typed immutable record instead of writing into a shared mutable element. The two tree-replacement events, one over the `StoredElement` tree and one over the `RenderedElement` tree, stay the only extension points. No internal stage moves onto those two events.
+Rendering stages run as direct calls in an order stated once at the call site, not as priority-ordered listeners. Each stage hands the next stage a typed immutable record instead of writing into a shared mutable element. The two tree-replacement events, one over the `StoredElement` tree and one over the `RenderedElement` tree, stay the two tree-replacement extension points. No internal stage moves onto those two events.
 
-Why: The order that the old priority bands declared never applied. A typed record carries what only its producing stage established, which a tree-in, tree-out listener cannot pass on. The accepted price is that no core listener exists on either event.
+Why: The order that the old priority bands declared never applied. A typed record carries what only its producing stage established, which a tree-in, tree-out listener cannot pass on. Pipeline stages therefore do not depend on listener priority.
 
 In code:
 
 - `ContentPipeline::load()` dispatches only `ContentTreePreparationEvent` and `RenderedTreeFinalizationEvent`.
 - See [Event/README.md](../../Event/README.md).
+
+Exceptions: Product-domain `ProductVariantSelectionSubscriber` enriches variant options during finalization for the product selected by mapping/fallback. It is domain postprocessing, not a pipeline stage, changes only properties, adds cache dependencies, and leaves skeletons unchanged. [Mapping runtime](../../Mapping/README.md#stored-mappings-and-rendering) describes the contract.
 
 ## The two tree-replacement events fire at fixed points
 
@@ -103,10 +106,8 @@ In code:
 ## A null in the `properties` of a `RenderedElement` means a resolution found nothing
 
 An unfulfilled key stays absent from the `properties` of a `RenderedElement`. A null there means a loader's `notFound()`
-or a context delivery that resolved to nothing. That null overwrites the stored value in the [working
-map](README.md#glossary). Context distribution reads the working map, so a [provider](README.md#glossary) passes on its
-rendered value. An undelivered [consumer](README.md#glossary) key and an authored null stay absent. No per-element
-signal or log entry records why an element rendered null, and the module defers observability for render-time
+or a context delivery that resolved to nothing, including ordinary optional dotted paths and a mapping that explicitly resolves null. For ordinary unmapped properties that null overwrites the stored value in the [working map](README.md#glossary). Context distribution reads the working map, so a [provider](README.md#glossary) passes on its
+rendered value. An undelivered [consumer](README.md#glossary) key and an authored null stay absent. Mapping fallback is an explicit exception: a missing/empty whole-field source may retain authored content, a null loader result does not overwrite that fallback, and a rejected mapping stays omitted from rendering and distribution. See [mapping outcomes](data-mapping.md#admission-and-missing-data-are-separate-outcomes). No per-element signal or log entry records why an element rendered null, and the module defers observability for render-time
 degradation.
 
 Why: A stale stored value left by a loader that found nothing is a degraded output that looks valid, which the

@@ -6,6 +6,7 @@
 |---|---|---|---|
 | stored element / rendered element | Both describe one element of a layout tree. | `StoredElement` is what a layout persists, with wiring and wrapped values. `RenderedElement` is what a page serves, with raw values and no wiring. | [stored-model.md](stored-model.md) |
 | present null / absent key | Neither gives the property a non-null value. | `LayoutDefaultSeeder` fills an absent key and never a present null. | [values.md](values.md) |
+| ordinary wiring / data mapping | Both can deliver a value to an element property. | A typed `source` marks a mapping; its catalogue admission and fallback rules differ from ordinary wiring. | [data-mapping.md](data-mapping.md) |
 | FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off placeholder substitution, data resolution and context delivery. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
@@ -15,6 +16,7 @@
 - consumer: an element's declared need for a context value under a key, scoped to its parent or to root context (`ContextConsumer`).
 - provider: an element's declaration that it serves a context value to its direct children (`ContextProvider`).
 - root source: what a layout is bound to, a DAL entity type, a section or `none` (`RootSourceRegistry::knownRootSources()`).
+- mapping candidate: a provider-curated typed source, effective output type, and cardinality offered for a layout root; [data-mapping.md](data-mapping.md).
 - root context: the context that a layout's root source supplies and that any element reaches through a root-scoped consumer (`RootSourceRegistry::resolve()`).
 - prove resolvable: `ContentLayoutWriteValidator` shows through `LayoutGate::resolvability()` that a stored layout resolves against its root context.
 - forest: the list of root elements of one layout tree, stored (`StoredTree::$roots`) or rendered.
@@ -25,8 +27,7 @@
 - finishing steps: `VirtualRootWrapper::unwrap()` when the virtual root survived the partial prune, then
   `PartialRenderer::extractTarget()` when the request names a target, on the rendered forest before the finalization
   event.
-- working map: the values an element's providers serve from, its stored values overwritten by its loader values and
-  then by the context it received, built by `ContextDeliveryResolver` for `ContextDistributor::distribute()`.
+- working map: the values an element's providers serve from, its stored values combined with loader and delivered context values under the [mapping fallback/omission rules](data-mapping.md#admission-and-missing-data-are-separate-outcomes), built by `ContextDeliveryResolver` for `ContextDistributor::distribute()`.
 - response format: the Store API body, one of full (property values inline), decomposed (structure without
   property values plus the `data` and `assignments` maps), data (the two maps only) or skeleton
   (structure without property values). Only skeleton renders in `RenderingMode::SKELETON`.
@@ -75,6 +76,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 ### By task
 
 - A layout write is rejected: [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md), [values.md](values.md)
+- A mapping is unavailable, has the wrong value, or is overridden: [data-mapping.md](data-mapping.md)
 - A rendered value is wrong: [rendering.md](rendering.md), [data-loading.md](data-loading.md), [context-wiring.md](context-wiring.md)
 - A client shows the wrong error: [failure-and-loss.md](failure-and-loss.md)
 - A listener changed the tree: [rendering.md](rendering.md), [extension-surface.md](extension-surface.md)
@@ -88,6 +90,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [type-declarations.md](type-declarations.md): what a type declaration may state
 - [write-admission.md](write-admission.md): the write boundary and the order of its passes
 - [drafts-and-gates.md](drafts-and-gates.md): well-formedness for a draft and resolvability for a write
+- [data-mapping.md](data-mapping.md): curated sources, authored choices, admission, runtime outcomes, and guarded overrides
 - [mutation.md](mutation.md): a mutation operation as a pure tree transform
 - [data-loading.md](data-loading.md): loaders as consumers of typed inputs
 - [context-wiring.md](context-wiring.md): context between adjacent elements

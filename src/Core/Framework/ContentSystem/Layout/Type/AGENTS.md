@@ -1,12 +1,13 @@
 ## Constraints
 
 - Allow `translatable` only on a property declared `type: string`. Never put the flag on a [binding or storage key](docs/introspection.md#storageschema). Check: does the change set `translatable` on a non-string property, a binding or a storage key? [custom-types.md](docs/custom-types.md#yaml-structure)
-- Declare no context provider or consumer on a type. Check: does the change add a wiring field to `PropertySpecificationDto`? `DefaultBindingSpecificationSynthesizerTest` pins the `resolvedBy` shorthand. [type-declarations.md](../../docs/principles/type-declarations.md)
+- Declare no context provider or consumer on a type. Check: does the change add a wiring field to `PropertySpecificationDto`? `resolvedBy` and `defaultMapping` are the declared initialization exceptions, not mandatory consumers. Their tests pin the rules. [type-declarations.md](../../docs/principles/type-declarations.md)
 - Set `required` from this type's own behaviour, never by copying a sibling. Check: can the element render something useful without the value? Then it is optional. `LayoutDiagnosticsTest` pins both outcomes. [type-declarations.md](../../docs/principles/type-declarations.md)
 - Never read `adminUI` server-side to decide storage, validation or normalization. Declare a storage-relevant kind as its own typed key. Check: does any PHP outside a serializer, a schema generator or a shape check read the block's content? [type-declarations.md](../../docs/principles/type-declarations.md)
 - Decide whether a stored value conforms to a declared type only through `PropertyType::enforceableTypes()` and `admits()`. Check: does a caller keep its own type table? [values.md](../../docs/principles/values.md)
 - Ship an element capability as a declaration the module reads, never as a core edit per entity or per element. Check: could an app ship it with no core edit? [extension-surface.md](../../docs/principles/extension-surface.md)
 - Fail a declaration or registration defect at registry load or container build, before any request uses the declaration. Throw on a malformed database registry row as on a malformed file, never skip it or give it a placeholder name. Check: does a registry loader skip, log or rename a malformed declaration? `ContentSystemDataLoaderCompilerPassTest` pins the build side. [failure-and-loss.md](../../docs/principles/failure-and-loss.md)
+- Mapping is an opt-in: `mappable` and `inlineMappable` are mutually exclusive; inline mapping requires exactly `string`. Check: validators reject invalid declarations, and candidate admission uses the declared type. [custom types](docs/custom-types.md#mappable)
 
 ## Where to look
 
@@ -21,3 +22,4 @@
 - App activation and the cached registry: [custom-types.md](docs/custom-types.md#app-lifecycle)
 - Inline `bindings:` sections in a type YAML: [README.md](README.md#inline-bindings-sections)
 - Why the value rules hold, and what was decided against: [values.md](../../docs/principles/values.md)
+- Mapping opt-ins, `defaultMapping`, and candidate cardinalities: [custom types](docs/custom-types.md#mappable), [introspection](docs/introspection.md), [mapping principles](../../docs/principles/data-mapping.md)

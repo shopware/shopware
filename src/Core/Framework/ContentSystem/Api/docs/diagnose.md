@@ -6,7 +6,7 @@ The diagnose action: its route, request envelope, and error model. The response 
 
 Resolves every element property of an **unsaved** draft layout and reports what is structurally broken or still unresolved — **without** persisting and **without** rendering against a real entity. It answers the editor's after-local-edit "what is broken / still unresolved" question and backs agent layout linting. Served by `Api/ContentDiagnoseController`. Route name: `api.action.content_system.layout.diagnose`.
 
-The optional `rootSource` binds the draft to that root source's context so binding-scope resolvability can be checked. Without it, only intrinsic well-formedness is evaluated.
+The optional `rootSource` selects a registered source through `Adapter/RootSourceRegistry::resolveGated()` for static binding checks. Omitted, null, or empty sources select no context; non-empty names are checked without trimming. See [mapping findings](diagnose-response.md#mapping-findings) for the checks available without a bound source.
 
 ## Request
 

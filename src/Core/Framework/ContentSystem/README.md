@@ -18,6 +18,8 @@ The module is built on a set of written design rules, one file per area under [d
 
 **Context** - Mechanism for elements to share data: [providers](docs/principles/README.md#glossary) expose data and [consumers](docs/principles/README.md#glossary) receive it, within the reach rules of [context-wiring](docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
 
+**Data Mapping** - Authors select curated, typed sources for opted-in properties or insert `{{map:...}}` tokens into eligible text. [Mapping/README.md](Mapping/README.md) documents the catalogue, admission, defaults, and runtime outcomes; [data-mapping principles](docs/principles/data-mapping.md) explain the design choices.
+
 ## Content Sections
 
 Three content sections with different resolution strategies:
@@ -60,17 +62,17 @@ Module root:
 
 ## Extension Model
 
-Plugins extend the ContentSystem through six mechanisms, documented in [docs/extending.md](docs/extending.md).
+Plugins extend the ContentSystem through the mechanisms documented in [docs/extending.md](docs/extending.md), including [mapping providers and guarded registry overrides](Mapping/docs/plugin-sources.md).
 
 ## Domain Placement
 
 Domain-specific content system classes live in their owning domain module — not centralized here. Both the class and its DI registration belong to the domain.
 
-**Domain-owned:** Entity definitions, specification sources, data loaders, config serializers. These are co-located with the domain entity they serve (e.g., product data loader lives in the product module).
+**Domain-owned:** Entity definitions, specification sources, data loaders, config serializers, entity-specific mapping providers, and product variant-selection finalization. Cross-cutting custom-field mapping providers and their metadata invalidation live in `System/CustomField/ContentSystem/Mapping/`. These are co-located with the domain entity they serve (e.g., product data loader lives in the product module).
 
 **Framework-owned (stays here, `#[Package('framework')]`):** Pipeline, render step (`Rendering/`) and data loaders (`Hydration/`), field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
 
-**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which DI file defines them.
+**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`, `content_system.mapping_candidate_provider`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which DI file defines them.
 
 ## Naming
 
@@ -91,7 +93,8 @@ Admin-facing endpoints are documented in [Api/README.md](Api/README.md).
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - [Hydration/README.md](Hydration/README.md) - The data-loading half of the render step: `DataLoader/` data fetching plus the remaining `DataContext/` utilities; the render step itself lives in Rendering/
 - **Layout/** - [Layout/README.md](Layout/README.md) - Element tree, entities, field types, scaffolding, element type system, universal style options
-- **Mutation/** - [Mutation/README.md](Mutation/README.md) - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach, bind), each re-resolved through the diagnostics pass. They apply statelessly to a draft tree or commit to a stored layout
+- **Mapping/** - [Mapping/README.md](Mapping/README.md) - Curated typed source catalogues, shared admission, runtime resolution, and plugin extension guides
+- **Mutation/** - [Mutation/README.md](Mutation/README.md) - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach, bind, map/unmap), each re-resolved through the diagnostics pass. They apply statelessly to a draft tree or commit to a stored layout
 - **Output/** - [Output/README.md](Output/README.md) - Response formatting and partial rendering
 - **Rendering/** - [Rendering/README.md](Rendering/README.md) - The pre-render wiring step on stored elements (context-wiring validation, redistribute derivation), then the render step: data loading, context distribution, and building the rendered tree
 - **Resolution/** - [Resolution/README.md](Resolution/README.md) - Property-resolution kernel (element/context resolvers, resolution candidates)

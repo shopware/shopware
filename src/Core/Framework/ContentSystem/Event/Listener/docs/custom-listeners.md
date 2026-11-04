@@ -41,3 +41,5 @@ Structural validity is otherwise the listener's responsibility; nothing repairs 
 `RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so it neither adds nor drops nodes. That guarantee is about cardinality only. Whatever the mapper returns goes into the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom does not satisfy the id obligation. That stays with the listener, as above.
 
 Placeholder resolution runs in FULL mode only and before this event, so a listener introducing a `{{token}}` resolves it itself rather than expecting the pipeline to.
+
+Product variant-option enrichment is a domain finalization listener, not a pipeline stage. It reads the rendered product after mapping and fallback delivery, changes only properties, and preserves the FULL/SKELETON structure contract. See [execution order](../README.md#execution-order).

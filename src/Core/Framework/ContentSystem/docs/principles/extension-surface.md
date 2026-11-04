@@ -4,7 +4,7 @@ The extension surface is the set of classes, declarations and events that a plug
 
 ## The extension surface is a deliberate, bounded, listed choice
 
-The module bounds its surface against Hyrum's law and keeps every extension point that it does not list internal. The listed surface holds the two [tree-replacement events](rendering.md#rendering-stages-are-direct-calls-handing-each-other-typed-immutable-results), the base classes a tagged service extends, the declaration directories and app declarations. The module makes an extension point public only after a check that the point delivers what it claims. A documented offer does not justify keeping a defective extension point. An extension point with no core consumer stays when its consumers are external or planned.
+The module bounds its surface against Hyrum's law and keeps every extension point that it does not list internal. The listed surface holds the two [tree-replacement events](rendering.md#rendering-stages-are-direct-calls-handing-each-other-typed-immutable-results), the base classes a tagged service extends, the declaration directories, app declarations, and the explicitly supported mapping registry decoration target. The module makes an extension point public only after a check that the point delivers what it claims. A documented offer does not justify keeping a defective extension point. An extension point with no core consumer stays when its consumers are external or planned.
 
 Why: A broken offered extension point is worse than no extension point.
 
@@ -14,6 +14,8 @@ In code:
 - The same list names `RenderedTreeEditor`, which has no core caller.
 - `ContentPipelineTest` pins that a listener on either event replaces the tree the pipeline carries on.
 - See [extending.md](../extending.md).
+
+Intentional mapping overrides decorate public `AbstractContentSystemMappingCandidateRegistry`. Its final `resolveSource()` admits exact sources and records metadata dependencies before a protected override hook. Concrete registries and built-in providers remain internal. New plugin sources use tagged providers; app-based provider registration is outside the contract. See [data-mapping principles](data-mapping.md#intentional-overrides-cannot-skip-source-admission).
 
 ## InternalClassRule enforces publicness positively
 

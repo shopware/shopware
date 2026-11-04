@@ -19,3 +19,7 @@
 ## Constraint errors at the write
 
 - Field-serializer constraint errors throw before `PreWriteValidationEvent`, so `Validation/ContentLayoutWriteValidator` → `Validation/LayoutGate` → `LayoutDiagnostics` never runs and the response carries the constraint error alone.
+
+## Invalid mapping
+
+`InvalidMapping` is a property-specific binding error from `Mapping/StoredMappingInspector`, shared with the mapping write validator. Source and reporting-mode rules are documented under [mapping checks](../README.md#mapping-checks). Mapped references select a `Root` resolution; the shared `MappingConsumers` guard also skips the Stored-only required-loader-input check. Required primitives still need authored values. Static diagnosis reads catalogue metadata, never provider values.

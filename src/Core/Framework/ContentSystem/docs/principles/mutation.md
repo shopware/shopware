@@ -4,19 +4,19 @@ The rules in this area govern a mutation, one server-side edit of a stored layou
 
 ## The draft pipeline writes derived wiring only where proved
 
-The draft pipeline writes derived wiring only onto created elements. Only the draft pipeline turns a resolution into wiring. The draft pipeline writes a [consumer](README.md#glossary) only onto an element the operation created, and only for a reference that the resolution proved unambiguously. It aliases the written consumer to the property that proved the reference. Where decode would reject the wiring or the element itself provides the key, it writes no consumer and never throws. Unproved wiring stays dropped and returns to the client. An unwired consumer stays unwired. Resolution output never enters storage.
+The draft pipeline writes derived wiring only onto freshly scaffolded elements. Only the draft pipeline turns a resolution into wiring. The draft pipeline writes a [consumer](README.md#glossary) only onto an element the operation reports in `freshlyScaffolded()`, and only for a reference that the resolution proved unambiguously. It aliases the written consumer to the property that proved the reference. Where decode would reject the wiring or the element itself provides the key, it writes no consumer and never throws. Unproved wiring stays dropped and returns to the client. An unwired consumer stays unwired. Resolution output never enters storage.
 
 Why: A guessed consumer is wiring that nobody chose. A consumer written onto a moved element re-adds a consumer that the author removed. An unaliased consumer fills a foreign key while the declared property stays empty.
 
 Decided against: Testing the resolved `contextKey` instead of the written property key against a data requirement or a [provider](README.md#glossary).
 
-Exceptions: `ReplaceElement` rebuilds the node under the same id and counts as created. The rebuilt node may regain a consumer that the author removed.
+Exceptions: `ReplaceElement` rebuilds its target under the same ID and reports it as freshly scaffolded; that new node may regain a consumer removed from the old node. Copies and ordinary reattachments report created IDs without fresh scaffolds and preserve authored choices. Preset insertion explicitly reports fresh scaffolds. Default mapping initialization uses the same set; see [data mapping](data-mapping.md#initialization-preserves-authored-choices).
 
 In code:
 
-- `ContextConsumerMirror::apply()` wires only the elements in `created()`.
-- `PersistedLayoutMutator` derives no wiring.
-- `MutationPipelineTest` pins the created-only wiring.
+- `ContextConsumerMirror::apply()` wires only the elements in `freshlyScaffolded()`.
+- `PersistedLayoutMutator` runs no consumer mirroring; both runners seed compatible default mappings only onto explicit fresh scaffolds.
+- `MutationPipelineTest` pins scaffold-only wiring, including preserved authored copies.
 - See [consumer-mirroring.md](../../Mutation/docs/consumer-mirroring.md).
 
 ## A mutation operation is a pure tree transform that makes a layout change and nothing else

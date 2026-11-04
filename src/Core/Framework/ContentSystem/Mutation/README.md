@@ -1,6 +1,6 @@
 # Mutation
 
-Server-side structural edits to a layout tree. Each operation takes a whole tree, applies exactly one structural
+Server-side layout edits to a layout tree. Each operation takes a whole tree, applies exactly one layout
 change, re-resolves the result, and returns the new tree plus a diagnostics report. This is the "assemble" step
 performed server-side: the admin editor (or an agentic layout builder) sends the current draft and one edit, and gets
 back the edited, freshly diagnosed layout. The operations run statelessly over a request draft
@@ -27,12 +27,13 @@ config-defective element with a `400`, so callers never see a serializer `500`.
 The pipeline itself is agnostic to whether the tree came from a request draft or a loaded `content_layout`:
 
 1. **Apply** the operation to the decoded tree.
-2. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness
+2. **Seed** compatible default mappings onto the explicit `freshlyScaffolded()` IDs.
+3. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness
    output.
-3. **Mirror** the proven context consumers onto the elements the operation created, via `ContextConsumerMirror`.
+4. **Mirror** the proven context consumers onto the elements the operation freshly scaffolded, via `ContextConsumerMirror`.
    A tree that gained a consumer is diagnosed a second time, so the report and the resolutions always describe the
    tree the result carries. A tree that gained none comes back as the same instance and is diagnosed once.
-4. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the
+5. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the
    diagnostics report, the affected element ids, and the orphaned subtrees, dropped wiring, and dropped property
    values the operation reported.
 
@@ -42,6 +43,7 @@ Every operation reports these things alongside the new tree:
 
 - **affected** (`list<string>`) - element ids whose resolution may have changed. See [The affected set is a highlight hint derived from how context flows](../docs/principles/mutation.md#the-affected-set-is-a-highlight-hint-derived-from-how-context-flows).
 - **created** (`list<string>`) - element ids whose node the operation created. See [The draft pipeline writes derived wiring only where proved](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
+- **freshlyScaffolded** (`list<string>`) - IDs eligible for mapping defaults and mirroring: new elements, replacement nodes, wrapping containers, and newly inserted presets. Copies and ordinary reattachments preserve authored choices.
 - **orphaned** (`list<StoredElement>`) - subtrees the operation detached (for example, a replace dropping the
   children of a slot the new type does not have). Returned so the caller can re-place them.
 - **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home. Examples are a replace to a type
@@ -56,10 +58,10 @@ See [The module drops nothing silently and reports every loss](../docs/principle
 ## Reference
 
 - [docs/operations.md](docs/operations.md) - the operations one by one: insert, remove, move, replace,
-  duplicate, wrap, unwrap, attach, attach a list, bind
+  duplicate, wrap, unwrap, attach, attach a list, bind, map, unmap
 - [docs/replace-element.md](docs/replace-element.md) - what a type swap carries over, and what it drops
 - [docs/runners.md](docs/runners.md) - `MutationPipeline`, `PersistedLayoutMutator`, and result assembly
-- [docs/consumer-mirroring.md](docs/consumer-mirroring.md) - which resolutions become consumers on a created element
+- [docs/consumer-mirroring.md](docs/consumer-mirroring.md) - which resolutions become consumers on a freshly scaffolded element
 - [docs/shared-primitives.md](docs/shared-primitives.md) - the helpers every operation inherits
 - [AGENTS.md](AGENTS.md) - the constraints that govern an edit here
 

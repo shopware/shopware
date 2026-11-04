@@ -19,6 +19,8 @@ In code:
 - `ContentLayoutWriteValidator` rejects a `content_layout` write on the binding errors of `LayoutGate::resolvability()`.
 - See [Diagnostics/README.md](../../Diagnostics/README.md).
 
+Explicit `map-property` actions validate the requested source immediately, including property opt-in and exact catalogue admission. Rejecting an invalid requested operation with 400 does not require every other mapping in an unbound draft to be resolvable. Source-less diagnosis can still report explicit inline tokens as binding findings; see [mapping checks](../../Diagnostics/README.md#mapping-checks).
+
 ## Draft and persisted paths decode and check through the same components
 
 Every mutation operation has a draft route and a persisted route. The draft route is stateless, with no DAL write and no write event. Both paths decode through the one [paired codec](wire-contract.md#the-stored-elements-wire-shape-is-defined-once-by-one-paired-codec) and normalize style through one shared service. One input therefore yields one shape and meets the same codec rule on both paths. Giving one path its own component is a defect even with every test green.

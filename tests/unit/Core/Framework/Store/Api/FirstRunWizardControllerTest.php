@@ -75,14 +75,12 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createContext();
         $plugin1Name = 'SwagTest1';
 
-        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => $plugin1Name],
             ]),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -117,14 +115,12 @@ class FirstRunWizardControllerTest extends TestCase
     {
         $context = $this->createContext();
 
-        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => 'SwagTest1'],
             ]),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -156,14 +152,12 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createContext();
         $plugin1Name = 'SwagTest1';
 
-        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => $plugin1Name],
             ]),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -198,14 +192,12 @@ class FirstRunWizardControllerTest extends TestCase
     {
         $context = $this->createContext();
 
-        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => 'SwagTest1'],
             ]),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -265,14 +257,12 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createContext();
         $plugin1Name = 'SwagTest1';
 
-        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => $plugin1Name],
             ]),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -307,14 +297,12 @@ class FirstRunWizardControllerTest extends TestCase
     {
         $context = $this->createContext();
 
-        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => 'SwagTest1'],
             ]),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -611,11 +599,9 @@ class FirstRunWizardControllerTest extends TestCase
 
     private function createFirstRunWizardController(): FirstRunWizardController
     {
-        /** @var StaticEntityRepository<PluginCollection> */
-        $pluginRepository = new StaticEntityRepository([]);
+        $pluginRepository = StaticEntityRepository::of(PluginCollection::class, []);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $appRepository = new StaticEntityRepository([]);
+        $appRepository = StaticEntityRepository::of(AppCollection::class, []);
 
         return new FirstRunWizardController(
             $this->firstRunWizardService,

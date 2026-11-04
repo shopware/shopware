@@ -143,6 +143,24 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('Entity "entity-name" is not version aware', $e->getMessage());
     }
 
+    public function testWriteOutcomeWithoutColumns(): void
+    {
+        $e = DataAbstractionLayerException::writeOutcomeWithoutColumns();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::WRITE_OUTCOME_WITHOUT_COLUMNS, $e->getErrorCode());
+        static::assertSame('WriteOutcome needs the columns to read.', $e->getMessage());
+    }
+
+    public function testOutcomeRowColumnNotRequested(): void
+    {
+        $e = DataAbstractionLayerException::outcomeRowColumnNotRequested('stock');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::OUTCOME_ROW_COLUMN_NOT_REQUESTED, $e->getErrorCode());
+        static::assertSame('Column "stock" was not requested. Pass it to WriteOutcome with the other columns.', $e->getMessage());
+    }
+
     public function testExpectedArray(): void
     {
         $e = DataAbstractionLayerException::expectedArray('some/path/0');

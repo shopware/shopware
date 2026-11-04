@@ -148,7 +148,7 @@ describe('sw-product-document-form variant persistence', () => {
         wrapper
             .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
             .vm.$emit('update:checked', true);
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         await flushPromises();
         const changedField = field === 'title' ? { title } : { mediaId };
         const beforeSave = new ChangesetGenerator().generate(store.product);

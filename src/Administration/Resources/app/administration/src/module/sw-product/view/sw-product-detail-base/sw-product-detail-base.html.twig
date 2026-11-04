@@ -197,45 +197,12 @@
         {% endblock %}
 
         {% block sw_product_detail_base_documents %}
-        <sw-inherit-wrapper
+        <sw-product-document-form
             v-if="mediaFormVisible"
-            ref="productDocumentInheritance"
-            v-model:value="product.documents"
+            :key="product.id"
             class="sw-product-detail-base__documents"
-            :inherited-value="parentProduct.documents"
-            :has-parent="!!product.parentId"
             :disabled="!acl.can('product.editor')"
-            :custom-remove-inheritance-function="documentRemoveInheritanceFunction"
-            is-association
-        >
-            <template #content="{ currentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
-                <sw-product-document-form
-                    :key="product.id"
-                    :is-inherited="isInherited"
-                    :disabled="isInherited || !acl.can('product.editor')"
-                >
-                    <template #title>
-                    {% block sw_product_detail_base_documents_card_title %}
-                        <div
-                            class="sw-inherit-wrapper__card-title"
-                            :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
-                        >
-                            <sw-inheritance-switch
-                                v-if="isInheritField"
-                                :is-inherited="isInherited"
-                                :disabled="!acl.can('product.editor')"
-                                @inheritance-restore="restoreInheritance"
-                                @inheritance-remove="removeInheritance"
-                            />
-                            <h3 class="mt-card__title">
-                                {{ $t('sw-product.documentForm.cardTitle', { count: currentValue.length }) }}
-                            </h3>
-                        </div>
-                    {% endblock %}
-                    </template>
-                </sw-product-document-form>
-            </template>
-        </sw-inherit-wrapper>
+        />
         {% endblock %}
 
         {% block sw_product_detail_base_media_modal %}

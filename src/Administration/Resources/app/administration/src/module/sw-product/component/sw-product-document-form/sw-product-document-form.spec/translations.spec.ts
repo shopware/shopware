@@ -132,7 +132,7 @@ describe('sw-product-document-form translated editing', () => {
             await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
             await selectMedia(wrapper, [germanMedia]);
         }
-        await clickButton(wrapper, 'global.default.save');
+        await clickButton(wrapper, 'global.default.apply');
         responses.addResponse({ method: 'PATCH', url: `/product/${productId}`, status: 204, response: {} });
         const patchSpy = jest.spyOn(repository.httpClient, 'patch');
 

@@ -13,10 +13,14 @@ export async function createWrapper(
     productRepository = repositoryFactory.create('product'),
     options: { baseView?: boolean; isInherited?: boolean } = {},
 ) {
+    if (options.isInherited) {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.parentId = store.parentProduct.id;
+    }
+
     const documentForm = await wrapTestComponent('sw-product-document-form', { sync: true });
     const component = options.baseView ? await wrapTestComponent('sw-product-detail-base', { sync: true }) : documentForm;
     return shallowMount(component, {
-        props: options.baseView ? {} : { isInherited: options.isInherited ?? false },
         global: {
             mocks: {
                 $route: { name: 'sw.product.detail.base', params: { id: Shopware.Store.get('swProductDetail').product.id } },

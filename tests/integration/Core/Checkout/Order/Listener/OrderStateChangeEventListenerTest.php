@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
@@ -57,6 +59,52 @@ class OrderStateChangeEventListenerTest extends TestCase
                 new Transition(
                     OrderTransactionDefinition::ENTITY_NAME,
                     $ids->get('transaction'),
+                    StateMachineTransitionActions::ACTION_PROCESS,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+    }
+
+    public function testTriggerCaptureEvents(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+
+        $this->assertEvent('state_leave.order_transaction_capture.state.pending');
+        $this->assertEvent('state_enter.order_transaction_capture.state.completed');
+
+        static::getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderTransactionCaptureDefinition::ENTITY_NAME,
+                    $ids->get('capture'),
+                    StateMachineTransitionActions::ACTION_COMPLETE,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+    }
+
+    public function testTriggerRefundEvents(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+
+        $this->assertEvent('state_leave.order_transaction_capture_refund.state.open');
+        $this->assertEvent('state_enter.order_transaction_capture_refund.state.in_progress');
+
+        static::getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderTransactionCaptureRefundDefinition::ENTITY_NAME,
+                    $ids->get('refund'),
                     StateMachineTransitionActions::ACTION_PROCESS,
                     'stateId'
                 ),
@@ -199,6 +247,20 @@ class OrderStateChangeEventListenerTest extends TestCase
                     'paymentMethodId' => $this->getPrePaymentMethodId(),
                     'stateId' => $this->getStateId('open', 'order_transaction.state'),
                     'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'captures' => [
+                        [
+                            'id' => $ids->create('capture'),
+                            'stateId' => $this->getStateId('pending', 'order_transaction_capture.state'),
+                            'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                            'refunds' => [
+                                [
+                                    'id' => $ids->create('refund'),
+                                    'stateId' => $this->getStateId('open', 'order_transaction_capture_refund.state'),
+                                    'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

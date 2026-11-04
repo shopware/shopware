@@ -109,7 +109,20 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
      */
     public function onOrderTransactionCaptureStateChange(StateMachineStateChangeEvent $event): void
     {
-        $this->dispatchEventForOrderContaining('transactions.captures.id', $event);
+        $captureId = $event->getTransition()->getEntityId();
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('transactions.captures.id', $captureId));
+
+        $orderId = $this->orderRepository->searchIds($criteria, $event->getContext())->firstId();
+        if ($orderId === null) {
+            throw OrderException::orderTransactionCaptureNotFound($captureId);
+        }
+
+        $context = $this->getContext($orderId, $event->getContext());
+        $order = $this->getOrder($orderId, $context);
+
+        $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
 
     /**
@@ -117,7 +130,20 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
      */
     public function onOrderTransactionCaptureRefundStateChange(StateMachineStateChangeEvent $event): void
     {
-        $this->dispatchEventForOrderContaining('transactions.captures.refunds.id', $event);
+        $refundId = $event->getTransition()->getEntityId();
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('transactions.captures.refunds.id', $refundId));
+
+        $orderId = $this->orderRepository->searchIds($criteria, $event->getContext())->firstId();
+        if ($orderId === null) {
+            throw OrderException::orderTransactionCaptureRefundNotFound($refundId);
+        }
+
+        $context = $this->getContext($orderId, $event->getContext());
+        $order = $this->getOrder($orderId, $context);
+
+        $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
 
     public function onOrderStateChange(StateMachineStateChangeEvent $event): void
@@ -168,25 +194,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 $collection->set($name, $definition);
             }
         }
-    }
-
-    /**
-     * @throws OrderException
-     */
-    private function dispatchEventForOrderContaining(string $entityIdField, StateMachineStateChangeEvent $event): void
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter($entityIdField, $event->getTransition()->getEntityId()));
-
-        $orderId = $this->orderRepository->searchIds($criteria, $event->getContext())->firstId();
-        if ($orderId === null) {
-            return;
-        }
-
-        $context = $this->getContext($orderId, $event->getContext());
-        $order = $this->getOrder($orderId, $context);
-
-        $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
 
     /**

@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
@@ -534,11 +533,10 @@ class OrderStateChangeEventListenerTest extends TestCase
     public function testOnOrderTransactionCaptureStateChange(): void
     {
         $order = $this->createOrder();
-        $orderRepository = new StaticEntityRepository([[$order->getId()], new OrderCollection([$order]), new OrderCollection([$order])]);
         $dispatcher = new CollectingEventDispatcher();
 
         $listener = new OrderStateChangeEventListener(
-            $orderRepository,
+            new StaticEntityRepository([[$order->getId()], new OrderCollection([$order]), new OrderCollection([$order])]),
             static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
             $dispatcher,
@@ -552,24 +550,38 @@ class OrderStateChangeEventListenerTest extends TestCase
             state: 'completed',
         ));
 
-        static::assertEquals(
-            (new Criteria())->addFilter(new EqualsFilter('transactions.captures.id', 'capture_id')),
-            $orderRepository->searchedCriteria[0]
-        );
-
         $stateEvent = $dispatcher->getEvents()['state_enter.order_transaction_capture.state.completed'] ?? null;
         static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $stateEvent);
         static::assertSame($order, $stateEvent->getOrder());
     }
 
+    public function testOnOrderTransactionCaptureStateChangeWithoutOrder(): void
+    {
+        $listener = new OrderStateChangeEventListener(
+            StaticEntityRepository::of(OrderCollection::class, [[]]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $this->expectExceptionObject(OrderException::orderTransactionCaptureNotFound('capture_id'));
+
+        $listener->onOrderTransactionCaptureStateChange($this->createEnterStateEvent(
+            new Transition('order_transaction_capture', 'capture_id', 'complete', 'stateId'),
+            stateMachine: 'order_transaction_capture.state',
+            state: 'completed',
+        ));
+    }
+
     public function testOnOrderTransactionCaptureRefundStateChange(): void
     {
         $order = $this->createOrder();
-        $orderRepository = new StaticEntityRepository([[$order->getId()], new OrderCollection([$order]), new OrderCollection([$order])]);
         $dispatcher = new CollectingEventDispatcher();
 
         $listener = new OrderStateChangeEventListener(
-            $orderRepository,
+            new StaticEntityRepository([[$order->getId()], new OrderCollection([$order]), new OrderCollection([$order])]),
             static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
             $dispatcher,
@@ -583,36 +595,29 @@ class OrderStateChangeEventListenerTest extends TestCase
             state: 'completed',
         ));
 
-        static::assertEquals(
-            (new Criteria())->addFilter(new EqualsFilter('transactions.captures.refunds.id', 'refund_id')),
-            $orderRepository->searchedCriteria[0]
-        );
-
         $stateEvent = $dispatcher->getEvents()['state_enter.order_transaction_capture_refund.state.completed'] ?? null;
         static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $stateEvent);
         static::assertSame($order, $stateEvent->getOrder());
     }
 
-    public function testOnOrderTransactionCaptureStateChangeWithoutOrder(): void
+    public function testOnOrderTransactionCaptureRefundStateChangeWithoutOrder(): void
     {
-        $dispatcher = new CollectingEventDispatcher();
-
         $listener = new OrderStateChangeEventListener(
             StaticEntityRepository::of(OrderCollection::class, [[]]),
             static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
-            $dispatcher,
+            static::createStub(EventDispatcherInterface::class),
             static::createStub(BusinessEventCollector::class),
             static::createStub(EntityRepository::class)
         );
 
-        $listener->onOrderTransactionCaptureStateChange($this->createEnterStateEvent(
-            new Transition('order_transaction_capture', 'capture_id', 'complete', 'stateId'),
-            stateMachine: 'order_transaction_capture.state',
+        $this->expectExceptionObject(OrderException::orderTransactionCaptureRefundNotFound('refund_id'));
+
+        $listener->onOrderTransactionCaptureRefundStateChange($this->createEnterStateEvent(
+            new Transition('order_transaction_capture_refund', 'refund_id', 'complete', 'stateId'),
+            stateMachine: 'order_transaction_capture_refund.state',
             state: 'completed',
         ));
-
-        static::assertSame([], $dispatcher->getEvents());
     }
 
     /**

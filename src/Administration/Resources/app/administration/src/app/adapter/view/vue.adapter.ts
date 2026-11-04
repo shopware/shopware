@@ -596,11 +596,14 @@ export default class VueAdapter extends ViewAdapter {
      */
     async hotUpdateTemplate(previousTemplate: string, nextTemplate: string): Promise<boolean> {
         const runtime = (window as Window & { __VUE_HMR_RUNTIME__?: VueHmrRuntime }).__VUE_HMR_RUNTIME__;
-        const affected = runtime ? TemplateFactory.replaceTemplate(previousTemplate, nextTemplate) : null;
+        if (!runtime) {
+            return false;
+        }
 
-        const builtComponents = affected?.filter((name) => this.resolvedComponentConfigs.has(name)) ?? [];
+        const affected = TemplateFactory.replaceTemplate(previousTemplate, nextTemplate) ?? [];
+        const builtComponents = affected.filter((name) => this.resolvedComponentConfigs.has(name));
 
-        if (!runtime || builtComponents.length === 0) {
+        if (builtComponents.length === 0) {
             return false;
         }
 

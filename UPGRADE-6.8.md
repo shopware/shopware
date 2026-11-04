@@ -357,6 +357,14 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
+## Plain JSON is the default Admin API response format
+
+Admin API entity responses switched to plain JSON when the `Accept` header is missing or contains only `*/*`.
+Integrations that parse JSON:API responses must explicitly send `Accept: application/vnd.api+json`.
+This header also works on earlier Shopware 6 versions.
+Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
+Listing responses contain `data`, `total`, and `aggregations`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
@@ -454,6 +462,8 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+<details>
+
 ## Multiple SQL statements restricted to migrations and installation
 
 Application database connections no longer accepted multiple SQL statements in a single call.
@@ -464,7 +474,19 @@ Separating read and write statements also improved compatibility with SQL proxie
 Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
 Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
 
-<details>
+## Services are reset between requests
+
+Services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+This was opt-in with the `LONGRUNNING_ENVIRONMENT` feature flag in 6.7; the flag is removed.
+Extensions that relied on state surviving across requests in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole) must move that state to an explicit cache or store.
+
+Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching is handled by Shopware's own cache layer.
+Remove references to the `http_cache` service from your project.
+
+## Customer group price fields are required
+
+`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working, and an explicit `null` is rejected. A create that omits `priceBasis` gets `gross` regardless of `displayGross`, it is no longer derived from the display mode: send `'net'` explicitly for net-display groups whose net prices should stay fixed. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`.
 
 ## Rule container `__wakeup()` hooks are no longer called
 
@@ -475,6 +497,11 @@ Remove the old `__wakeup()` implementation to avoid duplicate initialization whe
 ## Invalid price definition exceptions
 
 `PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
+
+## Import CSV reader exception for invalid resources
+
+`CsvReader::read()` throws `ImportExportException` with the error code `CONTENT__IMPORT_EXPORT__INVALID_RESOURCE` instead of `\InvalidArgumentException` when the given argument is not a resource.
+Update exception catches accordingly.
 
 ## `ReverseProxyCompilerPass` removed
 
@@ -602,7 +629,7 @@ public function updateThumbnails(MediaEntity $media, Context $context, bool $str
 
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer expose a collection API
 
-`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. The three classes remained supported result wrappers and `Struct` instances, so extensions, states, and JSON serialization kept working.
+`EntitySearchResult` no longer extends `EntityCollection`. It remained a supported result wrapper and a `Struct`, so extensions, states, and JSON serialization kept working. `ProductListingResult` and `ProductReviewResult` still extend `EntitySearchResult`, so they lost the collection API together with it.
 
 Previously, a result had two mutable entity lists: the collection inherited from `EntityCollection` and its typed `entities` collection. Collection helpers could operate on a different list from `getEntities()`, so the two lists could drift apart and callers could observe different entities depending on the method they used. The result wrapper is now separate from its one authoritative `entities` collection.
 
@@ -611,23 +638,29 @@ Changes affecting all three classes:
 - Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`; the `entities` property remained available in PHP and Twig as the single collection of result entities.
 - The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
 - Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
-- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
+- A parameter or return type declared as `EntityCollection` no longer matches a result — narrow it to `EntitySearchResult`. A type declared as `EntitySearchResult` still matches a `ProductListingResult` or a `ProductReviewResult`.
 
 `EntitySearchResult`:
 
 - The wrapper is immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
 - The entity name remains available through `$entity` and `getEntity()`. `setEntity()` was removed; construct the result with the correct entity name instead.
-- The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
+- The protected `createNew()` method was removed together with the collection methods that called it. Subclass overrides of it are no longer called.
 
 `ProductListingResult`:
 
-- Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
-- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+- `fromSearchResult()` was removed. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`) stayed mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, and `setStreamId()` remained available.
+- `setPage()` and `setLimit()` were removed with the parent. A result reports the page and limit of the criteria that was searched, so page the criteria in `AbstractListingProcessor::prepare()` instead:
+
+```php
+$criteria->setOffset(($page - 1) * $limit);
+$criteria->setLimit($limit);
+```
 
 `ProductReviewResult`:
 
 - Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
-- The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+- The setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 
@@ -2626,9 +2659,21 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `sw-cms-layout-modal` grid selection methods
+
+The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
+The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
+Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
+
 # Storefront
 
 <details>
+
+## Removal of CMS section background template variables
+
+The Twig variables `sectionBgImg` and `sectionBgImgMode` in `storefront/page/content/detail.html.twig` were deprecated and are removed in 6.8.0.0.
+The section background image is rendered through the `page_content_section_background_image` block.
+Use `section.backgroundMedia` with `sw_thumbnails` and `section.backgroundMediaMode` instead.
 
 ## Removal of deprecated `ListingPlugin` properties
 
@@ -2865,11 +2910,10 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `pathIdList` option in NavbarPlugin
+## Removal of `pathIdList` from `navbarOptions` in `navbar.html.twig`
 
-The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
-
-Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
+The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
+Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
 ## Refactor of providing cookies
 
@@ -2936,6 +2980,38 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
 {% endfor %}
 ```
 
+## Changed variables in `@Storefront/storefront/layout/breadcrumb.html.twig`
+
+The breadcrumb template only accepts the breadcrumb entries as the `breadcrumb` input.
+The `category` and `categoryId` inputs and the `breadcrumbCollection` input were removed.
+
+Templates that extend the `layout_breadcrumb_list_item` block can rely on these variables:
+
+| Variable | Content |
+|----------|---------|
+| `breadcrumb` | The current `Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb` entry |
+| `categoryId` | The category ID of the current entry |
+| `activeId` | The category ID of the last entry, which is the current page |
+| `breadcrumbCollection` | All entries |
+| `name`, `type`, `categoryUrl`, `shouldOpenInNewTab`, `isActive` | Unchanged |
+
+The following variables were removed:
+
+| Removed variable | Replacement |
+|------------------|-------------|
+| `breadcrumbCategory` | `breadcrumb`, which is a `Breadcrumb` struct instead of a `CategoryEntity`. Use `breadcrumb.name` instead of `breadcrumbCategory.translated.name`, and `breadcrumb.categoryId` instead of `breadcrumbCategory.id`. |
+| `key` | `categoryId` |
+| `breadcrumbCategories` | `breadcrumbCollection` |
+| `breadcrumbKeys` | `loop.last` |
+
+`categoryId` changed its meaning.
+It used to hold the ID of the active category, and now holds the ID of the current entry.
+Use `activeId` to compare against the active category.
+`activeId` is already available in 6.7, so overrides can switch to it before the update.
+
+The `layout_breadcrumb_placeholder` block was removed, because the separator is rendered with CSS.
+Extend `layout_breadcrumb_list_item` to change the separator.
+
 ## Removal of DeleteThemeFilesMessage and its handler
 
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
@@ -2997,6 +3073,14 @@ Use `addressType` instead.
 The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.
 
 Use `Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION` instead.
+
+## Legal guarantee notice moved out of the privacy section
+
+In `@Storefront/storefront/component/privacy-notice.html.twig`, the blocks `component_privacy_legal_guarantee_notice_paragraph` and `component_privacy_legal_guarantee_notice_modal` were moved out of `component_privacy_dpi`.
+The notice paragraph now renders before the privacy `<fieldset>` and the modal after it, so the notice no longer appears under the "Privacy" heading.
+Overrides of these blocks keep working.
+If your theme overrides `component_privacy_dpi` with a copy that contains these blocks, remove them from the copy, otherwise the notice and its modal render twice.
+Styles for `.privacy-notice .legal-guarantee-notice` have to target `.legal-guarantee-notice` directly.
 </details>
 
 # App System

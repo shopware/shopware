@@ -18,7 +18,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
         };
     }
 
-    _onProductAdded(event) {
+    async _onProductAdded(event) {
         if (!this.active) {
             return;
         }
@@ -30,24 +30,35 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
 
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId);
-        let categories = ProductPageHelper.getCategories();
+        let categories;
 
         // Fallback to line item data (cart/checkout/finish pages)
         if (!productData.name) {
             const lineItemData = LineItemHelper.getProductData(productId);
             if (lineItemData) {
                 productData = lineItemData;
-                categories = lineItemData.categories || {};
+                categories = lineItemData.categories;
             }
         }
 
-        gtag('event', 'add_to_wishlist', {
+        if (!categories || Object.keys(categories).length === 0) {
+            categories = await ProductPageHelper.resolveCategories(productId, null, () => this.active);
+        }
+
+        // the shopper can revoke the tracking consent while the categories are requested
+        if (!this.active) {
+            return;
+        }
+
+        this.pushEvent('add_to_wishlist', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productData.id ?? productId,
-                'name': productData.name,
-                'brand': productData.brand,
+                'item_id': productData.id ?? productId,
+                'item_name': productData.name,
+                'item_brand': productData.brand,
+                'item_variant': productData.variant,
+                'price': productData.value,
                 ...categories,
             }],
         });

@@ -40,7 +40,6 @@ class OrderConverterControllerTest extends TestCase
         $converter = static::createStub(OrderConverter::class);
         $persister = static::createStub(AbstractCartPersister::class);
 
-        /** @var StaticEntityRepository<OrderCollection> */
         $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
 
         $controller = new OrderConverterController($converter, $persister, $orderRepository);
@@ -72,7 +71,6 @@ class OrderConverterControllerTest extends TestCase
             ->method('save')
             ->with($cart);
 
-        /** @var StaticEntityRepository<OrderCollection> */
         $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
 
         $controller = new OrderConverterController($converter, $persister, $orderRepository);

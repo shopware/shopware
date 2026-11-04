@@ -34,6 +34,11 @@ class CheapestPriceUpdaterTest extends TestCase
 
     private AbstractCheapestPriceQuantitySelector&Stub $quantitySelector;
 
+    /**
+     * @var list<string>
+     */
+    private array $accessorRemovedFor = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,6 +56,13 @@ class CheapestPriceUpdaterTest extends TestCase
 
         $this->connection = static::createStub(Connection::class);
         $this->connection->method('createQueryBuilder')->willReturn($this->queryBuilder);
+        // the only statement the updater executes directly removes the accessors of the given products
+        $this->connection->method('executeStatement')->willReturnCallback(function (string $sql, array $params): int {
+            $ids = Uuid::fromBytesToHexList(array_merge(...array_values(array_filter($params, \is_array(...)))));
+            array_push($this->accessorRemovedFor, ...$ids);
+
+            return \count($ids);
+        });
     }
 
     public function testDispatchesProductIndexerEvent(): void
@@ -135,6 +147,28 @@ class CheapestPriceUpdaterTest extends TestCase
         static::assertSame($salesChannelIds, $rulePrices['default']['sales_channel_ids']);
     }
 
+    /**
+     * Removing the accessor is a write without any other observable effect, so the test captures the ids it
+     * is removed for (see "Asserting writes when there is no other seam" in coding-guidelines/core/unit-tests.md).
+     */
+    public function testUpdateRemovesTheAccessorOfParentsWithVariantsOnly(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $standaloneId = Uuid::randomHex();
+        $price = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca"}}';
+
+        $updater = $this->createMockedUpdater([], [], defaultResults: [
+            $this->createPriceRow($parentId, $parentId, priceJson: $price, childCount: 1),
+            $this->createPriceRow($parentId, $variantId, priceJson: $price),
+            $this->createPriceRow($standaloneId, $standaloneId, priceJson: $price),
+        ]);
+
+        $updater->update([$parentId, $standaloneId], Context::createDefaultContext());
+
+        static::assertSame([$parentId], $this->accessorRemovedFor);
+    }
+
     public static function salesChannelVisibilityProvider(): \Generator
     {
         yield 'variant visible in two sales channels' => [[Uuid::randomHex(), Uuid::randomHex()]];
@@ -144,14 +178,15 @@ class CheapestPriceUpdaterTest extends TestCase
     /**
      * @param array<int, array<string, mixed>> $dataResults
      * @param array<int, array<string, mixed>> $visibilityResults
+     * @param array<int, array<string, mixed>> $defaultResults
      */
-    private function createMockedUpdater(array $dataResults, array $visibilityResults, ?EventDispatcherInterface $dispatcher = null): CheapestPriceUpdater
+    private function createMockedUpdater(array $dataResults, array $visibilityResults, ?EventDispatcherInterface $dispatcher = null, array $defaultResults = []): CheapestPriceUpdater
     {
         $result1 = static::createStub(Result::class);
         $result1->method('fetchAllAssociative')->willReturn($dataResults);
 
         $result2 = static::createStub(Result::class);
-        $result2->method('fetchAllAssociative')->willReturn([]);
+        $result2->method('fetchAllAssociative')->willReturn($defaultResults);
 
         $this->queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls($result1, $result2);
 
@@ -171,7 +206,7 @@ class CheapestPriceUpdaterTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function createPriceRow(string $parentId, string $variantId, ?string $ruleId = null, ?string $priceJson = null): array
+    private function createPriceRow(string $parentId, string $variantId, ?string $ruleId = null, ?string $priceJson = null, ?int $childCount = null): array
     {
         return [
             'parent_id' => $parentId,
@@ -183,7 +218,7 @@ class CheapestPriceUpdaterTest extends TestCase
             'unit_id' => null,
             'purchase_unit' => null,
             'reference_unit' => null,
-            'child_count' => null,
+            'child_count' => $childCount,
         ];
     }
 }

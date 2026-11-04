@@ -10,6 +10,10 @@ const eslintPluginVueProcessor = eslintPluginVueProcessorModule.default ?? eslin
 const templateTagBefore = '<template>\n';
 const templateTagAfter = '</template>';
 
+// Files that preprocess wrapped in a template tag. ESLint runs the processor again on the wrapped block,
+// which is not wrapped twice, so only the pass that wrapped shifts the fixes back.
+const wrappedFiles = new Set();
+
 function twigPreParser(code) {
     return `${templateTagBefore}${code}${templateTagAfter}`;
 }
@@ -26,7 +30,14 @@ module.exports = {
                 // ESLint hands processors the text with its byte order mark but applies fixes to the text
                 // without it, so a kept mark would shift every fix by one character.
                 const content = text.replace(/^\uFEFF/, '');
-                const parsedText = content.startsWith(templateTagBefore) ? content : twigPreParser(content);
+                const isWrapped = !content.startsWith(templateTagBefore);
+                const parsedText = isWrapped ? twigPreParser(content) : content;
+
+                if (isWrapped) {
+                    wrappedFiles.add(filename);
+                } else {
+                    wrappedFiles.delete(filename);
+                }
 
                 return [
                     { text: parsedText, filename: filename },
@@ -35,9 +46,15 @@ module.exports = {
 
             // takes a Message[][] and filename
             postprocess(messages, filename) {
+                const isWrapped = wrappedFiles.has(filename);
+
                 // reduce line - 1 to remove the fake <template> tag
                 messages.forEach(messageObjects => {
                     messageObjects.forEach(message => {
+                        if (!isWrapped) {
+                            return;
+                        }
+
                         message.line -= 1;
                         message.endLine -= 1;
                     });
@@ -53,8 +70,8 @@ module.exports = {
                 const templateTagBeforeLength = templateTagBefore.length;
 
                 finalMessagesFiltered.forEach(m => {
-                    // No fix available or already processed?
-                    if (!m.fix || m.twigVue) {
+                    // No fix, already processed, or a text this processor did not wrap?
+                    if (!m.fix || m.twigVue || !isWrapped) {
                         return;
                     }
 

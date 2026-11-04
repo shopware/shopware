@@ -25,7 +25,6 @@ const NEW_COMPONENT = 'mt-empty-state';
 
 // Props of sw-empty-state without an equivalent in mt-empty-state, keyed by their normalized name
 const REMOVED_PROPS = {
-    absolute: 'absolute',
     emptymodule: 'emptyModule',
     autoheight: 'autoHeight',
     color: 'color',
@@ -256,6 +255,8 @@ function analyze(sourceCode, node) {
             result.iconAttribute = attribute;
         } else if (parsed.name === 'showdescription') {
             result.showDescriptionAttribute = attribute;
+        } else if (parsed.name === 'absolute') {
+            result.absoluteAttribute = attribute;
         } else if (REMOVED_PROPS[parsed.name]) {
             result.removedProps.push(REMOVED_PROPS[parsed.name]);
         } else {
@@ -296,8 +297,10 @@ function analyze(sourceCode, node) {
         }
     });
 
-    result.icon = result.iconSlot ? iconSlotToIcon(sourceCode, result.iconSlot) : null;
-    if (result.iconSlot && !result.icon) {
+    // Vue renders the fallback of an empty slot, which for the icon is the module icon
+    const hasEmptyIconSlot = result.iconSlot && result.iconSlot.children.every(isWhitespaceText);
+    result.icon = result.iconSlot && !hasEmptyIconSlot ? iconSlotToIcon(sourceCode, result.iconSlot) : null;
+    if (result.iconSlot && !hasEmptyIconSlot && !result.icon) {
         reasons.add(REASONS.iconSlot);
     }
 
@@ -313,12 +316,35 @@ function analyze(sourceCode, node) {
 
         if (!result.slotDescription) {
             reasons.add(REASONS.defaultSlot);
+        } else if (result.slotDescription.kind === 'none') {
+            // Vue renders the fallback of an empty slot, so the subline or the module description stays
+            result.slotDescription = null;
         }
     }
+
+    result.absolutePositioning = resolveAbsolutePositioning(sourceCode, result.absoluteAttribute);
 
     result.reasons = [...reasons];
 
     return result;
+}
+
+/**
+ * Tells whether sw-empty-state was positioned absolutely over its container: `always` for its default
+ * and a true value, `never` for `:absolute="false"`, `maybe` for any other expression.
+ */
+function resolveAbsolutePositioning(sourceCode, attribute) {
+    if (!attribute || !attribute.directive) {
+        return 'always';
+    }
+
+    const value = readAttributeValue(sourceCode, attribute);
+
+    if (!value || value.code === 'true') {
+        return 'always';
+    }
+
+    return value.code === 'false' ? 'never' : 'maybe';
 }
 
 /**
@@ -415,6 +441,11 @@ function buildTodoComment(analysis, { description, lostFallbacks }) {
 
     if (analysis.removedProps.length > 0) {
         comment += `. Removed props without replacement: ${analysis.removedProps.join(', ')}`;
+    }
+
+    if (analysis.absolutePositioning !== 'never') {
+        const condition = analysis.absolutePositioning === 'maybe' ? ' when "absolute" was true' : '';
+        comment += `. ${OLD_COMPONENT} covered its container${condition}, ${NEW_COMPONENT} takes part in the layout: check the spacing`;
     }
 
     if (description.kind === 'static' && /<[a-z]/i.test(description.text)) {

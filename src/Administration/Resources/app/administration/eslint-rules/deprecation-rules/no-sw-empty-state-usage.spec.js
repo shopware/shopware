@@ -13,7 +13,7 @@ const ruleTester = new RuleTester({
     },
 });
 
-const TODO = '<!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->';
+const TODO = '<!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->';
 const MIGRATE_MESSAGE = '"sw-empty-state" is deprecated and will be removed in 6.9. Please use "mt-empty-state" instead.';
 
 function manualMessage(reason) {
@@ -85,7 +85,7 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
 </template>`,
             output: `
 <template>
-    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: absolute, emptyModule -->
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: emptyModule -->
     <mt-empty-state
         v-if="!items.length"
         :headline="$t('foo.title')"
@@ -174,11 +174,11 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             errors: [{ message: MIGRATE_MESSAGE }],
         },
         {
-            name: 'converts a bound icon name and an empty default slot',
+            name: 'converts a bound icon name and keeps the subline for an empty default slot, which renders its fallback',
             filename: 'test.html.twig',
             code: `
 <template>
-    <sw-empty-state :title="title" subline="Ignored">
+    <sw-empty-state :title="title" subline="Shown">
         <template #icon><sw-icon :name="iconName" /></template>
         <template #default></template>
     </sw-empty-state>
@@ -186,7 +186,7 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             output: `
 <template>
     ${TODO}
-    <mt-empty-state :headline="title" :icon="iconName" centered />
+    <mt-empty-state :headline="title" description="Shown" :icon="iconName" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
         },
@@ -252,7 +252,7 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
 </template>`,
             output: `
 <template>
-    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. "description" no longer falls back to the module description if it is null or undefined. "icon" no longer falls back to the module icon if it is null or undefined -->
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing. "description" no longer falls back to the module description if it is null or undefined. "icon" no longer falls back to the module icon if it is null or undefined -->
     <mt-empty-state :headline="title" :description="emptyHint" :icon="orderIcon" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
@@ -294,7 +294,7 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
 </template>`,
             output: `
 <template>
-    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: color -->
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: color. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
     <mt-empty-state :headline="title" icon="regular-products" description="" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
@@ -322,7 +322,7 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
 </template>`,
             output: `
 <template>
-    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: autoHeight. The description is rendered as plain text, HTML is no longer supported -->
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: autoHeight. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing. The description is rendered as plain text, HTML is no longer supported -->
     <mt-empty-state headline="Say &quot;hi&quot;" icon="regular-products" description="<b>bold</b>" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
@@ -491,6 +491,37 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
     <mt-empty-state :headline="title" icon="regular-products" :description="\`Found \${count} items\`" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
+        },
+        {
+            name: 'converts an empty icon slot to the module icon, which the slot rendered as fallback',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="T" subline="S"><template #icon></template></sw-empty-state>
+</template>`,
+            output: `
+<template>
+    ${TODO}
+    <mt-empty-state headline="T" description="S" :icon="$route.meta.$module.icon" centered />
+</template>`,
+            errors: [{ message: MIGRATE_MESSAGE }],
+        },
+        {
+            name: 'notes the layout only for an absolute positioning that can be on',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="T" subline="S" icon="a" :absolute="false" />
+    <sw-empty-state title="T" subline="S" icon="a" :absolute="isOverlay" />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->
+    <mt-empty-state headline="T" description="S" icon="a" centered />
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container when "absolute" was true, mt-empty-state takes part in the layout: check the spacing -->
+    <mt-empty-state headline="T" description="S" icon="a" centered />
+</template>`,
+            errors: [{ message: MIGRATE_MESSAGE }, { message: MIGRATE_MESSAGE }],
         },
     ],
 });

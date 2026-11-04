@@ -328,6 +328,11 @@ Saving is not blocked.
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
 
+### Cookie groups response contains a hash per cookie
+
+The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
+Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -657,6 +662,11 @@ Override it to add or change values:
 ```twig
 {% block component_product_box_product_information %}{{ productInformation|merge({ customKey: 'value' })|json_encode }}{% endblock %}
 ```
+
+### Cookie consent is only requested again for new or changed cookies
+
+The Storefront now asks visitors for renewed cookie consent only when a cookie is added or the configuration of a cookie they already saw changes.
+Removing a cookie keeps the existing consent and removes the cookie.
 
 ### Theme compilation completion is notified once
 

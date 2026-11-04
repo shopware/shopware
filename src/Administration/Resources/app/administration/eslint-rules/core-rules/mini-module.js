@@ -46,7 +46,7 @@ function isMiniModuleRoot(directory, cwd) {
 /**
  * Finds the innermost mini-module a path belongs to and the part of it the path points at.
  * A mini-module is a directory below the Administration `src/` with an `index.ts` or only a `private.ts`,
- * its own `src/` and `tests/`, and optionally a `private.ts`, `register.ts` and `dependencies.ts`.
+ * its own `src/` and `tests/`, and optionally a `private.ts`, `register.ts`, `init.ts` and `dependencies.ts`.
  * A nested private module lives in the `src/` of the module that mounts its component.
  *
  * @example
@@ -57,10 +57,10 @@ function isMiniModuleRoot(directory, cwd) {
  *
  * @param {string} relativePath - posix path relative to the Administration root
  * @param {string} cwd - the Administration root, used to look for the `tests/` folder next to a file at the module's root
- * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'register'|'dependencies'|'global', rest: string } | null}
+ * @returns {{ root: string, part: 'src'|'tests'|'index'|'private'|'register'|'init'|'dependencies'|'global', rest: string } | null}
  */
 function findMiniModule(relativePath, cwd) {
-    const entry = /^(src\/.+)\/(index|private|register|dependencies|global)(\.d)?(\.[jt]s)?$/.exec(relativePath);
+    const entry = /^(src\/.+)\/(index|private|register|init|dependencies|global)(\.d)?(\.[jt]s)?$/.exec(relativePath);
     if (entry && isMiniModuleRoot(entry[1], cwd)) {
         return { root: entry[1], part: entry[2], rest: '' };
     }

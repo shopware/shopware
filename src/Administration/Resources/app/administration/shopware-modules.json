@@ -1973,5 +1973,10 @@
         "exports": [],
         "subpaths": {},
         "sources": {}
+    },
+    "shopware:services": {
+        "exports": [],
+        "subpaths": {},
+        "sources": {}
     }
 }

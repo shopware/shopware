@@ -7,7 +7,7 @@
 
 import path from 'node:path';
 import vm from 'node:vm';
-import { PUBLIC_KINDS } from 'src/core/mini-module-registry';
+import { PUBLIC_KINDS, REGISTRY_KINDS } from 'src/core/mini-module-registry';
 import {
     MODULE_FAMILIES,
     allSpecifiers,
@@ -129,9 +129,11 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         });
 
         it.each([
-            'shopware:mixins',
-            'shopware:stores',
-            ...PUBLIC_KINDS.map((kind) => `shopware:${kind}`),
+            ...new Set([
+                'shopware:mixins',
+                'shopware:stores',
+                ...PUBLIC_KINDS.map((kind) => `shopware:${kind}`),
+            ]),
         ])('refuses %s, because it publishes none', (family) => {
             expect(registry[family].exports).toEqual([]);
             expect(exportNames(registry, parseSpecifier(family)!)).toBeUndefined();
@@ -250,14 +252,20 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
 
             expect(Object.keys(published).sort()).toEqual(modules.map(({ key }) => key).sort());
 
-            modules.forEach(({ key, members }) => {
+            modules.forEach(({ key }) => {
                 expect(Object.keys(published[key]).sort(), `${key} publishes more or less than its index.ts`).toEqual(
                     [...indexExports[key]].sort(),
                 );
-                expect(Object.keys(published[key]).sort(), `${key} is stale in shopware-modules.json`).toEqual(
-                    [...members].sort(),
-                );
             });
+
+            // A store or mixin specifier serves the registered entry alone, not the exports of its module.
+            modules
+                .filter(({ key }) => !(REGISTRY_KINDS as readonly string[]).includes(key.split('/')[0]))
+                .forEach(({ key, members }) => {
+                    expect(Object.keys(published[key]).sort(), `${key} is stale in shopware-modules.json`).toEqual(
+                        [...members].sort(),
+                    );
+                });
         });
 
         it('publishes no named exports for a mixin or a store, which must not be destructured', () => {
@@ -277,6 +285,22 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             expect(isEsModuleSubpath(parsed)).toBe(true);
             expect(defaultExpression(parsed)).toBe('shopware.Public["components"]["sw-example"]["default"]');
             expect(hasDefaultExport(['default', 'helper'], parsed)).toBe(true);
+        });
+
+        it('serve a store or a mixin module by the name it registers under, from the live registry', () => {
+            const store = parseSpecifier('shopware:stores/swExample')!;
+            const mixin = parseSpecifier('shopware:mixins/sw-example')!;
+
+            expect(isEsModuleSubpath(store)).toBe(false);
+            expect(defaultExpression(store)).toBe('() => shopware.Store.get("swExample")');
+            expect(isEsModuleSubpath(mixin)).toBe(false);
+            expect(defaultExpression(mixin)).toBe('/*@__PURE__*/ shopware.Mixin.getByName("sw-example")');
+        });
+
+        it('serve a service module from Shopware.Public, like a helper', () => {
+            expect(defaultExpression(parseSpecifier('shopware:services/sw-example')!)).toBe(
+                'shopware.Public["services"]["sw-example"]["default"]',
+            );
         });
 
         it('have no default export when their index.ts has none', () => {

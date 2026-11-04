@@ -88,7 +88,7 @@ Any other mini-module names its kind with `@shopware-kind <kind>` in the doc com
 export { getPrimaryDelivery } from './src/primary-delivery';
 ```
 
-The kinds are `components`, `framework`, `handlers` and `helpers`; `PUBLIC_KINDS` in `src/core/mini-module-registry.ts` lists them.
+The kinds are `components`, `framework`, `handlers`, `helpers`, `mixins`, `services` and `stores`; `PUBLIC_KINDS` in `src/core/mini-module-registry.ts` lists them.
 `register.ts` publishes the exports of `index.ts` for that import under `Shopware.Public.<kind>`, and every mini-module has one, also without a component:
 
 ```ts
@@ -97,6 +97,42 @@ import * as SwExample from './index';
 
 Shopware._private.publish('components', 'sw-example', SwExample);
 ```
+
+The files at the root of a mini-module are named by what they do:
+
+- `index.ts` and `private.ts` declare the module's API and run nothing.
+- `register.ts` publishes or registers one thing: the component, mixin or store of the module, and the exports of `index.ts`.
+- `init.ts` runs once when the Administration boots, such as an initializer of `src/app/init*`; the boot code imports it, nothing else does.
+- `dependencies.ts` brings in what `src/` needs from outside.
+
+Only `register.ts` and `init.ts` have side effects.
+
+A store module is of the kind `stores`.
+Its `index.ts` exports the id of the store as `<id>StoreId` and a `use<Name>Store()` that looks it up, its `private.ts` the options of the store, and its `register.ts` registers them:
+
+```ts
+// index.ts
+/**
+ * @public
+ * @shopware-kind stores
+ */
+export { swExampleDetailStoreId, useSwExampleDetailStore } from './src/sw-example-detail.store';
+
+// register.ts
+import * as SwExampleDetailStore from './index';
+import { swExampleDetailStoreOptions } from './private';
+
+Shopware.Store.register(swExampleDetailStoreOptions);
+Shopware._private.publish('stores', 'swExampleDetail', SwExampleDetailStore);
+```
+
+`src/` declares the options with `defineStoreOptions()` from `src/app/store/define-store-options`, which keeps the types Pinia infers, and looks the store up through `dependencies.ts`.
+A mixin module is of the kind `mixins` and named after the mixin.
+Its `index.ts`, or `private.ts` when it is `@private`, default-exports the mixin object, and its `register.ts` registers it under the directory name with `Shopware.Mixin.register()`.
+Other code imports the mixin from the module instead of calling `Mixin.getByName()`.
+
+`shopware:stores/<id>` and `shopware:mixins/<name>` keep reading `Shopware.Store` and `Shopware.Mixin`, as for a store or mixin without a module.
+A `@public` module adds its name there, and a module with only a `private.ts` that names its kind with `@shopware-kind` keeps its name out, also when the global type still lists it.
 
 Run `composer admin:generate-shopware-modules` after adding a mini-module or changing the exports of its `index.ts`.
 A spec fails when a `register.ts` publishes anything else, or when the generated files are stale.

@@ -6,7 +6,7 @@
  */
 
 import type { ShopwareClass } from 'src/core/shopware';
-import { PUBLIC_KINDS, type PublicKind } from '../../../src/core/mini-module-registry';
+import { PUBLIC_KINDS, REGISTRY_KINDS, type PublicKind } from '../../../src/core/mini-module-registry';
 
 /**
  * @private
@@ -151,8 +151,9 @@ const BRANCHES: Record<string, Branch> = {
             read: (shopware, subpath) => () => shopware.Store.get(subpath),
         },
     },
+    // `shopware:mixins` and `shopware:stores` keep reading the live registry above, also for a mini-module.
     ...Object.fromEntries(
-        PUBLIC_KINDS.map((kind) => [
+        PUBLIC_KINDS.filter((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind)).map((kind) => [
             `shopware:${kind}`,
             publicKindBranch(kind),
         ]),

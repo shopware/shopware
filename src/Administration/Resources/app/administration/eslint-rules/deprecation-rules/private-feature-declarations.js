@@ -15,7 +15,7 @@ const isMiniModuleRoot = (directory) =>
  * A mini-module is a directory with an `index.ts`, or only a `private.ts` when it is nested, a `src/` and a `tests/` folder.
  * Its `index.ts` is public API, also for extensions, and every export there is marked `@public`.
  * Its `private.ts` is for Administration code only, and every export there is marked `@private`.
- * Its `register.ts` registers what `index.ts` declares, so it needs no marker either.
+ * Its `register.ts` registers what `index.ts` declares, and its `init.ts` runs once at boot, so they need no marker either.
  * Its `src/` and `dependencies.ts` mark every export too, so a reader of the source sees what is exposed:
  * `@public` when `index.ts` exposes it, `@private` otherwise.
  *
@@ -27,9 +27,10 @@ const isMiniModuleRoot = (directory) =>
  * @returns {{ part: 'index'|'private'|'register'|'src', root: string }|null}
  */
 const getMiniModulePart = (filename) => {
-    const entry = /^(index|private|register|dependencies)\.[jt]s$/.exec(path.basename(filename));
+    const entry = /^(index|private|register|init|dependencies)\.[jt]s$/.exec(path.basename(filename));
     if (entry && isMiniModuleRoot(path.dirname(filename))) {
-        return { part: entry[1] === 'dependencies' ? 'src' : entry[1], root: path.dirname(filename) };
+        const part = { dependencies: 'src', init: 'register' }[entry[1]] ?? entry[1];
+        return { part, root: path.dirname(filename) };
     }
 
     const segments = filename.split(path.sep);

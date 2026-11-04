@@ -32,6 +32,11 @@ describe('mini-module-side-effects', () => {
                 code: "import SwExample from './index';\nShopware.Component.register(SwExample);",
             },
             {
+                name: 'init.ts runs once when the Administration boots',
+                filename: `${moduleRoot}/init.ts`,
+                code: "import { initExample } from './private';\ninitExample();",
+            },
+            {
                 name: 'src imports its template and styles',
                 filename: `${moduleRoot}/src/sw-example.js`,
                 code: "import template from './sw-example.html.twig';\nimport './sw-example.scss';\nexport default { template };",

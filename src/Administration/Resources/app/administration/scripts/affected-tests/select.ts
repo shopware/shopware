@@ -74,7 +74,7 @@ const UNUSED_BY_SPECS = [
  * code imports the module only through `index.ts` and relies on its contract tests.
  * A change in `src/` or `dependencies.ts` adds the specs that mount the component by name, because they render its
  * implementation; in a module without a component it adds the importers of `index.ts` and `private.ts` instead.
- * Changes to `index.ts`, `private.ts` or `global.d.ts` add their importers, and `register.ts` adds the specs that
+ * Changes to `index.ts`, `private.ts`, `global.d.ts` or `init.ts` add their importers, and `register.ts` adds the specs that
  * mention the component name.
  * Outside mini-modules, it takes the import graph plus every spec that mentions a name the file registers or
  * belongs to, and reports the files for which that is not enough.
@@ -141,6 +141,7 @@ async function selectForMiniModule(
         'private.ts': ['private.ts'],
         'global.d.ts': ['index.ts', 'private.ts', 'global.d.ts'],
         'register.ts': ['register.ts'],
+        'init.ts': ['init.ts'],
     }[part];
 
     for (const entry of publicEntries ?? []) {

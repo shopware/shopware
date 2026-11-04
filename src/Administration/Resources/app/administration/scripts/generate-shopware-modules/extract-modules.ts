@@ -77,7 +77,9 @@
  *     → shopware:framework/service-names  named exports { repositoryFactory }
  *
  * The subpath of a component module is the name it declares, so a CMS element in `component/` publishes
- * as `sw-cms-el-text`. Any other module has no other name than its directory, such as `order-delivery`.
+ * as `sw-cms-el-text`. A store or mixin module keeps the name it registers under, see `registeredName`,
+ * and `shopware:stores` and `shopware:mixins` keep reading the live registry, see `registryFamily`.
+ * Any other module has no other name than its directory, such as `order-delivery`.
  *
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */
@@ -86,7 +88,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
-import { PUBLIC_KINDS, type PublicKind } from '../../src/core/mini-module-registry';
+import { PUBLIC_KINDS, REGISTRY_KINDS, type PublicKind } from '../../src/core/mini-module-registry';
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
 const DATA_SOURCE = 'src/core/data/index.js';
@@ -339,20 +341,28 @@ function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
 }
 
 /**
+ * The mini-modules below `src/` whose directory holds the given entry file, its own `src/` and `tests/`, as
+ * `eslint-rules/core-rules/mini-module.js` defines them. Paths are relative to the Administration root.
+ */
+function findModulesWith(administrationRoot: string, entry: 'index.ts' | 'private.ts'): string[] {
+    const srcDir = path.join(administrationRoot, 'src');
+
+    return (fs.readdirSync(srcDir, { recursive: true }) as string[])
+        .filter((file) => path.basename(file) === entry)
+        .map((file) => path.join(srcDir, path.dirname(file)))
+        .filter((dir) => fs.existsSync(path.join(dir, 'src')) && fs.existsSync(path.join(dir, 'tests')))
+        .map((dir) => path.relative(administrationRoot, dir).split(path.sep).join('/'))
+        .sort((a, b) => (path.posix.basename(a) < path.posix.basename(b) ? -1 : 1));
+}
+
+/**
  * @private
  *
  * Every mini-module below `src/`: a directory with an `index.ts`, its own `src/` and `tests/`, as
  * `eslint-rules/core-rules/mini-module.js` defines it. Paths are relative to the Administration root.
  */
 export function findMiniModules(administrationRoot: string): string[] {
-    const srcDir = path.join(administrationRoot, 'src');
-
-    return (fs.readdirSync(srcDir, { recursive: true }) as string[])
-        .filter((file) => path.basename(file) === 'index.ts')
-        .map((file) => path.join(srcDir, path.dirname(file)))
-        .filter((dir) => fs.existsSync(path.join(dir, 'src')) && fs.existsSync(path.join(dir, 'tests')))
-        .map((dir) => path.relative(administrationRoot, dir).split(path.sep).join('/'))
-        .sort((a, b) => (path.posix.basename(a) < path.posix.basename(b) ? -1 : 1));
+    return findModulesWith(administrationRoot, 'index.ts');
 }
 
 function hasModifier(statement: ts.Statement, kind: ts.SyntaxKind): boolean {
@@ -490,11 +500,68 @@ function moduleKind(sourceFile: ts.SourceFile, moduleDir: string, isComponent: b
     return kind as PublicKind;
 }
 
+const STORE_ID_EXPORT = /^(.+)StoreId$/;
+
+/**
+ * The name a store or mixin module registers under, which is its subpath in `shopware:stores` or
+ * `shopware:mixins`, so a specifier resolves as it did before the module existed.
+ *
+ *     // stores: index.ts exports the id as `<id>StoreId`
+ *     export { swProductDetailStoreId, useSwProductDetailStore } from './src/sw-product-detail.store';
+ *     → "swProductDetail"
+ *
+ *     // mixins: the directory is named after the mixin
+ *     src/module/sw-settings/mixin/sw-settings-list → "sw-settings-list"
+ *
+ * Throws when a store module exports no id or more than one, because its specifier would be unclear.
+ */
+function registeredName(kind: PublicKind, moduleDir: string, exports: string[], entry: string): string {
+    if (kind !== 'stores') {
+        return path.posix.basename(moduleDir);
+    }
+
+    const ids = exports.map((name) => STORE_ID_EXPORT.exec(name)?.[1]).filter((id): id is string => id !== undefined);
+
+    if (ids.length !== 1) {
+        throw new Error(
+            `"${moduleDir}/${entry}" needs exactly one "<id>StoreId" export, which names the store it registers.`,
+        );
+    }
+
+    return ids[0];
+}
+
+const isRegistryKind = (kind: string): boolean => (REGISTRY_KINDS as readonly string[]).includes(kind);
+
+/**
+ * @private
+ *
+ * The names the `@private` store and mixin modules register under: a module with only a `private.ts`, whose
+ * doc comment names the kind. Their names stay out of `shopware:stores` and `shopware:mixins`, also when the
+ * global interface still lists them.
+ */
+export function privateRegistryNames(administrationRoot: string): Set<string> {
+    const names = findModulesWith(administrationRoot, 'private.ts')
+        .filter((moduleDir) => !fs.existsSync(path.join(administrationRoot, moduleDir, 'index.ts')))
+        .flatMap((moduleDir) => {
+            const entry = `${moduleDir}/private.ts`;
+            const sourceFile = parse(administrationRoot, entry);
+            const kind = [...new Set(taggedKinds(sourceFile))].find(isRegistryKind);
+
+            return kind
+                ? [registeredName(kind as PublicKind, moduleDir, indexExports(sourceFile, entry), 'private.ts')]
+                : [];
+        });
+
+    return new Set(names);
+}
+
 /**
  * @private
  *
  * The `shopware:<kind>` families: one family per kind, with one subpath per mini-module, named after the
- * component it declares, or else after its directory. Every kind has a family, even one no module uses yet.
+ * component it declares, the store or mixin it registers, or else after its directory. Every kind has a
+ * family, even one no module uses yet.
  *
  * Throws when two modules share a name, because one specifier would reach both.
  */
@@ -511,16 +578,18 @@ export function extractPublicModules(administrationRoot: string): ModuleRegistry
         const indexFile = `${moduleDir}/index.ts`;
         const sourceFile = parse(administrationRoot, indexFile);
         const componentName = declaredComponentName(sourceFile);
-        const name = componentName ?? path.posix.basename(moduleDir);
+        const kind = moduleKind(sourceFile, moduleDir, componentName !== undefined);
+        const exports = indexExports(sourceFile, indexFile);
+        const name = componentName ?? registeredName(kind, moduleDir, exports, 'index.ts');
+        const key = `${kind}/${name}`;
 
-        if (Object.hasOwn(seen, name)) {
-            throw new Error(`The mini-modules "${seen[name]}" and "${moduleDir}" share the name "${name}".`);
+        if (Object.hasOwn(seen, key)) {
+            throw new Error(`The mini-modules "${seen[key]}" and "${moduleDir}" share the name "${key}".`);
         }
 
-        const family = families[moduleKind(sourceFile, moduleDir, componentName !== undefined)];
-        family.subpaths[name] = indexExports(sourceFile, indexFile);
-        family.sources[name] = moduleDir;
-        seen[name] = moduleDir;
+        families[kind].subpaths[name] = exports;
+        families[kind].sources[name] = moduleDir;
+        seen[key] = moduleDir;
     });
 
     return Object.fromEntries(
@@ -529,6 +598,32 @@ export function extractPublicModules(administrationRoot: string): ModuleRegistry
             families[kind],
         ]),
     );
+}
+
+/**
+ * A family that reads a live registry, from the names its global interface lists and the names its
+ * `@public` modules register under. Each subpath is default-only, like before the modules existed,
+ * and a `@private` module's name is left out.
+ *
+ *     interface PiniaRootState { cmsPage: …; swProductDetail: … }   + stores/sw-product-detail-store
+ *     → subpaths { cmsPage: [], swProductDetail: [] }, sources { swProductDetail: '…/store' }
+ */
+function registryFamily(
+    interfaceNames: string[],
+    modules: ModuleRegistry[string],
+    privateNames: Set<string>,
+): ModuleRegistry[string] {
+    const names = [...new Set([...interfaceNames, ...Object.keys(modules.subpaths)])].filter(
+        (name) => !privateNames.has(name),
+    );
+
+    const sources = modules.sources ?? {};
+
+    return {
+        exports: [],
+        subpaths: defaultOnlySubpaths(names),
+        ...(Object.keys(sources).length > 0 ? { sources } : {}),
+    };
 }
 
 function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
@@ -569,6 +664,8 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
     const composableKeys = objectLiteralKeys(defaultExportLiteral(composablesSource, COMPOSABLES_SOURCE));
 
     const globalTypes = parse(administrationRoot, GLOBAL_TYPES_SOURCE);
+    const publicModules = extractPublicModules(administrationRoot);
+    const privateNames = privateRegistryNames(administrationRoot);
 
     return {
         'shopware:utils': {
@@ -588,14 +685,14 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
             exports: composableKeys,
             subpaths: defaultOnlySubpaths(composableKeys),
         },
-        'shopware:mixins': {
-            exports: [],
-            subpaths: defaultOnlySubpaths(centralMixinKeys(globalTypes)),
-        },
-        'shopware:stores': {
-            exports: [],
-            subpaths: defaultOnlySubpaths(interfaceKeys(globalTypes, 'PiniaRootState')),
-        },
-        ...extractPublicModules(administrationRoot),
+        'shopware:mixins': registryFamily(centralMixinKeys(globalTypes), publicModules['shopware:mixins'], privateNames),
+        'shopware:stores': registryFamily(
+            interfaceKeys(globalTypes, 'PiniaRootState'),
+            publicModules['shopware:stores'],
+            privateNames,
+        ),
+        ...Object.fromEntries(
+            Object.entries(publicModules).filter(([family]) => !isRegistryKind(family.slice('shopware:'.length))),
+        ),
     };
 }

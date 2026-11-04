@@ -16,10 +16,29 @@ export const PUBLIC_KINDS = [
     'framework',
     'handlers',
     'helpers',
+    'mixins',
+    'services',
+    'stores',
 ] as const;
 
 /** @private One of the `PUBLIC_KINDS`, e.g. `components`. */
 export type PublicKind = (typeof PUBLIC_KINDS)[number];
+
+/**
+ * @private
+ *
+ * The kinds whose `shopware:<kind>` family is older than the mini-modules and reads the live registry,
+ * `Shopware.Mixin` or `Shopware.Store`, by the name a module registers its mixin or store under.
+ * Their modules are still published under `Shopware.Public`, but a specifier keeps resolving as before.
+ *
+ * @example
+ * // stores/sw-product-detail-store registers the store "swProductDetail"
+ * // → shopware:stores/swProductDetail, read with Shopware.Store.get('swProductDetail')
+ */
+export const REGISTRY_KINDS = [
+    'mixins',
+    'stores',
+] as const satisfies readonly PublicKind[];
 
 /**
  * @private

@@ -11,7 +11,7 @@
  */
 
 import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
-import { PUBLIC_KINDS } from '../../src/core/mini-module-registry';
+import { PUBLIC_KINDS, REGISTRY_KINDS } from '../../src/core/mini-module-registry';
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
@@ -177,7 +177,8 @@ export function renderDeclarations(registry: ModuleRegistry): string {
         blocks.push(defaultOnlyModule(`shopware:stores/${key}`, 'useStore', `() => PiniaRootState['${key}']`)),
     );
 
-    PUBLIC_KINDS.forEach((kind) => {
+    // A store or mixin module is declared above, by the name it registers under.
+    PUBLIC_KINDS.filter((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind)).forEach((kind) => {
         const family = registry[`shopware:${kind}`];
         Object.entries(family.subpaths).forEach(
             ([

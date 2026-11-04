@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { extractModuleRegistry, extractPublicModules } from './extract-modules';
+import { extractModuleRegistry, extractPublicModules, privateRegistryNames } from './extract-modules';
 import { renderDeclarations, REGENERATE_COMMAND } from './render-declarations';
 import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from './index';
 
@@ -122,8 +122,71 @@ describe('scripts/generate-shopware-modules', () => {
             );
 
             expect(extract).toThrow(
-                'names the unknown kind "gadgets". Use one of: components, framework, handlers, helpers.',
+                'names the unknown kind "gadgets". Use one of: components, framework, handlers, helpers, mixins, services, stores.',
             );
+        });
+
+        it('publishes a store module under the id it registers, which its "<id>StoreId" export names', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/page/sw-example-detail/store',
+                "/**\n * @shopware-kind stores\n */\nexport { swExampleDetailStoreId, useSwExampleDetailStore } from './src/x';\n",
+            );
+
+            expect(extract()['shopware:stores'].subpaths).toEqual({
+                swExampleDetail: [
+                    'swExampleDetailStoreId',
+                    'useSwExampleDetailStore',
+                ],
+            });
+        });
+
+        it('refuses a store module that does not export the id of its store', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/page/sw-example-detail/store',
+                "/**\n * @shopware-kind stores\n */\nexport { useSwExampleDetailStore } from './src/x';\n",
+            );
+
+            expect(extract).toThrow('needs exactly one "<id>StoreId" export, which names the store it registers.');
+        });
+
+        it('publishes a mixin module under its directory name, which is the name it registers under', () => {
+            const extract = extractFrom(
+                'src/module/sw-example/mixin/sw-example-list',
+                "/**\n * @shopware-kind mixins\n */\nexport { default } from './src/x';\n",
+            );
+
+            expect(extract()['shopware:mixins'].subpaths).toEqual({ 'sw-example-list': ['default'] });
+        });
+
+        it('keeps a private store or mixin module out of its family, by the name it registers under', () => {
+            const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-mini-modules-'));
+            const write = (moduleDir: string, privateTs: string) => {
+                fs.mkdirSync(path.join(root, moduleDir, 'src'), { recursive: true });
+                fs.mkdirSync(path.join(root, moduleDir, 'tests'));
+                fs.writeFileSync(path.join(root, moduleDir, 'private.ts'), privateTs);
+            };
+
+            try {
+                write(
+                    'src/module/sw-example/page/sw-example-detail/store',
+                    "/**\n * @private\n * @shopware-kind stores\n */\nexport { swExampleDetailStoreId } from './src/x';\n",
+                );
+                write(
+                    'src/module/sw-example/mixin/sw-example-list',
+                    "/**\n * @private\n * @shopware-kind mixins\n */\nexport { default } from './src/x';\n",
+                );
+                write(
+                    'src/module/sw-example/component/sw-example-card',
+                    "/** @private */\nexport default definePrivateComponent({ name: 'sw-example-card' });\n",
+                );
+
+                expect([...privateRegistryNames(root)].sort()).toEqual([
+                    'sw-example-list',
+                    'swExampleDetail',
+                ]);
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
         });
 
         it('publishes a component module under the name it declares, also when its directory is named otherwise', () => {

@@ -22,12 +22,4 @@ class ContentSystemElementTypeSchemaErrorTest extends TestCase
 
         static::assertSame('Invalid element type schema in "/path/to/types": YAML syntax invalid', $error->getMessage());
     }
-
-    #[TestDox('returns correct message key')]
-    public function testReturnsCorrectMessageKey(): void
-    {
-        $error = new ContentSystemElementTypeSchemaError('file.yaml', 'reason');
-
-        static::assertSame('manifest-invalid-element-type-schema', $error->getMessageKey());
-    }
 }

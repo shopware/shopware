@@ -28,18 +28,13 @@ class TriggerFlowControllerTest extends TestCase
 {
     private TriggerFlowController $triggerFlowController;
 
-    /**
-     * @var StaticEntityRepository<AppFlowEventCollection>
-     */
-    private StaticEntityRepository $appFlowEventRepository;
-
     protected function setUp(): void
     {
-        $this->appFlowEventRepository = new StaticEntityRepository([
+        $appFlowEventRepository = new StaticEntityRepository([
             [Uuid::randomHex()],
         ]);
 
-        $this->triggerFlowController = new TriggerFlowController(new EventDispatcher(), $this->appFlowEventRepository);
+        $this->triggerFlowController = new TriggerFlowController(new EventDispatcher(), $appFlowEventRepository);
     }
 
     public function testTriggerWithWrongEventName(): void

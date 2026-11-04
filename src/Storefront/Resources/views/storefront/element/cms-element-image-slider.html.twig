@@ -62,8 +62,8 @@
         } %}
 
         {% block element_image_slider_alignment %}
-            {% if config.verticalAlign.value %}
-                <div class="cms-element-alignment{{ alignmentClass }}">
+            {% if displayMode == 'standard' and verticalAlign %}
+                <div class="cms-element-alignment w-100{{ alignmentClass }}">
             {% endif %}
                 <div
                     class="base-slider image-slider{{ arrowsClass }}{{ dotsClass }}"
@@ -161,7 +161,7 @@
                         {% endblock %}
                     {% endblock %}
                 </div>
-            {% if config.verticalAlign.value %}
+            {% if displayMode == 'standard' and verticalAlign %}
                 </div>
             {% endif %}
         {% endblock %}

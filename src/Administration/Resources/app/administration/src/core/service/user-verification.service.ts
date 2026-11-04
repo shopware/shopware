@@ -139,6 +139,11 @@ export default class UserVerificationService {
             throw UserVerificationError.noSession();
         }
 
+        // only a fresh identity provider login gets the scope from the server; the popup's report alone proves nothing
+        if (!this.isVerified()) {
+            throw UserVerificationError.noSession();
+        }
+
         sessionStorage.setItem('sw-sso-session', 'true');
 
         return { ...Shopware.Context.api };

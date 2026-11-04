@@ -15,15 +15,21 @@ function createToken(scopes: string[]): string {
 }
 
 describe('src/core/service/user-verification.service.ts', () => {
+    let accessScopes = ['write'];
     const loginService = {
         getLoginTemplateConfig: jest.fn(() => Promise.resolve({ useDefault: true, url: 'https://shop.test/sso' })),
         getBearerAuthentication: jest.fn((section?: string) => {
-            const auth = { access: createToken(['write']), refresh: 'refresh', expiry: 1 };
+            const auth = { access: createToken(accessScopes), refresh: 'refresh', expiry: 1 };
 
             return section ? auth[section as keyof typeof auth] : auth;
         }),
     } as unknown as LoginService;
-    const reauthenticate = jest.fn(() => Promise.resolve());
+    // the server issues `user-verified` after a fresh identity provider login
+    const reauthenticate = jest.fn(() => {
+        accessScopes = ['write', 'user-verified'];
+
+        return Promise.resolve();
+    });
     const ssoReauthService = { reauthenticate } as unknown as SsoReauthService;
     const createNotification = jest.fn();
 
@@ -31,6 +37,7 @@ describe('src/core/service/user-verification.service.ts', () => {
     const store = () => Shopware.Store.get('userVerification');
 
     beforeEach(() => {
+        accessScopes = ['write'];
         sessionStorage.clear();
         store().dismiss();
         jest.clearAllMocks();
@@ -183,6 +190,16 @@ describe('src/core/service/user-verification.service.ts', () => {
 
         await expect(createService().verify()).rejects.toEqual(UserVerificationError.noSession());
         expect(createNotification).toHaveBeenCalledTimes(1);
+    });
+
+    it('rejects when the window reported back without a verified token', async () => {
+        sessionStorage.setItem('sw-sso-session', 'true');
+        reauthenticate.mockResolvedValueOnce(undefined);
+
+        await expect(createService().verify()).rejects.toEqual(UserVerificationError.noSession());
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.no-session' }),
+        );
     });
 
     it('switches from the modal to the identity provider', async () => {

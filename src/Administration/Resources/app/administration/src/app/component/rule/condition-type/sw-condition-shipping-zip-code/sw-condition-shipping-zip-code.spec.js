@@ -23,7 +23,9 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
-                        'sw-tagged-field': await wrapTestComponent('sw-tagged-field'),
+                        'sw-multi-tag-select': await wrapTestComponent('sw-multi-tag-select'),
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                         'sw-context-button': true,
                         'sw-context-menu-item': true,
                         'sw-field-error': true,
@@ -84,7 +86,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
         });
         await flushPromises();
 
-        const tagList = wrapper.find('.sw-tagged-field__tag-list');
-        expect(tagList.text()).toContain('12345');
+        const multiTagSelect = wrapper.get('.sw-multi-tag-select');
+        expect(multiTagSelect.text()).toContain('12345');
     });
 });

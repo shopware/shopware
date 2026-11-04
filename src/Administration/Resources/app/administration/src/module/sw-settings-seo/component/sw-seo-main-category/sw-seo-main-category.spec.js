@@ -30,7 +30,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
             overwriteLabel: true,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const singleSelect = wrapper.find('sw-single-select-stub');
         expect(singleSelect).toBeDefined();
@@ -39,7 +39,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
 
     it('should display main category label', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const singleSelect = wrapper.find('sw-single-select-stub');
         expect(singleSelect).toBeDefined();
@@ -60,12 +60,12 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
             categories: [{ id: 'categoryId1', translated: { name: 'Category 1' } }],
             currentSalesChannelId: 'salesChannelId1',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.mainCategoryForSalesChannel).toEqual(mainCategory);
 
         await wrapper.vm.onMainCategorySelected(null);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('main-category-remove')).toBeTruthy();
         expect(wrapper.emitted('main-category-remove')[0]).toEqual([mainCategory]);

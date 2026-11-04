@@ -292,7 +292,7 @@ describe('sw-settings-storefront-index', () => {
         wrapper.vm.isSaveSuccessful = true;
 
         wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess', false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(loadSpy).not.toHaveBeenCalled();

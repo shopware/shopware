@@ -219,6 +219,22 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### `EntitySearchResult` is no longer `@final`
+
+`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
+
+### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
+
+6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
+
+For `ProductListingResult`:
+
+- `fromSearchResult()` was added for the cancelled change. It is deprecated and will be removed in v6.8.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
+- 6.7.13.0 listed `setPage()` and `setLimit()` as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0. Page the criteria in `AbstractListingProcessor::prepare()` instead. `PagingListingProcessor::process()` no longer writes the request page and limit onto the result.
+
+For `ProductReviewResult`:
+
+- 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.

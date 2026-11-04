@@ -819,8 +819,7 @@ class ImportExportTest extends TestCase
         $importExportService->method('getProgress')
             ->willReturnCallback(static fn () => new Progress($logEntity->getId(), $logEntity->getState()));
 
-        /** @var StaticEntityRepository<CustomerCollection> $repository */
-        $repository = new StaticEntityRepository([], new CustomerDefinition());
+        $repository = StaticEntityRepository::of(CustomerCollection::class, [], new CustomerDefinition());
 
         return new ImportExport(
             $importExportService,

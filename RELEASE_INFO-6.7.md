@@ -219,6 +219,22 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### `EntitySearchResult` is no longer `@final`
+
+`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
+
+### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
+
+6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
+
+For `ProductListingResult`:
+
+- `fromSearchResult()` was added for the cancelled change. It is deprecated and will be removed in v6.8.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
+- 6.7.13.0 listed `setPage()` and `setLimit()` as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0. Page the criteria in `AbstractListingProcessor::prepare()` instead. `PagingListingProcessor::process()` no longer writes the request page and limit onto the result.
+
+For `ProductReviewResult`:
+
+- 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
@@ -311,6 +327,11 @@ Saving is not blocked.
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
+
+### Cookie groups response contains a hash per cookie
+
+The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
+Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
 ## Features
 
@@ -469,6 +490,17 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
 
+### Unused runtime packages removed from the Administration
+
+The Administration no longer ships these packages:
+
+* `app-module-path`
+* `optional-chaining-codemod`
+* `path-browserify`
+* `uuid`
+* `vite-plugin-dynamic-import`
+
+If the Administration code of your extension imports one of them without declaring it, add it to the `package.json` of your extension.
 ### vue-i18n 11 in the Administration
 
 The Administration uses vue-i18n 11 instead of 10, which fixes the advisories GHSA-83rm-6c8r-g728 and GHSA-8rc2-428q-7ww3.
@@ -516,6 +548,14 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### `app.request` is the current request
+
+The Twig variable `app.request` now always returns the request that is currently rendered.
+Before, it kept the first request it was read in, so long-running workers like FrankenPHP showed the host and URL of an earlier request.
+This also applies to the header and footer, which are rendered in their own requests.
+Templates in the header and footer that read page data from `app.request`, for example the page route, now get the header or footer request.
+Pass page data through `headerParameters` and `footerParameters` instead.
 
 ### CMS sliders and image galleries respect vertical alignment
 
@@ -622,6 +662,11 @@ Override it to add or change values:
 ```twig
 {% block component_product_box_product_information %}{{ productInformation|merge({ customKey: 'value' })|json_encode }}{% endblock %}
 ```
+
+### Cookie consent is only requested again for new or changed cookies
+
+The Storefront now asks visitors for renewed cookie consent only when a cookie is added or the configuration of a cookie they already saw changes.
+Removing a cookie keeps the existing consent and removes the cookie.
 
 ### Theme compilation completion is notified once
 

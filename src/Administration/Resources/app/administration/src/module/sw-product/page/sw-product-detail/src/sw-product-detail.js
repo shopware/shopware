@@ -7,20 +7,12 @@ import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 import {
     aclService,
-    cloneDeep,
-    Criteria,
     customFieldDataProviderService as customFieldDataProviderServiceName,
     entityValidationService,
-    EntityValidationService,
-    EventBus,
     featureService,
     getApiContext,
-    getCacheService,
-    getCustomFieldDataProviderService,
     getEntityDefinition,
     getUserConfigService,
-    isFeatureActive,
-    isSeoUrlStoreRegistered,
     mapPageErrors,
     mediaService,
     notificationMixin,
@@ -30,26 +22,88 @@ import {
     repositoryFactoryService,
     seoUrlService,
     systemConfigApiService,
-    trackTelemetry,
-    types,
     useCmsPageStore,
     useContextStore,
-    useErrorStore,
     useProductDetailStore,
-    useSeoUrlStore,
     useSessionStore,
     useShopwareAppsStore,
 } from '../dependencies';
+import { createGeneralTabSettings, createSpecificationsTabSettings, useAdvancedMode } from './advanced-mode/private';
 import { collectSlotOverrides, stripSlotConfigMetadata } from './cms-page-overrides/private';
 import { createProductDetailTabs } from './detail-tabs/private';
-import { createDefaultFeatureSetCriteria, createProductCriteria, createPropertyCriteria } from './product-criteria/private';
-import { describeSaveError, describeSeoUrlErrors } from './save-errors/private';
-import { hasValidPurchaseLimits, normalizeReferencePrices } from './save-validation/private';
+import { useProductCreation } from './product-creation/private';
+import { createDefaultFeatureSetCriteria, createProductCriteria, useProductLoading } from './product-loading/private';
+import { useProductSaving } from './product-saving/private';
 import { getInheritedTitle, syncVariantPriceInheritance } from './variant-inheritance/private';
 
-const type = types;
+const concernsByPage = new WeakMap();
 
-const ADVANCED_MODE_SETTINGS_KEY = 'mode.setting.advancedModeSettings';
+/**
+ * The concerns of one page instance, created on first use.
+ * Each concern calls the page's own methods for its steps, so an override of a step still applies.
+ */
+function concernsOf(page) {
+    if (!concernsByPage.has(page)) {
+        concernsByPage.set(page, {
+            loading: useProductLoading(
+                stepsOf(page, [
+                    'loadProduct',
+                    'loadParentProduct',
+                    'loadCurrencies',
+                    'loadTaxes',
+                    'loadAttributeSet',
+                    'loadDefaultFeatureSet',
+                    'getDefaultPurchasePrices',
+                    'onProductNotFound',
+                ]),
+                page,
+            ),
+            saving: useProductSaving(
+                stepsOf(page, [
+                    'saveProduct',
+                    'onSaveFinished',
+                    'customValidate',
+                    'validateProductPurchase',
+                    'validateProductPrices',
+                    'validatePrices',
+                ]),
+                page,
+            ),
+            creation: useProductCreation(
+                stepsOf(page, [
+                    'adjustProductAccordingToType',
+                    'getDefaultTaxRate',
+                    'getDefaultSalesChannels',
+                    'fetchSalesChannelByIds',
+                    'createProductVisibilityEntity',
+                ]),
+                page,
+            ),
+            advancedMode: useAdvancedMode(
+                stepsOf(page, [
+                    'createUserModeSetting',
+                    'getAdvancedModeDefaultSetting',
+                    'getAdvancedModeSetting',
+                    'saveAdvancedMode',
+                    'changeModeSettings',
+                ]),
+                page,
+            ),
+        });
+    }
+
+    return concernsByPage.get(page);
+}
+
+/**
+ * Functions that call the named methods of the page at call time, so they reach a method an override replaced.
+ *
+ * @example
+ * stepsOf(page, ['loadProduct']).loadProduct(); // runs page.loadProduct(), overridden or not
+ */
+function stepsOf(page, names) {
+    return Object.fromEntries(names.map((name) => [name, (...args) => page[name](...args)]));
+}
 
 /**
  * @public
@@ -299,82 +353,14 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getModeSettingGeneralTab() {
-            return [
-                {
-                    key: 'general_information',
-                    label: 'sw-product.detailBase.cardTitleProductInfo',
-                    enabled: true,
-                    name: 'general',
-                },
-                {
-                    key: 'prices',
-                    label: 'sw-product.detailBase.cardTitlePrices',
-                    enabled: true,
-                    name: 'general',
-                },
-                {
-                    key: 'deliverability',
-                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                    enabled: true,
-                    name: 'general',
-                },
-                {
-                    key: 'visibility_structure',
-                    label: 'sw-product.detailBase.cardTitleAssignment',
-                    enabled: true,
-                    name: 'general',
-                },
-                {
-                    key: 'media',
-                    label: 'sw-product.detailBase.cardTitleMedia',
-                    enabled: true,
-                    name: 'general',
-                },
-                {
-                    key: 'labelling',
-                    label: 'sw-product.detailBase.cardTitleSettings',
-                    enabled: true,
-                    name: 'general',
-                },
-            ];
+            return createGeneralTabSettings();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getModeSettingSpecificationsTab() {
-            return [
-                {
-                    key: 'measurement',
-                    label: 'sw-product.specifications.cardTitleMeasurement',
-                    enabled: true,
-                    name: 'specifications',
-                },
-                {
-                    key: 'selling_packaging',
-                    label: 'sw-product.specifications.cardTitleSellingPackaging',
-                    enabled: true,
-                    name: 'specifications',
-                },
-                {
-                    key: 'properties',
-                    label: 'sw-product.specifications.cardTitleProperties',
-                    enabled: true,
-                    name: 'specifications',
-                },
-                {
-                    key: 'essential_characteristics',
-                    label: 'sw-product.specifications.cardTitleEssentialCharacteristics',
-                    enabled: true,
-                    name: 'specifications',
-                },
-                {
-                    key: 'custom_fields',
-                    label: 'sw-product.specifications.cardTitleCustomFields',
-                    enabled: true,
-                    name: 'specifications',
-                },
-            ];
+            return createSpecificationsTabSettings();
         },
 
         /**
@@ -530,120 +516,56 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         initAdvancedModeSettings() {
-            useProductDetailStore().advancedModeSetting = this.getAdvancedModeDefaultSetting();
-
-            // Only load settings when editing existing product
-            if (this.productId) {
-                this.getAdvancedModeSetting();
-            } else {
-                // Reset modeSettings to default when creating a new product
-                useProductDetailStore().modeSettings = this.changeModeSettings();
-            }
+            return concernsOf(this).advancedMode.initAdvancedModeSettings();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         createUserModeSetting() {
-            return {
-                key: ADVANCED_MODE_SETTINGS_KEY,
-                userId: this.currentUser && this.currentUser.id,
-            };
+            return concernsOf(this).advancedMode.createUserModeSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getAdvancedModeDefaultSetting() {
-            const defaultSettings = this.createUserModeSetting();
-            defaultSettings.value = {
-                advancedMode: {
-                    label: 'sw-product.general.textAdvancedMode',
-                    enabled: true,
-                },
-                settings: [...this.getModeSettingGeneralTab, ...this.getModeSettingSpecificationsTab],
-            };
-            return defaultSettings;
+            return concernsOf(this).advancedMode.getAdvancedModeDefaultSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        async getAdvancedModeSetting() {
-            const modeSettingsValue = (await getUserConfigService().search([ADVANCED_MODE_SETTINGS_KEY]))?.data?.[
-                ADVANCED_MODE_SETTINGS_KEY
-            ];
-
-            if (!modeSettingsValue) {
-                return;
-            }
-
-            const modeSettings = {
-                ...this.createUserModeSetting(),
-                value: cloneDeep(modeSettingsValue),
-            };
-            const defaultSettings = this.getAdvancedModeDefaultSetting().value.settings;
-
-            modeSettings.value.settings = defaultSettings.reduce((accumulator, defaultEntry) => {
-                const foundEntry = modeSettings.value.settings.find((dbEntry) => dbEntry.key === defaultEntry.key);
-                accumulator.push(foundEntry || defaultEntry);
-
-                return accumulator;
-            }, []);
-
-            useProductDetailStore().advancedModeSetting = modeSettings;
-            useProductDetailStore().modeSettings = this.changeModeSettings();
-
-            await this.$nextTick();
+        getAdvancedModeSetting() {
+            return concernsOf(this).advancedMode.getAdvancedModeSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         saveAdvancedMode() {
-            useProductDetailStore().setLoading(['advancedMode', true]);
-
-            return getUserConfigService()
-                .upsert({
-                    [ADVANCED_MODE_SETTINGS_KEY]: this.advancedModeSetting.value,
-                })
-                .then(async () => {
-                    await this.getAdvancedModeSetting();
-                    useProductDetailStore().setLoading(['advancedMode', false]);
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
-                    });
-                });
+            return concernsOf(this).advancedMode.saveAdvancedMode();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         onChangeSetting() {
-            useProductDetailStore().advancedModeSetting = this.advancedModeSetting;
-            this.saveAdvancedMode();
+            return concernsOf(this).advancedMode.onChangeSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         changeModeSettings() {
-            const enabledModeItems = this.advancedModeSetting.value.settings.filter((item) => item.enabled);
-            if (!enabledModeItems.length) {
-                return [];
-            }
-
-            return enabledModeItems.map((item) => item.key);
+            return concernsOf(this).advancedMode.changeModeSettings();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         onChangeSettingItem() {
-            useProductDetailStore().modeSettings = this.changeModeSettings();
-            this.saveAdvancedMode();
+            return concernsOf(this).advancedMode.onChangeSettingItem();
         },
 
         loadState() {
@@ -654,183 +576,23 @@ export default {
         },
 
         loadAll() {
-            return Promise.all([
-                this.loadProduct(),
-                this.loadCurrencies(),
-                this.loadTaxes(),
-                this.loadAttributeSet(),
-            ]);
+            return concernsOf(this).loading.loadAll();
         },
 
         createState() {
-            // set local mode
-            useProductDetailStore().localMode = true;
-            useShopwareAppsStore().selectedIds = [];
-
-            useProductDetailStore().setLoading(['product', true]);
-
-            // set product "type"
-            if (!isFeatureActive('v6.8.0.0')) {
-                useProductDetailStore().creationStates = this.creationStates;
-            }
-
-            useProductDetailStore().creationType = this.creationType;
-
-            // create empty product
-            useProductDetailStore().product = this.productRepository.create();
-
-            // fill empty data
-            this.product.active = true;
-            this.product.taxId = null;
-
-            this.product.metaTitle = '';
-            this.product.additionalText = '';
-            this.product.variantListingConfig = {};
-
-            if (this.creationType) {
-                this.adjustProductAccordingToType();
-            }
-
-            return Promise.all([
-                this.loadCurrencies(),
-                this.loadTaxes(),
-                this.loadAttributeSet(),
-                this.loadDefaultFeatureSet(),
-            ]).then(() => {
-                // set default product price and empty purchase price
-                this.product.price = [
-                    {
-                        currencyId: this.defaultCurrency.id,
-                        net: null,
-                        linked: true,
-                        gross: null,
-                    },
-                ];
-
-                this.product.purchasePrices = this.getDefaultPurchasePrices();
-
-                // Set default tax rate / sales channels on creation
-                if (this.product.isNew) {
-                    this.getDefaultTaxRate().then((result) => {
-                        this.product.taxId = result;
-                    });
-
-                    this.getDefaultSalesChannels().then((result) => {
-                        if (type.isEmpty(result)) {
-                            return;
-                        }
-
-                        this.product.active = result.defaultActive;
-
-                        if (!result.defaultSalesChannelIds || result.defaultSalesChannelIds.length <= 0) {
-                            return;
-                        }
-
-                        this.fetchSalesChannelByIds(result.defaultSalesChannelIds).then((salesChannels) => {
-                            if (!salesChannels.length) {
-                                return;
-                            }
-
-                            salesChannels.forEach((salesChannel) => {
-                                const visibilities = this.createProductVisibilityEntity(
-                                    result.defaultVisibilities,
-                                    salesChannel,
-                                );
-                                this.product.visibilities.push(visibilities);
-                            });
-                        });
-                    });
-                }
-
-                if (this.getDefaultFeatureSet?.length) {
-                    this.product.featureSetId = this.getDefaultFeatureSet?.[0].id;
-                }
-
-                useProductDetailStore().setLoading(['product', false]);
-            });
+            return concernsOf(this).creation.createState();
         },
 
         adjustProductAccordingToType() {
-            if (this.creationType === 'digital') {
-                this.product.maxPurchase = 1;
-            }
-
-            this.product.type = this.creationType;
+            return concernsOf(this).creation.adjustProductAccordingToType();
         },
 
         loadProduct() {
-            useProductDetailStore().setLoading(['product', true]);
-
-            return this.productRepository
-                .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
-                .then(async (product) => {
-                    if (!product) {
-                        await this.onProductNotFound();
-
-                        return;
-                    }
-
-                    if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
-                        if (!this.defaultCurrency?.id) {
-                            await this.loadCurrencies();
-                        }
-
-                        product.purchasePrices = this.getDefaultPurchasePrices();
-                        product._origin.purchasePrices = cloneDeep(product.purchasePrices);
-                    }
-
-                    if (product.propertyIds?.length > 0) {
-                        const propertyCriteria = createPropertyCriteria(product.propertyIds, product.id);
-
-                        const result = await this.propertyRepository.search(propertyCriteria);
-                        result.source = product.properties.source;
-
-                        product._origin.properties = cloneDeep(result);
-                        product.properties = result;
-                    }
-
-                    useProductDetailStore().isDownloadExternallyManaged = !product.downloads?.length;
-                    useProductDetailStore().product = product;
-
-                    if (this.product.parentId) {
-                        await this.loadParentProduct();
-                        this.syncVariantPriceInheritance();
-                    } else {
-                        useProductDetailStore().parentProduct = {};
-                    }
-
-                    if (this.productId === product.id && this.lastViewedProductId !== product.id) {
-                        this.lastViewedProductId = product.id;
-                        trackTelemetry({
-                            eventName: 'sw_product.detail.product_viewed',
-                            product_type: product.type,
-                        });
-                    }
-                })
-                .finally(() => {
-                    useProductDetailStore().setLoading(['product', false]);
-                });
+            return concernsOf(this).loading.loadProduct();
         },
 
-        async onProductNotFound() {
-            this.isProductNotFound = true;
-            useShopwareAppsStore().selectedIds = [];
-
-            this.createNotificationError({
-                message: this.$t('sw-product.detail.messageProductNotFound'),
-            });
-
-            try {
-                await this.$router.push({
-                    name: 'sw.product.index',
-                });
-            } catch {
-                // Ignore navigation failures. The missing product state still prevents the detail view from rendering.
-            } finally {
-                const productDetailStore = useProductDetailStore();
-                productDetailStore.product = {};
-                productDetailStore.parentProduct = {};
-            }
+        onProductNotFound() {
+            return concernsOf(this).loading.onProductNotFound();
         },
 
         syncVariantPriceInheritance() {
@@ -838,162 +600,43 @@ export default {
         },
 
         getDefaultPurchasePrices() {
-            return [
-                {
-                    currencyId: this.defaultCurrency.id,
-                    net: 0,
-                    linked: true,
-                    gross: 0,
-                },
-            ];
+            return concernsOf(this).loading.getDefaultPurchasePrices();
         },
 
         loadParentProduct() {
-            useProductDetailStore().setLoading(['parentProduct', true]);
-
-            return this.productRepository
-                .get(this.product.parentId, getApiContext(), this.productCriteria)
-                .then(async (parent) => {
-                    if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
-                        if (!this.defaultCurrency?.id) {
-                            await this.loadCurrencies();
-                        }
-
-                        parent.purchasePrices = this.getDefaultPurchasePrices();
-                        parent._origin.purchasePrices = cloneDeep(parent.purchasePrices);
-                    }
-
-                    if (parent.propertyIds?.length > 0) {
-                        const propertyCriteria = createPropertyCriteria(parent.propertyIds);
-
-                        const result = await this.propertyRepository.search(propertyCriteria);
-                        result.source = parent.properties.source;
-
-                        parent._origin.properties = cloneDeep(result);
-                        parent.properties = result;
-                    }
-
-                    useProductDetailStore().parentProduct = parent;
-                })
-                .then(() => {
-                    useProductDetailStore().setLoading(['parentProduct', false]);
-                });
+            return concernsOf(this).loading.loadParentProduct();
         },
 
         loadCurrencies() {
-            useProductDetailStore().setLoading(['currencies', true]);
-
-            const criteria = new Criteria(1, 500);
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-
-            return this.currencyRepository
-                .search(criteria, getApiContext(), {
-                    cacheKey: ['shared-data', 'currencies', getApiContext().languageId ?? 'default'],
-                    ttl: 5 * 60 * 1000,
-                })
-                .then((res) => {
-                    useProductDetailStore().currencies = [...res];
-                })
-                .finally(() => {
-                    useProductDetailStore().setLoading(['currencies', false]);
-                });
+            return concernsOf(this).loading.loadCurrencies();
         },
 
         loadTaxes() {
-            useProductDetailStore().setLoading(['taxes', true]);
-
-            const criteria = new Criteria(1, 500);
-            criteria.addSorting(Criteria.sort('position'));
-
-            return this.taxRepository
-                .search(criteria, getApiContext(), {
-                    cacheKey: ['shared-data', 'taxes', getApiContext().languageId ?? 'default'],
-                    ttl: 5 * 60 * 1000,
-                })
-                .then((res) => {
-                    useProductDetailStore().setTaxes(res);
-                })
-                .finally(() => {
-                    useProductDetailStore().setLoading(['taxes', false]);
-                });
+            return concernsOf(this).loading.loadTaxes();
         },
 
         getDefaultTaxRate() {
-            return getCacheService().query({
-                key: ['shared-data', 'default-tax-rate-id'],
-                ttl: 5 * 60 * 1000,
-                fn: () =>
-                    this.systemConfigApiService.getValues('core.tax').then((response) => {
-                        const defaultTaxRateId = response['core.tax.defaultTaxRate'];
-
-                        return typeof defaultTaxRateId === 'string' ? defaultTaxRateId : null;
-                    }),
-            });
+            return concernsOf(this).creation.getDefaultTaxRate();
         },
 
         loadAttributeSet() {
-            useProductDetailStore().setLoading(['customFieldSets', true]);
-
-            const customFieldDataProviderService =
-                this.customFieldDataProviderService ?? getCustomFieldDataProviderService();
-
-            return customFieldDataProviderService
-                .getCustomFieldSets('product')
-                .then((res) => {
-                    useProductDetailStore().customFieldSets = res;
-                })
-                .finally(() => {
-                    useProductDetailStore().setLoading(['customFieldSets', false]);
-                });
+            return concernsOf(this).loading.loadAttributeSet();
         },
 
         loadDefaultFeatureSet() {
-            useProductDetailStore().setLoading(['defaultFeatureSet', true]);
-
-            return this.featureSetRepository
-                .search(this.defaultFeatureSetCriteria)
-                .then((res) => {
-                    useProductDetailStore().setDefaultFeatureSet(res);
-                })
-                .finally(() => {
-                    useProductDetailStore().setLoading(['defaultFeatureSet', false]);
-                });
+            return concernsOf(this).loading.loadDefaultFeatureSet();
         },
 
         getDefaultSalesChannels() {
-            return this.systemConfigApiService.getValues('core.defaultSalesChannel').then((response) => {
-                if (type.isEmpty(response)) {
-                    return {};
-                }
-
-                return {
-                    defaultSalesChannelIds: response?.['core.defaultSalesChannel.salesChannel'],
-                    defaultVisibilities: response?.['core.defaultSalesChannel.visibility'],
-                    defaultActive: !!response?.['core.defaultSalesChannel.active'],
-                };
-            });
+            return concernsOf(this).creation.getDefaultSalesChannels();
         },
 
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equalsAny('id', ids));
-
-            return this.salesChannelRepository.search(criteria);
+            return concernsOf(this).creation.fetchSalesChannelByIds(ids);
         },
 
         createProductVisibilityEntity(visibility, salesChannel) {
-            const visibilities = this.productVisibilityRepository.create(getApiContext());
-
-            Object.assign(visibilities, {
-                visibility: visibility[salesChannel.id] || this.defaultSalesChannelVisibility,
-                productId: this.product.id,
-                salesChannelId: salesChannel.id,
-                salesChannel: salesChannel,
-            });
-
-            return visibilities;
+            return concernsOf(this).creation.createProductVisibilityEntity(visibility, salesChannel);
         },
 
         abortOnLanguageChange() {
@@ -1012,117 +655,27 @@ export default {
         },
 
         saveFinish() {
-            this.isSaveSuccessful = false;
-
-            if (!this.productId) {
-                this.$router.push({
-                    name: 'sw.product.detail',
-                    params: { id: this.product.id },
-                });
-            }
+            return concernsOf(this).saving.saveFinish();
         },
 
         onSave() {
-            if (!this.validateProductPurchase()) {
-                this.createNotificationError({
-                    message: this.$t('sw-product.detail.errorMinMaxPurchase'),
-                });
-
-                return new Promise((resolve) => {
-                    resolve();
-                });
-            }
-
-            this.validateProductPrices();
-
-            if (!this.productId) {
-                if (this.productNumberPreview === this.product.productNumber) {
-                    this.numberRangeService.reserve('product').then((response) => {
-                        this.productNumberPreview = 'reserved';
-                        this.product.productNumber = response.number;
-                    });
-                }
-            }
-
-            this.isSaveSuccessful = false;
-
-            if (type.isEmpty(this.product.slotConfig)) {
-                this.product.slotConfig = null;
-            }
-
-            if (!this.entityValidationService.validate(this.product, this.customValidate, this.ignoreFieldsValidation)) {
-                const titleSaveError = this.$t('global.default.error');
-                const messageSaveError = this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
-
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError,
-                });
-                return Promise.resolve();
-            }
-
-            return this.saveProduct().then(this.onSaveFinished);
+            return concernsOf(this).saving.onSave();
         },
 
         customValidate(errors, product) {
-            if (this.isUploadedFileRequired && (product.downloads === undefined || product.downloads.length < 1)) {
-                errors.push({
-                    ...EntityValidationService.createRequiredError('/0/downloads'),
-                    code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
-                    detail: this.$t('sw-product.detailBase.downloadsExternalManagementRequired'),
-                });
-            }
-
-            return errors;
+            return concernsOf(this).saving.customValidate(errors, product);
         },
 
         validateProductPrices() {
-            this.product.prices.forEach((advancedPrice) => {
-                this.validatePrices('listPrice', advancedPrice.price);
-            });
-            this.validatePrices('listPrice', this.product.price);
-
-            this.product.prices.forEach((advancedPrice) => {
-                this.validatePrices('regulationPrice', advancedPrice.price);
-            });
-            this.validatePrices('regulationPrice', this.product.price);
+            return concernsOf(this).saving.validateProductPrices();
         },
 
         validatePrices(priceLabel, prices) {
-            normalizeReferencePrices(prices, priceLabel);
+            return concernsOf(this).saving.validatePrices(priceLabel, prices);
         },
 
         onSaveFinished(response) {
-            if (response !== 'success' && response !== 'empty') {
-                this.createNotificationError(describeSaveError(response, (...args) => this.$t(...args)));
-                return;
-            }
-
-            useErrorStore().resetApiErrors();
-
-            EventBus.emit('sw-product-detail-save-success');
-
-            if (this.updateSeoPromises.length === 0) {
-                this.isSaveSuccessful = true;
-
-                return;
-            }
-
-            useProductDetailStore().setLoading(['product', true]);
-
-            Promise.all(this.updateSeoPromises)
-                .then(() => {
-                    EventBus.emit('sw-product-detail-save-finish');
-                })
-                .then(() => {
-                    this.isSaveSuccessful = true;
-                })
-                .catch(() => Promise.resolve())
-                .finally(() => {
-                    useProductDetailStore().setLoading(['product', false]);
-
-                    this.loadProduct();
-                });
+            return concernsOf(this).saving.onSaveFinished(response);
         },
 
         onCancel() {
@@ -1130,78 +683,7 @@ export default {
         },
 
         saveProduct() {
-            useProductDetailStore().setLoading(['product', true]);
-
-            this.updateSeoPromises = [];
-
-            if (isSeoUrlStoreRegistered()) {
-                const seoUrls = useSeoUrlStore().newOrModifiedUrls;
-                const defaultSeoUrl = useSeoUrlStore().defaultSeoUrl;
-
-                if (seoUrls) {
-                    seoUrls.forEach((seoUrl) => {
-                        if (!seoUrl.seoPathInfo) {
-                            seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
-                            seoUrl.isModified = false;
-                        } else {
-                            seoUrl.isModified = true;
-                        }
-
-                        this.updateSeoPromises.push(
-                            this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
-                                describeSeoUrlErrors(error, (...args) => this.$t(...args)).forEach((message) => {
-                                    this.createNotificationError({ message });
-                                });
-
-                                return Promise.reject(error);
-                            }),
-                        );
-                    });
-                }
-            }
-
-            return new Promise((resolve) => {
-                // check if product exists
-                if (!this.productRepository.hasChanges(this.product)) {
-                    useProductDetailStore().setLoading(['product', false]);
-                    resolve('empty');
-                    useProductDetailStore().setLoading(['product', false]);
-                    return;
-                }
-
-                const productType = this.productType;
-                const productIsNew = this.product.isNew();
-
-                // save product
-                this.syncRepository
-                    .save(this.product, this.productApiContext)
-                    .then(() => {
-                        trackTelemetry({
-                            eventName: 'sw_product.detail.product_saved',
-                            product_type: productType,
-                            product_is_new: productIsNew,
-                        });
-
-                        this.savePreferenceUnits()
-                            .then(() => {
-                                this.previousLengthUnit = this.lengthUnit;
-                                this.previousWeightUnit = this.weightUnit;
-                            })
-                            .catch((response) => {
-                                resolve(response);
-                            });
-
-                        this.loadAll().then(() => {
-                            useProductDetailStore().setLoading(['product', false]);
-
-                            resolve('success');
-                        });
-                    })
-                    .catch((response) => {
-                        useProductDetailStore().setLoading(['product', false]);
-                        resolve(response);
-                    });
-            });
+            return concernsOf(this).saving.saveProduct();
         },
 
         removeMediaItem(state, mediaId) {
@@ -1244,7 +726,7 @@ export default {
         },
 
         validateProductPurchase() {
-            return hasValidPurchaseLimits(this.product);
+            return concernsOf(this).saving.validateProductPurchase();
         },
 
         /**

@@ -9945,9 +9945,6 @@
     },
     "max-lines": {
       "count": 1
-    },
-    "max-nested-callbacks": {
-      "count": 1
     }
   },
   "src/module/sw-product/page/sw-product-detail/tests/sw-product-detail.analytics.spec.ts": {

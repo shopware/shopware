@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
@@ -301,6 +302,20 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         static::expectException(ApiProtectionException::class);
         $this->createFacade()->search('product', $criteria);
+    }
+
+    public function testSearchCannotLoadReviewCustomersThroughStoreFacade(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('customer'));
+
+        $this->createFacade()->search('product', [
+            'ids' => [$this->ids->get('p1')],
+            'associations' => [
+                'productReviews' => [
+                    'associations' => ['customer' => []],
+                ],
+            ],
+        ]);
     }
 
     private function createProducts(): void

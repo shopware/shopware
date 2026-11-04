@@ -653,6 +653,33 @@ class OrderRouteTest extends TestCase
         static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
     }
 
+    public function testProtectedStateMachineStateOrdersAssociationCannotBeExposedThroughIncludes(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/order',
+                [
+                    'associations' => [
+                        'stateMachineState' => [
+                            'associations' => [
+                                'orders' => [],
+                            ],
+                        ],
+                    ],
+                    'includes' => [
+                        'state_machine_state' => ['id', 'orders.id'],
+                    ],
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayNotHasKey('orders', $response);
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+    }
+
     protected function getValidPaymentMethods(): PaymentMethodCollection
     {
         /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */

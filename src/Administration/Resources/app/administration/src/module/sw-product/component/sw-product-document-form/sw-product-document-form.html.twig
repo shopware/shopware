@@ -151,7 +151,7 @@
                                 :disabled="!canEdit || isInherited"
                                 @click="editDocument(item)"
                             >
-                                {{ $t('global.default.edit') }}
+                                {{ !isDefaultLanguage && !item.title && !item.mediaId ? $t('sw-product.documentForm.addLanguageVersion', { language: contentLanguageName }) : $t('global.default.edit') }}
                             </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
                             <sw-product-document-download :media="getMedia(item)" />
@@ -249,6 +249,10 @@
                 v-model:document-title="documentTitle"
                 v-model:apply-to-variants="applyToVariants"
                 :document-id="editingDocument.id"
+                :allow-fallback="!isDefaultLanguage"
+                :language-name="contentLanguageName"
+                :is-adding-language-version="!isDefaultLanguage && !editingDocument.title && !editingDocument.mediaId"
+                :document-title-placeholder="isDefaultLanguage ? '' : getTitle(editingDocument)"
                 :editing-media="editingMedia"
                 :document-name-error="documentNameError"
                 :document-file-error="documentFileError"

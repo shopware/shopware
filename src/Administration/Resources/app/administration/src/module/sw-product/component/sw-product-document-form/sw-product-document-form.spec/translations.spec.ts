@@ -129,7 +129,6 @@ describe('sw-product-document-form translated editing', () => {
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Handbuch');
             await flushPromises();
         } else {
-            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
             await selectMedia(wrapper, [germanMedia]);
         }
         await clickButton(wrapper, 'global.default.apply');
@@ -167,7 +166,9 @@ describe('sw-product-document-form translated editing', () => {
 
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Discard this name');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        if (field === 'file') {
+            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        }
         await selectMedia(wrapper, [createMedia('discard-this-file')]);
         await clickButton(wrapper, 'global.default.cancel');
         expect(new ChangesetGenerator().generate(store.product).changes).toBeNull();

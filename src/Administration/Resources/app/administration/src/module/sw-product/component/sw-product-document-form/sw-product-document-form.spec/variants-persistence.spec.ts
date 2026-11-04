@@ -140,7 +140,6 @@ describe('sw-product-document-form variant persistence', () => {
         if (field === 'title') {
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', title);
         } else {
-            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
             const replacement = createMedia('german-manual');
             replacement.id = germanMediaId;
             await selectMedia(wrapper, [replacement]);

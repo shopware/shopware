@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { modalsStoreId, useModalsStore } from './src/modals.store';
 

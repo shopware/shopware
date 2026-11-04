@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { ruleConditionsConfigStoreId, useRuleConditionsConfigStore } from './src/rule-conditions-config.store';
 

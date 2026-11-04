@@ -98,7 +98,7 @@ describe('scripts/generate-shopware-modules', () => {
         it('publishes any other module under the kind its doc comment names', () => {
             const extract = extractFrom(
                 'src/module/sw-example/helper/example-delivery',
-                "/**\n * @shopware-kind helpers\n */\nexport { primaryDelivery } from './src/x';\n",
+                "/**\n * @export-namespace helpers\n */\nexport { primaryDelivery } from './src/x';\n",
             );
 
             expect(extract()['shopware:helpers'].subpaths).toEqual({ 'example-delivery': ['primaryDelivery'] });
@@ -111,25 +111,25 @@ describe('scripts/generate-shopware-modules', () => {
             );
 
             expect(extract).toThrow(
-                '"src/module/sw-example/helper/example-delivery/index.ts" needs exactly one kind. Add "@shopware-kind <kind>"',
+                '"src/module/sw-example/helper/example-delivery/index.ts" needs exactly one export namespace. Add "@export-namespace <namespace>"',
             );
         });
 
         it('refuses a kind that does not exist', () => {
             const extract = extractFrom(
                 'src/module/sw-example/helper/example-delivery',
-                "/** @shopware-kind gadgets */\nexport { primaryDelivery } from './src/x';\n",
+                "/** @export-namespace gadgets */\nexport { primaryDelivery } from './src/x';\n",
             );
 
             expect(extract).toThrow(
-                'names the unknown kind "gadgets". Use one of: components, framework, handlers, helpers, mixins, services, stores.',
+                'names the unknown export namespace "gadgets". Use one of: components, framework, handlers, helpers, mixins, services, stores.',
             );
         });
 
         it('publishes a store module under the id it registers, which its "<id>StoreId" export names', () => {
             const extract = extractFrom(
                 'src/module/sw-example/page/sw-example-detail/store',
-                "/**\n * @shopware-kind stores\n */\nexport { swExampleDetailStoreId, useSwExampleDetailStore } from './src/x';\n",
+                "/**\n * @export-namespace stores\n */\nexport { swExampleDetailStoreId, useSwExampleDetailStore } from './src/x';\n",
             );
 
             expect(extract()['shopware:stores'].subpaths).toEqual({
@@ -143,7 +143,7 @@ describe('scripts/generate-shopware-modules', () => {
         it('refuses a store module that does not export the id of its store', () => {
             const extract = extractFrom(
                 'src/module/sw-example/page/sw-example-detail/store',
-                "/**\n * @shopware-kind stores\n */\nexport { useSwExampleDetailStore } from './src/x';\n",
+                "/**\n * @export-namespace stores\n */\nexport { useSwExampleDetailStore } from './src/x';\n",
             );
 
             expect(extract).toThrow('needs exactly one "<id>StoreId" export, which names the store it registers.');
@@ -152,7 +152,7 @@ describe('scripts/generate-shopware-modules', () => {
         it('publishes a mixin module under its directory name, which is the name it registers under', () => {
             const extract = extractFrom(
                 'src/module/sw-example/mixin/sw-example-list',
-                "/**\n * @shopware-kind mixins\n */\nexport { default } from './src/x';\n",
+                "/**\n * @export-namespace mixins\n */\nexport { default } from './src/x';\n",
             );
 
             expect(extract()['shopware:mixins'].subpaths).toEqual({ 'sw-example-list': ['default'] });
@@ -169,11 +169,11 @@ describe('scripts/generate-shopware-modules', () => {
             try {
                 write(
                     'src/module/sw-example/page/sw-example-detail/store',
-                    "/**\n * @private\n * @shopware-kind stores\n */\nexport { swExampleDetailStoreId } from './src/x';\n",
+                    "/**\n * @private\n * @export-namespace stores\n */\nexport { swExampleDetailStoreId } from './src/x';\n",
                 );
                 write(
                     'src/module/sw-example/mixin/sw-example-list',
-                    "/**\n * @private\n * @shopware-kind mixins\n */\nexport { default } from './src/x';\n",
+                    "/**\n * @private\n * @export-namespace mixins\n */\nexport { default } from './src/x';\n",
                 );
                 write(
                     'src/module/sw-example/component/sw-example-card',

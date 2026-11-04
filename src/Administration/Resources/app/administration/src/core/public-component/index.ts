@@ -7,7 +7,7 @@
  */
 /**
  * @public
- * @shopware-kind framework
+ * @export-namespace framework
  */
 export { definePrivateComponent, definePublicComponent } from './src/public-component';
 /** @public */

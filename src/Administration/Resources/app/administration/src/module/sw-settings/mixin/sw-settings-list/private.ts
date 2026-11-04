@@ -6,6 +6,6 @@
  */
 /**
  * @private
- * @shopware-kind mixins
+ * @export-namespace mixins
  */
 export { default } from './src/sw-settings-list.mixin';

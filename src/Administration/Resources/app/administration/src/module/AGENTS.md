@@ -77,13 +77,13 @@ Extensions see these types through `extension-tooling/mini-modules.d.ts`, which 
 Extensions import a component module as `shopware:components/<component name>`, and any other mini-module as `shopware:<kind>/<directory name>`.
 A CMS element keeps its `component/`, `config/` or `preview/` directory, because its name says which one it is.
 A component module is of the kind `components`.
-Any other mini-module names its kind with `@shopware-kind <kind>` in the doc comment of its `index.ts` exports, and the generator fails without one:
+Any other mini-module names its kind, the namespace it is exported under, with `@export-namespace <namespace>` in the doc comment of its `index.ts` exports, and the generator fails without one:
 
 ```ts
 // index.ts of a helper module
 /**
  * @public
- * @shopware-kind helpers
+ * @export-namespace helpers
  */
 export { getPrimaryDelivery } from './src/primary-delivery';
 ```
@@ -114,7 +114,7 @@ Its `index.ts` exports the id of the store as `<id>StoreId` and a `use<Name>Stor
 // index.ts
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { swExampleDetailStoreId, useSwExampleDetailStore } from './src/sw-example-detail.store';
 
@@ -132,7 +132,7 @@ Its `index.ts`, or `private.ts` when it is `@private`, default-exports the mixin
 Other code imports the mixin from the module instead of calling `Mixin.getByName()`.
 
 `shopware:stores/<id>` and `shopware:mixins/<name>` keep reading `Shopware.Store` and `Shopware.Mixin`, as for a store or mixin without a module.
-A `@public` module adds its name there, and a module with only a `private.ts` that names its kind with `@shopware-kind` keeps its name out, also when the global type still lists it.
+A `@public` module adds its name there, and a module with only a `private.ts` that names its kind with `@export-namespace` keeps its name out, also when the global type still lists it.
 
 Run `composer admin:generate-shopware-modules` after adding a mini-module or changing the exports of its `index.ts`.
 A spec fails when a `register.ts` publishes anything else, or when the generated files are stale.

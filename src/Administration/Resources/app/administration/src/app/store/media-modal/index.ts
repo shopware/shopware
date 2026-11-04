@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { mediaModalStoreId, useMediaModalStore } from './src/media-modal.store';
 

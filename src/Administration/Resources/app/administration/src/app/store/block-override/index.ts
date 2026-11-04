@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { blockOverrideStoreId, useBlockOverrideStore } from './src/block-override.store';
 

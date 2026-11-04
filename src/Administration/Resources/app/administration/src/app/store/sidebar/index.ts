@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { sidebarStoreId, useSidebarStore } from './src/sidebar.store';
 

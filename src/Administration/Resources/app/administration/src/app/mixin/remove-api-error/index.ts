@@ -6,6 +6,6 @@
  */
 /**
  * @public
- * @shopware-kind mixins
+ * @export-namespace mixins
  */
 export { default } from './src/remove-api-error.mixin';

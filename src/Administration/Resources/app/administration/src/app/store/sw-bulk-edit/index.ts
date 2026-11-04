@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { swBulkEditStoreId, useSwBulkEditStore } from './src/sw-bulk-edit.store';
 

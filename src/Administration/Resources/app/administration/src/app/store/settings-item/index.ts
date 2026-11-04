@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { settingsItemsStoreId, useSettingsItemsStore } from './src/settings-item.store';
 

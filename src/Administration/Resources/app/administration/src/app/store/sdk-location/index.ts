@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { sdkLocationStoreId, useSdkLocationStore } from './src/sdk-location.store';
 

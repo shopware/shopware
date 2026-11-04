@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { topBarButtonStoreId, useTopBarButtonStore } from './src/topbar-button.store';
 

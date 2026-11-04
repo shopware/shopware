@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { extensionEntryRoutesStoreId, useExtensionEntryRoutesStore } from './src/extension-entry-routes.store';
 

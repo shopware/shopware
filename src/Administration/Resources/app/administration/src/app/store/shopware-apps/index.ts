@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { shopwareAppsStoreId, useShopwareAppsStore } from './src/shopware-apps.store';
 

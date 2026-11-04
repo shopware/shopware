@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { actionButtonsStoreId, useActionButtonsStore } from './src/action-buttons.store';
 

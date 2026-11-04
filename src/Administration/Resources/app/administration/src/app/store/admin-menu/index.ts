@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { adminMenuStoreId, useAdminMenuStore } from './src/admin-menu.store';
 

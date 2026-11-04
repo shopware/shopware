@@ -6,6 +6,6 @@
  */
 /**
  * @public
- * @shopware-kind mixins
+ * @export-namespace mixins
  */
 export { default } from './src/translate-with-fallback.mixin';

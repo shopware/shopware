@@ -7,7 +7,7 @@
  */
 /**
  * @public
- * @shopware-kind framework
+ * @export-namespace framework
  */
 export {
     acl,

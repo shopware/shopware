@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { sessionStoreId, useSessionStore } from './src/session.store';
 

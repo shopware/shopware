@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind mixins
+ * @export-namespace mixins
  */
 export { default } from './src/rule-between-operator.mixin';
 

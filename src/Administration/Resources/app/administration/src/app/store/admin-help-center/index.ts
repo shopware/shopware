@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { adminHelpCenterStoreId, useAdminHelpCenterStore } from './src/admin-help-center.store';
 

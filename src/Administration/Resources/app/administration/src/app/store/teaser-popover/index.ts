@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { teaserPopoverStoreId, useTeaserPopoverStore } from './src/teaser-popover.store';
 

@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { inAppPurchaseCheckoutStoreId, useInAppPurchaseCheckoutStore } from './src/in-app-purchase-checkout.store';
 

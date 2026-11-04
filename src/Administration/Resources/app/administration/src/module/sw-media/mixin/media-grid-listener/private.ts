@@ -6,6 +6,6 @@
  */
 /**
  * @private
- * @shopware-kind mixins
+ * @export-namespace mixins
  */
 export { default } from './src/media-grid-listener.mixin';

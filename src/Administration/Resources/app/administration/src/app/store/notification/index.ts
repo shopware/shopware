@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { notificationStoreId, useNotificationStore } from './src/notification.store';
 

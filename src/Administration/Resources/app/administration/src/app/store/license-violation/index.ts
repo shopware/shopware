@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { licenseViolationStoreId, useLicenseViolationStore } from './src/license-violation.store';
 

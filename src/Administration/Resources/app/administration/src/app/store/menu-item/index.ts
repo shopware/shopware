@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { menuItemStoreId, useMenuItemStore } from './src/menu-item.store';
 

@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { swPromotionDetailStoreId, useSwPromotionDetailStore } from './src/sw-promotion-detail.store';
 

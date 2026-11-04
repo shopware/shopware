@@ -64,14 +64,14 @@
  *
  * `Shopware.Public` — the `index.ts` of every mini-module below `src/`
  * Each `index.ts` is the public contract of its module, so its value exports are the subpath's exports.
- * A component module is of the kind `components`; any other module names its kind with `@shopware-kind`:
+ * A component module is of the kind `components`; any other module names its kind in an `@export-namespace` tag:
  *
  *     // src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.ts
  *     export default definePublicComponent({ name: 'sw-settings-shipping-price-matrix', … });
  *
  *     → shopware:components/sw-settings-shipping-price-matrix  named exports { default }
  *
- *     // src/app/service-names/index.ts, with `@shopware-kind framework` in the doc comment of the export
+ *     // src/app/service-names/index.ts, with `@export-namespace framework` in the doc comment of the export
  *     export { repositoryFactory } from './src/service-names';
  *
  *     → shopware:framework/service-names  named exports { repositoryFactory }
@@ -450,23 +450,23 @@ function declaredComponentName(sourceFile: ts.SourceFile): string | undefined {
     return name && ts.isStringLiteral(name) ? name.text : undefined;
 }
 
-const KIND_TAG = 'shopware-kind';
+const EXPORT_NAMESPACE_TAG = 'export-namespace';
 
 /**
- * The kinds the `@shopware-kind` tags in the doc comments of an `index.ts` name, e.g. `["framework"]`.
+ * The kinds the `@export-namespace` tags in the doc comments of an `index.ts` name, e.g. `["framework"]`.
  */
 function taggedKinds(sourceFile: ts.SourceFile): string[] {
     return sourceFile.statements.flatMap((statement) =>
         ts
             .getJSDocTags(statement)
-            .filter((tag) => tag.tagName.text === KIND_TAG)
+            .filter((tag) => tag.tagName.text === EXPORT_NAMESPACE_TAG)
             .map((tag) => ts.getTextOfJSDocComment(tag.comment)?.trim() ?? ''),
     );
 }
 
 /**
  * The kind a mini-module is published under: `components` for a component module, otherwise the one kind
- * its `@shopware-kind` tags name.
+ * its `@export-namespace` tags name.
  *
  * Throws when a module names no kind, an unknown one or more than one, because its specifier would be
  * unclear.
@@ -478,7 +478,7 @@ function moduleKind(sourceFile: ts.SourceFile, moduleDir: string, isComponent: b
     if (isComponent) {
         if (kinds.some((kind) => kind !== 'components')) {
             throw new Error(
-                `"${moduleDir}" declares a component, so its kind is "components". Remove the @${KIND_TAG} tag.`,
+                `"${moduleDir}" declares a component, so its kind is "components". Remove the @${EXPORT_NAMESPACE_TAG} tag.`,
             );
         }
 
@@ -487,14 +487,14 @@ function moduleKind(sourceFile: ts.SourceFile, moduleDir: string, isComponent: b
 
     if (kinds.length !== 1) {
         throw new Error(
-            `"${moduleDir}/index.ts" needs exactly one kind. Add "@${KIND_TAG} <kind>" to the doc comment of its exports, with one of: ${allowed}.`,
+            `"${moduleDir}/index.ts" needs exactly one export namespace. Add "@${EXPORT_NAMESPACE_TAG} <namespace>" to the doc comment of its exports, with one of: ${allowed}.`,
         );
     }
 
     const [kind] = kinds;
 
     if (!(PUBLIC_KINDS as readonly string[]).includes(kind)) {
-        throw new Error(`"${moduleDir}/index.ts" names the unknown kind "${kind}". Use one of: ${allowed}.`);
+        throw new Error(`"${moduleDir}/index.ts" names the unknown export namespace "${kind}". Use one of: ${allowed}.`);
     }
 
     return kind as PublicKind;

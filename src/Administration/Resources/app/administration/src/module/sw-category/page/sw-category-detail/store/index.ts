@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { swCategoryDetailStoreId, useSwCategoryDetailStore } from './src/sw-category-detail.store';
 

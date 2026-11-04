@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { extensionMainModulesStoreId, useExtensionMainModulesStore } from './src/main-module.store';
 

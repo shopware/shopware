@@ -6,7 +6,7 @@
  */
 /**
  * @public
- * @shopware-kind stores
+ * @export-namespace stores
  */
 export { tabsStoreId, useTabsStore } from './src/tabs.store';
 

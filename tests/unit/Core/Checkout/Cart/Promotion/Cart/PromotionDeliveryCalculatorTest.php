@@ -31,6 +31,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
@@ -388,33 +389,25 @@ class PromotionDeliveryCalculatorTest extends TestCase
     }
 
     /**
-     * The cart calculator decides cart promotions before the delivery calculator runs:
-     * one that it did not apply (e.g. its discount matched nothing) must not block delivery promotions.
+     * Before 6.8 the exclusions a later promotion carries in its payload, as the cart calculator writes them for
+     * promotions preventing combinations, exclude earlier promotions of higher priority.
      */
-    public function testCartPromotionNotAppliedDoesNotExcludeDeliveryPromotion(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLaterPromotionExcludesEarlierHigherPriorityPromotionBeforeMajor(): void
     {
         $this->quantityPriceCalculator
             ->method('calculate')
-            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition): CalculatedPrice {
                 return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
             });
 
-        $cartDiscount = new LineItem(self::CART_PROMOTION, PromotionProcessor::LINE_ITEM_TYPE);
-        $cartDiscount->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_CART);
-        $cartDiscount->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_ABSOLUTE);
-        $cartDiscount->setPayloadValue('exclusions', [self::DELIVERY_PROMOTION]);
-        $cartDiscount->setPayloadValue('promotionId', self::CART_PROMOTION);
-        $cartDiscount->setPayloadValue('priority', 10);
-        $cartDiscount->setReferencedId(self::CART_PROMOTION);
-        $cartDiscount->setLabel('Cart Discount');
-
-        $deliveryDiscount = $this->getDiscountItem(self::DELIVERY_PROMOTION)
-            ->setPayloadValue('code', 'FREESHIP')
-            ->setPayloadValue('exclusions', [self::CART_PROMOTION])
-            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
-            ->setPayloadValue('value', 0)
-            ->setPayloadValue('priority', 1)
-            ->setPriceDefinition(new AbsolutePriceDefinition(0));
+        $firstDiscountItem = $this->getDiscountItem('first-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('priority', 2);
+        $secondDiscountItem = $this->getDiscountItem('second-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('exclusions', ['first-promotion'])
+            ->setPayloadValue('priority', 1);
 
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -428,14 +421,14 @@ class PromotionDeliveryCalculatorTest extends TestCase
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
 
         $this->promotionDeliveryCalculator->calculate(
-            new LineItemCollection([$cartDiscount, $deliveryDiscount]),
+            new LineItemCollection([$firstDiscountItem, $secondDiscountItem]),
             $cart,
             $cart,
-            Generator::generateSalesChannelContext(),
+            static::createStub(SalesChannelContext::class)
         );
 
-        static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice());
-        static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
+        static::assertSame(90.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
     }
 
     /**

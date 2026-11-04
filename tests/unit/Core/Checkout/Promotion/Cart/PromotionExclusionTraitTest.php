@@ -67,17 +67,17 @@ class PromotionExclusionTraitTest extends TestCase
         static::assertFalse($this->isExcluded($third, [$first, $second, $third]));
     }
 
-    public static function excluderApplicationProvider(): \Generator
+    public static function excluderEligibilityProvider(): \Generator
     {
-        yield 'not applied when processed, requirement would pass now' => [false, true, false, false];
-        yield 'applied when processed, requirement would fail now' => [true, false, false, true];
+        yield 'failed its requirement when processed, would pass now' => [false, true, false, false];
+        yield 'passed its requirement when processed, would fail now' => [true, false, false, true];
         yield 'not processed yet, requirement passes' => [null, true, false, true];
         yield 'not processed yet, requirement fails' => [null, false, false, false];
         yield 'not processed yet, but already in the cart' => [null, false, true, true];
     }
 
-    #[DataProvider('excluderApplicationProvider')]
-    public function testExcluderOnlyCountsWhenApplied(?bool $recordedApplication, bool $requirementPasses, bool $inCart, bool $expectedExcluded): void
+    #[DataProvider('excluderEligibilityProvider')]
+    public function testExcluderOnlyCountsWhenEligible(?bool $recordedEligibility, bool $requirementPasses, bool $inCart, bool $expectedExcluded): void
     {
         $excluding = $this->discountItem('excluding', priority: 2, exclusions: ['checked']);
         $checked = $this->discountItem('checked', priority: 1);
@@ -90,7 +90,7 @@ class PromotionExclusionTraitTest extends TestCase
         static::assertSame($expectedExcluded, $this->isExcluded(
             $checked,
             [$excluding, $checked],
-            applied: $recordedApplication === null ? [] : ['excluding' => $recordedApplication],
+            eligibility: $recordedEligibility === null ? [] : ['excluding' => $recordedEligibility],
             requirements: ['excluding' => $requirementPasses],
             cart: $cart,
         ));
@@ -98,10 +98,10 @@ class PromotionExclusionTraitTest extends TestCase
 
     /**
      * @param list<LineItem> $sortedItems
-     * @param array<string, bool> $applied
+     * @param array<string, bool> $eligibility
      * @param array<string, bool> $requirements
      */
-    private function isExcluded(LineItem $checked, array $sortedItems, array $applied = [], array $requirements = [], ?Cart $cart = null): bool
+    private function isExcluded(LineItem $checked, array $sortedItems, array $eligibility = [], array $requirements = [], ?Cart $cart = null): bool
     {
         $items = new LineItemCollection($sortedItems);
         $user = new ExclusionTraitUser($requirements);
@@ -110,7 +110,7 @@ class PromotionExclusionTraitTest extends TestCase
             $checked,
             $items,
             $user->buildExclusions($items),
-            $applied,
+            $eligibility,
             $cart ?? new Cart('promotion-test'),
             static::createStub(SalesChannelContext::class)
         );

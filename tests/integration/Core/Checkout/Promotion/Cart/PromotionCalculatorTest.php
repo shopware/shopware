@@ -27,6 +27,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -203,6 +204,8 @@ class PromotionCalculatorTest extends TestCase
      */
     public function testPromotionDependingOnPromotionInCartExcludesLowerPriorityPromotion(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
         $productId = $this->createProduct(gross: 100.0);
         $appliedPromotionId = $this->getPromotionId(priority: 3, value: 10.0);
         $dependentPromotionId = $this->getPromotionId(priority: 2, value: 20.0);

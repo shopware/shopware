@@ -92,8 +92,11 @@ class PromotionCalculator
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
-        $exclusions = $this->buildExclusions($discountLineItems);
-        $applied = [];
+        $isPerItemExclusion = Feature::isActive('v6.8.0.0');
+        $exclusions = $isPerItemExclusion ? $this->buildExclusions($discountLineItems) : [];
+        $eligibility = [];
+        // @deprecated tag:v6.8.0 - remove the legacy exclusion stack and the branches reading it
+        $legacyExclusions = $isPerItemExclusion ? [] : $this->buildLegacyExclusions($discountLineItems, $calculated, $context);
 
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
@@ -114,11 +117,12 @@ class PromotionCalculator
 
             $isAutomaticDiscount = $this->isAutomaticDiscount($discountItem);
 
-            $applied[$discountItem->getId()] = false;
-
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
-            if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
+            $isEligible = $this->isRequirementValid($discountItem, $calculated, $context);
+            $eligibility[$discountItem->getId()] = $isEligible;
+
+            if (!$isEligible) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$isAutomaticDiscount) {
                     $name = $discountItem->getLabel() ?? $discountItem->getId();
@@ -140,7 +144,10 @@ class PromotionCalculator
             }
 
             // if promotion is on exclusions stack it is ignored
-            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $applied, $calculated, $context)) {
+            $isExcluded = $isPerItemExclusion
+                ? $this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $calculated, $context)
+                : \array_key_exists($discountItem->getPayloadValue('promotionId'), $legacyExclusions);
+            if ($isExcluded) {
                 if (!$isAutomaticDiscount) {
                     $calculated->addErrors(new PromotionExcludedError($discountItem->getDescription() ?? $discountItem->getId()));
                 }
@@ -180,7 +187,6 @@ class PromotionCalculator
 
             // add our discount item to the cart
             $calculated->add($discountItem);
-            $applied[$discountItem->getId()] = true;
 
             $this->addPromotionAddedNotice($original, $calculated, $discountItem);
 
@@ -188,6 +194,68 @@ class PromotionCalculator
             // prices for any upcoming iterations
             $this->calculateCart($calculated, $context);
         }
+    }
+
+    // @deprecated tag:v6.8.0 - remove, exclusions are then only resolved per discount item by PromotionExclusionTrait::isExcluded()
+    /**
+     * This function builds a complete list of promotions
+     * that are excluded somehow.
+     * The validation which one to take will be done later.
+     *
+     * @return array<mixed, bool>
+     */
+    private function buildLegacyExclusions(LineItemCollection $discountLineItems, Cart $calculated, SalesChannelContext $context): array
+    {
+        // array that holds all excluded promotion ids.
+        // if a promotion has exclusions they are added on the stack
+        $exclusions = [];
+
+        foreach ($discountLineItems as $discountItem) {
+            // if we dont have a scope
+            // then skip it, it might not belong to us
+            if (!$discountItem->hasPayloadValue('discountScope')) {
+                continue;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            if ($discountItem->hasPayloadValue('promotionId')) {
+                $promotionId = $discountItem->getPayloadValue('promotionId');
+
+                // if promotion is on exclusions stack it is ignored
+                // this avoids cycles that both promotions exclude each other
+                if (isset($exclusions[$promotionId])) {
+                    continue;
+                }
+
+                if ($discountItem->getPayloadValue('preventCombination')) {
+                    $payloadExclusions = [];
+                    foreach ($discountLineItems as $exclusionItem) {
+                        if (!$exclusionItem->hasPayloadValue('promotionId')) {
+                            continue;
+                        }
+
+                        $promotionIdToExclude = $exclusionItem->getPayloadValue('promotionId');
+                        if ($promotionIdToExclude === $promotionId) {
+                            continue;
+                        }
+
+                        $payloadExclusions[] = $promotionIdToExclude;
+                    }
+
+                    $discountItem->setPayloadValue('exclusions', $payloadExclusions);
+                }
+            }
+
+            // add all exclusions to the stack
+            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
+                // check if the promotion is active by its conditions
+                if ($this->isRequirementValid($discountItem, $calculated, $context)) {
+                    $exclusions[$id] = true;
+                }
+            }
+        }
+
+        return $exclusions;
     }
 
     /**

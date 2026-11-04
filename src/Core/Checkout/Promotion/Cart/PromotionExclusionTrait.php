@@ -59,12 +59,12 @@ trait PromotionExclusionTrait
     }
 
     /**
-     * Checks if a discount item is excluded by an applied promotion of higher priority.
+     * Checks if a discount item is excluded by another promotion of higher priority.
      *
      * @param array<string, list<string>> $exclusions see buildExclusions()
-     * @param array<string, bool> $applied whether the discount made it into the cart, per discount line item id, recorded for every item the calculator has decided on
+     * @param array<string, bool> $eligibility requirement check result per discount line item id, recorded when the calculator processed that item
      */
-    private function isExcluded(LineItem $checkedItem, LineItemCollection $sortedDiscountItems, array $exclusions, array $applied, Cart $calculated, SalesChannelContext $context): bool
+    private function isExcluded(LineItem $checkedItem, LineItemCollection $sortedDiscountItems, array $exclusions, array $eligibility, Cart $calculated, SalesChannelContext $context): bool
     {
         $excludedPromotionIds = [];
         $checkedPromotionId = $checkedItem->getPayloadValue('promotionId');
@@ -99,10 +99,10 @@ trait PromotionExclusionTrait
                 continue;
             }
 
-            $isApplied = $applied[$discountItem->getId()]
+            $isEligible = $eligibility[$discountItem->getId()]
                 ?? ($lineItems->exists($discountItem) || $this->isRequirementValid($discountItem, $calculated, $context));
 
-            if (!$isApplied) {
+            if (!$isEligible) {
                 continue;
             }
 

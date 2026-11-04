@@ -131,17 +131,21 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
-    public function testInvalidateMediaClearsTheProductsAndVariantsWhoseDocumentsUseTheFile(): void
+    public function testInvalidateMediaClearsTheDetailPagesOfTheProductsWhoseDocumentsUseTheFile(): void
     {
         $context = Context::createDefaultContext();
         static::getContainer()->get('media.repository')->create([
             ['id' => $this->ids->create('manual')],
             ['id' => $this->ids->create('handbuch')],
+            ['id' => $this->ids->create('blue-sheet')],
         ], $context);
 
+        $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
+        $blue['documents'] = [['title' => 'Blue sheet', 'mediaId' => $this->ids->get('blue-sheet')]];
         $drill = (new ProductBuilder($this->ids, 'drill'))
             ->price(10)
             ->variant((new ProductBuilder($this->ids, 'drill-red'))->build())
+            ->variant($blue)
             ->build();
         $drill['documents'] = [[
             'translations' => [
@@ -153,19 +157,32 @@ class CacheInvalidationSubscriberTest extends TestCase
         $hammer['documents'] = [['title' => 'Manual', 'mediaId' => $this->ids->get('manual')]];
         static::getContainer()->get('product.repository')->create([$drill, $hammer], $context);
 
+        // the detail page of a variant carries the tag of its parent
+        static::assertEqualsCanonicalizing([$this->productTag('drill'), $this->productTag('hammer')], $this->invalidatedProductTags('manual'));
+        static::assertSame([$this->productTag('drill')], $this->invalidatedProductTags('handbuch'));
+        static::assertSame([$this->productTag('drill')], $this->invalidatedProductTags('blue-sheet'));
+    }
+
+    private function productTag(string $product): string
+    {
+        return ProductDetailRoute::buildName($this->ids->get($product));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function invalidatedProductTags(string $file): array
+    {
         $tags = [];
         $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
             $tags = $invalidated;
         });
+
         $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), productStreamIndexerEnabled: true);
+        $subscriber->invalidateMedia(new MediaIndexerEvent([$this->ids->get($file)], Context::createDefaultContext(), []));
 
-        // only the German version of the drill's document uses this file
-        $subscriber->invalidateMedia(new MediaIndexerEvent([$this->ids->get('handbuch')], $context, []));
-
-        static::assertContains(ProductDetailRoute::buildName($this->ids->get('drill')), $tags);
-        static::assertContains(ProductDetailRoute::buildName($this->ids->get('drill-red')), $tags);
-        static::assertNotContains(ProductDetailRoute::buildName($this->ids->get('hammer')), $tags);
+        return array_values(array_filter($tags, static fn (string $tag): bool => str_starts_with($tag, 'product-')));
     }
 
     private function insertDefaultPropertyGroup(): void

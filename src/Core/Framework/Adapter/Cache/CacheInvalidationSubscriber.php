@@ -363,18 +363,20 @@ class CacheInvalidationSubscriber
         /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(
             'SELECT
-                    LOWER(HEX(owner.product_id)) as product_id,
-                    LOWER(HEX(variant.id)) as variant_id
-                    FROM (
-                        SELECT product_id FROM product_media WHERE media_id IN (:ids)
-                        UNION
-                        SELECT pd.product_id
-                            FROM product_document_translation AS pdt
-                            INNER JOIN product_document AS pd ON (pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id)
-                            WHERE pdt.media_id IN (:ids)
-                    ) AS owner
-                    LEFT JOIN product as variant ON (owner.product_id = variant.parent_id)',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds())],
+                    LOWER(HEX(pm.product_id)) as product_id,
+                    IF(variant.id IS NULL,  NULL, LOWER(HEX(variant.id))) as variant_id
+                    FROM product_media AS pm
+                    LEFT JOIN product as variant ON (pm.product_id = variant.parent_id)
+                    WHERE media_id IN (:ids)
+                UNION ALL
+                SELECT DISTINCT
+                    LOWER(HEX(COALESCE(product.parent_id, product.id))) as product_id,
+                    NULL as variant_id
+                    FROM product_document_translation AS pdt
+                    INNER JOIN product_document AS pd ON (pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id)
+                    INNER JOIN product ON (pd.product_id = product.id AND pd.product_version_id = product.version_id)
+                    WHERE pdt.media_id IN (:ids) AND pd.version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::STRING]
         );
 

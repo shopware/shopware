@@ -54,7 +54,6 @@ class ProductSerializerTest extends TestCase
             $salesChannelIds
         ));
 
-        /** @var StaticEntityRepository<ProductVisibilityCollection> $visibilityRepository */
         $visibilityRepository = new StaticEntityRepository([$existing], new ProductVisibilityDefinition());
 
         $serializer = new ProductSerializer(
@@ -92,8 +91,7 @@ class ProductSerializerTest extends TestCase
     {
         $salesChannelIds = [Uuid::randomHex(), Uuid::randomHex()];
 
-        /** @var StaticEntityRepository<ProductVisibilityCollection> $visibilityRepository */
-        $visibilityRepository = new StaticEntityRepository([], new ProductVisibilityDefinition());
+        $visibilityRepository = StaticEntityRepository::of(ProductVisibilityCollection::class, [], new ProductVisibilityDefinition());
 
         $serializer = new ProductSerializer(
             $visibilityRepository,
@@ -160,7 +158,6 @@ class ProductSerializerTest extends TestCase
             ]),
         ]);
 
-        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorSettingRepository */
         // one result per option, so a per-option lookup is counted rather than running the queue dry
         $configuratorSettingRepository = new StaticEntityRepository([$existing, $existing, $existing], new ProductConfiguratorSettingDefinition());
 
@@ -202,7 +199,6 @@ class ProductSerializerTest extends TestCase
         ));
 
         // one result per visibility key, so a per-key lookup is counted rather than running the queue dry
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository(
             [$salesChannels, $salesChannels, $salesChannels],
             new SalesChannelDefinition()
@@ -236,7 +232,6 @@ class ProductSerializerTest extends TestCase
             $salesChannelIds
         ));
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([$salesChannels], new SalesChannelDefinition());
 
         $serializer = new ProductSerializer(
@@ -265,7 +260,6 @@ class ProductSerializerTest extends TestCase
             (new SalesChannelEntity())->assign(['id' => $salesChannelId, 'name' => 'Storefront']),
         ]);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([$salesChannels], new SalesChannelDefinition());
 
         $serializer = new ProductSerializer(
@@ -301,7 +295,6 @@ class ProductSerializerTest extends TestCase
         ]);
 
         // one result per url, so a per-url lookup is counted rather than running the queue dry
-        /** @var StaticEntityRepository<ProductMediaCollection> $productMediaRepository */
         $productMediaRepository = new StaticEntityRepository([$existing, $existing, $existing], new ProductMediaDefinition());
 
         $serializer = new ProductSerializer(

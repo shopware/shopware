@@ -39,7 +39,6 @@ class ProductCrossSellingSerializerTest extends TestCase
         ]);
 
         // one result per assigned product, so a per-product lookup is counted rather than running the queue dry
-        /** @var StaticEntityRepository<ProductCrossSellingAssignedProductsCollection> $assignedProductsRepository */
         $assignedProductsRepository = new StaticEntityRepository(
             [$existing, $existing, $existing],
             new ProductCrossSellingAssignedProductsDefinition()

@@ -7,12 +7,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -44,8 +44,7 @@ class ThemeChangeCommand extends Command
         private readonly ThemeService $themeService,
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly EntityRepository $salesChannelRepository,
-        private readonly EntityRepository $themeRepository,
-        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
+        private readonly EntityRepository $themeRepository
     ) {
         parent::__construct();
         $this->context = Context::createCLIContext();
@@ -58,7 +57,8 @@ class ThemeChangeCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
         $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
         $this->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously');
-        $this->addOption('no-cleanup', null, InputOption::VALUE_NONE, 'Do not delete unused theme directories after compilation');
+        /** @deprecated tag:v6.8.0 - option will be removed, the cleanup runs via the theme.delete_files scheduled task */
+        $this->addOption('no-cleanup', null, InputOption::VALUE_NONE, '[DEPRECATED] Has no effect, unused theme directories are removed by the theme.delete_files scheduled task');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -69,6 +69,13 @@ class ThemeChangeCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
         \assert($helper instanceof QuestionHelper);
+
+        if ($input->getOption('no-cleanup')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-cleanup" option of the "theme:change" command is deprecated and will be removed in v6.8.0.0. The command no longer deletes unused theme directories, the "theme.delete_files" scheduled task does.'
+            );
+        }
 
         if ($input->getOption('sales-channel') && $input->getOption('all')) {
             $this->io->error('You can use either --sales-channel or --all, not both at the same time.');
@@ -136,11 +143,6 @@ class ThemeChangeCommand extends Command
                 $this->context,
                 $input->getOption('no-compile')
             );
-        }
-
-        if (!$input->getOption('no-cleanup')) {
-            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
-            $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
         }
 
         return self::SUCCESS;

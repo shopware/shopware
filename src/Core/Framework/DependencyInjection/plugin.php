@@ -123,7 +123,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
             service(PluginFinder::class),
             service(VersionSanitizer::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(PluginLifecycleService::class)
         ->args([
@@ -157,6 +158,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Filesystem::class),
             service(CacheClearer::class),
             service('shopware.store_download_client'),
+            service('event_dispatcher'),
         ]);
 
     $services->set(ExtensionExtractor::class)
@@ -283,6 +285,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ]);
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Core\Framework\Plugin\Util\AssetService',
         AssetService::class,

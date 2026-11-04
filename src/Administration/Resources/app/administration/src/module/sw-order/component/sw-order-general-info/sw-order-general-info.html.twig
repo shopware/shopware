@@ -6,22 +6,26 @@
         <div class="sw-order-general-info__summary-main">
             {% block sw_order_detail_base_general_info_summary_main_header %}
             <div class="sw-order-general-info__summary-main-header">
-                {{ order.orderNumber }} -
-                <router-link
+                <span>{{ order.orderNumber }} -</span>
+
+                <mt-link
                     v-if="order.orderCustomer.customer"
                     class="sw-order-general-info__summary-main-header-link"
                     :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }"
                 >
-                    {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
+                    <span>{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}</span>
                     <span v-if="order.orderCustomer.company"> - {{ order.orderCustomer.company }}</span>
-                </router-link>
+                </mt-link>
+
                 <template v-else>
-                    {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
+                    <span>{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}</span>
                     <span v-if="order.orderCustomer.company"> - {{ order.orderCustomer.company }}</span>
                 </template>
-                ({{ emailIdnFilter(order.orderCustomer.email) }})
+
+                <span>({{ emailIdnFilter(order.orderCustomer.email) }})</span>
             </div>
             {% endblock %}
+
             {% block sw_order_detail_base_general_info_summary_main_total %}
             <div class="sw-order-general-info__summary-main-total">
                 {{ currencyFilter(order.amountTotal, order.currency.isoCode, order.totalRounding.decimals) }}
@@ -38,16 +42,19 @@
                     :date="order.orderDateTime"
                     :date-time-format="{ month: '2-digit', day: '2-digit' }"
                 />
+
                 <template v-if="transaction">
-                    {{ $t('sw-order.generalTab.info.summary.with') }}
-                    {{ transaction.paymentMethod.translated.distinguishableName }}
+                    <span>{{ $t('sw-order.generalTab.info.summary.with') }}</span>
+                    <span>{{ transaction.paymentMethod.translated.distinguishableName }}</span>
                 </template>
+
                 <template v-if="delivery">
-                    {{ $t('sw-order.generalTab.info.summary.and') }}
-                    {{ delivery.shippingMethod.translated.name }}
+                    <span>{{ $t('sw-order.generalTab.info.summary.and') }}</span>
+                    <span>{{ delivery.shippingMethod.translated.name }}</span>
                 </template>
             </div>
             {% endblock %}
+
             {% block sw_order_detail_base_general_info_summary_sub_last_changed %}
             <div class="sw-order-general-info__summary-sub-last-changed">
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_time %}
@@ -55,20 +62,22 @@
                     v-if="lastChangedDateTime"
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
-                    {{ $t('sw-order.generalTab.info.summary.lastChanged') }}:
+                    <span>{{ $t('sw-order.generalTab.info.summary.lastChanged') }}:</span>
+
                     <sw-time-ago
                         :date="lastChangedDateTime"
                         :date-time-format="{ month: '2-digit', day: '2-digit' }"
                     />
                 </div>
                 {% endblock %}
+
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_user %}
                 <div
                     v-if="lastChangedUser"
                     class="sw-order-general-info__summary-sub-last-changed-user"
                 >
-                    {{ $t('sw-order.generalTab.info.summary.by') }}
-                    {{ lastChangedUser.firstName }} {{ lastChangedUser.lastName }}
+                    <span>{{ $t('sw-order.generalTab.info.summary.by') }}</span>
+                    <span>{{ lastChangedUser.firstName }} {{ lastChangedUser.lastName }}</span>
                 </div>
                 {% endblock %}
             </div>
@@ -105,15 +114,15 @@
                 class="sw-order-general-info__order-state-payment"
                 :transition-options="paymentStateOptions"
                 state-type="order_transaction"
-                rounded-style
+                :state-name="transaction.stateMachineState.technicalName"
                 :placeholder="transaction.stateMachineState.translated.name"
                 :label="$t('sw-order.stateCard.headlineTransactionState')"
-                :background-style="backgroundStyle('order_transaction')"
                 :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
             />
         </div>
         {% endblock %}
+
         {% block sw_order_detail_base_general_info_order_states_shipping %}
         <div
             v-if="delivery"
@@ -128,15 +137,15 @@
                 class="sw-order-general-info__order-state-delivery"
                 :transition-options="deliveryStateOptions"
                 state-type="order_delivery"
-                rounded-style
+                :state-name="delivery.stateMachineState.technicalName"
                 :placeholder="delivery.stateMachineState.translated.name"
                 :label="$t('sw-order.stateCard.headlineDeliveryState')"
-                :background-style="backgroundStyle('order_delivery')"
                 :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
             />
         </div>
         {% endblock %}
+
         {% block sw_order_detail_base_general_info_order_states_order %}
         <div class="sw-order-general-info__order-state">
             <sw-order-state-select-v2
@@ -147,11 +156,10 @@
                 }"
                 class="sw-order-general-info__order-state-order"
                 :transition-options="orderStateOptions"
-                rounded-style
                 state-type="order"
+                :state-name="order.stateMachineState.technicalName"
                 :placeholder="order.stateMachineState.translated.name"
                 :label="$t('sw-order.stateCard.headlineOrderState')"
-                :background-style="backgroundStyle('order')"
                 :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
             />

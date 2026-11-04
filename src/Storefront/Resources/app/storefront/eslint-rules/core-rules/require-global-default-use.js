@@ -8,10 +8,11 @@ const path = require('path');
 const STOREFRONT_ROOT = path.resolve(__dirname, '..', '..');
 
 /**
- * `global.default` always lives in the core Storefront — the rule's home. Candidate snippets and the
- * allow list are read from the directory ESLint runs in (`context.cwd`, optionally narrowed by the
- * `snippetRoot` option), so the rule also covers storefront snippets shipped by other bundles when
- * they are linted from their own directory — without the core Storefront referencing those bundles.
+ * `global.default` always lives in the core Storefront — the rule's home. Candidate snippets are read
+ * from the directory ESLint runs in (`context.cwd`, optionally narrowed by the `snippetRoot` option)
+ * and the allow list from the nearest `snippet-validation.json` above it, so the rule also covers
+ * storefront snippets shipped by other bundles when they are linted from their own directory —
+ * without the core Storefront referencing those bundles.
  */
 const GLOBAL_DEFAULT_DIR = path.resolve(STOREFRONT_ROOT, '..', '..', 'snippet');
 
@@ -19,20 +20,30 @@ const SKIP_DIRS = new Set(['node_modules', 'vendor', '.git', 'var', 'dist', '.vi
 
 let duplicateCache = null;
 
+const VALIDATION_CONFIG = 'snippet-validation.json';
+
 /**
- * Reads the allow list of snippet keys that intentionally keep a global.default duplicate.
- * Set SNIPPET_ALLOW_LIST_DISABLED to bypass it and surface every duplicate, including allowed ones.
+ * Reads `globalDefaultDuplicates.storefront` of the nearest `snippet-validation.json`, searched upwards
+ * from the directory ESLint runs in: a core app finds the repository's file, an extension the one at its
+ * own root. Set SNIPPET_ALLOW_LIST_DISABLED to bypass it and surface every duplicate, including allowed ones.
  */
 function loadAllowList(cwd) {
     if (process.env.SNIPPET_ALLOW_LIST_DISABLED) {
         return [];
     }
 
-    try {
-        const list = require(path.join(cwd, 'snippet-global-default-allow-list.js'));
-        return Array.isArray(list) ? list : [];
-    } catch {
-        return [];
+    let dir = path.resolve(cwd);
+    while (true) {
+        const candidate = path.join(dir, VALIDATION_CONFIG);
+        if (fs.existsSync(candidate)) {
+            return Object.keys(readJson(candidate)?.globalDefaultDuplicates?.storefront ?? {});
+        }
+
+        const parent = path.dirname(dir);
+        if (parent === dir) {
+            return [];
+        }
+        dir = parent;
     }
 }
 

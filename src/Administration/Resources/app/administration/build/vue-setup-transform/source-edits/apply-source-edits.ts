@@ -10,7 +10,7 @@
  */
 
 import MagicString, { Bundle, type SourceMap } from 'magic-string';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { ShopwareSetupInternalError } from '../utils/transform-error';
 import { generated, type SourceChunk } from './chunks';
 import {
     type GeneratedPosition,
@@ -135,7 +135,7 @@ function applySourceEdits(source: string, filename: string, edits: SourceEdit[])
         .sort((a, b) => a.start - b.start)
         .forEach((edit) => {
             if (edit.start < cursor) {
-                throw new ShopwareSetupTransformError(
+                throw new ShopwareSetupInternalError(
                     `Overlapping Shopware setup source edits: an edit at ${edit.start}-${edit.end} starts before the ` +
                         `previous edit ended at ${cursor}. This is an analyzer bug, not an authoring error.`,
                     edit.start,

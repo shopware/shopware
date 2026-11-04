@@ -154,7 +154,7 @@ class ShippingMethodRepositoryTest extends TestCase
 
         $result = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext)->getEntities();
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     /**

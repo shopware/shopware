@@ -15,6 +15,17 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(UserException::class)]
 class UserExceptionTest extends TestCase
 {
+    public function testUsernameNotUnique(): void
+    {
+        $previous = new \RuntimeException('Database error');
+        $exception = UserException::usernameNotUnique($previous);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('USER__USERNAME_NOT_UNIQUE', $exception->getErrorCode());
+        static::assertSame('The username is already in use.', $exception->getMessage());
+        static::assertSame($previous, $exception->getPrevious());
+    }
+
     public function testSalesChannelNotFound(): void
     {
         $exception = UserException::salesChannelNotFound();
@@ -23,7 +34,7 @@ class UserExceptionTest extends TestCase
         static::assertSame(Response::HTTP_PRECONDITION_FAILED, $exception->getStatusCode());
         static::assertSame(UserException::SALES_CHANNEL_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('No sales channel found.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testMissingRequestParameter(): void

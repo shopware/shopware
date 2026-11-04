@@ -268,9 +268,13 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             return null;
         }
 
+        $errors = $exportBehavior->batchMode() && !$exportBehavior->generateHeader() && !$exportBehavior->generateFooter()
+            ? []
+            : $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent());
+
         return new ProductExportResult(
             $encodingEvent->getEncodedContent(),
-            $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
+            $errors,
             offset: $iterator->getOffset(),
             hasNextBatch: $exportBehavior->batchMode() && $fetched === $this->readBufferSize
         );

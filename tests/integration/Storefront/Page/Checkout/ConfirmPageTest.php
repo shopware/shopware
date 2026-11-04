@@ -41,7 +41,7 @@ class ConfirmPageTest extends TestCase
         static::assertSame($context->getToken(), $page->getCart()->getToken());
         static::assertCount(StorefrontPageTestConstants::AVAILABLE_SHIPPING_METHOD_COUNT, $page->getShippingMethods());
         static::assertCount(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT, $page->getPaymentMethods());
-        static::assertNotEmpty($page->getPaymentMethods());
+        static::assertNotCount(0, $page->getPaymentMethods());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

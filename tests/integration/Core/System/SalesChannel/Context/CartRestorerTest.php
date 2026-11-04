@@ -30,6 +30,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Builder\Promotion\PromotionFixtureBuilder;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -116,7 +117,7 @@ class CartRestorerTest extends TestCase
         $this->contextPersister->save($currentContextToken, [], $currentContext->getSalesChannelId());
         $this->contextPersister->save($guestToken, [], $guestContext->getSalesChannelId());
 
-        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
         $productLineItem1 = $this->createLineItem($currentContext, 2);
         $productLineItem2 = $this->createLineItem($currentContext, 3);
@@ -205,7 +206,7 @@ class CartRestorerTest extends TestCase
         $formerContext = $this->createSalesChannelContext('formerToken');
         $currentContext = $this->createSalesChannelContext('currentToken');
 
-        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
         $restoredContext = $this->cartRestorer->restoreByToken($formerContext->getToken(), $this->customerId, $currentContext);
 
@@ -322,7 +323,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($expectedContext->getToken(), [], $currentContext->getSalesChannelId(), $this->customerId);
 
-        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
         $restoredContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
@@ -454,7 +455,7 @@ class CartRestorerTest extends TestCase
             'id' => $productLineItem3->getReferencedId(),
         ]], $customerContext->getContext());
 
-        $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartMergedEvent::class, $this->callbackFn);
 
         $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
@@ -463,7 +464,7 @@ class CartRestorerTest extends TestCase
         static::assertFalse($restoreCart->isModified());
         static::assertIsString($productLineItem3->getReferencedId());
         // The deleted product will be removed from the cart as a result of recalculation
-        static::assertEmpty($restoreCart->getLineItems()->get($productLineItem3->getReferencedId()));
+        static::assertNull($restoreCart->getLineItems()->get($productLineItem3->getReferencedId()));
 
         static::assertArrayHasKey(CartMergedEvent::class, $this->events);
         $cartMergedEvent = $this->events[CartMergedEvent::class];
@@ -504,8 +505,8 @@ class CartRestorerTest extends TestCase
         $customerCart = new Cart($customerToken);
         $this->cartPersister->save($customerCart, $customerContext);
 
-        $this->eventDispatcher->addListener(BeforeCartMergeEvent::class, $this->callbackFn);
-        $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeCartMergeEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartMergedEvent::class, $this->callbackFn);
 
         $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 

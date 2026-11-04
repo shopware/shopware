@@ -11,6 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -92,5 +93,41 @@ class MailSentEventTest extends TestCase
     public function testAvailableDataDescribesTheFlowPayload(): void
     {
         static::assertSame(['subject', 'contents', 'recipients'], array_keys(MailSentEvent::getAvailableData()->toArray()));
+    }
+
+    public function testCarriesTheMailDataTemplateDataAndMessage(): void
+    {
+        $mail = new Email();
+
+        $event = new MailSentEvent(
+            'subject',
+            ['john.doe@example.com' => 'John doe'],
+            ['text/plain' => 'plain'],
+            Context::createDefaultContext(),
+            'checkout.order.placed',
+            ['templateId' => 'template-id', 'salesChannelId' => 'sales-channel-id'],
+            ['order' => ['orderNumber' => '10001']],
+            $mail,
+        );
+
+        static::assertSame('template-id', $event->getTemplateId());
+        static::assertSame('sales-channel-id', $event->getSalesChannelId());
+        static::assertSame('checkout.order.placed', $event->getEventName());
+        static::assertSame(['order' => ['orderNumber' => '10001']], $event->getTemplateData());
+        static::assertSame($mail, $event->getMessage());
+        // the template data is not part of the flow payload, as it can contain entities
+        static::assertSame(['subject', 'contents', 'recipients'], array_keys($event->getValues()));
+    }
+
+    public function testNewDataIsOptional(): void
+    {
+        $event = new MailSentEvent('subject', ['a@b.c' => null], [], Context::createDefaultContext());
+
+        static::assertSame([], $event->getData());
+        static::assertSame([], $event->getTemplateData());
+        static::assertNull($event->getMessage());
+        static::assertNull($event->getEventName());
+        static::assertNull($event->getTemplateId());
+        static::assertNull($event->getSalesChannelId());
     }
 }

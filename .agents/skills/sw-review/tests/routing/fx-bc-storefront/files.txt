@@ -1,0 +1,2 @@
+src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
+src/Storefront/Resources/views/storefront/component/pagination.html.twig

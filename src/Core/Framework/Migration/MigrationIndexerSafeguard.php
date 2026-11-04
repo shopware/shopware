@@ -298,7 +298,7 @@ final class MigrationIndexerSafeguard
 
         // Form C: raw SQL UPDATE with SET clause parsing.
         if (preg_match_all(
-            '/\bUPDATE\s+`?([a-z_]+)`?\s+SET\s+(.+?)(?:\s+WHERE\b|\s+ORDER\s+BY\b|\s+LIMIT\b|\s*;|\s*$)/is',
+            '/\bUPDATE\s+`?([a-z_]+)`?\s+SET\s+(.+?)(?:\s+WHERE\b|\s+ORDER\s+BY\b|\s+LIMIT\b|\s*;|\s*$)/isD',
             $source,
             $matches,
             \PREG_SET_ORDER

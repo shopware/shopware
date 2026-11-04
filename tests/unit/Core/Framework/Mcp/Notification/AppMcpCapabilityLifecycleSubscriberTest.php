@@ -4,10 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
@@ -29,7 +31,20 @@ class AppMcpCapabilityLifecycleSubscriberTest extends TestCase
             AppActivatedEvent::class => 'onAppChanged',
             AppDeactivatedEvent::class => 'onAppChanged',
             AppDeletedEvent::class => 'onAppDeleted',
+            AppInstalledEvent::class => 'onAppInstalledOrUpdated',
+            AppUpdatedEvent::class => 'onAppInstalledOrUpdated',
         ], AppMcpCapabilityLifecycleSubscriber::getSubscribedEvents());
+    }
+
+    public function testNotifiesAllCapabilityTypesOnInstallAndUpdate(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('notify')
+            ->with(new McpListChangedNotificationSet(tools: true, resources: true, prompts: true));
+
+        $subscriber = new AppMcpCapabilityLifecycleSubscriber(static::createStub(AppMcpCapabilityDetector::class), $notifier);
+        $subscriber->onAppInstalledOrUpdated();
     }
 
     public function testNotifiesPersistedCapabilitiesForChangedApp(): void
@@ -49,7 +64,7 @@ class AppMcpCapabilityLifecycleSubscriberTest extends TestCase
             ->with($notifications);
 
         $subscriber = new AppMcpCapabilityLifecycleSubscriber($detector, $notifier);
-        $subscriber->onAppChanged(new AppActivatedEvent((new AppEntity())->assign(['id' => $appId]), Context::createDefaultContext()));
+        $subscriber->onAppChanged(new AppActivatedEvent(AppFixture::createAppEntity(id: $appId), Context::createDefaultContext()));
     }
 
     public function testNotifiesPersistedCapabilitiesForDeletedApp(): void

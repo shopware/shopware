@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
@@ -73,15 +75,16 @@ class NotHookablePolicyTest extends TestCase
 
     public function testAppSubscriptionIsDeniedFromTheNextMajor(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         static::assertFalse($this->createPolicy()->permitsSubscription(UserRecoveryRequestEvent::EVENT_NAME, Subscriber::app(static::createStub(Manifest::class))));
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testApiSubscriptionIsDeniedEvenBeforeTheNextMajor(): void
     {
-        static::assertFalse($this->createPolicy()->permitsSubscription(UserRecoveryRequestEvent::EVENT_NAME, Subscriber::user()));
+        $caller = ApiCaller::of(new AdminApiSource('user-id'));
+        static::assertNotNull($caller);
+
+        static::assertFalse($this->createPolicy()->permitsSubscription(UserRecoveryRequestEvent::EVENT_NAME, Subscriber::api($caller)));
     }
 
     /**
@@ -111,7 +114,7 @@ class NotHookablePolicyTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
-            appAclRoleId: null,
+            roles: new AclRoles(false, []),
         );
     }
 }

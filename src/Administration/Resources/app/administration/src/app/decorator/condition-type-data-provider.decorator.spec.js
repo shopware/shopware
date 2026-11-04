@@ -1,11 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import {
-    CONDITIONS,
-    AWARENESS_CONFIGURATIONS,
-    ruleConditionTypeDataProvider,
-} from 'src/app/decorator/condition-type-data-provider.decorator';
+import { CONDITIONS, ruleConditionTypeDataProvider } from 'src/app/decorator/condition-type-data-provider.decorator';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
 // Guardrail list: Adding or removing a condition is a deliberate change
@@ -99,8 +95,8 @@ const EXPECTED_CONDITION_TYPES = [
     'customerBirthday',
     'customerCreatedByAdmin',
     'customerSalutation',
-    'cartLineItemProductStates',
     'cartLineItemProductType',
+    'orderDaysSincePlaced',
     'orderTag',
     'orderTrackingCode',
     'orderDeliveryStatus',
@@ -113,19 +109,6 @@ const EXPECTED_CONDITION_TYPES = [
     'orderDocumentTypeSent',
     'cartLineItemPropertyValue',
     'cartLineItemVariantValue',
-];
-
-// Guardrail list: Adding or removing an awareness config is a deliberate change.
-const EXPECTED_AWARENESS_CONFIGURATIONS = [
-    'personaPromotions',
-    'orderPromotions',
-    'cartPromotions',
-    'promotionSetGroups',
-    'promotionDiscounts',
-    'shippingMethodPriceCalculations',
-    'shippingMethodPrices',
-    'paymentMethods',
-    'shippingMethods',
 ];
 
 describe('app/decorator/condition-type-data-provider.decorator', () => {
@@ -141,17 +124,12 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
 
     it('should register exactly the expected rule conditions', () => {
         const registered = Object.keys(service.$store);
+        const expected = Shopware.Feature.isActive('v6.8.0.0')
+            ? EXPECTED_CONDITION_TYPES
+            : [...EXPECTED_CONDITION_TYPES, 'cartLineItemProductStates'];
 
-        expect(registered).toHaveLength(EXPECTED_CONDITION_TYPES.length);
-        expect([...registered].sort()).toEqual([...EXPECTED_CONDITION_TYPES].sort());
-    });
-
-    it('should register exactly the expected awareness configurations', () => {
-        const ruleAwareness = service.awarenessConfiguration;
-        const registered = Object.keys(ruleAwareness);
-
-        expect(registered).toHaveLength(EXPECTED_AWARENESS_CONFIGURATIONS.length);
-        expect([...registered].sort()).toEqual([...EXPECTED_AWARENESS_CONFIGURATIONS].sort());
+        expect(registered).toHaveLength(expected.length);
+        expect([...registered].sort()).toEqual([...expected].sort());
     });
 
     it('should not declare duplicate rule condition types', () => {
@@ -160,37 +138,10 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
         expect(new Set(types).size).toBe(types.length);
     });
 
-    it('should not declare duplicate awareness configuration names', () => {
-        const names = AWARENESS_CONFIGURATIONS(service).map((aware) => aware.name);
-
-        expect(new Set(names).size).toBe(names.length);
-    });
-
     it('every rule condition should declare at least one scope', () => {
         const conditionsWithoutScope = CONDITIONS.filter((condition) => condition.scopes.length === 0);
 
         expect(conditionsWithoutScope).toHaveLength(0);
-    });
-
-    it('every awareness configuration should declare at least one restriction', () => {
-        const emptyConfigs = AWARENESS_CONFIGURATIONS(service).filter(
-            (aware) => !aware.config.notEquals?.length && !aware.config.equalsAny?.length,
-        );
-
-        expect(emptyConfigs).toHaveLength(0);
-    });
-
-    it('awareness configurations should only reference registered condition types', () => {
-        const knownTypes = new Set(Object.keys(service.$store));
-
-        const referenced = AWARENESS_CONFIGURATIONS(service).flatMap((aware) => [
-            ...(aware.config.notEquals ?? []),
-            ...(aware.config.equalsAny ?? []),
-        ]);
-
-        const unknown = [...new Set(referenced)].filter((type) => !knownTypes.has(type));
-
-        expect(unknown).toHaveLength(0);
     });
 
     it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
@@ -204,6 +155,12 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
             jest.restoreAllMocks();
         },
     );
+
+    it.activeFeatureFlags(['v6.8.0.0'])('removes the legacy product states condition with the 6.8 major flag', () => {
+        const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+        expect(conditionService.$store).not.toHaveProperty('cartLineItemProductStates');
+    });
 
     it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
         'should register a deprecation for $type with version $removedInFeature',

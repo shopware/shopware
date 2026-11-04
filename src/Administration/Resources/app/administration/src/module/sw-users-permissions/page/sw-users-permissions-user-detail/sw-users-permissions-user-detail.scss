@@ -23,7 +23,7 @@
     .sw-settings-user-detail__user-interface-grid {
         grid-template-areas:
             "Language Timezone"
-            "Theme .";
+            "Theme ModuleIconColors";
     }
 
     .sw-settings-user-detail__roles-permissions-grid {
@@ -58,6 +58,10 @@
 
     .sw-settings-user-detail__grid-theme {
         grid-area: Theme;
+    }
+
+    .sw-settings-user-detail__grid-module-icon-colors {
+        grid-area: ModuleIconColors;
     }
 
     .sw-settings-user-detail__grid-profile-picture {
@@ -113,7 +117,8 @@
         grid-template-areas:
             "Language"
             "Timezone"
-            "Theme";
+            "Theme"
+            "ModuleIconColors";
     }
 
     .sw-settings-user-detail .sw-settings-user-detail__roles-permissions-grid {

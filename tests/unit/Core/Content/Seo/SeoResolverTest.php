@@ -12,7 +12,6 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -325,10 +324,6 @@ class SeoResolverTest extends TestCase
 
     public function testResolveThrowsWhenFeatureActive(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('Feature v6.8.0.0 must be active to assert the throw behaviour.');
-        }
-
         $salesChannelId = Uuid::randomHex();
         $seoResolver = new SeoResolver($this->getMockConnection($salesChannelId, true, '/seo-url'));
 
@@ -411,6 +406,48 @@ class SeoResolverTest extends TestCase
         static::assertSame('/detail/variant', $resolved->pathInfo);
         static::assertSame('Main-product/SWDEMO10001?test=123', $resolved->seoPathInfo);
         static::assertTrue($resolved->isCanonical);
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string}>
+     */
+    public static function caseAndSlashVariantProvider(): iterable
+    {
+        yield 'identical path wins over a lowercase variant without slash' => ['/Guide/', '/navigation/page'];
+        yield 'identical path wins over a capitalised variant with slash' => ['/guide', '/navigation/link'];
+    }
+
+    #[DataProvider('caseAndSlashVariantProvider')]
+    public function testResolveUrlPrefersCanonicalRowMatchingTheRequestedPath(string $requestPath, string $expectedPathInfo): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $rows = [
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'isCanonical' => true,
+                'pathInfo' => '/navigation/link',
+                'seoPathInfo' => 'guide',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'isCanonical' => true,
+                'pathInfo' => '/navigation/page',
+                'seoPathInfo' => 'Guide/',
+            ],
+        ];
+
+        foreach ([$rows, array_reverse($rows)] as $rowsInDatabaseOrder) {
+            $connection = static::createStub(Connection::class);
+            $connection->method('executeQuery')->willReturn(FakeResultFactory::createResult($rowsInDatabaseOrder, $connection));
+            $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
+
+            $resolved = (new SeoResolver($connection))->resolveUrl(new SeoUrlRequestContext(Uuid::randomHex(), $salesChannelId, $requestPath));
+
+            static::assertSame($expectedPathInfo, $resolved->pathInfo);
+        }
     }
 
     public function testResolveUrlFallbackFindsCanonicalSiblingWhenFirstHitIsNotCanonical(): void

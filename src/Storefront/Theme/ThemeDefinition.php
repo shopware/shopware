@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -61,8 +62,8 @@ class ThemeDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('author', 'author'))->addFlags(new ApiAware(), new Required()),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
-            (new TranslatedField('labels'))->addFlags(new ApiAware()),
-            (new TranslatedField('helpTexts'))->addFlags(new ApiAware()),
+            (new TranslatedField('labels'))->addFlags(new ApiAware(), new Deprecated('v6.7.16.0', 'v6.8.0.0')),
+            (new TranslatedField('helpTexts'))->addFlags(new ApiAware(), new Deprecated('v6.7.16.0', 'v6.8.0.0')),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('parent_theme_id', 'parentThemeId', self::class))->addFlags(new ApiAware()),

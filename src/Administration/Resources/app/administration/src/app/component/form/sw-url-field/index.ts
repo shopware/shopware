@@ -12,6 +12,8 @@ import template from './sw-url-field.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    emits: ['update:value', 'update:modelValue'],
+
     props: {
         placeholder: {
             type: String,

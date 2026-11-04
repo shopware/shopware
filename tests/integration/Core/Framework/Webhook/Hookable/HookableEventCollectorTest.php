@@ -45,7 +45,7 @@ class HookableEventCollectorTest extends TestCase
             Context::createDefaultContext(),
             Manifest::createFromXmlFile(self::MANIFEST_FIXTURE)
         );
-        static::assertNotEmpty($hookableEventNamesWithPrivileges);
+        static::assertNotCount(0, $hookableEventNamesWithPrivileges);
 
         foreach ($hookableEventNamesWithPrivileges as $key => $hookableEventNamesWithPrivilege) {
             static::assertIsArray($hookableEventNamesWithPrivilege);
@@ -57,7 +57,7 @@ class HookableEventCollectorTest extends TestCase
     public function testGetHookableEntities(): void
     {
         $hookableEntities = $this->hookableEventCollector->getHookableEntities();
-        static::assertNotEmpty($hookableEntities);
+        static::assertNotCount(0, $hookableEntities);
 
         static::assertContains(ProductDefinition::ENTITY_NAME, $hookableEntities);
         static::assertContains(ProductPriceDefinition::ENTITY_NAME, $hookableEntities);

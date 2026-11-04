@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -70,6 +71,42 @@ class CompileThemeHandlerTest extends TestCase
         $handler($message);
     }
 
+    #[DataProvider('completionNotificationProvider')]
+    public function testHandleMessageNotifiesCompletionOnlyWhenRequested(bool $notifyOnCompletion, int $expectedNotifications): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+        $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, Uuid::randomHex(), true, $context, false, $notifyOnCompletion);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
+
+        $notificationService = $this->createMock(NotificationService::class);
+        $notificationService->expects($this->exactly($expectedNotifications))->method('createNotification');
+
+        $handler = new CompileThemeHandler(
+            static::createStub(ThemeCompiler::class),
+            static::createStub(AbstractConfigLoader::class),
+            static::createStub(StorefrontPluginRegistry::class),
+            $notificationService,
+            StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection([$salesChannel])]),
+            static::createStub(ThemeRuntimeConfigService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+        );
+
+        $handler($message);
+    }
+
+    /**
+     * @return iterable<string, array{bool, int}>
+     */
+    public static function completionNotificationProvider(): iterable
+    {
+        yield 'requested' => [true, 1];
+        yield 'not requested' => [false, 0];
+    }
+
     public function testHandleMessageAssignsThemeAfterCompile(): void
     {
         $themeCompilerMock = $this->createMock(ThemeCompiler::class);
@@ -79,8 +116,7 @@ class CompileThemeHandlerTest extends TestCase
 
         $themeCompilerMock->expects($this->once())->method('compileTheme');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         // the theme is still the latest requested one for the sales channel
         $systemConfigService = static::createStub(SystemConfigService::class);
@@ -136,8 +172,7 @@ class CompileThemeHandlerTest extends TestCase
         $themeSalesChannelRep = $this->createMock(EntityRepository::class);
         $themeSalesChannelRep->expects($this->never())->method('upsert');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         $handler = new CompileThemeHandler(
             $themeCompiler,
@@ -176,8 +211,7 @@ class CompileThemeHandlerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         $handler = new CompileThemeHandler(
             $themeCompilerMock,
@@ -215,8 +249,7 @@ class CompileThemeHandlerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRep */
-        $salesChannelRep = new StaticEntityRepository([]);
+        $salesChannelRep = StaticEntityRepository::of(SalesChannelCollection::class, []);
 
         $handler = new CompileThemeHandler(
             $themeCompilerMock,

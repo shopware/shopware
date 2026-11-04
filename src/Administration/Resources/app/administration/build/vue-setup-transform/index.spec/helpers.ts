@@ -6,8 +6,22 @@
 // (index.js) under Jest, which loads the real module outside Jest's transform pipeline and leaves
 // every transform source reported as 0% covered. The '.ts' specifier keeps coverage attribution
 // on the actual source.
-import { transformShopwareSetupSfc } from '../index.ts';
-import { parse, compileScript } from '@vue/compiler-sfc';
+import { ShopwareSetupTransformError, transformShopwareSetupSfc } from '../index.ts';
+import { parse, compileScript, compileTemplate } from '@vue/compiler-sfc';
+
+function captureTransformError(source: string, filename: string): ShopwareSetupTransformError {
+    try {
+        transformShopwareSetupSfc(source, filename);
+    } catch (error) {
+        if (error instanceof ShopwareSetupTransformError) {
+            return error;
+        }
+
+        throw error;
+    }
+
+    throw new Error('Expected a Shopware setup diagnostic');
+}
 
 type TransformResult = NonNullable<ReturnType<typeof transformShopwareSetupSfc>>;
 
@@ -64,10 +78,34 @@ function stripWhitespace(value: string | TemplateStringsArray, ...values: string
     return joined.replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * Asserts Vue compiles the transformed output, template included.
+ *
+ * Rewritten references only exist in the template, so a script-only compile would pass output that
+ * Vue's template parser rejects. The template is compiled on its own against the script's bindings:
+ * an inlined template does not report every expression error - a dynamic argument Vue cut short at its
+ * first `]` comes out as invalid render code instead of an error.
+ */
 function expectVueCompilerScriptToCompile(code: string, filename: string): void {
     const descriptor = parse(code, { filename }).descriptor;
+    let bindings: ReturnType<typeof compileScript>['bindings'];
 
-    expect(() => compileScript(descriptor, { id: filename })).not.toThrow();
+    expect(() => {
+        bindings = compileScript(descriptor, { id: filename }).bindings;
+    }).not.toThrow();
+
+    if (!descriptor.template) {
+        return;
+    }
+
+    const { errors } = compileTemplate({
+        source: descriptor.template.content,
+        filename,
+        id: filename,
+        compilerOptions: { bindingMetadata: bindings },
+    });
+
+    expect(errors).toEqual([]);
 }
 
 /**
@@ -87,6 +125,7 @@ function expectVueCompilerScriptToReject(code: string, filename: string, message
  * @private
  */
 export {
+    captureTransformError,
     expectVueCompilerScriptToCompile,
     expectVueCompilerScriptToReject,
     stripIndent,

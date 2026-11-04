@@ -8,13 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\Command\ThemeChangeCommand;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -25,45 +25,11 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ThemeChangeCommand::class)]
 class ThemeChangeCommandTest extends TestCase
 {
-    public function testItDeletesUnusedDirectoriesAfterChange(): void
-    {
-        $unusedThemeDirectoryDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
-        $unusedThemeDirectoryDeleter->expects($this->once())
-            ->method('deleteUnusedDirectories')
-            ->willReturn(2);
-
-        $commandTester = new CommandTester($this->createCommand($unusedThemeDirectoryDeleter));
-
-        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true]);
-        $commandTester->assertCommandIsSuccessful();
-    }
-
-    public function testItSkipsCleanupWhenNoCleanupOptionIsPassed(): void
-    {
-        $unusedThemeDirectoryDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
-        $unusedThemeDirectoryDeleter->expects($this->never())
-            ->method('deleteUnusedDirectories');
-
-        $commandTester = new CommandTester($this->createCommand($unusedThemeDirectoryDeleter));
-
-        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true, '--no-cleanup' => true]);
-        $commandTester->assertCommandIsSuccessful();
-    }
-
-    public function testItCleansUpEvenWhenCompilationIsSkipped(): void
-    {
-        $unusedThemeDirectoryDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
-        $unusedThemeDirectoryDeleter->expects($this->once())
-            ->method('deleteUnusedDirectories')
-            ->willReturn(0);
-
-        $commandTester = new CommandTester($this->createCommand($unusedThemeDirectoryDeleter));
-
-        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true, '--no-compile' => true]);
-        $commandTester->assertCommandIsSuccessful();
-    }
-
-    private function createCommand(UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter): ThemeChangeCommand
+    /**
+     * @deprecated tag:v6.8.0 - will be removed together with the `--no-cleanup` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testItStillAcceptsTheDeprecatedNoCleanupOption(): void
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
@@ -75,22 +41,24 @@ class ThemeChangeCommandTest extends TestCase
         $theme->setUniqueIdentifier($theme->getId());
         $theme->setTechnicalName('Storefront');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])]);
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([new ThemeCollection([$theme])]);
+        $themeService = static::createMock(ThemeService::class);
+        $themeService->expects($this->once())
+            ->method('assignTheme')
+            ->with($theme->getId(), $salesChannel->getId(), static::anything(), false);
 
         $command = new ThemeChangeCommand(
-            static::createStub(ThemeService::class),
+            $themeService,
             static::createStub(StorefrontPluginRegistry::class),
-            $salesChannelRepository,
-            $themeRepository,
-            $unusedThemeDirectoryDeleter
+            new StaticEntityRepository([new SalesChannelCollection([$salesChannel])]),
+            new StaticEntityRepository([new ThemeCollection([$theme])])
         );
 
         // register the command on an application so the "question" helper set is available
         (new Application())->addCommand($command);
 
-        return $command;
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true, '--no-cleanup' => true]);
+        $commandTester->assertCommandIsSuccessful();
     }
 }

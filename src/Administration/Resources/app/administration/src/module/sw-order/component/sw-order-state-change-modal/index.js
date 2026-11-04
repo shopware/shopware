@@ -1,5 +1,4 @@
 import template from './sw-order-state-change-modal.html.twig';
-import './sw-order-state-change-modal.scss';
 
 /**
  * @sw-package checkout

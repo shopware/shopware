@@ -869,6 +869,10 @@ export default {
             this.documentConfig.logoId = media.at(0)?.id || null;
         },
 
+        onCompanyLogoUploadFinish({ targetId }) {
+            this.documentConfig.logoId = targetId;
+        },
+
         hideCompanySettingsMovedBanner() {
             this.showCompanySettingsMovedBanner = false;
             localStorage.setItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY, 'true');

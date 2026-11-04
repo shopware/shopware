@@ -104,6 +104,8 @@
 {% endblock %}
 
 {% block page_checkout_aside_actions %}
+    {{ sw_block('page_checkout_confirm_legal_guarantee_notice') }}
+
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ path('frontend.account.edit-order.update-order', { orderId: page.order.id }) }}"

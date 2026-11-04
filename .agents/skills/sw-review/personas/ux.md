@@ -12,7 +12,7 @@ Ask: would a merchant know what to do, and can every user operate it?
 
 - Admin Vue: prefer Meteor `mt-*` components in new or already-Meteor screens. Legacy `sw-*` in legacy-only files is not major unless the PR expands the legacy pattern.
 - No hand-rolled input/button/modal when Meteor provides one.
-- Admin snippets: no hard-coded user-facing strings; new keys need `en-GB` and `de-DE`.
+- Admin snippets: no hard-coded user-facing strings; new keys need both `en.json` and `de.json`.
 - Storefront Twig: form inputs have labels; actions use buttons, navigation uses links; interactive elements are keyboard-operable.
 - Focus state remains visible; color is not the only state signal.
 - Copy is user-facing, actionable, and not developer/internal language.
@@ -26,7 +26,7 @@ Absence rule: only flag what this PR adds or changes.
 - Auth/ACL/secrets → `security`;
 - DI/layering → `architecture`;
 - PHP naming/idioms → `code-style`;
-- UPGRADE/deprecations → `open-source`.
+- UPGRADE/deprecations → `maintainer`.
 
 ## Severity Anchors
 

@@ -58,6 +58,8 @@ export default {
             showLanguageNotAssignedToSalesChannelWarning: false,
             triggerEvent: null,
             triggerEvents: [],
+            triggerEventsPromise: Promise.resolve(),
+            isTriggerEventSelectedByUser: false,
         };
     },
 
@@ -124,6 +126,10 @@ export default {
 
         mailTemplateTypeRepository() {
             return this.repositoryFactory.create('mail_template_type');
+        },
+
+        flowRepository() {
+            return this.repositoryFactory.create('flow');
         },
 
         testMailRequirementsMet() {
@@ -273,7 +279,7 @@ export default {
         },
 
         loadTriggerEvents() {
-            this.businessEventService.getBusinessEvents().then((events) => {
+            this.triggerEventsPromise = this.businessEventService.getBusinessEvents().then((events) => {
                 this.triggerEvents = events
                     .filter((event) => event.aware.includes('mailAware'))
                     .map((event) => ({
@@ -292,6 +298,37 @@ export default {
                         },
                     }));
             });
+        },
+
+        async preselectTriggerEvent(mailTemplateTypeId) {
+            if (this.isTriggerEventSelectedByUser || !this.acl.can('flow:read')) {
+                return;
+            }
+
+            const mailTemplateCriteria = new Criteria(1, null);
+            mailTemplateCriteria.addFilter(Criteria.equals('mailTemplateTypeId', mailTemplateTypeId));
+
+            const { data: mailTemplateIds } = await this.mailTemplateRepository.searchIds(mailTemplateCriteria);
+
+            const flowCriteria = new Criteria(1, null);
+            flowCriteria.addFilter(Criteria.equals('active', true));
+            flowCriteria.addFilter(Criteria.equalsAny('sequences.config.mailTemplateId', mailTemplateIds));
+
+            const flows = mailTemplateIds.length ? await this.flowRepository.search(flowCriteria) : [];
+
+            await this.triggerEventsPromise;
+
+            if (this.isTriggerEventSelectedByUser || this.selectedType?.id !== mailTemplateTypeId) {
+                return;
+            }
+
+            const eventNames = new Set(
+                flows
+                    .map((flow) => flow.eventName)
+                    .filter((eventName) => this.triggerEvents.some((event) => event.name === eventName)),
+            );
+
+            this.setTriggerEvent(eventNames.size === 1 ? [...eventNames][0] : null);
         },
 
         getTriggerEventNameTranslated(eventName) {
@@ -483,6 +520,11 @@ export default {
         },
 
         onTriggerEventChange(eventName) {
+            this.isTriggerEventSelectedByUser = true;
+            this.setTriggerEvent(eventName);
+        },
+
+        setTriggerEvent(eventName) {
             this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
             this.availableVariables = {};
             this.mailPreview = null;
@@ -636,6 +678,7 @@ export default {
             try {
                 await this.getMailTemplateType();
                 this.selectedType = await this.mailTemplateTypeRepository.get(id);
+                this.preselectTriggerEvent(id);
                 this.loadInitialAvailableVariables();
                 this.outerCompleterFunction();
             } catch (e) {

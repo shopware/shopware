@@ -36,7 +36,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @phpstan-type Price array<string, CurrencyPrice>
  * @phpstan-type Properties array<array{id: string} | array{id: string, name: string, group: array{id: string, name: string}}>
  * @phpstan-type Visibilities array<string, array{salesChannelId: string, visibility: int}>
- * @phpstan-type ProductReviews array<array{title: string, content: string, points: float, languageId: string, salesChannelId: string, status: bool, customerId: string|null}>
+ * @phpstan-type ProductReviews array<array{title: string, content: string, points: float, externalUser: string, languageId: string, salesChannelId: string, status: bool, customerId: string|null}>
  * @phpstan-type ConfiguratorSettings array<array{option: array{id: string, name: string, group: array{id: string, name: string}}}>
  * @phpstan-type Options array<array{id: string, name: string, position: int, group: array{id: string, name: string}} | array{id: string}>
  * @phpstan-type Media array<array{id: string, position: int, media: array{fileName: string}}>
@@ -517,6 +517,7 @@ class ProductBuilder
         $this->productReviews[] = [
             'title' => $title,
             'content' => $content,
+            'externalUser' => 'Test',
             'points' => $points,
             'languageId' => $languageId,
             'salesChannelId' => $salesChannelId,

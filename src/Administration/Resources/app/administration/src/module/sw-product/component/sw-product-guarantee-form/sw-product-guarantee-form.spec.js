@@ -44,7 +44,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                             <div class="sw-inherit-wrapper">
                                 <slot name="content" v-bind="{
                                     currentValue: value,
-                                    isInherited: false,
+                                    isInherited: hasParent && (value === null || value === undefined),
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
@@ -107,21 +107,65 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                           }
                         : {}),
                     'mt-switch': {
+                        // Like the real mt-switch, an inherited switch shows its inheritedValue, ignores modelValue
+                        // and locks its input, while only the disabled prop greys out the whole switch.
                         template: `
-                            <div class="mt-switch">
+                            <div class="mt-switch" :class="{ 'mt-switch--disabled': disabled }">
                                 <label>{{ label }}</label>
                                 <input
                                     type="checkbox"
-                                    :checked="modelValue"
-                                    :disabled="disabled"
+                                    :checked="isInherited ? inheritedValue : modelValue"
+                                    :disabled="disabled || isInherited"
                                     @change="$emit('update:model-value', $event.target.checked)"
                                 />
                             </div>`,
-                        props: ['modelValue', 'label', 'disabled'],
+                        props: [
+                            'modelValue',
+                            'label',
+                            'disabled',
+                            'isInherited',
+                            'inheritedValue',
+                        ],
                     },
                     'mt-banner': {
                         template: '<div class="mt-banner"><slot></slot></div>',
                         props: ['variant', 'closable'],
+                    },
+                    'sw-media-field': {
+                        template: `
+                            <div class="sw-media-field">
+                                <span class="sw-media-field__value">{{ value }}</span>
+                                <button
+                                    class="sw-media-field__select"
+                                    :disabled="disabled"
+                                    @click="$emit('update:value', 'selected-media-id')"
+                                ></button>
+                            </div>`,
+                        props: [
+                            'value',
+                            'disabled',
+                            'fileAccept',
+                            'defaultFolder',
+                        ],
+                    },
+                    'mt-url-field': {
+                        template: `
+                            <div class="mt-url-field">
+                                <input
+                                    :value="modelValue"
+                                    :disabled="disabled"
+                                    @input="$emit('update:model-value', $event.target.value)"
+                                />
+                                <span
+                                    v-if="error"
+                                    class="mt-url-field__error"
+                                >{{ error.code }}</span>
+                            </div>`,
+                        props: [
+                            'modelValue',
+                            'disabled',
+                            'error',
+                        ],
                     },
                 },
                 provide: {
@@ -156,6 +200,15 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
         expect(store.product.guaranteeMonths).toBe(42);
         expect(store.product.guaranteeConfirmed).toBe(true);
+    });
+
+    it('should show the confirmation a variant inherits from its parent product', async () => {
+        store.product.guaranteeConfirmed = null;
+        store.parentProduct = { id: 'parentId', guaranteeConfirmed: true };
+        await flushPromises();
+
+        expect(wrapper.find('.mt-switch input').element.checked).toBe(true);
+        expect(wrapper.find('.mt-switch').classes()).not.toContain('mt-switch--disabled');
     });
 
     it('should only offer valid guarantee durations in the stepper', async () => {
@@ -364,6 +417,61 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
         expect(monthsField.element.disabled).toBe(true);
         expect(confirmedField.element.disabled).toBe(true);
+    });
+
+    describe('guarantee terms', () => {
+        it('should store the selected terms document and URL', async () => {
+            expect(wrapper.findComponent('.sw-media-field').props('fileAccept')).toBe('application/pdf');
+
+            await wrapper.find('.sw-media-field__select').trigger('click');
+            await wrapper.find('.mt-url-field input').setValue('https://example.com/guarantee-terms');
+
+            expect(store.product.guaranteeTermsMediaId).toBe('selected-media-id');
+            expect(store.product.guaranteeTermsUrl).toBe('https://example.com/guarantee-terms');
+        });
+
+        it('should store an emptied terms URL as null', async () => {
+            const urlField = wrapper.find('.mt-url-field input');
+
+            await urlField.setValue('https://example.com/guarantee-terms');
+            await urlField.setValue('');
+
+            expect(store.product.guaranteeTermsUrl).toBeNull();
+        });
+
+        it('should lock the terms a variant inherits from its parent product', async () => {
+            store.product.guaranteeTermsMediaId = null;
+            store.product.guaranteeTermsUrl = null;
+            store.parentProduct = {
+                id: 'parentId',
+                guaranteeTermsMediaId: 'parent-media-id',
+                guaranteeTermsUrl: 'https://example.com/parent-guarantee-terms',
+            };
+            await flushPromises();
+
+            expect(wrapper.find('.sw-media-field__select').element.disabled).toBe(true);
+            expect(wrapper.find('.mt-url-field input').element.disabled).toBe(true);
+        });
+
+        it('should show the error of an invalid terms URL', async () => {
+            Shopware.Store.get('error').addApiError({
+                expression: 'product.productId.guaranteeTermsUrl',
+                error: {
+                    code: 'INVALID_GARAN_GUARANTEE_TERMS_URL',
+                    detail: 'The GARAN guarantee terms URL must be empty or an http(s) URL.',
+                },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.mt-url-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_TERMS_URL');
+        });
+
+        it('should disable the terms fields when allowEdit is false', async () => {
+            wrapper = await createWrapper({ allowEdit: false }, ['product.editor']);
+
+            expect(wrapper.find('.sw-media-field__select').element.disabled).toBe(true);
+            expect(wrapper.find('.mt-url-field input').element.disabled).toBe(true);
+        });
     });
 
     describe('unmet label requirements notice', () => {

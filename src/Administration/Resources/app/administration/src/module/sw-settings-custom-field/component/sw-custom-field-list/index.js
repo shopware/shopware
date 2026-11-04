@@ -176,10 +176,11 @@ export default {
 
         isCustomFieldNameUnique(customField) {
             // Search the server for the customField name
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('name', customField.name));
-            return this.globalCustomFieldRepository.search(criteria).then((res) => {
-                return res.length === 0;
+            return this.globalCustomFieldRepository.searchIds(criteria).then((res) => {
+                return res.data.length === 0;
             });
         },
 

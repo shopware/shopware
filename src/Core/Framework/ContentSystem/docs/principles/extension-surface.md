@@ -65,6 +65,8 @@ Why: A capability that needs a core edit per entity is closed to apps, and each 
 
 Decided against: Core classes that call app code.
 
+Exceptions: `ProductContentLayoutDefinition` adds the `reviews` page data requirement and `CategoryContentLayoutDefinition` adds `productListing`, each per entity, until a type-declared page-data mechanism replaces them. Sibling elements share one load only through [root context](README.md#glossary), and today only a core definition registers page data for it.
+
 In code:
 
 - `ContentSystemCompilerPass` finds the types directory of a plugin without a service registration.

@@ -61,7 +61,7 @@ Exceptions: `CLIENT_DEFECT_CODES` lists neither the mutation structural 400s nor
 
 In code:
 
-- `StoredElementListFieldSerializer` wraps module exceptions at the write boundary as 400s.
+- `StoredElementListFieldSerializer` wraps a client defect and its own duplicate-id rejection as a 400 write rejection. Any other module exception met during the write keeps its own status, so a definition-load failure answers 500 and a registry conflict 409.
 - `DraftLayoutDecoder` and `LayoutDiagnostics` read `isClientDefect()`.
 - `DraftLayoutDecoder::decode()` remaps a client defect to `invalidLayoutStructure`.
 - `UnknownRequestFieldExceptionListener` remaps an unknown field to `unknownRequestField`.

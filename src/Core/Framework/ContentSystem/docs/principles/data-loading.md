@@ -43,17 +43,19 @@ In code:
 - A per-loader test guards the agreement of required keys: `EntityCollectionLoaderTest::testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys` is the pattern.
 - See [custom-loaders.md](../../Hydration/DataLoader/docs/custom-loaders.md).
 
-## Loader configuration takes its final form at write time, and no request selects what loads
+## No request selects what a loader loads
 
-No render-time step substitutes or overrides any part of the loader configuration. At bind time, `resolvedBy` becomes a stored data requirement, and a config reference names a fixed, gate-validated stored property. A per-request value must reach loader inputs only through a declared property. No request parameter may select or override which entity a loader loads or which property the loader reads.
+At bind time, `resolvedBy` becomes a stored data requirement, and a config reference names a fixed, gate-validated stored property. An author may put a `{{placeholder}}` token into a `ConfigKeyKind::Literal` loader-config value. `StoredTreePreparer` substitutes that token in `RenderingMode::FULL`, as it substitutes a property string. A substituted value comes only from the page's route-derived entity id and from the query parameters that the specification source declares. No request value overrides a server-derived placeholder. No other render-time step substitutes or overrides any part of the loader configuration. No request selects an entity type, a property name, or a config key that the author did not mark with a token.
 
-Why: A request that picks a loader's target loads something no write-time gate checked. Removing that ability is cheaper than guarding each case.
+Why: A request value that reaches a loader through an unmarked key or an undeclared parameter picks a target no write-time gate checked. Limiting where a request value may enter is cheaper than guarding each case.
+
+Exceptions: `StoredTreePreparer` removes a `Literal` loader-config key whose whole value is one unresolved `{{token}}`. The key then resolves as absent and takes its declared default where it declares one. An unresolved token embedded in other text stays verbatim, and an element property never blanks.
 
 In code:
 
 - `BindingApplicator::apply()` writes a typed `DataRequirement`.
 - `TypeConsistentBindingSpecificationValidator` checks property references.
-- `StoredTreePreparer` substitutes property strings only.
+- `StoredTreePreparer` substitutes a token in a property string and in the string value of a `Literal` loader-config key.
 - See [applying.md](../../Binding/docs/applying.md).
 
 ## An element receives a sales-channel context value only from a loader that returns that value

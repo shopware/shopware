@@ -40,6 +40,8 @@ Creation and replacement write the declared default of a primitive property in t
 
 Why: A serve-time default makes an unfilled required property look filled. It also lets a later declaration change what stored layouts render.
 
+Exceptions: A storefront component that callers outside stored layouts also render, such as `Sw:Grid:Container`, keeps a prop fallback for those callers. The fallback repeats the declared default exactly. A property whose editor can store a null keeps a null fallback, because `RenderedElementFactory` [drops an authored null](values.md#a-present-null-and-an-absent-key-are-different-states). A cleared value therefore never renders as the declared default.
+
 In code:
 
 - `AbstractLayoutMutation::storedDefaults()` seeds defaults.

@@ -1,6 +1,6 @@
 ## Constraints
 
-- Never let a request parameter choose the entity a loader targets or the property it reads. A per-request value reaches a loader only through a declared property. Check: can a query parameter named like the entity id field replace the server-derived placeholder value? Why it holds: [data-loading.md](../docs/principles/data-loading.md#loader-configuration-takes-its-final-form-at-write-time-and-no-request-selects-what-loads)
+- Never let a request parameter choose the entity a loader targets, the property it reads or a config key the author did not mark with a placeholder token. Check: can a query parameter named like the entity id field replace the server-derived placeholder value? Why it holds: [data-loading.md](../docs/principles/data-loading.md#no-request-selects-what-a-loader-loads)
 
 ## Where to look
 

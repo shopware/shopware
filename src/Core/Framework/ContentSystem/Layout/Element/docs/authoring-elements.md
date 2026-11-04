@@ -21,7 +21,7 @@
 }
 ```
 
-Placeholders (like `{{productId}}`) must be assigned to properties before data loaders can use them:
+A config key that names a property reads a placeholder (like `{{productId}}`) only through that property:
 
 ```json
 "properties": {

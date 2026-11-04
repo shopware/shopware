@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
@@ -249,11 +250,17 @@ class RequestCriteriaBuilder
                     continue;
                 }
 
+                if (!\is_string($propertyName)) {
+                    throw FrameworkException::associationNotFound((string) $propertyName);
+                }
+
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw FrameworkException::associationNotFound((string) $propertyName);
+                    throw FrameworkException::associationNotFound($propertyName);
                 }
+
+                EntityDefinitionQueryHelper::validateFieldIsApiAware($field, $propertyName, $context);
 
                 $ref = $field->getReferenceDefinition();
                 if ($field instanceof ManyToManyAssociationField) {
@@ -271,6 +278,10 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['fields'])) {
+            foreach ($payload['fields'] as $accessor) {
+                EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
+            }
+
             $criteria->addFields($payload['fields']);
         }
 

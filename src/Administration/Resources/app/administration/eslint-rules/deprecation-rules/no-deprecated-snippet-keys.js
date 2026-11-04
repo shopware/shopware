@@ -5,6 +5,7 @@
 const { loadRegistry } = require('./registry/load-registry');
 const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
+const { withRunLevel } = require('./registry/run-level');
 
 function buildMessage(migration, usage, snippetKey) {
     return appendRegistryContext(
@@ -60,7 +61,7 @@ function findDeprecatedSnippet(value, usages) {
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         docs: {
@@ -126,4 +127,4 @@ module.exports = {
             stringLiteralVisitors,
         );
     },
-};
+});

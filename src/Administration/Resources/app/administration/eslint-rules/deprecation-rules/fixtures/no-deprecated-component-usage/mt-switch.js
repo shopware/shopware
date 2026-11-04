@@ -663,15 +663,7 @@ const mtSwitchInvalidChecks = [
                     </template>
                 </mt-switch>
             </template>`,
-        output: `
-            <template>
-                <mt-switch>
-                    <!-- TODO Codemod: mt-switch has no "hint" slot, so this content is not rendered. Use the "help-text" prop or render it next to the switch. -->
-                    <template #hint>
-                        Foobar
-                    </template>
-                </mt-switch>
-            </template>`,
+        output: null,
         errors: [{
             message: '[mt-switch] The "hint" slot is removed.',
         }],
@@ -703,15 +695,7 @@ const mtSwitchInvalidChecks = [
                     </template>
                 </mt-switch>
             </template>`,
-        output: `
-            <template>
-                <mt-switch>
-                    <!-- TODO Codemod: mt-switch has no "hint" slot, so this content is not rendered. Use the "help-text" prop or render it next to the switch. -->
-                    <template v-slot:hint>
-                        Foobar
-                    </template>
-                </mt-switch>
-            </template>`,
+        output: null,
         errors: [{
             message: '[mt-switch] The "hint" slot is removed.',
         }],

@@ -102,6 +102,7 @@ function hasCodemodComment(sourceCode, node, text) {
 
 module.exports = {
     convertedFromText,
+    getLeadingComments,
     hasCodemodComment,
     insertTemplateCodemodComment,
     isConvertedFrom,

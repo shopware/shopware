@@ -6,6 +6,7 @@ const { loadRegistry } = require('./registry/load-registry');
 const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
+const { withRunLevel } = require('./registry/run-level');
 
 function buildMessage(migration, usage) {
     const replacement = usage.to ? ` Use "${usage.to}" instead.` : ' Remove or move this customization.';
@@ -131,7 +132,7 @@ function isBackwardCompatibilityWrapper(match, blockMatch, blockMatches) {
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'suggestion',
         docs: {
@@ -186,4 +187,4 @@ module.exports = {
             },
         };
     },
-};
+});

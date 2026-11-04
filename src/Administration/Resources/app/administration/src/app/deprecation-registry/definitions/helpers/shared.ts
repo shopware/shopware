@@ -6,19 +6,28 @@ import type {
     ComponentUsageReport,
     ComponentUsageRuleApi,
     ComponentUsageStep,
+    Fixer,
+    FixLevel,
     ProducedAttribute,
     TemplateNode,
 } from './types';
 
 /**
- * How a step handles one usage: a fix, or the reason the usage needs a manual migration.
- * A plan with neither reports the usage without a fix.
+ * How a step handles one usage: a fix, the reason the usage needs a review, or the reason it needs a
+ * manual migration. A plan with none of them reports the usage without a fix.
  */
 export type UsagePlan = {
     fix?: ComponentUsageReport['fix'];
     produces?: ProducedAttribute;
     /** Appended to the report and suppresses the fix. */
     manualReason?: string;
+    /**
+     * Appended to the report and to its review comment: the usage works, but someone has to check it.
+     * Without a fix, the fix only puts the review comment above the element.
+     */
+    reviewReason?: string;
+    /** Overrides the step's fix level for this usage, for steps whose risk depends on the usage. */
+    fixLevel?: FixLevel;
 };
 
 type UsageReport = UsagePlan & {
@@ -47,16 +56,35 @@ type UsageReport = UsagePlan & {
  * // [mt-text-field] The "value" API is deprecated. Use "model-value" instead.
  */
 export function reportUsage(api: ComponentUsageRuleApi, report: UsageReport): void {
-    const { node, apiName, replacement, manualReason, produces, fix } = report;
-    const headline = api.usage.message ?? report.headline ?? defaultHeadline(apiName, replacement);
-    const text = manualReason ? `${headline}\n${manualReason}` : headline;
+    const { node, apiName, replacement, manualReason, reviewReason, produces } = report;
+    const headline = `[${api.node.name}] ${api.usage.message ?? report.headline ?? defaultHeadline(apiName, replacement)}`;
+    const reason = manualReason ?? reviewReason;
+    const reviewComment = reason ? `${headline} ${reason}` : headline;
+    const commentOnly = reviewReason !== undefined && !report.fix;
+
+    if (commentOnly && api.ast.hasLeadingComment(api.node, reviewComment)) {
+        return;
+    }
+
+    const fix = commentOnly ? (fixer: Fixer) => api.insertCodemodCommentBefore(fixer, api.node, reviewComment) : report.fix;
+    const fixes = manualReason === undefined && api.canAutoFix();
 
     api.report({
         node,
-        message: api.buildMessage(`[${api.node.name}] ${text}`),
+        message: api.buildMessage(reason ? `${headline}\n${reason}` : headline),
         produces,
-        fix: manualReason === undefined && api.canAutoFix() ? fix : undefined,
+        fix: fixes ? fix : undefined,
+        fixLevel: getFixLevel(api, report, fixes && Boolean(fix)),
+        reviewComment,
     });
+}
+
+function getFixLevel(api: ComponentUsageRuleApi, report: UsageReport, fixes: boolean): FixLevel {
+    if (!fixes) {
+        return 'manual';
+    }
+
+    return report.reviewReason === undefined ? (report.fixLevel ?? api.usage.fix) : 'unsafe-auto';
 }
 
 function defaultHeadline(apiName: string, replacement: string | undefined): string {

@@ -43,12 +43,16 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
         ['remove-prop', 'auto', removeProp({ prop: 'a' })],
         ['replace-prop', 'auto', replaceProp({ prop: 'a', with: routerLinkClickHandler })],
         ['map-prop-value', 'auto', mapPropValue({ prop: 'a', from: 'b', to: 'c' })],
-        ['map-options-prop-keys', 'unsafe-auto', mapOptionsPropKeys({ prop: 'options', from: { name: 'label' } })],
+        ['map-options-prop-keys', 'auto', mapOptionsPropKeys({ prop: 'options', from: { name: 'label' } })],
         ['missing-prop', 'auto', missingProp({ prop: 'a', value: 'b' })],
-        ['remove-slot', 'unsafe-auto', removeSlot({ slot: 'a' })],
+        ['remove-slot', 'auto', removeSlot({ slot: 'a' })],
         ['slot-to-prop', 'auto', slotToProp({ slot: 'a', prop: 'b' })],
-        ['flag-slot-for-manual-move', 'unsafe-auto', flagSlotForManualMove({ slot: 'a', hint: 'Move it.' })],
-        ['slot-to-items-prop', 'unsafe-auto', slotToItemsProp({ prop: 'items', itemComponent: 'sw-tabs-item' })],
+        ['flag-slot-for-manual-move', 'manual', flagSlotForManualMove({ slot: 'a', hint: 'Move it.' })],
+        [
+            'slot-to-items-prop',
+            'auto',
+            slotToItemsProp({ item: 'sw-tabs-item', prop: 'items', fields: { label: { content: true } } }),
+        ],
         ['rename-event', 'auto', renameEvent({ from: 'a', to: 'b' })],
         ['remove-event', 'auto', removeEvent({ event: 'a' })],
         ['rename-v-model-argument', 'auto', renameVModelArgument({ from: 'value' })],
@@ -86,7 +90,7 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
 
     it('derives the review comment of a slot that moves to a prop', () => {
         expect(flagSlotForManualMove({ slot: 'default', toProp: 'options' }).hint).toBe(
-            'Remove the "default" slot and use the "options" prop instead',
+            'Remove the "default" slot and use the "options" prop instead.',
         );
     });
 

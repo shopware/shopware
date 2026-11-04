@@ -322,6 +322,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics. -->
                 <mt-button variant="secondary" @click="$router.push('sw.example.link')">Hello</mt-button>
             </template>`,
         errors: [
@@ -358,6 +359,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics. -->
                 <mt-button
                     @click="$router.push('sw.example.link')"
                     variant="secondary"
@@ -380,6 +382,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics. -->
                 <mt-button variant="secondary" @click="$router.push({ name: 'sw.example.link' })">Hello</mt-button>
             </template>`,
         errors: [
@@ -416,6 +419,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics. -->
                 <mt-button
                     @click="$router.push({ name: 'sw.example.link' })"
                     variant="secondary"
@@ -445,7 +449,34 @@ const mtButtonInvalidChecks = [
     },
 ];
 
+const CONVERTED = '<!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->';
+const RUNTIME_VARIANT =
+    '[mt-button] The bound "variant" value is only known at runtime. Make sure it never passes one of the deprecated values "ghost", "danger", "contrast", "context", "ghost-danger".';
+
+const runtimeVariantValidChecks = [
+    {
+        name: '"mt-button" bound variant is not reported on an element the codemod did not convert',
+        filename: 'test.html.twig',
+        code: '<template>\n    <mt-button :variant="variant">Save</mt-button>\n</template>',
+    },
+    {
+        name: '"mt-button" bound literal variant is not reported on a converted element',
+        filename: 'test.html.twig',
+        code: `<template>\n    ${CONVERTED}\n    <mt-button :variant="null">Save</mt-button>\n</template>`,
+    },
+];
+
+const runtimeVariantInvalidChecks = [
+    {
+        name: '"mt-button" bound variant on a converted element gets a review comment that lists the deprecated values',
+        filename: 'test.html.twig',
+        code: `<template>\n    ${CONVERTED}\n    <mt-button :variant="variant">Save</mt-button>\n</template>`,
+        output: `<template>\n    ${CONVERTED}\n    <!-- TODO Codemod: ${RUNTIME_VARIANT} -->\n    <mt-button :variant="variant">Save</mt-button>\n</template>`,
+        errors: [{ message: '[mt-button] The bound "variant" value is only known at runtime.' }],
+    },
+];
+
 module.exports = {
-    valid: mtButtonValidChecks,
-    invalid: mtButtonInvalidChecks,
+    valid: [...mtButtonValidChecks, ...runtimeVariantValidChecks],
+    invalid: [...mtButtonInvalidChecks, ...runtimeVariantInvalidChecks],
 };

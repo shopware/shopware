@@ -42,6 +42,7 @@ const mtBannerInvalidTests = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-banner] mt-banner has no "appearance" prop. An alert with the "notification" or "system" appearance loses that look and renders as a regular banner, so review it. -->
                 <mt-banner />
             </template>`,
         errors: [{
@@ -161,15 +162,7 @@ const mtBannerInvalidTests = [
                     </template>
                 </mt-banner>
             </template>`,
-        output: `
-            <template>
-                <mt-banner>
-                    <!-- TODO Codemod: mt-banner has no "actions" slot, so this content is not rendered. Render the actions next to the banner. -->
-                    <template #actions>
-                        <sw-button />
-                    </template>
-                </mt-banner>
-            </template>`,
+        output: null,
         errors: [{
             message: '[mt-banner] The "actions" slot is removed.',
         }]
@@ -185,15 +178,7 @@ const mtBannerInvalidTests = [
                     </template>
                 </mt-banner>
             </template>`,
-        output: `
-            <template>
-                <mt-banner>
-                    <!-- TODO Codemod: mt-banner has no "actions" slot, so this content is not rendered. Render the actions next to the banner. -->
-                    <template v-slot:actions>
-                        <sw-button />
-                    </template>
-                </mt-banner>
-            </template>`,
+        output: null,
         errors: [{
             message: '[mt-banner] The "actions" slot is removed.',
         }]

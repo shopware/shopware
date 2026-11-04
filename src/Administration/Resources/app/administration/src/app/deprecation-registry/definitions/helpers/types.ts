@@ -49,6 +49,10 @@ export type ComponentUsageReport = {
     message: string;
     fix?: (fixer: Fixer) => Fix | Fix[] | Iterable<Fix> | null;
     produces?: ProducedAttribute;
+    /** What the fix is, for the run level of `deprecation:migrate`; see `withRunLevel`. */
+    fixLevel?: FixLevel;
+    /** The review comment for this usage when the run level asks for one. */
+    reviewComment?: string;
 };
 
 /** What `no-deprecated-component-usage` hands to a step's `eslint.report` for every matching element. */
@@ -67,11 +71,11 @@ export type ComponentUsageRuleApi = {
     /** Appends the registry context (description, removal version, references) to the headline. */
     buildMessage(text: string): string;
     report(descriptor: ComponentUsageReport): void;
-    /** Inserts a codemod review comment with `text` before the target, on its own line with the target's indentation. */
     /** Removes an attribute with the whitespace that separates it, leaving no double space or empty line. */
     removeAttribute(fixer: Fixer, attribute: TemplateNode): Fix;
     /** Tells whether the codemod converted this element from the migration's deprecated component. */
     isConverted(): boolean;
+    /** Inserts a codemod review comment with `text` before the target, on its own line with the target's indentation. */
     insertCodemodCommentBefore(fixer: Fixer, target: TemplateNode, text: string): Fix;
     ast: {
         findMatchingPropAttribute(node: TemplateNode, propName: string): TemplateNode | undefined;
@@ -80,6 +84,8 @@ export type ComponentUsageRuleApi = {
         findMatchingVModelAttribute(node: TemplateNode, argumentName: string | null): TemplateNode | undefined;
         findSlot(node: TemplateNode, slotName: string): TemplateNode | undefined;
         hasCodemodComment(node: TemplateNode, text: string): boolean;
+        /** Tells whether a comment containing `text` sits directly above the element. */
+        hasLeadingComment(node: TemplateNode, text: string): boolean;
         getAttributeValueSource(attribute: TemplateNode): string | null;
         getDirectiveName(attribute: TemplateNode): string | null;
         getFirstElementChildWithoutSlot(node: TemplateNode): TemplateNode | undefined;
@@ -216,7 +222,7 @@ export type MissingPropStep = ComponentUsageStepBase & {
 export type RemoveSlotStep = ComponentUsageStepBase & {
     kind: 'remove-slot';
     slot: string;
-    /** The review comment above a slot with content; defaults to a generic "not rendered anymore" hint. */
+    /** Why a slot with content needs a manual move; defaults to a generic "not rendered anymore" hint. */
     hint?: string;
 };
 
@@ -235,9 +241,29 @@ export type SlotToPropStep = ComponentUsageStepBase & {
 export type FlagSlotForManualMoveStep = ComponentUsageStepBase & {
     kind: 'flag-slot-for-manual-move';
     slot: string;
-    /** The codemod review comment put above the slot; an element that already carries it is not reported again. */
+    /** What a developer has to do with the slot content. */
     hint: string;
 };
+
+/**
+ * Where a field of a generated item takes its value from: an attribute of the item element, or its
+ * text content.
+ *
+ * @example
+ * { attribute: 'value', emptyAsNull: true } // <option value="">… → value: null
+ * { content: true } // <option>{{ $t('a') }}</option> → label: $t('a')
+ */
+export type ItemFieldSource =
+    | {
+          attribute: string;
+          /** An item without the attribute needs a manual migration instead of an item without the field. */
+          required?: boolean;
+          /** Writes an empty static value as `null`, for components that turned an empty value into null. */
+          emptyAsNull?: boolean;
+          /** Review note for a bound value, for example when the new component keeps its type and the old one did not. */
+          boundReview?: string;
+      }
+    | { content: true };
 
 export type SlotToItemsPropStep = ComponentUsageStepBase & {
     kind: 'slot-to-items-prop';
@@ -245,12 +271,15 @@ export type SlotToItemsPropStep = ComponentUsageStepBase & {
     slot?: string;
     /** The prop that receives the generated items array. */
     prop: string;
-    /** The element name of each item inside the slot. */
-    itemComponent: string;
-    /** The item attribute read as the item name; defaults to `name`. */
-    itemNameProp?: string;
-    /** The item attribute read as the route when no name is set; defaults to `route`. */
-    itemRouteProp?: string;
+    /** The element name of each item inside the slot, for example `option`. */
+    item: string;
+    /** The fields of each generated item and where they come from. */
+    fields: Record<string, ItemFieldSource>;
+    /**
+     * Props that name the item key of a field. A `v-for` list whose fields are plain keys of the list
+     * entries is then passed as it is, instead of being mapped into new objects.
+     */
+    keyProps?: Record<string, string>;
 };
 
 export type RenameEventStep = ComponentUsageStepBase & { kind: 'rename-event'; from: string; to: string };

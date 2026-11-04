@@ -18,10 +18,7 @@ const DEFAULT_UNSAFE_MESSAGE =
  * @example
  * mapOptionsPropKeys({ prop: 'options', from: { name: 'label', id: 'value' }, unlessProps: ['label-property'] });
  */
-export function mapOptionsPropKeys({
-    fix = 'unsafe-auto',
-    ...config
-}: StepConfig<MapOptionsPropKeysStep>): MapOptionsPropKeysStep {
+export function mapOptionsPropKeys({ fix = 'auto', ...config }: StepConfig<MapOptionsPropKeysStep>): MapOptionsPropKeysStep {
     return defineUsageStep<MapOptionsPropKeysStep>(
         { kind: 'map-options-prop-keys', fix, ...config },
         reportMapOptionsPropKeys,

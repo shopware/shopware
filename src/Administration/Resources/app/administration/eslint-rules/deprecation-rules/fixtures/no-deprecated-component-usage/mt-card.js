@@ -27,6 +27,7 @@ const mtCardInvalidTests = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-card] Remove the AI badge prop and render the AI badge directly in the title slot. -->
                 <mt-card>
                     <slot name="title"><sw-ai-copilot-badge /></slot>
                     Hello World</mt-card>
@@ -60,6 +61,7 @@ const mtCardInvalidTests = [
             </template>`,
         output: `
             <template>
+                <!-- TODO Codemod: [mt-card] Remove the AI badge prop and render the AI badge directly in the title slot. -->
                 <mt-card>
                     <slot name="title"><sw-ai-copilot-badge v-if="1 == 1" /></slot>
                     Hello World</mt-card>

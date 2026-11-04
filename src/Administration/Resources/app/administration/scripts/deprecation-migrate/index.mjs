@@ -26,7 +26,7 @@ Usage:
   npm run deprecation:migrate -- --id component.sw-button --fix
   npm run deprecation:migrate -- --all
   npm run deprecation:migrate -- --all --fix
-  npm run deprecation:migrate -- --all --fix --no-partial
+  npm run deprecation:migrate -- --all --fix --level review
 
 Options:
   --help          Show this help.
@@ -35,9 +35,15 @@ Options:
   --all           Run all registry-backed deprecation migrations.
   --fix           Apply available ESLint fixes and report remaining work.
                   Without --fix, matching deprecations are only reported.
-  --no-partial    Convert a component only when every part of it can be fixed
-                  automatically, without review comments. Other usages keep the
-                  deprecated component and are only reported.
+  --level <level> How much --fix may change (default: safe). Run the levels in
+                  this order and commit after each one:
+                  safe     Only fixes that keep the behaviour. No review needed.
+                  review   Also fixes that leave a "TODO Codemod" review comment.
+                           Nothing is converted that needs manual work.
+                  partial  Converts everything and leaves a "TODO Codemod" comment
+                           on each part that needs manual work.
+                  manual   Changes no code and puts a "TODO Codemod" comment above
+                           every deprecated usage.
 
 Asset deprecations (for example PNG/JPG to WebP) are reported by the admin build, not by this command.
 
@@ -91,17 +97,12 @@ function runEslint(args) {
         eslintArgs.push('--fix');
     }
 
-    if (!args.partial) {
-        const noPartialRule = { 'sw-deprecation-rules/no-deprecated-components': ['error', { partial: false }] };
-
-        eslintArgs.push('--rule', JSON.stringify(noPartialRule));
-    }
-
     return spawnSync(eslintBin, eslintArgs, {
         cwd: adminRoot,
         env: {
             ...process.env,
             SHOPWARE_ADMIN_DEPRECATION_IDS: args.ids.join(','),
+            SHOPWARE_ADMIN_DEPRECATION_LEVEL: args.level,
         },
         stdio: 'inherit',
     });

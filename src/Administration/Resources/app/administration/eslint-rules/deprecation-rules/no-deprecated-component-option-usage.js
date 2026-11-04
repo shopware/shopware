@@ -6,6 +6,7 @@ const { loadRegistry } = require('./registry/load-registry');
 const { hasComponentCodemod, hasPropCodemod, toPropName } = require('./registry/component-deprecations');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
 const { getSelectedMigrationIds } = require('./registry/filter-migrations');
+const { withRunLevel } = require('./registry/run-level');
 
 function toKebabCase(name) {
     return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -57,7 +58,7 @@ function buildMessage(subject, { version, comment }) {
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         docs: {
@@ -128,4 +129,4 @@ module.exports = {
             },
         });
     },
-};
+});

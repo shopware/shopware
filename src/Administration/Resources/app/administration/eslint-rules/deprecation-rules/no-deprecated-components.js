@@ -13,42 +13,80 @@ const {
     findObjectVOnAttribute,
 } = require('./registry/template-ast');
 const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
-
-// Stands in for ESLint's fixer when a fix only has to be built, not applied.
-const RECORDING_FIXER = new Proxy({}, { get: () => () => ({}) });
+const {
+    RANGE_FIXER,
+    classifyReport,
+    collectFixes,
+    getRunLevel,
+    haveOverlappingRanges,
+    withRunLevel,
+} = require('./registry/run-level');
 
 /**
- * Runs the follow-up steps of a migration on the element before it is converted and returns the
- * headlines of the parts that would be left for a person: no automatic fix, or a fix that only leaves a
- * review comment (`unsafe-auto`). An element with such parts is only converted when the rule allows
- * partial conversions.
+ * Plans the follow-up steps of a migration on the element before it is converted: runs every step as
+ * if the element was already converted and returns each report with what its fix is. The fixes are
+ * built against the current source, so they can go into the conversion's own fix.
  *
  * @example
- * findManualParts(context, swAlertNode, migration);
- * // ['[sw-alert] The "actions" slot is removed.\nmt-banner has no "actions" slot, …']
+ * planConversion(context, swAlertNode, migration);
+ * // [{ kind: 'manual', headline: '[sw-alert] The "actions" slot is removed.\n…', fixes: [] }]
  */
-function findManualParts(context, node, migration) {
-    const manualParts = [];
+function planConversion(context, node, migration) {
+    const parts = [];
+    const planningContext = {
+        sourceCode: context.sourceCode,
+        options: [],
+        report(descriptor) {
+            const kind = classifyReport(descriptor);
+
+            parts.push({
+                kind,
+                headline: descriptor.message.split(`\n${migration.description}`)[0],
+                fixes: kind === 'manual' ? [] : collectFixes(descriptor.fix),
+            });
+        },
+    };
 
     migration.usage
         .filter((usage) => usage.eslint?.report)
         .forEach((usage) => {
-            const recordingContext = {
-                sourceCode: context.sourceCode,
-                options: [],
-                report(report) {
-                    const fixesCompletely = usage.fix === 'auto' && report.fix && report.fix(RECORDING_FIXER);
-
-                    if (!fixesCompletely) {
-                        manualParts.push(report.message.split(`\n${migration.description}`)[0]);
-                    }
-                },
-            };
-
-            usage.eslint.report(createComponentUsageRuleApi(recordingContext, node, migration, usage));
+            usage.eslint.report(
+                createComponentUsageRuleApi(planningContext, node, migration, usage, { assumeConverted: true }),
+            );
         });
 
-    return manualParts;
+    return parts;
+}
+
+/**
+ * Lists why the run level does not let the element be converted: at `safe` every part has to keep the
+ * behaviour, at `review` no part may need a manual migration. `partial` and `manual` convert, or
+ * comment, every element. A manual rename never converts, so its parts are never the reason.
+ */
+function findBlockingParts(level, node, renameUsage, parts) {
+    if (renameUsage.fix === 'manual') {
+        return [];
+    }
+
+    if (level === 'review') {
+        return parts.filter((part) => part.kind === 'manual').map((part) => part.headline);
+    }
+
+    if (level !== 'safe') {
+        return [];
+    }
+
+    const blockers = parts.filter((part) => part.kind !== 'auto').map((part) => part.headline);
+
+    if (renameUsage.fix !== 'auto') {
+        blockers.unshift(renameUsage.message ?? 'The conversion itself needs a review.');
+    }
+
+    if (findObjectVBindAttribute(node) || findObjectVOnAttribute(node)) {
+        blockers.unshift('An object v-bind or v-on can pass deprecated props or listeners.');
+    }
+
+    return blockers;
 }
 
 /**
@@ -70,13 +108,14 @@ function getConversionComment(componentName, node) {
 }
 
 /**
- * This rule reports deprecated components and renames them to their replacement. It puts a review
- * comment above every converted element, which `no-deprecated-component-usage` uses to find the
- * conversions its follow-up steps apply to.
+ * This rule reports deprecated components and renames them to their replacement. The run level decides
+ * which elements it converts. At `safe` an element is converted together with all of its follow-up
+ * fixes. At the other levels it gets a review comment, which `no-deprecated-component-usage` uses to find
+ * the conversions its follow-up steps apply to.
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         fixable: 'code',
@@ -97,10 +136,6 @@ module.exports = {
                             type: 'string',
                         },
                     },
-                    // false converts only elements whose follow-up steps can all be fixed automatically
-                    partial: {
-                        type: 'boolean',
-                    },
                 },
             },
         ],
@@ -110,7 +145,7 @@ module.exports = {
         const migrations = filterMigrations(loadRegistry().componentApiMigrations);
         const activatedComponents =
             context.options[0]?.activatedComponents ?? migrations.map((migration) => migration.component);
-        const allowsPartialConversion = context.options[0]?.partial ?? true;
+        const level = getRunLevel(context);
         const renameMigrations = migrations
             .filter((migration) => activatedComponents.includes(migration.component))
             .map((migration) => ({
@@ -130,57 +165,77 @@ module.exports = {
                 const { migration, renameUsage } = match;
                 const oldName = migration.component;
                 const newName = migration.replacement;
-                // A rename that is manual anyway never converts, so its follow-up steps are not the reason.
-                const manualParts =
-                    allowsPartialConversion || renameUsage.fix === 'manual' ? [] : findManualParts(context, node, migration);
+                const headline = `"${oldName}" is deprecated. Please use "${newName}" instead.`;
+                const parts = renameUsage.fix === 'manual' ? [] : planConversion(context, node, migration);
+                const blockingParts = findBlockingParts(level, node, renameUsage, parts);
+                const nameRange = [
+                    node.startTag.range[0],
+                    node.startTag.range[0] + 1 + oldName.length,
+                ];
+                const renameFixes = (fixer) => [
+                    fixer.replaceTextRange(nameRange, `<${newName}`),
+                    ...(node.endTag ? [fixer.replaceTextRange(node.endTag.range, `</${newName}>`)] : []),
+                ];
 
-                if (manualParts.length > 0) {
+                if (blockingParts.length > 0) {
                     context.report({
-                        loc: node.loc,
+                        node,
                         message: appendRegistryContext(
                             [
-                                `"${oldName}" is deprecated. Please use "${newName}" instead.`,
-                                'It is not converted, because these parts need a manual migration first:',
-                                ...manualParts.map((part) => `- ${part}`),
+                                headline,
+                                level === 'safe'
+                                    ? 'It is not converted, because these parts need a review or a manual migration:'
+                                    : 'It is not converted, because these parts need a manual migration first:',
+                                ...blockingParts.map((part) => `- ${part}`),
                             ],
                             migration,
                         ),
+                        fixLevel: 'manual',
+                    });
+
+                    return;
+                }
+
+                if (level === 'safe') {
+                    const fixes = [
+                        ...renameFixes(RANGE_FIXER),
+                        ...parts.flatMap((part) => part.fixes),
+                    ];
+                    const overlapping = haveOverlappingRanges(fixes);
+
+                    context.report({
+                        node,
+                        message: appendRegistryContext(
+                            [
+                                headline,
+                                overlapping ? 'It is not converted, because two of its fixes change the same code.' : '',
+                            ],
+                            migration,
+                        ),
+                        fix: overlapping || !canAutoFix(context, renameUsage) ? null : () => fixes,
+                        fixLevel: overlapping ? 'manual' : 'auto',
                     });
 
                     return;
                 }
 
                 context.report({
-                    loc: node.loc,
-                    message: appendRegistryContext(
-                        [
-                            `"${oldName}" is deprecated. Please use "${newName}" instead.`,
-                            renameUsage.message ?? '',
-                        ],
-                        migration,
-                    ),
+                    node,
+                    message: appendRegistryContext([headline, renameUsage.message ?? ''], migration),
+                    fixLevel: renameUsage.fix,
                     *fix(fixer) {
                         if (!canAutoFix(context, renameUsage)) {
                             return;
                         }
 
-                        const nameRange = [
-                            node.startTag.range[0],
-                            node.startTag.range[0] + 1 + oldName.length,
-                        ];
-
                         yield fixer.insertTextBeforeRange(
                             nameRange,
                             `${getConversionComment(oldName, node)}\n${' '.repeat(node.loc.start.column)}`,
                         );
-                        yield fixer.replaceTextRange(nameRange, `<${newName}`);
-
-                        if (node.endTag) {
-                            yield fixer.replaceTextRange(node.endTag.range, `</${newName}>`);
-                        }
+                        yield* renameFixes(fixer);
                     },
                 });
             },
         });
     },
-};
+});

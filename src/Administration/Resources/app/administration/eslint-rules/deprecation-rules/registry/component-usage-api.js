@@ -4,7 +4,7 @@
 
 const { appendRegistryContext } = require('./format-migration-message');
 const { canAutoFix } = require('./fix-policy');
-const { hasCodemodComment, insertTemplateCodemodComment, isConvertedFrom } = require('./codemod-comment');
+const { getLeadingComments, hasCodemodComment, insertTemplateCodemodComment, isConvertedFrom } = require('./codemod-comment');
 const ast = require('./template-ast');
 const { containsTwig, getInnerSource, getRemovalRange, slotContentToValue, toPropAttribute } = require('./slot-content');
 
@@ -120,11 +120,12 @@ function resolveDuplicate(sourceCode, element, descriptor, produces) {
  * Builds the API a registry step's `eslint.report(api)` receives for one matching element: the element,
  * the step, reporting with the duplicate-attribute guard, the fix policy and the template helpers.
  * The TypeScript side of this contract is `ComponentUsageRuleApi` in the registry helpers.
+ * `assumeConverted` makes `isConverted()` true, for planning the steps of a conversion before it happens.
  *
  * @example
  * usage.eslint.report(createComponentUsageRuleApi(context, node, migration, usage));
  */
-function createComponentUsageRuleApi(context, node, migration, usage) {
+function createComponentUsageRuleApi(context, node, migration, usage, { assumeConverted = false } = {}) {
     const sourceCode = context.sourceCode;
 
     return {
@@ -160,7 +161,7 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
             return fixer.removeRange(ast.getAttributeRemovalRange(sourceCode, node, attribute));
         },
         isConverted() {
-            return isConvertedFrom(sourceCode, node, migration.component);
+            return assumeConverted || isConvertedFrom(sourceCode, node, migration.component);
         },
         ast: {
             findMatchingPropAttribute: ast.findMatchingPropAttribute,
@@ -176,6 +177,9 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
             getStaticAttributeName: ast.getStaticAttributeName,
             getAttributeValueSource: (attribute) => ast.getAttributeValueSource(sourceCode, attribute),
             hasCodemodComment: (element, text) => hasCodemodComment(sourceCode, element, text),
+            hasLeadingComment: (element, text) => {
+                return getLeadingComments(sourceCode, element).some((comment) => comment.value.includes(text));
+            },
             getSlotContentValue: (slot) => {
                 return containsTwig(getInnerSource(sourceCode, slot)) ? null : slotContentToValue(sourceCode, slot.children);
             },

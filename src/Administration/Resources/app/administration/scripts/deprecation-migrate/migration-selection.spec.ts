@@ -31,7 +31,6 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                     '--all',
                     '--fix',
                     '--list',
-                    '--no-partial',
                     '-h',
                 ]),
             ).toEqual({
@@ -39,13 +38,21 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                 fix: true,
                 help: true,
                 ids: [],
+                level: 'safe',
                 list: true,
-                partial: false,
             });
         });
 
-        it('allows partial conversions by default', () => {
-            expect(parseArgs(['--all']).partial).toBe(true);
+        it('reads the run level given as a separate value or with an equals sign', () => {
+            expect(parseArgs(['--all', '--level', 'review']).level).toBe('review');
+            expect(parseArgs(['--all', '--level=partial']).level).toBe('partial');
+        });
+
+        it('rejects an unknown run level', () => {
+            expect(() => parseArgs(['--all', '--level', 'all'])).toThrow(
+                '--level requires one of: manual, safe, review, partial.',
+            );
+            expect(() => parseArgs(['--all', '--level'])).toThrow('--level requires one of');
         });
 
         it('reads an id given as a separate value or with an equals sign', () => {
@@ -121,7 +128,6 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
             expect(getLeastAutomaticFixLevel(['auto', 'unsafe-auto'])).toBe('unsafe-auto');
             expect(getLeastAutomaticFixLevel(['auto'])).toBe('auto');
         });
-
 
         it('rates a migration by its least automatic usage', () => {
             expect(

@@ -7,6 +7,7 @@ const { isMigrationSelected } = require('../deprecation-rules/registry/filter-mi
 const { appendRegistryContext } = require('../deprecation-rules/registry/format-migration-message');
 const { scriptCodemodComment } = require('../deprecation-rules/registry/codemod-comment');
 const espree = require('espree');
+const { withRunLevel } = require('../deprecation-rules/registry/run-level');
 
 // vue-eslint-parser keeps mustaches of .html.twig templates as raw text, so their calls are parsed here.
 const MUSTACHE_PATTERN = /{{([\s\S]*?)}}/g;
@@ -284,7 +285,7 @@ function findMustacheTranslateCalls(sourceCode, textNode) {
     return calls;
 }
 
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'suggestion',
         docs: {
@@ -441,4 +442,4 @@ module.exports = {
 
         return scriptVisitors;
     },
-};
+});

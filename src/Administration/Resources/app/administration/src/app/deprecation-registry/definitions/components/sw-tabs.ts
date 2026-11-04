@@ -38,11 +38,14 @@ export default componentMigration({
             prop: 'align-right',
         }),
         slotToItemsProp({
-            slot: 'default',
+            item: 'sw-tabs-item',
             prop: 'items',
-            itemComponent: 'sw-tabs-item',
-            fix: 'unsafe-auto',
-            message: 'Convert the default slot tab declarations into mt-tabs items.',
+            fields: {
+                label: { content: true },
+                name: { attribute: 'name', required: true },
+                hasError: { attribute: 'has-error' },
+                disabled: { attribute: 'disabled' },
+            },
         }),
         flagSlotForManualMove({
             slot: 'content',

@@ -7,21 +7,15 @@ const mtTabsValidTests = [
                 <sw-tabs />
             </template>`,
     },
+];
+
+const ITEMS_ALREADY_SET =
+    '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.\n' +
+    'The element already sets "items". Move the <sw-tabs-item> elements into the "items" prop manually.';
+
+const mtTabsInvalidTests = [
     {
-        name: '"mt-tabs" should not be converted if the "content" slot is already commented',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-    },
-    {
-        name: '"mt-tabs" should not convert default slot when static items prop already exists',
+        name: '"mt-tabs" default slot is left for a manual move when the items prop already exists',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -31,9 +25,11 @@ const mtTabsValidTests = [
                     </template>
                 </mt-tabs>
             </template>`,
+        output: null,
+        errors: [{ message: ITEMS_ALREADY_SET }],
     },
     {
-        name: '"mt-tabs" should not convert direct children when static items prop already exists',
+        name: '"mt-tabs" direct children are left for a manual move when the items prop already exists',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -41,10 +37,9 @@ const mtTabsValidTests = [
                     <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
                 </mt-tabs>
             </template>`,
+        output: null,
+        errors: [{ message: ITEMS_ALREADY_SET }],
     },
-];
-
-const mtTabsInvalidTests = [
     {
         name: '"mt-tabs" wrong "default" slot usage will be replaced with "items" property',
         filename: 'test.html.twig',
@@ -59,25 +54,10 @@ const mtTabsInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-tabs :items="[
-    {
-        'label': 'Tab 1',
-        'name': 'tab1'
-    },
-    {
-        'label': 'Tab 2',
-        'name': 'tab2'
-    }
-]">
-                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-                    <template #default="{ active }">
-                        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
-                        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
-                    </template>
-                </mt-tabs>
+                <mt-tabs :items="[{ label: 'Tab 1', name: 'tab1' }, { label: 'Tab 2', name: 'tab2' }]" />
             </template>`,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {
@@ -94,7 +74,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {
@@ -112,24 +92,12 @@ const mtTabsInvalidTests = [
         output: `
             <template>
                 <mt-tabs :items="[
-    {
-        'label': 'sw-cms.elements.general.config.tab.one',
-        'name': 'tab1'
-    },
-    {
-        'label': 'sw-cms.elements.general.config.tab.two',
-        'name': 'tab2'
-    }
-]">
-                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-                    <template #default="{ active }">
-                        <sw-tabs-item name="tab1">{{ $tc('sw-cms.elements.general.config.tab.one') }}</sw-tabs-item>
-                        <sw-tabs-item name="tab2">{{ $tc('sw-cms.elements.general.config.tab.two') }}</sw-tabs-item>
-                    </template>
-                </mt-tabs>
+                    { label: $tc('sw-cms.elements.general.config.tab.one'), name: 'tab1' },
+                    { label: $tc('sw-cms.elements.general.config.tab.two'), name: 'tab2' },
+                ]" />
             </template>`,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {
@@ -146,7 +114,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {
@@ -161,23 +129,10 @@ const mtTabsInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-tabs :items="[
-    {
-        'label': 'Tab 1',
-        'name': 'tab1'
-    },
-    {
-        'label': 'Tab 2',
-        'name': 'tab2'
-    }
-]">
-                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-                    <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
-                    <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
-                </mt-tabs>
+                <mt-tabs :items="[{ label: 'Tab 1', name: 'tab1' }, { label: 'Tab 2', name: 'tab2' }]" />
             </template>`,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {
@@ -191,15 +146,7 @@ const mtTabsInvalidTests = [
                     </template>
                 </mt-tabs>
             </template>`,
-        output: `
-            <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
+        output: null,
         errors: [
             {
                 message:
@@ -369,43 +316,9 @@ const mtTabsInvalidTests = [
                     </sw-tabs-item>
                 </mt-tabs>
             </template>`,
-        output: `
-            <template>
-                <mt-tabs :items="[
-    {
-        'label': 'sw-product.detail.tabGeneral',
-        'name': 'sw.product.detail.base'
-    },
-    {
-        'label': 'sw-product.detail.tabSpecifications',
-        'name': '{ name: \\'sw.product.detail.specifications\\', params: { id: $route.params.id } }'
-    }
-]"
-                    v-if="productId"
-                    class="sw-product-detail-page__tabs"
-                    position-identifier="sw-product-detail"
-                >
-                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-                    <sw-tabs-item
-                        class="sw-product-detail__tab-general"
-                        route="sw.product.detail.base"
-                        :has-error="swProductDetailBaseError"
-                        :title="$tc('sw-product.detail.tabGeneral')"
-                    >
-                        {{ $tc('sw-product.detail.tabGeneral') }}
-                    </sw-tabs-item>
-
-                    <sw-tabs-item
-                        class="sw-product-detail__tab-specifications"
-                        :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
-                        :title="$tc('sw-product.detail.tabSpecifications')"
-                    >
-                        {{ $tc('sw-product.detail.tabSpecifications') }}
-                    </sw-tabs-item>
-                </mt-tabs>
-            </template>`,
+        output: null,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {
@@ -417,20 +330,9 @@ const mtTabsInvalidTests = [
                     <sw-tabs-item :route="getRoute('general/tab')">General</sw-tabs-item>
                 </mt-tabs>
             </template>`,
-        output: `
-            <template>
-                <mt-tabs :items="[
-    {
-        'label': 'General',
-        'name': 'getRoute(\\'general/tab\\')'
-    }
-]">
-                    <!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
-                    <sw-tabs-item :route="getRoute('general/tab')">General</sw-tabs-item>
-                </mt-tabs>
-            </template>`,
+        output: null,
         errors: [
-            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
 ];

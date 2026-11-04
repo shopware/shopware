@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+const { RUN_LEVELS } = require('../../eslint-rules/deprecation-rules/registry/run-level');
+
 const FIX_LEVELS_LEAST_AUTOMATIC_FIRST = [
     'manual',
     'unsafe-auto',
@@ -16,8 +18,8 @@ const MIGRATIONS_WITHOUT_LINT_RULE = new Set(['assetMigrations']);
  * without a value, so a typo never silently runs every migration.
  *
  * @example
- * parseArgs(['--id', 'component.sw-button', '--fix']);
- * // { all: false, fix: true, help: false, ids: ['component.sw-button'], list: false }
+ * parseArgs(['--id', 'component.sw-button', '--fix', '--level', 'review']);
+ * // { all: false, fix: true, help: false, ids: ['component.sw-button'], level: 'review', list: false }
  */
 function parseArgs(argv) {
     const args = {
@@ -25,8 +27,8 @@ function parseArgs(argv) {
         fix: false,
         help: false,
         ids: [],
+        level: 'safe',
         list: false,
-        partial: true,
     };
 
     for (let index = 0; index < argv.length; index += 1) {
@@ -42,8 +44,15 @@ function parseArgs(argv) {
             continue;
         }
 
-        if (arg === '--no-partial') {
-            args.partial = false;
+        if (arg === '--level' || arg.startsWith('--level=')) {
+            const level = arg === '--level' ? argv[index + 1] : arg.slice('--level='.length);
+
+            if (!RUN_LEVELS.includes(level)) {
+                throw new Error(`--level requires one of: ${RUN_LEVELS.join(', ')}.`);
+            }
+
+            args.level = level;
+            index += arg === '--level' ? 1 : 0;
             continue;
         }
 

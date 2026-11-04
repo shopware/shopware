@@ -3,6 +3,7 @@
  */
 
 const { defineTemplateBodyVisitor } = require('./registry/template-ast');
+const { withRunLevel } = require('./registry/run-level');
 
 const FEATURE_FLAG = 'v6.8.0.0';
 
@@ -118,7 +119,7 @@ function isInsideAllowedFallbackBranch(node) {
     return false;
 }
 
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         docs: {
@@ -151,4 +152,4 @@ module.exports = {
 
         return defineTemplateBodyVisitor(context, templateVisitor);
     },
-};
+});

@@ -17,6 +17,7 @@ const {
     hasSameValue,
     matchesTemplateName,
 } = require('./registry/template-ast');
+const { withRunLevel } = require('./registry/run-level');
 
 /**
  * Builds the report message; empty hints are skipped by appendRegistryContext.
@@ -57,7 +58,7 @@ function getStaticEventName(attribute) {
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'suggestion',
         docs: {
@@ -147,4 +148,4 @@ module.exports = {
             },
         });
     },
-};
+});

@@ -8,45 +8,6 @@ const mtSelectValidTests = [
             </template>`
     },
     {
-        name: '"mt-select" fix already applied for: wrong "default" slot usage. Should be replaced with prop "options" [without declaration]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-select>
-                    <!-- TODO Codemod: Remove the "default" slot and use the "options" prop instead -->
-                    <option value="optionA">Option A</option>
-                    <option value="optionB">Option B</option>
-                </mt-select>
-            </template>`,
-    },
-    {
-        name: '"mt-select" fix already applied for: wrong "default" slot usage. Should be replaced with prop "options" [short syntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-select>
-                    <!-- TODO Codemod: Remove the "default" slot and use the "options" prop instead -->
-                    <template #default>
-                        <option value="optionA">Option A</option>
-                        <option value="optionB">Option B</option>
-                    </template>
-                </mt-select>
-            </template>`,
-    },
-    {
-        name: '"mt-select" fix already applied for: wrong "label" slot usage. Should be replaced with prop "label" [short syntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-select>
-                    <!-- TODO Codemod: Remove the "label" slot and use the "label" prop instead -->
-                    <template #label>
-                        My Label
-                    </template>
-                </mt-select>
-            </template>`,
-    },
-    {
         name: '"mt-select" options with name/id keys are kept when label-property and value-property map them',
         filename: 'test.html.twig',
         code: `
@@ -303,14 +264,13 @@ const mtSelectInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-select>
-                    <!-- TODO Codemod: Remove the "default" slot and use the "options" prop instead -->
-                    <option value="optionA">Option A</option>
-                    <option value="optionB">Option B</option>
-                </mt-select>
+                <mt-select :options="[
+                    { value: 'optionA', label: 'Option A' },
+                    { value: 'optionB', label: 'Option B' },
+                ]" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" API is deprecated.',
+            message: '[mt-select] The "default" slot is removed. Pass its <option> elements as the "options" prop.',
         }]
     },
     {
@@ -325,7 +285,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" API is deprecated.',
+            message: '[mt-select] The "default" slot is removed. Pass its <option> elements as the "options" prop.',
         }]
     },
     {
@@ -342,16 +302,13 @@ const mtSelectInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-select>
-                    <!-- TODO Codemod: Remove the "default" slot and use the "options" prop instead -->
-                    <template #default>
-                        <option value="optionA">Option A</option>
-                        <option value="optionB">Option B</option>
-                    </template>
-                </mt-select>
+                <mt-select :options="[
+                    { value: 'optionA', label: 'Option A' },
+                    { value: 'optionB', label: 'Option B' },
+                ]" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" API is deprecated.',
+            message: '[mt-select] The "default" slot is removed. Pass its <option> elements as the "options" prop.',
         }]
     },
     {
@@ -368,7 +325,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" API is deprecated.',
+            message: '[mt-select] The "default" slot is removed. Pass its <option> elements as the "options" prop.',
         }]
     },
     {
@@ -384,15 +341,11 @@ const mtSelectInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-select>
-                    <!-- TODO Codemod: Remove the "label" slot and use the "label" prop instead -->
-                    <template #label>
-                        My Label
-                    </template>
+                <mt-select label="My Label">
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "label" API is deprecated.',
+            message: '[mt-select] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {
@@ -408,7 +361,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "label" API is deprecated.',
+            message: '[mt-select] The "label" slot is removed. Pass its content as the "label" prop.',
         }]
     },
     {

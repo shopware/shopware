@@ -6,7 +6,6 @@
 import type {
     ComponentUsageRuleApi,
     Fixer,
-    FixLevel,
     FlagSlotForManualMoveStep,
     RemoveSlotStep,
     RenameSlotStep,
@@ -18,21 +17,18 @@ import type { UsagePlan } from '../shared';
 import { defineUsageStep, reportUsage } from '../shared';
 
 /**
- * Handles a slot the new component no longer has. An empty slot is deleted. A slot with content keeps
- * its content and gets a review comment above it, because the new component does not render it and
- * only a developer can decide where it goes.
+ * Handles a slot the new component no longer has. An empty slot is deleted. A slot with content is
+ * reported for a manual move, because the new component does not render it and only a developer can
+ * decide where it goes.
  *
  * @example
  * removeSlot({ slot: 'actions', hint: 'mt-banner has no "actions" slot. Render the actions next to the banner.' });
  */
-export function removeSlot({ fix = 'unsafe-auto', ...config }: StepConfig<RemoveSlotStep>): RemoveSlotStep {
+export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotStep>): RemoveSlotStep {
     return defineUsageStep<RemoveSlotStep>({ kind: 'remove-slot', fix, ...config }, (api, step) => {
         const slot = api.ast.findSlot(api.node, step.slot);
-        const hint =
-            step.hint ??
-            `The "${step.slot}" slot does not exist anymore, so its content is not rendered. Move or remove it.`;
 
-        if (!slot || api.ast.hasCodemodComment(api.node, hint)) {
+        if (!slot) {
             return;
         }
 
@@ -42,9 +38,13 @@ export function removeSlot({ fix = 'unsafe-auto', ...config }: StepConfig<Remove
             node: slot,
             apiName: step.slot,
             headline: `The "${step.slot}" slot is removed.`,
-            fix: isEmpty
-                ? (fixer) => fixer.removeRange(api.ast.getRemovalRange(slot))
-                : (fixer) => api.insertCodemodCommentBefore(fixer, slot, hint),
+            ...(isEmpty
+                ? { fix: (fixer: Fixer) => fixer.removeRange(api.ast.getRemovalRange(slot)) }
+                : {
+                      manualReason:
+                          step.hint ??
+                          `The "${step.slot}" slot does not exist anymore, so its content is not rendered. Move or remove it.`,
+                  }),
         });
     });
 }
@@ -170,7 +170,7 @@ function planSlotToProp(api: ComponentUsageRuleApi, step: SlotToPropStep, slot: 
  * @example
  * isConditionalOrScopedSlot(api, slot); // true for <template #label="{ item }"> and <template v-if="x" #label>
  */
-function isConditionalOrScopedSlot(api: ComponentUsageRuleApi, slot: TemplateNode): boolean {
+export function isConditionalOrScopedSlot(api: ComponentUsageRuleApi, slot: TemplateNode): boolean {
     return (slot.startTag.attributes as TemplateNode[]).some((attribute) => {
         return api.ast.getDirectiveName(attribute) !== 'slot' || Boolean(attribute.value);
     });
@@ -179,45 +179,44 @@ function isConditionalOrScopedSlot(api: ComponentUsageRuleApi, slot: TemplateNod
 /** Builder input of `flagSlotForManualMove`: a custom `hint`, or the prop the slot content moves to. */
 export type FlagSlotForManualMoveConfig = {
     slot: string;
-    fix?: FixLevel;
     message?: string;
 } & ({ hint: string; toProp?: never } | { toProp: string; hint?: never });
 
 /**
- * Keeps a slot whose content cannot move automatically and puts a review comment above it. Use it
- * when the content is markup that only a developer can turn into a prop or move elsewhere.
+ * Reports a slot whose content cannot move automatically for a manual move. Use it when the content
+ * is markup that only a developer can turn into a prop or move elsewhere.
  *
  * @example
- * flagSlotForManualMove({ slot: 'default', toProp: 'options' });
- * // review comment: Remove the "default" slot and use the "options" prop instead
+ * flagSlotForManualMove({ slot: 'label', toProp: 'label' });
+ * // reason: Remove the "label" slot and use the "label" prop instead.
  * flagSlotForManualMove({ slot: 'content', hint: 'Set the content outside the component.' });
  */
 export function flagSlotForManualMove({
     slot,
     toProp,
     hint,
-    fix = 'unsafe-auto',
     message,
 }: FlagSlotForManualMoveConfig): FlagSlotForManualMoveStep {
     return defineUsageStep<FlagSlotForManualMoveStep>(
         {
             kind: 'flag-slot-for-manual-move',
             slot,
-            hint: hint ?? `Remove the "${slot}" slot and use the "${toProp}" prop instead`,
-            fix,
+            hint: hint ?? `Remove the "${slot}" slot and use the "${toProp}" prop instead.`,
+            fix: 'manual',
             ...(message === undefined ? {} : { message }),
         },
         (api, step) => {
             const target = findSlotContent(api, step.slot);
 
-            if (!target || api.ast.hasCodemodComment(api.node, step.hint)) {
+            if (!target) {
                 return;
             }
 
             reportUsage(api, {
                 node: target,
                 apiName: step.slot,
-                fix: (fixer) => api.insertCodemodCommentBefore(fixer, target, step.hint),
+                headline: `The "${step.slot}" slot is removed.`,
+                manualReason: step.hint,
             });
         },
     );

@@ -53,24 +53,43 @@ function reportMapPropValue(api: ComponentUsageRuleApi, step: MapPropValueStep):
 }
 
 /**
- * Flags a bound expression that contains the deprecated value as a string literal, for example
- * `:variant="hasError ? 'error' : 'info'"`. Only a developer can rewrite the expression; expressions
- * without the literal are not reported, because their runtime value is unknown.
+ * Handles a bound value. An expression with the deprecated value as a string literal, for example
+ * `:variant="hasError ? 'error' : 'info'"`, needs a manual rewrite. Any other expression except a plain
+ * literal is only known at runtime: on a just converted element it gets a review comment that lists
+ * every deprecated value of the prop, once per prop.
  */
 function reportBoundValue(api: ComponentUsageRuleApi, step: MapPropValueStep, attribute: TemplateNode): void {
     const source = api.ast.getAttributeValueSource(attribute) ?? '';
 
-    if (!containsStringLiteral(source, step.from)) {
+    if (containsStringLiteral(source, step.from)) {
+        const replacementHint = step.to === undefined ? '' : ` with "${step.to}"`;
+
+        reportUsage(api, {
+            node: attribute,
+            apiName: step.prop,
+            replacement: step.to,
+            manualReason: `The bound expression can pass the deprecated value "${step.from}". Replace it${replacementHint} in the expression manually.`,
+        });
+
         return;
     }
 
-    const replacementHint = step.to === undefined ? '' : ` with "${step.to}"`;
+    const valueSteps = api.migration.usage.filter((usage): usage is MapPropValueStep => {
+        return usage.kind === 'map-prop-value' && usage.prop === step.prop;
+    });
+    const isLiteral = attribute.value?.expression?.type === 'Literal';
+
+    if (isLiteral || valueSteps[0] !== step || !api.isConverted()) {
+        return;
+    }
+
+    const deprecatedValues = valueSteps.map((valueStep) => `"${valueStep.from}"`).join(', ');
 
     reportUsage(api, {
         node: attribute,
         apiName: step.prop,
-        replacement: step.to,
-        manualReason: `The bound expression can pass the deprecated value "${step.from}". Replace it${replacementHint} in the expression manually.`,
+        headline: `The bound "${step.prop}" value is only known at runtime.`,
+        reviewReason: `Make sure it never passes one of the deprecated values ${deprecatedValues}.`,
     });
 }
 

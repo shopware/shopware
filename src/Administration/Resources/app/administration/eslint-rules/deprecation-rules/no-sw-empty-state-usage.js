@@ -17,6 +17,7 @@ const {
     slotContentToValue,
     toPropAttribute,
 } = require('./registry/slot-content');
+const { withRunLevel } = require('./registry/run-level');
 
 // The deprecation registry delegates this migration to this rule through a `codemodRule` step.
 const MIGRATION_ID = 'component.sw-empty-state';
@@ -462,7 +463,7 @@ function buildTodoComment(analysis, { description, lostFallbacks }) {
 /**
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         fixable: 'code',
@@ -591,7 +592,6 @@ module.exports = {
 
                         childFixes.sort((a, b) => a.range[0] - b.range[0]);
 
-                        // eslint-disable-next-line no-restricted-syntax
                         for (const childFix of childFixes) {
                             yield fixer.replaceTextRange(childFix.range, childFix.text);
                         }
@@ -604,4 +604,4 @@ module.exports = {
 
         return defineTemplateBodyVisitor(context, templateVisitor);
     },
-};
+});

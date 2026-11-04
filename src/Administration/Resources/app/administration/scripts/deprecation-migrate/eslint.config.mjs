@@ -8,6 +8,12 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
+const { SETTINGS_KEY } = require('../../eslint-rules/deprecation-rules/registry/run-level');
+
+// `deprecation:migrate --level` passes the run level of the deprecation rules
+const settings = {
+    [SETTINGS_KEY]: { level: process.env.SHOPWARE_ADMIN_DEPRECATION_LEVEL ?? 'safe' },
+};
 
 const plugins = {
     'sw-core-rules': swCoreRules,
@@ -81,12 +87,14 @@ export default [
             '**/*.vue',
         ],
         plugins,
+        settings,
         languageOptions: vueLanguageOptions,
         rules: templateDeprecationRules,
     },
     {
         files: ['src/**/*.html.twig'],
         plugins,
+        settings,
         languageOptions: vueLanguageOptions,
         processor: {
             meta: { name: 'twig-vue', version: '1.0.0' },
@@ -97,6 +105,7 @@ export default [
     {
         files: ['**/*.ts'],
         plugins,
+        settings,
         languageOptions: {
             ...languageOptions,
             parser: tseslint.parser,

@@ -8,6 +8,7 @@ const { filterMigrations } = require('./registry/filter-migrations');
 const { FIX_OPTION_SCHEMA } = require('./registry/fix-policy');
 const { isConvertedFrom } = require('./registry/codemod-comment');
 const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
+const { withRunLevel } = require('./registry/run-level');
 
 /**
  * This rule runs the follow-up steps of registry component migrations on the replacement element:
@@ -15,7 +16,7 @@ const { createComponentUsageRuleApi } = require('./registry/component-usage-api'
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         fixable: 'code',
@@ -49,4 +50,4 @@ module.exports = {
             },
         });
     },
-};
+});

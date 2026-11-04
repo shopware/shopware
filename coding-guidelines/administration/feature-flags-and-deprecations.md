@@ -78,11 +78,33 @@ To try a codemod on the Administration, run these commands in `src/Administratio
 npm run deprecation:migrate -- --list
 # Report the usages of one migration without changing files
 npm run deprecation:migrate -- --id component.sw-card
-# Apply its fixes
+# Apply only the fixes that keep the behaviour
 npm run deprecation:migrate -- --id component.sw-card --fix
-# Convert only components whose every part fixes without a review comment
-npm run deprecation:migrate -- --id component.sw-card --fix --no-partial
+# Also apply the fixes that leave a review comment
+npm run deprecation:migrate -- --id component.sw-card --fix --level review
 ```
+
+`--level` sets how much `--fix` may change.
+Run the levels in this order and commit after each one, so each commit has one kind of change:
+
+1. `safe` (the default) applies only fixes that keep the behaviour.
+   A component is converted together with all of its follow-up fixes, or not at all.
+   The commit needs no review.
+2. `review` also applies fixes that leave a `TODO Codemod` comment, but converts no component that needs manual work.
+   Review the comments before you commit.
+3. `partial` converts every component and puts a `TODO Codemod` comment above each part that needs manual work.
+   Do that work before you commit.
+4. `manual` changes no code and only puts a `TODO Codemod` comment above every deprecated usage.
+
+ESLint configs choose the level with the `sw-deprecation-rules` setting; without it, the rules run at `review`:
+
+```js
+settings: { 'sw-deprecation-rules': { level: 'safe' } },
+```
+
+A step that is safe only for some usages says so per usage.
+For example, `slotToItemsProp` turns static `<option>` elements into the `options` prop of `mt-select` at `safe`;
+options from a `v-for` list need a review, because the list has to be an array.
 
 ### Deprecation baseline
 

@@ -4,7 +4,6 @@
 
 import {
     componentMigration,
-    flagSlotForManualMove,
     mapOptionsPropKeys,
     missingProp,
     onlyAfterConversion,
@@ -13,6 +12,8 @@ import {
     renameEvent,
     renameProp,
     renameVModelArgument,
+    slotToItemsProp,
+    slotToProp,
     upgradeGuide,
 } from '../helpers';
 
@@ -48,7 +49,6 @@ export default componentMigration({
                 'label-property',
                 'value-property',
             ],
-            fix: 'unsafe-auto',
             message: 'Replace option object keys "name"/"id" with "label"/"value".',
             unsafeMessage:
                 'Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
@@ -60,7 +60,20 @@ export default componentMigration({
                     'mt-select shows a clear button by default, which sw-select-field never had. Add "hide-clearable-button" to keep the field unclearable.',
             }),
         ),
-        flagSlotForManualMove({ slot: 'label', toProp: 'label' }),
-        flagSlotForManualMove({ slot: 'default', toProp: 'options' }),
+        slotToProp({ slot: 'label', prop: 'label' }),
+        slotToItemsProp({
+            item: 'option',
+            prop: 'options',
+            fields: {
+                value: {
+                    attribute: 'value',
+                    emptyAsNull: true,
+                    boundReview:
+                        'sw-select-field passed the selected value on as a string, mt-select passes it on as it is: check that the bound value has the type the model expects.',
+                },
+                label: { content: true },
+            },
+            keyProps: { value: 'value-property', label: 'label-property' },
+        }),
     ],
 });

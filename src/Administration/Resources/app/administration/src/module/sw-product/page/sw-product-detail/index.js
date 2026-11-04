@@ -1472,10 +1472,13 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            Shopware.Store.get('context').api.language = await this.languageRepository.get(newLanguageId, {
-                ...Shopware.Context.api,
-                inheritance: true,
-            });
+            const criteria = new Criteria();
+            criteria.addAssociation('locale');
+            Shopware.Store.get('context').api.language = await this.languageRepository.get(
+                newLanguageId,
+                { ...Shopware.Context.api, inheritance: true },
+                criteria,
+            );
         },
 
         async initProductMeasurementUnits() {

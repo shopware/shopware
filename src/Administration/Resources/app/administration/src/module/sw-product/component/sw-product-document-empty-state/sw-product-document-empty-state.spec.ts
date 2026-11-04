@@ -13,7 +13,12 @@ describe('sw-product-document-empty-state', () => {
             props: { canAddDocuments },
             global: {
                 provide: { repositoryFactory: { create: () => ({ get }) } },
-                stubs: { 'i18n-t': { template: '<span><slot name="language"/></span>' } },
+                stubs: {
+                    'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
+                        sync: true,
+                    }),
+                    'i18n-t': { template: '<span><slot name="language"/></span>' },
+                },
             },
         });
     }

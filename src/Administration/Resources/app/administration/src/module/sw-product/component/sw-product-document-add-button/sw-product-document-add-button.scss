@@ -1,0 +1,14 @@
+.sw-product-document-add-button__trigger {
+    display: inline-flex;
+}
+
+// Meteor teleports the floating content outside the component root.
+.mt-floating-ui__content:has(.sw-product-document-add-button__hint) {
+    max-width: 15rem;
+    padding: var(--scale-size-12);
+    border-radius: var(--border-radius-xs);
+    background: var(--color-elevation-surface-floating);
+    color: var(--color-text-inverse-default);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+}

@@ -18,10 +18,13 @@ export default function LanguageAutoFetchingService() {
     // load the language Entity
     async function loadLanguage(newLanguageId) {
         const languageRepository = Shopware.Service('repositoryFactory').create('language');
-        const newLanguage = await languageRepository.get(newLanguageId, {
-            ...Shopware.Context.api,
-            inheritance: true,
-        });
+        const criteria = new Shopware.Data.Criteria();
+        criteria.addAssociation('locale');
+        const newLanguage = await languageRepository.get(
+            newLanguageId,
+            { ...Shopware.Context.api, inheritance: true },
+            criteria,
+        );
 
         Shopware.Store.get('context').api.language = newLanguage;
     }

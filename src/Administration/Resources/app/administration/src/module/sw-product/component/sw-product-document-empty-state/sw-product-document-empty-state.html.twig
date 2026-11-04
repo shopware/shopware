@@ -33,21 +33,11 @@
         color="color-text-secondary-default"
         class="sw-product-document-empty-state__language-hint"
     >
-        <i18n-t
-            keypath="sw-product.documentForm.emptyDescriptionOtherLanguage"
-            scope="global"
-        >
-            <template #language>
-                {% block sw_product_document_empty_state_language_link %}
-                <mt-link
-                    as="button"
-                    @click.prevent="$emit('change-language', defaultLanguageId)"
-                >
-                    '{{ defaultLanguageName || $t('sw-product.documentForm.defaultLanguage') }}'
-                </mt-link>
-                {% endblock %}
-            </template>
-        </i18n-t>
+        {% block sw_product_document_empty_state_language_link %}
+        <sw-product-document-language-hint
+            @change-language="$emit('change-language', $event)"
+        />
+        {% endblock %}
     </mt-text>
     {% endblock %}
 </div>

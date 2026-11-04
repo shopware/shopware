@@ -60,19 +60,10 @@ function isValidCidr(cidr: string): boolean {
 /**
  * @private
  */
-export type AvatarName = {
+function avatarName(entity: { firstName?: string | null; lastName?: string | null; displayName?: string | null }): {
     firstName: string;
     lastName: string;
-};
-
-/**
- * @private
- */
-export function avatarName(entity: {
-    firstName?: string | null;
-    lastName?: string | null;
-    displayName?: string | null;
-}): AvatarName {
+} {
     const firstName = (entity.firstName ?? '').trim();
     const lastName = (entity.lastName ?? '').trim();
 

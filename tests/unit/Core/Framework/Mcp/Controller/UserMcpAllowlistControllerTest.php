@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;

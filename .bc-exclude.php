@@ -36,6 +36,9 @@ return [
         // Expected to be appended when a new internal route default is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
 
+        // Expected to change whenever a service alias removal is scheduled for, or postponed to, another major
+        preg_quote('Value of constant Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass::ALIASES_TO_REMOVE', '/'),
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code

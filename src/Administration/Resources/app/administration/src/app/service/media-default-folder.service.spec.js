@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
+import SwMediaModalFolderSettings from 'src/app/component/media/sw-media-modal-folder-settings';
 
 const { Criteria } = Shopware.Data;
 
@@ -38,7 +39,7 @@ describe('app/service/media-default-folder.service.js', () => {
             }),
         ]);
         expect(cacheOptions).toEqual({
-            cacheKey: ['media-default-folder-id', 'product'],
+            cacheKey: ['media-default-folder', 'product', 'folder-id'],
         });
     });
 
@@ -56,5 +57,27 @@ describe('app/service/media-default-folder.service.js', () => {
         });
 
         expect(await MediaDefaultFolderService().getDefaultFolderId('product')).toBeNull();
+    });
+
+    it('getDefaultFolderId should reload after the folder settings modal invalidated its cache', async () => {
+        const cacheService = Shopware.Service('cacheService');
+        cacheService.clear();
+
+        const load = jest
+            .fn()
+            .mockResolvedValueOnce({ total: 0, data: ['old-folder-id'] })
+            .mockResolvedValueOnce({ total: 0, data: ['new-folder-id'] });
+        Shopware.Service('repositoryFactory').create = () => ({
+            searchIds: (criteria, { cacheKey }) => cacheService.query({ key: cacheKey, fn: load }),
+        });
+        const service = MediaDefaultFolderService();
+
+        expect(await service.getDefaultFolderId('product')).toBe('old-folder-id');
+        expect(await service.getDefaultFolderId('product')).toBe('old-folder-id');
+
+        await SwMediaModalFolderSettings.methods.invalidateMediaDefaultFolderCache();
+
+        expect(await service.getDefaultFolderId('product')).toBe('new-folder-id');
+        expect(load).toHaveBeenCalledTimes(2);
     });
 });

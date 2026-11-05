@@ -11,13 +11,10 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ### Cart deliveries and transactions carry a payload into the order
 
-The cart structs `Delivery` and `Transaction` have a `payload` with the same accessors as line items: `getPayload()`, `setPayload()`, `getPayloadValue()`, `setPayloadValue()`, `hasPayloadValue()` and `removePayloadValue()`.
-The `OrderConverter` stores it in the new `payload` field of `order_delivery` and `order_transaction` and restores it when it converts an order back into a cart, so the data survives order placement and order editing.
-Because the payload is stored as JSON, `setPayloadValue()` only accepts scalars, arrays and `null`, like on line items.
-
-Deliveries and transactions are rebuilt on every cart calculation.
-Set a delivery's payload in a cart processor that runs after the `DeliveryProcessor`.
-Transactions are built after all cart processors, so at checkout set their payload on the converted order data in the `CartConvertedEvent`.
+Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Unlike a line item payload, it does not survive the next cart calculation.
+Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
+At checkout, a transaction payload can only be set on the converted order data in the `CartConvertedEvent`.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -281,7 +278,7 @@ The property is unused and will be removed in 6.8.
 ### Order deliveries and order transactions have a `payload` field
 
 Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
-It is an object with the data extensions attached, or an empty array when there is none.
+It is an object, or an empty array when nothing is set.
 
 ### Plain JSON becomes the default Admin API response format in 6.8
 

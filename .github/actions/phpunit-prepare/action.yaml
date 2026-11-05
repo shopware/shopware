@@ -18,6 +18,9 @@ inputs:
   migration-coverage:
     default: "false"
     description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
+  expected-phpunit:
+    default: ""
+    description: "Major version vendor/bin/phpunit must report after the install (e.g. `13`); empty skips the check. Composer resolves PHPUnit 13 on PHP 8.4.1+ and PHPUnit 11 below from the root constraint."
 
 # Note: the caller controls feature flags via job-level env (e.g. V6_8_0_0: 1); the steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
@@ -96,3 +99,16 @@ runs:
     - name: Install Shopware
       shell: bash
       run: php src/Core/TestBootstrap.php
+
+    - name: Assert the install resolved PHPUnit ${{ inputs.expected-phpunit }}
+      if: ${{ inputs.expected-phpunit != '' }}
+      shell: bash
+      # a dev package that caps PHPUnit, or a PHP version below the floor of the newer constraint,
+      # would silently change which PHPUnit a lane runs
+      env:
+        EXPECTED_PHPUNIT: ${{ inputs.expected-phpunit }}
+      run: |
+        set -euo pipefail
+        version=$(vendor/bin/phpunit --version)
+        echo "$version"
+        [[ "$version" == "PHPUnit ${EXPECTED_PHPUNIT}."* ]]

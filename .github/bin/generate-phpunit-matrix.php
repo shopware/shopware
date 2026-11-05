@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
 // workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
@@ -31,7 +31,9 @@ if ($major) {
     return;
 }
 
-$php = ['8.2'];
+// PHP 8.5 resolves PHPUnit 13 from the root composer constraint; PHP 8.2 keeps PHPUnit 11
+// and runs in the nightly only.
+$php = ['8.5'];
 $db = ['mysql:8.0'];
 
 if ($nightly) {
@@ -42,18 +44,18 @@ $includes = [
     [
         'test' => ['testsuite' => 'devops'],
         'php' => '8.5',
-        'db' => 'mariadb:11'
+        'db' => 'mariadb:11',
     ],
-    // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
-    // skips without it.
-    [
-        'test' => ['testsuite' => 'devops'],
-        'php' => '8.2',
-        'db' => 'mysql:8.4'
-    ]
 ];
 
 if ($nightly) {
+    // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
+    // skips without it. php.yml covers it on PRs with the devops suite on PHPUnit 13.
+    $includes[] = [
+        'test' => ['testsuite' => 'devops'],
+        'php' => '8.2',
+        'db' => 'mysql:8.4',
+    ];
     // The DB spread runs on PHP 8.2 only and the PHP spread (8.5) on mysql:8.0 only:
     // DB behaviour does not depend on the PHP version, so the full cross product
     // adds jobs but no signal.
@@ -72,8 +74,8 @@ if ($nightly) {
     // Covered by the nightly DB spread above; PR/release runs need the explicit lane.
     $includes[] = [
         'test' => ['testsuite' => 'migration'],
-        'php' => '8.2',
-        'db' => 'mariadb:11'
+        'php' => '8.5',
+        'db' => 'mariadb:11',
     ];
 }
 
@@ -84,7 +86,7 @@ $matrix = [
     'php' => $php,
     'db' => $db,
     'opensearch' => ['opensearchproject/opensearch:3'],
-    'include' => $includes
+    'include' => $includes,
 ];
 
 if ($nightly) {

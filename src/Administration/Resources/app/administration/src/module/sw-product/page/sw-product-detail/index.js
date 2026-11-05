@@ -1474,11 +1474,17 @@ export default {
         async loadLanguage(newLanguageId) {
             const criteria = new Criteria();
             criteria.addAssociation('locale');
-            Shopware.Store.get('context').api.language = await this.languageRepository.get(
+            const language = await this.languageRepository.get(
                 newLanguageId,
                 { ...Shopware.Context.api, inheritance: true },
                 criteria,
             );
+
+            if (newLanguageId !== Shopware.Context.api.languageId) {
+                return;
+            }
+
+            Shopware.Store.get('context').api.language = language;
         },
 
         async initProductMeasurementUnits() {

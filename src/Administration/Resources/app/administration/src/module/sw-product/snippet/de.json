@@ -605,7 +605,7 @@
       "fileFallbackHint": "Ohne eine Datei an dieser Stelle erhalten Kundinnen und Kunden die Datei aus der Fallback-Sprache.",
       "removeLanguageVersion": "Version auf {language} entfernen",
       "removeLanguageVersionTitle": "Version auf {language} von „{name}“ entfernen?",
-      "removeLanguageVersionDescription": "Die Version auf {language} wird entfernt. Kundinnen und Kunden, die auf {language} einkaufen, erhalten stattdessen die Version auf {fallbackLanguage}. Die Datei bleibt unter „Medien“ verfügbar.",
+      "removeLanguageVersionDescription": "Die Version auf {language} wird entfernt. Stattdessen werden die Fallback-Werte für Name und Datei verwendet. Die Datei bleibt unter „Medien“ verfügbar.",
       "changedForLanguage": "Für diese Sprache geändert.",
       "switchContentLanguage": "Inhaltssprache wechseln",
       "columnPosition": "Position",

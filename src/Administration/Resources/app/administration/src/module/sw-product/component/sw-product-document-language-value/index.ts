@@ -24,6 +24,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         languageCode(): string {
             const language = Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            if (language?.id !== Shopware.Context.api.languageId) {
+                return '';
+            }
+
             return language?.locale?.code.split('-')[0].toUpperCase() || '';
         },
     },

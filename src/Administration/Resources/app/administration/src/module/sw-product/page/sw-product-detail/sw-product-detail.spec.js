@@ -916,6 +916,54 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(store.documentSaveNotifications).toHaveLength(1);
     });
 
+    it('keeps the active language when an earlier page lookup finishes last', async () => {
+        wrapper.unmount();
+        let resolveGerman;
+        wrapper = await createWrapper(
+            undefined,
+            (id) => {
+                if (id === 'german') {
+                    return new Promise((resolve) => {
+                        resolveGerman = resolve;
+                    });
+                }
+                return Promise.resolve({ id, variation: [] });
+            },
+            undefined,
+            {
+                languageSwitchInput(languageId) {
+                    this.$emit('on-change', languageId);
+                },
+                routedComponent: {
+                    template: `<div>
+                    <button class="request-german" @click="$emit('change-language', 'german')">German</button>
+                    <button class="request-french" @click="$emit('change-language', 'french')">French</button>
+                </div>`,
+                },
+            },
+        );
+        await flushPromises();
+        const api = Shopware.Store.get('context').api;
+        const originalLanguageId = api.languageId;
+        const originalLanguage = api.language;
+
+        try {
+            await wrapper.get('.request-german').trigger('click');
+            await flushPromises();
+            await wrapper.get('.request-french').trigger('click');
+            await flushPromises();
+            expect(api.language.id).toBe('french');
+
+            resolveGerman({ id: 'german', locale: { code: 'de-DE' } });
+            await flushPromises();
+            expect(api.languageId).toBe('french');
+            expect(api.language.id).toBe('french');
+        } finally {
+            api.languageId = originalLanguageId;
+            api.language = originalLanguage;
+        }
+    });
+
     it('routes a document language request through the normal language-switch input', async () => {
         wrapper.unmount();
         const languageSwitchInput = jest.fn();

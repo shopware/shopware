@@ -1,14 +1,8 @@
 {% block sw_product_document_add_button %}
 <span class="sw-product-document-add-button">
     <mt-button
-        v-if="isDefaultLanguage || isInherited"
-        :key="isInherited ? 'inherited' : 'default'"
-        v-tooltip="{
-            message: $t('sw-product.documentForm.unlinkToAdd'),
-            disabled: !isInherited,
-            showOnDisabledElements: true,
-        }"
-        :disabled="disabled || isInherited"
+        v-if="isDefaultLanguage && !isInherited"
+        :disabled="disabled"
         size="small"
         variant="secondary"
         @click="$emit('add-documents')"
@@ -28,7 +22,8 @@
                 class="sw-product-document-add-button__trigger"
                 role="button"
                 tabindex="0"
-                :aria-label="$t('sw-product.documentForm.switchContentLanguage')"
+                :aria-label="$t('sw-product.documentForm.buttonAdd') + '. ' + hintLabel"
+                :aria-describedby="isHintOpen ? hintId : undefined"
                 aria-haspopup="dialog"
                 :aria-expanded="isHintOpen"
                 @mouseenter="openHint"
@@ -36,6 +31,7 @@
                 @focusin="openHint"
                 @focusout="scheduleClose"
                 @keydown.enter="focusHint"
+                @keydown.space="focusHint"
                 @keydown.esc.stop="closeHint"
             >
                 <mt-button
@@ -52,6 +48,7 @@
         <template #default>
             {% block sw_product_document_add_button_language_hint %}
             <mt-text
+                :id="hintId"
                 ref="languageHint"
                 as="div"
                 size="xs"
@@ -59,16 +56,20 @@
                 class="sw-product-document-add-button__hint"
                 role="dialog"
                 tabindex="-1"
-                :aria-label="$t('sw-product.documentForm.switchContentLanguage')"
-                @vue:mounted="focusLanguageLink"
+                :aria-label="hintLabel"
+                @vue:mounted="focusHintContent"
                 @mouseenter="openHint"
                 @mouseleave="scheduleClose"
                 @focusin="openHint"
                 @focusout="scheduleClose"
                 @keydown.esc.stop="$refs.trigger.focus(); closeHint()"
             >
+                <template v-if="isInherited">
+                    {{ $t('sw-product.documentForm.unlinkToAdd') }}
+                </template>
                 <sw-product-document-language-hint
-                    @vue:mounted="focusLanguageLink"
+                    v-else
+                    @vue:mounted="focusHintContent"
                     @change-language="closeHint(); $emit('change-language', $event)"
                 />
             </mt-text>

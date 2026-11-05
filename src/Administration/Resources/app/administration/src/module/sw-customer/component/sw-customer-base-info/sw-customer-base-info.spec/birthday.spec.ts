@@ -3,18 +3,19 @@
  */
 
 import { DOMWrapper, mount } from '@vue/test-utils';
-import { MtDatepicker } from '@shopware-ag/meteor-component-library';
+import MtDatepicker from '@shopware-ag/meteor-component-library/dist/esm/MtDatepicker';
 
 async function createWrapper(component: string, customerEditMode = true) {
-    return mount(await wrapTestComponent(component, { sync: true }), {
+    const customer = {
+        id: 'customer-id',
+        birthday: '2000-01-10T00:00:00.000Z',
+        group: { translated: { name: 'Customer group' } },
+        orderTotalAmount: 0,
+        vatIds: [],
+    };
+    const wrapper = mount(await wrapTestComponent(component, { sync: true }), {
         props: {
-            customer: {
-                id: 'customer-id',
-                birthday: '2000-01-10T00:00:00.000Z',
-                group: { translated: { name: 'Customer group' } },
-                orderTotalAmount: 0,
-                vatIds: [],
-            },
+            customer,
             ...(component === 'sw-customer-base-info' ? { customerEditMode } : {}),
         },
         global: {
@@ -39,6 +40,8 @@ async function createWrapper(component: string, customerEditMode = true) {
             },
         },
     });
+
+    return { wrapper, customer };
 }
 
 describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with user timezone %s', (timeZone) => {
@@ -59,7 +62,7 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
             ['15.01.2000', '2000-01-15T00:00:00.000Z', 'blur'],
             ['15.07.2000', '2000-07-15T00:00:00.000Z', 'blur'],
         ])('preserves typed date %s as %s on %s', async (inputValue, expectedValue, action) => {
-            const wrapper = await createWrapper(component);
+            const { wrapper, customer } = await createWrapper(component);
             await flushPromises();
 
             const input = wrapper.get<HTMLInputElement>('[data-test-id="dp-input"]');
@@ -72,16 +75,16 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
             }
             await flushPromises();
 
-            expect(wrapper.props('customer').birthday).toBe(expectedValue);
+            expect(customer.birthday).toBe(expectedValue);
 
-            await wrapper.setProps({ customer: { ...wrapper.props('customer'), birthday: expectedValue } });
+            await wrapper.setProps({ customer: { ...customer, birthday: expectedValue } });
             await flushPromises();
 
             expect(input.element.value).toBe(inputValue);
         });
 
         it('preserves dates selected from the calendar', async () => {
-            const wrapper = await createWrapper(component);
+            const { wrapper, customer } = await createWrapper(component);
             await flushPromises();
 
             await wrapper.get('[data-test-id="dp-input"]').trigger('click');
@@ -89,12 +92,12 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
             await new DOMWrapper(document.body).get('[data-test-id="dp-2000-01-15"]').trigger('click');
             await flushPromises();
 
-            expect(wrapper.props('customer').birthday).toBe('2000-01-15T00:00:00.000Z');
+            expect(customer.birthday).toBe('2000-01-15T00:00:00.000Z');
         });
     });
 
     it('displays the birthday as a UTC date outside edit mode', async () => {
-        const wrapper = await createWrapper('sw-customer-base-info', false);
+        const { wrapper } = await createWrapper('sw-customer-base-info', false);
         await flushPromises();
 
         expect(wrapper.get('.sw-customer-base__label-birthday').text()).toBe('10/01/2000');

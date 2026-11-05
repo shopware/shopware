@@ -553,3 +553,10 @@ test('warnIfEndUserDocsMissing warns in the log and the run summary only when th
         assert.equal(written.length, expected);
     }
 });
+
+test('the workflow lets the docs domains through output sanitization', () => {
+    const workflow = readFileSync(new URL('../../workflows/sw-docs-impact.md', import.meta.url), 'utf8');
+    const domains = workflow.match(/^ {2}allowed-domains: \[(.*)\]$/m)?.[1].split(',').map((domain) => domain.trim());
+
+    assert.deepEqual(domains, ['docs.shopware.com', 'developer.shopware.com']);
+});

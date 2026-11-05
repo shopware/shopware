@@ -6,4 +6,10 @@
 /** @private */
 export { useProductCreation } from './src/product-creation';
 /** @private */
-export type { DefaultSalesChannels, NewProduct, ProductCreation, ProductCreationPage } from './src/product-creation';
+export type {
+    DefaultSalesChannels,
+    NewProduct,
+    ProductCreation,
+    ProductCreationDependencies,
+    ProductCreationState,
+} from './src/product-creation';

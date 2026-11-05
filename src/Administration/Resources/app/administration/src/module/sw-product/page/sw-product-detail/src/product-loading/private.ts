@@ -6,6 +6,12 @@
 /** @private */
 export { useProductLoading } from './src/product-loading';
 /** @private */
-export type { LoadedProduct, ProductLoading, ProductLoadingPage, PurchasePrice } from './src/product-loading';
+export type {
+    LoadedProduct,
+    ProductLoading,
+    ProductLoadingDependencies,
+    ProductLoadingState,
+    PurchasePrice,
+} from './src/product-loading';
 /** @private */
 export { createDefaultFeatureSetCriteria, createProductCriteria } from './src/product-criteria';

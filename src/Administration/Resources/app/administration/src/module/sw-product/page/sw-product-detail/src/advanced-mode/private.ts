@@ -7,4 +7,4 @@
 /** @private */
 export { createGeneralTabSettings, createSpecificationsTabSettings, useAdvancedMode } from './src/advanced-mode';
 /** @private */
-export type { AdvancedMode, AdvancedModePage, AdvancedModeSetting, ModeSettingItem } from './src/advanced-mode';
+export type { AdvancedMode, AdvancedModeDependencies, AdvancedModeSetting, ModeSettingItem } from './src/advanced-mode';

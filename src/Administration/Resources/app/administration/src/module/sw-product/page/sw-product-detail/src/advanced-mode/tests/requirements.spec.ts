@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import {
-    type AdvancedModePage,
+    type AdvancedModeDependencies,
     createGeneralTabSettings,
     createSpecificationsTabSettings,
     useAdvancedMode,
@@ -13,20 +13,17 @@ import {
 const store = () => Shopware.Store.get('swProductDetail');
 
 /**
- * A product detail page whose advanced mode settings live in the store, as on the real page.
+ * The dependencies of the advanced mode, whose settings live in the store, as on the real page.
  */
-function createPage(productId: string | null = 'product-id'): AdvancedModePage {
+function createDependencies(productId: string | null = 'product-id'): AdvancedModeDependencies {
     return {
-        productId,
-        currentUser: { id: 'user-id' },
-        get advancedModeSetting() {
-            return store().advancedModeSetting as never;
-        },
-        getModeSettingGeneralTab: createGeneralTabSettings(),
-        getModeSettingSpecificationsTab: createSpecificationsTabSettings(),
-        createNotificationError: jest.fn(),
-        $t: (key: string) => key,
-        $nextTick: () => Promise.resolve(),
+        productId: () => productId,
+        currentUser: () => ({ id: 'user-id' }),
+        advancedModeSetting: () => store().advancedModeSetting as never,
+        defaultSettings: () => [...createGeneralTabSettings(), ...createSpecificationsTabSettings()],
+        notifyError: jest.fn(),
+        translate: (key: string) => key,
+        nextTick: () => Promise.resolve(),
     };
 }
 
@@ -44,7 +41,7 @@ describe('the advanced mode of the product detail page', () => {
      */
     it('shows every card of a new product', () => {
         // ACT
-        useAdvancedMode({}, createPage(null)).initAdvancedModeSettings();
+        useAdvancedMode({}, createDependencies(null)).initAdvancedModeSettings();
 
         // ASSERT
         expect(store().modeSettings).toEqual([
@@ -71,7 +68,7 @@ describe('the advanced mode of the product detail page', () => {
         } as never);
 
         // ACT
-        await useAdvancedMode({}, createPage()).getAdvancedModeSetting();
+        await useAdvancedMode({}, createDependencies()).getAdvancedModeSetting();
 
         // ASSERT
         expect(store().modeSettings).not.toContain('media');

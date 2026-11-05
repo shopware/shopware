@@ -26,3 +26,6 @@ export const isSeoUrlStoreRegistered = () => Shopware.Store.list().includes(swSe
 
 /** @private */
 export const trackTelemetry = (...args: Parameters<typeof Shopware.Telemetry.track>) => Shopware.Telemetry.track(...args);
+
+/** @private */
+export { reactive, ref, type Ref } from 'vue';

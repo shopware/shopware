@@ -3,6 +3,9 @@ import {
     getApiContext,
     getCacheService,
     isFeatureActive,
+    reactive,
+    ref,
+    type Ref,
     types,
     useProductDetailStore,
     useShopwareAppsStore,
@@ -62,35 +65,51 @@ export interface ProductCreation {
 }
 
 /**
- * The members of the product detail page that creation reads and calls.
+ * What creation needs from the product detail page: the type the merchant chose, the repositories it creates
+ * entities with, and how the page loads the shop data a new product starts from.
  *
  * @private
  */
-export interface ProductCreationPage {
-    readonly creationStates: string[] | null;
-    readonly creationType: string;
-    readonly defaultSalesChannelVisibility: number;
-    readonly productRepository: { create: () => NewProduct };
-    readonly salesChannelRepository: { search: (criteria: Criteria) => Promise<SalesChannel[]> };
-    readonly productVisibilityRepository: { create: (context: unknown) => Record<string, unknown> };
-    readonly systemConfigApiService: { getValues: (domain: string) => Promise<Record<string, unknown>> };
-    loadCurrencies: () => Promise<unknown>;
-    loadTaxes: () => Promise<unknown>;
-    loadAttributeSet: () => Promise<unknown>;
-    loadDefaultFeatureSet: () => Promise<unknown>;
+export interface ProductCreationDependencies {
+    /** @deprecated tag:v6.8.0 - will be removed, use `creationType` instead */
+    creationStates: () => string[] | null;
+    /** The product type the merchant chose to create, e.g. `digital`. */
+    creationType: () => string;
+    productRepository: () => { create: () => NewProduct };
+    salesChannelRepository: () => { search: (criteria: Criteria) => Promise<SalesChannel[]> };
+    productVisibilityRepository: () => { create: (context: unknown) => Record<string, unknown> };
+    systemConfigApiService: { getValues: (domain: string) => Promise<Record<string, unknown>> };
+    /** Loads the currencies, taxes, custom field sets and the default feature set a new product needs. */
+    loadShopData: () => Promise<unknown>;
+    /** The purchase prices a new product starts with. */
     getDefaultPurchasePrices: () => unknown[];
+}
+
+/**
+ * The state of creation.
+ *
+ * @private
+ */
+export interface ProductCreationState {
+    /** The visibility a default sales channel gets when the shop settings name none for it. */
+    defaultSalesChannelVisibility: number;
 }
 
 const SHARED_DATA_TTL = 5 * 60 * 1000;
 
-type Context = { page: ProductCreationPage; step: ProductCreation };
+type Context = {
+    deps: ProductCreationDependencies;
+    state: { [Key in keyof ProductCreationState]: Ref<ProductCreationState[Key]> };
+    step: ProductCreation;
+};
 
 /**
  * Sets up a new product on the product detail page: active, of the type the merchant chose, priced in the default
  * currency, and with the tax rate, sales channels and feature set the shop settings name as defaults.
+ * The returned object is reactive and holds the state of creation next to the steps.
  *
  * @example
- * const creation = useProductCreation({}, page);
+ * const creation = useProductCreation({}, deps);
  * await creation.createState();
  *
  * @private
@@ -98,9 +117,9 @@ type Context = { page: ProductCreationPage; step: ProductCreation };
 export function useProductCreation(
     // Until 6.8, the page passes its own methods here, so a Component.override of one applies to these calls too.
     steps: Partial<ProductCreation>,
-    page: ProductCreationPage,
-): ProductCreation {
-    const context = { page } as Context;
+    deps: ProductCreationDependencies,
+): ProductCreation & ProductCreationState {
+    const context = { deps, state: { defaultSalesChannelVisibility: ref(30) } } as Context;
     const creation: ProductCreation = {
         createState: () => createState(context),
         adjustProductAccordingToType: () => adjustProductAccordingToType(context),
@@ -112,7 +131,7 @@ export function useProductCreation(
     };
     context.step = { ...creation, ...steps };
 
-    return creation;
+    return reactive({ ...creation, ...context.state });
 }
 
 /** The product the store holds, which creation fills in. */
@@ -121,18 +140,18 @@ function newProduct() {
 }
 
 function createState(context: Context) {
-    const { page, step } = context;
+    const { deps, step } = context;
     const store = useProductDetailStore();
     store.localMode = true;
     useShopwareAppsStore().selectedIds = [];
     store.setLoading(['product', true]);
 
     if (!isFeatureActive('v6.8.0.0')) {
-        store.creationStates = page.creationStates as never;
+        store.creationStates = deps.creationStates() as never;
     }
-    store.creationType = page.creationType;
+    store.creationType = deps.creationType();
 
-    store.product = page.productRepository.create() as never;
+    store.product = deps.productRepository().create() as never;
     Object.assign(newProduct(), {
         active: true,
         taxId: null,
@@ -141,18 +160,13 @@ function createState(context: Context) {
         variantListingConfig: {},
     });
 
-    if (page.creationType) {
+    if (deps.creationType()) {
         step.adjustProductAccordingToType();
     }
 
-    return Promise.all([
-        page.loadCurrencies(),
-        page.loadTaxes(),
-        page.loadAttributeSet(),
-        page.loadDefaultFeatureSet(),
-    ]).then(() => {
+    return deps.loadShopData().then(() => {
         newProduct().price = [{ currencyId: store.defaultCurrency.id, net: null, linked: true, gross: null }];
-        newProduct().purchasePrices = page.getDefaultPurchasePrices();
+        newProduct().purchasePrices = deps.getDefaultPurchasePrices();
 
         if (newProduct().isNew) {
             applyDefaultTaxRate(context);
@@ -168,20 +182,22 @@ function createState(context: Context) {
     });
 }
 
-function adjustProductAccordingToType({ page }: Context) {
-    if (page.creationType === 'digital') {
+function adjustProductAccordingToType({ deps }: Context) {
+    const creationType = deps.creationType();
+
+    if (creationType === 'digital') {
         newProduct().maxPurchase = 1;
     }
 
-    newProduct().type = page.creationType;
+    newProduct().type = creationType;
 }
 
-function getDefaultTaxRate({ page }: Context) {
+function getDefaultTaxRate({ deps }: Context) {
     return getCacheService().query({
         key: ['shared-data', 'default-tax-rate-id'],
         ttl: SHARED_DATA_TTL,
         fn: () =>
-            page.systemConfigApiService.getValues('core.tax').then((response) => {
+            deps.systemConfigApiService.getValues('core.tax').then((response) => {
                 const defaultTaxRateId = response['core.tax.defaultTaxRate'];
 
                 return typeof defaultTaxRateId === 'string' ? defaultTaxRateId : null;
@@ -189,8 +205,8 @@ function getDefaultTaxRate({ page }: Context) {
     });
 }
 
-function getDefaultSalesChannels({ page }: Context) {
-    return page.systemConfigApiService.getValues('core.defaultSalesChannel').then((response): DefaultSalesChannels => {
+function getDefaultSalesChannels({ deps }: Context) {
+    return deps.systemConfigApiService.getValues('core.defaultSalesChannel').then((response): DefaultSalesChannels => {
         if (types.isEmpty(response)) {
             return {};
         }
@@ -203,16 +219,20 @@ function getDefaultSalesChannels({ page }: Context) {
     });
 }
 
-function fetchSalesChannelByIds({ page }: Context, ids: string[]) {
+function fetchSalesChannelByIds({ deps }: Context, ids: string[]) {
     const criteria = new Criteria(1, 25);
     criteria.addFilter(Criteria.equalsAny('id', ids));
 
-    return page.salesChannelRepository.search(criteria);
+    return deps.salesChannelRepository().search(criteria);
 }
 
-function createProductVisibilityEntity({ page }: Context, visibility: Record<string, number>, salesChannel: SalesChannel) {
-    return Object.assign(page.productVisibilityRepository.create(getApiContext()), {
-        visibility: visibility[salesChannel.id] || page.defaultSalesChannelVisibility,
+function createProductVisibilityEntity(
+    { deps, state }: Context,
+    visibility: Record<string, number>,
+    salesChannel: SalesChannel,
+) {
+    return Object.assign(deps.productVisibilityRepository().create(getApiContext()), {
+        visibility: visibility[salesChannel.id] || state.defaultSalesChannelVisibility.value,
         productId: newProduct().id,
         salesChannelId: salesChannel.id,
         salesChannel,

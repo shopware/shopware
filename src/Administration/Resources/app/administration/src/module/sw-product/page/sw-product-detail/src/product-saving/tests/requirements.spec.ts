@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { type ProductSavingPage, type SavedProduct, useProductSaving } from '../private';
+import { type ProductSavingDependencies, type SavedProduct, useProductSaving } from '../private';
 
 /**
  * @sw-package inventory
@@ -13,42 +13,41 @@ function translate(key: string, values?: Record<string, unknown>) {
 }
 
 /**
- * A product detail page that edits a valid, changed product and saves it successfully, with the given changes.
+ * The dependencies of saving for a valid, changed product that saves successfully, with the given changes.
  */
-function createPage(changes: Partial<ProductSavingPage> = {}, product: Partial<SavedProduct> = {}) {
+function createDependencies(changes: Partial<ProductSavingDependencies> = {}, product: Partial<SavedProduct> = {}) {
+    const savedProduct: SavedProduct = {
+        id: 'product-id',
+        productNumber: 'SW1',
+        prices: [],
+        isNew: () => false,
+        ...product,
+    };
+    const syncRepository = { save: jest.fn(() => Promise.resolve()) };
+    const numberRangeService = { reserve: jest.fn(() => Promise.resolve({ number: 'SW2' })) };
+
     return {
-        productId: 'product-id',
-        product: { id: 'product-id', productNumber: 'SW1', prices: [], isNew: () => false, ...product },
-        productType: 'physical',
-        isUploadedFileRequired: false,
-        ignoreFieldsValidation: [],
-        productApiContext: {},
-        lengthUnit: 'mm',
-        weightUnit: 'kg',
-        productRepository: { hasChanges: () => true },
-        syncRepository: { save: jest.fn(() => Promise.resolve()) },
+        productId: () => 'product-id',
+        product: () => savedProduct,
+        productType: () => 'physical',
+        isUploadedFileRequired: () => false,
+        ignoreFieldsValidation: () => [],
+        productApiContext: () => ({}),
+        productRepository: () => ({ hasChanges: () => true }),
+        syncRepository: () => syncRepository,
         entityValidationService: {
-            validate: jest.fn(
-                (validated: SavedProduct, customValidate: (errors: unknown[], p: SavedProduct) => unknown[]) => {
-                    return customValidate([], validated).length === 0;
-                },
-            ),
-        },
-        numberRangeService: { reserve: jest.fn(() => Promise.resolve({ number: 'SW2' })) },
-        seoUrlService: { updateCanonicalUrl: jest.fn(() => Promise.resolve()) },
-        productNumberPreview: '',
-        isSaveSuccessful: false,
-        updateSeoPromises: [],
-        previousLengthUnit: null,
-        previousWeightUnit: null,
+            validate: (validated, customValidate) => customValidate([], validated).length === 0,
+        } satisfies ProductSavingDependencies['entityValidationService'],
+        numberRangeService,
+        seoUrlService: { updateCanonicalUrl: () => Promise.resolve() },
         loadAll: jest.fn(() => Promise.resolve()),
         loadProduct: jest.fn(() => Promise.resolve()),
-        savePreferenceUnits: jest.fn(() => Promise.resolve()),
-        createNotificationError: jest.fn(),
-        $t: translate,
-        $router: { push: jest.fn() },
+        saveMeasurementUnits: () => Promise.resolve(),
+        notifyError: jest.fn(),
+        translate,
+        navigate: jest.fn(),
         ...changes,
-    } as ProductSavingPage;
+    } satisfies ProductSavingDependencies;
 }
 
 // The product detail page saves the product a merchant edits, reloads it, and marks the save button as done.
@@ -66,15 +65,16 @@ describe('saving a product on the product detail page', () => {
      */
     it('saves the product, reloads the page and marks the save as successful', async () => {
         // ARRANGE
-        const page = createPage();
+        const deps = createDependencies();
+        const saving = useProductSaving({}, deps);
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await saving.onSave();
 
         // ASSERT
-        expect(page.syncRepository.save).toHaveBeenCalledWith(page.product, page.productApiContext);
-        expect(page.loadAll).toHaveBeenCalledTimes(1);
-        expect(page.isSaveSuccessful).toBe(true);
+        expect(deps.syncRepository().save).toHaveBeenCalledWith(deps.product(), deps.productApiContext());
+        expect(deps.loadAll).toHaveBeenCalledTimes(1);
+        expect(saving.isSaveSuccessful).toBe(true);
     });
 
     /**
@@ -82,14 +82,14 @@ describe('saving a product on the product detail page', () => {
      */
     it('refuses a product whose minimum purchase exceeds its maximum purchase', async () => {
         // ARRANGE
-        const page = createPage({}, { minPurchase: 5, maxPurchase: 2 });
+        const deps = createDependencies({}, { minPurchase: 5, maxPurchase: 2 });
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await useProductSaving({}, deps).onSave();
 
         // ASSERT
-        expect(page.createNotificationError).toHaveBeenCalledWith({ message: 'sw-product.detail.errorMinMaxPurchase' });
-        expect(page.syncRepository.save).not.toHaveBeenCalled();
+        expect(deps.notifyError).toHaveBeenCalledWith({ message: 'sw-product.detail.errorMinMaxPurchase' });
+        expect(deps.syncRepository().save).not.toHaveBeenCalled();
     });
 
     /**
@@ -99,10 +99,10 @@ describe('saving a product on the product detail page', () => {
     it('completes one-sided reference prices and clears empty ones', async () => {
         // ARRANGE
         const price = [{ listPrice: { gross: 10, net: null }, regulationPrice: { gross: null, net: null } }];
-        const page = createPage({}, { price });
+        const deps = createDependencies({}, { price });
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await useProductSaving({}, deps).onSave();
 
         // ASSERT
         expect(price).toEqual([{ listPrice: { gross: 10, net: 0 }, regulationPrice: null }]);
@@ -113,17 +113,17 @@ describe('saving a product on the product detail page', () => {
      */
     it('refuses a digital product without a file', async () => {
         // ARRANGE
-        const page = createPage({ isUploadedFileRequired: true }, { downloads: [] });
+        const deps = createDependencies({ isUploadedFileRequired: () => true }, { downloads: [] });
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await useProductSaving({}, deps).onSave();
 
         // ASSERT
-        expect(page.createNotificationError).toHaveBeenCalledWith({
+        expect(deps.notifyError).toHaveBeenCalledWith({
             title: 'global.default.error',
             message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
         });
-        expect(page.syncRepository.save).not.toHaveBeenCalled();
+        expect(deps.syncRepository().save).not.toHaveBeenCalled();
     });
 
     /**
@@ -136,17 +136,18 @@ describe('saving a product on the product detail page', () => {
                 data: { errors: [{ code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER', meta: { parameters: { number: 'SW1' } } }] },
             },
         });
-        const page = createPage({ syncRepository: { save: () => Promise.reject(failure) } });
+        const deps = createDependencies({ syncRepository: () => ({ save: () => Promise.reject(failure) }) });
+        const saving = useProductSaving({}, deps);
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await saving.onSave();
 
         // ASSERT
-        expect(page.createNotificationError).toHaveBeenCalledWith({
+        expect(deps.notifyError).toHaveBeenCalledWith({
             title: 'global.default.error',
             message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists {"productNo":"SW1"}',
         });
-        expect(page.isSaveSuccessful).toBe(false);
+        expect(saving.isSaveSuccessful).toBe(false);
     });
 
     /**
@@ -154,14 +155,15 @@ describe('saving a product on the product detail page', () => {
      */
     it('skips the request when nothing changed', async () => {
         // ARRANGE
-        const page = createPage({ productRepository: { hasChanges: () => false } });
+        const deps = createDependencies({ productRepository: () => ({ hasChanges: () => false }) });
+        const saving = useProductSaving({}, deps);
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await saving.onSave();
 
         // ASSERT
-        expect(page.syncRepository.save).not.toHaveBeenCalled();
-        expect(page.isSaveSuccessful).toBe(true);
+        expect(deps.syncRepository().save).not.toHaveBeenCalled();
+        expect(saving.isSaveSuccessful).toBe(true);
     });
 
     /**
@@ -169,14 +171,17 @@ describe('saving a product on the product detail page', () => {
      */
     it('reserves the shown product number when a new product is saved', async () => {
         // ARRANGE
-        const page = createPage({ productId: null, productNumberPreview: 'SW1' });
+        const deps = createDependencies({ productId: () => null });
+        const saving = useProductSaving({}, deps);
+        saving.productNumberPreview = 'SW1';
 
         // ACT
-        await useProductSaving({}, page).onSave();
+        await saving.onSave();
 
         // ASSERT
-        expect(page.numberRangeService.reserve).toHaveBeenCalledWith('product');
-        expect(page.product.productNumber).toBe('SW2');
+        expect(deps.numberRangeService.reserve).toHaveBeenCalledWith('product');
+        expect(deps.product().productNumber).toBe('SW2');
+        expect(saving.productNumberPreview).toBe('reserved');
     });
 
     /**
@@ -184,14 +189,14 @@ describe('saving a product on the product detail page', () => {
      */
     it('runs the steps the page passes instead of its own', async () => {
         // ARRANGE
-        const page = createPage();
+        const deps = createDependencies();
         const saveProduct = jest.fn(() => Promise.resolve('empty' as const));
 
         // ACT
-        await useProductSaving({ saveProduct }, page).onSave();
+        await useProductSaving({ saveProduct }, deps).onSave();
 
         // ASSERT
         expect(saveProduct).toHaveBeenCalledTimes(1);
-        expect(page.syncRepository.save).not.toHaveBeenCalled();
+        expect(deps.syncRepository().save).not.toHaveBeenCalled();
     });
 });

@@ -27,3 +27,6 @@ export const trackTelemetry = (...args: Parameters<typeof Shopware.Telemetry.tra
 /** @private */
 export const cloneDeep = ((...args: unknown[]) =>
     (Shopware.Utils.object.cloneDeep as (...args: unknown[]) => unknown)(...args)) as typeof Shopware.Utils.object.cloneDeep;
+
+/** @private */
+export { reactive, ref, type Ref } from 'vue';

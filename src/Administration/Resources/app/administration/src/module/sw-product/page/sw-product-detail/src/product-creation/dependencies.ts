@@ -24,3 +24,6 @@ export const getApiContext = () => Shopware.Context.api;
 
 /** @private */
 export const isFeatureActive = (flag: string) => Shopware.Feature.isActive(flag);
+
+/** @private */
+export { reactive, ref, type Ref } from 'vue';

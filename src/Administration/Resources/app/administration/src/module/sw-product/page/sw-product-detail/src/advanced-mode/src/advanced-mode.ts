@@ -45,19 +45,23 @@ export interface AdvancedMode {
 }
 
 /**
- * The members of the product detail page that the advanced mode reads and calls.
+ * What the advanced mode needs from the product detail page: whose settings it keeps, which cards it can hide, and
+ * how it tells the merchant that saving them failed.
  *
+ * @deprecated tag:v6.8.0 - will be removed without replacement
  * @private
  */
-export interface AdvancedModePage {
-    readonly productId: string | null;
-    readonly currentUser: { id: string } | null;
-    readonly advancedModeSetting: AdvancedModeSetting;
-    readonly getModeSettingGeneralTab: ModeSettingItem[];
-    readonly getModeSettingSpecificationsTab: ModeSettingItem[];
-    createNotificationError: (notification: { message: string }) => void;
-    $t: (key: string) => string;
-    $nextTick: () => Promise<void>;
+export interface AdvancedModeDependencies {
+    /** The id of the product the page opened, or `null` while it creates a new one. */
+    productId: () => string | null;
+    currentUser: () => { id: string } | null;
+    /** The settings the merchant currently edits. */
+    advancedModeSetting: () => AdvancedModeSetting;
+    /** Every card the advanced mode can hide, all shown. */
+    defaultSettings: () => ModeSettingItem[];
+    notifyError: (notification: { message: string }) => void;
+    translate: (key: string) => string;
+    nextTick: () => Promise<void>;
 }
 
 /**
@@ -97,7 +101,7 @@ export function createSpecificationsTabSettings(): ModeSettingItem[] {
  * Lets a merchant hide cards of the product detail page, and keeps that choice in the user config.
  *
  * @example
- * const advancedMode = useAdvancedMode({}, page);
+ * const advancedMode = useAdvancedMode({}, deps);
  * advancedMode.initAdvancedModeSettings();
  *
  * @deprecated tag:v6.8.0 - will be removed without replacement
@@ -106,7 +110,7 @@ export function createSpecificationsTabSettings(): ModeSettingItem[] {
 export function useAdvancedMode(
     // Until 6.8, the page passes its own methods here, so a Component.override of one applies to these calls too.
     steps: Partial<AdvancedMode>,
-    page: AdvancedModePage,
+    deps: AdvancedModeDependencies,
 ): AdvancedMode {
     const advancedMode: AdvancedMode = {
         initAdvancedModeSettings,
@@ -123,7 +127,7 @@ export function useAdvancedMode(
     function initAdvancedModeSettings() {
         useProductDetailStore().advancedModeSetting = step.getAdvancedModeDefaultSetting() as never;
 
-        if (page.productId) {
+        if (deps.productId()) {
             void step.getAdvancedModeSetting();
         } else {
             useProductDetailStore().modeSettings = step.changeModeSettings();
@@ -131,7 +135,7 @@ export function useAdvancedMode(
     }
 
     function createUserModeSetting(): AdvancedModeSetting {
-        return { key: ADVANCED_MODE_SETTINGS_KEY, userId: page.currentUser?.id };
+        return { key: ADVANCED_MODE_SETTINGS_KEY, userId: deps.currentUser()?.id };
     }
 
     function getAdvancedModeDefaultSetting() {
@@ -139,7 +143,7 @@ export function useAdvancedMode(
             ...step.createUserModeSetting(),
             value: {
                 advancedMode: { label: 'sw-product.general.textAdvancedMode', enabled: true },
-                settings: [...page.getModeSettingGeneralTab, ...page.getModeSettingSpecificationsTab],
+                settings: deps.defaultSettings(),
             },
         };
     }
@@ -163,30 +167,30 @@ export function useAdvancedMode(
         useProductDetailStore().advancedModeSetting = { ...step.createUserModeSetting(), value } as never;
         useProductDetailStore().modeSettings = step.changeModeSettings();
 
-        await page.$nextTick();
+        await deps.nextTick();
     }
 
     function saveAdvancedMode() {
         useProductDetailStore().setLoading(['advancedMode', true]);
 
         return getUserConfigService()
-            .upsert({ [ADVANCED_MODE_SETTINGS_KEY]: page.advancedModeSetting.value })
+            .upsert({ [ADVANCED_MODE_SETTINGS_KEY]: deps.advancedModeSetting().value })
             .then(async () => {
                 await step.getAdvancedModeSetting();
                 useProductDetailStore().setLoading(['advancedMode', false]);
             })
             .catch(() => {
-                page.createNotificationError({ message: page.$t('global.notification.unspecifiedSaveErrorMessage') });
+                deps.notifyError({ message: deps.translate('global.notification.unspecifiedSaveErrorMessage') });
             });
     }
 
     function onChangeSetting() {
-        useProductDetailStore().advancedModeSetting = page.advancedModeSetting as never;
+        useProductDetailStore().advancedModeSetting = deps.advancedModeSetting() as never;
         void step.saveAdvancedMode();
     }
 
     function changeModeSettings() {
-        return (page.advancedModeSetting.value?.settings ?? []).filter((item) => item.enabled).map((item) => item.key);
+        return (deps.advancedModeSetting().value?.settings ?? []).filter((item) => item.enabled).map((item) => item.key);
     }
 
     function onChangeSettingItem() {

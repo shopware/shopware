@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { type ProductCreationPage, useProductCreation } from '../private';
+import { type ProductCreationDependencies, useProductCreation } from '../private';
 
 /**
  * @sw-package inventory
@@ -8,29 +8,26 @@ import { type ProductCreationPage, useProductCreation } from '../private';
 const store = () => Shopware.Store.get('swProductDetail');
 
 /**
- * A product detail page that creates a product of `creationType` in a shop with the given settings.
+ * The dependencies of creation for a product of `creationType` in a shop with the given settings.
  */
-function createPage(settings: Record<string, Record<string, unknown>> = {}, changes: Partial<ProductCreationPage> = {}) {
+function createDependencies(
+    settings: Record<string, Record<string, unknown>> = {},
+    changes: Partial<ProductCreationDependencies> = {},
+) {
     return {
-        creationStates: null,
-        creationType: 'physical',
-        defaultSalesChannelVisibility: 30,
-        productRepository: { create: () => ({ id: 'new-id', visibilities: [], isNew: () => true }) },
-        salesChannelRepository: {
-            search: jest.fn(() => Promise.resolve([{ id: 'storefront-id' }])),
-        },
-        productVisibilityRepository: { create: () => ({}) },
+        creationStates: () => null,
+        creationType: () => 'physical',
+        productRepository: () => ({ create: () => ({ id: 'new-id', visibilities: [], isNew: () => true }) }),
+        salesChannelRepository: () => ({ search: () => Promise.resolve([{ id: 'storefront-id' }]) }),
+        productVisibilityRepository: () => ({ create: () => ({}) }),
         systemConfigApiService: { getValues: (domain: string) => Promise.resolve(settings[domain] ?? {}) },
-        loadCurrencies: jest.fn(() => {
+        loadShopData: () => {
             store().currencies = [{ id: 'euro', isSystemDefault: true }] as never;
             return Promise.resolve();
-        }),
-        loadTaxes: jest.fn(() => Promise.resolve()),
-        loadAttributeSet: jest.fn(() => Promise.resolve()),
-        loadDefaultFeatureSet: jest.fn(() => Promise.resolve()),
+        },
         getDefaultPurchasePrices: () => [{ currencyId: 'euro', net: 0, gross: 0, linked: true }],
         ...changes,
-    } as ProductCreationPage;
+    } satisfies ProductCreationDependencies;
 }
 
 // A merchant who creates a product on the product detail page starts from a product with the shop's defaults.
@@ -48,10 +45,10 @@ describe('creating a product on the product detail page', () => {
      */
     it('creates an active product with an empty price in the default currency', async () => {
         // ARRANGE
-        const page = createPage();
+        const deps = createDependencies();
 
         // ACT
-        await useProductCreation({}, page).createState();
+        await useProductCreation({}, deps).createState();
 
         // ASSERT
         expect(store().product).toMatchObject({
@@ -69,10 +66,10 @@ describe('creating a product on the product detail page', () => {
      */
     it('lets a digital product sell once per order', async () => {
         // ARRANGE
-        const page = createPage({}, { creationType: 'digital' });
+        const deps = createDependencies({}, { creationType: () => 'digital' });
 
         // ACT
-        await useProductCreation({}, page).createState();
+        await useProductCreation({}, deps).createState();
 
         // ASSERT
         expect(store().product).toMatchObject({ type: 'digital', maxPurchase: 1 });
@@ -83,7 +80,7 @@ describe('creating a product on the product detail page', () => {
      */
     it('applies the default tax rate and sales channels of the shop', async () => {
         // ARRANGE
-        const page = createPage({
+        const deps = createDependencies({
             'core.tax': { 'core.tax.defaultTaxRate': 'tax-id' },
             'core.defaultSalesChannel': {
                 'core.defaultSalesChannel.salesChannel': ['storefront-id'],
@@ -93,7 +90,7 @@ describe('creating a product on the product detail page', () => {
         });
 
         // ACT
-        await useProductCreation({}, page).createState();
+        await useProductCreation({}, deps).createState();
         await flushPromises();
 
         // ASSERT
@@ -109,11 +106,11 @@ describe('creating a product on the product detail page', () => {
      */
     it('runs the steps the page passes instead of its own', async () => {
         // ARRANGE
-        const page = createPage();
+        const deps = createDependencies();
         const getDefaultTaxRate = jest.fn(() => Promise.resolve('extension-tax-id'));
 
         // ACT
-        await useProductCreation({ getDefaultTaxRate }, page).createState();
+        await useProductCreation({ getDefaultTaxRate }, deps).createState();
         await flushPromises();
 
         // ASSERT

@@ -6,4 +6,10 @@
 /** @private */
 export { useProductSaving } from './src/product-saving';
 /** @private */
-export type { ProductSaving, ProductSavingPage, SavedProduct, SaveResult } from './src/product-saving';
+export type {
+    ProductSaving,
+    ProductSavingDependencies,
+    ProductSavingState,
+    SavedProduct,
+    SaveResult,
+} from './src/product-saving';

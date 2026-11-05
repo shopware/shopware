@@ -3,7 +3,7 @@ import {
     createDefaultFeatureSetCriteria,
     createProductCriteria,
     type LoadedProduct,
-    type ProductLoadingPage,
+    type ProductLoadingDependencies,
     useProductLoading,
 } from '../private';
 
@@ -21,30 +21,36 @@ function createProduct(changes: Partial<LoadedProduct> = {}): LoadedProduct {
 }
 
 /**
- * A product detail page that shows `productId` and whose repositories answer with the given products.
+ * The dependencies of loading for a page that shows `product-id`, whose repositories answer with the given products.
  */
-function createPage(products: Record<string, LoadedProduct | null>, changes: Partial<ProductLoadingPage> = {}) {
-    const search = (result: unknown) => ({ search: jest.fn(() => Promise.resolve(result)) });
+function createDependencies(
+    products: Record<string, LoadedProduct | null>,
+    changes: Partial<ProductLoadingDependencies> = {},
+) {
+    const search = <Result>(result: Result) => ({ search: jest.fn(() => Promise.resolve(result)) });
+    const productRepository = { get: jest.fn((id: string) => Promise.resolve(products[id] ?? null)) };
+    const propertyRepository = search({});
+    const currencyRepository = search([{ id: 'euro', isSystemDefault: true }]);
+    const taxRepository = search([]);
+    const featureSetRepository = search([]);
 
     return {
-        productId: 'product-id',
-        productCriteria: {},
-        defaultFeatureSetCriteria: {},
-        productApiContext: {},
-        productRepository: { get: jest.fn((id: string) => Promise.resolve(products[id] ?? null)) },
-        propertyRepository: search({ total: 1 }),
-        currencyRepository: search([{ id: 'euro', isSystemDefault: true }]),
-        taxRepository: search([]),
-        featureSetRepository: search([]),
-        customFieldDataProviderService: { getCustomFieldSets: jest.fn(() => Promise.resolve([])) },
-        lastViewedProductId: null,
-        isProductNotFound: false,
+        productId: () => 'product-id',
+        productCriteria: createProductCriteria,
+        defaultFeatureSetCriteria: createDefaultFeatureSetCriteria,
+        productApiContext: () => ({}),
+        productRepository: () => productRepository,
+        propertyRepository: () => propertyRepository,
+        currencyRepository: () => currencyRepository,
+        taxRepository: () => taxRepository,
+        featureSetRepository: () => featureSetRepository,
+        customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
         syncVariantPriceInheritance: jest.fn(),
-        createNotificationError: jest.fn(),
-        $t: (key: string) => key,
-        $router: { push: jest.fn(() => Promise.resolve()) },
+        notifyError: jest.fn(),
+        translate: (key: string) => key,
+        navigate: jest.fn(() => Promise.resolve()),
         ...changes,
-    } as unknown as ProductLoadingPage;
+    } satisfies ProductLoadingDependencies;
 }
 
 // The product detail page loads the product it shows, and for a variant also its parent, into the product detail store.
@@ -62,10 +68,10 @@ describe('loading a product on the product detail page', () => {
      */
     it('loads the product and the shop data around it', async () => {
         // ARRANGE
-        const page = createPage({ 'product-id': createProduct() });
+        const deps = createDependencies({ 'product-id': createProduct() });
 
         // ACT
-        await useProductLoading({}, page).loadAll();
+        await useProductLoading({}, deps).loadAll();
 
         // ASSERT
         expect(store().product).toMatchObject({ id: 'product-id' });
@@ -106,13 +112,13 @@ describe('loading a product on the product detail page', () => {
      */
     it('loads the properties assigned to the product itself', async () => {
         // ARRANGE
-        const page = createPage({ 'product-id': createProduct({ propertyIds: ['option-id'] }) });
+        const deps = createDependencies({ 'product-id': createProduct({ propertyIds: ['option-id'] }) });
 
         // ACT
-        await useProductLoading({}, page).loadProduct();
+        await useProductLoading({}, deps).loadProduct();
 
         // ASSERT
-        const [[criteria]] = (page.propertyRepository.search as jest.Mock).mock.calls as [[{ parse(): unknown }]];
+        const [[criteria]] = (deps.propertyRepository().search as jest.Mock).mock.calls as [[{ parse(): unknown }]];
         expect(criteria.parse()).toMatchObject({
             ids: 'option-id',
             sort: [expect.objectContaining({ field: 'name', order: 'ASC' })],
@@ -140,10 +146,10 @@ describe('loading a product on the product detail page', () => {
      */
     it('gives a product without purchase prices the default ones', async () => {
         // ARRANGE
-        const page = createPage({ 'product-id': createProduct() });
+        const deps = createDependencies({ 'product-id': createProduct() });
 
         // ACT
-        await useProductLoading({}, page).loadProduct();
+        await useProductLoading({}, deps).loadProduct();
 
         // ASSERT
         expect(store().product.purchasePrices).toEqual([{ currencyId: 'euro', net: 0, gross: 0, linked: true }]);
@@ -154,17 +160,17 @@ describe('loading a product on the product detail page', () => {
      */
     it('loads the parent of a variant and lets the variant inherit from it', async () => {
         // ARRANGE
-        const page = createPage({
+        const deps = createDependencies({
             'product-id': createProduct({ parentId: 'parent-id' }),
             'parent-id': createProduct({ id: 'parent-id' }),
         });
 
         // ACT
-        await useProductLoading({}, page).loadProduct();
+        await useProductLoading({}, deps).loadProduct();
 
         // ASSERT
         expect(store().parentProduct).toMatchObject({ id: 'parent-id' });
-        expect(page.syncVariantPriceInheritance).toHaveBeenCalledTimes(1);
+        expect(deps.syncVariantPriceInheritance).toHaveBeenCalledTimes(1);
     });
 
     /**
@@ -172,15 +178,15 @@ describe('loading a product on the product detail page', () => {
      */
     it('runs the steps the page passes instead of its own', async () => {
         // ARRANGE
-        const page = createPage({ 'product-id': createProduct({ parentId: 'parent-id' }) });
+        const deps = createDependencies({ 'product-id': createProduct({ parentId: 'parent-id' }) });
         const loadParentProduct = jest.fn(() => Promise.resolve());
 
         // ACT
-        await useProductLoading({ loadParentProduct }, page).loadProduct();
+        await useProductLoading({ loadParentProduct }, deps).loadProduct();
 
         // ASSERT
         expect(loadParentProduct).toHaveBeenCalledTimes(1);
-        expect(page.productRepository.get).toHaveBeenCalledTimes(1);
+        expect(deps.productRepository().get).toHaveBeenCalledTimes(1);
     });
 
     /**
@@ -188,17 +194,17 @@ describe('loading a product on the product detail page', () => {
      */
     it('leaves for the product list when the product does not exist', async () => {
         // ARRANGE
-        const page = createPage({});
+        const deps = createDependencies({});
+
+        const loading = useProductLoading({}, deps);
 
         // ACT
-        await useProductLoading({}, page).loadProduct();
+        await loading.loadProduct();
 
         // ASSERT
-        expect(page.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-product.detail.messageProductNotFound',
-        });
-        expect(page.$router.push).toHaveBeenCalledWith({ name: 'sw.product.index' });
-        expect(page.isProductNotFound).toBe(true);
+        expect(deps.notifyError).toHaveBeenCalledWith({ message: 'sw-product.detail.messageProductNotFound' });
+        expect(deps.navigate).toHaveBeenCalledWith({ name: 'sw.product.index' });
+        expect(loading.isProductNotFound).toBe(true);
     });
 
     /**
@@ -206,10 +212,13 @@ describe('loading a product on the product detail page', () => {
      */
     it('ends the loading state of a request that fails', async () => {
         // ARRANGE
-        const page = createPage({}, { taxRepository: { search: () => Promise.reject(new Error('offline')) } });
+        const deps = createDependencies(
+            {},
+            { taxRepository: () => ({ search: () => Promise.reject(new Error('offline')) }) },
+        );
 
         // ACT
-        const loaded = useProductLoading({}, page).loadTaxes();
+        const loaded = useProductLoading({}, deps).loadTaxes();
 
         // ASSERT
         await expect(loaded).rejects.toThrow('offline');

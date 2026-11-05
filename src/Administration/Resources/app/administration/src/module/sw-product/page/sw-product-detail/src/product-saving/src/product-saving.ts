@@ -1,5 +1,8 @@
 import {
     EntityValidationService,
+    reactive,
+    ref,
+    type Ref,
     EventBus,
     isSeoUrlStoreRegistered,
     trackTelemetry,
@@ -67,105 +70,135 @@ export interface ProductSaving {
     validatePrices(field: ReferencePriceField, prices: Price): void;
 }
 
+type Notification = { title?: string; message: string };
+
 /**
- * The members of the product detail page that saving reads and writes.
+ * What saving needs from the product detail page: the product it saves, the services it saves it with, and how it
+ * reloads the page and tells the merchant about the outcome.
  *
  * @private
  */
-export interface ProductSavingPage {
-    readonly productId: string | null;
-    readonly product: SavedProduct;
-    readonly productType: string;
-    readonly isUploadedFileRequired: boolean;
-    readonly ignoreFieldsValidation: string[];
-    readonly productApiContext: unknown;
-    readonly lengthUnit: string;
-    readonly weightUnit: string;
-    readonly productRepository: { hasChanges: (product: SavedProduct) => boolean };
-    readonly syncRepository: { save: (product: SavedProduct, context: unknown) => Promise<unknown> };
-    readonly entityValidationService: {
+export interface ProductSavingDependencies {
+    /** The id of the product the page opened, or `null` while it creates a new one. */
+    productId: () => string | null;
+    product: () => SavedProduct;
+    productType: () => string;
+    /** Whether the product needs an uploaded file, because it is digital and nobody else manages its downloads. */
+    isUploadedFileRequired: () => boolean;
+    /** The translated fields the entity validation skips, because they inherit from the parent language. */
+    ignoreFieldsValidation: () => string[];
+    productApiContext: () => unknown;
+    productRepository: () => { hasChanges: (product: SavedProduct) => boolean };
+    syncRepository: () => { save: (product: SavedProduct, context: unknown) => Promise<unknown> };
+    entityValidationService: {
         validate: (
             product: SavedProduct,
             customValidator: ProductSaving['customValidate'],
             ignoredFields: string[],
         ) => boolean;
     };
-    readonly numberRangeService: { reserve: (entity: string) => Promise<{ number: string }> };
-    readonly seoUrlService: { updateCanonicalUrl: (seoUrl: SeoUrl, languageId: string) => Promise<unknown> };
-    productNumberPreview: string;
-    isSaveSuccessful: boolean;
-    updateSeoPromises: Promise<unknown>[];
-    previousLengthUnit: string | null;
-    previousWeightUnit: string | null;
+    numberRangeService: { reserve: (entity: string) => Promise<{ number: string }> };
+    seoUrlService: { updateCanonicalUrl: (seoUrl: SeoUrl, languageId: string) => Promise<unknown> };
+    /** Reloads everything the page shows, after the product is saved. */
     loadAll: () => Promise<unknown>;
+    /** Reloads the product, after its SEO URLs are saved. */
     loadProduct: () => Promise<unknown>;
-    savePreferenceUnits: () => Promise<unknown>;
-    createNotificationError: (notification: { title?: string; message: string }) => void;
-    $t: Translate;
-    $router: { push: (route: { name: string; params?: Record<string, string> }) => unknown };
+    /** Saves the measurement units the merchant chose as the user's preference. */
+    saveMeasurementUnits: () => Promise<unknown>;
+    notifyError: (notification: Notification) => void;
+    translate: Translate;
+    navigate: (route: { name: string; params?: Record<string, string> }) => unknown;
 }
 
-type Context = { page: ProductSavingPage; step: ProductSaving };
+/**
+ * The state of a save, which the page shows.
+ *
+ * @private
+ */
+export interface ProductSavingState {
+    /** Whether the save button shows that the last save succeeded. */
+    isSaveSuccessful: boolean;
+    /** The SEO URL requests of the last save, which it waits for before it counts as successful. */
+    updateSeoPromises: Promise<unknown>[];
+    /** The number a new product shows until its first save reserves it, then `reserved`. */
+    productNumberPreview: string;
+}
+
+type Context = {
+    deps: ProductSavingDependencies;
+    state: { [Key in keyof ProductSavingState]: Ref<ProductSavingState[Key]> };
+    step: ProductSaving;
+};
 
 /**
  * Saves the product of the product detail page: checks it, saves it with its changed SEO URLs, and reloads it.
  * A merchant learns from a notification why a save failed.
+ * The returned object is reactive and holds the state of the save next to the steps.
  *
  * @example
- * const saving = useProductSaving({}, page);
+ * const saving = useProductSaving({}, deps);
  * await saving.onSave();
+ * saving.isSaveSuccessful; // true
  *
  * @private
  */
 export function useProductSaving(
     // Until 6.8, the page passes its own methods here, so a Component.override of one applies to these calls too.
     steps: Partial<ProductSaving>,
-    page: ProductSavingPage,
-): ProductSaving {
-    const context = { page } as Context;
+    deps: ProductSavingDependencies,
+): ProductSaving & ProductSavingState {
+    const context = {
+        deps,
+        state: {
+            isSaveSuccessful: ref(false),
+            updateSeoPromises: ref<Promise<unknown>[]>([]),
+            productNumberPreview: ref(''),
+        },
+    } as Context;
     const saving: ProductSaving = {
         onSave: () => onSave(context),
         saveProduct: () => saveProduct(context),
         onSaveFinished: (response) => onSaveFinished(context, response),
         saveFinish: () => saveFinish(context),
         customValidate: (errors, product) => customValidate(context, errors, product),
-        validateProductPurchase: () => hasValidPurchaseLimits(page.product),
+        validateProductPurchase: () => hasValidPurchaseLimits(deps.product()),
         validateProductPrices: () => validateProductPrices(context),
         validatePrices: (field, prices) => normalizeReferencePrices(prices, field),
     };
     context.step = { ...saving, ...steps };
 
-    return saving;
+    return reactive({ ...saving, ...context.state });
 }
 
 function onSave(context: Context): Promise<void> {
-    const { page, step } = context;
+    const { deps, state, step } = context;
+    const product = deps.product();
 
     if (!step.validateProductPurchase()) {
-        page.createNotificationError({ message: page.$t('sw-product.detail.errorMinMaxPurchase') });
+        deps.notifyError({ message: deps.translate('sw-product.detail.errorMinMaxPurchase') });
 
         return Promise.resolve();
     }
 
     step.validateProductPrices();
-    reserveProductNumber(page);
+    reserveProductNumber(context);
 
-    page.isSaveSuccessful = false;
+    state.isSaveSuccessful.value = false;
 
-    if (types.isEmpty(page.product.slotConfig)) {
-        page.product.slotConfig = null;
+    if (types.isEmpty(product.slotConfig)) {
+        product.slotConfig = null;
     }
 
-    const isValid = page.entityValidationService.validate(
-        page.product,
-        (errors, product) => step.customValidate(errors, product),
-        page.ignoreFieldsValidation,
+    const isValid = deps.entityValidationService.validate(
+        product,
+        (errors, validated) => step.customValidate(errors, validated),
+        deps.ignoreFieldsValidation(),
     );
 
     if (!isValid) {
-        page.createNotificationError({
-            title: page.$t('global.default.error'),
-            message: page.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+        deps.notifyError({
+            title: deps.translate('global.default.error'),
+            message: deps.translate('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
         });
 
         return Promise.resolve();
@@ -174,25 +207,28 @@ function onSave(context: Context): Promise<void> {
     return step.saveProduct().then((response) => step.onSaveFinished(response));
 }
 
-function saveProduct({ page }: Context): Promise<SaveResult> {
+function saveProduct(context: Context): Promise<SaveResult> {
+    const { deps, state } = context;
     const store = useProductDetailStore();
     store.setLoading(['product', true]);
 
-    page.updateSeoPromises = [];
-    queueSeoUrlUpdates(page);
+    state.updateSeoPromises.value = [];
+    queueSeoUrlUpdates(context);
 
     return new Promise((resolve) => {
-        if (!page.productRepository.hasChanges(page.product)) {
+        const product = deps.product();
+
+        if (!deps.productRepository().hasChanges(product)) {
             store.setLoading(['product', false]);
             resolve('empty');
             return;
         }
 
-        const productType = page.productType;
-        const productIsNew = page.product.isNew();
+        const productType = deps.productType();
+        const productIsNew = product.isNew();
 
-        page.syncRepository
-            .save(page.product, page.productApiContext)
+        deps.syncRepository()
+            .save(product, deps.productApiContext())
             .then(() => {
                 trackTelemetry({
                     eventName: 'sw_product.detail.product_saved',
@@ -200,14 +236,9 @@ function saveProduct({ page }: Context): Promise<SaveResult> {
                     product_is_new: productIsNew,
                 });
 
-                page.savePreferenceUnits()
-                    .then(() => {
-                        page.previousLengthUnit = page.lengthUnit;
-                        page.previousWeightUnit = page.weightUnit;
-                    })
-                    .catch(resolve);
+                deps.saveMeasurementUnits().catch(resolve);
 
-                void page.loadAll().then(() => {
+                void deps.loadAll().then(() => {
                     store.setLoading(['product', false]);
                     resolve('success');
                 });
@@ -219,76 +250,80 @@ function saveProduct({ page }: Context): Promise<SaveResult> {
     });
 }
 
-function onSaveFinished({ page }: Context, response: SaveResult) {
+function onSaveFinished({ deps, state }: Context, response: SaveResult) {
     if (response !== 'success' && response !== 'empty') {
-        page.createNotificationError(describeSaveError(response, (...args) => page.$t(...args)));
+        deps.notifyError(describeSaveError(response, deps.translate));
         return;
     }
 
     useErrorStore().resetApiErrors();
     EventBus.emit('sw-product-detail-save-success');
 
-    if (page.updateSeoPromises.length === 0) {
-        page.isSaveSuccessful = true;
+    if (state.updateSeoPromises.value.length === 0) {
+        state.isSaveSuccessful.value = true;
         return;
     }
 
     const store = useProductDetailStore();
     store.setLoading(['product', true]);
 
-    Promise.all(page.updateSeoPromises)
+    Promise.all(state.updateSeoPromises.value)
         .then(() => {
             EventBus.emit('sw-product-detail-save-finish');
-            page.isSaveSuccessful = true;
+            state.isSaveSuccessful.value = true;
         })
         .catch(() => Promise.resolve())
         .finally(() => {
             store.setLoading(['product', false]);
-            void page.loadProduct();
+            void deps.loadProduct();
         });
 }
 
-function saveFinish({ page }: Context) {
-    page.isSaveSuccessful = false;
+function saveFinish({ deps, state }: Context) {
+    state.isSaveSuccessful.value = false;
 
-    if (!page.productId) {
-        void page.$router.push({ name: 'sw.product.detail', params: { id: page.product.id } });
+    if (!deps.productId()) {
+        void deps.navigate({ name: 'sw.product.detail', params: { id: deps.product().id } });
     }
 }
 
-function customValidate({ page }: Context, errors: ValidationError[], product: SavedProduct) {
-    if (page.isUploadedFileRequired && (product.downloads === undefined || product.downloads.length < 1)) {
+function customValidate({ deps }: Context, errors: ValidationError[], product: SavedProduct) {
+    if (deps.isUploadedFileRequired() && (product.downloads === undefined || product.downloads.length < 1)) {
         errors.push({
             ...EntityValidationService.createRequiredError('/0/downloads'),
             code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
-            detail: page.$t('sw-product.detailBase.downloadsExternalManagementRequired'),
+            detail: deps.translate('sw-product.detailBase.downloadsExternalManagementRequired'),
         });
     }
 
     return errors;
 }
 
-function validateProductPrices({ page, step }: Context) {
+function validateProductPrices({ deps, step }: Context) {
+    const product = deps.product();
+
     (['listPrice', 'regulationPrice'] as const).forEach((field) => {
-        page.product.prices.forEach((advancedPrice) => step.validatePrices(field, advancedPrice.price));
-        step.validatePrices(field, page.product.price);
+        product.prices.forEach((advancedPrice) => step.validatePrices(field, advancedPrice.price));
+        step.validatePrices(field, product.price);
     });
 }
 
 /** A new product keeps the number it showed while the merchant edited it, reserved for good on its first save. */
-function reserveProductNumber(page: ProductSavingPage) {
-    if (page.productId || page.productNumberPreview !== page.product.productNumber) {
+function reserveProductNumber({ deps, state }: Context) {
+    const product = deps.product();
+
+    if (deps.productId() || state.productNumberPreview.value !== product.productNumber) {
         return;
     }
 
-    void page.numberRangeService.reserve('product').then((response) => {
-        page.productNumberPreview = 'reserved';
-        page.product.productNumber = response.number;
+    void deps.numberRangeService.reserve('product').then((response) => {
+        state.productNumberPreview.value = 'reserved';
+        product.productNumber = response.number;
     });
 }
 
 /** Starts saving every new or changed SEO URL, and notifies the merchant of each one the API refuses. */
-function queueSeoUrlUpdates(page: ProductSavingPage) {
+function queueSeoUrlUpdates({ deps, state }: Context) {
     if (!isSeoUrlStoreRegistered()) {
         return;
     }
@@ -304,10 +339,10 @@ function queueSeoUrlUpdates(page: ProductSavingPage) {
             seoUrl.isModified = true;
         }
 
-        page.updateSeoPromises.push(
-            page.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error: unknown) => {
-                describeSeoUrlErrors(error as never, (...args) => page.$t(...args)).forEach((message) => {
-                    page.createNotificationError({ message });
+        state.updateSeoPromises.value.push(
+            deps.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error: unknown) => {
+                describeSeoUrlErrors(error as never, deps.translate).forEach((message) => {
+                    deps.notifyError({ message });
                 });
 
                 // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- onSaveFinished() waits for this request and keeps the API error as it is

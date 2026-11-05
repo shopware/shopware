@@ -3,6 +3,9 @@ import {
     Criteria,
     getApiContext,
     getCustomFieldDataProviderService,
+    reactive,
+    ref,
+    type Ref,
     trackTelemetry,
     useProductDetailStore,
     useShopwareAppsStore,
@@ -65,51 +68,77 @@ export interface ProductLoading {
 }
 
 /**
- * The members of the product detail page that loading reads and writes.
+ * What loading needs from the product detail page: which product it loads, the repositories it loads from, and how
+ * it tells the merchant that the product is gone.
  *
  * @private
  */
-export interface ProductLoadingPage {
-    readonly productId: string | null;
-    readonly productCriteria: Criteria;
-    readonly defaultFeatureSetCriteria: Criteria;
-    readonly productApiContext: unknown;
-    readonly productRepository: {
+export interface ProductLoadingDependencies {
+    /** The id of the product the page opened, or `null` while it creates a new one. */
+    productId: () => string | null;
+    productCriteria: () => Criteria;
+    defaultFeatureSetCriteria: () => Criteria;
+    productApiContext: () => unknown;
+    productRepository: () => {
         get: (id: string, context: unknown, criteria: Criteria) => Promise<LoadedProduct | null>;
     };
-    readonly propertyRepository: SearchRepository<{ source?: unknown }>;
-    readonly currencyRepository: SearchRepository<Iterable<unknown>>;
-    readonly taxRepository: SearchRepository<unknown>;
-    readonly featureSetRepository: SearchRepository<unknown>;
-    readonly customFieldDataProviderService?: { getCustomFieldSets: (entity: string) => Promise<unknown> };
-    lastViewedProductId: string | null;
-    isProductNotFound: boolean;
+    propertyRepository: () => SearchRepository<{ source?: unknown }>;
+    currencyRepository: () => SearchRepository<Iterable<unknown>>;
+    taxRepository: () => SearchRepository<unknown>;
+    featureSetRepository: () => SearchRepository<unknown>;
+    /** The provider the page injected, if any. Without one, loading takes the global service. */
+    customFieldDataProviderService?: { getCustomFieldSets: (entity: string) => Promise<unknown> };
+    /** Lets a variant inherit the prices of its parent, after both are loaded. */
     syncVariantPriceInheritance: () => void;
-    createNotificationError: (notification: { message: string }) => void;
-    $t: (key: string) => string;
-    $router: { push: (route: { name: string }) => Promise<unknown> };
+    notifyError: (notification: { message: string }) => void;
+    translate: (key: string) => string;
+    navigate: (route: { name: string }) => Promise<unknown>;
+}
+
+/**
+ * The state of loading, which the page shows and resets when it opens another product.
+ *
+ * @private
+ */
+export interface ProductLoadingState {
+    /** Whether the product the page opened does not exist. */
+    isProductNotFound: boolean;
+    /** The product whose first view loading reported last, so a reload does not report it again. */
+    lastViewedProductId: string | null;
 }
 
 const SHARED_DATA_TTL = 5 * 60 * 1000;
 
-type Context = { page: ProductLoadingPage; step: ProductLoading };
+type Context = {
+    deps: ProductLoadingDependencies;
+    state: { [Key in keyof ProductLoadingState]: Ref<ProductLoadingState[Key]> };
+    step: ProductLoading;
+};
 
 /**
  * Loads a product and the shop data its page needs into the product detail store, each behind its loading flag.
  * A loaded product without purchase prices gets the default ones, and its properties replace the plain property ids.
+ * The returned object is reactive and holds the state of loading next to the steps.
  *
  * @example
- * const loading = useProductLoading({}, page);
+ * const loading = useProductLoading({}, deps);
  * await loading.loadAll();
+ * loading.isProductNotFound; // false
  *
  * @private
  */
 export function useProductLoading(
     // Until 6.8, the page passes its own methods here, so a Component.override of one applies to these calls too.
     steps: Partial<ProductLoading>,
-    page: ProductLoadingPage,
-): ProductLoading {
-    const context = { page } as Context;
+    deps: ProductLoadingDependencies,
+): ProductLoading & ProductLoadingState {
+    const context = {
+        deps,
+        state: {
+            isProductNotFound: ref(false),
+            lastViewedProductId: ref<string | null>(null),
+        },
+    } as Context;
     const loading: ProductLoading = {
         loadAll: () => loadAll(context),
         loadProduct: () => loadProduct(context),
@@ -123,7 +152,7 @@ export function useProductLoading(
     };
     context.step = { ...loading, ...steps };
 
-    return loading;
+    return reactive({ ...loading, ...context.state });
 }
 
 function loadAll({ step }: Context) {
@@ -136,15 +165,13 @@ function loadAll({ step }: Context) {
 }
 
 function loadProduct(context: Context) {
-    const { page, step } = context;
+    const { deps, step } = context;
     const store = useProductDetailStore();
 
     return whileLoading('product', async () => {
-        const product = await page.productRepository.get(
-            page.productId || store.product.id,
-            page.productApiContext,
-            page.productCriteria,
-        );
+        const product = await deps
+            .productRepository()
+            .get(deps.productId() || store.product.id, deps.productApiContext(), deps.productCriteria());
 
         if (!product) {
             await step.onProductNotFound();
@@ -154,62 +181,60 @@ function loadProduct(context: Context) {
         if (!product.parentId) {
             await fillMissingPurchasePrices(context, product);
         }
-        await loadProperties(page, product, createPropertyCriteria(product.propertyIds ?? [], product.id));
+        await loadProperties(deps, product, createPropertyCriteria(product.propertyIds ?? [], product.id));
 
         store.isDownloadExternallyManaged = !product.downloads?.length;
         store.product = product as never;
 
         if (product.parentId) {
             await step.loadParentProduct();
-            page.syncVariantPriceInheritance();
+            deps.syncVariantPriceInheritance();
         } else {
             store.parentProduct = {} as never;
         }
 
-        trackFirstView(page, product);
+        trackFirstView(context, product);
     });
 }
 
 function loadParentProduct(context: Context) {
-    const { page } = context;
+    const { deps } = context;
     const store = useProductDetailStore();
 
     return whileLoading('parentProduct', async () => {
-        const parent = (await page.productRepository.get(
-            store.product.parentId as string,
-            getApiContext(),
-            page.productCriteria,
-        )) as LoadedProduct;
+        const parent = (await deps
+            .productRepository()
+            .get(store.product.parentId as string, getApiContext(), deps.productCriteria())) as LoadedProduct;
 
         await fillMissingPurchasePrices(context, parent);
-        await loadProperties(page, parent, createPropertyCriteria(parent.propertyIds ?? []));
+        await loadProperties(deps, parent, createPropertyCriteria(parent.propertyIds ?? []));
 
         store.parentProduct = parent as never;
     });
 }
 
-function loadCurrencies({ page }: Context) {
+function loadCurrencies({ deps }: Context) {
     const criteria = new Criteria(1, 500);
     criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
     return whileLoading('currencies', async () => {
-        const currencies = await searchSharedData(page.currencyRepository, criteria, 'currencies');
+        const currencies = await searchSharedData(deps.currencyRepository(), criteria, 'currencies');
         useProductDetailStore().currencies = [...currencies] as never;
     });
 }
 
-function loadTaxes({ page }: Context) {
+function loadTaxes({ deps }: Context) {
     const criteria = new Criteria(1, 500);
     criteria.addSorting(Criteria.sort('position'));
 
     return whileLoading('taxes', async () => {
-        const taxes = await searchSharedData(page.taxRepository, criteria, 'taxes');
+        const taxes = await searchSharedData(deps.taxRepository(), criteria, 'taxes');
         useProductDetailStore().setTaxes(taxes as never);
     });
 }
 
-function loadAttributeSet({ page }: Context) {
-    const customFieldDataProvider = page.customFieldDataProviderService ?? getCustomFieldDataProviderService();
+function loadAttributeSet({ deps }: Context) {
+    const customFieldDataProvider = deps.customFieldDataProviderService ?? getCustomFieldDataProviderService();
 
     return whileLoading('customFieldSets', async () => {
         const customFieldSets: unknown = await customFieldDataProvider.getCustomFieldSets('product');
@@ -217,9 +242,9 @@ function loadAttributeSet({ page }: Context) {
     });
 }
 
-function loadDefaultFeatureSet({ page }: Context) {
+function loadDefaultFeatureSet({ deps }: Context) {
     return whileLoading('defaultFeatureSet', async () => {
-        const featureSets = await page.featureSetRepository.search(page.defaultFeatureSetCriteria);
+        const featureSets = await deps.featureSetRepository().search(deps.defaultFeatureSetCriteria());
         useProductDetailStore().setDefaultFeatureSet(featureSets as never);
     });
 }
@@ -235,13 +260,13 @@ function getDefaultPurchasePrices(): PurchasePrice[] {
     ];
 }
 
-async function onProductNotFound({ page }: Context) {
-    page.isProductNotFound = true;
+async function onProductNotFound({ deps, state }: Context) {
+    state.isProductNotFound.value = true;
     useShopwareAppsStore().selectedIds = [];
-    page.createNotificationError({ message: page.$t('sw-product.detail.messageProductNotFound') });
+    deps.notifyError({ message: deps.translate('sw-product.detail.messageProductNotFound') });
 
     try {
-        await page.$router.push({ name: 'sw.product.index' });
+        await deps.navigate({ name: 'sw.product.index' });
     } catch {
         // Ignore navigation failures. The missing product state still prevents the detail view from rendering.
     } finally {
@@ -283,23 +308,23 @@ async function fillMissingPurchasePrices({ step }: Context, product: LoadedProdu
     product._origin.purchasePrices = cloneDeep(product.purchasePrices);
 }
 
-async function loadProperties(page: ProductLoadingPage, product: LoadedProduct, criteria: Criteria) {
+async function loadProperties(deps: ProductLoadingDependencies, product: LoadedProduct, criteria: Criteria) {
     if (!product.propertyIds?.length) {
         return;
     }
 
-    const properties = await page.propertyRepository.search(criteria);
+    const properties = await deps.propertyRepository().search(criteria);
     properties.source = product.properties.source;
 
     product._origin.properties = cloneDeep(properties);
     product.properties = properties;
 }
 
-function trackFirstView(page: ProductLoadingPage, product: LoadedProduct) {
-    if (page.productId !== product.id || page.lastViewedProductId === product.id) {
+function trackFirstView({ deps, state }: Context, product: LoadedProduct) {
+    if (deps.productId() !== product.id || state.lastViewedProductId.value === product.id) {
         return;
     }
 
-    page.lastViewedProductId = product.id;
+    state.lastViewedProductId.value = product.id;
     trackTelemetry({ eventName: 'sw_product.detail.product_viewed', product_type: product.type as string });
 }

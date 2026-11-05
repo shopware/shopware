@@ -36,63 +36,166 @@ import { createDefaultFeatureSetCriteria, createProductCriteria, useProductLoadi
 import { useProductSaving } from './product-saving/private';
 import { getInheritedTitle, syncVariantPriceInheritance } from './variant-inheritance/private';
 
-const concernsByPage = new WeakMap();
+/**
+ * The concerns of the page: loading, saving and creating its product, and the deprecated advanced mode.
+ * Each concern calls the page's own methods for its steps, so an override of a step still applies,
+ * and reads the page through its dependencies only when it needs them.
+ *
+ * @example
+ * Object.assign(page, createConcerns(page));
+ * await page.saving.onSave();
+ */
+function createConcerns(page) {
+    const feedback = {
+        notifyError: (notification) => page.createNotificationError(notification),
+        translate: (...args) => page.$t(...args),
+        navigate: (route) => page.$router.push(route),
+    };
+
+    return {
+        loading: createLoading(page, feedback),
+        saving: createSaving(page, feedback),
+        creation: createCreation(page),
+        advancedMode: createAdvancedMode(page, feedback),
+    };
+}
+
+/** Loading, reading the product id, criteria and repositories of the page. */
+function createLoading(page, { notifyError, translate, navigate }) {
+    return useProductLoading(
+        stepsOf(page, [
+            'loadProduct',
+            'loadParentProduct',
+            'loadCurrencies',
+            'loadTaxes',
+            'loadAttributeSet',
+            'loadDefaultFeatureSet',
+            'getDefaultPurchasePrices',
+            'onProductNotFound',
+        ]),
+        {
+            productId: () => page.productId,
+            productCriteria: () => page.productCriteria,
+            defaultFeatureSetCriteria: () => page.defaultFeatureSetCriteria,
+            productApiContext: () => page.productApiContext,
+            productRepository: () => page.productRepository,
+            propertyRepository: () => page.propertyRepository,
+            currencyRepository: () => page.currencyRepository,
+            taxRepository: () => page.taxRepository,
+            featureSetRepository: () => page.featureSetRepository,
+            customFieldDataProviderService: page.customFieldDataProviderService,
+            syncVariantPriceInheritance: () => page.syncVariantPriceInheritance(),
+            notifyError,
+            translate,
+            navigate,
+        },
+    );
+}
+
+/** Saving, reading the product and repositories of the page, and reloading it through the page's own methods. */
+function createSaving(page, { notifyError, translate, navigate }) {
+    return useProductSaving(
+        stepsOf(page, [
+            'saveProduct',
+            'onSaveFinished',
+            'customValidate',
+            'validateProductPurchase',
+            'validateProductPrices',
+            'validatePrices',
+        ]),
+        {
+            productId: () => page.productId,
+            product: () => page.product,
+            productType: () => page.productType,
+            isUploadedFileRequired: () => page.isUploadedFileRequired,
+            ignoreFieldsValidation: () => page.ignoreFieldsValidation,
+            productApiContext: () => page.productApiContext,
+            productRepository: () => page.productRepository,
+            syncRepository: () => page.syncRepository,
+            entityValidationService: page.entityValidationService,
+            numberRangeService: page.numberRangeService,
+            seoUrlService: page.seoUrlService,
+            loadAll: () => page.loadAll(),
+            loadProduct: () => page.loadProduct(),
+            saveMeasurementUnits: () =>
+                page.savePreferenceUnits().then(() => {
+                    page.previousLengthUnit = page.lengthUnit;
+                    page.previousWeightUnit = page.weightUnit;
+                }),
+            notifyError,
+            translate,
+            navigate,
+        },
+    );
+}
+
+/** Creation, reading the creation type and repositories of the page, and loading shop data through its methods. */
+function createCreation(page) {
+    return useProductCreation(
+        stepsOf(page, [
+            'adjustProductAccordingToType',
+            'getDefaultTaxRate',
+            'getDefaultSalesChannels',
+            'fetchSalesChannelByIds',
+            'createProductVisibilityEntity',
+        ]),
+        {
+            creationStates: () => page.creationStates,
+            creationType: () => page.creationType,
+            productRepository: () => page.productRepository,
+            salesChannelRepository: () => page.salesChannelRepository,
+            productVisibilityRepository: () => page.productVisibilityRepository,
+            systemConfigApiService: page.systemConfigApiService,
+            loadShopData: () =>
+                Promise.all([
+                    page.loadCurrencies(),
+                    page.loadTaxes(),
+                    page.loadAttributeSet(),
+                    page.loadDefaultFeatureSet(),
+                ]),
+            getDefaultPurchasePrices: () => page.getDefaultPurchasePrices(),
+        },
+    );
+}
+
+/** The deprecated advanced mode, reading the user and the settings of the page. */
+function createAdvancedMode(page, { notifyError, translate }) {
+    return useAdvancedMode(
+        stepsOf(page, [
+            'createUserModeSetting',
+            'getAdvancedModeDefaultSetting',
+            'getAdvancedModeSetting',
+            'saveAdvancedMode',
+            'changeModeSettings',
+        ]),
+        {
+            productId: () => page.productId,
+            currentUser: () => page.currentUser,
+            advancedModeSetting: () => page.advancedModeSetting,
+            defaultSettings: () => [...page.getModeSettingGeneralTab, ...page.getModeSettingSpecificationsTab],
+            notifyError,
+            translate,
+            nextTick: () => page.$nextTick(),
+        },
+    );
+}
 
 /**
- * The concerns of one page instance, created on first use.
- * Each concern calls the page's own methods for its steps, so an override of a step still applies.
+ * A computed property of the page that reads and writes a state field of one of its concerns,
+ * so the page keeps offering the field under its old name.
+ *
+ * @example
+ * computed: { isSaveSuccessful: forwardTo('saving', 'isSaveSuccessful') }
  */
-function concernsOf(page) {
-    if (!concernsByPage.has(page)) {
-        concernsByPage.set(page, {
-            loading: useProductLoading(
-                stepsOf(page, [
-                    'loadProduct',
-                    'loadParentProduct',
-                    'loadCurrencies',
-                    'loadTaxes',
-                    'loadAttributeSet',
-                    'loadDefaultFeatureSet',
-                    'getDefaultPurchasePrices',
-                    'onProductNotFound',
-                ]),
-                page,
-            ),
-            saving: useProductSaving(
-                stepsOf(page, [
-                    'saveProduct',
-                    'onSaveFinished',
-                    'customValidate',
-                    'validateProductPurchase',
-                    'validateProductPrices',
-                    'validatePrices',
-                ]),
-                page,
-            ),
-            creation: useProductCreation(
-                stepsOf(page, [
-                    'adjustProductAccordingToType',
-                    'getDefaultTaxRate',
-                    'getDefaultSalesChannels',
-                    'fetchSalesChannelByIds',
-                    'createProductVisibilityEntity',
-                ]),
-                page,
-            ),
-            advancedMode: useAdvancedMode(
-                stepsOf(page, [
-                    'createUserModeSetting',
-                    'getAdvancedModeDefaultSetting',
-                    'getAdvancedModeSetting',
-                    'saveAdvancedMode',
-                    'changeModeSettings',
-                ]),
-                page,
-            ),
-        });
-    }
-
-    return concernsByPage.get(page);
+function forwardTo(concern, field) {
+    return {
+        get() {
+            return this[concern][field];
+        },
+        set(value) {
+            this[concern][field] = value;
+        },
+    };
 }
 
 /**
@@ -165,15 +268,9 @@ export default {
 
     data() {
         return {
-            productNumberPreview: '',
-            isSaveSuccessful: false,
             cloning: false,
-            defaultSalesChannelVisibility: 30,
             previousLengthUnit: null,
             previousWeightUnit: null,
-            updateSeoPromises: [],
-            isProductNotFound: false,
-            lastViewedProductId: null,
         };
     },
 
@@ -184,6 +281,18 @@ export default {
     },
 
     computed: {
+        productNumberPreview: forwardTo('saving', 'productNumberPreview'),
+
+        isSaveSuccessful: forwardTo('saving', 'isSaveSuccessful'),
+
+        updateSeoPromises: forwardTo('saving', 'updateSeoPromises'),
+
+        defaultSalesChannelVisibility: forwardTo('creation', 'defaultSalesChannelVisibility'),
+
+        isProductNotFound: forwardTo('loading', 'isProductNotFound'),
+
+        lastViewedProductId: forwardTo('loading', 'lastViewedProductId'),
+
         product() {
             return useProductDetailStore().product;
         },
@@ -445,6 +554,7 @@ export default {
     },
 
     created() {
+        Object.assign(this, createConcerns(this));
         this.createdComponent();
     },
 
@@ -516,56 +626,56 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         initAdvancedModeSettings() {
-            return concernsOf(this).advancedMode.initAdvancedModeSettings();
+            return this.advancedMode.initAdvancedModeSettings();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         createUserModeSetting() {
-            return concernsOf(this).advancedMode.createUserModeSetting();
+            return this.advancedMode.createUserModeSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getAdvancedModeDefaultSetting() {
-            return concernsOf(this).advancedMode.getAdvancedModeDefaultSetting();
+            return this.advancedMode.getAdvancedModeDefaultSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getAdvancedModeSetting() {
-            return concernsOf(this).advancedMode.getAdvancedModeSetting();
+            return this.advancedMode.getAdvancedModeSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         saveAdvancedMode() {
-            return concernsOf(this).advancedMode.saveAdvancedMode();
+            return this.advancedMode.saveAdvancedMode();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         onChangeSetting() {
-            return concernsOf(this).advancedMode.onChangeSetting();
+            return this.advancedMode.onChangeSetting();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         changeModeSettings() {
-            return concernsOf(this).advancedMode.changeModeSettings();
+            return this.advancedMode.changeModeSettings();
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         onChangeSettingItem() {
-            return concernsOf(this).advancedMode.onChangeSettingItem();
+            return this.advancedMode.onChangeSettingItem();
         },
 
         loadState() {
@@ -576,23 +686,23 @@ export default {
         },
 
         loadAll() {
-            return concernsOf(this).loading.loadAll();
+            return this.loading.loadAll();
         },
 
         createState() {
-            return concernsOf(this).creation.createState();
+            return this.creation.createState();
         },
 
         adjustProductAccordingToType() {
-            return concernsOf(this).creation.adjustProductAccordingToType();
+            return this.creation.adjustProductAccordingToType();
         },
 
         loadProduct() {
-            return concernsOf(this).loading.loadProduct();
+            return this.loading.loadProduct();
         },
 
         onProductNotFound() {
-            return concernsOf(this).loading.onProductNotFound();
+            return this.loading.onProductNotFound();
         },
 
         syncVariantPriceInheritance() {
@@ -600,43 +710,43 @@ export default {
         },
 
         getDefaultPurchasePrices() {
-            return concernsOf(this).loading.getDefaultPurchasePrices();
+            return this.loading.getDefaultPurchasePrices();
         },
 
         loadParentProduct() {
-            return concernsOf(this).loading.loadParentProduct();
+            return this.loading.loadParentProduct();
         },
 
         loadCurrencies() {
-            return concernsOf(this).loading.loadCurrencies();
+            return this.loading.loadCurrencies();
         },
 
         loadTaxes() {
-            return concernsOf(this).loading.loadTaxes();
+            return this.loading.loadTaxes();
         },
 
         getDefaultTaxRate() {
-            return concernsOf(this).creation.getDefaultTaxRate();
+            return this.creation.getDefaultTaxRate();
         },
 
         loadAttributeSet() {
-            return concernsOf(this).loading.loadAttributeSet();
+            return this.loading.loadAttributeSet();
         },
 
         loadDefaultFeatureSet() {
-            return concernsOf(this).loading.loadDefaultFeatureSet();
+            return this.loading.loadDefaultFeatureSet();
         },
 
         getDefaultSalesChannels() {
-            return concernsOf(this).creation.getDefaultSalesChannels();
+            return this.creation.getDefaultSalesChannels();
         },
 
         fetchSalesChannelByIds(ids) {
-            return concernsOf(this).creation.fetchSalesChannelByIds(ids);
+            return this.creation.fetchSalesChannelByIds(ids);
         },
 
         createProductVisibilityEntity(visibility, salesChannel) {
-            return concernsOf(this).creation.createProductVisibilityEntity(visibility, salesChannel);
+            return this.creation.createProductVisibilityEntity(visibility, salesChannel);
         },
 
         abortOnLanguageChange() {
@@ -655,27 +765,27 @@ export default {
         },
 
         saveFinish() {
-            return concernsOf(this).saving.saveFinish();
+            return this.saving.saveFinish();
         },
 
         onSave() {
-            return concernsOf(this).saving.onSave();
+            return this.saving.onSave();
         },
 
         customValidate(errors, product) {
-            return concernsOf(this).saving.customValidate(errors, product);
+            return this.saving.customValidate(errors, product);
         },
 
         validateProductPrices() {
-            return concernsOf(this).saving.validateProductPrices();
+            return this.saving.validateProductPrices();
         },
 
         validatePrices(priceLabel, prices) {
-            return concernsOf(this).saving.validatePrices(priceLabel, prices);
+            return this.saving.validatePrices(priceLabel, prices);
         },
 
         onSaveFinished(response) {
-            return concernsOf(this).saving.onSaveFinished(response);
+            return this.saving.onSaveFinished(response);
         },
 
         onCancel() {
@@ -683,7 +793,7 @@ export default {
         },
 
         saveProduct() {
-            return concernsOf(this).saving.saveProduct();
+            return this.saving.saveProduct();
         },
 
         removeMediaItem(state, mediaId) {
@@ -726,7 +836,7 @@ export default {
         },
 
         validateProductPurchase() {
-            return concernsOf(this).saving.validateProductPurchase();
+            return this.saving.validateProductPurchase();
         },
 
         /**

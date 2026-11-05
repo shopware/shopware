@@ -266,6 +266,21 @@ Check import files that relied on `0` being ignored.
 
 The property is unused and will be removed in 6.8.
 
+### Cart guards cover every cart delivery
+
+A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
+Three checks that only looked at the context now cover every delivery of the cart:
+
+- `AddressValidator` validates the shipping address of every delivery against the sales channel countries and their shipping availability.
+  It adds one `ShippingAddressBlockedError` per blocked country, carrying the id of the first affected address.
+- The cart hash that `/store-api/checkout/order` compares with the submitted `hash` includes the shipping method, the address and the positions of every delivery.
+  Place the order with the `hash` of the latest cart response, a hash fetched before a delivery or the shipping address changed is rejected with `CHECKOUT__CART_HASH_MISMATCH`.
+- The Storefront switches the context shipping method only when the blocked shipping method is the context's one.
+  A `ShippingMethodBlockedError` for the shipping method of another delivery stays in the cart and blocks the order until the extension that created that delivery resolves it.
+  Errors created without a shipping method id switch the context shipping method as before.
+
+A cart with a single delivery is only affected by the hash: a shipping address changed after the confirm page was loaded is now detected.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

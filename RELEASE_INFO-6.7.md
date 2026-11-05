@@ -1,6 +1,6 @@
 # 6.7.16.1 (upcoming)
 
-## Critical Fixes
+## Security Fixes
 
 ### Improved API access protection
 
@@ -11,8 +11,6 @@ Entity aggregations in the Admin API and in app scripts now also require the rea
 
 Extensions and app scripts using `services.store` can only request associated entities exposed through the Store API.
 App permissions do not grant additional access to protected associations through `services.store`.
-
-## Security Fixes
 
 ### ExtensionAPI repository operations no longer expose Administration access tokens
 

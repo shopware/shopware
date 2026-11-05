@@ -54,11 +54,9 @@ export default class UserVerificationService {
      * Whether the current access token already carries the `user-verified` scope.
      */
     isVerified(): boolean {
-        const accessToken = this.loginService.getBearerAuthentication('access');
+        const scopes = this.readAccessTokenPayload().scopes;
 
-        return (
-            typeof accessToken === 'string' && UserVerificationService.readScopes(accessToken).includes(USER_VERIFIED_SCOPE)
-        );
+        return Array.isArray(scopes) && scopes.includes(USER_VERIFIED_SCOPE);
     }
 
     /**
@@ -127,11 +125,20 @@ export default class UserVerificationService {
     }
 
     private async reauthenticateWithSso(loginUrl: string): Promise<ApiContext> {
+        const subject = this.readSubject();
+
         await this.ssoReauthService.reauthenticate(loginUrl);
 
         // the window stored the new session cookie; reading it also updates Shopware.Context.api.authToken
         if (!this.loginService.getBearerAuthentication()) {
             throw UserVerificationError.noSession();
+        }
+
+        // the identity provider lets the user sign in with another account, whose cookie now holds the session
+        if (this.readSubject() !== subject) {
+            this.loginService.logout();
+
+            throw UserVerificationError.otherUser();
         }
 
         // only a fresh identity provider login gets the scope from the server; the popup's report alone proves nothing
@@ -182,16 +189,26 @@ export default class UserVerificationService {
         });
     }
 
-    private static readScopes(accessToken: string): string[] {
+    private readSubject(): string | null {
+        const subject = this.readAccessTokenPayload().sub;
+
+        return typeof subject === 'string' ? subject : null;
+    }
+
+    private readAccessTokenPayload(): { scopes?: unknown; sub?: unknown } {
+        const accessToken = this.loginService.getBearerAuthentication('access');
+
+        if (typeof accessToken !== 'string') {
+            return {};
+        }
+
         try {
             const payload = accessToken.split('.')[1] ?? '';
-            const json = JSON.parse(window.atob(payload.replace(/-/g, '+').replace(/_/g, '/'))) as { scopes?: unknown };
+            const json: unknown = JSON.parse(window.atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
 
-            return Array.isArray(json.scopes)
-                ? json.scopes.filter((scope): scope is string => typeof scope === 'string')
-                : [];
+            return typeof json === 'object' && json !== null ? json : {};
         } catch {
-            return [];
+            return {};
         }
     }
 }

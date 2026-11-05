@@ -8,7 +8,12 @@
  * @public
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- public API for extensions, see RELEASE_INFO
-export type UserVerificationFailure = 'cancelled' | 'sso-not-configured' | 'sso-window-blocked' | 'no-session';
+export type UserVerificationFailure =
+    | 'cancelled'
+    | 'sso-not-configured'
+    | 'sso-window-blocked'
+    | 'no-session'
+    | 'other-user';
 
 /**
  * Rejection of {@link UserVerificationService.verify}. `cancelled` is the user's choice and needs no
@@ -37,6 +42,10 @@ export default class UserVerificationError extends Error {
 
     static noSession(): UserVerificationError {
         return new UserVerificationError('no-session');
+    }
+
+    static otherUser(): UserVerificationError {
+        return new UserVerificationError('other-user');
     }
 
     get isCancelled(): boolean {

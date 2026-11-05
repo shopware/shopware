@@ -38,6 +38,14 @@ export default {
         };
     },
 
+    computed: {
+        title() {
+            return this.ssoSession
+                ? this.$t('global.sw-verify-user-modal.titleVerifyWithSso')
+                : this.$t('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal');
+        },
+    },
+
     created() {
         this.createdComponent();
     },

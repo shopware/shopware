@@ -8,18 +8,20 @@ import UserVerificationError from './user-verification.error';
 import type SsoReauthService from './sso-reauth.service';
 import type { LoginService } from './login.service';
 
-function createToken(scopes: string[]): string {
-    const payload = window.btoa(JSON.stringify({ scopes })).replace(/\+/g, '-').replace(/\//g, '_');
+function createToken(scopes: string[], sub = 'user-a'): string {
+    const payload = window.btoa(JSON.stringify({ scopes, sub })).replace(/\+/g, '-').replace(/\//g, '_');
 
     return `header.${payload}.signature`;
 }
 
 describe('src/core/service/user-verification.service.ts', () => {
     let accessScopes = ['write'];
+    let accessSubject = 'user-a';
     const loginService = {
+        logout: jest.fn(() => true),
         getLoginTemplateConfig: jest.fn(() => Promise.resolve({ useDefault: true, url: 'https://shop.test/sso' })),
         getBearerAuthentication: jest.fn((section?: string) => {
-            const auth = { access: createToken(accessScopes), refresh: 'refresh', expiry: 1 };
+            const auth = { access: createToken(accessScopes, accessSubject), refresh: 'refresh', expiry: 1 };
 
             return section ? auth[section as keyof typeof auth] : auth;
         }),
@@ -38,6 +40,7 @@ describe('src/core/service/user-verification.service.ts', () => {
 
     beforeEach(() => {
         accessScopes = ['write'];
+        accessSubject = 'user-a';
         sessionStorage.clear();
         store().dismiss();
         jest.clearAllMocks();
@@ -206,7 +209,11 @@ describe('src/core/service/user-verification.service.ts', () => {
     });
 
     it('rejects when the identity provider returned without a session', async () => {
-        (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(false);
+        reauthenticate.mockImplementationOnce(() => {
+            (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(false);
+
+            return Promise.resolve();
+        });
 
         await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
             UserVerificationError.noSession(),
@@ -225,6 +232,23 @@ describe('src/core/service/user-verification.service.ts', () => {
         );
     });
 
+    it('rejects and logs out when the identity provider signed in another account', async () => {
+        reauthenticate.mockImplementationOnce(() => {
+            accessScopes = ['write', 'user-verified'];
+            accessSubject = 'user-b';
+
+            return Promise.resolve();
+        });
+
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.otherUser(),
+        );
+        expect(loginService.logout).toHaveBeenCalledTimes(1);
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.other-user' }),
+        );
+    });
+
     it('reads the verified scope from the access token', () => {
         const service = createService();
 
@@ -234,6 +258,12 @@ describe('src/core/service/user-verification.service.ts', () => {
         expect(service.isVerified()).toBe(true);
 
         (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce('not-a-jwt');
+        expect(service.isVerified()).toBe(false);
+
+        (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(`header.${window.btoa('null')}.signature`);
+        expect(service.isVerified()).toBe(false);
+
+        (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(false);
         expect(service.isVerified()).toBe(false);
 
         const withoutScopeList = `header.${window.btoa(JSON.stringify({ scopes: 'user-verified' }))}.signature`;

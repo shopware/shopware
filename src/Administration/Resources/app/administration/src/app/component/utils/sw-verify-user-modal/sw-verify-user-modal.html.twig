@@ -1,10 +1,19 @@
 {% block sw_settings_user_detail_content_confirm_password_modal %}
 <sw-modal
-    :title="$t('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
+    :title="title"
     variant="small"
     :is-loading="isLoading"
     @modal-close="onCloseConfirmPasswordModal"
 >
+
+    {% block sw_verify_user_modal_sso_text %}
+    <p
+        v-if="ssoSession"
+        class="sw-verify-user-modal__sso-text"
+    >
+        {{ $t('global.sw-verify-user-modal.textVerifyWithSso') }}
+    </p>
+    {% endblock %}
 
     {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
     <mt-password-field

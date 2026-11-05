@@ -40,7 +40,10 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
     it('asks for the password and emits the verified context', async () => {
         wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.find('.sw-modal').attributes('title')).toBe(
+            'sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal',
+        );
+        expect(wrapper.find('.sw-verify-user-modal__sso-text').exists()).toBe(false);
         expect(wrapper.find('.sw-verify-user-modal__verify-with-sso').exists()).toBe(false);
 
         await wrapper.find('.sw-settings-user-detail__confirm-password input').setValue('secret');
@@ -96,6 +99,8 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
     it('offers only the identity provider on an SSO session', async () => {
         wrapper = await createWrapper({ ssoSession: true, loginUrl: 'https://shop.test/sso' });
 
+        expect(wrapper.find('.sw-modal').attributes('title')).toBe('global.sw-verify-user-modal.titleVerifyWithSso');
+        expect(wrapper.find('.sw-verify-user-modal__sso-text').text()).toBe('global.sw-verify-user-modal.textVerifyWithSso');
         expect(wrapper.find('.sw-settings-user-detail__confirm-password').exists()).toBe(false);
         expect(wrapper.find('.sw-verify-user-modal__verify-with-sso').classes()).toContain('mt-button--primary');
         expect(wrapper.findAll('.mt-button--primary')).toHaveLength(1);

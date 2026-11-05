@@ -22,6 +22,9 @@ async function createWrapper(buttonConfig) {
             stubs: {
                 'sw-icon': true,
                 'mt-icon': true,
+                'sw-compact-colorpicker': true,
+                'sw-text-editor-link-menu': true,
+                'sw-text-editor-toolbar-table-button': true,
             },
         },
     });

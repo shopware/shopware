@@ -1,6 +1,6 @@
 name: "Category page"
 description: "Collection of components that make up the category page."
-icon: "regular-boxes"
+icon: "local:preset-category-page"
 category: "commerce"
 priority: 200
 layout:

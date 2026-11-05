@@ -1,6 +1,6 @@
 name: "Image slider"
 description: "A media gallery configured as an image slider, without thumbnail navigation, magnifier, or fullscreen view."
-icon: "regular-image"
+icon: "local:preset-image-slider"
 category: "content"
 priority: 100
 layout:

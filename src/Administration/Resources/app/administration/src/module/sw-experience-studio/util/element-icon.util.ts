@@ -44,6 +44,31 @@ const localElementIcons: Record<string, LocalElementIcon> = {
         assetPath: '/administration/administration/static/img/experience-studio/element-icons/navigation-tree.svg',
         meteorIcon: 'regular-sitemap',
     },
+    'preset-category-page': {
+        assetPath: '/administration/administration/static/img/experience-studio/element-icons/preset-category-page.svg',
+        meteorIcon: 'regular-boxes',
+    },
+    'preset-image-slider': {
+        assetPath: '/administration/administration/static/img/experience-studio/element-icons/preset-image-slider.svg',
+        meteorIcon: 'regular-image',
+    },
+    'preset-media-and-text': {
+        assetPath: '/administration/administration/static/img/experience-studio/element-icons/preset-media-and-text.svg',
+        meteorIcon: 'regular-image-text',
+    },
+    'preset-product-detail-page': {
+        assetPath:
+            '/administration/administration/static/img/experience-studio/element-icons/preset-product-detail-page.svg',
+        meteorIcon: 'regular-box-alt',
+    },
+    'preset-product-reviews': {
+        assetPath: '/administration/administration/static/img/experience-studio/element-icons/preset-product-reviews.svg',
+        meteorIcon: 'regular-star',
+    },
+    'preset-tab-panel': {
+        assetPath: '/administration/administration/static/img/experience-studio/element-icons/preset-tab-panel.svg',
+        meteorIcon: 'regular-window',
+    },
     'product-listing': {
         assetPath: '/administration/administration/static/img/experience-studio/element-icons/product-listing.svg',
         meteorIcon: 'regular-products',

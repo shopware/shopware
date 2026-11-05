@@ -55,16 +55,23 @@ class LineItemDimensionLongestAndGirthRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
+        $constraints = [
             'operator' => RuleConstraints::numericOperators(),
-            'amount' => RuleConstraints::float(),
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['amount'] = RuleConstraints::float();
+
+        return $constraints;
     }
 
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_DIMENSION]);
     }
 

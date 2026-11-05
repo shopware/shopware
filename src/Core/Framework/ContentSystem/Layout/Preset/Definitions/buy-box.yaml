@@ -44,4 +44,4 @@ layout:
                     xxl: 2
         - component: Sw:Content:Text
           properties:
-            text: "<p><b>Product number:</b> {{map:product.productNumber}}</p>"
+            text: "<p><strong>Product number:</strong> {{map:product.productNumber}}</p>"

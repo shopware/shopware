@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemLayoutPresetSchemaError;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\Context;
@@ -21,22 +21,23 @@ class ContentSystemLayoutPresetAppValidator extends AbstractManifestValidator
     ) {
     }
 
-    public function validate(Manifest $manifest, Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, Context $context): array
     {
-        $errors = new ErrorCollection();
-
         $presetsDir = $manifest->getPath() . '/Resources/content-system/presets';
         $appName = $manifest->getMetadata()->getName();
 
         try {
             $this->loader->loadDtosFromDirectory($presetsDir, 'app:' . $appName, $appName);
         } catch (ContentSystemException $e) {
-            $errors->add(new ContentSystemLayoutPresetSchemaError(
+            return [new ContentSystemLayoutPresetSchemaError(
                 $presetsDir,
                 $e->getMessage()
-            ));
+            )];
         }
 
-        return $errors;
+        return [];
     }
 }

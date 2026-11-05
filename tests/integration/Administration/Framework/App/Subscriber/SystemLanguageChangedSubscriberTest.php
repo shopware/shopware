@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -67,7 +68,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
 
         $previousLocaleCode = '';
         $newLocaleCode = '';
-        $this->getContainer()->get('event_dispatcher')->addListener(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             SystemLanguageChangeEvent::class,
             static function (SystemLanguageChangeEvent $event) use (&$previousLocaleCode, &$newLocaleCode): void {
                 $previousLocaleCode = $event->previousLocaleCode;

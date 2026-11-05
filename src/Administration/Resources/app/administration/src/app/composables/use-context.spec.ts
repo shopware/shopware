@@ -99,7 +99,7 @@ describe('use-context', () => {
 
     it('sets the Api Language Id to the store and to localStorage', () => {
         const store = useContext();
-        store.setApiLanguageId('12345');
+        store.setApiLanguageId('12345' as EntityKey<'language'>);
 
         expect(store.api.languageId).toBe('12345');
         expect(mockSetItem).toHaveBeenCalledWith('sw-admin-current-language', '12345');
@@ -107,8 +107,8 @@ describe('use-context', () => {
 
     it('resets the Api Language Id to the systemLanguageId', () => {
         const store = useContext();
-        store.api.systemLanguageId = '54321';
-        store.api.languageId = '12345';
+        store.api.systemLanguageId = '54321' as EntityKey<'language'>;
+        store.api.languageId = '12345' as EntityKey<'language'>;
 
         store.resetLanguageToDefault();
 
@@ -117,12 +117,12 @@ describe('use-context', () => {
 
     it('has a getter to know if is the System default language', () => {
         const store = useContext();
-        store.api.systemLanguageId = '54321';
-        store.api.languageId = '54321';
+        store.api.systemLanguageId = '54321' as EntityKey<'language'>;
+        store.api.languageId = '54321' as EntityKey<'language'>;
 
         expect(store.isSystemDefaultLanguage.value).toBe(true);
 
-        store.api.languageId = '123345';
+        store.api.languageId = '123345' as EntityKey<'language'>;
         expect(store.isSystemDefaultLanguage.value).toBe(false);
     });
 });

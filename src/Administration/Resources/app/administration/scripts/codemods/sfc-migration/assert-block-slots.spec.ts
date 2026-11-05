@@ -22,22 +22,10 @@ const ACCEPTED = { errors: [], blockers: [] };
 describe('scripts/codemods/sfc-migration/assert-block-slots', () => {
     describe('blocked: the named slot is a direct child of a converted block', () => {
         it.each([
-            [
-                'shorthand',
-                '<sw-block name="a"><template #footer>x</template></sw-block>',
-            ],
-            [
-                'v-slot longhand',
-                '<sw-block name="a"><template v-slot:footer>x</template></sw-block>',
-            ],
-            [
-                'on a non-template element',
-                '<sw-block name="a"><mt-button v-slot:footer="x">{{ x }}</mt-button></sw-block>',
-            ],
-            [
-                'dynamic slot argument',
-                '<sw-block name="a"><template #[dynamicName]>x</template></sw-block>',
-            ],
+            ['shorthand', '<sw-block name="a"><template #footer>x</template></sw-block>'],
+            ['v-slot longhand', '<sw-block name="a"><template v-slot:footer>x</template></sw-block>'],
+            ['on a non-template element', '<sw-block name="a"><mt-button v-slot:footer="x">{{ x }}</mt-button></sw-block>'],
+            ['dynamic slot argument', '<sw-block name="a"><template #[dynamicName]>x</template></sw-block>'],
             [
                 'nested converted block',
                 '<sw-block name="a"><sw-block name="b"><template #footer>x</template></sw-block></sw-block>',

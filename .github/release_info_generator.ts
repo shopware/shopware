@@ -1,6 +1,18 @@
 import { marked } from "npm:marked";
 import { baseUrl } from "npm:marked-base-url";
 
+// Polyfill: the pinned Deno runtime's URL lacks the static canParse() that marked-base-url calls for every relative link.
+if (typeof URL.canParse !== "function") {
+    URL.canParse = (url: string, base?: string) => {
+        try {
+            new URL(url, base);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+}
+
 type Vulnerability = {
     severity: string,
     summary: string,

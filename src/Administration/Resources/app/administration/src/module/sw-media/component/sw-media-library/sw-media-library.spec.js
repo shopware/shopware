@@ -101,16 +101,8 @@ async function createWrapper({ mediaAmount = [5], folderAmount = [5], limit = 5,
 describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should load a further page of folders and media via "Load more"', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                5,
-                5,
-                3,
-            ],
-            mediaAmount: [
-                5,
-                5,
-                3,
-            ],
+            folderAmount: [5, 5, 3],
+            mediaAmount: [5, 5, 3],
             folderTotal: 13,
             mediaTotal: 13,
         });
@@ -140,16 +132,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should load every remaining element via "Load all"', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                5,
-                5,
-                3,
-            ],
-            mediaAmount: [
-                5,
-                5,
-                3,
-            ],
+            folderAmount: [5, 5, 3],
+            mediaAmount: [5, 5, 3],
             folderTotal: 13,
             mediaTotal: 13,
         });
@@ -174,14 +158,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should only show "Load all" when a single "Load more" would already load everything', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                5,
-                3,
-            ],
-            mediaAmount: [
-                5,
-                3,
-            ],
+            folderAmount: [5, 3],
+            mediaAmount: [5, 3],
             folderTotal: 8,
             mediaTotal: 8,
         });
@@ -246,14 +224,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should show the load more button if the folder request fails', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                null,
-                3,
-            ],
-            mediaAmount: [
-                3,
-                undefined,
-            ],
+            folderAmount: [null, 3],
+            mediaAmount: [3, undefined],
         });
         await flushPromises();
 
@@ -287,14 +259,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
     it('should show the load more button if the media request fails', async () => {
         const wrapper = await createWrapper({
-            folderAmount: [
-                3,
-                undefined,
-            ],
-            mediaAmount: [
-                null,
-                3,
-            ],
+            folderAmount: [3, undefined],
+            mediaAmount: [null, 3],
         });
         await flushPromises();
 

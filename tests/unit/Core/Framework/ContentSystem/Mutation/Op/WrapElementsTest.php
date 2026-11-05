@@ -49,6 +49,7 @@ class WrapElementsTest extends TestCase
         $result = $wrap->apply($tree);
 
         static::assertSame([$result->roots[0]->id], $wrap->created());
+        static::assertSame($wrap->created(), $wrap->freshlyScaffolded());
         static::assertSame('Sw:Container', $result->roots[0]->component);
     }
 

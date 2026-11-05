@@ -17,11 +17,11 @@ MCP resources expose read-only data that AI clients can request. Unlike tools, r
 
 Static resources have a fixed URI. Resource templates use a URI pattern with placeholders (e.g. `shopware://tool-result/{id}`) so a single handler serves many concrete resources.
 
-- `ToolResultResource` (`shopware://tool-result/{id}`) reads oversized tool results stored in `mcp_tool_result_cache` by `McpToolResponse::success()`. The handler accepts the `{id}` placeholder plus the SDK's `RequestContext` to scope reads to the current MCP session.
+- `ToolResultResource` (`shopware://tool-result/{id}`) reads oversized tool results stored in `mcp_tool_result_cache` by `McpToolResponse::success()`. `{id}` is a signed pointer (`<id>.<expiry>.<signature>`, see `McpToolResultPointerSigner`) that only verifies for the principal who stored the result (`McpToolResultPrincipal`: integration and user), on any request and without an MCP session. A plain id, as issued before the pointers were signed, is still served to the session that stored it. `StoreApiToolResultResource` in `System/SalesChannel/Mcp/Resource/` serves the same URIs on `/store-api/_mcp`, bound to the sales channel and `sw-context-token`.
 
 Templates are registered with the `mcp.resource_template` DI tag (not `mcp.resource`) and use the `#[McpResourceTemplate(uriTemplate: ..., name: ..., description: ..., mimeType: ...)]` attribute. The template name must match `[a-zA-Z0-9_-]+` and the URI template must contain at least one placeholder.
 
-`debug:mcp` lists templates in a separate **Resource Templates** section. MCP clients discover them via `resources/templates/list` (not `resources/list`).
+`debug:mcp --native` lists templates in a separate **Resource Templates** section (`debug:mcp` itself lists tools only). MCP clients discover them via `resources/templates/list` (not `resources/list`).
 
 ## Adding a resource
 1. Create a class with `#[McpResource(uri: '...', name: '...', description: '...')]` on the class

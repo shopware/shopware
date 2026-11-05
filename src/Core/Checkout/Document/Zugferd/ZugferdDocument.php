@@ -29,6 +29,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -37,6 +38,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Clock\Clock;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'ZUGFeRD XML is produced by the DocumentV2 XML renderer without a public builder API.',
+)]
 class ZugferdDocument
 {
     public const CHARGE_AMOUNT = 'chargeAmount';
@@ -223,14 +229,16 @@ class ZugferdDocument
             $this->addLineTotalAmount($totalNet);
         }
 
+        $unitCode = $this->getUnitCode($lineItem);
+
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(
                 \round($totalNet / $lineItem->getQuantity(), self::UNIT_PRICE_DECIMALS),
                 self::PRICE_BASIS_QUANTITY,
-                ZugferdUnitCodes::REC20_PIECE
+                $unitCode
             )
-            ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
+            ->setDocumentPositionQuantity($lineItem->getQuantity(), $unitCode)
             ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
             ->setDocumentPositionProductDetails(
@@ -267,7 +275,7 @@ class ZugferdDocument
             'isCharge' => $isCharge,
             'taxTypeCode' => 'VAT',
             'calculationPercent' => $isPercentage ? $discountValue : null,
-            'reasonCode' => ZugferdAllowanceCodes::DISCOUNT,
+            'reasonCode' => $isCharge ? null : ZugferdAllowanceCodes::DISCOUNT,
             'reason' => $lineItem->getReferencedId() ?? $lineItem->getLabel(),
         ];
 
@@ -542,6 +550,23 @@ class ZugferdDocument
         }
 
         return 'Delivery refund';
+    }
+
+    private function getUnitCode(OrderLineItemEntity $lineItem): string
+    {
+        $payload = $lineItem->getPayload() ?? [];
+        $uneceCode = $payload['uneceCode'] ?? null;
+        $purchaseUnit = $payload['purchaseUnit'] ?? null;
+
+        if (!\is_string($uneceCode) || $uneceCode === '') {
+            return ZugferdUnitCodes::REC20_PIECE;
+        }
+
+        if (\is_numeric($purchaseUnit) && !FloatComparator::equals((float) $purchaseUnit, 1.0)) {
+            return ZugferdUnitCodes::REC20_PIECE;
+        }
+
+        return $uneceCode;
     }
 
     private function getPercentageBasisAmount(bool $isPercentage, float $discountValue, float $actualAmount): ?float

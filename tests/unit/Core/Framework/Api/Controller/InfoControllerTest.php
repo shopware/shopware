@@ -9,16 +9,21 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -33,6 +38,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
@@ -45,7 +54,6 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -69,6 +77,8 @@ class InfoControllerTest extends TestCase
 
     private MigrationInfo&Stub $migrationInfo;
 
+    private AppUrlVerifier&Stub $appUrlVerifier;
+
     private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
@@ -77,6 +87,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
+        $this->appUrlVerifier = static::createStub(AppUrlVerifier::class);
         $this->eventDispatcher = new EventDispatcher();
 
         $shopId = ShopId::v2('shop-id');
@@ -124,6 +135,100 @@ class InfoControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    #[TestDox('returns the mapping catalogue of every known root source, keyed by root source')]
+    public function testContentSystemMappingCandidates(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'none']);
+
+        $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingCandidateRegistry->method('forRootSource')->willReturnCallback(
+            static fn (string $rootSource): array => $rootSource === 'category' ? [
+                'category.name' => new MappingCandidate(
+                    path: 'category.name',
+                    label: 'sw-experience-studio.mapping.category.name.label',
+                    description: 'sw-experience-studio.mapping.category.name.description',
+                    group: 'basic',
+                    valueType: 'string',
+                ),
+            ] : []
+        );
+
+        $controller = $this->createController(
+            rootSourceRegistry: $rootSourceRegistry,
+            mappingCandidateRegistry: $mappingCandidateRegistry,
+        );
+        $response = $controller->contentSystemMappingCandidates();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        static::assertSame([
+            'mappingCandidates' => [
+                // The catalogue serializes as a list per source: the path is the entry's own field, so the
+                // client never has to read it off an object key.
+                'category' => [[
+                    'path' => 'category.name',
+                    'source' => [
+                        'type' => 'root',
+                        'id' => 'category',
+                        'path' => 'name',
+                    ],
+                    'label' => 'sw-experience-studio.mapping.category.name.label',
+                    'description' => 'sw-experience-studio.mapping.category.name.description',
+                    'group' => 'basic',
+                    'valueType' => 'string',
+                    'compatibleTypes' => ['string'],
+                    'inlineMappable' => true,
+                    'contextType' => 'single',
+                    'labelTranslations' => [],
+                    'descriptionTranslations' => [],
+                    'canonicalToken' => '{{map:category.name}}',
+                ]],
+                // Present but empty, so a client never has to tell "offers nothing" apart from "unknown".
+                'none' => [],
+            ],
+        ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testPathlessTypedCandidateHasNoInlineTokenInCatalogue(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['category']);
+
+        $candidate = new MappingCandidate(
+            path: 'context:example',
+            label: 'Example',
+            description: '',
+            group: 'basic',
+            valueType: 'string',
+            source: new MappingSourceReference('context', 'example'),
+        );
+
+        $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingCandidateRegistry->method('forRootSource')->willReturn(['context:example' => $candidate]);
+
+        $response = $this->createController(
+            rootSourceRegistry: $rootSourceRegistry,
+            mappingCandidateRegistry: $mappingCandidateRegistry,
+        )->contentSystemMappingCandidates();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $catalogueCandidate = $data['mappingCandidates']['category'][0];
+
+        static::assertSame('context:example', $catalogueCandidate['path']);
+        static::assertFalse($catalogueCandidate['inlineMappable']);
+        static::assertArrayHasKey('canonicalToken', $catalogueCandidate);
+        static::assertNull($catalogueCandidate['canonicalToken']);
     }
 
     #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]
@@ -371,11 +476,7 @@ class InfoControllerTest extends TestCase
             'APP_URL' => 'https://app.url',
         ]);
 
-        $appUrlVerifier = static::createStub(AppUrlVerifier::class);
-        $appUrlVerifier->method('isAppUrlReachable')->willReturn(true);
-        $appUrlVerifier->method('hasAppsThatNeedAppUrl')->willReturn(false);
-
-        $content = $this->createController(appUrlVerifier: $appUrlVerifier)->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
@@ -406,7 +507,7 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('enableUrlFeature', $settings);
         static::assertTrue($settings['enableUrlFeature']);
         static::assertArrayHasKey('appUrlReachable', $settings);
-        static::assertTrue($settings['appUrlReachable']);
+        static::assertFalse($settings['appUrlReachable']);
         static::assertArrayHasKey('appsRequireAppUrl', $settings);
         static::assertFalse($settings['appsRequireAppUrl']);
         static::assertArrayHasKey('firstMigrationDate', $settings);
@@ -421,6 +522,8 @@ class InfoControllerTest extends TestCase
         static::assertTrue($settings['enableHtmlSanitizer']);
         static::assertArrayHasKey('minSearchTermLength', $settings);
         static::assertSame(2, $settings['minSearchTermLength']);
+        static::assertArrayHasKey('hideUpdateModule', $settings);
+        static::assertFalse($settings['hideUpdateModule']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -606,6 +709,57 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
+    public function testConfigReportsTheStatusCodeOfAFailedAppUrlCheck(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $this->appUrlVerifier->method('verifyForAdministration')->willReturn(false);
+        $this->appUrlVerifier->method('getCurrentState')->willReturn(
+            new VerificationState('https://app.url', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'blocked', 403),
+        );
+
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['settings']['appUrlReachable']);
+        static::assertSame(403, $data['settings']['appUrlStatusCode']);
+    }
+
+    public function testConfigReportsNoStatusCodeWhenTheAppUrlCheckPassed(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $this->appUrlVerifier->method('verifyForAdministration')->willReturn(true);
+        $this->appUrlVerifier->method('getCurrentState')->willReturn(
+            new VerificationState('https://app.url', VerificationStatus::PASS, 1, new \DateTimeImmutable(), info: null, statusCode: 204),
+        );
+
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['settings']['appUrlReachable']);
+        static::assertNull($data['settings']['appUrlStatusCode']);
+    }
+
+    public function testConfigReturnsHideUpdateModuleWhenEnabled(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $response = $this->createController(hideUpdateModule: true)->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('hideUpdateModule', $data['settings']);
+        static::assertTrue($data['settings']['hideUpdateModule']);
+    }
+
     /**
      * @return iterable<string, array{string|null, string|null}>
      */
@@ -619,6 +773,27 @@ class InfoControllerTest extends TestCase
     {
         yield 'queue stats' => ['api.info.queue'];
         yield 'message stats' => ['api.info.message-stats'];
+    }
+
+    public function testConfigDispatchesMediaFileExtensionWhitelistEventOnlyOnce(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $dispatchCount = 0;
+        $this->eventDispatcher->addListener(
+            MediaFileExtensionWhitelistEvent::class,
+            function () use (&$dispatchCount): void {
+                ++$dispatchCount;
+            }
+        );
+
+        $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        static::assertSame(
+            1,
+            $dispatchCount,
+            'MediaFileExtensionWhitelistEvent must be dispatched exactly once per /api/_info/config request'
+        );
     }
 
     private function bindingSpecification(string $type = 'media-gallery'): BindingSpecification
@@ -671,6 +846,7 @@ class InfoControllerTest extends TestCase
      */
     private function createController(
         array $adminWorkerTransports = ['slow'],
+        bool $hideUpdateModule = false,
         ?ContentSystemDataLoaderSchemaGenerator $dataLoaderSchemaGenerator = null,
         ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
@@ -678,7 +854,7 @@ class InfoControllerTest extends TestCase
         ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
         ?StoredSchemaResolver $storedSchemaResolver = null,
         ?AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry = null,
-        ?AppUrlVerifier $appUrlVerifier = null,
+        ?AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -693,6 +869,7 @@ class InfoControllerTest extends TestCase
             'shopware.media.enable_url_upload_feature' => true,
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
+            'shopware.auto_update.hide_module' => $hideUpdateModule,
         ]);
 
         return new InfoController(
@@ -701,7 +878,8 @@ class InfoControllerTest extends TestCase
             static::createStub(BusinessEventCollector::class),
             static::createStub(IncrementGatewayRegistry::class),
             $this->migrationInfo,
-            $appUrlVerifier ?? static::createStub(AppUrlVerifier::class),
+            $this->appUrlVerifier,
+            static::createStub(ActiveAppsLoader::class),
             static::createStub(FlowActionCollector::class),
             new StaticSystemConfigService(),
             static::createStub(ApiRouteInfoResolver::class),
@@ -719,6 +897,8 @@ class InfoControllerTest extends TestCase
                 static::createStub(DataLoaderProvider::class),
             ),
             $layoutPresetRegistry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
+            $mappingCandidateRegistry ?? static::createStub(AbstractContentSystemMappingCandidateRegistry::class),
+            new InlineMappingTokenParser(),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );

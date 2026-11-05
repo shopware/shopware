@@ -6,9 +6,13 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPrincipal;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -46,7 +50,7 @@ abstract class McpToolResponse
     private ?LoggerInterface $mcpLogger = null;
 
     /**
-     * @internal called by the DI container via mcp.php instanceof configurator
+     * @internal wired by McpToolResultCacheCompilerPass
      */
     public function setToolResultCache(ToolResultCacheStorage $cache, RequestStack $requestStack, LoggerInterface $logger): void
     {
@@ -81,11 +85,13 @@ abstract class McpToolResponse
 
         if ($this->toolResultCache !== null && $this->requestStack !== null) {
             $request = $this->requestStack->getCurrentRequest();
-            $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
+            $principal = $request !== null ? McpToolResultPrincipal::fromRequest($request) : null;
 
-            if ($sessionId !== '' && $request !== null) {
-                $uuid = $this->toolResultCache->store($sessionId, $json);
-                $resourceUri = 'shopware://tool-result/' . $uuid;
+            if ($principal !== null && $request !== null) {
+                // The pointer is signed for the principal, so it works without an MCP session. The
+                // session id is only recorded for the cleanup when a handshake session ends.
+                $pointer = $this->toolResultCache->storeFor($principal, $json, $request->headers->get('Mcp-Session-Id') ?? '');
+                $resourceUri = $pointer->uri();
 
                 $this->mcpLogger?->debug('MCP tool response stored as resource (oversized)', [
                     'tool' => static::class,
@@ -95,6 +101,7 @@ abstract class McpToolResponse
 
                 $oversizedMeta = array_merge($meta, [
                     'resourceUri' => $resourceUri,
+                    'expiresAt' => $pointer->expiresAt->format(\DateTimeInterface::ATOM),
                     'responseSize' => $size,
                     'note' => 'Response too large for inline delivery. '
                         . 'Prefer re-running the tool with tighter "includes" or a lower "limit" to get a smaller inline result. '
@@ -114,13 +121,56 @@ abstract class McpToolResponse
             }
         }
 
-        // Fallback when no active session (e.g. CLI or test context): return inline as-is.
+        // Fallback without an authenticated principal (e.g. CLI or test context): return inline as-is.
         return $json;
     }
 
-    protected function error(string $message): string
+    /**
+     * @param string $code a stable code clients can match on, see {@see McpToolError}; it ends up in
+     *                     `structuredContent.error.code` next to `isError: true`
+     */
+    protected function error(string $message, string $code = McpToolError::TOOL_ERROR): string
     {
-        return Json::encode(['success' => false, 'error' => $message]);
+        return Json::encode(['success' => false, 'error' => $message, 'code' => $code]);
+    }
+
+    /**
+     * Renders a `RequestCriteriaBuilder::fromArray()` failure as an error the
+     * caller can act on, instead of letting it escape to the SDK's generic
+     * "Error while executing tool".
+     *
+     * `SearchRequestException` carries one entry per rejected pointer, so each
+     * detail is prefixed with it: "/aggregations/0/avg/field" names the element
+     * that is wrong. Every other `ShopwareHttpException` is rendered by its own
+     * message, because the builder reports bad input through several unrelated
+     * classes: `DataAbstractionLayerException` directly for e.g.
+     * `expectedArrayWithType()` on `{"includes":"id"}`,
+     * `FrameworkException::associationNotFound()` for an unknown association,
+     * and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from
+     * `ApiCriteriaValidator` for a field the caller may not query. All of them
+     * name the offending part of the payload, so the message is what the caller
+     * needs; only the exception class differs.
+     */
+    protected function invalidCriteriaError(ShopwareHttpException $e): string
+    {
+        if (!$e instanceof SearchRequestException) {
+            return $this->error($e->getMessage(), McpToolError::INVALID_ARGUMENTS);
+        }
+
+        $details = [];
+        foreach ($e->getErrors() as $error) {
+            $pointer = $error['source']['pointer'];
+            $details[] = $pointer === '' ? $error['detail'] : \sprintf('%s: %s', $pointer, $error['detail']);
+        }
+
+        // An empty exception is not thrown by tryToThrow(), but getErrors() is a
+        // generator over caller-supplied state and a message with nothing after
+        // the colon would be worse than the generic one it replaces.
+        if ($details === []) {
+            return $this->error($e->getMessage(), McpToolError::INVALID_ARGUMENTS);
+        }
+
+        return $this->error(\sprintf('Invalid criteria: %s', \implode('; ', $details)), McpToolError::INVALID_ARGUMENTS);
     }
 
     /**
@@ -131,11 +181,11 @@ abstract class McpToolResponse
         try {
             $result = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            return $this->error(\sprintf('Invalid JSON for "%s": %s', $fieldName, $e->getMessage()));
+            return $this->error(\sprintf('Invalid JSON for "%s": %s', $fieldName, $e->getMessage()), McpToolError::INVALID_ARGUMENTS);
         }
 
         if (!\is_array($result)) {
-            return $this->error(\sprintf('"%s" must be a JSON object or array', $fieldName));
+            return $this->error(\sprintf('"%s" must be a JSON object or array', $fieldName), McpToolError::INVALID_ARGUMENTS);
         }
 
         return $result;
@@ -163,7 +213,7 @@ abstract class McpToolResponse
      */
     protected function missingPrivilegesError(array $privileges): string
     {
-        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)));
+        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)), McpToolError::MISSING_PRIVILEGE);
     }
 
     /**

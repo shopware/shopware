@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappingCandidateProvider;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -80,6 +82,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(CategoryTreePathResolver::class),
             service(DefaultCategoryLevelLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DefaultCategoryLevelLoader::class)
@@ -113,12 +116,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityCmsSlotConfigInheritanceBuilder::class),
             service(SalesChannelCategoryDefinition::class),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CategoryListRoute::class)
         ->public()
         ->args([
             service('sales_channel.category.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CategoryIndexer::class)
@@ -230,4 +235,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityLayoutContextFactory::class),
         ])
         ->tag('content_system.entity_specification_source', ['priority' => 100]);
+
+    $services->set(CategoryMappingCandidateProvider::class)
+        ->args([
+            service(CategoryContentLayoutDefinition::class),
+        ])
+        ->tag('content_system.mapping_candidate_provider', ['priority' => 100]);
 };

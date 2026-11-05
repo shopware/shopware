@@ -90,7 +90,7 @@ class MediaFolderControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
 
         $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $this->context)->getEntities()->get($folderId);
         static::assertNull($folder);

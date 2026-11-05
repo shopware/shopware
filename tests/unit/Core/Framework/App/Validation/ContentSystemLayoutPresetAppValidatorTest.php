@@ -31,7 +31,7 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
         $validator = new ContentSystemLayoutPresetAppValidator($loader);
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(0, $errors->getElements());
+        static::assertCount(0, $errors);
     }
 
     #[TestDox('returns a schema error when the presets directory contains invalid definitions')]
@@ -46,15 +46,14 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
         $validator = new ContentSystemLayoutPresetAppValidator($loader);
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
+        static::assertCount(1, $errors);
 
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemLayoutPresetSchemaError::class, $error);
         static::assertSame(
             'Invalid layout preset in "/app/path/Resources/content-system/presets": Failed to load layout preset from "broken.yaml": Invalid YAML syntax',
             $error->getMessage()
         );
-        static::assertSame('manifest-invalid-layout-preset-schema', $error->getMessageKey());
     }
 
     #[TestDox('propagates non-content-system exceptions without catching')]

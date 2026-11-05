@@ -162,11 +162,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             return accumulator;
         }, []);
 
-        const wrapper = await createWrapper('en-GB', [
-            enGB,
-            deDE,
-            ...mockLanguages,
-        ]);
+        const wrapper = await createWrapper('en-GB', [enGB, deDE, ...mockLanguages]);
 
         await flushPromises();
 
@@ -257,12 +253,12 @@ describe('src/app/component/form/sw-snippet-field', () => {
         expect(wrapper.find('sw-snippet-field-edit-modal-stub').exists()).toBe(false);
 
         wrapper.getComponent('.sw-snippet-field__icon').vm.$emit('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('sw-snippet-field-edit-modal-stub').exists()).toBe(true);
 
         wrapper.vm.closeEditModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('sw-snippet-field-edit-modal-stub').exists()).toBe(false);
     });

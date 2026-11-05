@@ -75,8 +75,7 @@ class EntityLayoutResolverTest extends TestCase
      */
     private function createRepository(HeaderContentLayoutEntity ...$entities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([$entities]);
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [$entities]);
 
         return $repository;
     }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\Log\Package;
 
@@ -25,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  * keeps everything else about the element wire shape.
  *
  * Wiring is judged in two tiers and first hit throws. Per consumer, inside {@see decodeConsumers()}: a
- * `consumerAlias` without `redistribute`, a `propertyAlias` carrying dot notation, and a `scope` of
+ * `consumerAlias` without `redistribute`, a `propertyAlias` carrying dot notation, a `scope` of
  * {@see ConsumerScope::Root} combined with `redistribute`. Then, once that map is
  * complete, the element-local tier in {@see rejectInvalidElementWiring()}: base-key uniqueness across the
  * consumer map, a `redistribute` consumer keyed by a dotted path, and a `redistribute` consumer whose derived
@@ -62,6 +63,7 @@ final class StoredElementWiringDecoder
         'consumerAlias',
         'propertyAlias',
         'scope',
+        'source',
     ];
 
     /**
@@ -174,6 +176,12 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::invalidFieldValueType($path . '.propertyAlias', 'string', get_debug_type($propertyAlias));
             }
 
+            $sourceData = $config['source'] ?? null;
+            if ($sourceData !== null && !\is_array($sourceData)) {
+                throw ContentSystemException::invalidFieldValueType($path . '.source', 'array', get_debug_type($sourceData));
+            }
+            $source = $sourceData === null ? null : MappingSourceReference::fromArray($sourceData, $path . '.source');
+
             $scope = $this->consumerScope($config, $path);
 
             if ($consumerAlias !== null && !$redistribute) {
@@ -188,6 +196,20 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::rootScopeWithRedistribute($key);
             }
 
+            if ($source !== null && (
+                $required
+                || $redistribute
+                || $consumerAlias !== null
+                || $propertyAlias !== null
+                || $scope !== ConsumerScope::Root
+            )) {
+                throw ContentSystemException::invalidFieldValueType(
+                    $path . '.source',
+                    'an optional, root-scoped, unaliased, non-redistributing mapping',
+                    'incompatible consumer shape'
+                );
+            }
+
             $consumers[$key] = new ContextConsumer(
                 type: $contextType,
                 required: $required,
@@ -195,6 +217,7 @@ final class StoredElementWiringDecoder
                 consumerAlias: $consumerAlias,
                 propertyAlias: $propertyAlias,
                 scope: $scope,
+                source: $source,
             );
         }
 

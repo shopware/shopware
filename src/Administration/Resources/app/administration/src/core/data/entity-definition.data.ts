@@ -5,6 +5,7 @@
 /* @private */
 export interface Property {
     flags?: {
+        inherited?: boolean;
         primary_key?: boolean;
         required?: boolean;
         translatable?: boolean;
@@ -31,10 +32,7 @@ const scalarTypes = [
     'boolean',
     'date',
 ];
-const jsonTypes = [
-    'json_list',
-    'json_object',
-];
+const jsonTypes = ['json_list', 'json_object'];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getScalarTypes() {
@@ -47,7 +45,7 @@ export function getJsonTypes() {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default class EntityDefinition<EntityName extends keyof EntitySchema.Entities> {
+export default class EntityDefinition<EntityName extends keyof EntitySchema.EntityKeys> {
     readonly entity: Entity<EntityName>;
 
     readonly properties: Properties;
@@ -107,10 +105,7 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
                 return false;
             }
 
-            return [
-                'one_to_many',
-                'many_to_many',
-            ].includes(property.relation ?? '');
+            return ['one_to_many', 'many_to_many'].includes(property.relation ?? '');
         });
     }
 
@@ -124,10 +119,7 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
                 return false;
             }
 
-            return [
-                'one_to_one',
-                'many_to_one',
-            ].includes(property.relation ?? '');
+            return ['one_to_one', 'many_to_one'].includes(property.relation ?? '');
         });
     }
 
@@ -201,23 +193,11 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
     }
 
     isToManyAssociation(field: Property) {
-        return (
-            field.type === 'association' &&
-            [
-                'one_to_many',
-                'many_to_many',
-            ].includes(field.relation ?? '')
-        );
+        return field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation ?? '');
     }
 
     isToOneAssociation(field: Property) {
-        return (
-            field.type === 'association' &&
-            [
-                'many_to_one',
-                'one_to_one',
-            ].includes(field.relation ?? '')
-        );
+        return field.type === 'association' && ['many_to_one', 'one_to_one'].includes(field.relation ?? '');
     }
 
     isOneToOneAssociation(field: Property) {

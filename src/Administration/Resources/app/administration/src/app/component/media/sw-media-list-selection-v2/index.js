@@ -11,10 +11,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
     emits: [
         'open-sidebar',
@@ -23,9 +20,7 @@ export default {
         'item-remove',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         entity: {
@@ -88,6 +83,24 @@ export default {
             });
 
             return items;
+        },
+
+        listItems() {
+            const occurrences = {};
+
+            return this.mediaItems.map((mediaItem, position) => {
+                if (mediaItem.isPlaceholder) {
+                    return { mediaItem, key: undefined, dragData: mediaItem };
+                }
+
+                occurrences[mediaItem.url] = (occurrences[mediaItem.url] ?? 0) + 1;
+
+                return {
+                    mediaItem,
+                    key: `${mediaItem.url}#${occurrences[mediaItem.url]}`,
+                    dragData: { ...mediaItem, position },
+                };
+            });
         },
 
         gridAutoRows() {

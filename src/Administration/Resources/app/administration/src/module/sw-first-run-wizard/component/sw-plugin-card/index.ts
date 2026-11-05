@@ -24,11 +24,9 @@ type RecommendedPlugin = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'cacheApiService',
-        'extensionHelperService',
-        'shopwareExtensionService',
-    ],
+    inject: ['cacheApiService', 'extensionHelperService', 'shopwareExtensionService'],
+
+    emits: ['extension-activated', 'on-plugin-installed'],
 
     mixins: [Shopware.Mixin.getByName('sw-extension-error')],
 

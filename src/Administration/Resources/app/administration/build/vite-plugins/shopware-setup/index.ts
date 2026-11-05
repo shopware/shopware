@@ -58,6 +58,21 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
+/** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
+function formatTransformError(error: unknown, fileName: string, source: string): string {
+    // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
+    const { message: rawMessage, index } = (error ?? {}) as { message?: unknown; index?: unknown };
+    const message = typeof rawMessage === 'string' ? rawMessage : String(error);
+
+    if (typeof index !== 'number') {
+        return `[shopware-setup] ${fileName}\n${message}`;
+    }
+
+    const lines = source.slice(0, index).split('\n');
+
+    return `[shopware-setup] ${fileName}:${lines.length}:${lines[lines.length - 1].length + 1}\n${message}`;
+}
+
 /**
  * @private
  *
@@ -70,10 +85,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
     const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
-    // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
-    // the matching load(). Keyed by source content: Vite's import-analysis re-resolves watched files after
-    // every transform and re-stashes, so an entry can predate the user's next edit - reusing it unverified
-    // would serve every edit one save late.
+    // resolveId has to run the transform to detect a setup SFC at all, and hotUpdate runs it for its
+    // diagnostics, so the result is stashed here for the matching load(). Keyed by source content: Vite's
+    // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
+    // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
@@ -109,6 +124,25 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         return transformShopwareSetupSfc(code, fileName);
     }
 
+    /**
+     * Transforms a saved file and returns its formatted diagnostic, or `null` when it compiles.
+     *
+     * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
+     */
+    async function transformChangedFile(fileName: string, source: string): Promise<string | null> {
+        try {
+            const result = await transformSource(source, fileName);
+
+            if (result) {
+                resolvedTransforms.set(fileName, { source, result });
+            }
+
+            return null;
+        } catch (error) {
+            return formatTransformError(error, fileName, source);
+        }
+    }
+
     function assertUniqueBaseComponent(result: ShopwareSetupTransformResult, fileName: string): void {
         if (result.mode !== 'base') {
             return;
@@ -135,10 +169,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
      * longer exists and report a duplicate until the dev server restarts.
      */
     function forgetBaseComponentFile(fileName: string): void {
-        for (const [
-            componentName,
-            claimedBy,
-        ] of baseComponentFiles) {
+        for (const [componentName, claimedBy] of baseComponentFiles) {
             if (claimedBy === fileName) {
                 baseComponentFiles.delete(componentName);
                 break;
@@ -263,22 +294,41 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * from `getModulesByFile(<changed file>)` - `addWatchFile` alone does not link file and module,
          * so without this hook an edit invalidated nothing until the dev server was restarted.
          * Returning the virtual module makes Vite invalidate it and push the update to the client.
+         *
+         * It is also where a transform failure gets reported. Otherwise the transform runs only once a
+         * client requests the module (`resolveId`/`load`), so saving a file that does not compile printed
+         * nothing at all (issue #19562). A failure is reported here instead of pushing the update, which
+         * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
-        hotUpdate({ file, modules }) {
+        async hotUpdate({ type, file, modules, read }) {
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
 
             const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
 
+            // Vite runs this hook once per environment (client and ssr); report only once.
+            if (type !== 'delete' && this.environment.name === 'client') {
+                const failure = await transformChangedFile(file, await read());
+
+                if (failure) {
+                    this.environment.logger.error(failure);
+                    this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
+
+                    // Without a pushed update nothing drops the cached transform, so a reload would serve stale code.
+                    if (virtualModule) {
+                        this.environment.moduleGraph.invalidateModule(virtualModule);
+                    }
+
+                    return [];
+                }
+            }
+
             if (!virtualModule) {
                 return undefined;
             }
 
-            return [
-                ...modules,
-                virtualModule,
-            ];
+            return [...modules, virtualModule];
         },
 
         watchChange(id, change) {

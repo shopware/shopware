@@ -33,7 +33,6 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
-use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
 use Shopware\Elasticsearch\FieldQueryBuilder;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
@@ -49,7 +48,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(AbstractTokenQueryBuilder::class)]
 #[CoversClass(TokenQueryBuilder::class)]
 class TokenQueryBuilderTest extends TestCase
 {

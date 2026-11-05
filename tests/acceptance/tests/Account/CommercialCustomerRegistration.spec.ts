@@ -23,7 +23,7 @@ test(
         await test.step('Verify successful commercial customer registration', async () => {
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
             await ShopCustomer.expects(StorefrontAccount.page.getByText('shopware - Operations VAT Reg')).toContainText(
-                customer.vatRegNo,
+                customer.vatRegNo.toUpperCase(),
             );
         });
     },

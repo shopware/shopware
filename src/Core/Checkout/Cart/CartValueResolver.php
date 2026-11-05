@@ -29,6 +29,13 @@ class CartValueResolver implements ValueResolverInterface
             return;
         }
 
+        $cart = $request->attributes->get(PlatformRequest::ATTRIBUTE_EFFECTIVE_CART_OBJECT);
+        if ($cart instanceof Cart) {
+            yield $cart;
+
+            return;
+        }
+
         /** @var SalesChannelContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 

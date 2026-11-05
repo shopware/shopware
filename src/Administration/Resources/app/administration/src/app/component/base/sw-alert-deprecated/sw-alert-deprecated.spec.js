@@ -25,81 +25,21 @@ describe('components/base/sw-alert-deprecated', () => {
     });
 
     it.each([
-        [
-            'info',
-            'default',
-            true,
-        ],
-        [
-            'warning',
-            'default',
-            true,
-        ],
-        [
-            'error',
-            'default',
-            true,
-        ],
-        [
-            'success',
-            'default',
-            true,
-        ],
-        [
-            'info',
-            'notification',
-            true,
-        ],
-        [
-            'warning',
-            'notification',
-            true,
-        ],
-        [
-            'error',
-            'notification',
-            true,
-        ],
-        [
-            'success',
-            'notification',
-            true,
-        ],
-        [
-            'info',
-            'system',
-            false,
-        ],
-        [
-            'warning',
-            'system',
-            false,
-        ],
-        [
-            'error',
-            'system',
-            false,
-        ],
-        [
-            'success',
-            'system',
-            false,
-        ],
-        [
-            'neutral',
-            'default',
-            true,
-        ],
-        [
-            'neutral',
-            'notification',
-            true,
-        ],
-        [
-            'neutral',
-            'system',
-            false,
-        ],
+        ['info', 'default', true],
+        ['warning', 'default', true],
+        ['error', 'default', true],
+        ['success', 'default', true],
+        ['info', 'notification', true],
+        ['warning', 'notification', true],
+        ['error', 'notification', true],
+        ['success', 'notification', true],
+        ['info', 'system', false],
+        ['warning', 'system', false],
+        ['error', 'system', false],
+        ['success', 'system', false],
+        ['neutral', 'default', true],
+        ['neutral', 'notification', true],
+        ['neutral', 'system', false],
     ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
         wrapper = mount(await wrapTestComponent('sw-alert-deprecated', { sync: true }), {
             props: {

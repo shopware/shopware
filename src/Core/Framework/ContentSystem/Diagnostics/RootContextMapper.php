@@ -33,6 +33,10 @@ class RootContextMapper
     }
 
     /**
+     * Maps a bound source's page-level data requirements to the root-ambient context. Every entry is a root
+     * entry with a Single context type and a Broadcast distribution, and carries no provider element id,
+     * because root context is ambient rather than provided from an element address.
+     *
      * @param list<DataRequirement> $requirements
      *
      * @return list<ProvidedContext>

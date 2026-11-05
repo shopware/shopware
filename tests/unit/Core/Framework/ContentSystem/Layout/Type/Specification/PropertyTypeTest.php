@@ -6,9 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -65,9 +68,18 @@ class PropertyTypeTest extends TestCase
         yield 'true for a float under number' => ['number', 4.2, true];
         yield 'false for a string under number' => ['number', '3.5', false];
         yield 'true for a bool under boolean' => ['boolean', true, true];
+        yield 'true for false under boolean' => ['boolean', false, true];
+        yield 'false for zero under boolean' => ['boolean', 0, false];
+        yield 'false for a boolean under number' => ['number', false, false];
+        yield 'false for a numeric string under integer' => ['integer', '42', false];
+        yield 'true for zero under integer' => ['integer', 0, true];
+        yield 'true for an empty string under string' => ['string', '', true];
         yield 'false for an array under a primitive' => ['string', ['a'], false];
 
         yield 'true for a null under a primitive' => ['string', null, true];
+        yield 'true for a null under integer' => ['integer', null, true];
+        yield 'true for a null under number' => ['number', null, true];
+        yield 'true for a null under boolean' => ['boolean', null, true];
         yield 'true for a null under a union' => [['string', 'integer'], null, true];
 
         yield 'true for a member match in a union' => [['string', 'integer'], 42, true];
@@ -81,23 +93,35 @@ class PropertyTypeTest extends TestCase
     #[TestDox('reports the nested member declarations of an object declaration through its schema')]
     public function testToSchemaReportsTheNestedMemberDeclarations(): void
     {
+        $source = new MappingSourceReference('ExamplePlugin', 'links', ['variant' => 'featured'], 'url');
         $type = new PropertyType('object', false, null, null, [
-            'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null),
+            'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null, mappable: true, defaultMapping: $source),
         ]);
 
         static::assertSame([
             'url' => [
                 'type' => 'string',
+                'contextTypes' => ['single'],
                 'translatable' => false,
                 'enum' => null,
                 'default' => null,
                 'properties' => null,
                 'required' => true,
+                'mappable' => true,
+                'inlineMappable' => false,
                 'title' => 'Url',
                 'description' => 'Link target.',
                 'adminUI' => null,
+                'defaultMapping' => $source->jsonSerialize(),
             ],
         ], $type->toSchema()['properties']);
+        $inline = new PropertyType('object', false, null, null, ['label' => new PropertySpecification('label', new PropertyType('string', false, null, null), false, 'Label', '', null, inlineMappable: true)]);
+        $inlineSchema = $inline->toSchema();
+        static::assertIsArray($inlineSchema['properties']);
+        static::assertArrayHasKey('label', $inlineSchema['properties']);
+        $schema = $inlineSchema['properties']['label'];
+        static::assertFalse($schema['mappable']);
+        static::assertTrue($schema['inlineMappable']);
     }
 
     #[TestDox('reports the declared type, enum and default through its schema, with null where no nested members are declared')]
@@ -107,6 +131,7 @@ class PropertyTypeTest extends TestCase
 
         static::assertSame([
             'type' => 'string',
+            'contextTypes' => ['single'],
             'translatable' => false,
             'enum' => ['auto-fit', 'fixed'],
             'default' => 'auto-fit',
@@ -136,6 +161,57 @@ class PropertyTypeTest extends TestCase
         yield 'FQCN' => [SalesChannelProductEntity::class, false];
 
         yield 'union of one primitive' => [['string'], false];
+    }
+
+    /**
+     * @param string|list<string> $type
+     * @param list<string> $expected
+     */
+    #[DataProvider('contextTypeProvider')]
+    #[TestDox('reads $_dataName as accepting $expected')]
+    public function testContextTypes(string|array $type, array $expected): void
+    {
+        static::assertSame($expected, (new PropertyType($type, false, null, null))->contextTypes());
+    }
+
+    /**
+     * @return iterable<string, array{string|list<string>, list<string>}>
+     */
+    public static function contextTypeProvider(): iterable
+    {
+        yield 'a string property' => ['string', ['single']];
+
+        // The distinction the Administration cannot make for itself, and the reason this method exists: the
+        // gallery declares the collection and the image element the entity, and offering a candidate across
+        // that line produces an element that renders nothing.
+        yield 'an entity property' => [MediaEntity::class, ['single']];
+        yield 'a collection property' => [MediaCollection::class, ['collection']];
+
+        // Bare `object` names an object without naming which one, so it rules nothing out — matching how
+        // MappingTypeCompatibility::permits() takes any class-typed candidate for it.
+        yield 'an unconstrained object property' => ['object', ['single', 'collection']];
+
+        yield 'a union of primitives' => [['string', 'integer'], ['single']];
+        yield 'a union of an entity and a collection' => [
+            [MediaEntity::class, MediaCollection::class],
+            ['single', 'collection'],
+        ];
+
+        // A union repeating a kind reports it once, so the Administration's includes() check stays a plain
+        // membership test rather than having to care how often a kind appears.
+        yield 'a union of two collections' => [[MediaCollection::class, MediaCollection::class], ['collection']];
+    }
+
+    /**
+     * The schema is what the Administration actually reads, so the derivation reaching it is the part that
+     * matters; a correct contextTypes() that toSchema() drops would leave the selection UI exactly as broken.
+     */
+    #[TestDox('publishes the accepted context types in the schema')]
+    public function testToSchemaCarriesContextTypes(): void
+    {
+        $schema = (new PropertyType(MediaCollection::class, false, null, null))->toSchema();
+
+        static::assertSame(['collection'], $schema['contextTypes']);
     }
 
     /**

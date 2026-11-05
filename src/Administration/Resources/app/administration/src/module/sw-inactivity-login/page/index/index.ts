@@ -10,10 +10,7 @@ const { Component } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'loginService',
-        'feature',
-    ],
+    inject: ['loginService', 'feature'],
 
     props: {
         hash: {

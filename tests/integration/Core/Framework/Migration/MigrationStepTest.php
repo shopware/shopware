@@ -197,7 +197,7 @@ SQL
 
     private function getConnection(): Connection
     {
-        return self::getContainer()->get(Connection::class);
+        return self::getContainer()->get('doctrine.dbal.migration_connection');
     }
 }
 

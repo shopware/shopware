@@ -10,10 +10,7 @@ const { Mixin, Feature } = Shopware;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
     mixins: [
         /**

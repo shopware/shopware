@@ -17,16 +17,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'entityMappingService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -59,9 +52,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('mailHeaderFooter', [
-            'name',
-        ]),
+        ...mapPropertyErrors('mailHeaderFooter', ['name']),
 
         identifier() {
             return this.placeholder(this.mailHeaderFooter, 'name');
@@ -186,6 +177,7 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
+            this.alreadyAssignedSalesChannels = [];
 
             if (this.mailHeaderFooter.salesChannels.length > 0) {
                 await this.findAlreadyAssignedSalesChannels();
@@ -223,31 +215,18 @@ export default {
         },
 
         async findAlreadyAssignedSalesChannels() {
-            const criteria = new Criteria(1, 25);
-            const salesChannelIds = [];
+            const criteria = new Criteria(1, null);
+            criteria.setIds(this.mailHeaderFooter.salesChannels.map((salesChannel) => salesChannel.id));
 
-            this.mailHeaderFooter.salesChannels.forEach((salesChannel) => {
-                salesChannelIds.push(salesChannel.id);
-            });
+            const withoutConflict = [Criteria.equals('mailHeaderFooterId', null)];
 
-            criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
+            if (this.mailHeaderFooterId) {
+                withoutConflict.push(Criteria.equals('mailHeaderFooterId', this.mailHeaderFooterId));
+            }
 
-            const items = await this.salesChannelRepository.search(criteria);
-            this.alreadyAssignedSalesChannels = items.reduce((assignedSalesChannels, currentSalesChannel) => {
-                if (currentSalesChannel.mailHeaderFooterId === null) {
-                    return assignedSalesChannels;
-                }
+            criteria.addFilter(Criteria.not('OR', withoutConflict));
 
-                if (!this.mailHeaderFooterId) {
-                    assignedSalesChannels.push(currentSalesChannel);
-                }
-
-                if (this.mailHeaderFooterId && currentSalesChannel.mailHeaderFooterId !== this.mailHeaderFooterId) {
-                    assignedSalesChannels.push(currentSalesChannel);
-                }
-
-                return assignedSalesChannels;
-            }, []);
+            this.alreadyAssignedSalesChannels = await this.salesChannelRepository.search(criteria);
         },
     },
 };

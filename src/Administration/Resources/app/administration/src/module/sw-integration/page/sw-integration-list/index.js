@@ -20,9 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -52,12 +50,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('deletedAt', null));
-            criteria.addFilter(
-                Criteria.multi('OR', [
-                    Criteria.equals('app.id', null),
-                    Criteria.equals('app.active', true),
-                ]),
-            );
+            criteria.addFilter(Criteria.multi('OR', [Criteria.equals('app.id', null), Criteria.equals('app.active', true)]));
             criteria.addSorting(Criteria.sort('label', 'ASC'));
             criteria.addAssociation('aclRoles');
             criteria.addAssociation('app');

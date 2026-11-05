@@ -29,9 +29,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -50,7 +48,7 @@ export default {
             mediaDefaultFolderId: null,
             showMediaModal: false,
             timezoneOptions: [],
-            userTheme: useTheme().theme.value,
+            userThemeSelection: null,
             userModuleIconColors: useModuleIconColors().enabled.value,
         };
     },
@@ -62,6 +60,10 @@ export default {
     },
 
     computed: {
+        userTheme() {
+            return this.userThemeSelection ?? useTheme().theme.value;
+        },
+
         minSearchTermLength() {
             return Store.get('swProfile').minSearchTermLength;
         },
@@ -70,10 +72,7 @@ export default {
             return Store.get('swProfile').searchPreferences;
         },
 
-        ...mapPropertyErrors('user', [
-            'email',
-            'timeZone',
-        ]),
+        ...mapPropertyErrors('user', ['email', 'timeZone']),
 
         userSearchPreferences: {
             get() {
@@ -163,6 +162,9 @@ export default {
 
     methods: {
         createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             this.isUserLoading = true;
 
             const languagePromise = new Promise((resolve) => {
@@ -172,10 +174,7 @@ export default {
             this.userPromise = this.getUserData();
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
 
-            const promises = [
-                languagePromise,
-                this.userPromise,
-            ];
+            const promises = [languagePromise, this.userPromise];
 
             if (this.acl.can('media.creator')) {
                 this.getMediaDefaultFolderId()
@@ -266,10 +265,7 @@ export default {
 
         onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
-                Promise.all([
-                    this.saveMinSearchTermLength(),
-                    this.saveUserSearchPreferences(),
-                ]);
+                Promise.all([this.saveMinSearchTermLength(), this.saveUserSearchPreferences()]);
 
                 return;
             }
@@ -332,13 +328,18 @@ export default {
 
         saveUser(context) {
             if (!this.acl.can('user:editor')) {
-                const changes = this.userRepository.getSyncChangeset([
-                    this.user,
-                ]);
-                delete changes.changeset[0].changes.id;
+                const changes = this.userRepository.getSyncChangeset([this.user]);
 
-                this.userService
-                    .updateUser(changes.changeset[0].changes)
+                let saveFunc;
+
+                if (changes.changeset[0]) {
+                    delete changes.changeset[0].changes.id;
+                    saveFunc = this.userService.updateUser(changes.changeset[0].changes);
+                } else {
+                    saveFunc = Promise.resolve();
+                }
+
+                saveFunc
                     .then(async () => {
                         if (this.newPassword) {
                             try {
@@ -360,13 +361,18 @@ export default {
                     })
                     .catch((error) => {
                         if (error?.response?.data?.errors?.[0]) {
+                            const field =
+                                error.response.data.errors[0].code === 'USER__USERNAME_NOT_UNIQUE' ? 'username' : 'password';
                             Shopware.Store.get('error').addApiError({
-                                expression: `user.${this.user?.id}.password`,
+                                expression: `user.${this.user?.id}.${field}`,
                                 error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                             });
                         }
                         this.createNotificationError({
-                            message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
+                            message:
+                                error?.response?.data?.errors?.[0]?.code === 'USER__USERNAME_NOT_UNIQUE'
+                                    ? this.$t('global.error-codes.USER__USERNAME_NOT_UNIQUE')
+                                    : this.$t('sw-profile.index.notificationSaveErrorMessage'),
                         });
                         this.isLoading = false;
                         this.isSaveSuccessful = false;
@@ -399,8 +405,8 @@ export default {
                     this.newPassword = '';
                     this.newPasswordConfirm = '';
                 })
-                .catch(() => {
-                    this.handleUserSaveError();
+                .catch((error) => {
+                    this.handleUserSaveError(error);
                     this.isLoading = false;
                     this.isSaveSuccessful = false;
                 });
@@ -444,10 +450,13 @@ export default {
             this.showMediaModal = true;
         },
 
-        handleUserSaveError() {
+        handleUserSaveError(error) {
             if (this.$route.name.includes('sw.profile.index')) {
                 this.createNotificationError({
-                    message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
+                    message:
+                        error?.response?.data?.errors?.[0]?.code === 'USER__USERNAME_NOT_UNIQUE'
+                            ? this.$t('global.error-codes.USER__USERNAME_NOT_UNIQUE')
+                            : this.$t('sw-profile.index.notificationSaveErrorMessage'),
                 });
             }
             this.isLoading = false;
@@ -462,7 +471,7 @@ export default {
         },
 
         onChangeUserTheme(userTheme) {
-            this.userTheme = userTheme;
+            this.userThemeSelection = userTheme;
         },
 
         onChangeUserModuleIconColors(userModuleIconColors) {
@@ -472,6 +481,9 @@ export default {
         saveUserTheme() {
             return useTheme()
                 .saveUserTheme(this.userTheme)
+                .then(() => {
+                    this.userThemeSelection = null;
+                })
                 .catch(() => {
                     this.createErrorMessage(this.$t('sw-profile.index.notificationSaveErrorMessage'));
                 });

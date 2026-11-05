@@ -36,6 +36,23 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
         static::assertSame($spec, $result['Sw:Content:Text']);
     }
 
+    #[TestDox('ignores cached specifications from the previous cache key version')]
+    public function testAllIgnoresPreviousCacheKeyVersion(): void
+    {
+        $spec = $this->createSpec('Sw:Content:Text');
+        $inner = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $inner->expects($this->once())->method('all')->willReturn(['Sw:Content:Text' => $spec]);
+
+        $cache = new ArrayAdapter();
+        $legacyItem = $cache->getItem('content_system.element_types');
+        $legacyItem->set(['Sw:Legacy:CachedType' => 'stale specification payload']);
+        $cache->save($legacyItem);
+
+        $registry = new CachedContentSystemElementTypeRegistry($inner, $cache);
+
+        static::assertSame(['Sw:Content:Text' => $spec], $registry->all());
+    }
+
     #[TestDox('returns cached result on second all() call without calling inner again')]
     public function testAllReturnsCachedResultOnSecondCall(): void
     {

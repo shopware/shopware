@@ -94,7 +94,7 @@
       "criteria": {
         "title": "Sortier-Kriterien",
         "selectPlaceholder": "Kriterien suchen und hinzufügen ...",
-        "emptyStateSubline": "Diese Sortier-Option hat noch keine Kriterien."
+        "emptyStateSubline": "Diese Sortier-Option hat noch keine Kriterien"
       },
       "delete": {
         "modalTitle": "Kriterium löschen",

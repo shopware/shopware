@@ -40,12 +40,7 @@ export default {
         },
 
         allGeneralSelectedPrivileges() {
-            return [
-                ...new Set([
-                    ...this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges),
-                    ...this.privileges.getDefaultUserPrivileges(),
-                ]),
-            ];
+            return this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
         },
 
         permissionTypes() {
@@ -62,10 +57,7 @@ export default {
         isEntitySelected(entity, role) {
             const identifier = `${entity}:${role}`;
 
-            const allPrivileges = [
-                ...this.allGeneralSelectedPrivileges,
-                ...this.detailedPrivileges,
-            ];
+            const allPrivileges = [...this.allGeneralSelectedPrivileges, ...this.detailedPrivileges];
 
             return allPrivileges.includes(identifier);
         },

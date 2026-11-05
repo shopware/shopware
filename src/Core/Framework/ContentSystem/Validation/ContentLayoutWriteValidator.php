@@ -18,7 +18,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * The single ordered content_layout write gate: well-formedness on the decoded tree, then membership of the
- * written root source in the registry, then resolvability of the tree against that source's root-ambient context.
+ * written root source in the registry, then resolvability of the tree against that source's root-ambient context,
+ * then admissibility of the tree's data mappings against that same source.
  * The per-step rationale — why membership is gated before resolvability, and why the edit path re-checks the
  * committed source — is inline in validateCommand().
  *
@@ -40,6 +41,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutRootSourceReader $rootSourceReader,
+        private readonly StoredMappingValidator $mappingValidator,
     ) {
     }
 
@@ -133,8 +135,12 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
                     return;
                 }
 
-                $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context));
+                $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context), $rootSource);
                 $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
+
+                // Step 4: admissibility of every stored data mapping against that same root source. It runs here
+                // rather than as generic mapping diagnostics so each rule retains its specific error code.
+                $violations->addAll($this->mappingValidator->validate($tree->roots, $rootSource));
             }
         }
 

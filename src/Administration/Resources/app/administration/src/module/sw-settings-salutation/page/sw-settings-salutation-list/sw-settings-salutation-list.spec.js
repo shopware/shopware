@@ -126,12 +126,9 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () => {
     it('should be able to create a new salutation if have a creator privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.creator',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.creator']);
+        await flushPromises();
 
-        await wrapper.vm.$nextTick();
         const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
         expect(createButton.attributes().disabled).toBeFalsy();
@@ -139,7 +136,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should not be able to create a new salutation if have not a creator privilege', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
@@ -147,11 +144,8 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
     });
 
     it('should not be able to create a new salutation if have privileges which do not contain creator privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.editor',
-            'salutation.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.editor', 'salutation.deleter']);
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
@@ -159,10 +153,8 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
     });
 
     it('should be able to edit a salutation if have a editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.editor']);
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-salutation-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -170,28 +162,23 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should not be able to edit a salutation if have not a editor privilege', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-salutation-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should not be able to edit a salutation if have privileges which do not contain editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.creator',
-            'salutation.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.creator', 'salutation.deleter']);
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-salutation-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit a salutation inline if have a editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.editor']);
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
@@ -199,28 +186,23 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should not be able to edit a salutation inline if have not a editor privilege', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should not be able to edit a salutation inline if have privileges which do not contain editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.creator',
-            'salutation.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.creator', 'salutation.deleter']);
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should be able to delete a salutation if have a deleter privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.deleter']);
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-salutation-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -228,18 +210,15 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should not be able to delete a salutation if have not a deleter privilege', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-salutation-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should not be able to delete a salutation if have privileges which do not contain deleter privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.creator',
-            'salutation.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.creator', 'salutation.editor']);
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-salutation-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -247,7 +226,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should hide item selection if have not a deleter privilege', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityList.attributes()['show-selection']).toBeFalsy();
@@ -255,7 +234,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should show item selection if have a deleter privilege', async () => {
         const wrapper = await createWrapper(['salutation.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-salutation-list-grid');
         expect(entityList.attributes()['show-selection']).toBeTruthy();

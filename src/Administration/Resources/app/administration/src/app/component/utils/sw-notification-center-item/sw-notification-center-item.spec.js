@@ -122,10 +122,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                     'em',
                     'br',
                 ],
-                ALLOWED_ATTR: [
-                    'href',
-                    'target',
-                ],
+                ALLOWED_ATTR: ['href', 'target'],
             });
         });
 
@@ -153,10 +150,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                     'em',
                     'br',
                 ],
-                ALLOWED_ATTR: [
-                    'href',
-                    'target',
-                ],
+                ALLOWED_ATTR: ['href', 'target'],
             });
         });
 
@@ -212,10 +206,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                     'em',
                     'br',
                 ],
-                ALLOWED_ATTR: [
-                    'href',
-                    'target',
-                ],
+                ALLOWED_ATTR: ['href', 'target'],
             });
         });
     });
@@ -262,10 +253,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                     'em',
                     'br',
                 ],
-                ALLOWED_ATTR: [
-                    'href',
-                    'target',
-                ],
+                ALLOWED_ATTR: ['href', 'target'],
             });
         });
     });

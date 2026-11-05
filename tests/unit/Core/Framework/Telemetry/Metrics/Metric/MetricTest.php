@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 
@@ -17,7 +16,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 #[CoversClass(Metric::class)]
 class MetricTest extends TestCase
 {
-    public function testFromConfiguredMapsAllFields(): void
+    public function testFromConfigMapsAllFields(): void
     {
         $metricConfig = MetricConfig::fromDefinition('test_metric', [
             'type' => Type::HISTOGRAM->value,
@@ -27,30 +26,15 @@ class MetricTest extends TestCase
             'labels' => [],
         ]);
 
-        $configuredMetric = new ConfiguredMetric('my_metric', 42.5, ['env' => 'stale']);
-        $processedLabels = ['env' => 'prod'];
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, $processedLabels);
+        // labels and value arrive pre-resolved: validated by MetricLabelProcessor, closures opened by the Meter
+        $metric = Metric::fromConfig($metricConfig, ['env' => 'prod'], 42.5);
 
-        static::assertSame('my_metric', $metric->name);
+        static::assertSame('test_metric', $metric->name);
         static::assertSame(42.5, $metric->value);
-        static::assertSame(['env' => 'prod'], $metric->labels, 'Resulting Metric labels differ from provided processedLabels');
+        static::assertSame(['env' => 'prod'], $metric->labels);
         static::assertSame(Type::HISTOGRAM, $metric->type);
         static::assertSame('Cache hits', $metric->description);
         static::assertSame('hits', $metric->unit);
-    }
-
-    public function testFromConfiguredResolvesClosureValue(): void
-    {
-        $metricConfig = MetricConfig::fromDefinition('lazy_metric', [
-            'description' => 'Cache hits',
-            'type' => Type::HISTOGRAM->value,
-            'enabled' => true,
-        ]);
-
-        $configuredMetric = new ConfiguredMetric('lazy_metric', static fn () => 99);
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, []);
-
-        static::assertSame(99, $metric->value);
     }
 
     public function testFromArray(): void

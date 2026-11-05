@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Content\Mail\Message\SendMailHandler;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
@@ -79,6 +80,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLocaleCodeProvider::class),
             service(MailTemplateContentBuilder::class),
             service(MailMetricsInstrumentor::class),
+            service(Translator::class),
         ]);
 
     $services->set(MailGroupResolver::class);
@@ -94,8 +96,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MailService::class),
             service('mail_template.repository'),
             service('logger'),
-            service(Translator::class),
-            service(LanguageLocaleCodeProvider::class),
             service(Connection::class),
         ]);
 
@@ -108,6 +108,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service('monolog.logger.business_events'),
             service(DocumentResolver::class),
+            service(DocumentMediaGuard::class),
         ]);
 
     $services->set(MailPayloadFactory::class);

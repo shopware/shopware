@@ -14,11 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Storefront\ContentSystem\FooterContentLayout\FooterContentLayoutDefinition;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutDefinition;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Header and footer are Storefront tables, so {@see CacheInvalidationSubscriber} learns their names from a
@@ -67,14 +67,13 @@ class SectionAssignmentWiringTest extends TestCase
     private function collectInvalidatedKeys(callable $write): array
     {
         $keys = [];
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
+        $dispatcher = EventHookDispatcher::fromContainer(static::getContainer());
 
         $listener = static function (InvalidateCacheEvent $event) use (&$keys): void {
             $keys = [...$keys, ...array_values($event->getKeys())];
         };
 
-        $dispatcher->addListener(InvalidateCacheEvent::class, $listener);
+        $dispatcher->on(InvalidateCacheEvent::class, $listener);
 
         try {
             $write();
@@ -83,7 +82,7 @@ class SectionAssignmentWiringTest extends TestCase
             static::assertInstanceOf(CacheInvalidator::class, $invalidator);
             $invalidator->invalidateExpired();
         } finally {
-            $dispatcher->removeListener(InvalidateCacheEvent::class, $listener);
+            $dispatcher->off(InvalidateCacheEvent::class, $listener);
         }
 
         return $keys;

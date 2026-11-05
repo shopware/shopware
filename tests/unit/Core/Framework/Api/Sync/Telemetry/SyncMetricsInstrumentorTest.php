@@ -10,8 +10,9 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Framework\Telemetry\Telemetry;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
  * @internal
@@ -20,10 +21,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 #[CoversClass(SyncMetricsInstrumentor::class)]
 class SyncMetricsInstrumentorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testEmitsOperationsCountWithNumberOfOperations(): void
     {
@@ -38,8 +36,7 @@ class SyncMetricsInstrumentorTest extends TestCase
             fn (): SyncResult => new SyncResult([]),
         );
 
-        $count = $this->getMetric('api.sync.operations.count');
-        static::assertInstanceOf(ConfiguredMetric::class, $count);
+        $count = $this->meter->getMetric('api.sync.operations.count');
         static::assertSame(2, $count->value);
         static::assertSame([], $count->labels);
     }
@@ -52,12 +49,12 @@ class SyncMetricsInstrumentorTest extends TestCase
             fn (): SyncResult => new SyncResult([]),
         );
 
-        $duration = $this->getMetric('api.sync.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        $duration = $this->meter->getMetric('api.sync.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
-        static::assertSame('default', $duration->labels['indexing_behavior']);
-        static::assertSame('success', $duration->labels['result']);
+        $labels = $this->meter->getLabels('api.sync.duration');
+        static::assertSame('default', $labels['indexing_behavior']);
+        static::assertSame('success', $labels['result']);
     }
 
     public function testDurationPassesThroughExplicitIndexingBehavior(): void
@@ -68,9 +65,8 @@ class SyncMetricsInstrumentorTest extends TestCase
             fn (): SyncResult => new SyncResult([]),
         );
 
-        $duration = $this->getMetric('api.sync.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('use-queue-indexing', $duration->labels['indexing_behavior']);
+        $labels = $this->meter->getLabels('api.sync.duration');
+        static::assertSame('use-queue-indexing', $labels['indexing_behavior']);
     }
 
     public function testEmitsAffectedEntitiesAggregatedPerGroupAndAction(): void
@@ -87,16 +83,14 @@ class SyncMetricsInstrumentorTest extends TestCase
             fn (): SyncResult => $result,
         );
 
-        $affected = $this->findMetrics('api.sync.entities.affected');
+        $affected = $this->meter->getMetrics('api.sync.entities.affected');
         static::assertCount(2, $affected);
 
         $upsert = $this->getAffected('product', 'upsert');
-        static::assertInstanceOf(ConfiguredMetric::class, $upsert);
         // product + product_price both bucket to the product group → 2 + 1 summed
         static::assertSame(3, $upsert->value);
 
         $delete = $this->getAffected('order', 'delete');
-        static::assertInstanceOf(ConfiguredMetric::class, $delete);
         static::assertSame(1, $delete->value);
     }
 
@@ -111,7 +105,6 @@ class SyncMetricsInstrumentorTest extends TestCase
         );
 
         $upsert = $this->getAffected('other', 'upsert');
-        static::assertInstanceOf(ConfiguredMetric::class, $upsert);
         static::assertSame(1, $upsert->value);
     }
 
@@ -124,7 +117,7 @@ class SyncMetricsInstrumentorTest extends TestCase
                 [$this->operation('product')],
                 new SyncBehavior(),
                 function (): SyncResult {
-                    throw new \RuntimeException('boom');
+                    throw new \RuntimeException('sync operation failed');
                 },
             );
         } catch (\RuntimeException $e) {
@@ -132,12 +125,11 @@ class SyncMetricsInstrumentorTest extends TestCase
         }
 
         static::assertNotNull($thrown, 'the original exception must propagate');
-        static::assertSame('boom', $thrown->getMessage());
+        static::assertSame('sync operation failed', $thrown->getMessage());
 
-        $duration = $this->getMetric('api.sync.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
-        static::assertSame([], $this->findMetrics('api.sync.entities.affected'));
+        $labels = $this->meter->getLabels('api.sync.duration');
+        static::assertSame('failed', $labels['result']);
+        static::assertSame([], $this->meter->getMetrics('api.sync.entities.affected'));
     }
 
     public function testMeasureReturnsSyncResultFromCallback(): void
@@ -153,44 +145,24 @@ class SyncMetricsInstrumentorTest extends TestCase
         static::assertSame($result, $returned);
     }
 
-    private function getMetric(string $name): ?ConfiguredMetric
+    private function getAffected(string $group, string $action): ConfiguredMetric
     {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
+        foreach ($this->meter->getMetrics('api.sync.entities.affected') as $metric) {
+            $labels = $metric->labels;
+            static::assertIsArray($labels);
+            if ($labels['entity_group'] === $group && $labels['action'] === $action) {
                 return $metric;
             }
         }
 
-        return null;
-    }
-
-    /**
-     * @return list<ConfiguredMetric>
-     */
-    private function findMetrics(string $name): array
-    {
-        return \array_values(\array_filter($this->emitted, fn (ConfiguredMetric $metric): bool => $metric->name === $name));
-    }
-
-    private function getAffected(string $group, string $action): ?ConfiguredMetric
-    {
-        foreach ($this->findMetrics('api.sync.entities.affected') as $metric) {
-            if ($metric->labels['entity_group'] === $group && $metric->labels['action'] === $action) {
-                return $metric;
-            }
-        }
-
-        return null;
+        static::fail(\sprintf('No api.sync.entities.affected metric for group "%s" and action "%s"', $group, $action));
     }
 
     private function createInstrumentor(): SyncMetricsInstrumentor
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
-        return new SyncMetricsInstrumentor($meter, new EntityGroupResolver());
+        return new SyncMetricsInstrumentor(new Telemetry($this->meter, 'test'), new EntityGroupResolver());
     }
 
     private function operation(string $entity): SyncOperation

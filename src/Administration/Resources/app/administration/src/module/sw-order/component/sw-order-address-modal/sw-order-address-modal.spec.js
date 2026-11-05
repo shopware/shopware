@@ -31,9 +31,7 @@ async function createWrapper({ featureActive = false } = {}) {
                 'sw-tabs-item': true,
                 'mt-tabs': {
                     name: 'mt-tabs',
-                    emits: [
-                        'new-item-active',
-                    ],
+                    emits: ['new-item-active'],
                     props: {
                         defaultItem: {
                             type: String,
@@ -52,9 +50,7 @@ async function createWrapper({ featureActive = false } = {}) {
                     template: '<div class="mt-tabs"></div>',
                 },
                 'mt-button': {
-                    emits: [
-                        'click',
-                    ],
+                    emits: ['click'],
                     props: [
                         'block',
                         'disabled',
@@ -166,7 +162,7 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         });
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'addresses');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('addresses');
         expect(wrapper.vm.selectedAddressId).toBe(0);

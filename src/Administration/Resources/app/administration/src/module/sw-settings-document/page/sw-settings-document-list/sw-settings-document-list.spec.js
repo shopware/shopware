@@ -104,9 +104,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'document.editor',
-        ]);
+        const wrapper = await createWrapper(['document.editor']);
         await flushPromises();
 
         const editButton = wrapper.findComponent('.sw-document-list__edit-action');
@@ -124,9 +122,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'document.deleter',
-        ]);
+        const wrapper = await createWrapper(['document.deleter']);
         await flushPromises();
 
         const deleteButton = wrapper.findComponent('.sw-document-list__delete-action');

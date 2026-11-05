@@ -61,6 +61,19 @@ class PlaceholderValuesTest extends TestCase
         PlaceholderValues::from($values);
     }
 
+    #[TestDox('retains mapping-shaped keys because authored spans are preserved during substitution')]
+    public function testFromRetainsMappingShapedKeys(): void
+    {
+        $values = [
+            'productId' => 'abc',
+            'map:product.name' => 'injected',
+            ' map:product.name' => 'also injected',
+            'mapper' => 'retained',
+        ];
+
+        static::assertSame($values, PlaceholderValues::from($values)->all());
+    }
+
     /**
      * @return \Generator<string, array{array<string, string|int|bool|float>}>
      */

@@ -41,6 +41,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ContentSystemRenderingError"
                     }
                 },
                 "security": [{ "ApiKey": [] }]
@@ -85,6 +88,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ContentSystemRenderingError"
                     }
                 },
                 "security": [{ "ApiKey": [] }]
@@ -173,6 +179,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ContentSystemRenderingError"
                     }
                 },
                 "security": [{ "ApiKey": [] }]

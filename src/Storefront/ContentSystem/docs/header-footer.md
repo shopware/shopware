@@ -1,7 +1,5 @@
 # Header and Footer Sections
 
-The Store API endpoints that serve the header and footer sections, the shape of an assignment record, and how one layout is picked per request.
-
 Header and footer layouts use domain-aware resolution instead of entity-based rendering. They are independent of the main content and do not require a URL path.
 
 **Header endpoints:**
@@ -28,23 +26,16 @@ Header and footer layouts use domain-aware resolution instead of entity-based re
 
 ## Header/Footer Assignment Structure
 
-```json
-{
-  "id": "<uuid>",
-  "domainId": "<domain-uuid>|null",
-  "salesChannelId": "<sales-channel-uuid>|null",
-  "contentLayoutId": "<layout-uuid>"
-}
-```
-
-Fields:
-- `domainId` - Sales channel domain scope (`null` = not domain-specific)
+An assignment record has these fields:
+- `domainId` - Sales channel domain scope (`null` = not domain-specific); requires `salesChannelId`, enforced in the database by the CHECK constraint `chk.<table>.domain_requires_channel` on both tables above, not only by DAL validation
 - `salesChannelId` - Sales channel scope (`null` = global)
 - `contentLayoutId` - Layout to use
 
+The pair (`domainId`, `salesChannelId`) is unique per table: index `uniq.<table>.domain_channel`.
+
 ## Domain-Aware Resolution
 
-Resolution priority (three-tier fallback): **domain + sales channel** > **sales channel only** > **global** (both null).
+Resolution priority (three-tier fallback) via `DomainAwareLayoutResolver` (Core `Adapter/FactoryHelper`): **domain + sales channel** > **sales channel only** > **global** (both null).
 
 Example: A shop with domains `shop.com` and `shop.de` can have different headers per domain, with a fallback header for the entire sales channel, and a global fallback for all channels.
 

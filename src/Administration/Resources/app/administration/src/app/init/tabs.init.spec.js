@@ -49,6 +49,12 @@ describe('src/app/init/tabs.init', () => {
                 path: '/sw/settings/usage/data/index',
                 component: { template: '<div></div>' },
             },
+            {
+                // Mirrors the catch-all route of the core routes, which matches every unknown URL
+                name: 'sw.not.found.index',
+                path: '/:pathMatch(.*)*',
+                component: { template: '<div></div>' },
+            },
         ];
 
         // Mock for router
@@ -67,7 +73,7 @@ describe('src/app/init/tabs.init', () => {
             description: 'sw-category.general.descriptionTextModule',
             version: '1.0.0',
             targetVersion: '1.0.0',
-            color: '#57D9A3',
+            color: 'var(--sw-color-module-green-default)',
             icon: 'regular-products',
             favicon: 'icon-module-products.svg',
             entity: 'category',
@@ -90,8 +96,8 @@ describe('src/app/init/tabs.init', () => {
             description: 'sw-settings-usage-data.general.description',
             version: '1.0.0',
             targetVersion: '1.0.0',
-            color: '#9AA8B5',
-            icon: 'regular-cog',
+            color: 'var(--sw-color-module-neutral-default)',
+            icon: 'regular-shield',
             favicon: 'icon-module-settings.svg',
             entity: 'store_settings',
             routes: {
@@ -232,7 +238,7 @@ describe('src/app/init/tabs.init', () => {
                         description: 'sw-category.general.descriptionTextModule',
                         version: '1.0.0',
                         targetVersion: '1.0.0',
-                        color: '#57D9A3',
+                        color: 'var(--sw-color-module-green-default)',
                         icon: 'regular-products',
                         favicon: 'icon-module-products.svg',
                         entity: 'category',
@@ -267,13 +273,44 @@ describe('src/app/init/tabs.init', () => {
                         description: 'sw-settings-usage-data.general.description',
                         version: '1.0.0',
                         targetVersion: '1.0.0',
-                        color: '#9AA8B5',
-                        icon: 'regular-cog',
+                        color: 'var(--sw-color-module-neutral-default)',
+                        icon: 'regular-shield',
                         favicon: 'icon-module-settings.svg',
                         entity: 'store_settings',
                     }),
                 }),
             }),
         );
+    });
+
+    it('should create the tab route when the tab gets registered after its URL was opened', async () => {
+        await Shopware.Application._resolveViewInitialized();
+
+        // E.g. a page reload, where the URL is opened before the extension registered its tab
+        await routerMock.push('/sw/category/index/eXaMpLeId/late-component-section-id');
+        expect(routerMock.currentRoute.value.name).toBe('sw.not.found.index');
+
+        await ui.tabs('late-position-id').addTabItem({
+            label: 'My late tab item',
+            componentSectionId: 'late-component-section-id',
+        });
+        await flushPromises();
+
+        expect(routerMock.currentRoute.value.name).toBe('sw.category.index.late-component-section-id');
+        expect(routerMock.currentRoute.value.fullPath).toBe('/sw/category/index/eXaMpLeId/late-component-section-id');
+    });
+
+    it('should keep the not found page for tab URLs below an unknown route', async () => {
+        await ui.tabs('unknown-parent-position-id').addTabItem({
+            label: 'My tab item below an unknown route',
+            componentSectionId: 'unknown-parent-component-section-id',
+        });
+
+        await Shopware.Application._resolveViewInitialized();
+
+        await routerMock.push('/sw/does-not/exist/unknown-parent-component-section-id');
+
+        expect(routerMock.currentRoute.value.name).toBe('sw.not.found.index');
+        expect(routerMock.hasRoute('sw.not.found.index.unknown-parent-component-section-id')).toBe(false);
     });
 });

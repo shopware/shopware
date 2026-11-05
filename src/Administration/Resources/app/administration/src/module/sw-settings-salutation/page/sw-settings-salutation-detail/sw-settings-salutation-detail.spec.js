@@ -129,10 +129,8 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () => {
     it('should be able to save a salutation if have a editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.editor']);
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
@@ -156,7 +154,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
 
     it('should not be able to save a salutation if not have editor privilege', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
@@ -180,11 +178,8 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
     });
 
     it('should not be able to save a salutation if have privileges which do not contain editor privilege', async () => {
-        const wrapper = await createWrapper([
-            'salutation.creator',
-            'salutation.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['salutation.creator', 'salutation.deleter']);
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 

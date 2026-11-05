@@ -8,10 +8,7 @@ import './sw-bulk-edit-save-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'bulk-save',
-    ],
+    emits: ['modal-close', 'bulk-save'],
 
     props: {
         itemTotal: {
@@ -54,6 +51,11 @@ export default {
                 return {};
             },
         },
+        failedItems: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {
@@ -64,6 +66,10 @@ export default {
     },
 
     computed: {
+        stepProps() {
+            return String(this.$route.name ?? '').endsWith('.error') ? { failedItems: this.failedItems } : {};
+        },
+
         currentStep() {
             if (this.isLoading && !this.processStatus) {
                 return 'process';

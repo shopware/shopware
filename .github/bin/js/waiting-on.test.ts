@@ -1,0 +1,473 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import {
+    applyLabelChanges,
+    buildRows,
+    classifyPullRequest,
+    daysSince,
+    isHuman,
+    isNonHumanLogin,
+    NON_HUMAN_LOGINS,
+    PARKED_LABEL,
+    planLabelChanges,
+    type PullRequestFacts,
+    summarizeActivity,
+    summarizeOpenThreads,
+    type TimelineEvent,
+    toReviewThreadEvents,
+    toTimelineEvents,
+    WAITING_ON_LABEL,
+} from './waiting-on.ts';
+
+const BASE: PullRequestFacts = {
+    createdAt: '2026-06-01T00:00:00Z',
+    isDraft: false,
+    isParked: false,
+    reviewDecision: 'REVIEW_REQUIRED',
+    mergeable: 'MERGEABLE',
+    approvals: 0,
+    reviewCount: 0,
+};
+
+const classify = (facts: Partial<PullRequestFacts>) => classifyPullRequest({ ...BASE, ...facts });
+
+test('a draft a maintainer parked is back with the author', () => {
+    // Regression: this is #17689, which a maintainer converted to a draft on 2026-07-20
+    // after a month of silence.
+    const verdict = classify({
+        isDraft: true,
+        draftedByMaintainerAt: '2026-07-20T10:00:00Z',
+        lastAuthorActivityAt: '2026-07-07T10:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'parked-by-us');
+    assert.equal(verdict.since, '2026-07-20T10:00:00Z');
+});
+
+test('a draft that is still the authors own work waits for nobody', () => {
+    const verdict = classify({ isDraft: true, lastAuthorActivityAt: '2026-08-01T00:00:00Z' });
+
+    assert.equal(verdict.waitingOn, 'nobody');
+    assert.equal(verdict.reason, 'wip-draft');
+});
+
+test(`\`${PARKED_LABEL}\` takes a pull request out of the report`, () => {
+    const verdict = classify({ isParked: true, reviewDecision: 'CHANGES_REQUESTED', lastChangesRequestedAt: '2026-06-02T00:00:00Z' });
+
+    assert.equal(verdict.waitingOn, 'nobody');
+    assert.equal(verdict.reason, 'parked-by-label');
+});
+
+test('changes requested and no answer is the author', () => {
+    // Regression: this is #17314, where the author last pushed in June and a maintainer
+    // requested changes on 2026-09-01.
+    const verdict = classify({
+        reviewDecision: 'CHANGES_REQUESTED',
+        reviewCount: 1,
+        lastAuthorActivityAt: '2026-06-08T15:33:02Z',
+        lastMaintainerActivityAt: '2026-09-01T09:00:34Z',
+        lastChangesRequestedAt: '2026-09-01T09:00:34Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'changes-requested');
+    assert.equal(verdict.since, '2026-09-01T09:00:34Z');
+});
+
+test('changes requested but answered is ours again, though the decision still says otherwise', () => {
+    // Regression: this is #11516. A maintainer requested changes on 2026-05-26, the author
+    // answered on 2026-05-28, and `reviewDecision` reads CHANGES_REQUESTED to this day.
+    const verdict = classify({
+        reviewDecision: 'CHANGES_REQUESTED',
+        reviewCount: 2,
+        approvals: 1,
+        lastChangesRequestedAt: '2026-05-26T00:00:00Z',
+        lastMaintainerActivityAt: '2026-05-26T00:00:00Z',
+        lastAuthorActivityAt: '2026-05-28T00:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 're-review-pending');
+    assert.equal(verdict.since, '2026-05-28T00:00:00Z');
+});
+
+test('changes requested, answered, and answered back is the author again', () => {
+    // Regression: this is #20934. Changes were requested on 2026-09-28, the author answered
+    // the next day, and on 2026-10-14 a maintainer asked for one more change in the same
+    // thread. The decision still reads CHANGES_REQUESTED and the first answer must not pin
+    // the verdict on us.
+    const verdict = classify({
+        reviewDecision: 'CHANGES_REQUESTED',
+        reviewCount: 3,
+        approvals: 2,
+        lastChangesRequestedAt: '2026-09-28T12:08:10Z',
+        lastAuthorActivityAt: '2026-10-13T08:42:02Z',
+        lastMaintainerActivityAt: '2026-10-14T07:41:56Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'author-turn');
+    assert.equal(verdict.since, '2026-10-14T07:41:56Z');
+});
+
+test('an approved pull request that conflicts needs the author', () => {
+    // Regression: this is #18502, approved twice on 2026-07-22 and asked for a conflict fix.
+    const verdict = classify({
+        reviewDecision: 'APPROVED',
+        reviewCount: 3,
+        approvals: 2,
+        mergeable: 'CONFLICTING',
+        lastMaintainerActivityAt: '2026-07-22T00:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'needs-rebase');
+});
+
+test('an approved pull request that merges cleanly is only waiting for us', () => {
+    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastMaintainerActivityAt: '2026-08-01T00:00:00Z' });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'just-merge-it');
+});
+
+test('an approved pull request with a question the author left open is theirs', () => {
+    // Regression: this is #20750, approved three times while two inline questions to the
+    // author stayed open, so `trunk` refused the merge that `just-merge-it` promised.
+    const verdict = classify({
+        reviewDecision: 'APPROVED',
+        reviewCount: 3,
+        approvals: 3,
+        lastMaintainerActivityAt: '2026-10-07T12:06:16Z',
+        lastOpenQuestionAt: '2026-10-07T12:00:29Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'open-question');
+    assert.equal(verdict.since, '2026-10-07T12:00:29Z');
+});
+
+test('an approved pull request whose open threads the author answered is ours to resolve', () => {
+    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastOpenAnswerAt: '2026-10-08T09:00:00Z' });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'open-thread-answered');
+    assert.equal(verdict.since, '2026-10-08T09:00:00Z');
+});
+
+test('one open question outweighs an answered thread, and a conflict outweighs both', () => {
+    const open = { reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastOpenQuestionAt: '2026-10-01T00:00:00Z', lastOpenAnswerAt: '2026-10-08T00:00:00Z' } as const;
+
+    assert.equal(classify(open).reason, 'open-question');
+    assert.equal(classify({ ...open, mergeable: 'CONFLICTING' }).reason, 'needs-rebase');
+});
+
+test('summarizeOpenThreads reads who wrote last in each unresolved thread and skips the rest', () => {
+    const comment = (login: string, createdAt: string, __typename = 'User') => ({ createdAt, author: { login, __typename } });
+
+    const open = summarizeOpenThreads(
+        [
+            { isResolved: false, comments: { nodes: [comment('larskemper', '2026-09-25T07:38:17Z')] } },
+            { isResolved: false, comments: { nodes: [comment('vintagesucks', '2026-10-07T12:00:00Z'), comment('littfed', '2026-10-08T08:00:00Z')] } },
+            { isResolved: true, comments: { nodes: [comment('marcelbrode', '2026-10-09T08:00:00Z')] } },
+            { isResolved: false, comments: { nodes: [comment('littfed', '2026-10-09T09:00:00Z'), comment('Copilot', '2026-10-10T08:00:00Z', 'Bot')] } },
+            { isResolved: false, comments: { nodes: [comment('copilot-pull-request-reviewer', '2026-10-11T08:00:00Z', 'Bot')] } },
+        ],
+        'littfed',
+    );
+
+    assert.deepEqual(open, { lastOpenQuestionAt: '2026-09-25T07:38:17Z', lastOpenAnswerAt: '2026-10-09T09:00:00Z' });
+});
+
+test('unresolved mergeability lands on us rather than on the contributor', () => {
+    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, mergeable: 'UNKNOWN' });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'mergeability-unknown');
+});
+
+test('one approval short of the required count is ours, not an unreviewed pull request', () => {
+    // Regression: this is #9265, approved on 2025-05-12 and never merged. `trunk` wants two
+    // approvals, so the decision reads REVIEW_REQUIRED and hides it.
+    const verdict = classify({
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 1,
+        approvals: 1,
+        lastMaintainerActivityAt: '2025-05-12T00:00:00Z',
+        lastAuthorActivityAt: '2025-05-12T00:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'second-review-missing');
+    assert.equal(verdict.since, '2025-05-12T00:00:00Z');
+});
+
+test('a pull request nobody ever reviewed dates from when it was offered, not opened', () => {
+    // Regression: this is #18872, 40 days open without a single review.
+    const verdict = classify({
+        createdAt: '2026-07-31T00:00:00Z',
+        readyForReviewAt: '2026-08-02T00:00:00Z',
+        lastAuthorActivityAt: '2026-07-31T00:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'never-reviewed');
+    assert.equal(verdict.since, '2026-08-02T00:00:00Z');
+});
+
+test('a maintainer writing last puts it back with the author', () => {
+    const verdict = classify({
+        reviewCount: 2,
+        lastAuthorActivityAt: '2026-07-01T00:00:00Z',
+        lastMaintainerActivityAt: '2026-07-30T00:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'author-turn');
+});
+
+test('the author writing last leaves it with us', () => {
+    const verdict = classify({
+        reviewCount: 2,
+        lastAuthorActivityAt: '2026-07-30T00:00:00Z',
+        lastMaintainerActivityAt: '2026-07-01T00:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'our-turn');
+});
+
+test('timestamps decide, so a same-day flip turns on the time of day', () => {
+    const ours = classify({ reviewCount: 2, lastAuthorActivityAt: '2026-07-01T12:00:00Z', lastMaintainerActivityAt: '2026-07-01T09:00:00Z' });
+
+    assert.equal(ours.waitingOn, 'shopware');
+    assert.equal(ours.reason, 'our-turn');
+});
+
+test('an author who withdrew reads as the authors turn, which is the documented blind spot', () => {
+    // This is #5420: the author gave up on 2025-02-04 and a maintainer answered
+    // "we will take over it" three hours later. The rule reads the order of events, not
+    // the sentences, so it says `author` where a person says `shopware`. Such a pull
+    // request needs the label, not a cleverer rule.
+    const verdict = classify({
+        reviewCount: 2,
+        lastAuthorActivityAt: '2025-02-04T09:00:00Z',
+        lastMaintainerActivityAt: '2025-02-04T12:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(classify({ isParked: true, reviewCount: 2 }).waitingOn, 'nobody');
+});
+
+test('the rule never reads updated_at, so a label sweep cannot move a verdict', () => {
+    // The 2026-08-24 milestone rotation bumped `updated_at` on 71 of 273 open pull
+    // requests. Nothing in PullRequestFacts can carry that.
+    assert.ok(!Object.keys(BASE).some((key) => key.toLowerCase().includes('updated')));
+});
+
+test('daysSince counts whole days', () => {
+    assert.equal(daysSince('2026-09-01T00:00:00Z', new Date('2026-09-10T12:00:00Z')), 9);
+});
+
+const event = (partial: Partial<TimelineEvent> & Pick<TimelineEvent, 'kind' | 'at'>): TimelineEvent => ({ ...partial });
+
+test('summarizeActivity splits author from maintainer', () => {
+    const activity = summarizeActivity(
+        [
+            event({ kind: 'commit', at: '2026-06-08T15:33:02Z', actor: 'M-arcus' }),
+            event({ kind: 'review', at: '2026-09-01T09:00:34Z', actor: 'umutdogan4291' }),
+        ],
+        [{ state: 'CHANGES_REQUESTED', submittedAt: '2026-09-01T09:00:34Z' }],
+        'M-arcus',
+    );
+
+    assert.equal(activity.lastAuthorActivityAt, '2026-06-08T15:33:02Z');
+    assert.equal(activity.lastMaintainerActivityAt, '2026-09-01T09:00:34Z');
+    assert.equal(activity.lastChangesRequestedAt, '2026-09-01T09:00:34Z');
+});
+
+test('bot comments are not maintainer activity', () => {
+    const activity = summarizeActivity(
+        [
+            event({ kind: 'commit', at: '2026-06-08T15:33:02Z', actor: 'M-arcus' }),
+            event({ kind: 'comment', at: '2026-06-08T15:43:35Z', actor: 'github-actions', isBot: true }),
+            event({ kind: 'comment', at: '2026-06-08T15:46:13Z', actor: 'codecov', isBot: true }),
+        ],
+        [],
+        'M-arcus',
+    );
+
+    assert.equal(activity.lastMaintainerActivityAt, undefined);
+});
+
+test('a service account posting as a plain User is not maintainer activity either', () => {
+    // GitHub reports CLAassistant as a `User`, so only the login list catches it.
+    assert.ok(NON_HUMAN_LOGINS.includes('CLAassistant'));
+
+    const activity = summarizeActivity([event({ kind: 'comment', at: '2026-07-31T00:00:00Z', actor: 'CLAassistant' })], [], 'GerDner');
+
+    assert.equal(activity.lastMaintainerActivityAt, undefined);
+});
+
+test('a commit whose committer GitHub cannot resolve still counts as author activity', () => {
+    const activity = summarizeActivity([event({ kind: 'commit', at: '2026-08-01T00:00:00Z' })], [], 'someone');
+
+    assert.equal(activity.lastAuthorActivityAt, '2026-08-01T00:00:00Z');
+});
+
+test('a comment with no resolvable author is dropped rather than counted', () => {
+    assert.equal(isHuman(event({ kind: 'comment', at: '2026-08-01T00:00:00Z' })), false);
+});
+
+test('a review superseded by its author no longer blocks', () => {
+    // latestOpinionatedReviews only returns the newest opinion per reviewer, so an
+    // approval that followed a rejection leaves nothing at CHANGES_REQUESTED.
+    const activity = summarizeActivity([], [{ state: 'APPROVED', submittedAt: '2026-08-01T00:00:00Z' }], 'someone');
+
+    assert.equal(activity.lastChangesRequestedAt, undefined);
+});
+
+test('the author converting their own pull request to a draft is not us parking it', () => {
+    const activity = summarizeActivity([event({ kind: 'convert-to-draft', at: '2026-08-01T00:00:00Z', actor: 'author' })], [], 'author');
+
+    assert.equal(activity.draftedByMaintainerAt, undefined);
+    assert.equal(activity.lastAuthorActivityAt, '2026-08-01T00:00:00Z');
+});
+
+test('toTimelineEvents reads each shape GitHub returns', () => {
+    const events = toTimelineEvents([
+        { __typename: 'IssueComment', createdAt: '2026-01-01T00:00:00Z', author: { login: 'codecov', __typename: 'Bot' } },
+        { __typename: 'PullRequestReview', submittedAt: '2026-01-02T00:00:00Z', author: { login: 'mitelg', __typename: 'User' } },
+        { __typename: 'PullRequestCommit', commit: { committedDate: '2026-01-03T00:00:00Z', author: { user: { login: 'aragon999' } } } },
+        { __typename: 'ConvertToDraftEvent', createdAt: '2026-01-04T00:00:00Z', actor: { login: 'marcelbrode', __typename: 'User' } },
+        { __typename: 'LabeledEvent', createdAt: '2026-01-05T00:00:00Z' },
+    ]);
+
+    assert.deepEqual(
+        events.map(({ kind, actor, isBot }) => ({ kind, actor, isBot })),
+        [
+            { kind: 'comment', actor: 'codecov', isBot: true },
+            { kind: 'review', actor: 'mitelg', isBot: false },
+            { kind: 'commit', actor: 'aragon999', isBot: false },
+            { kind: 'convert-to-draft', actor: 'marcelbrode', isBot: false },
+        ],
+    );
+});
+
+const node = (overrides: Record<string, unknown> = {}) => ({
+    id: 'PR_1',
+    number: 1,
+    title: 'a pull request',
+    url: 'https://github.com/shopware/shopware/pull/1',
+    createdAt: '2026-08-01T00:00:00Z',
+    isDraft: false,
+    authorAssociation: 'CONTRIBUTOR',
+    reviewDecision: null,
+    mergeable: 'MERGEABLE',
+    author: { login: 'someone', __typename: 'User' },
+    labels: { nodes: [] },
+    approvals: { totalCount: 0 },
+    allReviews: { totalCount: 0 },
+    latestOpinionatedReviews: { nodes: [] },
+    reviewThreads: { nodes: [] },
+    timelineItems: { nodes: [] },
+    ...overrides,
+}) as Parameters<typeof buildRows>[0][number];
+
+test('buildRows drops bot-authored pull requests and sorts the oldest first', () => {
+    const rows = buildRows(
+        [
+            node({ number: 10, createdAt: '2026-09-01T00:00:00Z' }),
+            node({ number: 11, author: { login: 'dependabot', __typename: 'Bot' } }),
+            node({ number: 12, createdAt: '2026-01-01T00:00:00Z' }),
+            node({ number: 13, author: { login: 'shopware-octo-sts-app-2', __typename: 'User' } }),
+        ],
+        new Date('2026-09-10T00:00:00Z'),
+    );
+
+    assert.deepEqual(rows.map((row) => row.number), [12, 10]);
+    assert.equal(rows[0].label, WAITING_ON_LABEL.shopware);
+    assert.equal(rows[0].days, 252);
+});
+
+test('an app pushing a commit is not the author working, whatever the field type says', () => {
+    // The live run turned up `dependabot[bot]`, `Copilot`, `cursoragent` and `shopwareBot`
+    // among the logins counted as people; the suffix rule and the list cover them.
+    assert.equal(isNonHumanLogin('dependabot[bot]'), true);
+    assert.equal(isNonHumanLogin('Copilot'), true);
+    assert.equal(isNonHumanLogin('cursoragent'), true);
+    assert.equal(isNonHumanLogin('shopwareBot'), true);
+    assert.equal(isNonHumanLogin('mitelg'), false);
+
+    const activity = summarizeActivity([event({ kind: 'commit', at: '2026-08-01T00:00:00Z', actor: 'dependabot[bot]' })], [], 'someone');
+
+    assert.equal(activity.lastAuthorActivityAt, undefined);
+});
+
+test('a lone reply inside a review thread is activity the timeline does not report', () => {
+    // Regression: this is #16259. The author answered on 2026-07-21 with a single inline
+    // reply, which produces no timeline item, and reading the timeline alone dated the
+    // pull request to April.
+    const events = toReviewThreadEvents([
+        { isResolved: true, comments: { nodes: [{ createdAt: '2026-07-21T09:00:00Z', author: { login: 'gecolay', __typename: 'User' } }] } },
+        { isResolved: true, comments: { nodes: [{ createdAt: '2026-07-21T12:24:31Z', author: { login: 'keulinho', __typename: 'User' } }] } },
+    ]);
+
+    const activity = summarizeActivity(events, [{ state: 'CHANGES_REQUESTED', submittedAt: '2026-04-28T07:55:58Z' }], 'gecolay');
+
+    assert.equal(activity.lastAuthorActivityAt, '2026-07-21T09:00:00Z');
+    assert.equal(activity.lastMaintainerActivityAt, '2026-07-21T12:24:31Z');
+});
+
+const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: names.map((name) => ({ name })) } });
+
+test('planLabelChanges sets the verdict and swaps out a stale one', () => {
+    const nodes = [labelled(1), labelled(2, 'waiting-on/author', 'component/core'), labelled(3, 'waiting-on/shopware')];
+    const changes = planLabelChanges(nodes, buildRows(nodes, new Date('2026-09-10T00:00:00Z')));
+
+    assert.deepEqual(changes, [
+        { number: 1, add: WAITING_ON_LABEL.shopware, remove: [] },
+        { number: 2, add: WAITING_ON_LABEL.shopware, remove: ['waiting-on/author'] },
+    ]);
+});
+
+test('planLabelChanges strips the label from a pull request a bot opened', () => {
+    const nodes = [node({ number: 4, author: { login: 'dependabot', __typename: 'Bot' }, labels: { nodes: [{ name: 'waiting-on/shopware' }] } })];
+
+    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [{ number: 4, add: undefined, remove: ['waiting-on/shopware'] }]);
+});
+
+test('applyLabelChanges carries on past a failing pull request and reports it', async () => {
+    const calls: string[] = [];
+    const github = {
+        rest: {
+            issues: {
+                addLabels: async ({ issue_number, labels }: { issue_number: number; labels: string[] }) => {
+                    if (issue_number === 1) {
+                        throw new Error('Not Found');
+                    }
+                    calls.push(`add #${issue_number} ${labels.join()}`);
+                },
+                removeLabel: async ({ issue_number, name }: { issue_number: number; name: string }) => {
+                    calls.push(`remove #${issue_number} ${name}`);
+                },
+            },
+        },
+    };
+    const core = { info() {}, warning() {}, error() {}, setOutput() {}, summary: { addRaw() {}, write: async () => {} } };
+
+    const failed = await applyLabelChanges(
+        github,
+        core,
+        { owner: 'shopware', repo: 'shopware' },
+        [
+            { number: 1, add: WAITING_ON_LABEL.author, remove: [] },
+            { number: 2, add: WAITING_ON_LABEL.author, remove: ['waiting-on/shopware'] },
+        ],
+        0,
+    );
+
+    assert.deepEqual(failed, [1]);
+    assert.deepEqual(calls, ['add #2 waiting-on/author', 'remove #2 waiting-on/shopware']);
+});

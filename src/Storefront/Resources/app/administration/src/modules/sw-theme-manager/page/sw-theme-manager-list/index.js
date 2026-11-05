@@ -13,11 +13,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('theme'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('theme')],
 
     data() {
         return {
@@ -130,10 +126,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.sortBy,
-                this.sortDirection,
-            ] = value.split(':');
+            [this.sortBy, this.sortDirection] = value.split(':');
             this.resetList();
         },
 

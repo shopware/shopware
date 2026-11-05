@@ -4,10 +4,12 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -21,11 +23,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Must run after McpToolDiscoveryCompilerPass.
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class McpToolAnalysisCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition('mcp.server.builder')) {
+        if (!$container->hasDefinition('mcp.server.admin.builder')) {
             return;
         }
 
@@ -159,6 +162,12 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             }
 
             $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
+
+            // The discovery group is reserved for the core meta-tools (see McpToolDiscoveryCompilerPass).
+            if (McpToolsetRegistry::isReservedGroupClaim($group, $tool->name)) {
+                $group = McpToolsetRegistry::FALLBACK_GROUP;
+            }
+
             if ($group !== null && $group !== '') {
                 $groupMap[$tool->name] = $group;
             }

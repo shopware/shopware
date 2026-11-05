@@ -90,7 +90,7 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
 describe('module/sw-customer/page/sw-customer-create', () => {
     it('should have valid email validation response when no email is given', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             customer: {
@@ -127,7 +127,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         });
         const saveButton = wrapper.find('.sw-customer-create__save-action');
         await saveButton.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(notificationMock).toHaveBeenCalledTimes(2);
         expect(notificationMock).toHaveBeenCalledWith({
@@ -196,6 +196,55 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         const context = await wrapper.vm.onSave();
 
         expect(context.languageId).toEqual(Shopware.Context.api.languageId);
+    });
+
+    it('should default the customer language to the API context language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.customer.languageId).toBe(Shopware.Context.api.languageId);
+    });
+
+    it('should update the customer language when the sales channel changes', async () => {
+        const languageRepositorySearchIdsMock = jest.fn(() =>
+            Promise.resolve({
+                total: 1,
+                data: ['salesChannelLanguageId'],
+            }),
+        );
+        const wrapper = await createWrapper({ languageRepositorySearchIdsMock });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: {
+                ...wrapper.vm.customer,
+                salesChannelId: 'a7921464677a4ef591683d144beecd24',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.customer.languageId).toBe('salesChannelLanguageId');
+    });
+
+    it('should fall back to the API context language when the sales channel has no matching language', async () => {
+        const languageRepositorySearchIdsMock = jest.fn(() =>
+            Promise.resolve({
+                total: 0,
+                data: [],
+            }),
+        );
+        const wrapper = await createWrapper({ languageRepositorySearchIdsMock });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: {
+                ...wrapper.vm.customer,
+                salesChannelId: 'a7921464677a4ef591683d144beecd24',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.customer.languageId).toBe(Shopware.Context.api.languageId);
     });
 
     it('should get default salutation is value not specified', async () => {

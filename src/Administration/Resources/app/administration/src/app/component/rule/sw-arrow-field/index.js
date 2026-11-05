@@ -15,10 +15,7 @@ export default {
                     'is--disabled': this.disabled,
                 },
             },
-            [
-                typeof this.$slots.default === 'function' ? this.$slots.default() : this.$slots.default,
-                this.getArrow(),
-            ],
+            [typeof this.$slots.default === 'function' ? this.$slots.default() : this.$slots.default, this.getArrow()],
         );
     },
     props: {

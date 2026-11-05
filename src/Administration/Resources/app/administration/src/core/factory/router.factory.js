@@ -249,17 +249,18 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         core.map((route) => {
             if (route.root === true) {
-                route.children = moduleNormalRoutes;
+                // Keep children defined on the root route itself, e.g. the catch-all route for unknown URLs.
+                // The login-only boot has no module routes, so the catch-all would match every Administration URL there.
+                route.children = LoginService.isLoggedIn()
+                    ? [...moduleNormalRoutes, ...(route.children ?? [])]
+                    : moduleNormalRoutes;
             }
 
             return route;
         });
 
         // Merge the module core routes with the routes from the routes file
-        core = [
-            ...core,
-            ...moduleRootRoutes,
-        ];
+        core = [...core, ...moduleRootRoutes];
         return core;
     }
 
@@ -324,6 +325,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         if (typeof route.component === 'string') {
             route.component = getViewComponent(route.component);
+            route = iterateChildRoutes(route);
         }
 
         return route;
@@ -399,23 +401,18 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         };
 
         // Writing an unchanged attribute makes the browser drop the icon and flash the default one.
-        Object.entries(attributes).forEach(
-            ([
-                name,
-                value,
-            ]) => {
-                if (value === null) {
-                    if (favRef.hasAttribute(name)) {
-                        favRef.removeAttribute(name);
-                    }
-                    return;
+        Object.entries(attributes).forEach(([name, value]) => {
+            if (value === null) {
+                if (favRef.hasAttribute(name)) {
+                    favRef.removeAttribute(name);
                 }
+                return;
+            }
 
-                if (favRef.getAttribute(name) !== value) {
-                    favRef.setAttribute(name, value);
-                }
-            },
-        );
+            if (favRef.getAttribute(name) !== value) {
+                favRef.setAttribute(name, value);
+            }
+        });
 
         return !!moduleInfo;
     }

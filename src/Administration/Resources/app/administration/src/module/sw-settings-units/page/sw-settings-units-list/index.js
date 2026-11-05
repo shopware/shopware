@@ -13,14 +13,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl', 'unitUneceCodeService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -29,6 +24,7 @@ export default {
             unitsCriteria: null,
             units: [],
             newUnit: null,
+            uneceCodeNames: {},
         };
     },
 
@@ -45,10 +41,7 @@ export default {
 
         unitList() {
             if (this.newUnit) {
-                return [
-                    ...this.units,
-                    this.newUnit,
-                ];
+                return [...this.units, this.newUnit];
             }
 
             return this.units;
@@ -87,6 +80,7 @@ export default {
         createdComponent() {
             this.unitsCriteria = this.createUnitsCriteria();
             this.loadUnits();
+            this.loadUneceCodeNames();
         },
 
         createUnitsCriteria() {
@@ -105,6 +99,17 @@ export default {
                 this.placeholderAmount = searchResult.total;
                 this.isLoading = false;
             });
+        },
+
+        loadUneceCodeNames() {
+            this.unitUneceCodeService
+                .getUneceCodes()
+                .then((uneceCodes) => {
+                    this.uneceCodeNames = Object.fromEntries(uneceCodes.map(({ code, name }) => [code, name]));
+                })
+                .catch(() => {
+                    this.uneceCodeNames = {};
+                });
         },
 
         createNewUnit() {
@@ -174,7 +179,18 @@ export default {
                     property: 'shortCode',
                     label: 'sw-settings-units.grid.columnShortCode',
                 },
+                {
+                    property: 'uneceCode',
+                    label: 'sw-settings-units.grid.columnUneceCode',
+                },
             ];
+        },
+
+        getUneceCodeLabel(uneceCode) {
+            const snippetKey = `sw-settings-units.uneceCodes.${uneceCode}`;
+            const name = this.$te(snippetKey) ? this.$t(snippetKey) : this.uneceCodeNames[uneceCode];
+
+            return name ? `${uneceCode} - ${name}` : uneceCode;
         },
 
         onChangeLanguage() {

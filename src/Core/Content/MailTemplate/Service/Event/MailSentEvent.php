@@ -6,6 +6,7 @@ use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -27,13 +29,18 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
     /**
      * @param MailNameCombination $recipients
      * @param Contents $contents
+     * @param array<string, mixed> $data the mail data passed to the mail service, e.g. `templateId` and `salesChannelId`
+     * @param array<string, mixed> $templateData the template data the mail was rendered with, e.g. `eventName` and the order
      */
     public function __construct(
         private readonly string $subject,
         private readonly array $recipients,
         private readonly array $contents,
         private readonly Context $context,
-        private readonly ?string $eventName = null
+        private readonly ?string $eventName = null,
+        private readonly array $data = [],
+        private readonly array $templateData = [],
+        private readonly ?Email $message = null,
     ) {
     }
 
@@ -41,7 +48,7 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
     {
         return (new EventDataCollection())
             ->add(FlowMailVariables::SUBJECT, new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add(FlowMailVariables::CONTENTS, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(FlowMailVariables::CONTENTS, new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true])
             ->add(FlowMailVariables::RECIPIENTS, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
     }
 
@@ -88,14 +95,59 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
         return $this->recipients;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getTemplateData(): array
+    {
+        return $this->templateData;
+    }
+
+    public function getMessage(): ?Email
+    {
+        return $this->message;
+    }
+
+    public function getEventName(): ?string
+    {
+        return $this->eventName;
+    }
+
+    public function getTemplateId(): ?string
+    {
+        $templateId = $this->data['templateId'] ?? null;
+
+        return \is_string($templateId) ? $templateId : null;
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        $salesChannelId = $this->data['salesChannelId'] ?? null;
+
+        return \is_string($salesChannelId) ? $salesChannelId : null;
+    }
+
     public function getLogData(): array
     {
-        return [
+        $data = [
             'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
-            'contents' => $this->contents,
         ];
+
+        if (!MailLogData::isSensitive($this->data, ['eventName' => $this->eventName]) && ($this->message === null || !MailLogData::isSensitiveMessage($this->message))) {
+            $data['contents'] = $this->contents;
+        }
+
+        return $data;
     }
 
     public function getLogLevel(): Level

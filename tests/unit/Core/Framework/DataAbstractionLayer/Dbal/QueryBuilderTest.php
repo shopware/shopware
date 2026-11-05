@@ -59,6 +59,23 @@ class QueryBuilderTest extends TestCase
         static::assertSame($title, $matches[1]);
     }
 
+    public function testOrderByIsExposedAsPairsAndAsStrings(): void
+    {
+        $this->queryBuilder->orderBy('`product`.`stock`');
+        $this->queryBuilder->orderBy('`product`.`name`', 'DESC');
+        $this->queryBuilder->addOrderBy('MIN(`product`.`price`)');
+
+        static::assertSame(
+            [['`product`.`name`', 'DESC'], ['MIN(`product`.`price`)', 'ASC']],
+            $this->queryBuilder->getOrderByPairs()
+        );
+
+        static::assertSame(
+            ['`product`.`name` DESC', 'MIN(`product`.`price`) ASC'],
+            $this->queryBuilder->getOrderByParts()
+        );
+    }
+
     public function testCriteriaTitleWithControlCharactersStaysInTheSqlComment(): void
     {
         $this->queryBuilder->select('id')

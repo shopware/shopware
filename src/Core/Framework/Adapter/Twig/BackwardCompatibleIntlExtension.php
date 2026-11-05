@@ -12,7 +12,7 @@ use Twig\TwigFilter;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-decorator - will be removed in 6.8.0, invalid locales won't be supported anymore
+ * @deprecated tag:v6.8.0 - will be removed in 6.8.0, invalid locales won't be supported anymore
  *
  * We overwrite the IntlExtension to make sure that invalid locales are still supported
  * Since php 8.4.1 invalid locales will throw an exception, which leads to a breaking change
@@ -27,6 +27,10 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
 
     public function getFilters(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
         return [
             // localized formatters
             new TwigFilter('format_currency', $this->formatCurrency(...)),
@@ -79,6 +83,8 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
 
     /**
      * @param array<string, null> $attrs
+     *
+     * @phpstan-ignore shopware.deprecatedClass (delegates to formatNumber(), which contains the legacy invalid-locale behavior)
      */
     public function formatNumberStyle(string $style, mixed $number, array $attrs = [], string $type = 'default', ?string $locale = null): string
     {

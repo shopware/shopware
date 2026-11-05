@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Cms;
 
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -21,20 +21,20 @@ class DefaultMediaResolverTest extends TestCase
 
     private DefaultMediaResolver $mediaResolver;
 
-    private MockObject&AbstractDefaultMediaResolver $decorated;
+    private Stub&AbstractDefaultMediaResolver $decorated;
 
     protected function setUp(): void
     {
         $packages = static::getContainer()->get('assets.packages');
 
-        $translator = $this->createConfiguredMock(
+        $translator = static::createConfiguredStub(
             Translator::class,
             [
                 'trans' => 'foobar',
             ]
         );
 
-        $this->decorated = $this->createMock(AbstractDefaultMediaResolver::class);
+        $this->decorated = static::createStub(AbstractDefaultMediaResolver::class);
         $this->mediaResolver = new DefaultMediaResolver($this->decorated, $translator, $packages);
     }
 

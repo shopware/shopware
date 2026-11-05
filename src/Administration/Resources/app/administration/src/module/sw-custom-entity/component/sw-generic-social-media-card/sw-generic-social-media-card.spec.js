@@ -53,18 +53,11 @@ async function createWrapper() {
                 },
                 'sw-upload-listener': {
                     template: '<div class="sw-upload-listener"></div>',
-                    props: [
-                        'uploadTag',
-                        'auto-upload',
-                    ],
+                    props: ['uploadTag', 'auto-upload'],
                 },
                 'sw-media-modal-v2': {
                     template: '<div class="sw-media-modal-v2"></div>',
-                    props: [
-                        'variant',
-                        'caption',
-                        'allowMultiSelect',
-                    ],
+                    props: ['variant', 'caption', 'allowMultiSelect'],
                 },
             },
             provide: {
@@ -106,18 +99,12 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         expect(ogTitleInput.props('modelValue')).toBe('');
         expect(ogTitleInput.props('maxLength')).toBe(255);
 
-        expect(ogTitleDisplay.map((element) => element.text())).toEqual([
-            '',
-            '',
-        ]);
+        expect(ogTitleDisplay.map((element) => element.text())).toEqual(['', '']);
 
         await wrapper.setProps({ ogTitle: TEST_OG_TITLE });
 
         expect(ogTitleInput.props('modelValue')).toBe(TEST_OG_TITLE);
-        expect(ogTitleDisplay.map((element) => element.text())).toEqual([
-            TEST_OG_TITLE,
-            TEST_OG_TITLE,
-        ]);
+        expect(ogTitleDisplay.map((element) => element.text())).toEqual([TEST_OG_TITLE, TEST_OG_TITLE]);
     });
 
     it('should display the ogDescription and allow changing it', async () => {
@@ -135,9 +122,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         expect(ogDescriptionDisplay.text()).toBe('');
 
         await ogDescriptionInput.vm.$emit('update:modelValue', TEST_OG_DESCRIPTION);
-        expect(wrapper.emitted('update:og-description')).toEqual([
-            [TEST_OG_DESCRIPTION],
-        ]);
+        expect(wrapper.emitted('update:og-description')).toEqual([[TEST_OG_DESCRIPTION]]);
 
         await wrapper.setProps({ ogDescription: TEST_OG_DESCRIPTION });
 
@@ -166,9 +151,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
             targetId: TEST_OG_IMAGE.id,
         });
 
-        expect(wrapper.emitted('update:og-image-id')).toEqual([
-            [TEST_OG_IMAGE.id],
-        ]);
+        expect(wrapper.emitted('update:og-image-id')).toEqual([[TEST_OG_IMAGE.id]]);
 
         await wrapper.setProps({ ogImageId: TEST_OG_IMAGE.id });
         await flushPromises();
@@ -209,7 +192,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // open the media modal
         mediaUpload.vm.$emit('media-upload-sidebar-open');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mediaModal = wrapper.getComponent('.sw-generic-social-media-card__media-modal');
         expect(mediaModal.props()).toEqual({
@@ -220,8 +203,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // select an image
         mediaModal.vm.$emit('media-modal-selection-change', [TEST_OG_IMAGE]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // it should use the provided entity instead of fetching it from the repository
         expect(wrapper.vm.mediaRepository.get).not.toHaveBeenCalled();
@@ -238,13 +220,11 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
                 alt: TEST_OG_IMAGE.alt,
             }),
         ]);
-        expect(wrapper.emitted('update:og-image-id')).toEqual([
-            [TEST_OG_IMAGE.id],
-        ]);
+        expect(wrapper.emitted('update:og-image-id')).toEqual([[TEST_OG_IMAGE.id]]);
 
         // close the media modal
         mediaModal.vm.$emit('media-modal-close');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.find('sw-generic-social-media-card__media-modal').exists()).toBe(false);
     });
 
@@ -255,7 +235,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // remove the image
         mediaUpload.vm.$emit('media-upload-remove-image');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.emitted('update:og-image-id')).toEqual([[null]]);
     });
 });

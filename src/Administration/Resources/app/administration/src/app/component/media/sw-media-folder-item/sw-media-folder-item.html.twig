@@ -20,12 +20,15 @@
         <span
             v-else-if="!!item.defaultFolderId"
         >
-            <sw-media-folder-thumbnail class="sw-media-folder-item__folder-thumbnails" />
+            <sw-media-folder-thumbnail
+                class="sw-media-folder-item__folder-thumbnails"
+                :color="folderColor"
+            />
             <mt-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
                 :name="iconConfig.name"
-                color="var(--color-icon-secondary-default)"
+                :color="moduleIconColor"
                 size="12cqw"
             />
         </span>

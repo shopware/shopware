@@ -45,14 +45,8 @@ describe('src/app/init/consent.init.js', () => {
 
         expect(extensionAPISpy).toHaveBeenCalledTimes(2);
         expect(extensionAPISpy.mock.calls).toEqual([
-            [
-                'consentStatus',
-                handleConsentStatus,
-            ],
-            [
-                'consentRequest',
-                handleConsentRequest,
-            ],
+            ['consentStatus', handleConsentStatus],
+            ['consentRequest', handleConsentRequest],
         ]);
     });
 });

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
@@ -32,11 +34,14 @@ class HookableEventDescriberValidationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hookableValidator = new HookableValidator(new HookableEventCollector(
-            static::createStub(BusinessEventCollector::class),
-            static::createStub(DefinitionInstanceRegistry::class),
-            new \ArrayIterator([]),
-            new \ArrayIterator([new TestHookableEventDescriber()])
+        $this->hookableValidator = new HookableValidator(new SubscriptionValidator(
+            new HookableEventCollector(
+                static::createStub(BusinessEventCollector::class),
+                static::createStub(DefinitionInstanceRegistry::class),
+                new \ArrayIterator([]),
+                new \ArrayIterator([new TestHookableEventDescriber()])
+            ),
+            new PolicyRegistry([])
         ));
         $this->roleId = Uuid::randomHex();
     }
@@ -59,9 +64,9 @@ class HookableEventDescriberValidationTest extends TestCase
         $validations = $this->hookableValidator->validate($manifest, Context::createDefaultContext());
 
         static::assertCount(1, $validations);
-        static::assertInstanceOf(MissingPermissionError::class, $validations->first());
+        static::assertInstanceOf(MissingPermissionError::class, $validations[0]);
         static::assertSame('The following permissions are missing:
-- described:read', $validations->first()->getMessage());
+- described:read', $validations[0]->getMessage());
     }
 
     private function createAppWithAclRole(string $appName): void

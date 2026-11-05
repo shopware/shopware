@@ -28,7 +28,7 @@ class SyncOperationTest extends TestCase
             ]
         );
 
-        static::assertEmpty($operation->validate());
+        static::assertCount(0, $operation->validate());
     }
 
     public static function invalidOperationProvider(): \Generator

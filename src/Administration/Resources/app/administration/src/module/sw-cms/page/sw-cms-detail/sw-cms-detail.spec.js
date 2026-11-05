@@ -252,10 +252,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                                     };
                                 case 'product':
                                     return {
-                                        search: () =>
-                                            Promise.resolve([
-                                                { id: productID },
-                                            ]),
+                                        search: () => Promise.resolve([{ id: productID }]),
                                     };
                                 default:
                                     return repositoryFactoryDefaultMock;
@@ -290,9 +287,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            '1a',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['1a']);
 
         wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm);
 
@@ -307,9 +302,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.pageId).toBe('2b');
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            '2b',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['2b']);
     });
 
     it('should disable all fields when ACL rights are missing', async () => {
@@ -339,9 +332,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should enable all fields when ACL rights are missing', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
+        global.activeAclRoles = ['cms.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -369,21 +360,9 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it.each([
-        [
-            'missing ACL rights',
-            [],
-            false,
-        ],
-        [
-            'a locked page',
-            ['cms.editor'],
-            false,
-        ],
-        [
-            'a loading page',
-            ['cms.editor'],
-            false,
-        ],
+        ['missing ACL rights', [], false],
+        ['a locked page', ['cms.editor'], false],
+        ['a loading page', ['cms.editor'], false],
     ])('should not save when %s', async (reason, aclRoles, expectedCanSave) => {
         global.activeAclRoles = aclRoles;
 
@@ -422,15 +401,10 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                     {
                         blocks: [
                             {
-                                slots: [
-                                    { type: 'buy-box' },
-                                    { type: 'buy-box' },
-                                ],
+                                slots: [{ type: 'buy-box' }, { type: 'buy-box' }],
                             },
                         ],
-                        visibility: [
-                            { mobile: true, tablet: true, desktop: true },
-                        ],
+                        visibility: [{ mobile: true, tablet: true, desktop: true }],
                     },
                 ],
             },
@@ -445,16 +419,14 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should not show layout assignment when saving', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
+        global.activeAclRoles = ['cms.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
         const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -472,9 +444,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                                 slots: [],
                             },
                         ],
-                        visibility: [
-                            { mobile: true, tablet: true, desktop: true },
-                        ],
+                        visibility: [{ mobile: true, tablet: true, desktop: true }],
                     },
                 ],
             },
@@ -504,12 +474,11 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const State = Shopware.Store._rootState.state.value.cmsPage;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onDemoEntityChange();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
@@ -521,8 +490,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
@@ -547,20 +515,18 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const State = Shopware.Store._rootState.state.value.cmsPage;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onDemoEntityChange();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toBeNull();
         expect(State.currentDemoProducts).toEqual([]);
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({ id: productID });
         expect(State.currentDemoProducts).toEqual([]);
@@ -582,12 +548,12 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
 
         wrapper.findComponent('.sw-cms-detail__confirm-set-as-default-modal').vm.$emit('confirm');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
 
@@ -626,7 +592,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
 
@@ -635,17 +601,17 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(confirmModal.props('text')).toBe('sw-cms.components.setDefaultLayoutModal.infoText');
 
         confirmModal.vm.$emit('close');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
 
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
 
         wrapper.findComponent('.sw-cms-detail__confirm-set-as-default-modal').vm.$emit('cancel');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
         expect(saveSpy).toHaveBeenCalledTimes(0);
@@ -771,7 +737,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.blockRepository.clone).toHaveBeenCalledWith(
             'main-block-id',
-            expect.any(Object),
+            { overwrites: { position: 1 }, cloneChildren: true },
             wrapper.vm.layoutVersionContext,
         );
 
@@ -837,7 +803,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.sectionRepository.clone).toHaveBeenCalledWith(
             'main-section-id',
-            expect.any(Object),
+            { overwrites: { position: 1 }, cloneChildren: true },
             wrapper.vm.layoutVersionContext,
         );
 

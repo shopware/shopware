@@ -23,10 +23,7 @@ export default {
             // Remove earlier "Add Tag" elements
             this.filterSearchGeneratedTags();
 
-            Promise.all([
-                this.checkTagExists(this.searchTerm),
-                this.$super('search', searchTerm),
-            ]).then(() => {
+            Promise.all([this.checkTagExists(this.searchTerm), this.$super('search', searchTerm)]).then(() => {
                 // Add the "Add Tag" Element if no tag exists
                 if (!this.tagExists) {
                     // Create dummy entity with id -1

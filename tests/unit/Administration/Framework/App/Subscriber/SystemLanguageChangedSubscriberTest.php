@@ -115,7 +115,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             $newLocale->getCode(),
         ));
 
-        static::assertEmpty($snippetRepository->creates);
+        static::assertCount(0, $snippetRepository->creates);
     }
 
     #[DataProvider('localeCodes')]

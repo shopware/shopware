@@ -21,15 +21,9 @@ import template from './sw-snippet-field-edit-modal.html.twig';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'save',
-    ],
+    emits: ['modal-close', 'save'],
 
     props: {
         snippets: {
@@ -50,15 +44,9 @@ export default {
         fieldType: {
             type: String,
             required: true,
-            validValues: [
-                'text',
-                'textarea',
-            ],
+            validValues: ['text', 'textarea'],
             validator(value) {
-                return [
-                    'text',
-                    'textarea',
-                ].includes(value);
+                return ['text', 'textarea'].includes(value);
             },
         },
     },

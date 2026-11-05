@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Module } = Shopware;
 
@@ -9,6 +10,7 @@ const { Module } = Shopware;
 const modulesToCreate = new Map();
 modulesToCreate.set('sw-product', {
     icon: 'regular-products',
+    color: '#57D9A3',
     entity: 'product',
 });
 modulesToCreate.set('sw-mail-template', {
@@ -22,6 +24,7 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
 
     Module.register(moduleName, {
         icon: currentModuleValues.icon,
+        color: currentModuleValues.color,
         entity: currentModuleValues.entity,
         routes: {
             index: {
@@ -147,6 +150,10 @@ async function createWrapper(defaultFolderId, privileges = []) {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-text-field': true,
+                'sw-media-folder-thumbnail': {
+                    props: ['color', 'variant'],
+                    template: '<svg class="sw-media-folder-thumbnail"></svg>',
+                },
                 'sw-media-modal-folder-settings': true,
                 'sw-media-modal-folder-dissolve': true,
                 'sw-media-modal-move': true,
@@ -158,26 +165,18 @@ async function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
+    afterEach(() => {
+        useModuleIconColors().enabled.value = false;
+    });
+
     it.each([
-        [
-            'product module',
-            ID_PRODUCTS_FOLDER,
-        ],
-        [
-            'mail template module',
-            ID_MAILTEMPLATE_FOLDER,
-        ],
-        [
-            'cms module',
-            ID_CONTENT_FOLDER,
-        ],
-        [
-            'fallback',
-            undefined,
-        ],
+        ['product module', ID_PRODUCTS_FOLDER],
+        ['mail template module', ID_MAILTEMPLATE_FOLDER],
+        ['cms module', ID_CONTENT_FOLDER],
+        ['fallback', undefined],
     ])('should use the blue folder thumbnail for %s', async (_, defaultFolderId) => {
         const wrapper = await createWrapper(defaultFolderId);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.iconName).toBe('folder-thumbnail');
     });
@@ -189,21 +188,50 @@ describe('components/media/sw-media-folder-item', () => {
         const innerIcon = wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner');
         expect(innerIcon.props('name')).toBe('regular-products');
         expect(innerIcon.props('color')).toBe('var(--color-icon-secondary-default)');
+        expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBeUndefined();
+    });
+
+    it('should paint the default folder and its icon in the module color when module colors are enabled', async () => {
+        useModuleIconColors().enabled.value = true;
+        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
+        await flushPromises();
+
+        expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBe('#57D9A3');
+        expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('color')).toBe('#57D9A3');
+    });
+
+    it('should keep the folder neutral for a module without a color when module colors are enabled', async () => {
+        useModuleIconColors().enabled.value = true;
+        const wrapper = await createWrapper(ID_CONTENT_FOLDER);
+        await flushPromises();
+
+        expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBeUndefined();
+        expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('color')).toBe(
+            'var(--color-icon-secondary-default)',
+        );
+    });
+
+    it('should switch the folder color when the user toggles module colors', async () => {
+        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
+        await flushPromises();
+
+        useModuleIconColors().enabled.value = true;
+        await flushPromises();
+
+        expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBe('#57D9A3');
     });
 
     it('should not be able to delete', async () => {
         const aclWrapper = await createWrapper();
-        await aclWrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to delete', async () => {
-        const aclWrapper = await createWrapper(null, [
-            'media.deleter',
-        ]);
-        await aclWrapper.vm.$nextTick();
+        const aclWrapper = await createWrapper(null, ['media.deleter']);
+        await flushPromises();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
         expect(deleteMenuItem.attributes().disabled).toBeDefined();
@@ -211,17 +239,15 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should not be able to edit', async () => {
         const aclWrapper = await createWrapper();
-        await aclWrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit', async () => {
-        const aclWrapper = await createWrapper(null, [
-            'media.editor',
-        ]);
-        await aclWrapper.vm.$nextTick();
+        const aclWrapper = await createWrapper(null, ['media.editor']);
+        await flushPromises();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
         expect(editMenuItem.attributes().disabled).toBeDefined();
@@ -232,7 +258,7 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.setProps({
             isParent: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toContain('AllowMultiSelect: "true"');
     });
@@ -242,7 +268,7 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.setProps({
             isParent: true,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toContain('AllowMultiSelect: "false"');
     });
@@ -296,7 +322,7 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should not call the api get default folder if default folder id does not exist', async () => {
         const wrapper = await createWrapper(null);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mediaDefaultFolderRepositorySpy = jest.spyOn(wrapper.vm.mediaDefaultFolderRepository, 'get');
         await wrapper.vm.getIconConfigFromFolder();

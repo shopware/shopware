@@ -1,4 +1,5 @@
 import template from './sw-order-detail-general.html.twig';
+import './sw-order-detail-general.scss';
 
 /**
  * @sw-package checkout
@@ -52,9 +53,7 @@ export default {
         'error',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         orderId: {
@@ -201,10 +200,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
         reloadEntityData(isSaved = true) {

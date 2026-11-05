@@ -175,8 +175,8 @@
                             </template>
 
                             {% block sw_settings_language_list_content_list_column_locale %}
-                            <template #column-locale="{ item, column, compact, isInlineEdit }">
-                                {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
+                            <template #column-locale="{ item }">
+                                {{ localeLabel(item) }}
                             </template>
                             {% endblock %}
 

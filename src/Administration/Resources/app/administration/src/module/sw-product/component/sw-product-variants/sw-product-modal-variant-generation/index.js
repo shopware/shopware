@@ -20,15 +20,9 @@ export default {
         'swProductDetailLoadAll',
     ],
 
-    emits: [
-        'modal-close',
-        'variations-finish-generate',
-    ],
+    emits: ['modal-close', 'variations-finish-generate'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     props: {
         product: {
@@ -71,6 +65,7 @@ export default {
             usageOfFiles: {},
             idToIndex: {},
             productDownloadFolderId: null,
+            allowDigitalVariantsWithoutDownloads: false,
             isAddOnly: false,
             originalConfiguratorSettings: [],
         };
@@ -103,6 +98,14 @@ export default {
 
         currencies() {
             return Shopware.Store.get('swProductDetail').currencies;
+        },
+
+        uploadCardDescription() {
+            const snippetKey = this.allowDigitalVariantsWithoutDownloads
+                ? 'sw-product.variations.configuratorModal.uploadCardExternalManagementDescription'
+                : 'sw-product.variations.configuratorModal.uploadCardDescription';
+
+            return this.$t(snippetKey);
         },
 
         productRepository() {
@@ -151,6 +154,10 @@ export default {
         },
 
         isGenerateButtonDisabled() {
+            if (this.allowDigitalVariantsWithoutDownloads) {
+                return false;
+            }
+
             return this.variantGenerationQueue.createQueue.some((item) => {
                 return item.downloads.length === 0 && item.type === 'digital';
             });

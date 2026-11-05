@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
+use Shopware\Core\Checkout\Payment\Extension\HandlePaymentMethodRouteExtension;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -37,6 +39,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         private readonly DataValidator $dataValidator,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly EntityRepository $currencyRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -55,6 +58,15 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         methods: ['GET', 'POST']
     )]
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
+    {
+        return $this->extensions->publish(
+            name: HandlePaymentMethodRouteExtension::NAME,
+            extension: new HandlePaymentMethodRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
         $data = [...$request->query->all(), ...$request->request->all()];
         $this->dataValidator->validate($data, $this->createDataValidation());

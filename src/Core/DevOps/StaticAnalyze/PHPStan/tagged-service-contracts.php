@@ -36,11 +36,13 @@ use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductE
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteLoaderInterface;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
 use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\AbstractContentSystemBindingSpecificationLoader;
@@ -49,6 +51,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractContentSystemStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\AbstractContentSystemLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -66,6 +69,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInte
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
+use Shopware\Core\System\SalesChannel\Capability\AbstractSalesChannelTypeCapabilities;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterInterface;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -84,6 +88,7 @@ return [
             'content_system.data_loader' => AbstractContentDataLoader::class,
             'content_system.entity_specification_source' => AbstractSpecificationSource::class,
             'content_system.layout_preset_loader' => AbstractContentSystemLayoutPresetLoader::class,
+            'content_system.mapping_candidate_provider' => AbstractMappingCandidateProvider::class,
             'content_system.output_format' => AbstractResponseFactory::class,
             'content_system.specification_source' => AbstractSpecificationSource::class,
             'content_system.style_option_loader' => AbstractContentSystemStyleOptionLoader::class,
@@ -97,6 +102,7 @@ return [
             'messenger.receiver' => ReceiverInterface::class,
             'promotion.filter.picker' => FilterPickerInterface::class,
             'promotion.filter.sorter' => FilterSorterInterface::class,
+            'shopware.api.cors_header_provider' => CorsHeaderProviderInterface::class,
             'shopware.api.enum_provider' => FieldEnumProviderInterface::class,
             'shopware.app_script.twig.extension' => ExtensionInterface::class,
             'shopware.cart.collector' => CartDataCollectorInterface::class,
@@ -140,8 +146,10 @@ return [
             'shopware.route_scope' => AbstractRouteScope::class,
             'shopware.route_scope_whitelist' => RouteScopeWhitelistInterface::class,
             'shopware.rule.definition' => Rule::class,
+            'shopware.sales_channel.type_capabilities' => AbstractSalesChannelTypeCapabilities::class,
             'shopware.scheduled.task' => ScheduledTask::class,
             'shopware.seo_url.route' => SeoUrlRouteInterface::class,
+            'shopware.seo_url.route_loader' => SeoUrlRouteLoaderInterface::class,
             'shopware.sitemap.config_handler' => ConfigHandlerInterface::class,
             'shopware.sitemap_url_provider' => AbstractUrlProvider::class,
             'shopware.snippet.filter' => SnippetFilterInterface::class,

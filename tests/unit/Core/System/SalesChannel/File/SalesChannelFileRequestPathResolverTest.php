@@ -30,4 +30,18 @@ class SalesChannelFileRequestPathResolverTest extends TestCase
 
         (new SalesChannelFileRequestPathResolver())->validateFileFamily($fileFamily);
     }
+
+    public function testItRejectsFileFamilyWithTrailingNewline(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidSalesChannelFileFamily("agentic\n"));
+
+        (new SalesChannelFileRequestPathResolver())->validateFileFamily("agentic\n");
+    }
+
+    public function testItRejectsFileNameWithTrailingNewline(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidSalesChannelFilePath("ucp.json\n"));
+
+        (new SalesChannelFileRequestPathResolver())->buildTemplatePath('agentic', "ucp.json\n");
+    }
 }

@@ -47,7 +47,7 @@ describe('src/module/sw-extension/component/sw-extension-uninstall-modal', () =>
 
         await wrapper.vm.emitClose();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted()).not.toHaveProperty('modal-close');
     });
@@ -59,8 +59,6 @@ describe('src/module/sw-extension/component/sw-extension-uninstall-modal', () =>
 
         await wrapper.vm.emitUninstall();
 
-        expect(wrapper.emitted()).toHaveProperty('uninstall-extension', [
-            [false],
-        ]);
+        expect(wrapper.emitted()).toHaveProperty('uninstall-extension', [[false]]);
     });
 });

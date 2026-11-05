@@ -33,11 +33,7 @@ async function createWrapper({ featureActive = false, formType = 'contact' } = {
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot></slot></div>',
-                    props: [
-                        'title',
-                        'name',
-                        'activeTab',
-                    ],
+                    props: ['title', 'name', 'activeTab'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -65,27 +61,17 @@ async function createWrapper({ featureActive = false, formType = 'contact' } = {
                 'mt-select': {
                     template:
                         '<select class="mt-select" :value="modelValue" @change="$emit(`update:modelValue`, $event.target.value)"><slot></slot></select>',
-                    props: [
-                        'modelValue',
-                        'options',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'options', 'disabled'],
                 },
                 'mt-text-field': {
                     template:
                         '<input class="mt-text-field" :value="modelValue" @input="$emit(`update:modelValue`, $event.target.value)" />',
-                    props: [
-                        'modelValue',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'disabled'],
                 },
                 'mt-textarea': {
                     template:
                         '<textarea class="mt-textarea" :value="modelValue" @input="$emit(`update:modelValue`, $event.target.value)" />',
-                    props: [
-                        'modelValue',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'disabled'],
                 },
                 'sw-tagged-field': {
                     template: '<div class="sw-tagged-field"></div>',
@@ -188,7 +174,7 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'options');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('options');
         expect(wrapper.find('.mt-select').exists()).toBe(false);
@@ -197,41 +183,28 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
 
     it('should add the core.basicInformation.email if it does not exist', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
-            'doNotReply@localhost',
-        ]);
+        expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['doNotReply@localhost']);
     });
 
     it('should keep email addresses at the end that do pass the check', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', [
-            'valid@mail.com',
-            'alsovalid@mail.com',
-        ]);
-        await wrapper.vm.$nextTick();
+        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', ['valid@mail.com', 'alsovalid@mail.com']);
+        await flushPromises();
 
-        expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
-            'valid@mail.com',
-            'alsovalid@mail.com',
-        ]);
+        expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['valid@mail.com', 'alsovalid@mail.com']);
     });
 
     it('should remove email addresses from the end that do not pass the check', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', [
-            'valid@mail.com',
-            'invalid',
-        ]);
-        await wrapper.vm.$nextTick();
+        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', ['valid@mail.com', 'invalid']);
+        await flushPromises();
 
-        expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
-            'valid@mail.com',
-        ]);
+        expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['valid@mail.com']);
     });
 });

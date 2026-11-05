@@ -31,6 +31,10 @@ The `description` argument on `#[McpTool]` is what the agent reads to pick a too
 - **Mention the use cases the user will name.** If a prompt is "upload this image as a product cover", the description should contain the phrase "product cover" and clarify that no extra parameter is needed for that case. Otherwise the agent often returns no tool selection at all.
 - **Make required parameters truly required.** A parameter without a PHP default ends up `required: true` in the JSON schema. If users frequently won't supply it (a sales channel UUID, a tax ID), give it a default of `''` or `null` and validate inside `__invoke()`. GPT-4o refuses to call tools when required parameters are missing from the prompt — even when the description says they are optional.
 
+### Parameter descriptions
+
+Parameter contracts belong in `#[Schema(description: ...)]` (`Mcp\Capability\Attribute\Schema`) on the `__invoke()` parameter, not in docblock `@param` tags. The SDK renders them into the tool's public `inputSchema`, so they are part of the routing surface the agent reads when it fills in arguments. Do not add `@param` blocks that only restate the native type; keep docblocks for what static analysis needs (array shapes). The same `cache:clear` caveat as for tool descriptions applies.
+
 ### Cache after description changes
 
 Tool descriptions are read at container compile time and baked into the cached DI container. Editing a `#[McpTool(description: ...)]` attribute does **not** take effect until you run `bin/console cache:clear`. If `bin/console debug:mcp` or `tools/list` shows the old text, clear the cache first before debugging further.
@@ -49,7 +53,7 @@ class EntityDeleteTool extends McpToolResponse { ... }
 
 - The attribute is **repeatable** — add multiple `#[McpToolDependsOn]` lines if the tool depends on several others.
 - Dependencies are **tool-only** — tools can only depend on other tools, not on prompts or resources.
-- The `McpToolCompilerPass` resolves dependencies transitively and stores the result in the `shopware.mcp.tool_dependencies` container parameter, which the allowlist provider uses at runtime.
+- `McpToolAnalysisCompilerPass` resolves dependencies transitively and stores the result in the `shopware.mcp.tool_dependencies` container parameter, which the allowlist provider uses at runtime.
 - **Allowlist auto-expansion:** when a user enables a tool in the Admin integration UI, all its declared dependencies (and their transitive dependencies) are automatically added to the allowlist. Removing a tool does **not** auto-remove its dependencies — they may be intentionally enabled independently.
 - `bin/console debug:mcp` shows the resolved dependencies in a **Dependencies** column.
 
@@ -118,19 +122,29 @@ All tools must extend the `McpToolResponse` abstract class. It provides two help
 {"success": true, "data": [...], "_meta": {"total": 42, "page": 1}}
 ```
 
-**Error**: `$this->error(string $message)`
+**Error**: `$this->error(string $message, string $code = McpToolError::TOOL_ERROR)`
 ```json
-{"success": false, "error": "Human-readable message"}
+{"success": false, "error": "Human-readable message", "code": "tool_error"}
 ```
 
 Rules:
 - `success` (bool) is always present at root
 - `data` holds the actual result (structure is tool-specific)
 - `_meta` is optional, used for pagination (`total`, `page`, `limit`), context (`salesChannelId`), and write metadata (`dryRun`)
-- `error` (string) only appears when `success` is false
+- `error` (string) and `code` only appear when `success` is false. Use a `McpToolError` constant for `code` (`missing_privilege`, `invalid_arguments`, `not_found`, `tool_error`), so clients can match on it instead of the message
 - Responses up to 100 KB are returned inline. Responses at or above 20 KB include `_meta.responseSize` so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time
-- Responses larger than 100 KB are stored in `mcp_tool_result_cache` (session-scoped) and returned as a `shopware://tool-result/{uuid}` resource URI in `_meta.resourceUri`. The full content is fetched via `resources/read` (handled by `ToolResultResource`). `_meta.query` echoes the originating tool name and arguments so the LLM can disambiguate which call produced which URI. Cache rows are wiped on session DELETE by `McpSessionCleanupSubscriber`. When no MCP session is active (CLI/test), the response falls back to inline delivery
+- Responses larger than 100 KB are stored in `mcp_tool_result_cache` and returned as a `shopware://tool-result/{pointer}` URI in `_meta.resourceUri`, with `_meta.expiresAt`. The renderer adds the same URI as a `resource_link` content block (protocol 2025-06-18 and later). The pointer is signed for the caller (Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour, so it works on a later request and without an MCP session, but only for the same caller. The full content is fetched via `resources/read` (`ToolResultResource` on the Admin API, `StoreApiToolResultResource` on the Store API). `_meta.query` echoes the originating tool name and arguments so the LLM can disambiguate which call produced which URI. Rows are wiped on session DELETE by `McpSessionCleanupSubscriber` when the call had a session. This applies to every tool extending `McpToolResponse`, including plugin and bundle tools (`McpToolResultCacheCompilerPass` wires the cache for them). `McpToolResultCacheCleanupTask` removes rows older than `shopware.mcp.tool_result_cache_ttl`. Without an authenticated caller (CLI/test), the response falls back to inline delivery
 - A PHPStan rule (`McpToolResponseRule`) enforces that all `#[McpTool]` classes extend the abstract class
+
+### What the client receives
+
+The envelope above is the text block. `McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`:
+- `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ..., "details": ...}}` and sets `isError: true`. Clients that negotiated a protocol revision before 2025-06-18 get no `structuredContent`, because it doesn't exist there; they read the text block
+- `structuredContent` and the text copy are both sent, as the spec asks. Size is limited only by the 100 KB offload in `McpToolResponse::success()`. Moving that decision into the renderer is phase 2 of the result format ADR
+- `_meta["shopware/generatedAt"]` is always set
+- With `v6.8.0.0` active, the envelope is replaced by separate text blocks: the data as plain JSON, then the summary, then `{"_meta": …}`. A failure sends its message, then `{"details": …}` and `{"_meta": …}` when there are any. The metadata also goes into the result `_meta` with a `shopware/` prefix. Keys next to the envelope fields, such as `dryRun`, count as metadata
+
+A tool may also return a `McpToolResult` directly; it is rendered the same way. Until 6.8.0, the text block of such a result is a rebuilt envelope, which carries the data, the metadata and the error message and code, but not a summary or error details. Tools that return a `CallToolResult` themselves bypass the renderer.
 
 ## Pagination with shopware-entity-search
 
@@ -200,10 +214,20 @@ All entity read tools use `JsonEntityEncoder` for serialization (not the Store A
 
 ## Write tools
 - `EntityUpsertTool` (`shopware-entity-upsert`) -- create/update entities (dryRun wraps in transaction + rollback)
-- `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact)
+- `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact). Mapping entities with a composite primary key (`product_category`, `product_property`, ...) take objects naming every key field; this is how a many-to-many link is removed, because `shopware-entity-upsert` can only add links
 - `SystemConfigWriteTool` (`shopware-system-config-write`) -- update configuration values
 - `OrderStateTool` (`shopware-order-state`) -- change the state of an order, its transactions, and/or deliveries in one call
 - `MediaUploadTool` (`shopware-media-upload`) -- upload media from URL, optionally assign to product as cover image
+
+### Removing many-to-many links
+
+A many-to-many link (a product's categories, properties, tags, ...) is a row of a mapping entity such as `product_category`. MCP follows the Admin API sync endpoint here: `shopware-entity-upsert` adds links, and `shopware-entity-delete` on the mapping entity with composite key objects removes them (`[{"productId": "...", "categoryId": "..."}]`). `shopware-entity-schema` names the `mappingEntity` of every many-to-many association so the model can find it.
+
+Version fields of the composite key (`productVersionId`, `categoryVersionId`) are optional in the key objects and default to the live version. In a versioned context (a non-live `sw-version-id`) the tool refuses to guess and asks for them: the Admin API unlinks with the context version for the parent and the live version for the referenced side, a mapping row does not say which side is which, and a wrong guess matches no row and removes nothing without an error.
+
+We deliberately don't add a dedicated "unlink" tool for now. The planned Sync tool (#20520) removes links the same way, so one model covers delete, sync and the Admin API. A new tool would also stay invisible to existing integrations until operators add it to their allowlist. Revisit this if evaluations show that models don't find the delete path, and build such a tool on the same key handling.
+
+Don't add a "remove" flag to upsert payloads: the DAL writes every field sent on an associated record to that record.
 
 ## Merchant workflow tools (plugin)
 Higher-level workflow tools for merchant operations live in the `SwagMcpMerchantAssistant` plugin (`custom/plugins/SwagMcpMerchantAssistant`), not in core. This separation keeps core tools focused on platform primitives while allowing merchant-specific tools to evolve independently.
@@ -215,6 +239,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 - `executeWithDryRun()` catches any `\Throwable` and returns it as a structured `$this->error()` response
 - Unhandled exceptions from `__invoke()` produce a generic MCP error (`-32603`). Prefer catching known exceptions and returning `$this->error($message)` instead.
 - Write tools should validate inputs before the operation (e.g., `SystemConfigWriteTool` rejects null values, entity tools validate entity existence)
+- `invalidCriteriaError()` renders a `RequestCriteriaBuilder::fromArray()` failure as an actionable message. Wrap **only** the `fromArray()` call and catch `ShopwareHttpException`: the builder reports bad payloads through several unrelated classes (`SearchRequestException` with one pointer per rejected element, `DataAbstractionLayerException` directly, `FrameworkException::associationNotFound()`, and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from `ApiCriteriaValidator`). Keep the following read/search/aggregate call outside the `try`, so a real DAL failure still reaches the log instead of being reported as bad input.
 
 ## Adding a new tool
 1. Create a class in this directory
@@ -233,11 +258,11 @@ How registration works differs between core tools and plugin tools:
 
 | Tool location | Registration mechanism | What can go wrong |
 |---|---|---|
-| Core (`src/Core/Framework/Mcp/Tool/`) | `mcp.tool` DI tag + directory in `mcp.yaml` `scan_dirs` | Missing tag **or** missing scan_dir silently drops the tool |
-| Plugin (`shopware.mcp.tool` DI tag) | `McpToolCompilerPass` calls `addTool()` at compile time | Missing tag; wrong tag name; attribute on method instead of class |
+| Core (`src/Core/Framework/Mcp/Tool/`) | `mcp.tool` DI tag; the namespace is covered by the Admin API server's `registry` prefixes in `packages/mcp.php` | Missing tag; a class moved outside the configured namespaces is assigned to no server |
+| Plugin (`shopware.mcp.tool` DI tag) | `McpToolDiscoveryCompilerPass` re-tags it and assigns it to the Admin API server | Missing tag; wrong tag name; attribute on method instead of class |
 
 **For core tools**, `McpCapabilityDiscoveryTest` (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) is the authoritative check. It boots the full kernel, calls the live `/api/_mcp` endpoint, and asserts every expected capability name is present. Add new core tool names to its `expectedTools()` list.
 
-**For plugin tools**, the `McpToolCompilerPass` handles HTTP registration automatically from the DI tag — no `scan_dirs` entry is needed. A missing `#[McpTool]` attribute (or attribute placed on `__invoke()` instead of the class) means the compiler pass cannot extract the tool name and the tool is silently skipped.
+**For plugin tools**, `McpToolDiscoveryCompilerPass` handles registration automatically from the DI tag. A missing `#[McpTool]` attribute (or attribute placed on `__invoke()` instead of the class) means the tool name cannot be extracted and the tool is silently skipped.
 
 Quick manual check: `bin/console debug:mcp` uses the same registry as the HTTP endpoint and shows core tools, plugin tools, and app tools in one view.

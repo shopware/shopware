@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -10,11 +11,21 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  *
- * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed. Use `document.type_name` instead.
+ * @deprecated tag:v6.9.0 - Will be removed. Use `document.type_name` instead.
  */
 #[Package('after-sales')]
 class DocumentTypeCollection extends EntityCollection
 {
+    /**
+     * @param iterable<DocumentTypeEntity> $elements
+     */
+    public function __construct(iterable $elements = [])
+    {
+        Feature::throwIfActive('v6.9.0.0', Feature::deprecatedClassMessage(self::class, 'v6.9.0.0'));
+
+        parent::__construct($elements);
+    }
+
     public function getApiAlias(): string
     {
         return 'document_type_collection';

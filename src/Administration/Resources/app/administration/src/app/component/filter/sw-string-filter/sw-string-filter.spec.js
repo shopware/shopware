@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
-async function createWrapper() {
+async function createWrapper(filter = {}) {
     return mount(await wrapTestComponent('sw-string-filter', { sync: true }), {
         global: {
             stubs: {
@@ -22,6 +22,7 @@ async function createWrapper() {
                 label: 'Promotion Code',
                 filterCriteria: null,
                 value: null,
+                ...filter,
             },
             active: true,
         },
@@ -56,18 +57,8 @@ describe('components/sw-string-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'promotionCode',
-            [
-                Criteria.equalsAny('code', [
-                    '1111',
-                    '2222',
-                    '3333',
-                ]),
-            ],
-            [
-                '1111',
-                '2222',
-                '3333',
-            ],
+            [Criteria.equalsAny('code', ['1111', '2222', '3333'])],
+            ['1111', '2222', '3333'],
         ]);
     });
 
@@ -82,6 +73,28 @@ describe('components/sw-string-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'promotionCode',
             [Criteria.contains('code', 'cheap')],
+            'cheap',
+        ]);
+    });
+
+    it('should combine the value filter with `additionalFilters` in one AND filter', async () => {
+        const wrapper = await createWrapper({
+            additionalFilters: [Criteria.equals('type', 'promotion')],
+        });
+
+        const input = wrapper.find('input');
+
+        await input.setValue('cheap');
+        await input.trigger('change');
+
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+            'promotionCode',
+            [
+                Criteria.multi('AND', [
+                    Criteria.equals('type', 'promotion'),
+                    Criteria.contains('code', 'cheap'),
+                ]),
+            ],
             'cheap',
         ]);
     });

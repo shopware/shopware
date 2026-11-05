@@ -152,7 +152,7 @@ class CustomerNumberRuleTest extends TestCase
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $customerNumbers, bool $noCustomer = false): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('1337');
@@ -191,7 +191,7 @@ class CustomerNumberRuleTest extends TestCase
     {
         try {
             $rule = new CustomerNumberRule();
-            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $salesChannelContext = static::createStub(SalesChannelContext::class);
             $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
             $rule->match(new CheckoutRuleScope($salesChannelContext));
             static::fail('Exception was not thrown');

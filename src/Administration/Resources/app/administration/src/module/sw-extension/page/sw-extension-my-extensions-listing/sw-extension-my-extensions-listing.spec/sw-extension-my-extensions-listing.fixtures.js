@@ -66,11 +66,7 @@ export function setMyExtensions(extensions) {
 export function makeCardStub({ emits = [] } = {}) {
     return {
         template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
-        props: [
-            'extension',
-            'selected',
-            'bulkLoading',
-        ],
+        props: ['extension', 'selected', 'bulkLoading'],
         emits,
     };
 }
@@ -141,17 +137,11 @@ export async function createWrapper({ aclCan = () => true, cardStub, query = {} 
                     },
                     'sw-extension-bulk-uninstall-modal': {
                         template: '<div class="sw-extension-bulk-uninstall-modal" />',
-                        props: [
-                            'extensions',
-                            'isLoading',
-                        ],
+                        props: ['extensions', 'isLoading'],
                     },
                     'sw-extension-bulk-deactivation-modal': {
                         template: '<div class="sw-extension-bulk-deactivation-modal" />',
-                        props: [
-                            'extensions',
-                            'isLoading',
-                        ],
+                        props: ['extensions', 'isLoading'],
                     },
                 },
                 provide: {

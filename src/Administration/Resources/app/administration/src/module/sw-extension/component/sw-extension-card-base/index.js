@@ -20,16 +20,9 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'shopwareExtensionService',
-        'extensionStoreActionService',
-        'cacheApiService',
-    ],
+    inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
 
-    emits: [
-        'update-list',
-        'select-change',
-    ],
+    emits: ['update-list', 'select-change'],
 
     mixins: ['sw-extension-error'],
 
@@ -163,6 +156,10 @@ export default {
             return false;
         },
 
+        hasActiveSubscription() {
+            return this.extension.storeLicense?.variant === 'rent' && this.extension.storeLicense.expirationDate === null;
+        },
+
         isUpdateable() {
             if (!this.extension || this.extension.latestVersion === null || !this.extension.allowUpdate) {
                 return false;
@@ -268,12 +265,7 @@ export default {
                 return true;
             }
 
-            if (
-                !this.extensionManagementDisabled &&
-                this.extension.storeLicense &&
-                this.extension.storeLicense.variant === 'rent' &&
-                this.extension.storeLicense.expirationDate === null
-            ) {
+            if (!this.extensionManagementDisabled && this.hasActiveSubscription) {
                 return true;
             }
 

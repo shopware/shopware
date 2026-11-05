@@ -7,6 +7,7 @@ import './product-export-templates';
 import './agentic-product-export-templates';
 import './service/domain-link.service';
 import './service/sales-channel-file.api.service';
+import './service/sales-channel-product-assignment.api.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
 import './acl';
@@ -100,8 +101,8 @@ Module.register('sw-sales-channel', {
     description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-green-500)',
-    icon: 'regular-server',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-storefront',
     entity: 'sales_channel',
 
     searchMatcher: (regex, labelType, manifest) => {

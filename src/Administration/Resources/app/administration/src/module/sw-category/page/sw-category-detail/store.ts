@@ -5,9 +5,9 @@ import type { ContextStore } from '../../../../app/store/context.store';
 
 const { Criteria } = Shopware.Data;
 
-interface LoadPayload<EntityName extends keyof EntitySchema.Entities> {
+interface LoadPayload<EntityName extends keyof EntitySchema.EntityKeys> {
     repository: Repository<EntityName>;
-    id: string;
+    id: EntityKey<EntityName>;
     apiContext: ContextStore['api'];
     criteria?: CriteriaType;
 }

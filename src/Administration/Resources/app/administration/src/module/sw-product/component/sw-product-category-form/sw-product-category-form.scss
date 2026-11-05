@@ -10,11 +10,24 @@
         margin-bottom: var(--scale-size-8);
     }
 
+    &__categories-body {
+        margin-bottom: var(--scale-size-8);
+    }
+
     &__visibility_field {
         margin-top: var(--scale-size-20);
 
         .sw-product-detail__select-visibility.sw-field {
             margin-bottom: 0;
         }
+    }
+
+    &__visibility-link {
+        display: inline-flex;
+        column-gap: var(--scale-size-4);
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+        text-align: right;
     }
 }

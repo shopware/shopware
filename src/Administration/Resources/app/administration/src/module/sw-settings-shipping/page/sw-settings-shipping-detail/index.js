@@ -20,10 +20,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -81,7 +78,7 @@ export default {
         },
 
         shippingMethodRepository() {
-            return this.repositoryFactory.create('shipping_method');
+            return this.repositoryFactory.create('shipping_method', null, { useSync: true });
         },
 
         shippingMethodPricesRepository() {

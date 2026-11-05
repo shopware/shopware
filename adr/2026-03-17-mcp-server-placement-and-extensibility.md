@@ -44,6 +44,9 @@ Some capabilities depend on bundle-specific services. `ThemeConfigTool` already 
 
 ### Extensibility
 
+**The registration and discovery mechanism described below is superseded by [2026-08-31 - MCP capability registration via the container](2026-08-31-mcp-capability-registration-via-container.md): `mcp.yaml` `scan_dirs` no longer exists, and a capability is assigned to one of the two MCP servers instead. The placement model in this ADR is untouched.**
+
+
 The MCP subsystem must remain extendable. Plugins, bundles, and apps need to be able to contribute custom tools, prompts, and resources. The current implementation already supports all three sources through different registration paths:
 
 - plugins use the `shopware.mcp.tool` DI tag, remapped by `McpToolDiscoveryCompilerPass`
@@ -55,6 +58,9 @@ The MCP subsystem must remain extendable. Plugins, bundles, and apps need to be 
 The more tools are moved into core, the more security review, documentation, support, and backward compatibility commitments the platform team takes on. The `allowed_tools` configuration already provides an operational escape hatch to restrict which tools are exposed per installation.
 
 ## Decision
+
+**The registration and discovery mechanism described below is superseded by [2026-08-31 - MCP capability registration via the container](2026-08-31-mcp-capability-registration-via-container.md): `mcp.yaml` `scan_dirs` no longer exists, and a capability is assigned to one of the two MCP servers instead. The placement model in this ADR is untouched.**
+
 
 We adopt a hybrid model.
 
@@ -201,6 +207,9 @@ Apps declare capabilities in `Resources/mcp.xml` and receive HMAC-signed HTTP ca
 | Stable official platform contract desired? | Best fit | Medium | Medium |
 
 ## Public API and extension model
+
+**The registration and discovery mechanism described below is superseded by [2026-08-31 - MCP capability registration via the container](2026-08-31-mcp-capability-registration-via-container.md): `mcp.yaml` `scan_dirs` no longer exists, and a capability is assigned to one of the two MCP servers instead. The placement model in this ADR is untouched.**
+
 
 The platform layer that should be treated as public API:
 

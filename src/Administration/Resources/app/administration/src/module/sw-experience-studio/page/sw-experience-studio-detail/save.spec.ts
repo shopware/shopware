@@ -35,6 +35,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             createNotificationError: jest.fn(),
             notifySaveError: methods.notifySaveError,
             extractApiErrorDetail: methods.extractApiErrorDetail,
+            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
+            showDiagnostics: false,
             $t,
             $router: { push: jest.fn() },
             isCreateMode: true,
@@ -68,6 +70,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             createNotificationError: jest.fn(),
             notifySaveError: methods.notifySaveError,
             extractApiErrorDetail: methods.extractApiErrorDetail,
+            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
+            showDiagnostics: false,
             $t,
             isCreateMode: false,
             isLoading: false,
@@ -99,6 +103,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             createNotificationError: jest.fn(),
             notifySaveError: methods.notifySaveError,
             extractApiErrorDetail: methods.extractApiErrorDetail,
+            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
+            showDiagnostics: false,
             $t,
             $router: { push: jest.fn() },
             isCreateMode: true,
@@ -163,6 +169,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             $t: jest.fn().mockReturnValue('saved'),
             isCreateMode: false,
             isLoading: false,
+            showDiagnostics: true,
         };
 
         await methods.onSave.call(vm);
@@ -181,6 +188,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
                 },
             ],
         });
+        expect(vm.showDiagnostics).toBe(false);
+        expect(vm.isLoading).toBe(false);
         expect(vm.layout).toBe(reloadedLayout);
         expect(vm.layout.layout[0]).toBe(canonicalElement);
         expect(Object.keys(vm.layout.layout[0])).toEqual([

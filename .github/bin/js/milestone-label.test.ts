@@ -175,7 +175,7 @@ function mergeGroupToolkit(
                                 throw new Error(`unexpected pulls.get for #${pull_number}`);
                             }
 
-                            return { data: { number: pull_number, draft: pull.draft ?? false, base: { ref: pull.base }, labels: pull.labels.map((name) => ({ name })) } };
+                            return { data: { number: pull_number, draft: pull.draft ?? false, base: { ref: pull.base }, head: { sha: `head-${pull_number}` }, labels: pull.labels.map((name) => ({ name })) } };
                         },
                     },
                     repos: {
@@ -212,9 +212,17 @@ function mergeGroupToolkit(
     };
 }
 
-/** Toolkit stub for the single pull-request path (pull_request_target / merge_group's sibling). */
-function pullRequestToolkit(eventName: string, pull: { base: string; labels: string[]; draft?: boolean; sha?: string }) {
-    const statuses: { state: string; description: string }[] = [];
+/**
+ * Toolkit stub for the single pull-request path (pull_request_target / merge_group's sibling).
+ * `pull` is the state the API reports, `stale` what the event payload still claims — they
+ * diverge whenever a label lands after the event fired, or the run is a re-run.
+ */
+function pullRequestToolkit(
+    eventName: string,
+    pull: { base: string; labels: string[]; draft?: boolean; sha?: string },
+    stale: { base?: string; labels?: string[]; draft?: boolean; sha?: string } = {},
+) {
+    const statuses: { state: string; description: string; sha: string }[] = [];
 
     return {
         statuses,
@@ -224,10 +232,21 @@ function pullRequestToolkit(eventName: string, pull: { base: string; labels: str
                     repository: { refs: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: VERSION_BRANCHES.map((name) => ({ name })) } },
                 }),
                 rest: {
+                    pulls: {
+                        get: async ({ pull_number }: { pull_number: number }) => ({
+                            data: {
+                                number: pull_number,
+                                draft: pull.draft ?? false,
+                                base: { ref: pull.base },
+                                head: { sha: pull.sha ?? 'cccc' },
+                                labels: pull.labels.map((name) => ({ name })),
+                            },
+                        }),
+                    },
                     repos: {
-                        createCommitStatus: async ({ state, description, context: ctx }: { state: string; description: string; context: string }) => {
+                        createCommitStatus: async ({ state, description, sha, context: ctx }: { state: string; description: string; sha: string; context: string }) => {
                             assert.equal(ctx, STATUS_CONTEXT);
-                            statuses.push({ state, description });
+                            statuses.push({ state, description, sha });
 
                             return {};
                         },
@@ -246,7 +265,13 @@ function pullRequestToolkit(eventName: string, pull: { base: string; labels: str
                 repo: { owner: 'shopware', repo: 'shopware' },
                 payload: {
                     repository: { default_branch: 'trunk' },
-                    pull_request: { number: 1, base: { ref: pull.base }, head: { sha: pull.sha ?? 'cccc' }, draft: pull.draft ?? false, labels: pull.labels.map((name) => ({ name })) },
+                    pull_request: {
+                        number: 1,
+                        base: { ref: stale.base ?? pull.base },
+                        head: { sha: stale.sha ?? pull.sha ?? 'cccc' },
+                        draft: stale.draft ?? pull.draft ?? false,
+                        labels: (stale.labels ?? pull.labels).map((name) => ({ name })),
+                    },
                 },
             },
         },
@@ -264,6 +289,33 @@ for (const eventName of ['pull_request_target', 'pull_request']) {
         assert.equal(statuses[0].state, 'failure');
     });
 }
+
+test('the single-PR path judges the label the API reports, not the one the payload froze', async () => {
+    // The labeler wins the race by a second, so the payload of the event that started this
+    // run has no label yet while the pull request already carries the right one (#20073).
+    const { toolkit, statuses } = pullRequestToolkit(
+        'pull_request_target',
+        { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`] },
+        { labels: [] },
+    );
+
+    await checkMilestoneLabel(toolkit as never);
+
+    assert.equal(statuses[0].state, 'success');
+});
+
+test('the single-PR path posts the status on the head the API reports', async () => {
+    // A re-run replays the original payload, so its head can be several pushes behind.
+    const { toolkit, statuses } = pullRequestToolkit(
+        'pull_request_target',
+        { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`], sha: 'dddd' },
+        { sha: 'cccc' },
+    );
+
+    await checkMilestoneLabel(toolkit as never);
+
+    assert.equal(statuses[0].sha, 'dddd');
+});
 
 test('the single-PR path never fails the job, even when the label is wrong', async () => {
     const { toolkit } = pullRequestToolkit('pull_request_target', { base: 'trunk', labels: [] });

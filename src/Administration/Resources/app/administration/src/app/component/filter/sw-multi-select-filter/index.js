@@ -14,10 +14,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'filter-update',
-        'filter-reset',
-    ],
+    emits: ['filter-update', 'filter-reset'],
 
     props: {
         filter: {
@@ -76,11 +73,7 @@ export default {
             if (this.filter.existingType) {
                 const multiFilter = [];
                 newValues.forEach((value) => {
-                    multiFilter.push(
-                        Criteria.not('and', [
-                            Criteria.equals(`${value}.id`, null),
-                        ]),
-                    );
+                    multiFilter.push(Criteria.not('and', [Criteria.equals(`${value}.id`, null)]));
                 });
                 filterCriteria.push(Criteria.multi('or', multiFilter));
             } else {

@@ -51,15 +51,15 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
 
     private IdsCollection $ids;
 
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-
-        KernelLifecycleManager::bootKernel();
-    }
+    private static bool $kernelBooted = false;
 
     protected function setUp(): void
     {
+        if (!self::$kernelBooted) {
+            KernelLifecycleManager::bootKernel();
+            self::$kernelBooted = true;
+        }
+
         parent::setUp();
 
         $this->ids = new IdsCollection();

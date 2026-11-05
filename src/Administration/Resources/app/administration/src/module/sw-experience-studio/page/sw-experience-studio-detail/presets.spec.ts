@@ -78,7 +78,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
         expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
             'insert-preset',
-            [],
             { presetId: 'core.text-block' },
             expect.any(Function),
         );
@@ -99,7 +98,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
         expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
             'insert-preset',
-            [],
             { presetId: 'core.text-block', parentElementId: 'parent-1', slot: 'content' },
             expect.any(Function),
         );

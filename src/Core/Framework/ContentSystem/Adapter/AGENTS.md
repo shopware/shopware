@@ -1,25 +1,17 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
-## Source Code References
-
-- `RootSourceRegistry` - The single authority over the valid root-source set: `knownRootSources()` (entity types + section keys + `none`, excludes `main`), `entityRootSources()` (the subset backing `content-system-entity-types.json`), `resolve(rootSource, Context): list<ProvidedContext>`, `sourceFor(rootSource)`. `resolve()` fails hard on an unknown id, so callers gate membership first; the entity-type list is baked in at build time by `ContentLayoutAssignableCompilerPass`
-- `NoneSpecificationSource` - The `none` root source for a context-free layout: `providedRootContext()` is `[]`, `supports()` / `supportsEntityType()` are `false`, the four resolution methods throw. It is what keeps `content_layout.root_source` total
-- `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `entityTypeResolutionUnsupported`), `providedRootContext(Context $context): list<ProvidedContext>` (default `[]`) — last three overridden by entity sources; `providedRootContext()` is reached via `RootSourceRegistry::resolve()` → `sourceFor($rootSource)`, the single resolution path the write gate, the diagnose route, and the mutation routes all go through
-- `RenderingSpecificationResolver` - `resolve()` iterates sources via `supports()` → `RenderingSpecificationFactory::create()`; `resolveWithoutLayout(entityType, entityId, …)` selects via `supportsEntityType()` → `createWithoutLayout()`, throws `unknownEntityType` on no match
-- `RenderingSpecificationFactory` - `create()` assembles `ResolvedContentLayout` (layout ID plus `RenderingSpecification`); `createWithoutLayout()` assembles a bare `RenderingSpecification` (no layout id, no assignment lookup) for the preview action
-- Entity sources co-located with domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
-- Domain-aware sources in Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
-- `EntityLayoutResolver`, `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity resolution; `EntityLayoutContextFactory::providedRootContext(AbstractContentLayoutAssignableDefinition $definition): list<ProvidedContext>` delegates to `RootContextMapper::map($definition->getPageDataRequirements())`. `buildSpecificationData(string $entityId, Request $request, SalesChannelContext $context, AbstractContentLayoutAssignableDefinition $definition): SpecificationData` is the assignment-free assembly entry point — all three entity sources call it from `resolveSpecificationDataForEntity()`; the assignment-based `resolveSpecificationData(string $path, …)` extracts the entity id from the path and delegates to it
-- `DomainAwareLayoutResolver`, `NavigationAliasResolver` (FactoryHelper/) - Header/footer resolution
-
 ## Constraints
 
-- Sources use `supports()` bool method — NOT null-return pattern
-- Entity sources tagged `content_system.entity_specification_source` priority 100 — higher priority runs first
-- Header/footer sources are NOT in the tagged iterator — injected directly into separate resolver instances
-- 3 resolver instances: main (Core, tagged iterator), header + footer (Storefront, single source each)
-- Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`
-- Entity default: when the entity query finds nothing, `EntityLayoutContextFactory::resolveLayoutId()` falls back to the system config key from `AbstractContentLayoutAssignableDefinition::getContentLayoutDefaultConfigKey()` (read for the sales channel, so the channel value overrides the global one); `null` for landing pages, so they have no default. See [docs/entity-rendering.md](docs/entity-rendering.md#default-layout)
-- Header/footer query: `WHERE (domain_id = X AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id IS NULL) ORDER BY domain_id DESC, sales_channel_id DESC LIMIT 1`. Three explicit tiers (domain+channel, then channel, then global); there is NO domain-only tier (`domain_id = X AND sales_channel_id IS NULL` never matches)
+- Never let a request parameter choose the entity a loader targets, the property it reads or a config key the author did not mark with a placeholder token. Check: can a query parameter named like the entity id field replace the server-derived placeholder value? Why it holds: [data-loading.md](../docs/principles/data-loading.md#no-request-selects-what-a-loader-loads)
+
+## Where to look
+
+- Specification source chain of responsibility, the `supports()` contract and the tag priority: [custom-sources.md](docs/custom-sources.md#chain-of-responsibility)
+- Registering an entity source with its assignable-entity definition: [custom-sources.md](docs/custom-sources.md#example-blog-post-source)
+- Assignment-free resolution for the preview and diagnose actions: [custom-sources.md](docs/custom-sources.md#assignment-free-resolution-preview-support)
+- Entity-based and domain-aware resolution, header and footer tiers, resolver instances and registration: [README.md](README.md#resolution-strategies)
+- Root-source registry, resolver, factory and source base classes: [README.md](README.md#key-classes)
+- FactoryHelper resolvers and the Entity base classes: [README.md](README.md#subdirectories)
+- Default layout from system config when no assignment matches: [entity-rendering.md](docs/entity-rendering.md#default-layout)
+- Main-section endpoints and supported path patterns: [entity-rendering.md](docs/entity-rendering.md#entity-based-rendering)
+- The entity auto-loaded before the layout runs and how a layout receives it: [automatic-data-loading.md](docs/automatic-data-loading.md#automatic-data-loading)
+- Default placeholders and extra query-string placeholders: [placeholders.md](docs/placeholders.md#placeholders)
+- Admin API endpoint listing assignable entity types: [introspection.md](docs/introspection.md#entity-type-introspection)

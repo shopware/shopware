@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated colorpicker's update:value reaches the parent only through $attrs */
 import template from './sw-colorpicker.html.twig';
 
 /**
@@ -17,10 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
          * For providing backwards compatibility with the old sw-colorpicker component
          */
         value: {
-            type: [
-                Number,
-                String,
-            ],
+            type: [Number, String],
             required: false,
             default: null,
         },

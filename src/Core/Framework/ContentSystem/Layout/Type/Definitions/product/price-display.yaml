@@ -14,6 +14,14 @@ properties:
     required: false
     title: "Product"
     description: "Hydrated product whose price is shown."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"
 
   showTaxInfo:
     type: boolean

@@ -6,6 +6,7 @@ use Shopware\Core\Content\LegalGuaranteeNotice\LegalGuaranteeNoticeRenderer;
 use Shopware\Core\Content\LegalGuaranteeNotice\LegalGuaranteeNoticeTwigFilter;
 use Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\AbstractLegalGuaranteeNoticeRoute;
 use Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRoute;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -32,6 +33,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service(LegalGuaranteeNoticeRenderer::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->alias(AbstractLegalGuaranteeNoticeRoute::class, LegalGuaranteeNoticeRoute::class);

@@ -8,10 +8,7 @@ import './sw-settings-mailer-smtp.scss';
 export default {
     template,
 
-    emits: [
-        'host-changed',
-        'port-changed',
-    ],
+    emits: ['host-changed', 'port-changed'],
 
     props: {
         mailerSettings: {

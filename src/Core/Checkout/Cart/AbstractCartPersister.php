@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -19,6 +21,20 @@ abstract class AbstractCartPersister
     abstract public function getDecorated(): AbstractCartPersister;
 
     abstract public function load(string $token, SalesChannelContext $context): Cart;
+
+    /**
+     * Checks if a cart is stored for the given token, without loading and deserializing it.
+     */
+    #[BecomesAbstract(version: 'v6.8.0')]
+    public function exists(string $token, SalesChannelContext $context): bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'AbstractCartPersister::exists() will become abstract in v6.8.0.0. Please implement it in your cart persister class.'
+        );
+
+        return $this->getDecorated()->exists($token, $context);
+    }
 
     abstract public function save(Cart $cart, SalesChannelContext $context): void;
 

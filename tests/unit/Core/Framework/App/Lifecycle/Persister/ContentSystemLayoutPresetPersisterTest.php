@@ -53,8 +53,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     {
         $dto = $this->dto('Hero');
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
-        $repo = new StaticEntityRepository([
+        $repo = StaticEntityRepository::of(AppContentSystemLayoutPresetCollection::class, [
             static function (Criteria $criteria, Context $context): AppContentSystemLayoutPresetCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
@@ -84,7 +83,6 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     {
         $existing = $this->existingEntity('preset-hero', 'DemoApp:Hero', 'outdated-hash');
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection([$existing]),
         ]);
@@ -107,7 +105,6 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
 
         $existing = $this->existingEntity('preset-hero', 'DemoApp:Hero', $this->hashOf($dto));
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection([$existing]),
         ]);
@@ -124,7 +121,6 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     {
         $obsolete = $this->existingEntity('preset-old', 'DemoApp:Old', 'hash');
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection([$obsolete]),
         ]);
@@ -148,7 +144,6 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $existingHero = $this->existingEntity('preset-hero', 'DemoApp:Hero', $this->hashOf($unchanged));
         $existingBanner = $this->existingEntity('preset-banner', 'DemoApp:Banner', 'outdated-hash');
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection([$existingHero, $existingBanner]),
         ]);
@@ -175,7 +170,6 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     #[TestDox('returns early without touching the repository when the app ships and stores no presets')]
     public function testEarlyReturnWhenBothEmpty(): void
     {
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection(),
         ]);
@@ -216,8 +210,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
             ->with('content_system_layout_preset_persist_' . $this->ids->get('app'), 15.0)
             ->willReturn($lock);
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
-        $repo = new StaticEntityRepository([
+        $repo = StaticEntityRepository::of(AppContentSystemLayoutPresetCollection::class, [
             static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemLayoutPresetCollection {
                 static::assertTrue($lockHeld);
 
@@ -256,7 +249,6 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $registry = static::createMock(AbstractContentSystemLayoutPresetRegistry::class);
         $registry->expects($this->never())->method('invalidate');
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection(),
         ]);
@@ -279,8 +271,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $loader = static::createStub(YamlLayoutPresetLoader::class);
         $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
 
-        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
-        $repo = new StaticEntityRepository([]);
+        $repo = StaticEntityRepository::of(AppContentSystemLayoutPresetCollection::class, []);
 
         $persister = $this->buildPersister($repo, $loader);
 

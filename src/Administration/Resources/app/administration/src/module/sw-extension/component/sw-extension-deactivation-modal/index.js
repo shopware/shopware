@@ -8,10 +8,7 @@ import './sw-extension-deactivation-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'extension-deactivate',
-    ],
+    emits: ['modal-close', 'extension-deactivate'],
 
     props: {
         extensionName: {

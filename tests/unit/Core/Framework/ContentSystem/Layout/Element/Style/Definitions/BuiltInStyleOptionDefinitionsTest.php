@@ -141,10 +141,7 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
 
     private function definitionsDirectory(): string
     {
-        // Breakpoint lives directly under Style/, so its directory + /Definitions is the shipped folder
-        $styleDir = \dirname((string) (new \ReflectionClass(Breakpoint::class))->getFileName());
-
-        return $styleDir . '/Definitions';
+        return __DIR__ . '/../../../../../../../../../src/Core/Framework/ContentSystem/Layout/Element/Style/Definitions';
     }
 
     /**

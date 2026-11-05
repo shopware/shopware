@@ -35,7 +35,7 @@ class MigrationCollectionRuntimeTest extends TestCase
     {
         $container = static::getContainer();
 
-        $this->connection = $container->get(Connection::class);
+        $this->connection = $container->get('doctrine.dbal.migration_connection');
         $loader = $container->get(MigrationCollectionLoader::class);
 
         $this->validMigrationCollection = $loader->collect('_test_migrations_valid_run_time');
@@ -267,16 +267,16 @@ class MigrationCollectionRuntimeTest extends TestCase
             ->method('notice')
             ->with(\sprintf('Migration "%s" does not exist. Ignoring it', $invalidMigration));
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
         $queryBuilder->method('orderBy')->willReturn($queryBuilder);
         $queryBuilder->method('where')->willReturn($queryBuilder);
         $queryBuilder->method('andWhere')->willReturn($queryBuilder);
 
-        $statement = $this->createMock(Result::class);
+        $statement = static::createStub(Result::class);
         $statement->method('fetchFirstColumn')->willReturn([$invalidMigration]);
 
         $queryBuilder->method('executeQuery')->willReturn($statement);

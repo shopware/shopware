@@ -8,11 +8,11 @@ const createWrapper = async (options) => {
     return mount(await wrapTestComponent('sw-field-error', { sync: true }), {
         global: {
             mocks: {
-                $t: (key, number, value) => {
-                    if (!value || Object.keys(value).length < 1) {
+                $t: (key, named) => {
+                    if (!named || Object.keys(named).length < 1) {
                         return key;
                     }
-                    return key + JSON.stringify(value);
+                    return key + JSON.stringify(named);
                 },
             },
         },

@@ -18,7 +18,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import * as Vue from 'vue';
 import { createRequire } from 'node:module';
 import { Script, createContext } from 'node:vm';
-import { attachOverrides, _overridesMap } from '../../../src/app/adapter/composition-extension-system';
+import { attachOverrides, getExposedProps, _overridesMap } from '../../../src/app/adapter/composition-extension-system';
 import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform/index.ts';
 import { convertComponent, type ConvertResult } from './convert-component';
 import type { RuntimeFixture } from './runtime-equivalence-fixtures';
@@ -37,11 +37,15 @@ type RuntimeProbe = {
 type RuntimeShopware = {
     Component: {
         attachOverrides: typeof attachOverrides;
+        getExposedProps: typeof getExposedProps;
     };
 };
 
 const runtimeShopware: RuntimeShopware = {
-    Component: { attachOverrides },
+    Component: {
+        attachOverrides,
+        getExposedProps,
+    },
 };
 
 const nodeRequire = createRequire(__filename);
@@ -208,10 +212,7 @@ function globalMountOptions(options: RuntimeMountOptions, useConvertedTemplate: 
 
     return {
         components,
-        plugins: [
-            BlockDataScopePlugin,
-            ...(options.plugins ?? []),
-        ],
+        plugins: [BlockDataScopePlugin, ...(options.plugins ?? [])],
         provide: options.provide,
     };
 }
@@ -268,10 +269,7 @@ function mountGenerated(fixture: RuntimeFixture, result: ConvertResult, options:
 function mountOriginalPair(fixture: RuntimeFixture, options: RuntimeMountOptions = {}): [VueWrapper, VueWrapper] {
     const component = compileOptionsComponent(fixture);
 
-    return [
-        mountComponent(component, options, false),
-        mountComponent(component, options, false),
-    ];
+    return [mountComponent(component, options, false), mountComponent(component, options, false)];
 }
 
 function mountGeneratedPair(

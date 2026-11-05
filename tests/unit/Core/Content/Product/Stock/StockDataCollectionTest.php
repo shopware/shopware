@@ -19,7 +19,7 @@ class StockDataCollectionTest extends TestCase
     {
         $collection = new StockDataCollection([]);
 
-        static::assertEmpty($collection->all());
+        static::assertCount(0, $collection->all());
     }
 
     public function testGetStockForProductId(): void
@@ -41,7 +41,7 @@ class StockDataCollectionTest extends TestCase
     {
         $collection = new StockDataCollection([]);
 
-        static::assertEmpty($collection->all());
+        static::assertCount(0, $collection->all());
 
         $stock1 = new StockData('12345', 10, true);
 

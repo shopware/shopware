@@ -39,8 +39,8 @@
             {% block sw_review_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
-                icon="regular-file-text"
-                :centered="true"
+                icon="regular-star"
+                centered
                 :headline="$t('sw-review.list.messageEmpty')"
                 :description="$t('sw-review.list.messageEmptySubline')"
             />

@@ -80,19 +80,9 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
 
         it.each([
-            [
-                'unknown flag',
-                '--unknown',
-            ],
-            [
-                'replacement without write',
-                '--replace-originals',
-            ],
-            [
-                'duplicate write',
-                '--write',
-                '--write',
-            ],
+            ['unknown flag', '--unknown'],
+            ['replacement without write', '--replace-originals'],
+            ['duplicate write', '--write', '--write'],
         ])('rejects %s with a nonzero exit code', (_label, ...flags: string[]) => {
             const result = runCli(tmpDir, ...flags);
 
@@ -148,11 +138,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
 
     describe('writing a synthesized component tree', () => {
         // Names chosen so the middle component proves the batch remains deterministic.
-        const NAMES = [
-            'sw-alpha-item',
-            'sw-bravo-item',
-            'sw-charlie-item',
-        ];
+        const NAMES = ['sw-alpha-item', 'sw-bravo-item', 'sw-charlie-item'];
 
         let tmpDir: string;
 
@@ -215,11 +201,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
                 '<template><div /></template>\n<script setup>\nswDefinePublic({});\n</script>\n',
                 /^half-migrated:/,
             ],
-            [
-                'foreign file',
-                '<template><p>unrelated storybook demo</p></template>\n',
-                /did not generate/,
-            ],
+            ['foreign file', '<template><p>unrelated storybook demo</p></template>\n', /did not generate/],
         ])('reports an existing .vue as %s and rewrites nothing', async (_label, contents, expected) => {
             const vuePath = path.join(tmpDir, 'sw-alpha-item', 'sw-alpha-item.vue');
 
@@ -253,6 +235,48 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
 
             expect(result.stats).toMatchObject({ full: 2, error: 1 });
             expect(reportOf(result, 'sw-bravo-item')?.reasons[0]).toMatch(/^unexpected failure:/);
+        });
+    });
+
+    describe('a target above the Administration source', () => {
+        const name = 'sw-mixin-cms-element-scaffold';
+        let tmpDir: string;
+        const sfcPath = (dir: string, component: string) => path.join(tmpDir, dir, component, `${component}.vue`);
+
+        beforeAll(() => {
+            tmpDir = makeRoot('sfc-migration-mixed-');
+            fs.cpSync(path.join(FIXTURES, name), path.join(tmpDir, `admin/src/${name}`), { recursive: true });
+            registerAll(path.join(tmpDir, 'admin/src'), name);
+
+            // The same component under another name, because a name registered twice is skipped.
+            const index = fs
+                .readFileSync(path.join(FIXTURES, name, 'index.js'), 'utf8')
+                .replace(`${name}.html`, `${name}-copy.html`);
+            writeFile(tmpDir, `plugin/${name}-copy/index.js`, index);
+            fs.copyFileSync(
+                path.join(FIXTURES, name, `${name}.html.twig`),
+                path.join(tmpDir, `plugin/${name}-copy/${name}-copy.html.twig`),
+            );
+            registerAll(path.join(tmpDir, 'plugin'), `${name}-copy`);
+        });
+
+        afterAll(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('migrates each component outside the Administration source as an extension', async () => {
+            const result = await runMigration(tmpDir, { write: true, adminSrc: path.join(tmpDir, 'admin/src') });
+
+            // useCmsElementDeprecated is not published, so only the Administration can import it.
+            expect(reportOf(result, name)?.outcome).toBe('partial');
+            expect(fs.readFileSync(sfcPath('admin/src', name), 'utf8')).toContain(
+                "import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';",
+            );
+            expect(reportOf(result, `${name}-copy`)?.outcome).toBe('skipped');
+            expect(reportOf(result, `${name}-copy`)?.reasons).toContain(
+                "useCmsElementDeprecated() replaces the 'cms-element' mixin but is not published to extensions through shopware:composables",
+            );
+            expect(fs.existsSync(sfcPath('plugin', `${name}-copy`))).toBe(false);
         });
     });
 
@@ -302,14 +326,9 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
                 ].sort(),
             );
 
-            Object.entries(beforeManifest).forEach(
-                ([
-                    file,
-                    bytes,
-                ]) => {
-                    expect(afterManifest[file]).toEqual(bytes);
-                },
-            );
+            Object.entries(beforeManifest).forEach(([file, bytes]) => {
+                expect(afterManifest[file]).toEqual(bytes);
+            });
         });
 
         it('writes nothing for a skipped component', () => {
@@ -327,14 +346,8 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
 
         it.each([
-            [
-                'sw-slot-in-child',
-                "Component.extend child of 'sw-simple-card' (inherits the parent template)",
-            ],
-            [
-                'sw-lifecycle-demo',
-                "Component.override registration (patches another component's template)",
-            ],
+            ['sw-slot-in-child', "Component.extend child of 'sw-simple-card' (inherits the parent template)"],
+            ['sw-lifecycle-demo', "Component.override registration (patches another component's template)"],
         ])('leaves %s untouched, because its template is not self-contained', (name, reason) => {
             expect(reportOf(result, name)).toMatchObject({ outcome: 'skipped', reasons: [reason] });
             expect(fs.existsSync(path.join(tmpDir, name, `${name}.vue`))).toBe(false);

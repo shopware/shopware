@@ -6,7 +6,7 @@ test(
     async ({ AdminRuleDetail, AdminRuleListing, ShopAdmin, IdProvider, TestDataService }) => {
         const { id: uniqueId } = IdProvider.getIdPair();
         const { id: taxId, name: taxName } = await TestDataService.createTaxRate();
-        const { name: ruleTag } = await TestDataService.createTag(`Test tag - ${uniqueId}`);
+        const { id: ruleTagId, name: ruleTag } = await TestDataService.createTag(`Test tag - ${uniqueId}`);
 
         const testConfig = {
             ruleName: `Test rule - ${uniqueId}`,
@@ -38,6 +38,7 @@ test(
             },
             tags: [
                 {
+                    id: ruleTagId,
                     name: testConfig.ruleTag,
                 },
             ],

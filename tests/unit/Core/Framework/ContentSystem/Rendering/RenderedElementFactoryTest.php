@@ -7,10 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
@@ -429,6 +431,91 @@ class RenderedElementFactoryTest extends TestCase
         static::assertNull($result->provenance['headline']->loaderIdentity);
     }
 
+    /**
+     * @param array<string, mixed> $loaded
+     */
+    #[DataProvider('missingMappingLoaderValues')]
+    #[TestDox('uses authored content when the mapped source has no value')]
+    public function testMissingMappingUsesAuthoredValue(array $loaded): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored fallback')
+            ->withDataRequirement('headline', 'product', new StubLoaderConfig())
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
+            ->build();
+
+        $result = $this->mintResult($stored, $loaded, [], ['headline'], [], mappingFallbackKeys: ['headline']);
+
+        static::assertSame('Authored fallback', $result->element->properties['headline']);
+        static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['headline']->origin);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function missingMappingLoaderValues(): iterable
+    {
+        yield 'no loader value' => [[]];
+        yield 'null loader value' => [['headline' => null]];
+    }
+
+    #[TestDox('retains a resolved null for a mapped property instead of restoring its authored value')]
+    public function testResolvedNullMappingSuppressesAuthoredValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored fallback')
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
+            ->build();
+
+        $result = $this->mintResult($stored, [], ['headline' => null], ['headline'], []);
+
+        static::assertArrayHasKey('headline', $result->element->properties);
+        static::assertNull($result->element->properties['headline']);
+        static::assertSame(ValueOrigin::DeliveredContext, $result->provenance['headline']->origin);
+    }
+
+    #[TestDox('uses the loader-resolved value when the mapped source has no value')]
+    public function testMissingMappingUsesLoaderResolvedValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored fallback')
+            ->withDataRequirement('headline', 'product', new StubLoaderConfig())
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
+            ->build();
+
+        $loaded = new StubStruct();
+        $result = $this->mintResult($stored, ['headline' => $loaded], [], ['headline'], [], mappingFallbackKeys: ['headline']);
+
+        static::assertSame($loaded, $result->element->properties['headline']);
+        static::assertSame(ValueOrigin::LoaderResolved, $result->provenance['headline']->origin);
+    }
+
+    #[DataProvider('mappedDistributionKeys')]
+    public function testRejectedMappingsAreAbsentFromDistributionReferencedOutputAndProvenance(string $component, string $key): void
+    {
+        $stored = StoredElementBuilder::create($component, 'element-1')
+            ->withProperty($key, 'Authored fallback')
+            ->withProperty('keep', 'Unrelated')
+            ->withDataRequirement($key, 'product', new StubLoaderConfig())
+            ->withConsumer($key, ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))
+            ->build();
+
+        $result = $this->mintResult($stored, [$key => 'Loaded fallback'], [], [$key, 'keep'], []);
+
+        static::assertSame(['keep' => 'Unrelated'], $result->element->properties);
+        static::assertSame(['keep'], array_keys($result->provenance));
+        static::assertSame(ValueOrigin::DistributionReferenced, $result->provenance['keep']->origin);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function mappedDistributionKeys(): iterable
+    {
+        yield 'declared mapped property' => ['Sw:Text', 'headline'];
+        yield 'undeclared mapped property' => ['Sw:Tile', 'data_key'];
+    }
+
     #[TestDox('records nothing for a key no member wrote')]
     public function testProvenanceOmitsAnAbsentKey(): void
     {
@@ -537,6 +624,7 @@ class RenderedElementFactoryTest extends TestCase
      * @param list<string> $distributionKeys
      * @param array<string, list<RenderedElement>> $slots
      * @param string|list<string>|null $subjectType
+     * @param list<string> $mappingFallbackKeys
      */
     private function mintResult(
         StoredElement $stored,
@@ -545,6 +633,7 @@ class RenderedElementFactoryTest extends TestCase
         array $distributionKeys,
         array $slots,
         string|array|null $subjectType = null,
+        array $mappingFallbackKeys = [],
     ): ElementMintResult {
         $fingerprinter = new ValueFingerprinter();
 
@@ -558,7 +647,7 @@ class RenderedElementFactoryTest extends TestCase
             $loaderValues
         );
 
-        return $this->factory($subjectType)->create($stored, $resolved, $delivered, $distributionKeys, $slots);
+        return $this->factory($subjectType)->create($stored, $resolved, $delivered, $distributionKeys, $slots, $mappingFallbackKeys);
     }
 
     /**

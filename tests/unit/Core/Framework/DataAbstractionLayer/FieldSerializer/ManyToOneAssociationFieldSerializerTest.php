@@ -42,8 +42,6 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
     #[DataProvider('invalidArrayProvider')]
     public function testExceptionIsThrownIfDataIsNotAssociativeArray(array $payload): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::expectedAssociativeArray('/customer'));
-
         new StaticDefinitionInstanceRegistry(
             [
                 OrderDefinition::class => $orderDefinition = new OrderDefinition(),
@@ -66,6 +64,8 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedAssociativeArray('/customer'));
+
         $result = $serializer->encode(
             $field,
             static::createStub(EntityExistence::class),
@@ -78,8 +78,6 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
 
     public function testExceptionInNormalizationIsThrownIfDataIsNotArray(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/customer'));
-
         new StaticDefinitionInstanceRegistry(
             [
                 OrderDefinition::class => $orderDefinition = new OrderDefinition(),
@@ -101,6 +99,8 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
             '/0',
             new WriteCommandQueue()
         );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/customer'));
 
         $serializer->normalize(
             $field,

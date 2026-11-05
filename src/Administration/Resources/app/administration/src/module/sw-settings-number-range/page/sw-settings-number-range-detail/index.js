@@ -17,15 +17,13 @@ export default {
 
     inject: [
         'numberRangeService',
+        'documentV2ApiService',
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -46,6 +44,7 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            collidingNumberRangeNames: [],
         };
     },
 
@@ -176,10 +175,11 @@ export default {
             return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
-        ...mapPropertyErrors('numberRange', [
-            'name',
-            'typeId',
-        ]),
+        hasPatternCollision() {
+            return this.collidingNumberRangeNames.length > 0;
+        },
+
+        ...mapPropertyErrors('numberRange', ['name', 'typeId']),
 
         stateInput: {
             get() {
@@ -205,6 +205,7 @@ export default {
     watch: {
         'numberRange.pattern'() {
             this.getPreview();
+            this.collidingNumberRangeNames = [];
         },
         'numberRange.start'() {
             this.getPreview();
@@ -219,15 +220,14 @@ export default {
         async createdComponent() {
             this.isLoading = true;
 
-            if (this.$route.params.id && this.numberRange.isLoading !== true) {
-                this.numberRangeId = this.$route.params.id.toLowerCase();
-                await Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                ]);
+            try {
+                if (this.$route.params.id && this.numberRange.isLoading !== true) {
+                    this.numberRangeId = this.$route.params.id.toLowerCase();
+                    await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
+                }
+            } finally {
+                this.isLoading = false;
             }
-
-            this.isLoading = false;
         },
 
         async loadEntityData() {
@@ -239,7 +239,12 @@ export default {
 
             this.getState();
             this.splitPattern();
-            await this.loadSalesChannels();
+            await Promise.all([
+                this.loadSalesChannels(),
+                this.checkPatternCollision().catch((error) => {
+                    Shopware.Utils.debug.error(error);
+                }),
+            ]);
         },
 
         loadCustomFieldSets() {
@@ -280,6 +285,19 @@ export default {
                 .then((response) => {
                     this.preview = response.number;
                 });
+        },
+
+        checkPatternCollision() {
+            this.collidingNumberRangeNames = [];
+
+            const { typeId, pattern, id } = this.numberRange;
+            if (!typeId || !pattern) {
+                return Promise.resolve();
+            }
+
+            return this.documentV2ApiService.getNumberRangePatternCollisions(typeId, pattern, id).then(({ collisions }) => {
+                this.collidingNumberRangeNames = collisions.map((collision) => collision.name);
+            });
         },
 
         getState() {
@@ -381,10 +399,7 @@ export default {
 
         invalidateNumberRangeCaches() {
             Shopware.Service('cacheService').invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'number-range-ids',
-                ],
+                cacheKey: ['shared-data', 'number-range-ids'],
             });
         },
 

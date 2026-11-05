@@ -86,6 +86,21 @@ class AttachElementTest extends TestCase
             [$attached->id, $attached->slots['content'][0]->id, $attached->slots['content'][1]->id],
             $attach->created(),
         );
+        static::assertSame([], $attach->freshlyScaffolded());
+    }
+
+    #[TestDox('reports every node of a new preset subtree for default initialization')]
+    public function testNewScaffoldReportsEveryNestedId(): void
+    {
+        $incoming = new StoredElement('preset', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('preset-child', 'Sw:Card')],
+        ]);
+        $attach = $this->attach($incoming, isNewScaffold: true);
+
+        $result = $attach->apply(new StoredTree([]));
+
+        $attached = $result->roots[0];
+        static::assertSame([$attached->id, $attached->slots['content'][0]->id], $attach->freshlyScaffolded());
     }
 
     #[TestDox('attaches the subtree into a parent slot at an explicit index')]
@@ -194,7 +209,7 @@ class AttachElementTest extends TestCase
         $attach->apply(new StoredTree([new StoredElement('parent', 'Sw:Block')]));
     }
 
-    private function attach(StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null): AttachElement
+    private function attach(StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null, bool $isNewScaffold = false): AttachElement
     {
         return new AttachElement(
             $this->registry(),
@@ -204,6 +219,7 @@ class AttachElementTest extends TestCase
             $parentElementId,
             $slot,
             $index,
+            isNewScaffold: $isNewScaffold,
         );
     }
 

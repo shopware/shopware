@@ -2,15 +2,23 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:element name="config">
         <xs:complexType>
-            <xs:sequence>
-                <xs:element name="card" type="card" maxOccurs="unbounded"/>
-            </xs:sequence>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element name="tab" type="tab"/>
+                <xs:element name="card" type="card"/>
+            </xs:choice>
         </xs:complexType>
         <xs:unique name="uniqueInputFieldName">
             <xs:selector xpath="card/input-field/name"/>
             <xs:field xpath="."/>
         </xs:unique>
     </xs:element>
+    <xs:complexType name="tab">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>
+            <xs:element name="name" type="xs:string" minOccurs="0"/>
+            <xs:element name="card" type="card" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
     <xs:complexType name="card">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>

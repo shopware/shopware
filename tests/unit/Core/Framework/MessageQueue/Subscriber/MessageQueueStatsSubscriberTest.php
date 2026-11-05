@@ -5,8 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
+use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
@@ -40,7 +43,47 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $this->subscriber = new MessageQueueStatsSubscriber(
             $this->gatewayRegistry,
             $this->statsService,
+            new NullLogger(),
         );
+    }
+
+    public function testOnMessageHandledLogsFailingStatsInsteadOfStoppingTheWorker(): void
+    {
+        $envelope = new Envelope(new \stdClass());
+        $failure = new \RuntimeException('Connection lost');
+
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->once())->method('registerMessage')->willThrowException($failure);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::isString(), ['exception' => $failure]);
+
+        $subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry, $this->statsService, $logger);
+        $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'theReceiver'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testMissingIncrementGatewayIsLoggedAndStatsAreStillRecorded(): void
+    {
+        $envelope = new Envelope(new \stdClass());
+
+        $this->gatewayRegistry->expects($this->exactly(3))
+            ->method('get')
+            ->willThrowException(IncrementException::gatewayNotFound(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL));
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->once())->method('registerMessage')->with($envelope);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(3))->method('warning');
+
+        $subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry, $this->statsService, $logger);
+        $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'theReceiver'));
+        $subscriber->onMessageFailed(new WorkerMessageFailedEvent($envelope, 'theReceiver', new \Exception()));
+        $subscriber->onMessageSent(new SendMessageToTransportsEvent($envelope, []));
     }
 
     public function testGetSubscribedEvents(): void

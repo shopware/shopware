@@ -128,9 +128,7 @@ describe('init/repository', () => {
     });
 
     it('should register custom entities to the customEntityDefinitionService', async () => {
-        await initializeRepositoryFactory.apply(thisMock, [
-            containerWithCmsAware,
-        ]);
+        await initializeRepositoryFactory.apply(thisMock, [containerWithCmsAware]);
 
         expect(customEntityDefinitionStore).toStrictEqual([
             customEntityDefinitionBare,
@@ -140,17 +138,13 @@ describe('init/repository', () => {
     });
 
     it('should register page types to the cmsPageTypeService if an entity is cms-aware', async () => {
-        await initializeRepositoryFactory.apply(thisMock, [
-            containerWithCmsAware,
-        ]);
+        await initializeRepositoryFactory.apply(thisMock, [containerWithCmsAware]);
 
         expect(cmsPageTypeDefinitionStore).toStrictEqual(customEntityCmsAwareTypes);
     });
 
     it('should register np page types to the cmsPageTypeService if no entities are cms-aware', async () => {
-        await initializeRepositoryFactory.apply(thisMock, [
-            containerWithoutCmsAware,
-        ]);
+        await initializeRepositoryFactory.apply(thisMock, [containerWithoutCmsAware]);
 
         expect(cmsPageTypeDefinitionStore).toStrictEqual([]);
     });

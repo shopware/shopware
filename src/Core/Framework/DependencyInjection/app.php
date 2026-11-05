@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecut
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -151,6 +152,7 @@ use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
+use Shopware\Core\Framework\App\SystemCheck\AppUrlVerificationCheck;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -187,7 +189,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -196,8 +197,8 @@ use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
-use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
@@ -218,7 +219,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
-        ->set('shopware.app_dir', '%kernel.project_dir%/custom/apps');
+        ->set('shopware.app_dir', '%kernel.project_dir%/custom/apps')
+        ->set('env(APP_URL_CHECK_DISABLED)', 'false');
 
     $services = $containerConfigurator->services();
 
@@ -260,6 +262,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.app_manifest.validator');
 
     $services->set(AppNameValidator::class)
+        ->args([
+            service(SourceResolver::class),
+        ])
         ->tag('shopware.app_manifest.validator');
 
     $services->set(ManifestValidator::class)
@@ -270,12 +275,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
     $services->set(HookableValidator::class)
         ->args([
-            service(HookableEventCollector::class),
+            service(SubscriptionValidator::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
@@ -627,6 +633,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
             service(ClockInterface::class),
             service('logger'),
+            service(AppUrlVerifier::class),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -768,7 +775,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.app_system.trusted_url_resolver'),
             param('shopware.app_system.allow_unencrypted_traffic'),
-        ]);
+        ])
+        ->arg('$enableUrlValidation', param('shopware.app_system.enable_url_validation'));
 
     $services->set('shopware.app_system.guzzle', Client::class)
         ->lazy()
@@ -777,6 +785,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'timeout' => 5,
                 'connect_timeout' => 1,
                 'proxy' => [],
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->call('after', [
@@ -991,6 +1000,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppManager::class),
             service(ShopIdProvider::class),
             service('logger'),
+            service(AppUrlVerifier::class),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => -100]);
 
@@ -1000,6 +1010,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppManager::class),
             service(ShopIdProvider::class),
             service('logger'),
+            service(AppUrlVerifier::class),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => 100]);
 
@@ -1215,17 +1226,23 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('kernel.environment'),
             param('kernel.shopware_version'),
-            service('cache.app'),
+            service('cache.app_url_verification'),
             service(HttpClientInterface::class),
             service('lock.factory'),
             service('logger'),
             service(ClockInterface::class),
-        ]);
+            env('APP_URL'),
+            env('APP_URL_CHECK_DISABLED')->bool(),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
-    $services->set(AppUrlVerificationPrinter::class)
+    $services->set(AppUrlVerificationCheck::class)
         ->args([
-            service(ShopIdProvider::class),
-        ]);
+            service(AppUrlVerifier::class),
+        ])
+        ->tag('shopware.system_check');
+
+    $services->set(AppUrlVerificationPrinter::class);
 
     $services->set(AppUrlVerificationStatusCommand::class)
         ->args([

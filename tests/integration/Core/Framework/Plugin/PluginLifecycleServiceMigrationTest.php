@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
@@ -69,7 +69,9 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection->executeStatement('DELETE FROM migration WHERE `class` LIKE "SwagManualMigrationTest%"');
         $connection->executeStatement('DELETE FROM plugin');
 
-        KernelLifecycleManager::bootKernel();
+        // shut down only: the next class boots its kernel lazily inside a test context,
+        // which recompiles without the test plugin added by this class
+        KernelLifecycleManager::ensureKernelShutdown();
     }
 
     protected function setUp(): void

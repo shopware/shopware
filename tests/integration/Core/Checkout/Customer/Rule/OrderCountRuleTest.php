@@ -171,7 +171,7 @@ class OrderCountRuleTest extends TestCase
         $rule = new OrderCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->createMock(RuleScope::class));
+        $result = $rule->match(static::createStub(RuleScope::class));
 
         static::assertFalse($result);
     }
@@ -182,8 +182,8 @@ class OrderCountRuleTest extends TestCase
         $rule = new OrderCountRule();
         $rule->assign(['count' => $ruleOrderCount, 'operator' => $operator]);
 
-        $scope = $this->createMock(CheckoutRuleScope::class);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $scope = static::createStub(CheckoutRuleScope::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $orderCollection = new OrderCollection();
         $customer = new CustomerEntity();
         $customer->setOrderCount($orderCount ?? 0);

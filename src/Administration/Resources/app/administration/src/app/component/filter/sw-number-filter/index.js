@@ -11,10 +11,7 @@ import './sw-number-filter.scss';
 export default {
     template,
 
-    emits: [
-        'filter-reset',
-        'filter-update',
-    ],
+    emits: ['filter-reset', 'filter-update'],
 
     props: {
         filter: {

@@ -92,7 +92,7 @@ class ProductContentLayoutGeneratorTest extends TestCase
 
         $textElement = $layoutPayload[0]['layout'][0]['slots']['content'][0];
         static::assertSame('Sw:Content:Text', $textElement['component']);
-        static::assertNotEmpty($textElement['properties']['text']);
+        static::assertNotSame('', $textElement['properties']['text']);
 
         $layoutId = $layoutPayload[0]['id'];
 

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -26,7 +27,7 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -64,7 +65,7 @@ class RecalculationService
         protected EntityRepository $orderDeliveryRepository,
         protected Processor $processor,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly PromotionItemBuilder $promotionItemBuilder,
+        private readonly LineItemFactoryRegistry $lineItemFactory,
     ) {
     }
 
@@ -83,9 +84,9 @@ class RecalculationService
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context, $salesChannelContextOptions);
         $cart = $this->orderConverter->convertToCart($order, $context);
-        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext, $order);
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries($cart->getLineItems()->count() > 0);
+        $conversionContext = $this->getOrderConversionContext($order)->setIncludeDeliveries($cart->getLineItems()->count() > 0);
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext(), true);
@@ -123,24 +124,31 @@ class RecalculationService
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
     {
         $this->validateProduct($productId, $context);
-        $lineItem = (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $quantity))
-            ->setRemovable(true)
-            ->setStackable(true);
 
         $order = $this->fetchOrder($orderId, $context);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
+
+        $lineItem = $this->lineItemFactory->create([
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'quantity' => $quantity,
+        ], $salesChannelContext);
+
+        $knownLineItemIds = $cart->getLineItems()->getKeys();
         $cart->add($lineItem);
 
-        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext, $order);
 
-        $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
-        if ($recalculatedLineItem?->isShippingCostAware()) {
-            $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
+        foreach ($this->resolveAddedLineItems($recalculatedCart, $lineItem->getId(), $knownLineItemIds) as $addedLineItem) {
+            if ($addedLineItem->isShippingCostAware()) {
+                $this->addLineItemToDeliveryPosition($addedLineItem, $recalculatedCart);
+            }
         }
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(true);
+        $conversionContext = $this->getOrderConversionContext($order)->setIncludeDeliveries(true);
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext());
@@ -159,14 +167,14 @@ class RecalculationService
         $cart = $this->orderConverter->convertToCart($order, $context);
         $cart->add($lineItem);
 
-        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext, $order);
 
         $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
         if ($recalculatedLineItem?->isShippingCostAware()) {
             $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
         }
 
-        $conversionContext = $this->getOrderConversionContext();
+        $conversionContext = $this->getOrderConversionContext($order);
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext());
@@ -179,12 +187,15 @@ class RecalculationService
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
 
-        $promotionLineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
+        $promotionLineItem = $this->lineItemFactory->create([
+            'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+            'referencedId' => $code,
+        ], $salesChannelContext);
 
         $cart->add($promotionLineItem);
-        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext, $order);
 
-        $conversionContext = $this->getOrderConversionContext();
+        $conversionContext = $this->getOrderConversionContext($order);
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext());
@@ -233,9 +244,9 @@ class RecalculationService
 
         $cart = $this->orderConverter->convertToCart($order, $context);
 
-        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext, $order);
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(!$skipAutomaticPromotions);
+        $conversionContext = $this->getOrderConversionContext($order)->setIncludeDeliveries(!$skipAutomaticPromotions);
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext(), true);
@@ -257,7 +268,7 @@ class RecalculationService
             throw CartException::addressNotFound($customerAddressId);
         }
 
-        $newOrderAddress = AddressTransformer::transform($customerAddress);
+        $newOrderAddress = AddressTransformer::transformForUpdate($customerAddress);
         $newOrderAddress['id'] = $orderAddressId;
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
     }
@@ -342,6 +353,31 @@ class RecalculationService
                 $context
             ));
         }
+    }
+
+    /**
+     * @param list<string> $knownLineItemIds
+     *
+     * @return list<LineItem>
+     */
+    private function resolveAddedLineItems(Cart $cart, string $lineItemId, array $knownLineItemIds): array
+    {
+        return array_values(array_filter(
+            $cart->getLineItems()->getElements(),
+            static function (LineItem $item) use ($lineItemId, $knownLineItemIds): bool {
+                // the calculation kept the line item that was added
+                if ($item->getId() === $lineItemId) {
+                    return true;
+                }
+
+                // the calculation added the line item, the cart did not hold this id before
+                return !\in_array($item->getId(), $knownLineItemIds, true)
+                    // a discount or a surcharge is not delivered
+                    && $item->isGood()
+                    // a line item of the order is already part of a delivery
+                    && !$item->hasExtension(OrderConverter::ORIGINAL_ID);
+            }
+        ));
     }
 
     private function addLineItemToDeliveryPosition(LineItem $item, Cart $cart): void
@@ -435,14 +471,21 @@ class RecalculationService
         $this->checkVersion($address);
     }
 
-    private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
+    private function recalculateCart(Cart $cart, SalesChannelContext $context, OrderEntity $order): Cart
     {
+        $keepOrderTransaction = $this->isAwaitingPayment($order);
+
         // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
-        return $context->live(function ($live) use ($cart): Cart {
+        return $context->live(function ($live) use ($cart, $keepOrderTransaction): Cart {
+            $permissions = [
+                ...$live->getPermissions(),
+                CheckoutPermissions::KEEP_ORDER_TRANSACTION => $keepOrderTransaction,
+            ];
+
             /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed */
             $behavior = Feature::silent(
                 'v6.8.0.0',
-                fn (): CartBehavior => new CartBehavior($live->getPermissions(), true, isRecalculation: !Feature::isActive('v6.8.0.0')),
+                fn (): CartBehavior => new CartBehavior($permissions, true, isRecalculation: !Feature::isActive('v6.8.0.0')),
             );
 
             // all prices are now prepared for calculation - starts the cart calculation
@@ -460,12 +503,24 @@ class RecalculationService
         });
     }
 
-    private function getOrderConversionContext(): OrderConversionContext
+    private function getOrderConversionContext(OrderEntity $order): OrderConversionContext
     {
         return (new OrderConversionContext())
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
-            ->setIncludeTransactions(false)
+            ->setIncludeTransactions($this->isAwaitingPayment($order))
             ->setIncludePersistentData(false);
+    }
+
+    private function isAwaitingPayment(OrderEntity $order): bool
+    {
+        $primaryOrderTransactionId = $order->getPrimaryOrderTransactionId();
+        if ($primaryOrderTransactionId === null) {
+            return false;
+        }
+
+        $state = $order->getTransactions()?->get($primaryOrderTransactionId)?->getStateMachineState()?->getTechnicalName();
+
+        return \in_array($state, OrderService::ALLOWED_TRANSACTION_STATES, true);
     }
 }

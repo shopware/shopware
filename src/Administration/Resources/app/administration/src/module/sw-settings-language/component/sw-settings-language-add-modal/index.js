@@ -11,19 +11,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'translationService',
-    ],
+    inject: ['repositoryFactory', 'translationService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    emits: [
-        'close',
-        'language-added',
-    ],
+    emits: ['close', 'language-added'],
 
     data() {
         return {
@@ -47,12 +39,14 @@ export default {
                 .map((translation) => {
                     const isLinked = translation.lastUpdate !== null;
                     const existsAsLanguage = this.existingLanguageLocales.includes(translation.locale);
+                    const isPseudoLanguage = translation.isPseudoLanguage === true;
 
                     return {
                         value: translation.locale,
-                        label: translation.name,
+                        // Pseudo languages borrow a real locale code, so only their own name describes them
+                        label: isPseudoLanguage ? translation.name : Shopware.Utils.format.localeName(translation.locale),
                         disabled: isLinked || existsAsLanguage,
-                        isPseudoLanguage: translation.isPseudoLanguage === true,
+                        isPseudoLanguage,
                     };
                 })
                 .sort((a, b) => {
@@ -93,10 +87,7 @@ export default {
         async createdComponent() {
             this.isLoading = true;
 
-            const [
-                listResponse,
-                metaResponse,
-            ] = await Promise.all([
+            const [listResponse, metaResponse] = await Promise.all([
                 this.translationService.getList().catch(() => null),
                 this.translationService.getMeta().catch(() => null),
                 this.loadExistingLanguageLocales(),

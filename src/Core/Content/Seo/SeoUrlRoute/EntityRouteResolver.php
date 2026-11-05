@@ -38,7 +38,7 @@ class EntityRouteResolver
     {
         $config = $this->getRouteConfig($entityName, $salesChannelTypeId);
 
-        return $this->seoUrlPlaceholderHandler->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
+        return $this->seoUrlPlaceholderHandler->generate($config->getTargetRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
     /**
@@ -49,7 +49,7 @@ class EntityRouteResolver
     {
         $config = $this->getRouteConfig($entityName, $salesChannelTypeId);
 
-        return $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
+        return $this->router->generate($config->getTargetRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
     public function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
@@ -72,6 +72,14 @@ class EntityRouteResolver
         string $primaryKey,
         string $salesChannelTypeId
     ): array {
+        $belongsToFamily = $salesChannelTypeId === Defaults::SALES_CHANNEL_TYPE_API
+            ? $this->findEntitySeoUrlRoute($routeName) !== null
+            : $this->registry->findByRouteName($routeName) !== null;
+
+        if ($belongsToFamily) {
+            return [];
+        }
+
         try {
             $routeNameByEntity = $this->getRouteNameForEntityName(
                 $entityName,

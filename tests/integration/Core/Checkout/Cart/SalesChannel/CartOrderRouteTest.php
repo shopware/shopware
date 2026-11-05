@@ -5,10 +5,13 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -25,9 +28,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -333,11 +340,12 @@ class CartOrderRouteTest extends TestCase
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEmpty($data['lineItems']);
+        static::assertCount(0, $data['lineItems']);
 
         $response = $this->addProductToCart('p2');
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotEmpty($token);
+        static::assertIsString($token);
+        static::assertNotSame('', $token);
         $guestToken = $token;
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
@@ -429,7 +437,7 @@ class CartOrderRouteTest extends TestCase
 
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($response);
+        static::assertNotCount(0, $response);
         static::assertArrayHasKey('price', $response);
 
         $price = $response['price'];
@@ -510,6 +518,41 @@ class CartOrderRouteTest extends TestCase
         static::assertNull($response['orderCustomer']['salutationId']);
     }
 
+    public function testBusinessCustomerNeedsVatIdWhenBillingCountryRequiresOne(): void
+    {
+        static::getContainer()->get('country.repository')->update([
+            ['id' => $this->validCountryId, 'vatIdRequired' => true],
+        ], Context::createDefaultContext());
+
+        $email = Uuid::randomHex() . '@example.com';
+        $customerId = $this->createCustomer('shopware', $email);
+        $this->customerRepository->update([
+            ['id' => $customerId, 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'company' => 'Example Inc.'],
+        ], Context::createDefaultContext());
+
+        $this->login($email, 'shopware');
+        $this->addProductToCart();
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(CartException::CART_INVALID_CODE, $response['errors'][0]['code']);
+        static::assertStringContainsString('vat-id-missing', $response['errors'][0]['detail']);
+
+        $this->customerRepository->update([
+            ['id' => $customerId, 'vatIds' => ['DE123456789']],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('order', $response['apiAlias']);
+    }
+
     public function testOrderLockedWhenAlreadyInProgress(): void
     {
         $token = $this->createCustomerAndLogin();
@@ -542,9 +585,30 @@ class CartOrderRouteTest extends TestCase
         }
     }
 
+    public function testOrderIsRejectedWhenTheCartWasAlreadyOrdered(): void
+    {
+        $token = $this->createCustomerAndLogin();
+        $this->addProductToCart();
+
+        $context = static::getContainer()->get(SalesChannelContextService::class)
+            ->get(new SalesChannelContextServiceParameters($this->ids->get('sales-channel'), $token));
+
+        $cartService = static::getContainer()->get(CartService::class);
+
+        // both requests read the cart before either of them places an order
+        $cart = $cartService->getCart($token, $context, caching: false);
+        $staleCart = $cartService->getCart($token, $context, caching: false);
+
+        $cartService->order($cart, $context, new RequestDataBag());
+
+        $this->expectExceptionObject(CartException::tokenNotFound($token));
+
+        $cartService->order($staleCart, $context, new RequestDataBag());
+    }
+
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on($eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
@@ -604,7 +668,7 @@ class CartOrderRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -693,14 +757,15 @@ class CartOrderRouteTest extends TestCase
 
     private static function assertImplicitContextTokenHeader(Response $response, ?string $contextToken = null): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             return;
         }
 
         if ($contextToken === null) {
-            static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertIsString($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             return;
         }

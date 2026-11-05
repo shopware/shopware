@@ -7,6 +7,7 @@ export default class GaranLabelTogglePlugin extends Plugin {
 
     static options = {
         previewSelector: '.product-detail-garan-label',
+        previewButtonSelector: '.garan-label-button',
         fullSelector: '.product-detail-garan-label-full',
         triggerSelector: '[data-garan-label-toggle-trigger]',
         textSelector: '.product-detail-garan-label-show-link-text',
@@ -37,6 +38,12 @@ export default class GaranLabelTogglePlugin extends Plugin {
 
     _registerEvents() {
         this._trigger.addEventListener('click', this._onClickTrigger.bind(this));
+        this._preview.querySelector(this.options.previewButtonSelector)?.addEventListener('click', this._onClickPreview.bind(this));
+    }
+
+    _onClickPreview() {
+        this._onClickTrigger();
+        this._trigger.focus();
     }
 
     _onClickTrigger() {

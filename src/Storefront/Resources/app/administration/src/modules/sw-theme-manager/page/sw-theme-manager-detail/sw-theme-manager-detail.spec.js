@@ -263,11 +263,7 @@ describe('sw-theme-manager-detail', () => {
             },
         };
 
-        expect(Object.keys(wrapper.vm.orderedTabs)).toEqual([
-            'default',
-            'layout',
-            'advanced',
-        ]);
+        expect(Object.keys(wrapper.vm.orderedTabs)).toEqual(['default', 'layout', 'advanced']);
     });
 
     it('renders fallback sw-tabs while the major feature flag is inactive', async () => {
@@ -586,12 +582,7 @@ describe('sw-theme-manager-detail', () => {
         const wrapper = await createWrapper({
             themeOverrides: {
                 getOrigin: () => ({
-                    salesChannels: new Map([
-                        [
-                            'sc-1',
-                            {},
-                        ],
-                    ]),
+                    salesChannels: new Map([['sc-1', {}]]),
                 }),
             },
         });

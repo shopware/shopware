@@ -12,6 +12,11 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see Shopware\Tests\Integration\Core\Framework\App\Hmac\Guzzle\AuthMiddlewareTest
+ */
 #[Package('framework')]
 class AuthMiddleware
 {
@@ -26,6 +31,14 @@ class AuthMiddleware
     final public const SHOPWARE_CONTEXT_LANGUAGE = 'sw-context-language';
 
     final public const SHOPWARE_USER_LANGUAGE = 'sw-user-language';
+
+    /**
+     * Redirect policy for every app-system HTTP client. Without `strict`, Guzzle downgrades the
+     * signed POST to a bodyless GET on a 301/302, so the forwarded request goes out unsigned.
+     *
+     * @see RequestSigner::signRequest()
+     */
+    final public const ALLOW_REDIRECTS = ['max' => 5, 'strict' => true];
 
     /**
      * @internal
@@ -49,12 +62,14 @@ class AuthMiddleware
             }
 
             if (!\is_array($options[self::APP_REQUEST_TYPE])) {
+                /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                 throw new InvalidArgumentException('request_type must be array');
             }
 
             $optionsRequestType = $options[self::APP_REQUEST_TYPE];
 
             if (!isset($optionsRequestType[self::APP_SECRET])) {
+                /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                 throw new InvalidArgumentException('app_secret is required');
             }
 
@@ -64,7 +79,7 @@ class AuthMiddleware
 
             $request = $signature->signRequest($request, $secret);
 
-            $requiredAuthentic = !empty($optionsRequestType[AuthMiddleware::VALIDATED_RESPONSE]);
+            $requiredAuthentic = $optionsRequestType[AuthMiddleware::VALIDATED_RESPONSE] ?? false;
 
             if (!$requiredAuthentic) {
                 return $handler($request, $options);
@@ -73,6 +88,7 @@ class AuthMiddleware
             $successCallback = static function (ResponseInterface $response) use ($secret, $signature, $request) {
                 if ($response->getStatusCode() !== 401) {
                     if (!$signature->isResponseAuthentic($response, $secret)) {
+                        /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                         throw new ServerException(
                             'Could not verify the authenticity of the response',
                             $request,
@@ -98,6 +114,7 @@ class AuthMiddleware
         if (isset($options[self::APP_REQUEST_CONTEXT])) {
             $context = $options[self::APP_REQUEST_CONTEXT];
             if (!$context instanceof Context) {
+                /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                 throw new InvalidArgumentException('app_request_context must be instance of Context');
             }
             $request = $this->getLanguageHeaderRequest($request, $context);

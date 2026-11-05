@@ -1,4 +1,4 @@
-import { markRaw } from 'vue';
+import { markRaw, type Raw } from 'vue';
 import type Repository from 'src/core/data/repository.data';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import template from './sw-model-viewer.html.twig';
@@ -27,7 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
         source: {
             type: Object,
             required: true,
-            validator(value: EntitySchema.Entity<'media'>) {
+            validator(value: Entity<'media'>) {
                 return value?.getEntityName() === 'media';
             },
         },
@@ -42,15 +42,15 @@ export default Shopware.Component.wrapComponentConfig({
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
-            modelEntity: EntitySchema.Entity<'media'> | null;
-            quickView: QuickView | null;
+            modelEntity: Entity<'media'> | null;
+            quickView: Raw<QuickView> | null;
         };
     },
 
     watch: {
         async source(): Promise<void> {
-            this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            await this.quickView?.dispose();
+            this.modelEntity = this.source as Entity<'media'>;
+            await this.quickView?.disposeAsync();
             return this.initializeQuickView();
         },
     },
@@ -95,7 +95,7 @@ export default Shopware.Component.wrapComponentConfig({
             */
             this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas');
 
-            this.modelEntity = this.source as EntitySchema.Entity<'media'>;
+            this.modelEntity = this.source as Entity<'media'>;
             this.initializeQuickView().catch((error) => {
                 console.error(error);
             });
@@ -129,10 +129,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async disposeQuickView(): Promise<void> {
-            await this.quickView?.dispose();
+            await this.quickView?.disposeAsync();
         },
 
-        onMediaLibraryItemUpdated(mediaId: string): void {
+        onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void {
             if (!this.modelEntity?.id) return;
             if (this.modelEntity?.id !== mediaId) return;
 

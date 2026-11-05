@@ -15,7 +15,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 #[Package('framework')]
 class CachedContentSystemLayoutPresetRegistry extends AbstractContentSystemLayoutPresetRegistry
 {
-    private const CACHE_KEY = 'content_system.layout_presets.v3';
+    private const CACHE_KEY = 'content_system.layout_presets';
 
     public function __construct(
         private readonly AbstractContentSystemLayoutPresetRegistry $inner,

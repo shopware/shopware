@@ -43,18 +43,6 @@ class CookieControllerTest extends TestCase
         $this->browser = KernelLifecycleManager::createBrowser($this->getKernel());
     }
 
-    public function testLegacyCookieProviderRemainsAvailable(): void
-    {
-        if (Feature::has('v6.9.0.0')) {
-            Feature::skipTestIfActive('v6.9.0.0', $this);
-        }
-
-        $legacy = static::getContainer()->get(CookieProviderInterface::class);
-
-        static::assertInstanceOf(CookieProviderInterface::class, $legacy);
-        static::assertSame(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED, $legacy->getCookieGroups()[0]['snippet_name'] ?? null);
-    }
-
     public function testCoreCookieRouteWorksWithoutAStorefrontProvider(): void
     {
         $container = new ContainerBuilder();

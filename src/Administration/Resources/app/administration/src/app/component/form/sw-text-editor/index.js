@@ -411,6 +411,14 @@ export default {
             },
         },
 
+        availableDataMappings() {
+            const dataMappingButton = this.buttonConfig.find((button) => button.type === 'data-mapping');
+
+            if (dataMappingButton) {
+                dataMappingButton.children = this.getDataMappingButtonChildren();
+            }
+        },
+
         isCodeEdit() {
             if (!this.isCodeEdit) {
                 this.$nextTick(() => {
@@ -433,6 +441,15 @@ export default {
     },
 
     methods: {
+        getDataMappingButtonChildren() {
+            return this.availableDataMappings.map((mapping) => ({
+                type: mapping,
+                name: mapping,
+                title: mapping,
+                handler: this.handleInsertDataMapping,
+            }));
+        },
+
         createdComponent() {
             this.content = this.value ?? '';
 
@@ -469,14 +486,7 @@ export default {
                         tooltipHideDelay: 100,
                     };
 
-                    const buttonConfigs = this.availableDataMappings.map((mapping) => ({
-                        type: mapping,
-                        name: mapping,
-                        title: mapping,
-                        handler: this.handleInsertDataMapping,
-                    }));
-
-                    dataMappingButton.children = buttonConfigs;
+                    dataMappingButton.children = this.getDataMappingButtonChildren();
 
                     this.buttonConfig.push(dataMappingButton);
                 }

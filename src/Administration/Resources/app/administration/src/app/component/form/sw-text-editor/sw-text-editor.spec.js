@@ -386,6 +386,27 @@ describe('src/app/component/form/sw-text-editor', () => {
         );
     });
 
+    it('should list inline mappings that are loaded after the editor was created', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const stringMappings = Shopware.Store.get('cmsPage').currentMappingTypes.string;
+        stringMappings.push('category.customFields.color');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon')
+            .trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child').map((child) => child.text())).toEqual([
+            'category.type',
+            'category.customFields.color',
+        ]);
+
+        stringMappings.pop();
+    });
+
     it('should return true if selection contains one or two opening brackets', async () => {
         wrapper = await createWrapper();
 

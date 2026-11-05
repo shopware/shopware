@@ -753,19 +753,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    // @deprecated tag:v6.8.0 Will be removed
     $services->set(CookieProviderInterface::class, CookieProvider::class)
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->args([
+            param('session.storage.options'),
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
-    // @deprecated tag:v6.8.0 Will be removed
     $services->set(AppCookieProvider::class)
         ->decorate(CookieProviderInterface::class)
         ->args([
             service('.inner'),
         ])
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(ResponseHeaderListener::class)
         ->tag('kernel.event_subscriber');

@@ -5,7 +5,9 @@
 import type { uiSidebarAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/sidebar';
 import { reactive } from 'vue';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export type SidebarItemEntry = Omit<uiSidebarAdd, 'responseType'> & {
     baseUrl: string;
     active: boolean;

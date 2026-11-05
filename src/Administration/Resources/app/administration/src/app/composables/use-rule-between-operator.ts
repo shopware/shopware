@@ -5,7 +5,7 @@
  */
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
 
-/** @private */
+/** @public */
 export type BetweenValue = {
     from: string | null;
     to: string | null;
@@ -23,7 +23,7 @@ interface RuleCondition {
  * The mixin read `this.condition` and called the host's `ensureValueExist()` before writing to it. Both
  * are passed in, because a composable has neither.
  *
- * @private
+ * @public
  */
 export interface UseRuleBetweenOperatorOptions {
     condition: () => RuleCondition | null | undefined;
@@ -36,7 +36,7 @@ export interface UseRuleBetweenOperatorOptions {
  *
  * Keep this and `src/app/mixin/rule-between-operator.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useRuleBetweenOperator(options: UseRuleBetweenOperatorOptions): {
     isBetween: ComputedRef<boolean>;

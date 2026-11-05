@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-import type { LoginService } from './login.service';
 import UserVerificationError from './user-verification.error';
 import { SSO_REAUTH_COMPLETE_MESSAGE, SSO_REAUTH_WINDOW_NAME } from '../helper/sso-reauth-window.helper';
 
@@ -40,10 +39,7 @@ export default class SsoReauthService {
 
     private readonly browser: SsoReauthBrowser;
 
-    constructor(
-        private readonly loginService: LoginService,
-        browser: Partial<SsoReauthBrowser> = {},
-    ) {
+    constructor(browser: Partial<SsoReauthBrowser> = {}) {
         this.browser = {
             openWindow: (url, name, features) => window.open(url, name, features),
             windowEvents: window,
@@ -56,21 +52,22 @@ export default class SsoReauthService {
     /**
      * Resolves once the identity provider sent the window back with a new session. Rejects when the
      * SSO login is not configured, the window was blocked, or the user closed it.
+     *
+     * Opens the window before it returns, so call it straight from the click: browsers such as Safari
+     * block a window opened after an awaited request.
      */
-    async reauthenticate(): Promise<void> {
-        const loginConfig = await this.loginService.getLoginTemplateConfig();
-
-        if (!loginConfig.url) {
-            throw UserVerificationError.ssoNotConfigured();
+    reauthenticate(loginUrl: string): Promise<void> {
+        if (!loginUrl) {
+            return Promise.reject(UserVerificationError.ssoNotConfigured());
         }
 
-        const url = new URL(loginConfig.url);
+        const url = new URL(loginUrl);
         url.searchParams.set('usePromptLogin', '1');
 
         const popup = this.browser.openWindow(url.toString(), SSO_REAUTH_WINDOW_NAME, 'popup,width=600,height=720');
 
         if (!popup) {
-            throw UserVerificationError.ssoWindowBlocked();
+            return Promise.reject(UserVerificationError.ssoWindowBlocked());
         }
 
         return this.waitForCompletion(popup);

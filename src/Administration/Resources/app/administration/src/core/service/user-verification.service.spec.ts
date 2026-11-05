@@ -47,16 +47,14 @@ describe('src/core/service/user-verification.service.ts', () => {
         } as unknown as ReturnType<typeof Shopware.Application.getApplicationRoot>);
     });
 
-    it('asks for the password through the modal and resolves with the verified context', async () => {
+    it('asks through the modal and resolves with the verified context', async () => {
         const service = createService();
         const context = { ...Shopware.Context.api, authToken: { access: 'verified', refresh: 'r', expiry: 1 } };
 
         const result = service.verify();
-        await flushPromises();
 
         expect(store().requested).toBe(true);
-        expect(store().ssoAvailable).toBe(true);
-        expect(reauthenticate).not.toHaveBeenCalled();
+        expect(loginService.getLoginTemplateConfig).not.toHaveBeenCalled();
 
         service.complete(context);
 
@@ -64,34 +62,21 @@ describe('src/core/service/user-verification.service.ts', () => {
         expect(store().requested).toBe(false);
     });
 
-    it('offers no identity provider in the modal when the shop has none', async () => {
-        (loginService.getLoginTemplateConfig as jest.Mock).mockResolvedValueOnce({ useDefault: true, url: '' });
+    it('opens the modal for an SSO session as well', () => {
+        sessionStorage.setItem('sw-sso-session', 'true');
 
         void createService()
             .verify()
             .catch(() => {});
-        await flushPromises();
-
-        expect(store().ssoAvailable).toBe(false);
-    });
-
-    it('falls back to the password prompt when the SSO configuration cannot be loaded', async () => {
-        (loginService.getLoginTemplateConfig as jest.Mock).mockRejectedValueOnce(new Error('offline'));
-
-        void createService()
-            .verify()
-            .catch(() => {});
-        await flushPromises();
 
         expect(store().requested).toBe(true);
-        expect(store().ssoAvailable).toBe(false);
+        expect(reauthenticate).not.toHaveBeenCalled();
     });
 
     it('rejects as cancelled when the modal closes without a verification', async () => {
         const service = createService();
 
         const result = service.verify();
-        await flushPromises();
         service.cancel();
 
         await expect(result).rejects.toEqual(UserVerificationError.cancelled());
@@ -104,77 +89,10 @@ describe('src/core/service/user-verification.service.ts', () => {
 
         const first = service.verify();
         const second = service.verify();
-        await flushPromises();
         service.complete(context);
 
         await expect(first).resolves.toBe(context);
         await expect(second).resolves.toBe(context);
-        expect(loginService.getLoginTemplateConfig).toHaveBeenCalledTimes(1);
-    });
-
-    it('re-authenticates an SSO session at the identity provider without a modal', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
-
-        const result = await createService().verify();
-
-        expect(reauthenticate).toHaveBeenCalledTimes(1);
-        expect(store().requested).toBe(false);
-        expect(result).toEqual({ ...Shopware.Context.api });
-    });
-
-    it('treats every session of a shop without password login as an SSO session', async () => {
-        (loginService.getLoginTemplateConfig as jest.Mock).mockResolvedValueOnce({
-            useDefault: false,
-            url: 'https://shop.test/sso',
-        });
-
-        await createService().verify();
-
-        expect(reauthenticate).toHaveBeenCalledTimes(1);
-        expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
-    });
-
-    it('rejects an SSO re-authentication the user cancelled without a notification', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
-        reauthenticate.mockRejectedValueOnce(UserVerificationError.cancelled());
-
-        await expect(createService().verify()).rejects.toEqual(UserVerificationError.cancelled());
-        expect(createNotification).not.toHaveBeenCalled();
-    });
-
-    it('tells the user when the SSO re-authentication cannot start', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
-        reauthenticate.mockRejectedValueOnce(UserVerificationError.ssoWindowBlocked());
-
-        await expect(createService().verify()).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
-        expect(createNotification).toHaveBeenCalledWith({
-            variant: 'critical',
-            title: 'global.default.error',
-            message: 'global.sw-verify-user-modal.failure.sso-window-blocked',
-        });
-    });
-
-    it('reports an unexpected SSO failure as a start failure', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
-        reauthenticate.mockRejectedValueOnce(new Error('network'));
-
-        await expect(createService().verify()).rejects.toEqual(UserVerificationError.ssoNotConfigured());
-        expect(createNotification).toHaveBeenCalledWith(
-            expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.sso-not-configured' }),
-        );
-    });
-
-    it('falls back to the error message while the administration has no root', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
-        reauthenticate.mockRejectedValueOnce(UserVerificationError.ssoWindowBlocked());
-        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue(false);
-
-        await expect(createService().verify()).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
-        expect(createNotification).toHaveBeenCalledWith({
-            variant: 'critical',
-            title: '',
-            message: UserVerificationError.ssoWindowBlocked().message,
-        });
     });
 
     it('ignores a cancel without a running verification', () => {
@@ -184,47 +102,127 @@ describe('src/core/service/user-verification.service.ts', () => {
         expect(store().requested).toBe(false);
     });
 
+    it.each([
+        {
+            name: 'a password session in a shop with an identity provider',
+            marker: false,
+            config: { useDefault: true, url: 'https://shop.test/sso' },
+            expected: { ssoSession: false, loginUrl: 'https://shop.test/sso' },
+        },
+        {
+            name: 'a session the login marked as SSO',
+            marker: true,
+            config: { useDefault: true, url: 'https://shop.test/sso' },
+            expected: { ssoSession: true, loginUrl: 'https://shop.test/sso' },
+        },
+        {
+            name: 'every session of a shop without password login',
+            marker: false,
+            config: { useDefault: false, url: 'https://shop.test/sso' },
+            expected: { ssoSession: true, loginUrl: 'https://shop.test/sso' },
+        },
+        {
+            name: 'an SSO marker in a shop without identity provider',
+            marker: true,
+            config: { useDefault: true, url: '' },
+            expected: { ssoSession: false, loginUrl: '' },
+        },
+    ])('reports the SSO options for $name', async ({ marker, config, expected }) => {
+        if (marker) {
+            sessionStorage.setItem('sw-sso-session', 'true');
+        }
+        (loginService.getLoginTemplateConfig as jest.Mock).mockResolvedValueOnce(config);
+
+        await expect(createService().getSsoOptions()).resolves.toEqual(expected);
+    });
+
+    it('offers only the password when the SSO configuration cannot be loaded', async () => {
+        (loginService.getLoginTemplateConfig as jest.Mock).mockRejectedValueOnce(new Error('offline'));
+
+        await expect(createService().getSsoOptions()).resolves.toEqual({ ssoSession: false, loginUrl: '' });
+    });
+
+    it('opens the identity provider window before the first await', () => {
+        void createService()
+            .verifyWithSso('https://shop.test/sso')
+            .catch(() => {});
+
+        expect(reauthenticate).toHaveBeenCalledWith('https://shop.test/sso');
+    });
+
+    it('resolves with the verified context after the identity provider login', async () => {
+        const result = await createService().verifyWithSso('https://shop.test/sso');
+
+        expect(result).toEqual({ ...Shopware.Context.api });
+        expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
+        expect(createNotification).not.toHaveBeenCalled();
+    });
+
+    it('rejects an SSO re-authentication the user cancelled without a notification', async () => {
+        reauthenticate.mockRejectedValueOnce(UserVerificationError.cancelled());
+
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.cancelled(),
+        );
+        expect(createNotification).not.toHaveBeenCalled();
+    });
+
+    it('tells the user when the SSO re-authentication cannot start', async () => {
+        reauthenticate.mockRejectedValueOnce(UserVerificationError.ssoWindowBlocked());
+
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.ssoWindowBlocked(),
+        );
+        expect(createNotification).toHaveBeenCalledWith({
+            variant: 'critical',
+            title: 'global.default.error',
+            message: 'global.sw-verify-user-modal.failure.sso-window-blocked',
+        });
+    });
+
+    it('reports an unexpected SSO failure as a start failure', async () => {
+        reauthenticate.mockRejectedValueOnce(new Error('network'));
+
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.ssoNotConfigured(),
+        );
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.sso-not-configured' }),
+        );
+    });
+
+    it('falls back to the error message while the administration has no root', async () => {
+        reauthenticate.mockRejectedValueOnce(UserVerificationError.ssoWindowBlocked());
+        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue(false);
+
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.ssoWindowBlocked(),
+        );
+        expect(createNotification).toHaveBeenCalledWith({
+            variant: 'critical',
+            title: '',
+            message: UserVerificationError.ssoWindowBlocked().message,
+        });
+    });
+
     it('rejects when the identity provider returned without a session', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
         (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(false);
 
-        await expect(createService().verify()).rejects.toEqual(UserVerificationError.noSession());
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.noSession(),
+        );
         expect(createNotification).toHaveBeenCalledTimes(1);
     });
 
     it('rejects when the window reported back without a verified token', async () => {
-        sessionStorage.setItem('sw-sso-session', 'true');
         reauthenticate.mockResolvedValueOnce(undefined);
 
-        await expect(createService().verify()).rejects.toEqual(UserVerificationError.noSession());
+        await expect(createService().verifyWithSso('https://shop.test/sso')).rejects.toEqual(
+            UserVerificationError.noSession(),
+        );
         expect(createNotification).toHaveBeenCalledWith(
             expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.no-session' }),
         );
-    });
-
-    it('switches from the modal to the identity provider', async () => {
-        const service = createService();
-
-        const result = service.verify();
-        await flushPromises();
-        expect(store().requested).toBe(true);
-
-        await service.switchToSso();
-
-        expect(store().requested).toBe(false);
-        expect(reauthenticate).toHaveBeenCalledTimes(1);
-        await expect(result).resolves.toEqual({ ...Shopware.Context.api });
-    });
-
-    it('rejects the modal request when the identity provider switch fails', async () => {
-        const service = createService();
-        reauthenticate.mockRejectedValueOnce(UserVerificationError.cancelled());
-
-        const result = service.verify();
-        await flushPromises();
-        await service.switchToSso();
-
-        await expect(result).rejects.toEqual(UserVerificationError.cancelled());
     });
 
     it('reads the verified scope from the access token', () => {

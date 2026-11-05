@@ -12,19 +12,15 @@ const userVerificationStore = Shopware.Store.register({
 
     state: () => ({
         requested: false,
-        // the shop has an identity provider, so the modal offers it next to the password
-        ssoAvailable: false,
     }),
 
     actions: {
-        request(ssoAvailable: boolean): void {
+        request(): void {
             this.requested = true;
-            this.ssoAvailable = ssoAvailable;
         },
 
         dismiss(): void {
             this.requested = false;
-            this.ssoAvailable = false;
         },
     },
 });

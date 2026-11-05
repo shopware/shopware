@@ -13,9 +13,9 @@ const USER_VERIFIED_SCOPE = 'user-verified';
 /**
  * Verifies the current user before a sensitive action, such as changing users, roles or access keys.
  *
- * `verify()` runs the flow that fits the session and resolves with an API context whose token the
- * action can use. A password session confirms its password in the verify user modal; an SSO session
- * signs in again at the identity provider in a separate window. Callers neither know nor care which.
+ * `verify()` opens the verify user modal and resolves with an API context whose token the action can
+ * use. A password session confirms its password there; an SSO session signs in again at the identity
+ * provider in a separate window, opened by the modal's button. Callers neither know nor care which.
  *
  * ```ts
  * this.userVerificationService.verify()
@@ -38,12 +38,12 @@ export default class UserVerificationService {
     ) {}
 
     /**
-     * Resolves with the API context carrying the verified token. Rejects with a
-     * {@link UserVerificationError}; `isCancelled` tells a user's cancel apart from a failed start.
-     * A verification requested while one runs joins the running one.
+     * Resolves with the API context carrying the verified token. Rejects with a cancelled
+     * {@link UserVerificationError} when the user closes the modal; a failed identity provider login
+     * leaves the modal open for another try. A verification requested while one runs joins the running one.
      */
     verify(): Promise<ApiContext> {
-        this.running ??= this.start().finally(() => {
+        this.running ??= this.request().finally(() => {
             this.running = null;
         });
 
@@ -88,40 +88,28 @@ export default class UserVerificationService {
     }
 
     /**
-     * Called by the verify user modal when the user picks the identity provider over the password.
+     * Called by the verify user modal before it renders: whether the session came from the identity
+     * provider, and the identity provider's login URL, empty when the shop has none.
      *
      * @private
      */
-    async switchToSso(): Promise<void> {
-        Shopware.Store.get('userVerification').dismiss();
-
-        try {
-            const context = await this.verifyWithSso();
-            this.settle((pending) => pending.resolve(context));
-        } catch (error) {
-            this.settle((pending) => pending.reject(error as UserVerificationError));
-        }
-    }
-
-    private async start(): Promise<ApiContext> {
+    async getSsoOptions(): Promise<{ ssoSession: boolean; loginUrl: string }> {
         const loginConfig = await this.loadLoginConfig();
 
-        if (this.isSsoSessionFor(loginConfig)) {
-            return this.verifyWithSso();
-        }
-
-        return new Promise((resolve, reject) => {
-            this.pending = { resolve, reject };
-            Shopware.Store.get('userVerification').request(!!loginConfig.url);
-        });
+        // without a login URL the password is the only way left, whatever the session says
+        return { ssoSession: !!loginConfig.url && this.isSsoSessionFor(loginConfig), loginUrl: loginConfig.url };
     }
 
     /**
+     * Called by the verify user modal straight from its button, with the URL from {@link getSsoOptions}.
+     * It opens the identity provider's window before the first await, inside the click's user activation.
      * Rejects with a {@link UserVerificationError} and tells the user about every failure but a cancel.
+     *
+     * @private
      */
-    private async verifyWithSso(): Promise<ApiContext> {
+    async verifyWithSso(loginUrl: string): Promise<ApiContext> {
         try {
-            return await this.reauthenticateWithSso();
+            return await this.reauthenticateWithSso(loginUrl);
         } catch (error) {
             const verificationError =
                 error instanceof UserVerificationError ? error : UserVerificationError.ssoNotConfigured();
@@ -131,8 +119,15 @@ export default class UserVerificationService {
         }
     }
 
-    private async reauthenticateWithSso(): Promise<ApiContext> {
-        await this.ssoReauthService.reauthenticate();
+    private request(): Promise<ApiContext> {
+        return new Promise((resolve, reject) => {
+            this.pending = { resolve, reject };
+            Shopware.Store.get('userVerification').request();
+        });
+    }
+
+    private async reauthenticateWithSso(loginUrl: string): Promise<ApiContext> {
+        await this.ssoReauthService.reauthenticate(loginUrl);
 
         // the window stored the new session cookie; reading it also updates Shopware.Context.api.authToken
         if (!this.loginService.getBearerAuthentication()) {

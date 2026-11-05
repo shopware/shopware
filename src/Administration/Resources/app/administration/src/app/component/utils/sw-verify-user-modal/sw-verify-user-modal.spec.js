@@ -10,11 +10,18 @@ const loginService = {
     setBearerAuthentication: jest.fn(),
 };
 
-async function createWrapper(props = {}) {
+const ssoContext = { authToken: { access: 'sso-verified-token' } };
+const userVerificationService = {
+    getSsoOptions: jest.fn(() => Promise.resolve({ ssoSession: false, loginUrl: '' })),
+    verifyWithSso: jest.fn(() => Promise.resolve(ssoContext)),
+};
+
+async function createWrapper(ssoOptions = { ssoSession: false, loginUrl: '' }) {
+    userVerificationService.getSsoOptions.mockResolvedValueOnce(ssoOptions);
+
     const wrapper = mount(await wrapTestComponent('sw-verify-user-modal', { sync: true }), {
-        props,
         global: {
-            provide: { loginService },
+            provide: { loginService, userVerificationService },
         },
     });
     await flushPromises();
@@ -79,13 +86,42 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(wrapper.find('.sw-settings-user-detail__confirm-password input').element.value).toBe('');
     });
 
-    it('offers the identity provider when the shop has one', async () => {
-        wrapper = await createWrapper({ ssoAvailable: true });
+    it('offers the identity provider next to the password when the shop has one', async () => {
+        wrapper = await createWrapper({ ssoSession: false, loginUrl: 'https://shop.test/sso' });
+
+        expect(wrapper.find('.sw-settings-user-detail__confirm-password').exists()).toBe(true);
+        expect(wrapper.find('.sw-verify-user-modal__verify-with-sso').classes()).toContain('mt-button--secondary');
+    });
+
+    it('offers only the identity provider on an SSO session', async () => {
+        wrapper = await createWrapper({ ssoSession: true, loginUrl: 'https://shop.test/sso' });
+
+        expect(wrapper.find('.sw-settings-user-detail__confirm-password').exists()).toBe(false);
+        expect(wrapper.find('.sw-verify-user-modal__verify-with-sso').classes()).toContain('mt-button--primary');
+        expect(wrapper.findAll('.mt-button--primary')).toHaveLength(1);
+    });
+
+    it('emits the verified context after the identity provider login', async () => {
+        wrapper = await createWrapper({ ssoSession: true, loginUrl: 'https://shop.test/sso' });
 
         await wrapper.find('.sw-verify-user-modal__verify-with-sso').trigger('click');
+        // the window opens within the click, before any awaited request
+        expect(userVerificationService.verifyWithSso).toHaveBeenCalledWith('https://shop.test/sso');
+        await flushPromises();
 
-        expect(wrapper.emitted('verify-with-sso')).toHaveLength(1);
-        expect(wrapper.emitted('close')).toBeUndefined();
+        expect(wrapper.emitted('verified')).toEqual([[ssoContext]]);
+        expect(wrapper.emitted('close')).toHaveLength(1);
         expect(loginService.verifyUserToken).not.toHaveBeenCalled();
+    });
+
+    it('stays open for another try when the identity provider login fails', async () => {
+        userVerificationService.verifyWithSso.mockRejectedValueOnce(new Error('cancelled'));
+        wrapper = await createWrapper({ ssoSession: true, loginUrl: 'https://shop.test/sso' });
+
+        await wrapper.find('.sw-verify-user-modal__verify-with-sso').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('verified')).toBeUndefined();
+        expect(wrapper.emitted('close')).toBeUndefined();
     });
 });

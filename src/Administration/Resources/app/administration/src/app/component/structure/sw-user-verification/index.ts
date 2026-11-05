@@ -18,10 +18,6 @@ export default Shopware.Component.wrapComponentConfig({
         requested(): boolean {
             return Shopware.Store.get('userVerification').requested;
         },
-
-        ssoAvailable(): boolean {
-            return Shopware.Store.get('userVerification').ssoAvailable;
-        },
     },
 
     methods: {
@@ -32,10 +28,6 @@ export default Shopware.Component.wrapComponentConfig({
         onClose(): void {
             // the modal also closes after a successful verification; by then nothing is pending
             this.userVerificationService.cancel();
-        },
-
-        onVerifyWithSso(): void {
-            void this.userVerificationService.switchToSso();
         },
     },
 });

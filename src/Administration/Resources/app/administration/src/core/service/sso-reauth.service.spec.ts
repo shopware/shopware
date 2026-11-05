@@ -5,7 +5,6 @@
 import SsoReauthService from './sso-reauth.service';
 import UserVerificationError from './user-verification.error';
 import { SSO_REAUTH_COMPLETE_MESSAGE, SSO_REAUTH_WINDOW_NAME } from '../helper/sso-reauth-window.helper';
-import type { LoginService } from './login.service';
 
 describe('src/core/service/sso-reauth.service.ts', () => {
     const popup = { closed: false };
@@ -15,18 +14,14 @@ describe('src/core/service/sso-reauth.service.ts', () => {
         addEventListener: jest.fn((type: string, listener: (event: Event) => void) => listeners.add(listener)),
         removeEventListener: jest.fn((type: string, listener: (event: Event) => void) => listeners.delete(listener)),
     } as unknown as Pick<Window, 'addEventListener' | 'removeEventListener'>;
-    const loginService = {
-        getLoginTemplateConfig: jest.fn(() =>
-            Promise.resolve({ useDefault: false, url: 'https://shop.test/api/oauth/sso/auth?rdm=abc' }),
-        ),
-    } as unknown as LoginService;
+    const loginUrl = 'https://shop.test/api/oauth/sso/auth?rdm=abc';
 
     const postMessage = (origin: string, data: unknown, source: unknown = popup) => {
         listeners.forEach((listener) => listener({ origin, data, source } as unknown as Event));
     };
 
     const createService = () =>
-        new SsoReauthService(loginService, { openWindow, windowEvents, origin: 'https://shop.test', pollInterval: 10 });
+        new SsoReauthService({ openWindow, windowEvents, origin: 'https://shop.test', pollInterval: 10 });
 
     beforeEach(() => {
         jest.useFakeTimers();
@@ -39,9 +34,8 @@ describe('src/core/service/sso-reauth.service.ts', () => {
         jest.useRealTimers();
     });
 
-    it('opens the identity provider with a forced login in the re-authentication window', async () => {
-        const result = createService().reauthenticate();
-        await jest.advanceTimersByTimeAsync(0);
+    it('opens the identity provider with a forced login in the re-authentication window right away', async () => {
+        const result = createService().reauthenticate(loginUrl);
 
         expect(openWindow).toHaveBeenCalledWith(
             'https://shop.test/api/oauth/sso/auth?rdm=abc&usePromptLogin=1',
@@ -58,7 +52,7 @@ describe('src/core/service/sso-reauth.service.ts', () => {
     it('keeps waiting while the window stays open', async () => {
         let settled = false;
         const result = createService()
-            .reauthenticate()
+            .reauthenticate(loginUrl)
             .finally(() => {
                 settled = true;
             });
@@ -73,7 +67,7 @@ describe('src/core/service/sso-reauth.service.ts', () => {
     it('opens the window through the browser by default', async () => {
         const open = jest.spyOn(window, 'open').mockReturnValue(null);
 
-        await expect(new SsoReauthService(loginService).reauthenticate()).rejects.toEqual(
+        await expect(new SsoReauthService().reauthenticate(loginUrl)).rejects.toEqual(
             UserVerificationError.ssoWindowBlocked(),
         );
         expect(open).toHaveBeenCalledWith(
@@ -84,7 +78,7 @@ describe('src/core/service/sso-reauth.service.ts', () => {
     });
 
     it('ignores messages from other origins, other windows and other messages', async () => {
-        const result = createService().reauthenticate();
+        const result = createService().reauthenticate(loginUrl);
         await jest.advanceTimersByTimeAsync(0);
 
         postMessage('https://evil.test', SSO_REAUTH_COMPLETE_MESSAGE);
@@ -98,7 +92,7 @@ describe('src/core/service/sso-reauth.service.ts', () => {
     });
 
     it('rejects as cancelled when the user closes the window', async () => {
-        const result = createService().reauthenticate();
+        const result = createService().reauthenticate(loginUrl);
         const caught = result.catch((error: unknown) => error);
         await jest.advanceTimersByTimeAsync(0);
 
@@ -110,7 +104,7 @@ describe('src/core/service/sso-reauth.service.ts', () => {
     });
 
     it('lets a completion posted right before the close win over the cancel', async () => {
-        const result = createService().reauthenticate();
+        const result = createService().reauthenticate(loginUrl);
         await jest.advanceTimersByTimeAsync(0);
 
         popup.closed = true;
@@ -124,14 +118,12 @@ describe('src/core/service/sso-reauth.service.ts', () => {
     it('rejects when the browser blocked the window', async () => {
         openWindow.mockReturnValueOnce(null as unknown as Window);
 
-        await expect(createService().reauthenticate()).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
+        await expect(createService().reauthenticate(loginUrl)).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
         expect(windowEvents.addEventListener).not.toHaveBeenCalled();
     });
 
     it('rejects when the SSO login is not configured', async () => {
-        (loginService.getLoginTemplateConfig as jest.Mock).mockResolvedValueOnce({ useDefault: true, url: '' });
-
-        await expect(createService().reauthenticate()).rejects.toEqual(UserVerificationError.ssoNotConfigured());
+        await expect(createService().reauthenticate('')).rejects.toEqual(UserVerificationError.ssoNotConfigured());
         expect(openWindow).not.toHaveBeenCalled();
     });
 });

@@ -10,6 +10,5 @@ describe('src/app/init/user-verification.init.ts', () => {
         const store = Shopware.Store.get('userVerification');
 
         expect(store.requested).toBe(false);
-        expect(store.ssoAvailable).toBe(false);
     });
 });

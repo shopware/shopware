@@ -8,7 +8,6 @@ import 'src/app/store/user-verification.store';
 const userVerificationService = {
     complete: jest.fn(),
     cancel: jest.fn(),
-    switchToSso: jest.fn(() => Promise.resolve()),
 };
 
 async function createWrapper() {
@@ -19,16 +18,13 @@ async function createWrapper() {
                 // the real modal is covered by its own spec; this one only emits what the host has to handle
                 'sw-verify-user-modal': {
                     name: 'sw-verify-user-modal',
-                    props: ['ssoAvailable'],
                     emits: [
                         'verified',
-                        'verify-with-sso',
                         'close',
                     ],
                     template: `
-                        <div class="sw-verify-user-modal-stub" :data-sso-available="ssoAvailable">
+                        <div class="sw-verify-user-modal-stub">
                             <button class="emit-verified" @click="$emit('verified', { verified: true })"></button>
-                            <button class="emit-verify-with-sso" @click="$emit('verify-with-sso')"></button>
                             <button class="emit-close" @click="$emit('close')"></button>
                         </div>
                     `,
@@ -54,10 +50,10 @@ describe('src/app/component/structure/sw-user-verification', () => {
 
         expect(wrapper.find('.sw-verify-user-modal-stub').exists()).toBe(false);
 
-        store().request(true);
+        store().request();
         await flushPromises();
 
-        expect(wrapper.find('.sw-verify-user-modal-stub').attributes('data-sso-available')).toBe('true');
+        expect(wrapper.find('.sw-verify-user-modal-stub').exists()).toBe(true);
 
         store().dismiss();
         await flushPromises();
@@ -67,7 +63,7 @@ describe('src/app/component/structure/sw-user-verification', () => {
 
     it('passes the verified context to the service', async () => {
         const wrapper = await createWrapper();
-        store().request(false);
+        store().request();
         await flushPromises();
 
         await wrapper.find('.emit-verified').trigger('click');
@@ -77,21 +73,11 @@ describe('src/app/component/structure/sw-user-verification', () => {
 
     it('cancels the verification when the modal closes', async () => {
         const wrapper = await createWrapper();
-        store().request(false);
+        store().request();
         await flushPromises();
 
         await wrapper.find('.emit-close').trigger('click');
 
         expect(userVerificationService.cancel).toHaveBeenCalledTimes(1);
-    });
-
-    it('switches to the identity provider on request', async () => {
-        const wrapper = await createWrapper();
-        store().request(true);
-        await flushPromises();
-
-        await wrapper.find('.emit-verify-with-sso').trigger('click');
-
-        expect(userVerificationService.switchToSso).toHaveBeenCalledTimes(1);
     });
 });

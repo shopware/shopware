@@ -2,11 +2,13 @@
 <sw-modal
     :title="$t('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
     variant="small"
+    :is-loading="isLoading"
     @modal-close="onCloseConfirmPasswordModal"
 >
 
     {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
     <mt-password-field
+        v-if="!ssoSession"
         v-model="confirmPassword"
         class="sw-settings-user-detail__confirm-password"
         name="sw-field--confirm-password"
@@ -22,10 +24,10 @@
     <template #modal-footer>
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_sso %}
         <mt-button
-            v-if="ssoAvailable"
+            v-if="ssoLoginUrl"
             class="sw-verify-user-modal__verify-with-sso"
             size="small"
-            variant="secondary"
+            :variant="ssoSession ? 'primary' : 'secondary'"
             @click="onVerifyWithSso"
         >
             {{ $t('global.sw-verify-user-modal.buttonVerifyWithSso') }}
@@ -44,6 +46,7 @@
 
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
         <mt-button
+            v-if="!ssoSession"
             variant="primary"
             :disabled="!confirmPassword"
             size="small"

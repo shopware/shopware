@@ -239,7 +239,7 @@ Application.addServiceProvider('feature', () => {
         return new UserActivityService();
     })
     .addServiceProvider('ssoReauthService', () => {
-        return new SsoReauthService(Shopware.Service('loginService'));
+        return new SsoReauthService();
     })
     .addServiceProvider('userVerificationService', () => {
         return new UserVerificationService(Shopware.Service('loginService'), Shopware.Service('ssoReauthService'));

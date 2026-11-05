@@ -12,21 +12,18 @@ describe('src/app/store/user-verification.store.ts', () => {
 
     it('requests nothing initially', () => {
         expect(store().requested).toBe(false);
-        expect(store().ssoAvailable).toBe(false);
     });
 
-    it('requests the modal with the identity provider offered', () => {
-        store().request(true);
+    it('requests the modal', () => {
+        store().request();
 
         expect(store().requested).toBe(true);
-        expect(store().ssoAvailable).toBe(true);
     });
 
     it('dismisses the request', () => {
-        store().request(true);
+        store().request();
         store().dismiss();
 
         expect(store().requested).toBe(false);
-        expect(store().ssoAvailable).toBe(false);
     });
 });

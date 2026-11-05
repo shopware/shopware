@@ -50,6 +50,7 @@
                     <sw-product-document-add-button
                         v-if="currentValue.length"
                         class="sw-product-document-form__add-button"
+                        :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
                         @add-documents="showUploadModal = true"
                         @change-language="$emit('change-language', $event)"
@@ -124,7 +125,14 @@
                             <sw-product-document-language-value
                                 :value="getTitle(item)"
                                 :is-translated="!!item.title"
-                            />
+                            >
+                                {% block sw_product_document_form_variant_badge %}
+                                <sw-product-document-variant-badge
+                                    v-if="!isInherited && newDocuments.has(item)"
+                                    :document="item"
+                                />
+                                {% endblock %}
+                            </sw-product-document-language-value>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_file %}

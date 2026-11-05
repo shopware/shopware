@@ -11,6 +11,10 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['add-documents', 'change-language'],
 
     props: {
+        isInherited: {
+            type: Boolean,
+            default: false,
+        },
         disabled: {
             type: Boolean,
             default: false,

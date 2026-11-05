@@ -40,6 +40,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
+            newDocuments: new WeakSet<ProductDocument>(),
             showUploadModal: false,
             showMediaModal: false,
             editingDocument: null as ProductDocument | null,
@@ -266,6 +267,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.title = media.fileName;
                 document.position = this.documents.length;
                 this.uploadedMedia[media.id] = media;
+                this.newDocuments.add(document);
                 this.documents.add(document);
             }
             this.showMediaModal = false;

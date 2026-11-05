@@ -593,6 +593,7 @@
       "notificationSaveErrorProductNoAlreadyExists": "Die Produktnummer \"{productNo}\" ist bereits vergeben."
     },
     "documentForm": {
+      "variantOnly": "Nur für diese Variante",
       "cardTitle": "Dokumente ({count})",
       "cardSubtitle": "Dateien, die Kunden auf der Produktdetailseite in der Storefront herunterladen können.",
       "emptyState": "Noch keine Dokumente",
@@ -633,7 +634,8 @@
       "errorDocumentDuplicated": "Diese Datei ist dem Produkt bereits zugewiesen.",
       "languageHint": "Füge Dokumente in der Standardsprache hinzu. Wechsle die Inhaltssprache, um ihre Namen und Dateien zu übersetzen.",
       "fileUploadLabel": "Datei-Upload",
-      "uploadHint": "{extensions} oder {lastExtension}, jeweils bis zu {size} MB."
+      "uploadHint": "{extensions} oder {lastExtension}, jeweils bis zu {size} MB.",
+      "unlinkToAdd": "Hebe die Vererbung der Karte auf, um Dokumente für diese Variante hinzuzufügen."
     }
   },
   "sw-privileges": {

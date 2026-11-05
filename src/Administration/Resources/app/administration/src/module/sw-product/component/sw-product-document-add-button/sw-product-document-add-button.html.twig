@@ -1,8 +1,14 @@
 {% block sw_product_document_add_button %}
 <span class="sw-product-document-add-button">
     <mt-button
-        v-if="isDefaultLanguage"
-        :disabled="disabled"
+        v-if="isDefaultLanguage || isInherited"
+        :key="isInherited ? 'inherited' : 'default'"
+        v-tooltip="{
+            message: $t('sw-product.documentForm.unlinkToAdd'),
+            disabled: !isInherited,
+            showOnDisabledElements: true,
+        }"
+        :disabled="disabled || isInherited"
         size="small"
         variant="secondary"
         @click="$emit('add-documents')"

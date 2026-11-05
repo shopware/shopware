@@ -9,12 +9,12 @@ describe('sw-product-document-add-button', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     let wrapper: VueWrapper;
 
-    async function createWrapper(disabled = false, realFloatingUi = false) {
+    async function createWrapper(disabled = false, realFloatingUi = false, isInherited = false) {
         return (realFloatingUi ? mount : shallowMount)(
             await wrapTestComponent('sw-product-document-add-button', { sync: true }),
             {
                 attachTo: document.body,
-                props: { disabled },
+                props: { disabled, isInherited },
                 global: {
                     provide: {
                         repositoryFactory: { create: () => ({ get: jest.fn().mockResolvedValue({ name: 'English' }) }) },
@@ -58,6 +58,21 @@ describe('sw-product-document-add-button', () => {
         wrapper = await createWrapper(true);
         expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
     });
+
+    it.each([true, false])(
+        'explains inherited documents instead of offering an upload or language switch (default: %s)',
+        async (isDefault) => {
+            if (!isDefault) {
+                Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+            }
+            wrapper = await createWrapper(false, false, true);
+            expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
+            expect(wrapper.get('button').attributes('tooltip-mock-message')).toBe('sw-product.documentForm.unlinkToAdd');
+            expect(wrapper.get('button').attributes('tooltip-mock-disabled')).toBe('false');
+            expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+            expect(wrapper.emitted('add-documents')).toBeUndefined();
+        },
+    );
 
     it('offers a language switch on focus instead of uploading in another content language', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;

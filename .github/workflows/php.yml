@@ -308,7 +308,7 @@ jobs:
   phpunit:
     # runs the unit, migration and devops suites with coverage on PHP 8.5, where composer resolves
     # PHPUnit 13, and tolerates no PHPUnit notices, warnings or deprecations; plain PHP ones stay
-    # tolerated. PHPUnit 11 on PHP 8.2 runs in the nightly `phpunit-11` job below.
+    # tolerated. PHPUnit 11 on PHP 8.2 runs in the nightly through php-phpunit-11.yml.
     name: "PHPUnit for ${{ matrix.suite }}"
     needs:
       - markdown-only-changes
@@ -392,73 +392,6 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-  phpunit-11:
-    # nightly only: the unit and migration suites on PHP 8.2, where composer resolves PHPUnit 11,
-    # the version an install on PHP 8.2 or 8.3 gets
-    name: "PHPUnit 11 for ${{ matrix.suite }}"
-    needs:
-      - markdown-only-changes
-    if: ${{ inputs.nightly == 'true' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        suite:
-          - unit
-          - migration
-    env:
-      # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
-      # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
-      COMPOSER_ROOT_VERSION: ${{ matrix.suite == 'migration' && '6.8.9999999-dev' || '6.7.9999999-dev' }}
-      V6_8_0_0: ${{ matrix.suite == 'migration' && '1' || '' }}
-
-    services:
-      elasticsearch:
-        # no suite in this job talks to OpenSearch; the cheap placeholder keeps the port closed
-        image: alpine
-        env:
-          discovery.type: single-node
-          plugins.security.disabled: "true"
-          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
-        ports:
-          - "9200:9200"
-      database:
-        # migration: MySQL 8.4 rejects foreign keys onto non-unique keys during install/migrate
-        # (restrict_fk_on_non_standard_key defaults to ON there); devops: NonStandardFkGuardTest
-        # skips without that default. The unit suite stays on MySQL 8.0.
-        image: ${{ matrix.suite == 'unit' && 'mysql:8.0' || 'mysql:8.4' }}
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: shopware
-        ports:
-          - "3306:3306"
-        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup and install Shopware
-        uses: ./.github/actions/phpunit-prepare
-        with:
-          keep-composer-tools: "true"
-          expected-phpunit: "11"
-      - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
-        if: ${{ matrix.suite == 'unit' }}
-        run: composer install -d vendor-bin/danger-php --no-interaction
-      - name: Run PHPUnit
-        uses: ./.github/actions/phpunit-run
-        with:
-          test-testsuite: ${{ matrix.suite }}
-      - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: junit-phpunit-11-${{ matrix.suite }}
-          path: junit.xml
-          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
-          if-no-files-found: ignore
-          overwrite: true
-
   license-check:
     needs:
       - markdown-only-changes
@@ -526,7 +459,6 @@ jobs:
       - phpstan
       - openapi-lint
       - phpunit
-      - phpunit-11
       - license-check
       - composer-audit
       - bc-checker
@@ -537,6 +469,5 @@ jobs:
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           # allowed-failures: docs, linters
-          # phpunit-11 runs in the nightly only
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, phpunit-11, license-check, composer-audit, bc-checker' || inputs.nightly != 'true' && 'phpunit-11' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, license-check, composer-audit, bc-checker' || '' }}
           jobs: ${{ toJSON(needs) }}

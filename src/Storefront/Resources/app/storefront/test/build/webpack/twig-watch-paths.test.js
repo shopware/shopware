@@ -15,6 +15,7 @@ describe('build/webpack/twig-watch-paths', () => {
         ThemePlugin: { technicalName: 'theme-plugin', basePath: 'custom/plugins/ThemePlugin/src/', views: ['Resources/views'] },
         TemplateOnly: { technicalName: 'template-only', basePath: 'custom/plugins/TemplateOnly/src/', views: ['Resources/views'] },
         ComponentOnly: { technicalName: 'component-only', basePath: 'custom/plugins/ComponentOnly/src/', views: ['Resources/views'] },
+        CustomViews: { technicalName: 'custom-views', basePath: 'custom/plugins/CustomViews/src/', views: ['Resources/views'] },
         NoViews: { technicalName: 'no-views', basePath: 'custom/plugins/NoViews/src/' },
     };
 
@@ -34,18 +35,20 @@ describe('build/webpack/twig-watch-paths', () => {
         createDirectory('custom/plugins/ThemePlugin/src/Resources/views/storefront');
         createDirectory('custom/plugins/TemplateOnly/src/Resources/views/storefront');
         createDirectory('custom/plugins/ComponentOnly/src/Resources/views/components');
+        createDirectory('custom/plugins/CustomViews/src/Resources/views/custom');
     });
 
     afterEach(() => {
         fs.rmSync(projectRoot, { recursive: true, force: true });
     });
 
-    it('watches the Storefront views and all extension views with Storefront templates', () => {
+    it('watches the Storefront views and all extension views, but skips Core bundles without Storefront templates', () => {
         expect(getTwigWatchPaths(projectRoot, pluginDefinition)).toEqual([
             watchPath('src/Storefront/'),
             watchPath('custom/plugins/ThemePlugin/src/'),
             watchPath('custom/plugins/TemplateOnly/src/'),
             watchPath('custom/plugins/ComponentOnly/src/'),
+            watchPath('custom/plugins/CustomViews/src/'),
         ]);
     });
 

@@ -1,7 +1,8 @@
 ---
 name: shopware-pr-hygiene
 description: >
-  Prepare or update Shopware pull requests. Use when opening a PR or when the user asks
+  Prepare or update Shopware pull requests. Use when opening a PR ("create a PR",
+  "open a PR", "open a draft PR") or when the user asks
   for a PR description, PR text, PR body, PR template, or PR title ("output a PR description",
   "write the PR text", "give me a PR title", "fill in the PR template"), a conventional title like
   `fix:` or `feat(admin):`, or when answering review feedback, reviewer comments, or

@@ -1,8 +1,8 @@
 name: Danger
 on:
   pull_request_target:
-    # `edited` re-runs the rules that judge the description, e.g. MissingPullRequestDescription; the job skips edits that leave the body alone
-    types: [opened, edited, synchronize, reopened]
+    # the rules judge the code; the title and the description are checked by check-pr-text.yml
+    types: [opened, synchronize, reopened]
 
 concurrency:
   group: danger-${{ github.event.pull_request.number }}
@@ -14,8 +14,6 @@ permissions:
 
 jobs:
   pr:
-    # an edit reruns Danger only when the description changed: its rules judge the body, not the title or the base
-    if: ${{ github.event.action != 'edited' || github.event.changes.body != null }}
     runs-on: ubuntu-24.04
     steps:
       - name: Clone

@@ -38,6 +38,7 @@ class PagingListingProcessor extends AbstractListingProcessor
 
         $page = $this->getPage($request);
         if ($page !== null) {
+            $page = min($page, intdiv(\PHP_INT_MAX, max($limit, 1)));
             $criteria->setOffset(($page - 1) * $limit);
         }
         if ($criteria->getOffset() === null || $criteria->getOffset() < 0) {

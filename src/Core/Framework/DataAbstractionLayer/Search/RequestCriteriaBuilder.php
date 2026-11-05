@@ -420,6 +420,7 @@ class RequestCriteriaBuilder
         }
 
         $limit = $criteria->getLimit() ?? 0;
+        $page = min($page, intdiv(\PHP_INT_MAX, max($limit, 1)));
 
         $offset = $limit * ($page - 1);
         $criteria->setOffset($offset);

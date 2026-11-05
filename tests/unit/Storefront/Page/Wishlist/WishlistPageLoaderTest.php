@@ -63,5 +63,6 @@ class WishlistPageLoaderTest extends TestCase
         yield 'zero page falls back to the first page' => ['0', 0];
         yield 'non-numeric page falls back to the first page' => ['foo', 0];
         yield 'valid page is converted to its offset' => ['3', 48];
+        yield 'page beyond the integer range is capped to the largest representable offset' => ['99999999999999999999', (intdiv(\PHP_INT_MAX, 24) - 1) * 24];
     }
 }

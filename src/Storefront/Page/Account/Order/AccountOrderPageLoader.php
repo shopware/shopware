@@ -118,6 +118,7 @@ class AccountOrderPageLoader
     private function createCriteria(Request $request): Criteria
     {
         $page = max((int) RequestParamHelper::get($request, 'p'), 1);
+        $page = min($page, intdiv(\PHP_INT_MAX, self::DEFAULT_LIMIT));
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))

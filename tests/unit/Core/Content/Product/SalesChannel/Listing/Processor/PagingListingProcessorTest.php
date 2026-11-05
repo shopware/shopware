@@ -235,6 +235,18 @@ class PagingListingProcessorTest extends TestCase
         static::assertSame($limit, $criteria->getLimit());
     }
 
+    public function testPrepareCapsPageBeyondTheIntegerRange(): void
+    {
+        $criteria = new Criteria();
+        $request = new Request(['p' => (string) \PHP_INT_MAX]);
+
+        $processor = new PagingListingProcessor(new StaticSystemConfigService(['core.listing.productsPerPage' => 24]));
+        $processor->prepare($request, $criteria, static::createStub(SalesChannelContext::class));
+
+        static::assertSame((intdiv(\PHP_INT_MAX, 24) - 1) * 24, $criteria->getOffset());
+        static::assertSame(24, $criteria->getLimit());
+    }
+
     public function testProcess(): void
     {
         $criteria = new Criteria();

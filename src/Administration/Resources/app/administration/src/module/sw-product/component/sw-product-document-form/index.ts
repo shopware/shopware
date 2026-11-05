@@ -92,10 +92,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         editingMedia(): Entity<'media'> | undefined {
-            return (
-                this.replacementMedia ||
-                (!this.documentFileRemoved && this.editingDocument ? this.getMedia(this.editingDocument) : undefined)
-            );
+            return this.replacementMedia || (this.documentFileRemoved ? undefined : this.getMedia(this.editingDocument));
         },
 
         canSaveDocument(): boolean {
@@ -157,14 +154,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.canEdit && inheritance?.isInherited === false;
         },
 
-        getMedia(document: ProductDocument): Entity<'media'> | undefined {
-            const mediaId = document.mediaId || document.translated?.mediaId;
+        getMedia(document: ProductDocument | null): Entity<'media'> | undefined {
+            const mediaId = document?.mediaId || document?.translated?.mediaId;
 
             if (!mediaId) {
                 return undefined;
             }
 
-            return this.uploadedMedia[mediaId] || document.translations?.find((item) => item.mediaId === mediaId)?.media;
+            return this.uploadedMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media;
         },
 
         getTitle(document: ProductDocument): string {
@@ -424,7 +421,7 @@ export default Shopware.Component.wrapComponentConfig({
             const language = Shopware.Store.get('context').api.language;
             Object.assign(document, resetDocumentTranslation(document, language, Shopware.Context.api.systemLanguageId));
             const translation = document.translations?.find((entry) => entry.languageId === Shopware.Context.api.languageId);
-            if (translation) {
+            if (translation?.isNew()) {
                 Object.assign(translation, { title: null, mediaId: null });
             }
         },
@@ -516,17 +513,13 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!children.has(variant.id)) {
                     children.add(variant);
                 }
-                matching.forEach((copy) => {
-                    if (this.isDefaultLanguage) {
-                        documents.remove(copy.id);
-                    } else {
-                        this.resetDocumentLanguageVersion(copy);
-                    }
-                });
                 if (this.isDefaultLanguage) {
+                    matching.forEach((copy) => documents.remove(copy.id));
                     documents.forEach((copy, index) => {
                         copy.position = index;
                     });
+                } else {
+                    matching.forEach((copy) => this.resetDocumentLanguageVersion(copy));
                 }
             });
             this.product.children = children;

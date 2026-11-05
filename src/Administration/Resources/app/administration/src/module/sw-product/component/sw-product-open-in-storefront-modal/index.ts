@@ -13,12 +13,14 @@ type FailingReason = 'salesChannelActive' | 'hasDomain' | 'productActive' | Stoc
 type LoadedSalesChannel = {
     productUrls: ProductStorefrontUrls | null;
     stockReason: StockReason | null;
+    languageNames: Record<string, string>;
 };
 
 type SalesChannelResult = {
     maintenance: boolean;
     failingReasons: FailingReason[];
     domains: ProductStorefrontUrls['domains'];
+    languageNames: Record<string, string>;
 };
 
 /**
@@ -96,10 +98,6 @@ export default Shopware.Component.wrapComponentConfig({
             return this.product.active ?? this.parentProduct?.active ?? false;
         },
 
-        selectedSalesChannelName(): string {
-            return this.salesChannelOptions.find(({ value }) => value === this.selectedSalesChannelId)?.label ?? '';
-        },
-
         result(): SalesChannelResult | null {
             const salesChannel = this.selectedSalesChannel;
             if (!salesChannel) {
@@ -111,6 +109,7 @@ export default Shopware.Component.wrapComponentConfig({
                     maintenance: !!salesChannel.maintenance,
                     failingReasons: ['salesChannelActive'],
                     domains: [],
+                    languageNames: {},
                 };
             }
 
@@ -118,12 +117,13 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            const { productUrls, stockReason } = this.loadedSalesChannel;
+            const { productUrls, stockReason, languageNames } = this.loadedSalesChannel;
 
             return {
                 maintenance: !!salesChannel.maintenance,
                 failingReasons: this.getFailingReasons(productUrls, stockReason),
                 domains: productUrls?.reachable ? productUrls.domains : [],
+                languageNames,
             };
         },
     },
@@ -170,11 +170,13 @@ export default Shopware.Component.wrapComponentConfig({
                     this.product.id,
                     salesChannel.id,
                 );
-                const stockReason =
-                    productUrls && !productUrls.reachable ? await this.loadStockReason(salesChannel.id) : null;
+                const [stockReason, languageNames] = await Promise.all([
+                    productUrls && !productUrls.reachable ? this.loadStockReason(salesChannel.id) : null,
+                    productUrls?.reachable ? this.loadLanguageNames(productUrls.domains) : {},
+                ]);
 
                 if (!isCancelled()) {
-                    this.loadedSalesChannel = { productUrls, stockReason };
+                    this.loadedSalesChannel = { productUrls, stockReason, languageNames };
                 }
             } catch {
                 useNotification().createNotificationError({
@@ -184,6 +186,19 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!isCancelled()) {
                     this.isLoading = false;
                 }
+            }
+        },
+
+        async loadLanguageNames(domains: ProductStorefrontUrls['domains']): Promise<Record<string, string>> {
+            const criteria = new Criteria(1, domains.length);
+            criteria.setIds([...new Set(domains.map(({ languageId }) => languageId))]);
+
+            try {
+                const languages = await this.repositoryFactory.create('language').search(criteria);
+
+                return Object.fromEntries(languages.map((language) => [language.id, language.name]));
+            } catch {
+                return {};
             }
         },
 

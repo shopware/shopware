@@ -326,6 +326,7 @@
       "infoNoSalesChannels": "The product is not assigned to any Storefront sales channel.",
       "labelSalesChannel": "Sales channel",
       "placeholderSalesChannel": "Select a sales channel...",
+      "labelDomains": "Domains",
       "checks": {
         "salesChannelActive": "Sales channel is inactive",
         "hasDomain": "Sales channel has no domain",

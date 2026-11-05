@@ -21,6 +21,14 @@
         line-height: var(--font-line-height-xs);
     }
 
+    &__domains-headline {
+        margin: 0;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+    }
+
     &__domain {
         display: flex;
         align-items: center;

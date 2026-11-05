@@ -24,6 +24,7 @@ function storefrontSalesChannel(overrides: Partial<ProductStorefrontUrls> = {}):
             {
                 id: 'domain-id',
                 url: 'https://shop.test',
+                languageId: 'english-id',
                 productUrl: 'https://shop.test/Shirt/SW10000',
             },
         ],
@@ -40,9 +41,13 @@ async function createWrapper({
     hideCloseoutProducts = true,
     availableVariants = 0,
     hasUnsavedChanges = false,
+    languageSearch = Promise.resolve([{ id: 'english-id', name: 'English' }]) as Promise<unknown>,
 } = {}) {
     productStorefrontUrlApiService.fetchProductUrls = jest.fn().mockResolvedValue(loadedSalesChannel);
-    const repository = { searchIds: jest.fn().mockResolvedValue({ total: availableVariants, data: [] }) };
+    const repository = {
+        searchIds: jest.fn().mockResolvedValue({ total: availableVariants, data: [] }),
+        search: jest.fn(() => languageSearch),
+    };
     const systemConfigApiService = {
         getValues: jest.fn().mockResolvedValue({ 'core.listing.hideCloseoutProductsWhenOutOfStock': hideCloseoutProducts }),
     };
@@ -113,7 +118,10 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(link.attributes('href')).toBe('https://shop.test/Shirt/SW10000');
         expect(link.attributes('target')).toBe('_blank');
         expect(link.attributes('rel')).toBe('noopener');
-        expect(link.find('.sw-product-open-in-storefront-modal__domain-header').text()).toBe('Storefront');
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-headline').text()).toBe(
+            'sw-product.openInStorefrontModal.labelDomains',
+        );
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-header').text()).toBe('English');
         expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
     });
 
@@ -132,8 +140,13 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         const { wrapper } = await createWrapper({
             loadedSalesChannel: storefrontSalesChannel({
                 domains: [
-                    { id: 'domain-id', url: 'https://shop.test', productUrl: 'https://shop.test/Shirt/SW10000' },
-                    { id: 'invalid-domain-id', url: 'ftp://shop.test', productUrl: null },
+                    {
+                        id: 'domain-id',
+                        url: 'https://shop.test',
+                        languageId: 'english-id',
+                        productUrl: 'https://shop.test/Shirt/SW10000',
+                    },
+                    { id: 'invalid-domain-id', url: 'ftp://shop.test', languageId: 'english-id', productUrl: null },
                 ],
             }),
         });
@@ -211,12 +224,22 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
 
         expect(failingReasons(wrapper)).toEqual([`sw-product.openInStorefrontModal.checks.${reason}`]);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__domain').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-headline').exists()).toBe(false);
+    });
+
+    it('shows the domain URL without a language when the languages cannot be loaded', async () => {
+        const { wrapper } = await createWrapper({ languageSearch: Promise.reject(new Error('Forbidden')) });
+
+        const link = wrapper.find('a.sw-product-open-in-storefront-modal__domain');
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-header').exists()).toBe(false);
+        expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
     });
 
     it('does not check the stock when the Storefront shows the product', async () => {
         const { repository, systemConfigApiService } = await createWrapper({ product: { childCount: 2 } });
 
         expect(repository.searchIds).not.toHaveBeenCalled();
+        expect(repository.search).toHaveBeenCalledTimes(1);
         expect(systemConfigApiService.getValues).not.toHaveBeenCalled();
     });
 

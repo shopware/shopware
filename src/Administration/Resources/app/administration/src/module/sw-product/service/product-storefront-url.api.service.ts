@@ -16,6 +16,7 @@ export type ProductStorefrontUrls = {
     domains: {
         id: string;
         url: string;
+        languageId: string;
         productUrl: string | null;
     }[];
 };
@@ -71,7 +72,7 @@ export default class ProductStorefrontUrlApiService extends ApiService {
             if (path === null) {
                 return {
                     reachable: false,
-                    domains: domains.map(({ id, url }) => ({ id, url, productUrl: null })),
+                    domains: domains.map((domain) => ({ ...domain, productUrl: null })),
                 };
             }
 
@@ -80,10 +81,9 @@ export default class ProductStorefrontUrlApiService extends ApiService {
 
         return {
             reachable: true,
-            domains: domains.map(({ id, url, languageId }) => ({
-                id,
-                url,
-                productUrl: ProductStorefrontUrlApiService.buildProductUrl(url, paths[languageId]),
+            domains: domains.map((domain) => ({
+                ...domain,
+                productUrl: ProductStorefrontUrlApiService.buildProductUrl(domain.url, paths[domain.languageId]),
             })),
         };
     }
@@ -95,7 +95,9 @@ export default class ProductStorefrontUrlApiService extends ApiService {
         );
         const context = response.data as { salesChannel?: { domains?: SalesChannelDomain[] } };
 
-        return [...(context.salesChannel?.domains ?? [])].sort((a, b) => a.url.localeCompare(b.url));
+        return (context.salesChannel?.domains ?? [])
+            .map(({ id, url, languageId }) => ({ id, url, languageId }))
+            .sort((a, b) => a.url.localeCompare(b.url));
     }
 
     private static buildProductUrl(domainUrl: string, path: string): string | null {

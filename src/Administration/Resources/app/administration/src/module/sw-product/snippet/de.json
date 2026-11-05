@@ -326,6 +326,7 @@
       "infoNoSalesChannels": "Das Produkt ist keinem Storefront-Verkaufskanal zugewiesen.",
       "labelSalesChannel": "Verkaufskanal",
       "placeholderSalesChannel": "Verkaufskanal auswählen ...",
+      "labelDomains": "Domains",
       "checks": {
         "salesChannelActive": "Verkaufskanal ist inaktiv",
         "hasDomain": "Verkaufskanal hat keine Domain",

@@ -9,7 +9,7 @@ import ProductStorefrontUrlApiService from './product-storefront-url.api.service
 const GERMAN_LANGUAGE_ID = 'german-language-id';
 const ENGLISH_LANGUAGE_ID = 'english-language-id';
 
-type Domain = { id: string; url: string; languageId: string };
+type Domain = { id: string; url: string; languageId: string; currencyId?: string };
 
 function createService({
     domains = [] as Domain[],
@@ -51,7 +51,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         const { service, httpClient } = createService({
             domains: [
                 { id: 'domain-en', url: 'https://shop.test/en/', languageId: ENGLISH_LANGUAGE_ID },
-                { id: 'domain-de', url: 'https://shop.test/de', languageId: GERMAN_LANGUAGE_ID },
+                { id: 'domain-de', url: 'https://shop.test/de', languageId: GERMAN_LANGUAGE_ID, currencyId: 'eur' },
                 { id: 'domain-www', url: 'https://www.shop.test', languageId: ENGLISH_LANGUAGE_ID },
             ],
         });
@@ -72,16 +72,19 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
                 {
                     id: 'domain-de',
                     url: 'https://shop.test/de',
+                    languageId: GERMAN_LANGUAGE_ID,
                     productUrl: `https://shop.test/de/Shirt-${GERMAN_LANGUAGE_ID}/SW10000`,
                 },
                 {
                     id: 'domain-en',
                     url: 'https://shop.test/en/',
+                    languageId: ENGLISH_LANGUAGE_ID,
                     productUrl: `https://shop.test/en/Shirt-${ENGLISH_LANGUAGE_ID}/SW10000`,
                 },
                 {
                     id: 'domain-www',
                     url: 'https://www.shop.test',
+                    languageId: ENGLISH_LANGUAGE_ID,
                     productUrl: `https://www.shop.test/Shirt-${ENGLISH_LANGUAGE_ID}/SW10000`,
                 },
             ],
@@ -111,7 +114,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
         expect(result?.reachable).toBe(true);
-        expect(result?.domains[0]).toEqual({ id: 'domain-en', url, productUrl: null });
+        expect(result?.domains[0]).toEqual({ id: 'domain-en', url, languageId: ENGLISH_LANGUAGE_ID, productUrl: null });
     });
 
     it('marks a sales channel whose product page responds with 404 as not reachable', async () => {
@@ -129,8 +132,8 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         expect(result).toEqual({
             reachable: false,
             domains: [
-                { id: 'domain-de', url: 'https://shop.test/de', productUrl: null },
-                { id: 'domain-en', url: 'https://shop.test/en', productUrl: null },
+                { id: 'domain-de', url: 'https://shop.test/de', languageId: GERMAN_LANGUAGE_ID, productUrl: null },
+                { id: 'domain-en', url: 'https://shop.test/en', languageId: ENGLISH_LANGUAGE_ID, productUrl: null },
             ],
         });
     });

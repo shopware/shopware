@@ -68,6 +68,13 @@
                 {% endblock %}
 
                 {% block sw_product_open_in_storefront_modal_domains %}
+                <h3
+                    v-if="result.domains.length > 0"
+                    class="sw-product-open-in-storefront-modal__domains-headline"
+                >
+                    {{ $t('sw-product.openInStorefrontModal.labelDomains') }}
+                </h3>
+
                 <component
                     :is="domain.productUrl ? 'a' : 'div'"
                     v-for="domain in result.domains"
@@ -80,8 +87,11 @@
                     :aria-disabled="domain.productUrl ? undefined : 'true'"
                 >
                     <span class="sw-product-open-in-storefront-modal__domain-text">
-                        <span class="sw-product-open-in-storefront-modal__domain-header">
-                            {{ selectedSalesChannelName }}
+                        <span
+                            v-if="result.languageNames[domain.languageId]"
+                            class="sw-product-open-in-storefront-modal__domain-header"
+                        >
+                            {{ result.languageNames[domain.languageId] }}
                         </span>
                         <span class="sw-product-open-in-storefront-modal__domain-url">
                             {{ domain.productUrl ?? domain.url }}

@@ -771,6 +771,13 @@ declare module 'shopware:stores/error' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:stores/experienceStudioEditor' {
+    const useStore: () => PiniaRootState['experienceStudioEditor'];
+
+    export default useStore;
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/context' {
     const useStore: () => PiniaRootState['context'];
 

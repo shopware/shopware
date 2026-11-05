@@ -4189,6 +4189,41 @@
       "count": 1
     }
   },
+  "src/core/service/api/content-system-element-type.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/content-system-entity-type.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/content-system-layout-draft-mutation.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/content-system-layout-preset.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/content-system-mapping-candidate.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/content-system-preview.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/content-system-style-option.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
   "src/core/service/api/custom-snippet.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
@@ -4810,7 +4845,7 @@
       "count": 4
     },
     "@typescript-eslint/no-restricted-types": {
-      "count": 40
+      "count": 44
     },
     "max-lines": {
       "count": 1
@@ -7004,6 +7039,111 @@
   "src/module/sw-dashboard/page/sw-dashboard-index/sw-dashboard-index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-assignment-modal/index.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-element-picker/index.spec.ts": {
+    "sw-test-rules/no-vm-access": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-inline-text-field/parse-feedback.spec.ts": {
+    "sw-test-rules/no-vm-access": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-preview/index.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-settings-fields/index.ts": {
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-settings-fields/sw-experience-studio-settings-fields.html.twig": {
+    "vue/max-template-depth": {
+      "count": 5
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/component/sw-experience-studio-sidebar-tree/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/default-search-configuration.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/page/sw-experience-studio-detail/index.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unsafe-call": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/util/box-spacing.util.ts": {
+    "@typescript-eslint/no-unnecessary-type-conversion": {
+      "count": 2
+    },
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/util/element-mapping.util.ts": {
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": {
+      "count": 2
+    }
+  },
+  "src/module/sw-experience-studio/util/mapping-token-node.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/module/sw-experience-studio/util/style-settings.util.ts": {
+    "complexity": {
+      "count": 1
     }
   },
   "src/module/sw-export-channel-tracking/extension/sw-customer-list/index.js": {

@@ -254,7 +254,10 @@
       },
       "elementPicker": {
         "title": "Add element",
+        "tabElements": "Elements",
+        "tabPresets": "Presets",
         "noElements": "No element types are available for this position.",
+        "noPresets": "No presets are available for this position.",
         "categoryHeadlines": {
           "content": "Content",
           "commerce": "Commerce",

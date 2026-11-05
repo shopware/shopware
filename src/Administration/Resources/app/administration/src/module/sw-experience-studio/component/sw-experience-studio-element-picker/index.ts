@@ -1,3 +1,4 @@
+import { useId } from 'vue';
 import template from './sw-experience-studio-element-picker.html.twig';
 import './sw-experience-studio-element-picker.scss';
 
@@ -18,13 +19,17 @@ type PickerItem = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    setup() {
+        return { tabId: useId() };
+    },
+
     data() {
         return {
+            activeTab: 'elements' as 'elements' | 'presets',
             categoryOrder: [
                 'layout',
                 'content',
                 'commerce',
-                'presets',
             ],
             fallbackCategoryKey: 'other',
         };
@@ -58,6 +63,31 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        tabItems(): Array<{ name: 'elements' | 'presets'; label: string }> {
+            return [
+                {
+                    name: 'elements',
+                    label: this.$t('sw-experience-studio.detail.elementPicker.tabElements'),
+                },
+                {
+                    name: 'presets',
+                    label: this.$t('sw-experience-studio.detail.elementPicker.tabPresets'),
+                },
+            ];
+        },
+
+        visibleElements(): PickerItem[] {
+            return (this.elements as PickerItem[]).filter((item) =>
+                this.activeTab === 'presets' ? item.kind === 'preset' : item.kind !== 'preset',
+            );
+        },
+
+        emptyStateSnippetKey(): string {
+            return this.activeTab === 'presets'
+                ? 'sw-experience-studio.detail.elementPicker.noPresets'
+                : 'sw-experience-studio.detail.elementPicker.noElements';
+        },
+
         floatingUiOptions(): { placement: 'right-start' } {
             return {
                 placement: 'right-start',
@@ -76,12 +106,12 @@ export default Shopware.Component.wrapComponentConfig({
                 firstSeenIndex: number;
             };
 
-            const groups = this.elements.reduce<Group[]>((result, element, index) => {
-                const categoryKey = this.normalizeCategoryKey((element as PickerItem).category ?? null);
+            const groups = this.visibleElements.reduce<Group[]>((result, element, index) => {
+                const categoryKey = this.normalizeCategoryKey(element.category ?? null);
                 const existingGroup = result.find((group) => group.key === categoryKey);
 
                 if (existingGroup) {
-                    existingGroup.elements.push(element as PickerItem);
+                    existingGroup.elements.push(element);
 
                     return result;
                 }
@@ -89,7 +119,7 @@ export default Shopware.Component.wrapComponentConfig({
                 result.push({
                     key: categoryKey,
                     headlineSnippetKey: this.categoryHeadlineSnippetKey(categoryKey),
-                    elements: [element as PickerItem],
+                    elements: [element],
                     firstSeenIndex: index,
                 });
 
@@ -119,6 +149,39 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        onTabKeydown(event: KeyboardEvent): void {
+            if (
+                ![
+                    'ArrowLeft',
+                    'ArrowRight',
+                    'Home',
+                    'End',
+                ].includes(event.key)
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (event.key === 'Home') {
+                this.activeTab = 'elements';
+            } else if (event.key === 'End') {
+                this.activeTab = 'presets';
+            } else {
+                this.activeTab = this.activeTab === 'elements' ? 'presets' : 'elements';
+            }
+
+            (event.currentTarget as HTMLElement)
+                .querySelector<HTMLButtonElement>(`[data-tab-name="${this.activeTab}"]`)
+                ?.focus();
+        },
+
+        onTabChange(tabName: string): void {
+            if (tabName === 'elements' || tabName === 'presets') {
+                this.activeTab = tabName;
+            }
+        },
+
         normalizeCategoryKey(category: string | null): string {
             if (!category) {
                 return this.fallbackCategoryKey;

@@ -2,7 +2,7 @@ meta:
   label: "Product Review Form"
   description: "Lets a logged-in customer write or edit their review for the product; shows a login prompt to guests."
   icon: "regular-pencil-s"
-  category: "content"
+  category: "commerce"
   copilot:
     summary: "Submission form for a product review."
     hints:

@@ -33,6 +33,40 @@
         color: var(--color-icon-secondary-default);
     }
 
+    &__tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        flex-shrink: 0;
+        border-bottom: 1px solid var(--color-border-primary-default);
+    }
+
+    &__tab {
+        padding: 12px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--color-text-secondary-default);
+        font-family: inherit;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--color-text-primary-default);
+            background: var(--color-background-secondary-default);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: -4px;
+        }
+
+        &--active {
+            border-bottom-color: var(--color-border-brand-default);
+            color: var(--color-text-brand-default);
+        }
+    }
+
     &__content {
         flex: 1;
         min-height: 0;

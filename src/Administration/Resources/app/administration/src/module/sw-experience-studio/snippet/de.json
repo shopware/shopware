@@ -254,7 +254,10 @@
       },
       "elementPicker": {
         "title": "Element hinzufügen",
+        "tabElements": "Elemente",
+        "tabPresets": "Vorlagen",
         "noElements": "Für diese Position sind keine Elementtypen verfügbar.",
+        "noPresets": "Für diese Position sind keine Vorlagen verfügbar.",
         "categoryHeadlines": {
           "content": "Inhalt",
           "commerce": "Commerce",

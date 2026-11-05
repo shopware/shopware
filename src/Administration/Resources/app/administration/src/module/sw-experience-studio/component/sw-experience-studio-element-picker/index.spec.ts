@@ -1,4 +1,6 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
+import enSnippets from '../../snippet/en.json';
+import deSnippets from '../../snippet/de.json';
 import pickerComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-element-picker', () => {
@@ -16,7 +18,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
 
     it('groups elements and keeps category order with others last', () => {
         const vm = {
-            elements: [
+            visibleElements: [
                 { name: 'type-1', label: 'Image', icon: null, category: 'media' },
                 { name: 'type-2', label: 'Text', icon: null, category: 'content' },
                 { name: 'type-3', label: 'Grid', icon: null, category: 'layout' },
@@ -53,40 +55,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         expect(groups[2].key).toBe('commerce');
         expect(groups[3].key).toBe('media');
         expect(groups[4].key).toBe('other');
-    });
-
-    it('orders the presets group after commerce', () => {
-        const vm = {
-            elements: [
-                { name: 'type-1', label: 'Text', icon: null, category: 'content', kind: 'element' },
-                {
-                    name: 'core.text-block',
-                    label: 'Text block',
-                    icon: null,
-                    category: 'presets',
-                    kind: 'preset',
-                    id: 'core.text-block',
-                },
-                { name: 'type-2', label: 'Listing', icon: null, category: 'commerce', kind: 'element' },
-            ],
-            categoryOrder: [
-                'layout',
-                'content',
-                'commerce',
-                'presets',
-            ],
-            fallbackCategoryKey: 'other',
-            normalizeCategoryKey: methods.normalizeCategoryKey,
-            categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
-        };
-
-        const groups = computed.groupedElements.call(vm) as Array<{ key: string }>;
-
-        expect(groups.map((group) => group.key)).toEqual([
-            'content',
-            'commerce',
-            'presets',
-        ]);
     });
 
     it('emits select-preset for a preset item and select for an element item', () => {
@@ -166,7 +134,8 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
                             detached: Boolean,
                         },
                         emits: ['close'],
-                        template: '<div class="mt-floating-ui-stub"><slot /></div>',
+                        template:
+                            '<div class="mt-floating-ui-stub"><slot /><button class="floating-close" @click="$emit(\'close\')" /></div>',
                     },
                     'mt-empty-state': true,
                     'mt-icon': true,
@@ -177,7 +146,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         try {
             type FloatingUiStub = {
                 props: (name: string) => unknown;
-                vm: { $emit: (event: string) => void };
             };
             const floatingUi = wrapper.getComponent({ name: 'mt-floating-ui' }) as unknown as FloatingUiStub;
 
@@ -189,8 +157,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
                 placement: 'right-start',
             });
 
-            floatingUi.vm.$emit('close');
-            await wrapper.vm.$nextTick();
+            await wrapper.get('.floating-close').trigger('click');
 
             expect(wrapper.emitted('close')).toBeTruthy();
         } finally {
@@ -198,13 +165,14 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         }
     });
 
-    it('renders a visible label under each picker item icon', () => {
+    it('separates elements and presets into tabs and selects items from each tab', async () => {
         const wrapper = mount(pickerComponent, {
             props: {
                 open: true,
                 title: 'Add element',
                 elements: [
                     { name: 'Sw:Content:Text', label: 'Text', icon: null, category: 'content' },
+                    { name: 'Sw:Layout:Grid', label: 'Grid', icon: null, category: 'layout', kind: 'element' },
                     {
                         name: 'core.text-block',
                         label: 'Text block',
@@ -235,11 +203,147 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         });
 
         try {
-            const labels = wrapper.findAll('.sw-experience-studio-element-picker__label');
+            await flushPromises();
 
-            expect(labels).toHaveLength(2);
-            expect(labels[0].text()).toBe('Text');
-            expect(labels[1].text()).toBe('Text block');
+            const tabs = wrapper.findAll('[role="tab"]');
+
+            expect(tabs.map((tab) => tab.attributes('data-tab-name'))).toEqual(['elements', 'presets']);
+            expect(tabs[0].attributes('aria-selected')).toBe('true');
+            expect(wrapper.findAll('.sw-experience-studio-element-picker__label').map((label) => label.text())).toEqual([
+                'Grid',
+                'Text',
+            ]);
+
+            await wrapper.findAll('.sw-experience-studio-element-picker__item')[1].trigger('click');
+
+            expect(wrapper.emitted('select')).toEqual([['Sw:Content:Text']]);
+            expect(wrapper.emitted('select-preset')).toBeUndefined();
+
+            await tabs[1].trigger('click');
+
+            expect(tabs[1].attributes('aria-selected')).toBe('true');
+            expect(wrapper.findAll('.sw-experience-studio-element-picker__label').map((label) => label.text())).toEqual([
+                'Text block',
+            ]);
+
+            await wrapper.get('.sw-experience-studio-element-picker__item').trigger('click');
+
+            expect(wrapper.emitted('select-preset')).toEqual([['core.text-block']]);
+            expect(wrapper.emitted('select')).toHaveLength(1);
+
+            await tabs[0].trigger('click');
+
+            expect(wrapper.findAll('.sw-experience-studio-element-picker__label').map((label) => label.text())).toEqual([
+                'Grid',
+                'Text',
+            ]);
+        } finally {
+            wrapper.unmount();
+        }
+    });
+
+    it.each([
+        { elements: [], tab: 'elements', snippet: 'noElements' },
+        { elements: [], tab: 'presets', snippet: 'noPresets' },
+        {
+            elements: [{ name: 'core.text-block', label: 'Text block', icon: null, kind: 'preset' }],
+            tab: 'elements',
+            snippet: 'noElements',
+        },
+        {
+            elements: [{ name: 'Sw:Content:Text', label: 'Text', icon: null }],
+            tab: 'presets',
+            snippet: 'noPresets',
+        },
+    ])('shows $snippet for an empty $tab tab', async ({ elements, tab, snippet }) => {
+        const wrapper = mount(pickerComponent, {
+            props: {
+                open: true,
+                title: 'Add element',
+                elements,
+            },
+            global: {
+                stubs: {
+                    'mt-floating-ui': { template: '<div><slot /></div>' },
+                    'mt-empty-state': true,
+                    'mt-icon': true,
+                },
+            },
+        });
+
+        try {
+            await wrapper.get(`[data-tab-name="${tab}"]`).trigger('click');
+
+            expect(wrapper.findAll('.sw-experience-studio-element-picker__item')).toHaveLength(0);
+            expect(wrapper.getComponent('mt-empty-state-stub').attributes('description')).toBe(
+                `sw-experience-studio.detail.elementPicker.${snippet}`,
+            );
+        } finally {
+            wrapper.unmount();
+        }
+    });
+
+    it.each([
+        ['en', enSnippets],
+        ['de', deSnippets],
+    ])('keeps both translated tabs visible after opening and supports keyboard navigation in %s', async (_, snippets) => {
+        const pickerSnippets = snippets['sw-experience-studio'].detail.elementPicker;
+        const translations: Record<string, string> = {
+            'sw-experience-studio.detail.elementPicker.tabElements': pickerSnippets.tabElements,
+            'sw-experience-studio.detail.elementPicker.tabPresets': pickerSnippets.tabPresets,
+        };
+        const wrapper = mount(pickerComponent, {
+            attachTo: document.body,
+            props: { open: false, title: pickerSnippets.title, elements: [] },
+            global: {
+                mocks: { $t: (key: string) => translations[key] ?? key },
+                stubs: {
+                    'mt-floating-ui': {
+                        props: ['isOpened'],
+                        template: '<div v-if="isOpened"><slot /></div>',
+                    },
+                    'mt-empty-state': true,
+                    'mt-icon': true,
+                },
+            },
+        });
+
+        try {
+            expect(wrapper.findAll('[role="tab"]')).toHaveLength(0);
+
+            await wrapper.setProps({ open: true });
+
+            const tabs = wrapper.findAll('[role="tab"]');
+
+            expect(tabs.map((tab) => tab.text())).toEqual([pickerSnippets.tabElements, pickerSnippets.tabPresets]);
+            expect(tabs.every((tab) => tab.isVisible())).toBe(true);
+            expect(tabs.map((tab) => tab.attributes('tabindex'))).toEqual(['0', '-1']);
+
+            for (const key of [
+                'ArrowRight',
+                'Home',
+                'End',
+                'ArrowLeft',
+            ]) {
+                const currentTab = wrapper.get('[role="tab"][aria-selected="true"]');
+
+                await currentTab.trigger('keydown', { key });
+
+                const activeTab = key === 'ArrowRight' || key === 'End' ? tabs[1] : tabs[0];
+                const panel = wrapper.get('[role="tabpanel"]');
+
+                expect(activeTab.attributes('aria-selected')).toBe('true');
+                expect(activeTab.attributes('tabindex')).toBe('0');
+                expect(document.activeElement).toBe(activeTab.element);
+                expect(activeTab.attributes('aria-controls')).toBe(panel.attributes('id'));
+                expect(panel.attributes('aria-labelledby')).toBe(activeTab.attributes('id'));
+            }
+
+            window.dispatchEvent(new Event('resize'));
+            await flushPromises();
+
+            expect(wrapper.findAll('[role="tab"]')).toHaveLength(2);
+            expect(wrapper.find('[aria-haspopup]').exists()).toBe(false);
         } finally {
             wrapper.unmount();
         }

@@ -73,37 +73,7 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
-const deliveryCardSelector = '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"]';
-
-function createShipment(id, shippingOrderAddressId, trackingCodes = []) {
-    return {
-        id,
-        shippingOrderAddress: { id: shippingOrderAddressId },
-        shippingCosts: { calculatedTaxes: [], totalPrice: 4.99 },
-        stateMachineState: { translated: { name: 'Open' } },
-        trackingCodes,
-    };
-}
-
-function setMultiShipmentOrder() {
-    const primaryShipment = createShipment('primary-shipment', 'address-primary');
-
-    Shopware.Store.get('swOrderDetail').order = {
-        ...orderMock,
-        primaryOrderDeliveryId: 'primary-shipment',
-        primaryOrderDelivery: primaryShipment,
-        deliveries: [
-            createShipment('first-shipment', 'address-first', ['FIRST-1']),
-            primaryShipment,
-            {
-                ...createShipment('discount-delivery', 'address-primary'),
-                shippingCosts: { calculatedTaxes: [], totalPrice: -5 },
-            },
-        ],
-    };
-}
-
-async function createWrapper() {
+async function createWrapper(props = {}) {
     orderMock.transactions.last = () => ({
         stateMachineState: {
             translated: {
@@ -165,6 +135,7 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
+            ...props,
         },
     });
 }
@@ -180,6 +151,12 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeEach(() => {
         allowDeprecation('sw-order-detail-details.onShippingChargeEdited() is deprecated');
         allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
+    });
+
+    it('should accept the isSaveSuccessful flag the order detail page passes to its views', async () => {
+        wrapper = await createWrapper({ isSaveSuccessful: true });
+
+        expect(wrapper.props('isSaveSuccessful')).toBe(true);
     });
 
     it('should have a disabled on transaction card', async () => {

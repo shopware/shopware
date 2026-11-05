@@ -5,6 +5,7 @@
  */
 import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const itemMock = (options = {}) => {
     const itemOptions = {
@@ -35,6 +36,37 @@ const arPlacementOptions = [
 const originalCreateObjectURL = window.URL.createObjectURL;
 const originalRevokeObjectURL = window.URL.revokeObjectURL;
 
+/**
+ * The real service on a stubbed HTTP client, so the component's `getConfig()` call reaches its deprecation.
+ */
+function createSystemConfigApiService() {
+    const httpClient = {
+        get: () =>
+            Promise.resolve({
+                data: [
+                    {
+                        elements: [
+                            {
+                                name: 'core.media.defaultARPlacement',
+                                config: {
+                                    options: arPlacementOptions,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            }),
+    };
+    const service = new SystemConfigApiService(httpClient, { getToken: () => 'token' });
+    service.getValues = () => {
+        return Promise.resolve({
+            'core.store.media.defaultEnableAugmentedReality': 'false',
+        });
+    };
+
+    return service;
+}
+
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
         global: {
@@ -58,45 +90,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
-                systemConfigApiService: {
-                    getValues: () => {
-                        return Promise.resolve({
-                            'core.store.media.defaultEnableAugmentedReality': 'false',
-                        });
-                    },
-                    getConfig: () => {
-                        return Promise.resolve([
-                            {
-                                elements: [
-                                    {
-                                        name: 'core.media.defaultARPlacement',
-                                        config: {
-                                            options: arPlacementOptions,
-                                        },
-                                    },
-                                ],
-                            },
-                        ]);
-                    },
-                    getSchema: () => {
-                        return Promise.resolve([
-                            {
-                                cards: [
-                                    {
-                                        elements: [
-                                            {
-                                                name: 'core.media.defaultARPlacement',
-                                                config: {
-                                                    options: arPlacementOptions,
-                                                },
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        ]);
-                    },
-                },
+                systemConfigApiService: createSystemConfigApiService(),
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     prepareDownloadMedia: jest.fn(),
@@ -231,6 +225,15 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             value: originalRevokeObjectURL,
         });
         Shopware.Store.get('actionButtons').buttons = [];
+    });
+
+    it('should load the AR placement options from the media system config', async () => {
+        const getConfig = jest.spyOn(SystemConfigApiService.prototype, 'getConfig');
+
+        await createWrapper();
+        await flushPromises();
+
+        expect(getConfig).toHaveBeenCalledWith('core.media');
     });
 
     it('should not be able to delete', async () => {

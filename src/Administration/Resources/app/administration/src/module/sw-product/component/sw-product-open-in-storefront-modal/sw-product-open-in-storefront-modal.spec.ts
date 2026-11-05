@@ -269,6 +269,24 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').exists()).toBe(true);
     });
 
+    it('explains that the product URLs need an allowlisted IP address in maintenance mode', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const { wrapper } = await createWrapper({
+            salesChannels: [salesChannel({ maintenance: true }), salesChannel({ id: 'other-sales-channel-id' })],
+        });
+        productStorefrontUrlApiService.fetchProductUrls = jest.fn().mockRejectedValue(
+            Object.assign(new Error('Service Unavailable'), {
+                response: { status: 503, data: { errors: [{ code: 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE' }] } },
+            }),
+        );
+
+        await select(wrapper, 'sales-channel-id');
+
+        expect(notificationSpy).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__maintenance').exists()).toBe(true);
+        expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.maintenanceAllowlist']);
+    });
+
     it('warns that the Storefront shows the saved state when there are unsaved changes', async () => {
         const { wrapper } = await createWrapper({ hasUnsavedChanges: true });
 

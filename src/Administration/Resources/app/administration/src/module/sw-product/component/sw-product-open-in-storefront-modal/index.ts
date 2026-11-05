@@ -6,14 +6,31 @@ import './sw-product-open-in-storefront-modal.scss';
 
 const { Criteria } = Shopware.Data;
 
+const MAINTENANCE_MODE_ERROR_CODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
+
 type StockReason = 'inStock' | 'inStockPossibly';
 
-type FailingReason = 'salesChannelActive' | 'hasDomain' | 'productActive' | StockReason | 'storefrontShowsProduct';
+type FailingReason =
+    | 'salesChannelActive'
+    | 'hasDomain'
+    | 'maintenanceAllowlist'
+    | 'productActive'
+    | StockReason
+    | 'storefrontShowsProduct';
+
+type ApiError = {
+    response?: {
+        data?: {
+            errors?: { code?: string }[];
+        };
+    };
+};
 
 type LoadedSalesChannel = {
     productUrls: ProductStorefrontUrls | null;
     stockReason: StockReason | null;
     languageNames: Record<string, string>;
+    isBlockedByMaintenance?: boolean;
 };
 
 type SalesChannelResult = {
@@ -124,11 +141,13 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            const { productUrls, stockReason, languageNames } = this.loadedSalesChannel;
+            const { productUrls, stockReason, languageNames, isBlockedByMaintenance } = this.loadedSalesChannel;
 
             return {
                 maintenance: !!salesChannel.maintenance,
-                failingReasons: this.getFailingReasons(productUrls, stockReason),
+                failingReasons: isBlockedByMaintenance
+                    ? ['maintenanceAllowlist']
+                    : this.getFailingReasons(productUrls, stockReason),
                 domains: productUrls?.reachable ? productUrls.domains : [],
                 languageNames,
             };
@@ -189,14 +208,31 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!isCancelled()) {
                     this.loadedSalesChannel = { productUrls, stockReason, languageNames };
                 }
-            } catch {
-                useNotification().createNotificationError({
-                    message: this.$t('sw-product.openInStorefrontModal.notificationOpenInStorefrontError'),
-                });
+            } catch (error) {
+                this.onLoadError(error, isCancelled);
             } finally {
                 if (!isCancelled()) {
                     this.isLoading = false;
                 }
+            }
+        },
+
+        onLoadError(error: unknown, isCancelled: () => boolean): void {
+            if ((error as ApiError).response?.data?.errors?.[0]?.code !== MAINTENANCE_MODE_ERROR_CODE) {
+                useNotification().createNotificationError({
+                    message: this.$t('sw-product.openInStorefrontModal.notificationOpenInStorefrontError'),
+                });
+
+                return;
+            }
+
+            if (!isCancelled()) {
+                this.loadedSalesChannel = {
+                    productUrls: null,
+                    stockReason: null,
+                    languageNames: {},
+                    isBlockedByMaintenance: true,
+                };
             }
         },
 

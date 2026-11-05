@@ -330,6 +330,7 @@
       "checks": {
         "salesChannelActive": "Verkaufskanal ist inaktiv",
         "hasDomain": "Verkaufskanal hat keine Domain",
+        "maintenanceAllowlist": "Die Produkt-URLs können nicht geladen werden, weil der Verkaufskanal im Wartungsmodus ist und Deine IP-Adresse nicht auf seiner Allowlist steht",
         "productActive": "Produkt ist inaktiv",
         "inStock": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte aus",
         "inStockPossibly": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte möglicherweise aus",

@@ -330,6 +330,7 @@
       "checks": {
         "salesChannelActive": "Sales channel is inactive",
         "hasDomain": "Sales channel has no domain",
+        "maintenanceAllowlist": "The product URLs cannot be loaded, because the sales channel is in maintenance mode and your IP address is not on its allowlist",
         "productActive": "Product is inactive",
         "inStock": "Product is sold out, and this sales channel hides sold-out clearance sale products",
         "inStockPossibly": "Product is sold out, and this sales channel may hide sold-out clearance sale products",

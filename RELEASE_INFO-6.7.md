@@ -374,7 +374,8 @@ The customer group detail page offers both settings separately. Plugins customiz
 The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
 It opens a modal to select one of the Storefront sales channels the product is assigned to.
 For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
-Sales channels in maintenance mode get a hint, but their links stay available.
+Sales channels in maintenance mode get a hint.
+If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported

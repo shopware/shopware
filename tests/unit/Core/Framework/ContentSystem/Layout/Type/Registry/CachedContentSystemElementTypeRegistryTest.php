@@ -44,7 +44,7 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
         $inner->expects($this->once())->method('all')->willReturn(['Sw:Content:Text' => $spec]);
 
         $cache = new ArrayAdapter();
-        $legacyItem = $cache->getItem('content_system.element_types.v2');
+        $legacyItem = $cache->getItem('content_system.element_types.v3');
         $legacyItem->set(['Sw:Legacy:CachedType' => 'stale specification payload']);
         $cache->save($legacyItem);
 

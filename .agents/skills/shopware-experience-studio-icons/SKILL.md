@@ -26,10 +26,10 @@ Create vector illustrations that resemble the element's rendered content and mat
 - Keep the SVG independent of fonts and external resources.
   Outline any illustrative numerals or symbols into paths.
 - Save the asset as a descriptive kebab-case `.svg` in the existing icon directory.
-- For a new illustration key, add its static asset path and compact Meteor counterpart to `src/Administration/Resources/app/administration/src/module/sw-experience-studio/util/element-icon.util.ts`.
-  Follow the existing catalogue entries and preserve the Meteor fallback behavior.
-- Select the asset through `meta.icon: "local:<key>"` in an element definition, or top-level `icon: "local:<key>"` in a preset.
-  A plain Meteor name remains a valid choice.
+- Select the asset by its filename without `.svg`, through `meta.illustration: "media-image"` in an element definition or top-level `illustration: "preset-media-and-text"` in a preset.
+  Set `icon` separately to the desired Meteor name, such as `regular-image`.
+  The picker resolves the SVG directly from the icon directory; no mapping entry or prefix is required.
+  The tree uses `icon`, and the picker falls back to it if the illustration cannot load.
   For an artwork-only change, leave registration and picker behavior alone.
 
 ## Validate and Deliver
@@ -39,4 +39,4 @@ Create vector illustrations that resemble the element's rendered content and mat
   Inspect them at the native `200 × 128` size and the picker's `92px` illustration height for clipping, contrast, consistent framing, and recognisable content.
 - Run the relevant Shopware Administration checks when changing TypeScript, templates, or styling; follow `shopware-admin-js` for those changes.
   Artwork-only changes need SVG validation and visual review, without new PHP integration tests.
-- Return a preview and show the exact `local:<key>` selection value for new icons.
+- Return a preview and show the exact `icon` and `illustration` YAML values for new icons.

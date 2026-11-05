@@ -96,16 +96,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         expect(computed.typeIcon.call(vm)).toBe('regular-align-left');
     });
 
-    it.each([
-        ['local:content-text', 'regular-align-left'],
-        ['local:missing', 'bars-square-s'],
-    ])('uses the compact Meteor counterpart for %s in the tree', (icon, expectedIcon) => {
+    it('uses the declared Meteor icon independently of the illustration', () => {
         const vm = {
-            contentElement: { component: 'Sw:Content:Text' },
-            elementTypeStore: { getByName: () => ({ icon }) },
+            contentElement: { component: 'Sw:Product:Manufacturer' },
+            elementTypeStore: { getByName: () => ({ icon: 'regular-star', illustration: 'product-manufacturer' }) },
         };
 
-        expect(computed.typeIcon.call(vm)).toBe(expectedIcon);
+        expect(computed.typeIcon.call(vm)).toBe('regular-star');
     });
 
     it('falls back to generic icon when no type icon exists', () => {
@@ -116,6 +113,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             elementTypeStore: {
                 getByName: jest.fn().mockReturnValue({
                     icon: null,
+                    illustration: 'product-manufacturer',
                 }),
             },
         };

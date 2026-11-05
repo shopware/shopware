@@ -54,6 +54,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
 
         static::assertNull($schema['icon']);
         static::assertNull($schema['category']);
+        static::assertNull($schema['illustration']);
         static::assertSame(0, $schema['priority']);
         static::assertIsArray($schema['copilot']);
         static::assertSame([], $schema['properties']);
@@ -90,9 +91,11 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             properties: [],
             slots: [],
             priority: 100,
+            illustration: 'content-text',
         );
 
         static::assertSame(100, $specification->toSchema()['priority']);
+        static::assertSame('content-text', $specification->toSchema()['illustration']);
     }
 
     private function createSpecification(?string $icon, ?string $category): ContentSystemElementTypeSpecification

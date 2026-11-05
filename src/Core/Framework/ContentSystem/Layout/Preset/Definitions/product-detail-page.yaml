@@ -1,6 +1,7 @@
 name: "Product detail page"
 description: "Collection of components that make up the product detail page."
-icon: "local:preset-product-detail-page"
+icon: "regular-box-alt"
+illustration: "preset-product-detail-page"
 category: "commerce"
 priority: 300
 layout:

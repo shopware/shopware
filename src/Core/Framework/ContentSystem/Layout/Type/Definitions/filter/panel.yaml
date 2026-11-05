@@ -1,7 +1,8 @@
 meta:
   label: "Filter Panel"
   description: "Product listing filter panel."
-  icon: "local:filter-panel"
+  icon: "regular-filter-s"
+  illustration: "filter-panel"
   category: "commerce"
   priority: 99
   copilot:

@@ -87,26 +87,30 @@ Measure the visible content after removing any old surrounding frame or browser 
 Keep the new outer frame outside this transform.
 Check the rendered result for stroke clipping and visual balance rather than relying on geometry alone.
 
-## Catalogue and Selection
+## Declaration and Selection
 
 Assets live in `src/Administration/Resources/app/administration/static/img/experience-studio/element-icons/`.
-The allowlisted catalogue is `src/Administration/Resources/app/administration/src/module/sw-experience-studio/util/element-icon.util.ts`.
-Each key supplies an `assetPath` and `meteorIcon`; follow the existing static asset paths.
+Select an illustration by its filename without the `.svg` extension.
+No Administration mapping entry or prefix is needed.
+Declare its Meteor icon separately.
 
 Element definition example:
 
 ```yaml
 meta:
-  icon: "local:media-gallery"
+  icon: "regular-image"
+  illustration: "media-gallery"
 ```
 
 Preset definition example:
 
 ```yaml
-icon: "local:media-gallery"
+icon: "regular-image-text"
+illustration: "preset-media-and-text"
 ```
 
-A plain Meteor name such as `regular-image` still selects a Meteor icon in the picker.
-A local illustration uses its catalogue's compact Meteor counterpart in the sidebar tree and when the image fails to load.
-Unknown local keys use the existing generic fallback.
+The sidebar tree uses `icon` directly.
+The picker shows `illustration` when supplied and falls back to `icon` when the SVG cannot load.
+An omitted or null illustration shows only the Meteor icon.
+If there is no Meteor icon either, the existing generic fallback applies.
 Keep this behavior when adding or refining artwork.

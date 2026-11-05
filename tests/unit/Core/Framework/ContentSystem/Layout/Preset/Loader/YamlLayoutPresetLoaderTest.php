@@ -54,13 +54,15 @@ class YamlLayoutPresetLoaderTest extends TestCase
 
     public function testLoadsCategoryAndPriorityIntoTheCompiledSpecification(): void
     {
-        $this->writePreset('text-block.yaml', ['name' => 'Text block', 'category' => 'content', 'priority' => 100, 'layout' => []]);
+        $this->writePreset('text-block.yaml', ['name' => 'Text block', 'category' => 'content', 'priority' => 100, 'illustration' => 'preset-media-and-text', 'layout' => []]);
 
         $presets = $this->loader()->loadFromDirectory($this->tempDir, 'core', 'Sw');
 
         static::assertCount(1, $presets);
         static::assertSame('content', $presets[0]->category);
         static::assertSame(100, $presets[0]->priority);
+        static::assertSame('preset-media-and-text', $presets[0]->illustration);
+        static::assertSame('preset-media-and-text', $presets[0]->toArray()['illustration']);
         static::assertSame('content', $presets[0]->toArray()['category']);
         static::assertSame(100, $presets[0]->toArray()['priority']);
     }

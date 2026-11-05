@@ -1,6 +1,5 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getContentElementLabel } from '../../util/content-element-label.util';
-import { getMeteorElementIcon } from '../../util/element-icon.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
 import template from './sw-experience-studio-sidebar-tree-node.html.twig';
@@ -104,7 +103,7 @@ export default Shopware.Component.wrapComponentConfig({
         typeIcon(): string {
             const configuredIcon = this.elementTypeStore.getByName(this.contentElement.component)?.icon;
 
-            return getMeteorElementIcon(configuredIcon ?? null, 'bars-square-s');
+            return configuredIcon && configuredIcon.length > 0 ? configuredIcon : 'bars-square-s';
         },
 
         slotEntries(): Array<{ name: string; elements: ContentElementNode[] }> {

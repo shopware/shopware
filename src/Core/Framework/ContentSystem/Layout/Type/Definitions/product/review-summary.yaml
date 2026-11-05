@@ -1,7 +1,8 @@
 meta:
   label: "Product Review Summary"
   description: "Rating summary for a product: average rating, per-star breakdown and a login prompt for guests."
-  icon: "local:product-review-summary"
+  icon: "regular-star-half"
+  illustration: "product-review-summary"
   category: "commerce"
   priority: 59
   copilot:

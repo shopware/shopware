@@ -1,5 +1,4 @@
 import { useId } from 'vue';
-import { getLocalElementIcon, getMeteorElementIcon } from '../../util/element-icon.util';
 import template from './sw-experience-studio-element-picker.html.twig';
 import './sw-experience-studio-element-picker.scss';
 
@@ -7,6 +6,7 @@ type PickerItem = {
     name: string;
     label: string;
     icon: string | null;
+    illustration?: string | null;
     category?: string | null;
     priority?: number;
     kind?: 'element' | 'preset';
@@ -29,7 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             activeTab: 'elements' as 'elements' | 'presets',
             searchTerm: '',
-            failedIconNames: [] as string[],
+            failedIllustrations: [] as string[],
             categoryOrder: [
                 'layout',
                 'content',
@@ -193,23 +193,19 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        localIconSource(icon: string | null): string | null {
-            const localIcon = getLocalElementIcon(icon);
-
-            if (!localIcon || (icon && this.failedIconNames.includes(icon))) {
+        illustrationSource(illustration?: string | null): string | null {
+            if (!illustration || this.failedIllustrations.includes(illustration)) {
                 return null;
             }
 
-            return this.assetFilter(localIcon.assetPath);
+            return this.assetFilter(
+                `/administration/administration/static/img/experience-studio/element-icons/${encodeURIComponent(illustration)}.svg`,
+            );
         },
 
-        meteorIcon(icon: string | null): string {
-            return getMeteorElementIcon(icon);
-        },
-
-        onIconError(icon: string | null): void {
-            if (icon && !this.failedIconNames.includes(icon)) {
-                this.failedIconNames.push(icon);
+        onIllustrationError(illustration?: string | null): void {
+            if (illustration && !this.failedIllustrations.includes(illustration)) {
+                this.failedIllustrations.push(illustration);
             }
         },
 

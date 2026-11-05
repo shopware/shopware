@@ -23,6 +23,7 @@ final readonly class ContentSystemLayoutPresetSpecification
         public array $payload,
         public ?string $category = null,
         public int $priority = 0,
+        public ?string $illustration = null,
     ) {
     }
 
@@ -36,6 +37,7 @@ final readonly class ContentSystemLayoutPresetSpecification
             'name' => $this->name,
             'description' => $this->description,
             'icon' => $this->icon,
+            'illustration' => $this->illustration,
             'category' => $this->category,
             'priority' => $this->priority,
             'payload' => $this->payload,

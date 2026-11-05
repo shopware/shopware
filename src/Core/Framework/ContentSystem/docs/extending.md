@@ -19,11 +19,17 @@ For example:
 name: "Text block"
 description: "A ready-made rich-text block."
 icon: "regular-align-left"
+illustration: "content-text"
 category: "content"
 priority: 100
 layout:
   - component: Sw:Content:Text
 ```
+
+`icon` selects the Meteor icon, while optional `illustration` selects an SVG filename without its extension.
+The picker resolves illustrations from the Administration's `static/img/experience-studio/element-icons/` directory and falls back to `icon` if the SVG fails to load.
+Omit `illustration` or set it to `null` to show only the Meteor icon.
+No Administration mapping entry or icon prefix is required.
 
 `category` is an optional non-blank string; an omitted or null category places the preset under Other.
 Use `layout`, `content`, or `commerce` to group presets under the existing translated category headings, in that order.
@@ -33,5 +39,5 @@ Negative values are allowed; equal priorities sort by display name, then by the 
 Use gaps such as `100`, `200`, and `300` to leave space for other presets.
 
 Both YAML declarations and app declarations persisted as JSON preserve these fields.
-`GET /api/_info/content-system-layout-presets.json` always returns `category` and `priority` alongside each preset's metadata and compiled `payload`.
-Existing declarations can omit both fields.
+`GET /api/_info/content-system-layout-presets.json` always returns `category`, `priority`, and `illustration` alongside each preset's metadata and compiled `payload`.
+Existing declarations can omit these optional authoring fields.

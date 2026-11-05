@@ -58,14 +58,20 @@ slots:
 ```
 
 **`meta`** (required): `label`, `description` are required.
-`icon`, `category`, `priority`, `copilot` are optional.
+`icon`, `illustration`, `category`, `priority`, `copilot` are optional.
 
-`meta.icon` accepts a Meteor icon name such as `regular-image` or a bundled illustration key such as `local:media-image`.
-The picker displays the local SVG when its key is available, and falls back to a Meteor icon when the key is unknown or the image fails to load.
-The sidebar tree uses the local illustration's compact Meteor counterpart.
-Switch back to a Meteor name to show that icon in the picker.
-Available illustration keys are listed in the Administration's [element icon catalogue](../../../../../../Administration/Resources/app/administration/src/module/sw-experience-studio/util/element-icon.util.ts).
-Preset declarations support the same values in their top-level `icon` field.
+`meta.icon` selects a Meteor icon such as `regular-image`, used in the sidebar tree and as the picker fallback.
+The optional `meta.illustration` selects an SVG filename without its extension, such as `media-image`.
+The picker loads it from `src/Administration/Resources/app/administration/static/img/experience-studio/element-icons/`.
+An omitted or null illustration shows the Meteor icon; an image that fails to load also falls back to that icon.
+The two fields are independent and require no Administration mapping entry or icon prefix.
+Preset declarations support the same fields at the top level.
+
+```yaml
+meta:
+  icon: "regular-image"
+  illustration: "media-image"
+```
 
 `meta.priority` is an integer controlling the element picker order within its category.
 Higher values appear first; an omitted priority defaults to `0`, and negative values are allowed.

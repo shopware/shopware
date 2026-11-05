@@ -93,22 +93,23 @@
                             v-tooltip="itemTooltip(element)"
                             class="sw-experience-studio-element-picker__item"
                             type="button"
+                            :aria-label="element.label"
                             @click="onSelect(element)"
                         >
                             <div class="sw-experience-studio-element-picker__icon-square">
                                 <img
-                                    v-if="localIconSource(element.icon)"
+                                    v-if="illustrationSource(element.illustration)"
                                     class="sw-experience-studio-element-picker__illustration"
-                                    :src="localIconSource(element.icon)"
+                                    :src="illustrationSource(element.illustration)"
                                     alt=""
                                     aria-hidden="true"
                                     width="200"
                                     height="128"
-                                    @error="onIconError(element.icon)"
+                                    @error="onIllustrationError(element.illustration)"
                                 >
                                 <mt-icon
                                     v-else
-                                    :name="meteorIcon(element.icon)"
+                                    :name="element.icon || 'regular-square'"
                                     size="32px"
                                 />
                             </div>

@@ -1,7 +1,8 @@
 meta:
   label: "Product Variant Selection"
   description: "Displays the selectable variants of a product on a product detail page."
-  icon: "local:product-variants"
+  icon: "regular-variants"
+  illustration: "product-variants"
   category: "commerce"
   priority: 77
   copilot:

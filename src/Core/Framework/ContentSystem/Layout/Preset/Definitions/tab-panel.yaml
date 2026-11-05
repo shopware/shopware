@@ -1,6 +1,7 @@
 name: "Tab panel"
 description: "A tab panel with two ready-made tabs, each holding a rich-text block."
-icon: "local:preset-tab-panel"
+icon: "regular-window"
+illustration: "preset-tab-panel"
 category: "layout"
 priority: 100
 layout:

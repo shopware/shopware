@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import pickerComponent from './index';
 
-function createWrapper(icon: string | null, kind: 'element' | 'preset' = 'element') {
+function createWrapper(icon: string | null, illustration: string | null = null, kind: 'element' | 'preset' = 'element') {
     return mount(pickerComponent, {
         props: {
             open: true,
             title: 'Add element',
-            elements: [{ name: 'Sw:Media:Image', label: 'Image', icon, kind, id: 'Sw:Media:Image' }],
+            elements: [{ name: 'Sw:Media:Image', label: 'Image', icon, illustration, kind, id: 'Sw:Media:Image' }],
         },
         global: {
             stubs: {
@@ -21,9 +21,9 @@ function createWrapper(icon: string | null, kind: 'element' | 'preset' = 'elemen
 
 describe('Experience Studio picker illustrations', () => {
     it.each(['element', 'preset'] as const)(
-        'renders a decorative local SVG for an %s and keeps its selection behavior',
+        'renders the separate illustration for an %s and keeps its selection behavior',
         async (kind) => {
-            const wrapper = createWrapper('local:media-image', kind);
+            const wrapper = createWrapper('regular-star', 'media-image', kind);
 
             try {
                 if (kind === 'preset') {
@@ -37,6 +37,7 @@ describe('Experience Studio picker illustrations', () => {
                 expect(illustration.attributes('alt')).toBe('');
                 expect(illustration.attributes('aria-hidden')).toBe('true');
                 expect(wrapper.get('.sw-experience-studio-element-picker__item').text()).toBe('Image');
+                expect(wrapper.get('.sw-experience-studio-element-picker__item').attributes('aria-label')).toBe('Image');
 
                 await wrapper.get('.sw-experience-studio-element-picker__item').trigger('click');
 
@@ -49,9 +50,9 @@ describe('Experience Studio picker illustrations', () => {
 
     it.each([
         ['regular-image', 'regular-image'],
-        ['local:missing', 'regular-square'],
         [null, 'regular-square'],
-    ])('renders the Meteor fallback for %s', (icon, expectedIcon) => {
+        ['', 'regular-square'],
+    ])('renders the Meteor icon %s when no illustration is selected', (icon, expectedIcon) => {
         const wrapper = createWrapper(icon);
 
         try {
@@ -64,16 +65,36 @@ describe('Experience Studio picker illustrations', () => {
         }
     });
 
-    it('falls back to the compact Meteor icon when an illustration cannot load', async () => {
-        const wrapper = createWrapper('local:media-image');
+    it.each([
+        ['regular-star', 'regular-star'],
+        [null, 'regular-square'],
+    ])('falls back to %s when the declared illustration cannot load', async (icon, expectedIcon) => {
+        const wrapper = createWrapper(icon, 'missing-illustration');
 
         try {
+            expect(wrapper.get('img').attributes('src')).toContain('/missing-illustration.svg');
+
             await wrapper.get('img').trigger('error');
 
             expect(wrapper.find('img').exists()).toBe(false);
             expect(wrapper.get('.sw-experience-studio-element-picker__icon-square mt-icon-stub').attributes('name')).toBe(
-                'regular-image',
+                expectedIcon,
             );
+        } finally {
+            wrapper.unmount();
+        }
+    });
+
+    it('loads a different illustration after a previous one failed', async () => {
+        const wrapper = createWrapper('regular-star', 'missing-illustration');
+
+        try {
+            await wrapper.get('img').trigger('error');
+            await wrapper.setProps({
+                elements: [{ name: 'image', label: 'Image', icon: 'regular-image', illustration: 'media-image' }],
+            });
+
+            expect(wrapper.get('img').attributes('src')).toContain('/media-image.svg');
         } finally {
             wrapper.unmount();
         }

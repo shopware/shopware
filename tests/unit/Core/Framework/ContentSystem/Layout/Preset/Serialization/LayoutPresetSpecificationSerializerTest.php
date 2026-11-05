@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -16,6 +17,38 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(LayoutPresetSpecificationSerializer::class)]
 class LayoutPresetSpecificationSerializerTest extends TestCase
 {
+    #[DataProvider('illustrationProvider')]
+    public function testRoundTripsTheIndependentIllustrationThroughAppJson(?string $illustration): void
+    {
+        $serializer = $this->serializer();
+        $dto = $serializer->denormalize(['name' => 'Text', 'description' => 'Text preset.', 'icon' => 'regular-star', 'layout' => [], 'illustration' => $illustration]);
+        $persisted = json_encode($serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+
+        static::assertSame('regular-star', $restored->icon);
+        static::assertSame($illustration, $restored->illustration);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function illustrationProvider(): iterable
+    {
+        yield 'separate SVG key' => ['media-image'];
+        yield 'new illustration without an Administration registration' => ['custom-illustration'];
+        yield 'Meteor icon only' => [null];
+    }
+
+    public function testRejectsBlankIllustration(): void
+    {
+        $illustration = '';
+        $dto = $this->serializer()->denormalize(['name' => 'Text', 'description' => 'Text preset.', 'icon' => 'regular-star', 'layout' => [], 'illustration' => $illustration]);
+        $violations = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator()->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame('illustration', $violations->get(0)->getPropertyPath());
+    }
+
     #[TestDox('denormalizes the raw authoring form into a dto without compiling')]
     public function testDenormalizeMapsRawToDto(): void
     {
@@ -40,6 +73,7 @@ class LayoutPresetSpecificationSerializerTest extends TestCase
         static::assertSame('', $dto->description);
         static::assertSame('', $dto->icon);
         static::assertNull($dto->category);
+        static::assertNull($dto->illustration);
         static::assertSame(0, $dto->priority);
     }
 
@@ -111,6 +145,9 @@ class LayoutPresetSpecificationSerializerTest extends TestCase
         yield 'numeric category' => ['category', 100];
         yield 'boolean category' => ['category', false];
         yield 'category array' => ['category', []];
+        yield 'numeric illustration' => ['illustration', 100];
+        yield 'boolean illustration' => ['illustration', true];
+        yield 'illustration array' => ['illustration', []];
     }
 
     private function serializer(): LayoutPresetSpecificationSerializer

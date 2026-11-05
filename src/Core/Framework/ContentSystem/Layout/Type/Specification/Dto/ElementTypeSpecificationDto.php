@@ -32,6 +32,8 @@ final readonly class ElementTypeSpecificationDto
         #[Assert\Valid]
         public array $slots,
         public int $priority = 0,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $illustration = null,
     ) {
     }
 
@@ -58,6 +60,7 @@ final readonly class ElementTypeSpecificationDto
             $slots,
             $source,
             $this->priority,
+            $this->illustration,
         );
     }
 }

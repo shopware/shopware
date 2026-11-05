@@ -17,6 +17,7 @@ Response:
       "description": "...",
       "source": "core",
       "icon": null,
+      "illustration": null,
       "category": null,
       "priority": 0,
       "copilot": { "summary": "...", "hints": ["..."] },
@@ -47,6 +48,9 @@ Response:
 ```
 
 `source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data.
+
+`icon` is the Meteor icon name used by the sidebar tree and as the picker fallback.
+`illustration` is the independent SVG filename without its extension, or `null` when none is declared.
 
 `priority` is always an integer, defaulting to `0` when the type declaration omits `meta.priority`.
 The Administration uses higher priorities first within each element picker category, with label and type name as tie-breakers.

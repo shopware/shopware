@@ -40,7 +40,7 @@ class CachedContentSystemLayoutPresetRegistryTest extends TestCase
         $inner = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
         $inner->expects($this->once())->method('all')->willReturn(['core.text-block' => $preset]);
         $cache = new ArrayAdapter();
-        $legacyItem = $cache->getItem('content_system.layout_presets');
+        $legacyItem = $cache->getItem('content_system.layout_presets.v2');
         $legacyItem->set(['core.text-block' => 'stale specification payload']);
         $cache->save($legacyItem);
 

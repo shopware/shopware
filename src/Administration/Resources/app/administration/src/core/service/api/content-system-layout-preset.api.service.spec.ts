@@ -33,6 +33,7 @@ describe('contentSystemLayoutPresetService', () => {
                 name: 'Text block',
                 description: null,
                 icon: 'regular-align-left',
+                illustration: null,
                 category: 'content',
                 priority: 100,
                 payload: [],

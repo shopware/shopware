@@ -13,6 +13,7 @@ describe('src/module/sw-experience-studio/store/experience-studio-layout-preset.
             name: 'Text block',
             description: 'A text block',
             icon: 'regular-align-left',
+            illustration: null,
             category: 'content',
             priority: 100,
             payload: [],

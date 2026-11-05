@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class LayoutPresetSpecificationSerializer
 {
     /**
-     * @param array<string, mixed> $data Raw authoring structure with name/description/icon/category/priority/layout keys
+     * @param array<string, mixed> $data Raw authoring structure with name/description/icon/illustration/category/priority/layout keys
      */
     public function denormalize(array $data): LayoutPresetSpecificationDto
     {
@@ -31,6 +31,7 @@ class LayoutPresetSpecificationSerializer
             layout: \is_array($layout) ? $layout : [],
             category: $data['category'] ?? null,
             priority: \array_key_exists('priority', $data) ? $data['priority'] : 0,
+            illustration: $data['illustration'] ?? null,
         );
     }
 
@@ -46,6 +47,9 @@ class LayoutPresetSpecificationSerializer
             'layout' => $dto->layout,
         ];
 
+        if ($dto->illustration !== null) {
+            $data['illustration'] = $dto->illustration;
+        }
         if ($dto->category !== null) {
             $data['category'] = $dto->category;
         }

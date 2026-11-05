@@ -33,6 +33,7 @@
                           "name",
                           "description",
                           "icon",
+                          "illustration",
                           "category",
                           "priority",
                           "payload"
@@ -60,7 +61,11 @@
                               "string",
                               "null"
                             ],
-                            "description": "Optional Meteor icon name or bundled Experience Studio illustration key, for example local:media-image."
+                            "description": "Optional Meteor icon name used in the tree and as the picker fallback."
+                          },
+                          "illustration": {
+                            "type": ["string", "null"],
+                            "description": "Optional SVG illustration filename without its extension, for example preset-media-and-text. Used in the picker independently of icon."
                           },
                           "category": {
                             "type": [

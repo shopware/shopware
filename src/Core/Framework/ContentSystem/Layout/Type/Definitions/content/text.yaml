@@ -1,7 +1,8 @@
 meta:
   label: "Text"
   description: "Sanitized rich text content."
-  icon: "local:content-text"
+  icon: "regular-align-left"
+  illustration: "content-text"
   category: "content"
   priority: 100
   copilot:

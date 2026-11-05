@@ -60,6 +60,7 @@ class ElementTypeSpecificationSerializer
             properties: $properties,
             slots: $slots,
             priority: \array_key_exists('priority', $meta) ? $meta['priority'] : 0,
+            illustration: $meta['illustration'] ?? null,
         );
     }
 
@@ -75,6 +76,9 @@ class ElementTypeSpecificationSerializer
 
         if ($dto->icon !== null) {
             $meta['icon'] = $dto->icon;
+        }
+        if ($dto->illustration !== null) {
+            $meta['illustration'] = $dto->illustration;
         }
         if ($dto->category !== null) {
             $meta['category'] = $dto->category;

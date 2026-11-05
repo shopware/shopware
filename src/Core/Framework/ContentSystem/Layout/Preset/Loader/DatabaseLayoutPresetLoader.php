@@ -75,6 +75,7 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
                 $this->compiler->compile($dto->layout),
                 $dto->category,
                 $dto->priority,
+                $dto->illustration,
             );
         }
 

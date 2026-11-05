@@ -26,7 +26,7 @@
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
-                                                "required": ["name", "label", "description", "source", "icon", "category", "priority", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
+                                                "required": ["name", "label", "description", "source", "icon", "illustration", "category", "priority", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
                                                 "properties": {
                                                     "name": {
                                                         "type": "string",
@@ -46,7 +46,11 @@
                                                     },
                                                     "icon": {
                                                         "type": ["string", "null"],
-                                                        "description": "Optional Meteor icon name or bundled Experience Studio illustration key, for example local:media-image."
+                                                        "description": "Optional Meteor icon name used in the tree and as the picker fallback."
+                                                    },
+                                                    "illustration": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional SVG illustration filename without its extension, for example media-image. Used in the picker independently of icon."
                                                     },
                                                     "category": {
                                                         "type": ["string", "null"],

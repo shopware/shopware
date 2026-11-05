@@ -6,7 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
@@ -73,6 +77,26 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         $this->ruleConditionRegistry->method('getRuleClass')->willReturn(LineItemListPriceRule::class);
 
         $definition = new PercentagePriceDefinition(10, $rule);
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
+
+        $encoded = iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $definition, true),
+            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+        ));
+
+        static::assertArrayHasKey('test', $encoded);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded['test']);
+
+        static::assertEquals($definition, $decoded);
+    }
+
+    public function testEncodeDecodeKeepsReferencePriceOfQuantityPriceDefinition(): void
+    {
+        $definition = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19)]), 3);
+        $definition->setReferencePriceDefinition(new ReferencePriceDefinition(0.5, 1.0, 'Liter'));
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
 
         $encoded = iterator_to_array($this->fieldSerializer->encode(

@@ -1,7 +1,7 @@
 meta:
   label: "Product Price"
   description: "Displays a product's price — including list, regulation, reference and graduated (tiered) prices — on the product detail page."
-  icon: "regular-tag"
+  icon: "local:product-price"
   category: "commerce"
   priority: 80
   copilot:

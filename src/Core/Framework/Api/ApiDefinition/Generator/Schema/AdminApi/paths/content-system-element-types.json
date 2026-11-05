@@ -46,7 +46,7 @@
                                                     },
                                                     "icon": {
                                                         "type": ["string", "null"],
-                                                        "description": "Optional icon identifier."
+                                                        "description": "Optional Meteor icon name or bundled Experience Studio illustration key, for example local:media-image."
                                                     },
                                                     "category": {
                                                         "type": ["string", "null"],

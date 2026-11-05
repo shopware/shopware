@@ -60,7 +60,7 @@
                               "string",
                               "null"
                             ],
-                            "description": "An optional icon identifier for the preset."
+                            "description": "Optional Meteor icon name or bundled Experience Studio illustration key, for example local:media-image."
                           },
                           "category": {
                             "type": [

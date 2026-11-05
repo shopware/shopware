@@ -85,9 +85,20 @@
                             @click="onSelect(element)"
                         >
                             <div class="sw-experience-studio-element-picker__icon-square">
+                                <img
+                                    v-if="localIconSource(element.icon)"
+                                    class="sw-experience-studio-element-picker__illustration"
+                                    :src="localIconSource(element.icon)"
+                                    alt=""
+                                    aria-hidden="true"
+                                    width="200"
+                                    height="128"
+                                    @error="onIconError(element.icon)"
+                                >
                                 <mt-icon
-                                    :name="element.icon || 'regular-square'"
-                                    size="20px"
+                                    v-else
+                                    :name="meteorIcon(element.icon)"
+                                    size="32px"
                                 />
                             </div>
 

@@ -1,7 +1,7 @@
 meta:
   label: "YouTube Video"
   description: "Embeds a YouTube video with playback, privacy and consent options."
-  icon: "regular-youtube"
+  icon: "local:media-youtube"
   category: "content"
   priority: 88
   copilot:

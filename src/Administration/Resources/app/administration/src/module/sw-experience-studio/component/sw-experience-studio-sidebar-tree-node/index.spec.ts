@@ -96,6 +96,18 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         expect(computed.typeIcon.call(vm)).toBe('regular-align-left');
     });
 
+    it.each([
+        ['local:content-text', 'regular-align-left'],
+        ['local:missing', 'bars-square-s'],
+    ])('uses the compact Meteor counterpart for %s in the tree', (icon, expectedIcon) => {
+        const vm = {
+            contentElement: { component: 'Sw:Content:Text' },
+            elementTypeStore: { getByName: () => ({ icon }) },
+        };
+
+        expect(computed.typeIcon.call(vm)).toBe(expectedIcon);
+    });
+
     it('falls back to generic icon when no type icon exists', () => {
         const vm = {
             contentElement: {

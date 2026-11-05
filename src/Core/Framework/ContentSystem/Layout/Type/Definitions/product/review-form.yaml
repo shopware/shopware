@@ -1,7 +1,7 @@
 meta:
   label: "Product Review Form"
   description: "Lets a logged-in customer write or edit their review for the product; shows a login prompt to guests."
-  icon: "regular-pencil-s"
+  icon: "local:product-review-form"
   category: "commerce"
   priority: 57
   copilot:

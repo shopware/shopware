@@ -1,7 +1,7 @@
 meta:
   label: "Product Review Filters"
   description: "Sort and language-filter controls that drive a product's review list."
-  icon: "regular-filter-s"
+  icon: "local:product-review-filters"
   category: "commerce"
   priority: 58
   copilot:

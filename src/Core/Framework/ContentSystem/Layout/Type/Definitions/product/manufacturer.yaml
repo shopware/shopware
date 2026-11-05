@@ -1,7 +1,7 @@
 meta:
   label: "Product Manufacturer"
   description: "Displays the current product's manufacturer name or logo, with an optional link to the manufacturer's website."
-  icon: "regular-factory"
+  icon: "local:product-manufacturer"
   category: "commerce"
   priority: 78
   copilot:

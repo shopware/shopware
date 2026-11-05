@@ -1,4 +1,5 @@
 import { useId } from 'vue';
+import { getLocalElementIcon, getMeteorElementIcon } from '../../util/element-icon.util';
 import template from './sw-experience-studio-element-picker.html.twig';
 import './sw-experience-studio-element-picker.scss';
 
@@ -27,6 +28,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             activeTab: 'elements' as 'elements' | 'presets',
+            failedIconNames: [] as string[],
             categoryOrder: [
                 'layout',
                 'content',
@@ -64,6 +66,10 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         tabItems(): Array<{ name: 'elements' | 'presets'; label: string }> {
             return [
                 {
@@ -155,6 +161,26 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        localIconSource(icon: string | null): string | null {
+            const localIcon = getLocalElementIcon(icon);
+
+            if (!localIcon || (icon && this.failedIconNames.includes(icon))) {
+                return null;
+            }
+
+            return this.assetFilter(localIcon.assetPath);
+        },
+
+        meteorIcon(icon: string | null): string {
+            return getMeteorElementIcon(icon);
+        },
+
+        onIconError(icon: string | null): void {
+            if (icon && !this.failedIconNames.includes(icon)) {
+                this.failedIconNames.push(icon);
+            }
+        },
+
         onTabKeydown(event: KeyboardEvent): void {
             if (
                 ![

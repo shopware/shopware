@@ -1,7 +1,7 @@
 meta:
   label: "Vimeo Video"
   description: "Embeds a Vimeo video with playback, privacy and consent options."
-  icon: "regular-vimeo"
+  icon: "local:media-vimeo"
   category: "content"
   priority: 87
   copilot:

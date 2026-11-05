@@ -1,7 +1,7 @@
 meta:
   label: "Product Listing"
   description: "Displays a category product listing with grid and pagination slots."
-  icon: "regular-products"
+  icon: "local:product-listing"
   category: "commerce"
   priority: 100
   copilot:

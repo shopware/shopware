@@ -1,7 +1,7 @@
 meta:
   label: "Navigation Tree"
   description: "Renders a category navigation tree with links, folders, active item highlighting and optionally expandable sub-levels."
-  icon: "regular-sitemap"
+  icon: "local:navigation-tree"
   category: "content"
   priority: 80
   copilot:

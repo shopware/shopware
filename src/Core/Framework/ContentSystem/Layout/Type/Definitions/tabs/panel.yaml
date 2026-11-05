@@ -1,7 +1,7 @@
 meta:
   label: "Tab Panel"
   description: "Tabbed panel that shows one tab at a time. The tab navigation is built from the tabs placed in its slot."
-  icon: "regular-window"
+  icon: "local:tabs-panel"
   category: "layout"
   priority: 90
   copilot:

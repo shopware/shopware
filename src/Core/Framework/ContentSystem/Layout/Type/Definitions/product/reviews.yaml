@@ -1,7 +1,7 @@
 meta:
   label: "Product Reviews"
   description: "Displays the product's rating summary and customer reviews with sorting, language filtering and pagination."
-  icon: "regular-star"
+  icon: "local:product-reviews"
   category: "commerce"
   priority: 60
   copilot:

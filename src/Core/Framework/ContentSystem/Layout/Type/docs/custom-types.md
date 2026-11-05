@@ -60,6 +60,13 @@ slots:
 **`meta`** (required): `label`, `description` are required.
 `icon`, `category`, `priority`, `copilot` are optional.
 
+`meta.icon` accepts a Meteor icon name such as `regular-image` or a bundled illustration key such as `local:media-image`.
+The picker displays the local SVG when its key is available, and falls back to a Meteor icon when the key is unknown or the image fails to load.
+The sidebar tree uses the local illustration's compact Meteor counterpart.
+Switch back to a Meteor name to show that icon in the picker.
+Available illustration keys are listed in the Administration's [element icon catalogue](../../../../../../Administration/Resources/app/administration/src/module/sw-experience-studio/util/element-icon.util.ts).
+Preset declarations support the same values in their top-level `icon` field.
+
 `meta.priority` is an integer controlling the element picker order within its category.
 Higher values appear first; an omitted priority defaults to `0`, and negative values are allowed.
 Equal priorities are ordered alphabetically by label, then by the unique type name.

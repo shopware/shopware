@@ -262,6 +262,12 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Product stream builder interface removal postponed to 6.9
+
+The deprecated `ProductStreamBuilderInterface`, its `buildFilters()` method and its service alias remain available throughout 6.8.
+Their removal was postponed to 6.9.
+Extension developers should switch to `AbstractProductStreamBuilder::enrichCriteria()` before 6.9; see [the migration guidance](UPGRADE-6.9.md#dynamic-product-group-display-as-group).
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

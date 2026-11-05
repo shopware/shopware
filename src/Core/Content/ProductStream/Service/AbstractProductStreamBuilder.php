@@ -17,15 +17,16 @@ abstract class AbstractProductStreamBuilder implements ProductStreamBuilderInter
     abstract public function enrichCriteria(Criteria $criteria, string $id, Context $context): void;
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use enrichCriteria() instead.
+     * @deprecated tag:v6.9.0 - Will be removed, use enrichCriteria() instead.
      *
      * @return list<Filter>
      */
     public function buildFilters(string $id, Context $context): array
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::enrichCriteria')
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', self::class . '::enrichCriteria'),
+            silentUntil: 'v6.8.0.0',
         );
 
         $criteria = new Criteria();

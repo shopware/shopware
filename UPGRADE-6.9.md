@@ -86,6 +86,17 @@ Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` 
 
 `Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument::getApiAlias()` returned `shopware_core_checkout_document_v2_struct_rendered_document` instead of `shopware_core_checkout_document_renderer_rendered_document`. Consumers that matched serialized data on the previous alias had to switch to the new one.
 
+## Dynamic product group: "display as group"
+
+`product_stream` has a `display_as_group` flag (default `true`).
+When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
+
+`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface`, its `buildFilters()` method and its service alias have been removed.
+Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
+Inject the `ProductStreamBuilder` service instead of the alias.
+
+If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.
+
 # Administration
 
 ## `sw-empty-state` removed

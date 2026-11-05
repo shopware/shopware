@@ -37,9 +37,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDefinition::class),
         ]);
 
-    // @deprecated tag:v6.8.0 Will be removed
+    // @deprecated tag:v6.9.0 Will be removed
     $services->alias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
-        ->deprecate('shopware/core', '6.8.0', 'The %alias_id% service is deprecated and will be removed in 6.8.0. Use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder instead');
+        ->deprecate('shopware/core', '6.9.0', 'The %alias_id% service is deprecated and will be removed in 6.9.0. Use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder instead');
 
     $services->set(ProductStreamIndexer::class)
         ->args([

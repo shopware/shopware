@@ -272,20 +272,36 @@ class FeatureFlagsCompilerPassTest extends TestCase
         static::assertTrue($container->hasAlias($previousClassName));
     }
 
-    public function testItRemovesDeprecatedProductStreamInterfaceAliasWhenFlagIsActive(): void
+    public function testItRemovesDeprecatedProductStreamInterfaceAliasWhenV69IsActive(): void
     {
         $container = new ContainerBuilder();
         $container->setDefinition(ProductStreamBuilder::class, new Definition());
         $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
-            ->setDeprecated('shopware/core', '6.8.0', 'The "%alias_id%" service alias is deprecated.');
+            ->setDeprecated('shopware/core', '6.9.0', 'The "%alias_id%" service alias is deprecated.');
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => true],
+            'v6.9.0.0' => ['major' => true, 'active' => true],
+        ]);
+
+        Feature::withFeatureEnabled('v6.9.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertFalse($container->hasAlias(ProductStreamBuilderInterface::class));
+        static::assertTrue($container->hasDefinition(ProductStreamBuilder::class));
+    }
+
+    public function testItKeepsDeprecatedProductStreamInterfaceAliasWhenV68IsActive(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(ProductStreamBuilder::class, new Definition());
+        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
+            ->setDeprecated('shopware/core', '6.9.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => true],
         ]);
 
         Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
 
-        static::assertFalse($container->hasAlias(ProductStreamBuilderInterface::class));
-        static::assertTrue($container->hasDefinition(ProductStreamBuilder::class));
+        static::assertTrue($container->hasAlias(ProductStreamBuilderInterface::class));
     }
 
     public function testItKeepsDeprecatedProductStreamInterfaceAliasWhenFlagIsInactive(): void
@@ -293,7 +309,7 @@ class FeatureFlagsCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setDefinition(ProductStreamBuilder::class, new Definition());
         $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
-            ->setDeprecated('shopware/core', '6.8.0', 'The "%alias_id%" service alias is deprecated.');
+            ->setDeprecated('shopware/core', '6.9.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => false],
         ]);

@@ -36,7 +36,7 @@
             v-model:rules="discount.discountRules"
             local-mode
             class="sw-promotion-v2-settings-trigger-settings__rule-selection"
-            :rule-filter="ruleCriteria"
+            :rule-filter="feature.isActive('v6.8.0.0') ? undefined : ruleCriteria"
             :rule-scope="['cart']"
             :label="$t('sw-promotion-v2.detail.discounts.settings.ruleSelection.labelSelection')"
             :placeholder="$t('sw-promotion-v2.detail.discounts.settings.ruleSelection.placeholderSelection')"

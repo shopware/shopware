@@ -442,6 +442,23 @@ Component.register('sw-text-editor', {
     },
 
     methods: {
+        getDataMappingButtonChildren() {
+            return this.availableDataMappings.map((mapping) => ({
+                type: mapping,
+                name: mapping,
+                title: mapping,
+                handler: this.handleInsertDataMapping,
+            }));
+        },
+
+        updateDataMappingButtonChildren() {
+            const dataMappingButton = this.buttonConfig.find((button) => button.type === 'data-mapping');
+
+            if (dataMappingButton) {
+                dataMappingButton.children = this.getDataMappingButtonChildren();
+            }
+        },
+
         createdComponent() {
             this.content = this.value;
 
@@ -475,21 +492,16 @@ Component.register('sw-text-editor', {
                         icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
+                        searchable: true,
                         tooltipShowDelay: 500,
                         tooltipHideDelay: 100,
                     };
 
-                    const buttonConfigs = this.availableDataMappings.map((mapping) => ({
-                        type: mapping,
-                        name: mapping,
-                        title: mapping,
-                        handler: this.handleInsertDataMapping,
-                    }));
-
-                    dataMappingButton.children = buttonConfigs;
+                    dataMappingButton.children = this.getDataMappingButtonChildren();
 
                     // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
+                    this.$watch('availableDataMappings', this.updateDataMappingButtonChildren);
                 }
             }
 

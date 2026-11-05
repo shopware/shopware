@@ -216,9 +216,10 @@ class CmsService {
         return this.mappingTypesCache[entityName];
     }
 
-    private async addCustomFieldsToMappingTypes(entityName: string, mappings: EntityMappings): Promise<void> {
+    private async searchAllMappableCustomFields(entityName: string): Promise<Entity<'custom_field'>[]> {
         const customFieldRepository = Shopware.Service('repositoryFactory').create('custom_field');
-        const criteria = new Shopware.Data.Criteria(1, 50);
+        const limit = 100;
+        const criteria = new Shopware.Data.Criteria(1, limit);
         criteria.addFilter(Shopware.Data.Criteria.equals('customFieldSet.relations.entityName', entityName));
         criteria.addFilter(Shopware.Data.Criteria.equals('active', 1));
         criteria.addFilter(
@@ -228,8 +229,30 @@ class CmsService {
                 Shopware.Data.Criteria.equals('type', 'html'),
             ]),
         );
+        // Without a stable sort, pages can overlap or skip custom fields.
+        criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC'));
+        criteria.setTotalCountMode(1);
 
-        const customFields = await customFieldRepository.search(criteria, Shopware.Context.api);
+        const firstPage = await customFieldRepository.search(criteria, Shopware.Context.api);
+        const totalPages = Math.ceil((firstPage.total ?? 0) / limit);
+
+        const remainingPages = await Promise.all(
+            Array.from({ length: Math.max(totalPages - 1, 0) }, (_, index) =>
+                customFieldRepository.search(
+                    Shopware.Data.Criteria.fromCriteria(criteria).setPage(index + 2),
+                    Shopware.Context.api,
+                ),
+            ),
+        );
+
+        return [
+            firstPage,
+            ...remainingPages,
+        ].flatMap((page) => [...page]);
+    }
+
+    private async addCustomFieldsToMappingTypes(entityName: string, mappings: EntityMappings): Promise<void> {
+        const customFields = await this.searchAllMappableCustomFields(entityName);
         customFields.forEach((customField: Entity<'custom_field'>) => {
             const customFieldConfig = customField.config as { customFieldType?: string } | undefined;
 

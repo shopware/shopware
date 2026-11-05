@@ -96,12 +96,12 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $userName));
 
-        $userEntity = $this->userRepository->search($criteria, $context)->getEntities()->first();
-        if ($userEntity === null) {
+        $userId = $this->userRepository->searchIds($criteria, $context)->firstId();
+        if ($userId === null) {
             return $context;
         }
 
-        return Context::createCLIContext(new AdminApiSource($userEntity->getId()));
+        return Context::createCLIContext(new AdminApiSource($userId));
     }
 
     private function validatePluginIsNotManagedByComposer(string $pluginName, Context $context): void

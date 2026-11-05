@@ -35,6 +35,20 @@
         color: var(--color-icon-secondary-default);
     }
 
+    &__search {
+        flex-shrink: 0;
+        padding: 12px;
+    }
+
+    &__search-field {
+        height: 36px;
+
+        // The input receives this label through aria-label.
+        .mt-field__label {
+            display: none;
+        }
+    }
+
     &__tabs {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));

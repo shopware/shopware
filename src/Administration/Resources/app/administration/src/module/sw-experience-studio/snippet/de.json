@@ -256,6 +256,9 @@
         "title": "Element hinzufügen",
         "tabElements": "Elemente",
         "tabPresets": "Vorlagen",
+        "searchElementsPlaceholder": "Elemente suchen",
+        "searchPresetsPlaceholder": "Vorlagen suchen",
+        "noSearchResults": "Keine Ergebnisse gefunden. Versuche einen anderen Suchbegriff.",
         "noElements": "Für diese Position sind keine Elementtypen verfügbar.",
         "noPresets": "Für diese Position sind keine Vorlagen verfügbar.",
         "categoryHeadlines": {

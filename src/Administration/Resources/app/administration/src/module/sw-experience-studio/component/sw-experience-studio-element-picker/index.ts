@@ -28,6 +28,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             activeTab: 'elements' as 'elements' | 'presets',
+            searchTerm: '',
             failedIconNames: [] as string[],
             categoryOrder: [
                 'layout',
@@ -83,13 +84,36 @@ export default Shopware.Component.wrapComponentConfig({
             ];
         },
 
+        searchPlaceholderSnippetKey(): string {
+            return this.activeTab === 'presets'
+                ? 'sw-experience-studio.detail.elementPicker.searchPresetsPlaceholder'
+                : 'sw-experience-studio.detail.elementPicker.searchElementsPlaceholder';
+        },
+
+        normalizedSearchTerm(): string {
+            return this.searchTerm.trim().toLowerCase();
+        },
+
         visibleElements(): PickerItem[] {
-            return (this.elements as PickerItem[]).filter((item) =>
-                this.activeTab === 'presets' ? item.kind === 'preset' : item.kind !== 'preset',
-            );
+            const searchTerm = this.normalizedSearchTerm;
+
+            return (this.elements as PickerItem[]).filter((item) => {
+                const belongsToActiveTab = this.activeTab === 'presets' ? item.kind === 'preset' : item.kind !== 'preset';
+
+                return (
+                    belongsToActiveTab &&
+                    (!searchTerm ||
+                        item.label.toLowerCase().includes(searchTerm) ||
+                        item.name.toLowerCase().includes(searchTerm))
+                );
+            });
         },
 
         emptyStateSnippetKey(): string {
+            if (this.normalizedSearchTerm) {
+                return 'sw-experience-studio.detail.elementPicker.noSearchResults';
+            }
+
             return this.activeTab === 'presets'
                 ? 'sw-experience-studio.detail.elementPicker.noPresets'
                 : 'sw-experience-studio.detail.elementPicker.noElements';
@@ -157,6 +181,14 @@ export default Shopware.Component.wrapComponentConfig({
                             a.name.localeCompare(b.name),
                     ),
                 }));
+        },
+    },
+
+    watch: {
+        open(isOpen: boolean): void {
+            if (isOpen) {
+                this.searchTerm = '';
+            }
         },
     },
 

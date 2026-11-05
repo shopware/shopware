@@ -12,6 +12,7 @@ function createWrapper(icon: string | null, kind: 'element' | 'preset' = 'elemen
             stubs: {
                 'mt-floating-ui': { template: '<div><slot /></div>' },
                 'mt-empty-state': true,
+                'sw-simple-search-field': true,
                 'mt-icon': true,
             },
         },

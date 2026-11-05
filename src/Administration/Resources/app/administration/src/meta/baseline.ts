@@ -408,7 +408,6 @@ const missingTests = [
     'src/module/sw-promotion-v2/helper/promotion.helper.js',
     'src/module/sw-promotion-v2/index.js',
     'src/module/sw-promotion-v2/init/services.init.js',
-    'src/module/sw-promotion-v2/promotion.types.ts',
     'src/module/sw-promotion-v2/service/promotion-code.api.service.js',
     'src/module/sw-property/component/sw-property-detail-base/index.js',
     'src/module/sw-property/component/sw-property-option-detail/index.js',

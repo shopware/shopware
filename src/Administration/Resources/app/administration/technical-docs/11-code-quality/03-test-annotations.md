@@ -127,6 +127,7 @@ It also fails when the baseline holds entries of a deleted file.
 Unlike the ESLint baseline, a change to `eslint.config.ts` does not let new entries in.
 
 Never record new tests in the baseline by hand, and never run `baseline.js init` while a baseline exists.
+`sw-test-rules/test-annotation` can't be disabled with an `eslint-disable` comment, and the growth check rejects it in `eslint-suppressions.json`.
 
 ## Bug fixes need a regression test
 

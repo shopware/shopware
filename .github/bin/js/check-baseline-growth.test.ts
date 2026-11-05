@@ -182,3 +182,13 @@ test('passes the pull request that creates the test baseline', () => {
     assert.equal(result.status, 0);
     assert.match(result.output, /untagged tests: 0 -> 1\n/);
 });
+
+test('fails when test annotations land in the ESLint baseline, even with a config change', () => {
+    write(CONFIG, 'export default [{ rules: { "sw-test-rules/test-annotation": "error" } }];');
+    writeBaseline({ 'src/a.js': { complexity: 2, 'sw-test-rules/test-annotation': 1 }, 'src/b.js': { complexity: 1 } });
+
+    const result = check();
+
+    assert.equal(result.status, 1);
+    assert.match(result.output, /sw-test-rules\/test-annotation: 0 -> 1 {2}<-- grew/);
+});

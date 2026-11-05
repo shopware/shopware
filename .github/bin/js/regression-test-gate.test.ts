@@ -41,6 +41,7 @@ test('countRegressionComments counts only regressions that link a closed bug', (
     assert.equal(countRegressionComments(regression('https://github.com/shopware/shopware/issues/9'), [BUG]), 0);
     assert.equal(countRegressionComments(`/**\n * @behavior\n * @see ${BUG}\n */`, [BUG]), 0);
     assert.equal(countRegressionComments(`/**\n * @regression\n * @see ${BUG}0\n */`, [BUG]), 0);
+    assert.equal(countRegressionComments(`/**\n * @regression-candidate\n * @see ${BUG}\n */`, [BUG]), 0);
 });
 
 test('evaluate fails a bug fix without a regression test and passes one with it', () => {
@@ -59,18 +60,18 @@ test('evaluate skips pull requests it does not concern, and the label skip stays
     assert.match(labelled.message, /without a regression test for https:\/\/github.com\/shopware\/shopware\/issues\/1/);
 });
 
-function toolkit({ base, head, bugType = 'Bug' }: { base: string | null; head: string; bugType?: string }) {
+function toolkit({ base, head, bugType = 'Bug', renamedFrom }: { base: string | null; head: string; bugType?: string; renamedFrom?: string }) {
     const result = { failed: '', summary: '' };
     const github = {
         graphql: async () => ({
             repository: { pullRequest: { closingIssuesReferences: { nodes: [{ url: BUG, issueType: { name: bugType }, labels: { nodes: [] } }] } } },
         }),
-        paginate: async () => [{ filename: SOURCE }, { filename: SPEC }],
+        paginate: async () => [{ filename: SOURCE }, { filename: SPEC, previous_filename: renamedFrom }],
         rest: {
             pulls: { listFiles: {} },
             repos: {
-                getContent: async ({ ref }: { ref: string }) => {
-                    const content = ref === 'base-sha' ? base : head;
+                getContent: async ({ ref, path }: { ref: string; path: string }) => {
+                    const content = ref === 'base-sha' ? (path === (renamedFrom ?? SPEC) ? base : null) : head;
                     if (content === null) {
                         throw Object.assign(new Error('Not Found'), { status: 404 });
                     }
@@ -116,4 +117,11 @@ test('checkRegressionTest ignores pull requests that close no bug', async () => 
 
     assert.equal(result.failed, '');
     assert.match(result.summary, /closes no bug/);
+});
+
+test('checkRegressionTest reads a renamed spec under its old path on the base commit', async () => {
+    const { result, ...toolkitArgs } = toolkit({ base: regression(BUG), head: regression(BUG), renamedFrom: `${ADMIN_ROOT}app/component/sw-foo/old.spec.ts` });
+    await checkRegressionTest(toolkitArgs);
+
+    assert.match(result.failed, /adds no Jest test tagged `@regression`/);
 });

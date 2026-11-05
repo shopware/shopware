@@ -111,6 +111,7 @@ const rulesWithoutInlineDisable: string[] = [
     ...Object.keys(limitRules),
     'filename-rules/not-match',
     'sw-core-rules/no-new-mixins',
+    'sw-test-rules/test-annotation',
 ];
 
 /**

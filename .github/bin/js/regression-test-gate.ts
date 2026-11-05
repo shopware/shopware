@@ -34,7 +34,7 @@ export function isAdminSource(path: string): boolean {
 /** The URLs of the closing issues that are bugs, by issue type or by the `bug` label. */
 export function bugUrls(issues: ClosingIssue[]): string[] {
     return issues
-        .filter((issue) => issue.issueType?.name === 'Bug' || issue.labels.nodes.some((label) => label.name === 'bug'))
+        .filter((issue) => issue.issueType?.name === 'Bug' || issue.labels.nodes.some((label) => label.name.toLowerCase() === 'bug'))
         .map((issue) => issue.url);
 }
 
@@ -48,7 +48,7 @@ export function countRegressionComments(source: string, bugs: string[]): number 
     const comments = source.match(/\/\*\*[\s\S]*?\*\//g) ?? [];
 
     return comments.filter((comment) => {
-        if (!/@regression\b/.test(comment)) {
+        if (!/@regression(?![\w-])/.test(comment)) {
             return false;
         }
 
@@ -157,17 +157,19 @@ export async function checkRegressionTest({ github, core, context }: { github: G
         repository: { pullRequest: { closingIssuesReferences: { nodes: ClosingIssue[] } } };
     }>(CLOSING_ISSUES_QUERY, { ...context.repo, number: pullRequest.number });
     const bugs = bugUrls(repository.pullRequest.closingIssuesReferences.nodes);
-    const files = (await github.paginate<{ filename: string }>(github.rest.pulls.listFiles, {
+    const changes = await github.paginate<{ filename: string; previous_filename?: string }>(github.rest.pulls.listFiles, {
         ...context.repo,
         pull_number: pullRequest.number,
         per_page: 100,
-    })).map((file) => file.filename);
+    });
+    const files = changes.map((file) => file.filename);
 
     let added = 0;
     if (bugs.length > 0) {
-        for (const path of files.filter(isAdminSpec)) {
-            const before = countRegressionComments(await contentAt(github, context.repo, path, pullRequest.base.sha), bugs);
-            const after = countRegressionComments(await contentAt(github, context.repo, path, pullRequest.head.sha), bugs);
+        for (const change of changes.filter((file) => isAdminSpec(file.filename))) {
+            const basePath = change.previous_filename ?? change.filename;
+            const before = countRegressionComments(await contentAt(github, context.repo, basePath, pullRequest.base.sha), bugs);
+            const after = countRegressionComments(await contentAt(github, context.repo, change.filename, pullRequest.head.sha), bugs);
             added += Math.max(0, after - before);
         }
     }

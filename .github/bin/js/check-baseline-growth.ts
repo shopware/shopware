@@ -15,6 +15,7 @@ type Baseline = Record<string, unknown>;
 
 const isFallow = (path: string): boolean => path.endsWith('fallow-baseline.json');
 const isTestAnnotations = (path: string): boolean => path.endsWith('test-annotation-baseline.json');
+const UNSUPPRESSIBLE = new Set(['sw-test-rules/test-annotation']);
 
 const git = (...args: string[]): string =>
     execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -88,15 +89,22 @@ for (const path of paths) {
     // Thousands of test identities: list only the ones that grew
     const verbose = !isTestAnnotations(path);
     // A config change must not let new untagged tests in, only the pull request that creates the baseline may
-    const accepts = (before: number): boolean =>
-        isTestAnnotations(path) ? !existsAtBase(base, path) : before === 0 && configChanged;
+    const introduced = isTestAnnotations(path) && !existsAtBase(base, path);
+    const accepts = (rule: string, before: number): boolean => {
+        if (isTestAnnotations(path)) {
+            return introduced;
+        }
+
+        // Untagged tests belong in test-annotation-baseline.json, which counts them per test
+        return !UNSUPPRESSIBLE.has(rule) && before === 0 && configChanged;
+    };
     const fix = isTestAnnotations(path) ? 'Tag the new tests instead.' : 'Fix the new violations instead.';
 
     console.log(path);
     for (const rule of [...new Set([...Object.keys(baseTotals), ...Object.keys(headTotals)])].sort()) {
         const before = baseTotals[rule] ?? 0;
         const after = headTotals[rule] ?? 0;
-        const grew = after > before && !accepts(before);
+        const grew = after > before && !accepts(rule, before);
 
         if (verbose || grew) {
             console.log(`  ${rule}: ${before} -> ${after}${grew ? '  <-- grew' : ''}`);

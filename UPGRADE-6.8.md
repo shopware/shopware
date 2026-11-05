@@ -1581,7 +1581,16 @@ $redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal(
 
 The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
+## Removed `PluginZipImportCommand::$cacheClearer`
+
+The unused property was removed.
+
 # Administration
+
+## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
+
+The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method were removed without replacement.
 
 ## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
 

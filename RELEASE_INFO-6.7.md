@@ -262,6 +262,10 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
@@ -396,6 +400,10 @@ this.userVerificationService.verify()
 Extensions that render `sw-verify-user-modal` themselves keep working: on an SSO session the modal offers the identity provider instead of the password and emits `verified` after the sign-in.
 New code should request the verification through the service.
 The core pages for users, roles and the profile no longer render the modal in their templates; the Twig blocks that held it stay in place.
+
+### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
+
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
 
 ### Codemods for extensions in the extension tooling
 

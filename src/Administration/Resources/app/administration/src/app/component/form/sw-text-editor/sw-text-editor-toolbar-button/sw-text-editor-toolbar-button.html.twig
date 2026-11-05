@@ -73,13 +73,13 @@
             v-if="buttonConfig.searchable"
             class="sw-text-editor-toolbar-button__children-search"
         >
-            <input
-                v-model="childSearchTerm"
-                type="search"
-                class="sw-text-editor-toolbar-button__children-search-input"
+            <mt-text-field
+                :model-value="childSearchTerm"
+                size="small"
+                :label="$t('sw-text-editor-toolbar.childSearch.label')"
                 :placeholder="$t('sw-text-editor-toolbar.childSearch.placeholder')"
-                :aria-label="$t('sw-text-editor-toolbar.childSearch.label')"
-            >
+                @update:model-value="childSearchTerm = $event"
+            />
         </div>
         {% endblock %}
 

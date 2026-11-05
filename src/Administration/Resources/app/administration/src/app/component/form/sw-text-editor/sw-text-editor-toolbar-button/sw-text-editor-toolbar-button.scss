@@ -76,19 +76,19 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 50%);
         max-width: 300px;
     }
 
-    &-search-input {
-        width: 100%;
-        padding: 6px 8px;
-        font-size: $font-size-xs;
-        color: var(--color-text-primary-default);
-        background: var(--color-elevation-surface-raised);
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: $border-radius-default;
+    &-search .mt-field {
+        margin-bottom: 0;
+    }
 
-        &:focus {
-            outline: none;
-            border-color: var(--color-border-brand-selected);
-        }
+    &-search .mt-field__label {
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        height: 1px;
+        margin: 0;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
     }
 
     &-empty {

@@ -39,7 +39,10 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
         const wrapper = await createWrapper({ searchable: true });
 
         const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search input');
-        expect(searchInput.attributes('aria-label')).toBe('sw-text-editor-toolbar.childSearch.label');
+        const label = wrapper.find(
+            `.sw-text-editor-toolbar-button__children-search label[for="${searchInput.attributes('id')}"]`,
+        );
+        expect(label.text()).toBe('sw-text-editor-toolbar.childSearch.label');
     });
 
     it('should filter searchable children by name and title case-insensitively', async () => {

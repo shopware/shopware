@@ -64,7 +64,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureBuilder;
-use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;

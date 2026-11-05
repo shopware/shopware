@@ -114,9 +114,9 @@ class OrderLineItemDefinition extends EntityDefinition
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
-            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete(), new WriteProtected())->setDescription('Delivery positions for this line item'),
+            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete(), new WriteProtected()),
             (new OneToManyAssociationField('orderTransactionCaptureRefundPositions', OrderTransactionCaptureRefundPositionDefinition::class, 'order_line_item_id'))->addFlags(new CascadeDelete(cloneRelevant: false)),
-            (new OneToManyAssociationField('downloads', OrderLineItemDownloadDefinition::class, 'order_line_item_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Digital downloads associated with this line item'),
+            (new OneToManyAssociationField('downloads', OrderLineItemDownloadDefinition::class, 'order_line_item_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
         ]);

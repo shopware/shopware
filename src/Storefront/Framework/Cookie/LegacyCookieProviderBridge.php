@@ -90,10 +90,36 @@ class LegacyCookieProviderBridge
             $target->expiration = $decorated->expiration;
         }
 
-        if ($decorated->getCookie() !== $default->getCookie() && $target->getEntries() === null) {
-            $target->setCookie($decorated->getCookie());
+        $this->applyEntriesDifference($target, $default, $decorated);
+        $this->applyCookieDifference($target, $default, $decorated);
+    }
+
+    /**
+     * A group holds either entries or a standalone cookie.
+     * A legacy group that became a standalone cookie replaces the entries of the target only when none are left,
+     * so entries added by other listeners are never dropped.
+     */
+    private function applyCookieDifference(CookieGroup $target, CookieGroup $default, CookieGroup $decorated): void
+    {
+        $cookie = $decorated->getCookie();
+        if ($cookie === $default->getCookie()) {
+            return;
         }
 
+        $targetEntries = $target->getEntries();
+        if ($targetEntries !== null) {
+            if ($targetEntries->count() > 0) {
+                return;
+            }
+
+            $target->setEntries(null);
+        }
+
+        $target->setCookie($cookie);
+    }
+
+    private function applyEntriesDifference(CookieGroup $target, CookieGroup $default, CookieGroup $decorated): void
+    {
         $defaultEntries = $default->getEntries() ?? new CookieEntryCollection();
         $decoratedEntries = $decorated->getEntries() ?? new CookieEntryCollection();
         if ($defaultEntries->count() === 0 && $decoratedEntries->count() === 0) {

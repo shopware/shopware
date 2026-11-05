@@ -70,6 +70,20 @@ class LegacyCookieProviderBridgePassTest extends TestCase
         static::assertTrue($container->hasDefinition(LegacyCookieProviderBridge::class));
     }
 
+    #[IgnoreDeprecations]
+    public function testProviderReplacedByAnAliasIsReportedAsDeprecation(): void
+    {
+        $container = $this->createContainer();
+        $container->register('extension.cookie_provider', 'Extension\CookieProvider');
+        $container->setAlias(CookieProviderInterface::class, 'extension.cookie_provider');
+
+        $this->expectUserDeprecationMessageMatches('/The service "' . preg_quote(CookieProviderInterface::class, '/') . '" \(Extension\\\\CookieProvider\)/');
+
+        (new LegacyCookieProviderBridgePass())->process($container);
+
+        static::assertTrue($container->hasDefinition(LegacyCookieProviderBridge::class));
+    }
+
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();

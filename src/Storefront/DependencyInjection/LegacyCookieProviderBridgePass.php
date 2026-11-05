@@ -70,8 +70,10 @@ class LegacyCookieProviderBridgePass implements CompilerPassInterface
             $legacyProviders[$id] = $class;
         }
 
-        if ($container->hasDefinition(CookieProviderInterface::class)) {
-            $class = $container->getDefinition(CookieProviderInterface::class)->getClass() ?? CookieProviderInterface::class;
+        // Runs before the decoration is applied, so the id still points to the default provider unless an extension replaced it.
+        // findDefinition() also resolves an alias an extension registered for the interface.
+        if ($container->has(CookieProviderInterface::class)) {
+            $class = $container->findDefinition(CookieProviderInterface::class)->getClass() ?? CookieProviderInterface::class;
             if ($class !== CookieProvider::class) {
                 $legacyProviders[CookieProviderInterface::class] = $class;
             }

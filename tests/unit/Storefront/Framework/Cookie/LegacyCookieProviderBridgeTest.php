@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Cookie;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
@@ -257,6 +258,61 @@ class LegacyCookieProviderBridgeTest extends TestCase
         }, listenerPriority: 20000);
 
         static::assertSame(['legacy-cookie'], array_keys($groups->get('shared.group')?->getEntries()?->getElements() ?? []));
+    }
+
+    #[DataProvider('coreGroupsTurnedIntoStandaloneCookie')]
+    public function testCoreGroupTurnedIntoAStandaloneCookieKeepsTheCookie(string $technicalName): void
+    {
+        $decorator = $this->decorate(static function (array $groups) use ($technicalName): array {
+            foreach ($groups as &$group) {
+                if ($group['snippet_name'] === $technicalName) {
+                    unset($group['entries']);
+                    $group['cookie'] = 'legacy-cookie';
+                    $group['value'] = '1';
+                }
+            }
+
+            return $groups;
+        });
+
+        $group = $this->collect($decorator)->get($technicalName);
+
+        static::assertNotNull($group);
+        static::assertNull($group->getEntries());
+        static::assertSame('legacy-cookie', $group->getCookie());
+        static::assertSame('1', $group->value);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function coreGroupsTurnedIntoStandaloneCookie(): iterable
+    {
+        yield 'group without entries' => [CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING];
+        yield 'group with entries' => [CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES];
+    }
+
+    public function testCoreGroupTurnedIntoAStandaloneCookieKeepsEntriesOfListeners(): void
+    {
+        $decorator = $this->decorate(static function (array $groups): array {
+            foreach ($groups as &$group) {
+                if ($group['snippet_name'] === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING) {
+                    unset($group['entries']);
+                    $group['cookie'] = 'legacy-cookie';
+                }
+            }
+
+            return $groups;
+        });
+
+        $groups = $this->collect($decorator, static function (CookieGroupCollectEvent $event): void {
+            $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING)?->getEntries()?->add(new CookieEntry('event-cookie'));
+        }, listenerPriority: 20000);
+
+        $marketing = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        static::assertNotNull($marketing);
+        static::assertNull($marketing->getCookie());
+        static::assertSame(['event-cookie'], array_keys($marketing->getEntries()?->getElements() ?? []));
     }
 
     public function testCoreGroupRemovedByAnEarlierListenerStaysRemoved(): void

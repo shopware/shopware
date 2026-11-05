@@ -623,6 +623,36 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         );
     });
 
+    it('should reload the list when removing fails after the subscription was cancelled', async () => {
+        jest.spyOn(extensionStoreActionService, 'cancelLicense').mockResolvedValue();
+        jest.spyOn(extensionStoreActionService, 'removeExtension').mockRejectedValue({
+            response: {
+                data: {
+                    errors: [{ code: 'FRAMEWORK__PLUGIN_NOT_FOUND', title: 'Not Found', detail: 'Plugin not found.' }],
+                },
+            },
+        });
+
+        const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapper = await createWrapper(
+            createExtension({ source: 'local', allowRemove: true, storeLicense: { id: 1337, expirationDate: null } }),
+        );
+
+        await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
+        await wrapper
+            .findByText(
+                '.sw-extension-removal-modal button',
+                'sw-extension-store.component.sw-extension-removal-modal.labelCancel',
+            )
+            .trigger('click');
+        await flushPromises();
+
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', title: 'Not Found', message: 'Plugin not found.' }),
+        );
+        expect(wrapper.emitted('update-list')).toHaveLength(1);
+    });
+
     it('should display error on install and download attempt when app subscription is expired', async () => {
         httpClient.post.mockImplementation(() => {
             return Promise.reject({

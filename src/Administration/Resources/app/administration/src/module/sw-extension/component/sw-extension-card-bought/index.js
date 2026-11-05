@@ -273,14 +273,14 @@ export default {
                 if (this.hasDeletableFiles) {
                     await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
                 }
-
-                this.$nextTick(() => {
-                    this.emitUpdateList();
-                });
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
+
+                this.$nextTick(() => {
+                    this.emitUpdateList();
+                });
             }
         },
 

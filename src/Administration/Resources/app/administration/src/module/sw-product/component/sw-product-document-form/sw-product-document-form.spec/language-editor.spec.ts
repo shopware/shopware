@@ -107,12 +107,40 @@ describe('sw-product-document-form language editor', () => {
         await selectMedia(wrapper, [media]);
         await clickButton(wrapper, 'global.default.apply');
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__name-input input').setValue('');
+        const input = wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input');
+        expect(input.element.value).toBe('Handbuch');
+        await input.setValue('');
+        expect(input.attributes('placeholder')).toBe('Manual');
         await clickButton(wrapper, 'global.default.apply');
         expect(document).toMatchObject({ title: null, mediaId: media.id });
         expect(wrapper.find('.document-row').text()).toContain('Manual');
         expect(wrapper.find('.document-row').text()).toContain('german-manual.pdf');
         expect(wrapper.findAll('.mt-badge')).toHaveLength(1);
+    });
+
+    it('previews the parent-language name that will be applied when clearing an override', async () => {
+        const parentLanguageId = repositoryFactory.create('language').create().id;
+        Object.assign(Shopware.Store.get('context').api.language!, { parentId: parentLanguageId });
+        const parentTranslation = new EntityFactory().create(
+            'product_document_translation',
+            null,
+            Shopware.Context.api,
+        ) as Entity<'product_document_translation'>;
+        Object.assign(parentTranslation, { languageId: parentLanguageId, title: 'Parent-language name', mediaId: null });
+        document.translations.add(parentTranslation);
+        Object.assign(document, {
+            title: 'Current override',
+            translated: { ...document.translated, title: 'Current override' },
+        });
+        wrapper = await createWrapper();
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        const input = wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input');
+        expect(input.element.value).toBe('Current override');
+        await input.setValue('');
+        expect(input.attributes('placeholder')).toBe('Parent-language name');
+        await clickButton(wrapper, 'global.default.apply');
+        expect(wrapper.find('.document-row').text()).toContain('Parent-language name');
+        expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
     });
 
     it('preserves a variant name override when applying only a new file', async () => {

@@ -9585,11 +9585,6 @@
       "count": 1
     }
   },
-  "src/module/sw-product/component/sw-product-document-form/index.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "src/module/sw-product/component/sw-product-download-form/index.js": {
     "filename-rules/not-match": {
       "count": 1

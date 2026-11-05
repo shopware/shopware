@@ -270,13 +270,4 @@ describe('src/core/service/user-verification.service.ts', () => {
         (loginService.getBearerAuthentication as jest.Mock).mockReturnValueOnce(withoutScopeList);
         expect(service.isVerified()).toBe(false);
     });
-
-    it('reports an SSO session from the login marker or the shop configuration', async () => {
-        const service = createService();
-
-        await expect(service.isSsoSession()).resolves.toBe(false);
-
-        sessionStorage.setItem('sw-sso-session', 'true');
-        await expect(service.isSsoSession()).resolves.toBe(true);
-    });
 });

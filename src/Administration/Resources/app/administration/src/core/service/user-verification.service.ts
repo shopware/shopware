@@ -60,14 +60,6 @@ export default class UserVerificationService {
     }
 
     /**
-     * Whether the current session was issued by the identity provider: the login marked it as such,
-     * or the shop offers no password login at all.
-     */
-    async isSsoSession(): Promise<boolean> {
-        return this.isSsoSessionFor(await this.loadLoginConfig());
-    }
-
-    /**
      * Called by the verify user modal with the context the password confirmation produced.
      *
      * @private

@@ -1,7 +1,7 @@
 {# @sw-package framework #}
 
-{% if not feature('v6.8.0.0') %}
-    {# @deprecated tag:v6.8.0 - Use `parent.name` instead of `parent.snippet_name`. Support for `parent.snippet_name` will be removed. #}
+{% if not feature('v6.9.0.0') %}
+    {# @deprecated tag:v6.9.0 - Use `parent.name` instead of `parent.snippet_name`. Support for `parent.snippet_name` will be removed. #}
     {% set parentName = parent.snippet_name ?? parent.name %}
 {% else %}
     {% set parentName = parent.name %}

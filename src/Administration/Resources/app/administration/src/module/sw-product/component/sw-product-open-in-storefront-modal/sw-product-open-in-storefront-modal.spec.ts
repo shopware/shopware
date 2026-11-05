@@ -136,6 +136,19 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         );
     });
 
+    it('shows the variation of a variant in the subtitle', async () => {
+        const { wrapper } = await createWrapper({
+            product: {
+                variation: [
+                    { group: 'Color', option: 'Blue' },
+                    { group: 'Size', option: 'L' },
+                ],
+            },
+        });
+
+        expect(wrapper.findComponent({ name: 'mt-modal' }).props('subtitle')).toBe('Shirt (Color: Blue | Size: L)');
+    });
+
     it('marks a domain without an http or https URL as disabled next to the linked domains', async () => {
         const { wrapper } = await createWrapper({
             loadedSalesChannel: storefrontSalesChannel({

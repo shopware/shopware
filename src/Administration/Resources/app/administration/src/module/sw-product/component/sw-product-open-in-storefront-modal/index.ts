@@ -81,6 +81,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        modalSubtitle(): string {
+            const variations = (this.product.variation ?? []) as { group: string; option: string }[];
+            const variation = variations.map(({ group, option }) => `${group}: ${option}`).join(' | ');
+
+            return variation ? `${this.productName} (${variation})` : this.productName;
+        },
+
         salesChannelOptions(): { value: string; label: string }[] {
             return this.salesChannels
                 .map((salesChannel) => ({

@@ -113,14 +113,17 @@ export function renderDeclarations(registry: ModuleRegistry): string {
         ]) => blocks.push(branchSubpath(`shopware:data/${key}`, DATA_MODULE, key, exports)),
     );
 
-    blocks.push(
-        branchRoot(
-            'shopware:composables',
-            COMPOSABLES_MODULE,
-            registry['shopware:composables'].exports,
-            COMPOSABLES_EXPERIMENTAL,
-        ),
-    );
+    // A root without named exports does not resolve at runtime, see `exportNames`.
+    if (registry['shopware:composables'].exports.length > 0) {
+        blocks.push(
+            branchRoot(
+                'shopware:composables',
+                COMPOSABLES_MODULE,
+                registry['shopware:composables'].exports,
+                COMPOSABLES_EXPERIMENTAL,
+            ),
+        );
+    }
     Object.entries(registry['shopware:composables'].subpaths).forEach(
         ([
             key,

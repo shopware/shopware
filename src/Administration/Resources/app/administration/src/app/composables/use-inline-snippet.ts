@@ -13,7 +13,7 @@
  *
  * Keep this and `src/app/mixin/sw-inline-snippet.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useInlineSnippet(): {
     getInlineSnippet: (value: { [key: string]: string }) => string | { [key: string]: string };

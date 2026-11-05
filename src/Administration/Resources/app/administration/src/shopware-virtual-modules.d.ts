@@ -34,12 +34,6 @@ declare module 'shopware:utils' {
     export const sort: (typeof members)['sort'];
     export const array: (typeof members)['array'];
     export const moveItem: (typeof members)['moveItem'];
-    export const VueHelper: (typeof members)['VueHelper'];
-    export const EventBus: (typeof members)['EventBus'];
-    export const genericRuleCondition: (typeof members)['genericRuleCondition'];
-    export const unitConversion: (typeof members)['unitConversion'];
-    export const extension: (typeof members)['extension'];
-    export const mapInheritanceSlotPropsToMeteorProps: (typeof members)['mapInheritanceSlotPropsToMeteorProps'];
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -237,63 +231,6 @@ declare module 'shopware:utils/moveItem' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:utils/VueHelper' {
-    import type branch from 'src/core/service/util.service';
-
-    const member: (typeof branch)['VueHelper'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:utils/EventBus' {
-    import type branch from 'src/core/service/util.service';
-
-    const member: (typeof branch)['EventBus'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:utils/genericRuleCondition' {
-    import type branch from 'src/core/service/util.service';
-
-    const member: (typeof branch)['genericRuleCondition'];
-
-    export default member;
-    export const getPlaceholderSnippet: (typeof member)['getPlaceholderSnippet'];
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:utils/unitConversion' {
-    import type branch from 'src/core/service/util.service';
-
-    const member: (typeof branch)['unitConversion'];
-
-    export default member;
-    export const convert: (typeof member)['convert'];
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:utils/extension' {
-    import type branch from 'src/core/service/util.service';
-
-    const member: (typeof branch)['extension'];
-
-    export default member;
-    export const getExtensionNameByOrigin: (typeof member)['getExtensionNameByOrigin'];
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:utils/mapInheritanceSlotPropsToMeteorProps' {
-    import type branch from 'src/core/service/util.service';
-
-    const member: (typeof branch)['mapInheritanceSlotPropsToMeteorProps'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:data' {
     import type branch from 'src/core/data/index';
 
@@ -306,10 +243,7 @@ declare module 'shopware:data' {
     export const EntityCollection: (typeof members)['EntityCollection'];
     export const EntityDefinition: (typeof members)['EntityDefinition'];
     export const EntityFactory: (typeof members)['EntityFactory'];
-    export const EntityHydrator: (typeof members)['EntityHydrator'];
     export const Repository: (typeof members)['Repository'];
-    export const ErrorResolver: (typeof members)['ErrorResolver'];
-    export const FilterFactory: (typeof members)['FilterFactory'];
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -367,37 +301,10 @@ declare module 'shopware:data/EntityFactory' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:data/EntityHydrator' {
-    import type branch from 'src/core/data/index';
-
-    const member: (typeof branch)['EntityHydrator'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:data/Repository' {
     import type branch from 'src/core/data/index';
 
     const member: (typeof branch)['Repository'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:data/ErrorResolver' {
-    import type branch from 'src/core/data/index';
-
-    const member: (typeof branch)['ErrorResolver'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:data/FilterFactory' {
-    import type branch from 'src/core/data/index';
-
-    const member: (typeof branch)['FilterFactory'];
 
     export default member;
 }
@@ -582,253 +489,8 @@ declare module 'shopware:composables/useVideoCover' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/notification' {
-    const mixin: MixinContainer['notification'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/validation' {
-    const mixin: MixinContainer['validation'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/user-settings' {
-    const mixin: MixinContainer['user-settings'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/sw-inline-snippet' {
-    const mixin: MixinContainer['sw-inline-snippet'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/translate-with-fallback' {
-    const mixin: MixinContainer['translate-with-fallback'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/notification-translation' {
-    const mixin: MixinContainer['notification-translation'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/salutation' {
-    const mixin: MixinContainer['salutation'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/ruleContainer' {
-    const mixin: MixinContainer['ruleContainer'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/remove-api-error' {
-    const mixin: MixinContainer['remove-api-error'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/position' {
-    const mixin: MixinContainer['position'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/placeholder' {
-    const mixin: MixinContainer['placeholder'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/listing' {
-    const mixin: MixinContainer['listing'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/generic-condition' {
-    const mixin: MixinContainer['generic-condition'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/sw-form-field' {
-    const mixin: MixinContainer['sw-form-field'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/discard-detail-page-changes' {
-    const mixin: MixinContainer['discard-detail-page-changes'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/rule-between-operator' {
-    const mixin: MixinContainer['rule-between-operator'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/cmsPage' {
-    const useStore: () => PiniaRootState['cmsPage'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/topBarButton' {
-    const useStore: () => PiniaRootState['topBarButton'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/teaserPopover' {
-    const useStore: () => PiniaRootState['teaserPopover'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/adminMenu' {
-    const useStore: () => PiniaRootState['adminMenu'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/inAppPurchaseCheckout' {
-    const useStore: () => PiniaRootState['inAppPurchaseCheckout'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/extensionComponentSections' {
-    const useStore: () => PiniaRootState['extensionComponentSections'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/blockOverride' {
-    const useStore: () => PiniaRootState['blockOverride'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/extensionEntryRoutes' {
-    const useStore: () => PiniaRootState['extensionEntryRoutes'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/extensionSdkModules' {
-    const useStore: () => PiniaRootState['extensionSdkModules'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/extensions' {
-    const useStore: () => PiniaRootState['extensions'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/error' {
-    const useStore: () => PiniaRootState['error'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/context' {
-    const useStore: () => PiniaRootState['context'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/adminHelpCenter' {
-    const useStore: () => PiniaRootState['adminHelpCenter'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/actionButtons' {
-    const useStore: () => PiniaRootState['actionButtons'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/licenseViolation' {
-    const useStore: () => PiniaRootState['licenseViolation'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/extensionMainModules' {
-    const useStore: () => PiniaRootState['extensionMainModules'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/marketing' {
-    const useStore: () => PiniaRootState['marketing'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/sdkLocation' {
-    const useStore: () => PiniaRootState['sdkLocation'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/ruleConditionsConfig' {
     const useStore: () => PiniaRootState['ruleConditionsConfig'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/settingsItems' {
-    const useStore: () => PiniaRootState['settingsItems'];
 
     export default useStore;
 }
@@ -841,34 +503,6 @@ declare module 'shopware:stores/shopwareApps' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/system' {
-    const useStore: () => PiniaRootState['system'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/modals' {
-    const useStore: () => PiniaRootState['modals'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/sidebar' {
-    const useStore: () => PiniaRootState['sidebar'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/menuItem' {
-    const useStore: () => PiniaRootState['menuItem'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/notification' {
     const useStore: () => PiniaRootState['notification'];
 
@@ -876,106 +510,8 @@ declare module 'shopware:stores/notification' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/tabs' {
-    const useStore: () => PiniaRootState['tabs'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/session' {
-    const useStore: () => PiniaRootState['session'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/swCategoryDetail' {
     const useStore: () => PiniaRootState['swCategoryDetail'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swSeoUrl' {
-    const useStore: () => PiniaRootState['swSeoUrl'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/shopwareExtensions' {
-    const useStore: () => PiniaRootState['shopwareExtensions'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swOrderDetail' {
-    const useStore: () => PiniaRootState['swOrderDetail'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swOrder' {
-    const useStore: () => PiniaRootState['swOrder'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swShippingDetail' {
-    const useStore: () => PiniaRootState['swShippingDetail'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/paymentOverviewCard' {
-    const useStore: () => PiniaRootState['paymentOverviewCard'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swProductDetail' {
-    const useStore: () => PiniaRootState['swProductDetail'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swProfile' {
-    const useStore: () => PiniaRootState['swProfile'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swPromotionDetail' {
-    const useStore: () => PiniaRootState['swPromotionDetail'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swFlow' {
-    const useStore: () => PiniaRootState['swFlow'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/swBulkEdit' {
-    const useStore: () => PiniaRootState['swBulkEdit'];
-
-    export default useStore;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:stores/mediaModal' {
-    const useStore: () => PiniaRootState['mediaModal'];
 
     export default useStore;
 }

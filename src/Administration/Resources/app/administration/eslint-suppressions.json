@@ -13324,11 +13324,6 @@
       "count": 4
     }
   },
-  "src/shopware-virtual-modules.d.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "test/_helper_/componentWrapper/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3

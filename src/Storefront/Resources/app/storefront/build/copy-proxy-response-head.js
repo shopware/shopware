@@ -4,9 +4,18 @@
 
 /**
  * `set-cookie` is forwarded separately by the proxy.
- * The others describe the original body, which the proxy may rewrite.
+ * `content-length`, `transfer-encoding` and `connection` describe the original body, which the proxy may rewrite.
+ * The Content Security Policy headers name the shop origin, but the proxy serves the page on its own port
+ * and loads the Webpack assets from the live reload server, so the browser would block them.
  */
-const SKIPPED_HEADERS = ['set-cookie', 'content-length', 'transfer-encoding', 'connection'];
+const SKIPPED_HEADERS = [
+    'set-cookie',
+    'content-length',
+    'transfer-encoding',
+    'connection',
+    'content-security-policy',
+    'content-security-policy-report-only',
+];
 
 /**
  * Copies the status code and headers of the shop response to the response of the hot proxy.

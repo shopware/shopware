@@ -8,22 +8,25 @@ import {
     buildComment,
     buildEndUserDocs,
     collectAgentInput,
+    dispatchDocsChecks,
     latestEndUserPages,
     isDryRun,
     neutraliseMentions,
     parseAudiences,
     postComment,
+    mergedPullRequests,
     redactSecrets,
-    resolvePullRequestNumber,
     shouldCheck,
     unlinkDeadDocsLinks,
+    warnIfEndUserDocsMissing,
 } from './docs-impact.ts';
 
 type Call = { method: string; params: Record<string, unknown> };
 
 function fakeGitHub(options: {
-    associated?: Array<{ number: number; merged_at: string | null; base: { ref: string } }>;
-    comments?: Array<{ id: number; body?: string }>;
+    commits?: Array<{ sha: string; message: string }>;
+    associated?: Record<string, Array<{ number: number; merged_at: string | null }>>;
+    comments?: Array<{ id: number; body?: string; user?: { login: string } }>;
     diffStatus?: number;
 } = {}) {
     const calls: Call[] = [];
@@ -34,7 +37,19 @@ function fakeGitHub(options: {
     const github = {
         rest: {
             repos: {
-                listPullRequestsAssociatedWithCommit: record('listPullRequestsAssociatedWithCommit', { data: options.associated ?? [] }),
+                compareCommitsWithBasehead: async (params: Record<string, unknown>) => {
+                    calls.push({ method: 'compareCommitsWithBasehead', params });
+                    const commits = (options.commits ?? []).map(({ sha, message }) => ({ sha, commit: { message } }));
+                    const page = Number(params.page);
+                    return { data: { commits: commits.slice((page - 1) * 100, page * 100) } };
+                },
+                listPullRequestsAssociatedWithCommit: async (params: Record<string, unknown>) => {
+                    calls.push({ method: 'listPullRequestsAssociatedWithCommit', params });
+                    return { data: options.associated?.[String(params.commit_sha)] ?? [] };
+                },
+            },
+            actions: {
+                createWorkflowDispatch: record('createWorkflowDispatch'),
             },
             pulls: {
                 get: async (params: Record<string, unknown>) => {
@@ -95,8 +110,10 @@ const pushContext = (inputs?: { pr_number?: string; dry_run?: string | boolean }
     repo: { owner: 'shopware', repo: 'shopware' },
     sha: 'abc123',
     eventName: inputs ? 'workflow_dispatch' : 'push',
-    payload: inputs ? { inputs } : {},
+    payload: inputs ? { inputs } : { before: 'aaa111', after: 'abc123', head_commit: { id: 'abc123', message: 'fix: last (#3)' } },
 });
+
+const BOT = { login: 'github-actions[bot]' };
 
 test('shouldCheck skips test, ci, chore, docs and refactor merges', () => {
     for (const message of [
@@ -106,7 +123,7 @@ test('shouldCheck skips test, ci, chore, docs and refactor merges', () => {
         'docs(admin): fix typo (#4)',
         'refactor(core): extract helper (#5)\n\nbody',
     ]) {
-        assert.equal(shouldCheck('push', message), false, message);
+        assert.equal(shouldCheck(message), false, message);
     }
 });
 
@@ -121,12 +138,8 @@ test('shouldCheck keeps fix, feat, perf, breaking and untyped merges', () => {
         'testing: something (#7)',
         '',
     ]) {
-        assert.equal(shouldCheck('push', message), true, message);
+        assert.equal(shouldCheck(message), true, message);
     }
-});
-
-test('shouldCheck always runs a manual dispatch', () => {
-    assert.equal(shouldCheck('workflow_dispatch', 'chore: bump deps'), true);
 });
 
 test('parseAudiences accepts known audiences and dedupes', () => {
@@ -162,35 +175,77 @@ test('buildComment truncates an oversized summary', () => {
     assert.ok(comment.endsWith('_(truncated)_'));
 });
 
-test('resolvePullRequestNumber prefers the dispatch input', async () => {
-    const { github, calls } = fakeGitHub();
-
-    assert.equal(await resolvePullRequestNumber({ github, context: pushContext({ pr_number: '42' }) }), 42);
-    assert.equal(calls.length, 0);
-});
-
-test('resolvePullRequestNumber rejects an invalid dispatch input', async () => {
-    const { github } = fakeGitHub();
-
-    await assert.rejects(resolvePullRequestNumber({ github, context: pushContext({ pr_number: '4x' }) }), /Invalid pr_number/);
-});
-
-test('resolvePullRequestNumber picks the merged trunk pull request of the commit', async () => {
-    const { github } = fakeGitHub({
-        associated: [
-            { number: 1, merged_at: null, base: { ref: 'trunk' } },
-            { number: 2, merged_at: '2026-10-01', base: { ref: '6.7.x' } },
-            { number: 3, merged_at: '2026-10-01', base: { ref: 'trunk' } },
+test('mergedPullRequests checks every commit of the push, not only the last', async () => {
+    const { github, calls } = fakeGitHub({
+        commits: [
+            { sha: 'c1', message: 'feat(admin): unit picker (#21)' },
+            { sha: 'c2', message: 'fix: price (#22)\n\nbody' },
+            { sha: 'c3', message: 'chore: bump deps (#23)' },
         ],
+        associated: {
+            c1: [{ number: 21, merged_at: '2026-11-04' }, { number: 99, merged_at: null }],
+            c2: [{ number: 22, merged_at: '2026-11-04' }, { number: 21, merged_at: '2026-11-04' }],
+            c3: [{ number: 23, merged_at: '2026-11-04' }],
+        },
     });
+    const { core, messages } = fakeCore();
 
-    assert.equal(await resolvePullRequestNumber({ github, context: pushContext() }), 3);
+    assert.deepEqual(await mergedPullRequests({ github, context: pushContext(), core }), [21, 22]);
+    assert.equal(calls.find((c) => c.method === 'compareCommitsWithBasehead')?.params.basehead, 'aaa111...abc123');
+    assert.equal(calls.some((c) => c.method === 'listPullRequestsAssociatedWithCommit' && c.params.commit_sha === 'c3'), false);
+    assert.ok(messages.some((m) => m.startsWith('Skipping c3')));
 });
 
-test('resolvePullRequestNumber returns null for a direct push', async () => {
-    const { github } = fakeGitHub();
+test('mergedPullRequests pages through a large push', async () => {
+    const commits = Array.from({ length: 150 }, (_, i) => ({ sha: `c${i}`, message: 'chore: x' }));
+    const { github, calls } = fakeGitHub({ commits });
+    const { core } = fakeCore();
 
-    assert.equal(await resolvePullRequestNumber({ github, context: pushContext() }), null);
+    await mergedPullRequests({ github, context: pushContext(), core });
+
+    assert.deepEqual(calls.filter((c) => c.method === 'compareCommitsWithBasehead').map((c) => c.params.page), [1, 2]);
+});
+
+test('mergedPullRequests falls back to the head commit without a usable before', async () => {
+    const { github, calls } = fakeGitHub({ associated: { abc123: [{ number: 3, merged_at: '2026-11-04' }] } });
+    const { core } = fakeCore();
+    const context = pushContext();
+    context.payload = { ...context.payload, before: '0000000000000000000000000000000000000000' };
+
+    assert.deepEqual(await mergedPullRequests({ github, context, core }), [3]);
+    assert.equal(calls.some((c) => c.method === 'compareCommitsWithBasehead'), false);
+});
+
+test('dispatchDocsChecks starts one dry run per pull request until posting is enabled', async () => {
+    const commits = [
+        { sha: 'c1', message: 'feat: a (#1)' },
+        { sha: 'c2', message: 'fix: b (#2)' },
+    ];
+    const associated = { c1: [{ number: 1, merged_at: 'x' }], c2: [{ number: 2, merged_at: 'x' }] };
+
+    for (const [env, dryRun] of [[{}, 'true'], [{ SW_DOCS_IMPACT_POST: 'true' }, 'false']] as const) {
+        const { github, calls } = fakeGitHub({ commits, associated });
+        const { core } = fakeCore();
+
+        await dispatchDocsChecks({ github, context: pushContext(), core }, env);
+
+        assert.deepEqual(
+            calls.filter((c) => c.method === 'createWorkflowDispatch').map((c) => c.params),
+            [1, 2].map((n) => ({ owner: 'shopware', repo: 'shopware', workflow_id: 'sw-docs-impact.lock.yml', ref: 'trunk', inputs: { pr_number: String(n), dry_run: dryRun } })),
+        );
+    }
+});
+
+test('dispatchDocsChecks caps the number of runs per push and warns about the rest', async () => {
+    const commits = Array.from({ length: 22 }, (_, i) => ({ sha: `c${i}`, message: `feat: ${i}` }));
+    const associated = Object.fromEntries(commits.map((c, i) => [c.sha, [{ number: i + 1, merged_at: 'x' }]]));
+    const { github, calls } = fakeGitHub({ commits, associated });
+    const { core, messages } = fakeCore();
+
+    await dispatchDocsChecks({ github, context: pushContext(), core }, {});
+
+    assert.equal(calls.filter((c) => c.method === 'createWorkflowDispatch').length, 20);
+    assert.ok(messages.includes('warning: Not checking #21, #22: at most 20 pull requests per push'));
 });
 
 test('collectAgentInput writes metadata, files without patches, and the diff', async () => {
@@ -215,15 +270,14 @@ test('collectAgentInput writes metadata, files without patches, and the diff', a
     assert.equal(readFileSync(join(dir, 'pr.diff'), 'utf8'), 'diff --git a/x b/x');
 });
 
-test('collectAgentInput writes a null pull request for a direct push', async () => {
+test('collectAgentInput rejects a missing or invalid pr_number', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'docs-impact-'));
-    const { github } = fakeGitHub();
+    const { github, calls } = fakeGitHub();
     const { core } = fakeCore();
 
-    await collectAgentInput({ github, context: pushContext(), core }, dir);
-
-    assert.deepEqual(JSON.parse(readFileSync(join(dir, 'pr.json'), 'utf8')), { pr: null });
-    assert.equal(existsSync(join(dir, 'pr.diff')), false);
+    await assert.rejects(collectAgentInput({ github, context: pushContext({}), core }, dir), /Invalid pr_number/);
+    await assert.rejects(collectAgentInput({ github, context: pushContext({ pr_number: '4x' }), core }, dir), /Invalid pr_number/);
+    assert.equal(calls.length, 0);
 });
 
 test('collectAgentInput keeps the per-file patches when the API refuses the diff as too large', async () => {
@@ -289,7 +343,7 @@ test('postComment labels every audience of a mixed candidate', async () => {
 });
 
 test('postComment updates its earlier comment instead of adding another', async () => {
-    const { github, calls } = fakeGitHub({ comments: [{ id: 5, body: 'other' }, { id: 6, body: `${COMMENT_MARKER}\nold` }] });
+    const { github, calls } = fakeGitHub({ comments: [{ id: 5, body: 'other', user: BOT }, { id: 6, body: `${COMMENT_MARKER}\nold`, user: BOT }] });
     const { core } = fakeCore();
 
     await postComment(
@@ -300,6 +354,19 @@ test('postComment updates its earlier comment instead of adding another', async 
     assert.equal(calls.find((c) => c.method === 'updateComment')?.params.comment_id, 6);
     assert.equal(calls.some((c) => c.method === 'createComment'), false);
     assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, ['docs-candidate/developer']);
+});
+
+test('postComment never takes over a user comment that starts with the marker', async () => {
+    const { github, calls } = fakeGitHub({ comments: [{ id: 6, body: `${COMMENT_MARKER}\ncopied`, user: { login: 'mallory' } }] });
+    const { core } = fakeCore();
+
+    await postComment(
+        { github, context: pushContext({ pr_number: '9' }), core },
+        { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'New event' }] },
+    );
+
+    assert.equal(calls.some((c) => c.method === 'updateComment'), false);
+    assert.equal(calls.find((c) => c.method === 'createComment')?.params.issue_number, 9);
 });
 
 test('postComment rejects malformed agent output', async () => {
@@ -326,13 +393,13 @@ test('postComment rejects malformed agent output', async () => {
     );
 });
 
-test('postComment fails when the commit has no merged pull request', async () => {
+test('postComment fails without a pr_number input', async () => {
     const { github } = fakeGitHub();
     const { core } = fakeCore();
 
     await assert.rejects(
-        postComment({ github, context: pushContext(), core }, { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'x' }] }),
-        /no merged pull request/,
+        postComment({ github, context: pushContext({}), core }, { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'x' }] }),
+        /Invalid pr_number/,
     );
 });
 
@@ -340,17 +407,11 @@ test('isDryRun accepts the boolean and string forms of the dispatch input', () =
     assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: true })), true);
     assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: 'true' })), true);
     assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: 'false' })), false);
-    assert.equal(isDryRun(pushContext({ pr_number: '9' }), {}), false);
-});
-
-test('isDryRun keeps push runs in the run summary until posting is enabled', () => {
-    assert.equal(isDryRun(pushContext(), {}), true);
-    assert.equal(isDryRun(pushContext(), { SW_DOCS_IMPACT_POST: 'false' }), true);
-    assert.equal(isDryRun(pushContext(), { SW_DOCS_IMPACT_POST: 'true' }), false);
+    assert.equal(isDryRun(pushContext({ pr_number: '9' })), false);
 });
 
 test('postComment in a dry run writes the comment to the step summary only', async () => {
-    const { github, calls } = fakeGitHub({ comments: [{ id: 6, body: `${COMMENT_MARKER}\nold` }] });
+    const { github, calls } = fakeGitHub({ comments: [{ id: 6, body: `${COMMENT_MARKER}\nold`, user: BOT }] });
     const { core } = fakeCore();
     const written: string[] = [];
     const summary = { addRaw: (text: string) => ({ write: async () => written.push(text) }) };
@@ -477,4 +538,18 @@ test('buildEndUserDocs refuses a suspiciously small content tree', () => {
     writeFileSync(join(content, 'shopware-6', 'only', 'v1-0-0-0.md'), 'x');
 
     assert.throws(() => buildEndUserDocs(content, mkdtempSync(join(tmpdir(), 'enduser-out-'))), /Only 1 end-user pages/);
+});
+
+test('warnIfEndUserDocsMissing warns in the log and the run summary only when the index is missing', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'docs-impact-'));
+    for (const [path, expected] of [[dir, 0], [join(dir, 'enduser-docs'), 1]] as const) {
+        const { core, messages } = fakeCore();
+        const written: string[] = [];
+        const summary = { addRaw: (text: string) => ({ write: async () => written.push(text) }) };
+
+        await warnIfEndUserDocsMissing({ ...core, summary }, path);
+
+        assert.equal(messages.filter((m) => m.startsWith('warning: End-user documentation is unavailable')).length, expected);
+        assert.equal(written.length, expected);
+    }
 });

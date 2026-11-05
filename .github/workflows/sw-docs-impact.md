@@ -3,66 +3,7 @@
 # Compile with `gh aw compile` -> produces sw-docs-impact.lock.yml (committed, never hand-edited).
 
 on:
-  # push, not pull_request closed: a merged fork pull request gets no secrets on pull_request.
-  push:
-    branches: [trunk]
-    paths-ignore:
-      - "tests/**"
-      - "src/**/Test/**"
-      - "**/*.spec.js"
-      - "**/*.spec.ts"
-      - "**/__snapshots__/**"
-      - "**/__mocks__/**"
-      - "src/Administration/Resources/app/administration/test/**"
-      - "src/Storefront/Resources/app/storefront/test/**"
-      - "src/Core/DevOps/StaticAnalyze/**"
-      - "**/eslint-rules/**"
-      - "**/eslint.config.*"
-      - "**/stylelint.config.*"
-      - "**/jest.config.*"
-      - "**/vitest.config.*"
-      - ".github/**"
-      - ".agents/**"
-      - ".agents-templates/**"
-      - ".claude/**"
-      - "**/AGENTS.md"
-      - "**/CLAUDE.md"
-      - "coding-guidelines/**"
-      - "adr/**"
-      - "changelog/**"
-      - "delivery-process/**"
-      - ".devcontainer/**"
-      - ".idea/**"
-      - ".run/**"
-      - ".vscode/**"
-      - "devenv.*"
-      - ".envrc"
-      - "**/composer.lock"
-      - "**/package-lock.json"
-      - "vendor-bin/**"
-      - "phpstan*.neon*"
-      - "phpstan-baseline.php"
-      - "phpstan-paths.php"
-      - "phpunit.xml.dist"
-      - "phpbench.json"
-      - "rector*"
-      - ".php-cs-fixer.dist.php"
-      - ".phpstorm.meta.php"
-      - "composer-dependency-analyser.php"
-      - ".bc-exclude.php"
-      - "deprecation.ignore"
-      - ".danger.php"
-      - ".codeowners"
-      - "codeowners.toml"
-      - "sonar-project.properties"
-      - "snippet-validation.json"
-      - ".allowed-licenses"
-      - ".git-blame-ignore-revs"
-      - ".gitattributes"
-      - ".gitignore"
-      - ".editorconfig"
-      - ".nvmrc"
-      - ".yamlfmt"
+  # Started once per merged pull request by sw-docs-impact-dispatch.yml.
   workflow_dispatch:
     inputs:
       pr_number:
@@ -74,41 +15,21 @@ on:
         required: false
         default: true
         type: boolean
-  # Trunk merges are pushed by the merge queue; the default role check rejects bots.
-  bots: ["github-merge-queue[bot]"]
   reaction: none
-  steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        persist-credentials: false
-        sparse-checkout: .github/bin/js
-    - id: commit_type
-      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-      env:
-        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-      with:
-        script: |
-          const { shouldCheck } = await import('${{ github.workspace }}/.github/bin/js/docs-impact.ts')
-          core.setOutput('check', String(shouldCheck(context.eventName, process.env.COMMIT_MESSAGE ?? '')))
 
-jobs:
-  pre-activation:
-    outputs:
-      check: ${{ steps.commit_type.outputs.check }}
+if: github.repository == 'shopware/shopware'
 
-if: github.repository == 'shopware/shopware' && needs.pre_activation.outputs.check == 'true'
-
-run-name: "Shopware Docs Impact ${{ github.event.inputs.pr_number && format('#{0}', github.event.inputs.pr_number) || github.sha }}"
+run-name: "Shopware Docs Impact #${{ github.event.inputs.pr_number }}"
 
 concurrency:
-  group: sw-docs-impact-${{ github.event.inputs.pr_number || github.sha }}
+  group: sw-docs-impact-${{ github.event.inputs.pr_number }}
   cancel-in-progress: false
-  job-discriminator: ${{ github.event.inputs.pr_number || github.sha }}
+  job-discriminator: ${{ github.event.inputs.pr_number }}
 
-# Runs on the host before the agent. The checkout is a trunk commit (push) or a ref a
-# maintainer dispatched, so the script is trusted.
+# Runs on the host before the agent. The checkout is trunk or a ref a maintainer
+# dispatched, so the script is trusted.
 steps:
-  - name: Check out the merge commit
+  - name: Check out the dispatched ref
     uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     with:
       ref: ${{ github.sha }}
@@ -131,6 +52,7 @@ steps:
       path: .sw-docs-impact/docs
       persist-credentials: false
   - id: enduser_docs_token
+    # End-user docs are optional input; the last pre-step warns when they are missing.
     continue-on-error: true
     uses: shopware/octo-sts-action@main
     with:
@@ -139,6 +61,7 @@ steps:
   - name: Check out the end-user documentation
     id: enduser_docs_checkout
     if: steps.enduser_docs_token.outputs.token != ''
+    # End-user docs are optional input; the last pre-step warns when they are missing.
     continue-on-error: true
     uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     with:
@@ -150,6 +73,7 @@ steps:
       filter: blob:none
   - name: Index the end-user documentation
     if: steps.enduser_docs_checkout.outcome == 'success'
+    # End-user docs are optional input; the last pre-step warns when they are missing.
     continue-on-error: true
     uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
     with:
@@ -159,6 +83,12 @@ steps:
         const src = '${{ github.workspace }}/.sw-docs-impact-enduser-docs-src'
         core.info(`Indexed ${buildEndUserDocs(`${src}/content/en`, '${{ github.workspace }}/.sw-docs-impact/enduser-docs')} end-user pages`)
         rmSync(src, { recursive: true, force: true })
+  - name: Report missing end-user documentation
+    uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+    with:
+      script: |
+        const { warnIfEndUserDocsMissing } = await import('${{ github.workspace }}/.github/bin/js/docs-impact.ts')
+        await warnIfEndUserDocsMissing(core, '${{ github.workspace }}/.sw-docs-impact/enduser-docs')
 
 engine:
   id: claude
@@ -216,7 +146,6 @@ safe-outputs:
             sparse-checkout: .github/bin/js
         - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
           env:
-            SW_DOCS_IMPACT_POST: ${{ vars.SW_DOCS_IMPACT_POST }}
             SW_DOCS_IMPACT_REDACT: ${{ secrets.GH_AW_DEFAULT_OTLP_HEADERS }}
           with:
             retries: 3

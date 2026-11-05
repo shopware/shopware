@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 export const AUDIENCES = ['end-user', 'developer'] as const;
@@ -16,11 +16,13 @@ const MAX_SUMMARY_LENGTH = 20000;
 
 const SKIPPED_COMMIT_TYPES = /^(test|ci|chore|docs|refactor)(\([^)]*\))?:/;
 
-export function shouldCheck(eventName: string, commitMessage: string): boolean {
-    if (eventName !== 'push') {
-        return true;
-    }
+export const MAX_DISPATCHED_PULL_REQUESTS = 20;
 
+export const DOCS_IMPACT_WORKFLOW = 'sw-docs-impact.lock.yml';
+
+const BOT_LOGIN = 'github-actions[bot]';
+
+export function shouldCheck(commitMessage: string): boolean {
     return !SKIPPED_COMMIT_TYPES.test(commitMessage.trimStart());
 }
 
@@ -29,9 +31,15 @@ type Repo = { owner: string; repo: string };
 type GitHub = {
     rest: {
         repos: {
-            listPullRequestsAssociatedWithCommit(params: Repo & { commit_sha: string }): Promise<{
-                data: Array<{ number: number; merged_at: string | null; base: { ref: string } }>;
+            compareCommitsWithBasehead(params: Repo & { basehead: string; per_page: number; page: number }): Promise<{
+                data: { commits: Array<{ sha: string; commit: { message: string } }> };
             }>;
+            listPullRequestsAssociatedWithCommit(params: Repo & { commit_sha: string }): Promise<{
+                data: Array<{ number: number; merged_at: string | null }>;
+            }>;
+        };
+        actions: {
+            createWorkflowDispatch(params: Repo & { workflow_id: string; ref: string; inputs: Record<string, string> }): Promise<unknown>;
         };
         pulls: {
             get(params: Repo & { pull_number: number; mediaType?: { format: string } }): Promise<{ data: unknown }>;
@@ -39,7 +47,7 @@ type GitHub = {
         };
         issues: {
             listComments(params: Repo & { issue_number: number; per_page: number }): Promise<{
-                data: Array<{ id: number; body?: string }>;
+                data: Array<{ id: number; body?: string; user?: { login: string } | null }>;
             }>;
             createComment(params: Repo & { issue_number: number; body: string }): Promise<unknown>;
             updateComment(params: Repo & { comment_id: number; body: string }): Promise<unknown>;
@@ -60,7 +68,12 @@ type Context = {
     repo: Repo;
     sha: string;
     eventName: string;
-    payload: { inputs?: { pr_number?: string | number; dry_run?: string | boolean } };
+    payload: {
+        inputs?: { pr_number?: string | number; dry_run?: string | boolean };
+        before?: string;
+        after?: string;
+        head_commit?: { id: string; message: string } | null;
+    };
 };
 
 type AgentOutputItem = {
@@ -106,42 +119,82 @@ export function buildComment(summary: string): string {
     ].join('\n');
 }
 
-export function isDryRun(context: Context, env: Record<string, string | undefined> = process.env): boolean {
-    if (context.eventName === 'push') {
-        return env.SW_DOCS_IMPACT_POST !== 'true';
-    }
-
+export function isDryRun(context: Context): boolean {
     const raw = context.payload.inputs?.dry_run;
 
     return raw === true || raw === 'true';
 }
 
-export function requestedPullRequestNumber(context: Context): number | null {
+export function requestedPullRequestNumber(context: Context): number {
     const raw = context.payload.inputs?.pr_number;
-    if (raw === undefined || raw === '') {
-        return null;
-    }
-
     const number = Number(raw);
-    if (!Number.isInteger(number) || number <= 0) {
+    if (raw === undefined || raw === '' || !Number.isInteger(number) || number <= 0) {
         throw new Error(`Invalid pr_number input: ${raw}`);
     }
 
     return number;
 }
 
-export async function resolvePullRequestNumber({ github, context }: { github: GitHub; context: Context }): Promise<number | null> {
-    const requested = requestedPullRequestNumber(context);
-    if (requested !== null) {
-        return requested;
+type Commit = { sha: string; message: string };
+
+export async function pushedCommits({ github, context }: { github: GitHub; context: Context }): Promise<Commit[]> {
+    const { before, after, head_commit: head } = context.payload;
+    if (!before || !after || /^0+$/.test(before)) {
+        return head ? [{ sha: head.id, message: head.message }] : [];
     }
 
-    const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-        ...context.repo,
-        commit_sha: context.sha,
-    });
+    const commits: Commit[] = [];
+    for (let page = 1; ; page++) {
+        const { data } = await github.rest.repos.compareCommitsWithBasehead({ ...context.repo, basehead: `${before}...${after}`, per_page: 100, page });
+        commits.push(...data.commits.map(({ sha, commit }) => ({ sha, message: commit.message })));
+        if (data.commits.length < 100) {
+            return commits;
+        }
+    }
+}
 
-    return data.find((pr) => pr.merged_at !== null && pr.base.ref === 'trunk')?.number ?? null;
+export async function mergedPullRequests({ github, context, core }: { github: GitHub; context: Context; core: Core }): Promise<number[]> {
+    const numbers = new Set<number>();
+    for (const commit of await pushedCommits({ github, context })) {
+        if (!shouldCheck(commit.message)) {
+            core.info(`Skipping ${commit.sha}: ${commit.message.split('\n')[0]}`);
+            continue;
+        }
+
+        const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({ ...context.repo, commit_sha: commit.sha });
+        for (const pr of data) {
+            if (pr.merged_at !== null) {
+                numbers.add(pr.number);
+            }
+        }
+    }
+
+    return [...numbers];
+}
+
+export async function dispatchDocsChecks(
+    { github, context, core }: { github: GitHub; context: Context; core: Core },
+    env: Record<string, string | undefined> = process.env,
+): Promise<void> {
+    const numbers = await mergedPullRequests({ github, context, core });
+    if (numbers.length > MAX_DISPATCHED_PULL_REQUESTS) {
+        core.warning(`Not checking ${numbers.slice(MAX_DISPATCHED_PULL_REQUESTS).map((n) => `#${n}`).join(', ')}: at most ${MAX_DISPATCHED_PULL_REQUESTS} pull requests per push`);
+    }
+
+    const dispatched = numbers.slice(0, MAX_DISPATCHED_PULL_REQUESTS);
+    const dryRun = String(env.SW_DOCS_IMPACT_POST !== 'true');
+    for (const number of dispatched) {
+        await github.rest.actions.createWorkflowDispatch({
+            ...context.repo,
+            workflow_id: DOCS_IMPACT_WORKFLOW,
+            ref: 'trunk',
+            inputs: { pr_number: String(number), dry_run: dryRun },
+        });
+        core.info(`Dispatched the docs check for #${number} (dry_run: ${dryRun})`);
+    }
+
+    const list = dispatched.length > 0 ? dispatched.map((n) => `#${n}`).join(', ') : 'none';
+    await core.summary?.addRaw(`Docs checks dispatched for ${context.sha}: ${list}`, true).write();
 }
 
 type PullRequest = {
@@ -177,13 +230,7 @@ export function summarisePullRequest(pr: PullRequest) {
 }
 
 export async function collectAgentInput({ github, context, core }: { github: GitHub; context: Context; core: Core }, dir: string): Promise<void> {
-    const number = await resolvePullRequestNumber({ github, context });
-    if (number === null) {
-        core.info(`No merged pull request into trunk is associated with ${context.sha}`);
-        writeFileSync(`${dir}/pr.json`, JSON.stringify({ pr: null }));
-        return;
-    }
-
+    const number = requestedPullRequestNumber(context);
     const params = { ...context.repo, pull_number: number };
     const { data } = await github.rest.pulls.get(params);
     const pr = summarisePullRequest(data as PullRequest);
@@ -273,11 +320,7 @@ export async function postComment(
         throw new Error('docs_candidate item has an empty summary');
     }
 
-    const number = await resolvePullRequestNumber({ github, context });
-    if (number === null) {
-        throw new Error(`The agent reported a docs candidate, but no merged pull request is associated with ${context.sha}`);
-    }
-
+    const number = requestedPullRequestNumber(context);
     const audiences = parseAudiences(item.audiences ?? '');
     const summary = redactSecrets(item.summary, process.env.SW_DOCS_IMPACT_REDACT);
     const body = buildComment(await unlinkDeadDocsLinks(summary, isDead));
@@ -287,12 +330,12 @@ export async function postComment(
         return;
     }
 
-    const comments = await github.paginate<{ id: number; body?: string }>(github.rest.issues.listComments, {
+    const comments = await github.paginate<{ id: number; body?: string; user?: { login: string } | null }>(github.rest.issues.listComments, {
         ...context.repo,
         issue_number: number,
         per_page: 100,
     });
-    const existing = comments.find((comment) => comment.body?.startsWith(COMMENT_MARKER));
+    const existing = comments.find((comment) => comment.user?.login === BOT_LOGIN && comment.body?.startsWith(COMMENT_MARKER));
 
     if (existing) {
         await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
@@ -377,4 +420,14 @@ export function buildEndUserDocs(contentDir: string, outDir: string): number {
     }
 
     return pages.length;
+}
+
+export async function warnIfEndUserDocsMissing(core: Core, dir: string): Promise<void> {
+    if (existsSync(dir)) {
+        return;
+    }
+
+    const message = 'End-user documentation is unavailable, so this run cannot link docs.shopware.com pages. Check the octo-sts token and the index steps above.';
+    core.warning(message);
+    await core.summary?.addRaw(`> [!WARNING]\n> ${message}`, true).write();
 }

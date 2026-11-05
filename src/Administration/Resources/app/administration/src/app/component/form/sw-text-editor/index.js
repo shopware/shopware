@@ -411,14 +411,6 @@ export default {
             },
         },
 
-        availableDataMappings() {
-            const dataMappingButton = this.buttonConfig.find((button) => button.type === 'data-mapping');
-
-            if (dataMappingButton) {
-                dataMappingButton.children = this.getDataMappingButtonChildren();
-            }
-        },
-
         isCodeEdit() {
             if (!this.isCodeEdit) {
                 this.$nextTick(() => {
@@ -448,6 +440,14 @@ export default {
                 title: mapping,
                 handler: this.handleInsertDataMapping,
             }));
+        },
+
+        updateDataMappingButtonChildren() {
+            const dataMappingButton = this.buttonConfig.find((button) => button.type === 'data-mapping');
+
+            if (dataMappingButton) {
+                dataMappingButton.children = this.getDataMappingButtonChildren();
+            }
         },
 
         createdComponent() {
@@ -489,6 +489,7 @@ export default {
                     dataMappingButton.children = this.getDataMappingButtonChildren();
 
                     this.buttonConfig.push(dataMappingButton);
+                    this.$watch('availableDataMappings', this.updateDataMappingButtonChildren);
                 }
             }
 

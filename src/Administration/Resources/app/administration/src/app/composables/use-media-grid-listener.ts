@@ -5,13 +5,13 @@
  */
 import { computed, shallowRef, type ComputedRef, type ShallowRef } from 'vue';
 
-/** @private */
+/** @public */
 export type MediaGridItem = {
     getEntityName: () => string;
     [key: string]: unknown;
 };
 
-/** @private */
+/** @public */
 export type MediaGridItemEvent = {
     originalDomEvent: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean };
     item: MediaGridItem;
@@ -21,7 +21,7 @@ export type MediaGridItemEvent = {
  * The mixin left `selectableItems` as an empty computed for its host to override, and emitted the
  * folder change off the instance. Both arrive as options, because a composable can declare neither.
  *
- * @private
+ * @public
  */
 export interface UseMediaGridListenerOptions {
     /** The items a range selection may span, in the order the grid renders them. */
@@ -40,7 +40,7 @@ export interface UseMediaGridListenerOptions {
  * Keep this and `src/module/sw-media/mixin/media-grid-listener.mixin.js` in sync — change both
  * together.
  *
- * @private
+ * @public
  */
 export default function useMediaGridListener(options: UseMediaGridListenerOptions): {
     selectedItems: ShallowRef<MediaGridItem[]>;

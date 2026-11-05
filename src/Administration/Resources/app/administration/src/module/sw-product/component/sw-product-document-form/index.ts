@@ -10,6 +10,7 @@ import {
     getEditChanges,
     type DocumentChanges,
 } from './document-translation.utils';
+import { loadDocumentVariants, getMatchingVariantDocuments } from './document-variant.service';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -96,6 +97,16 @@ export default Shopware.Component.wrapComponentConfig({
             return code ? names.of(code) || '' : language?.name || '';
         },
 
+        documentTitlePlaceholder(): string {
+            const document = this.editingDocument;
+            if (!document || this.isDefaultLanguage) {
+                return '';
+            }
+            const changes = getDocumentTranslationChanges(document, { title: null }, Shopware.Context.api);
+            const title = (changes.translated ?? document.translated)?.title;
+            return title || this.getMedia(document)?.fileName || '';
+        },
+
         editingMedia(): Entity<'media'> | undefined {
             const document = this.editingDocument;
             const showSavedFile = document && !this.documentFileRemoved && (this.isDefaultLanguage || document.mediaId);
@@ -162,14 +173,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.canEdit && inheritance?.isInherited === false;
         },
 
-        getMedia(document: ProductDocument): Entity<'media'> | undefined {
-            const mediaId = document.mediaId || document.translated?.mediaId;
+        getMedia(document: ProductDocument | null): Entity<'media'> | undefined {
+            const mediaId = document?.mediaId || document?.translated?.mediaId;
 
             if (!mediaId) {
                 return undefined;
             }
 
-            return this.uploadedMedia[mediaId] || document.translations?.find((item) => item.mediaId === mediaId)?.media;
+            return this.uploadedMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media;
         },
 
         getTitle(document: ProductDocument): string {
@@ -449,24 +460,7 @@ export default Shopware.Component.wrapComponentConfig({
             mediaId: string,
             context: typeof Shopware.Context.api,
         ): Promise<Entity<'product'>[]> {
-            const productRepository = this.repositoryFactory.create('product');
-            const { Criteria } = Shopware.Data;
-            const variants: Entity<'product'>[] = [];
-            let page = 1;
-            let result: EntityCollection<'product'>;
-            do {
-                const criteria = new Criteria(page, 100);
-                criteria.setTotalCountMode(0);
-                criteria.addSorting(Criteria.sort('id'));
-                criteria.addFilter(Criteria.equals('parentId', productId));
-                criteria.addFilter(Criteria.equals('documents.mediaId', mediaId));
-                criteria.addAssociation('documents.translations.media');
-                criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
-                result = await productRepository.search(criteria, context);
-                variants.push(...result);
-                page += 1;
-            } while (result.length === 100);
-            return variants;
+            return loadDocumentVariants(this.repositoryFactory.create('product'), productId, mediaId, context);
         },
 
         stageVariantDocumentChanges(
@@ -482,10 +476,7 @@ export default Shopware.Component.wrapComponentConfig({
             const context = Shopware.Context.api;
             candidates.forEach((variant) => {
                 let changed = false;
-                variant.documents?.forEach((copy) => {
-                    if (copy.productId !== variant.id || (copy.mediaId || copy.translated?.mediaId) !== originalMediaId) {
-                        return;
-                    }
+                getMatchingVariantDocuments(variant, originalMediaId)?.forEach((copy) => {
                     const update = getDocumentTranslationChanges(copy, changes, context, this.isDefaultLanguage);
                     this.applyDocumentChanges(copy, update);
                     const origin = copy.getOrigin();
@@ -514,9 +505,7 @@ export default Shopware.Component.wrapComponentConfig({
             children.forEach((variant) => candidates.set(variant.id, variant));
             candidates.forEach((variant) => {
                 const documents = variant.documents;
-                const matching = documents?.filter(
-                    (copy) => copy.productId === variant.id && (copy.mediaId || copy.translated?.mediaId) === mediaId,
-                );
+                const matching = getMatchingVariantDocuments(variant, mediaId);
                 if (!documents || !matching?.length) {
                     return;
                 }
@@ -527,17 +516,13 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!children.has(variant.id)) {
                     children.add(variant);
                 }
-                matching.forEach((copy) => {
-                    if (this.isDefaultLanguage) {
-                        documents.remove(copy.id);
-                    } else {
-                        this.resetDocumentLanguageVersion(copy);
-                    }
-                });
                 if (this.isDefaultLanguage) {
+                    matching.forEach((copy) => documents.remove(copy.id));
                     documents.forEach((copy, index) => {
                         copy.position = index;
                     });
+                } else {
+                    matching.forEach((copy) => this.resetDocumentLanguageVersion(copy));
                 }
             });
             this.product.children = children;

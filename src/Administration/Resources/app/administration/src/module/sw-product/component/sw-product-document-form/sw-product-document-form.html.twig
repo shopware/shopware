@@ -252,7 +252,7 @@
                 :allow-fallback="!isDefaultLanguage"
                 :language-name="contentLanguageName"
                 :is-adding-language-version="!isDefaultLanguage && !editingDocument.title && !editingDocument.mediaId"
-                :document-title-placeholder="isDefaultLanguage ? '' : getTitle(editingDocument)"
+                :document-title-placeholder="documentTitlePlaceholder"
                 :editing-media="editingMedia"
                 :document-name-error="documentNameError"
                 :document-file-error="documentFileError"

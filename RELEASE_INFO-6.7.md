@@ -380,6 +380,10 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
+
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
+
 ### Codemods for extensions in the extension tooling
 
 The new `administration:upgrade-extensions` command runs the codemods that prepare the Administration code of an extension for a Shopware major.

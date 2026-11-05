@@ -1583,6 +1583,11 @@ The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Sear
 
 # Administration
 
+## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
+
+The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method were removed without replacement.
+
 ## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
 
 The `saveProductVisibilities()` method of the `sw-sales-channel-detail-products` component was removed.

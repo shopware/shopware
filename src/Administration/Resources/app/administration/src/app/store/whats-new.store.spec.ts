@@ -77,21 +77,18 @@ describe('whats-new.store', () => {
             expected: false,
         },
         {
-            scenario: 'a first recorded update to exactly its version',
-            version: '6.7.17.0',
-            versionHistory: [historyEntry('6.7.17.0', DAY_IN_MS)],
+            scenario: 'a first recorded update that skipped its version',
+            version: '6.7.18.0',
+            versionHistory: [historyEntry('6.7.18.0', DAY_IN_MS)],
             expected: true,
         },
         {
-            scenario: 'a first recorded patch update within its minor',
+            scenario: 'a patch update of a shop installed with its version',
             version: '6.7.17.1',
-            versionHistory: [historyEntry('6.7.17.1', DAY_IN_MS)],
-            expected: false,
-        },
-        {
-            scenario: 'a first recorded update to a later minor',
-            version: '6.7.18.0',
-            versionHistory: [historyEntry('6.7.18.0', DAY_IN_MS)],
+            versionHistory: [
+                historyEntry('6.7.17.0', 10 * DAY_IN_MS, true),
+                historyEntry('6.7.17.1', DAY_IN_MS),
+            ],
             expected: false,
         },
         {

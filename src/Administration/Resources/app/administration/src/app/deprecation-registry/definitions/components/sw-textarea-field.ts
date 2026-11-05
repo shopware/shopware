@@ -23,8 +23,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-textarea-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-textarea-field', to: 'mt-textarea', fix: 'unsafe-auto' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

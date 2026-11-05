@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.8.md#removal-of-items-prop-in-sw-entity-listing-component'),
     ],
-    usage: [
+    onEveryUsage: [
         renameProp({
             from: 'items',
             to: 'data-source',

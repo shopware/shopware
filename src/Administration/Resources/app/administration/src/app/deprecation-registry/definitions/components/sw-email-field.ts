@@ -26,8 +26,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-email-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-email-field', to: 'mt-email-field' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-button'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-button-deprecated', to: 'mt-button', fix: 'manual' }),
     ],
 });

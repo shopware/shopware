@@ -3,7 +3,6 @@
  */
 
 import {
-    onlyAfterConversion,
     componentMigration,
     removeProp,
     removeSlot,
@@ -26,8 +25,13 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-switch-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-switch-field', to: 'mt-switch' }),
+        removeProp({
+            prop: 'id',
+        }),
+    ],
+    onEveryUsage: [
         renameVModelArgument({ from: 'value', to: null }),
         renameEvent({ from: 'update:value', to: 'update:modelValue' }),
         renameProp({
@@ -37,11 +41,6 @@ export default componentMigration({
         removeProp({
             prop: 'size',
         }),
-        onlyAfterConversion(
-            removeProp({
-                prop: 'id',
-            }),
-        ),
         renameProp({
             from: 'value',
             to: 'model-value',

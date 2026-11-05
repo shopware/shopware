@@ -9,7 +9,6 @@ export type * from './types';
 export { FIX_LEVELS } from './types';
 export * from './migrations';
 export * from './steps/simple-steps';
-export { onlyAfterConversion } from './steps/only-after-conversion';
 export { renameProp, invertBooleanProp, booleanPropToValue } from './steps/prop-renames';
 export { removeProp, replaceProp } from './steps/prop-removals';
 export { routerLinkClickHandler, aiBadgeTitleSlot } from './steps/prop-replacements';

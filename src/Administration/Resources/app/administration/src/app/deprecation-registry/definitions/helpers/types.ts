@@ -119,7 +119,7 @@ type UsageStepBase = {
 
 /** A step `no-deprecated-component-usage` runs on every element of the migration's replacement component. */
 type ComponentUsageStepBase = UsageStepBase & {
-    /** Runs the step only on elements the codemod just converted from the deprecated component. */
+    /** Set by `componentMigration` for `onConvert` steps: they run only on elements the codemod converted. */
     onlyAfterConversion?: boolean;
     eslint: {
         report(api: ComponentUsageRuleApi): void;
@@ -392,6 +392,21 @@ export type ComponentMigration = MigrationBase<ComponentStep> & {
     component: string;
     /** The element the usage steps match once a usage is converted; falls back to `component` when unset. */
     replacement?: string;
+};
+
+/**
+ * Builder input of `componentMigration`. A converted element gets both step lists, a hand-written
+ * usage of the replacement only `onEveryUsage`.
+ *
+ * @example
+ * onConvert: [renameComponent({ from: 'sw-button', to: 'mt-button' }), missingProp({ prop: 'variant', value: 'secondary' })],
+ * onEveryUsage: [mapPropValue({ prop: 'variant', from: 'danger', to: 'critical' })],
+ */
+export type ComponentMigrationConfig = Omit<ComponentMigration, 'usage'> & {
+    /** The conversion: the component rename, then the steps that carry the old component's behaviour over. */
+    onConvert?: [RenameComponentStep, ...ComponentUsageStep[]];
+    /** Steps that run on every element of the replacement, converted or written by hand. */
+    onEveryUsage?: ComponentUsageStep[];
 };
 
 export type GlobalApiMigration = MigrationBase<RenameCallStep> & {

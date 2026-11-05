@@ -9,6 +9,7 @@
 import type {
     AssetMigration,
     ComponentMigration,
+    ComponentMigrationConfig,
     DeprecationReference,
     GlobalApiMigration,
     JsApiMigration,
@@ -30,12 +31,34 @@ export function upgradeGuide(target: string): DeprecationReference {
 
 /**
  * Migrates usages of a deprecated component, or of deprecated props, slots and events of a component.
+ * `onConvert` steps are limited to elements carrying the "Converted from <component>" comment the
+ * conversion leaves, so a hand-written usage of the replacement only gets the `onEveryUsage` steps.
  *
  * @example
- * componentMigration({ id: 'component.sw-loader', component: 'sw-loader', replacement: 'mt-loader', ... });
+ * componentMigration({
+ *     id: 'component.sw-loader',
+ *     component: 'sw-loader',
+ *     replacement: 'mt-loader',
+ *     onConvert: [renameComponent({ from: 'sw-loader', to: 'mt-loader' })],
+ *     onEveryUsage: [renameProp({ from: 'value', to: 'model-value' })],
+ *     ...
+ * });
  */
-export function componentMigration(migration: ComponentMigration): ComponentMigration {
-    return migration;
+export function componentMigration({
+    onConvert = undefined,
+    onEveryUsage = [],
+    ...migration
+}: ComponentMigrationConfig): ComponentMigration {
+    const [rename, ...carriedOver] = onConvert ?? [];
+
+    return {
+        ...migration,
+        usage: [
+            ...(rename ? [rename] : []),
+            ...carriedOver.map((step) => ({ ...step, onlyAfterConversion: true })),
+            ...onEveryUsage,
+        ],
+    };
 }
 
 /**

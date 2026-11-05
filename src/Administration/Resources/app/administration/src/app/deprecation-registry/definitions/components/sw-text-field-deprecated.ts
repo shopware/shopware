@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-text-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-text-field-deprecated', to: 'mt-text-field', fix: 'manual' }),
     ],
 });

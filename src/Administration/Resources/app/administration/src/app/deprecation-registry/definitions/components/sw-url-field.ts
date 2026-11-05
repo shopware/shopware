@@ -25,8 +25,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-url-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-url-field', to: 'mt-url-field' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

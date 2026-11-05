@@ -22,8 +22,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-card'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-card', to: 'mt-card' }),
+    ],
+    onEveryUsage: [
         replaceProp({
             prop: 'ai-badge',
             with: aiBadgeTitleSlot,

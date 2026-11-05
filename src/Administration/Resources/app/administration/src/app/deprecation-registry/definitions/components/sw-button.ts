@@ -6,7 +6,6 @@ import {
     componentMigration,
     mapPropValue,
     missingProp,
-    onlyAfterConversion,
     renameComponent,
     replaceProp,
     routerLinkClickHandler,
@@ -24,8 +23,16 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-button'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-button', to: 'mt-button' }),
+        missingProp({
+            prop: 'variant',
+            value: 'secondary',
+            fix: 'auto',
+            message: 'Add variant="secondary" when no variant is set to preserve the previous default button style.',
+        }),
+    ],
+    onEveryUsage: [
         mapPropValue({
             prop: 'variant',
             from: 'ghost',
@@ -62,13 +69,5 @@ export default componentMigration({
             message:
                 'Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
         }),
-        onlyAfterConversion(
-            missingProp({
-                prop: 'variant',
-                value: 'secondary',
-                fix: 'auto',
-                message: 'Add variant="secondary" when no variant is set to preserve the previous default button style.',
-            }),
-        ),
     ],
 });

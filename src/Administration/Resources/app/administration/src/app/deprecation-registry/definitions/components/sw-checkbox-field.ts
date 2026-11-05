@@ -3,7 +3,6 @@
  */
 
 import {
-    onlyAfterConversion,
     componentMigration,
     removeProp,
     renameComponent,
@@ -25,8 +24,13 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-checkbox-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-checkbox-field', to: 'mt-checkbox' }),
+        removeProp({
+            prop: 'id',
+        }),
+    ],
+    onEveryUsage: [
         renameVModelArgument({ from: 'value', to: null }),
         renameProp({
             from: 'value',
@@ -36,11 +40,6 @@ export default componentMigration({
             slot: 'hint',
             prop: 'label',
         }),
-        onlyAfterConversion(
-            removeProp({
-                prop: 'id',
-            }),
-        ),
         removeProp({
             prop: 'ghost-value',
         }),

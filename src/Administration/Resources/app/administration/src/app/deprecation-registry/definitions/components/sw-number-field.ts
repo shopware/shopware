@@ -24,8 +24,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-number-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-number-field', to: 'mt-number-field' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

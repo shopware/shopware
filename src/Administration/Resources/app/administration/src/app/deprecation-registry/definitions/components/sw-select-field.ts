@@ -6,7 +6,6 @@ import {
     componentMigration,
     mapOptionsPropKeys,
     missingProp,
-    onlyAfterConversion,
     removeProp,
     renameComponent,
     renameEvent,
@@ -28,8 +27,15 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-select-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-select-field', to: 'mt-select' }),
+        missingProp({
+            prop: 'hide-clearable-button',
+            message:
+                'mt-select shows a clear button by default, which sw-select-field never had. Add "hide-clearable-button" to keep the field unclearable.',
+        }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',
@@ -53,13 +59,6 @@ export default componentMigration({
             unsafeMessage:
                 'Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }),
-        onlyAfterConversion(
-            missingProp({
-                prop: 'hide-clearable-button',
-                message:
-                    'mt-select shows a clear button by default, which sw-select-field never had. Add "hide-clearable-button" to keep the field unclearable.',
-            }),
-        ),
         slotToProp({ slot: 'label', prop: 'label' }),
         slotToItemsProp({
             item: 'option',

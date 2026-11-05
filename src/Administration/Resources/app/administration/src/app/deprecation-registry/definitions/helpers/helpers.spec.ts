@@ -3,13 +3,13 @@
  */
 import {
     booleanPropToValue,
+    componentMigration,
     flagSlotForManualMove,
     invertBooleanProp,
     mapOptionsPropKeys,
     mapPropValue,
     memberCall,
     missingProp,
-    onlyAfterConversion,
     propFromSources,
     removeAsset,
     removeEvent,
@@ -94,10 +94,26 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
         );
     });
 
-    it('marks a usage step to run only on converted elements', () => {
-        expect(onlyAfterConversion(renameProp({ from: 'a', to: 'b' }))).toEqual(
-            expect.objectContaining({ kind: 'rename-prop', onlyAfterConversion: true }),
-        );
+    it('limits the onConvert steps after the rename to converted elements', () => {
+        const migration = componentMigration({
+            id: 'component.sw-x',
+            component: 'sw-x',
+            replacement: 'mt-x',
+            deprecatedIn: '6.8.0',
+            removedIn: '6.9.0',
+            description: 'x',
+            onConvert: [
+                renameComponent({ from: 'sw-x', to: 'mt-x' }),
+                renameProp({ from: 'a', to: 'b' }),
+            ],
+            onEveryUsage: [renameProp({ from: 'c', to: 'd' })],
+        });
+
+        expect(migration.usage).toEqual([
+            expect.not.objectContaining({ onlyAfterConversion: true }),
+            expect.objectContaining({ from: 'a', onlyAfterConversion: true }),
+            expect.not.objectContaining({ onlyAfterConversion: true }),
+        ]);
     });
 
     it('links an upgrade guide heading', () => {

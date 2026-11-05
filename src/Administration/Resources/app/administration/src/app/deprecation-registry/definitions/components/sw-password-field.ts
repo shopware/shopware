@@ -26,8 +26,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-password-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-password-field', to: 'mt-password-field' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

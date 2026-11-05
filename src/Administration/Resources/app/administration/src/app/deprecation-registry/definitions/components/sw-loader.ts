@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-loader'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-loader', to: 'mt-loader' }),
     ],
 });

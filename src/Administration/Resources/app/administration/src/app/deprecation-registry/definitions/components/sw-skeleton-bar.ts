@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-skeleton-bar'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-skeleton-bar', to: 'mt-skeleton-bar' }),
     ],
 });

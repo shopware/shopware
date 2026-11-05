@@ -23,8 +23,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-datepicker'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-datepicker', to: 'mt-datepicker', fix: 'unsafe-auto' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

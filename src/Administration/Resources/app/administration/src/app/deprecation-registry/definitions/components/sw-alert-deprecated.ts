@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-alert-deprecated', to: 'mt-banner', fix: 'manual' }),
     ],
 });

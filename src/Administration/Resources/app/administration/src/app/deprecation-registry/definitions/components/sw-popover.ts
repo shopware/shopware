@@ -15,8 +15,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-popover'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-popover', to: 'mt-floating-ui', fix: 'unsafe-auto' }),
+    ],
+    onEveryUsage: [
         removeProp({
             prop: 'z-index',
         }),

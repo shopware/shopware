@@ -21,8 +21,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-progress-bar'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-progress-bar', to: 'mt-progress-bar' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

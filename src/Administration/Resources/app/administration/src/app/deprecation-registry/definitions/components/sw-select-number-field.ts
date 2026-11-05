@@ -14,7 +14,7 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-select-field'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-select-number-field', to: 'mt-select', fix: 'manual' }),
     ],
 });

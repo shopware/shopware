@@ -5,7 +5,6 @@
 import {
     componentMigration,
     missingProp,
-    onlyAfterConversion,
     propFromSources,
     removeProp,
     renameComponent,
@@ -32,52 +31,40 @@ export default componentMigration({
         upgradeGuide('UPGRADE-6.9.md#sw-empty-state-removed'),
     ],
     // mt-empty-state has no such props or slots, so only elements converted from sw-empty-state are migrated
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-empty-state', to: 'mt-empty-state' }),
-        onlyAfterConversion(renameProp({ from: 'title', to: 'headline' })),
-        onlyAfterConversion(
-            propFromSources({
-                prop: 'description',
-                sources: [
-                    { slot: 'default' },
-                    { prop: 'subline' },
-                ],
-                fallback: '$t($route.meta.$module.description)',
-                condition: { prop: 'show-description', otherwise: '' },
-                plainText: true,
-            }),
-        ),
-        onlyAfterConversion(
-            propFromSources({
-                prop: 'icon',
-                sources: [
-                    { slot: 'icon', element: ['mt-icon', 'sw-icon'], attribute: 'name' },
-                    { prop: 'icon' },
-                ],
-                fallback: '$route.meta.$module.icon',
-            }),
-        ),
-        onlyAfterConversion(renameSlot({ from: 'actions', to: 'button' })),
-        onlyAfterConversion(
-            missingProp({
-                prop: 'centered',
-                message: 'sw-empty-state was centered, mt-empty-state is left-aligned by default.',
-            }),
-        ),
-        onlyAfterConversion(
-            removeProp({
-                prop: 'absolute',
-                trueByDefault: true,
-                reviewWhenTrue:
-                    'sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing.',
-            }),
-        ),
-        onlyAfterConversion(
-            removeProp({ prop: 'empty-module', fix: 'unsafe-auto', message: withoutReplacement('empty-module') }),
-        ),
-        onlyAfterConversion(
-            removeProp({ prop: 'auto-height', fix: 'unsafe-auto', message: withoutReplacement('auto-height') }),
-        ),
-        onlyAfterConversion(removeProp({ prop: 'color', fix: 'unsafe-auto', message: withoutReplacement('color') })),
+        renameProp({ from: 'title', to: 'headline' }),
+        propFromSources({
+            prop: 'description',
+            sources: [
+                { slot: 'default' },
+                { prop: 'subline' },
+            ],
+            fallback: '$t($route.meta.$module.description)',
+            condition: { prop: 'show-description', otherwise: '' },
+            plainText: true,
+        }),
+        propFromSources({
+            prop: 'icon',
+            sources: [
+                { slot: 'icon', element: ['mt-icon', 'sw-icon'], attribute: 'name' },
+                { prop: 'icon' },
+            ],
+            fallback: '$route.meta.$module.icon',
+        }),
+        renameSlot({ from: 'actions', to: 'button' }),
+        missingProp({
+            prop: 'centered',
+            message: 'sw-empty-state was centered, mt-empty-state is left-aligned by default.',
+        }),
+        removeProp({
+            prop: 'absolute',
+            trueByDefault: true,
+            reviewWhenTrue:
+                'sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing.',
+        }),
+        removeProp({ prop: 'empty-module', fix: 'unsafe-auto', message: withoutReplacement('empty-module') }),
+        removeProp({ prop: 'auto-height', fix: 'unsafe-auto', message: withoutReplacement('auto-height') }),
+        removeProp({ prop: 'color', fix: 'unsafe-auto', message: withoutReplacement('color') }),
     ],
 });

@@ -55,6 +55,22 @@ Every deprecated component or prop needs a codemod, so extensions can migrate wi
 Add a migration to the deprecation registry in `src/Administration/Resources/app/administration/src/app/deprecation-registry/definitions`, and add it to the list of its category, for example `definitions/components/index.ts`.
 Build it with the helpers from `definitions/helpers`, for example `componentMigration()`, `renameComponent()` and `removeProp()`.
 
+A component replacement splits its steps into two lists:
+
+- `onConvert`: the `renameComponent()` step, then the steps that carry the old component's behavior over.
+  They run only on elements the codemod converted.
+- `onEveryUsage`: steps that run on every element of the replacement, also on hand-written ones.
+
+```ts
+onConvert: [
+    renameComponent({ from: 'sw-button', to: 'mt-button' }),
+    missingProp({ prop: 'variant', value: 'secondary' }),
+],
+onEveryUsage: [
+    mapPropValue({ prop: 'variant', from: 'danger', to: 'critical' }),
+],
+```
+
 Give every usage step the most automatic fix level that is still correct:
 
 - `auto`: the fix keeps the behavior, for example renaming a component or prop.

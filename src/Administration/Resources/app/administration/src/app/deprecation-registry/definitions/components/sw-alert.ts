@@ -24,8 +24,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-alert', to: 'mt-banner' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'notification-index',
             to: 'banner-index',

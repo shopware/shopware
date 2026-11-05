@@ -23,8 +23,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-colorpicker'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({ from: 'sw-colorpicker', to: 'mt-colorpicker', fix: 'unsafe-auto' }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'value',
             to: 'model-value',

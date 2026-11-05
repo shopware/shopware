@@ -23,13 +23,15 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.8.md#sw-tabs-automatic-wrapper-switch-deferred'),
     ],
-    usage: [
+    onConvert: [
         renameComponent({
             from: 'sw-tabs',
             to: 'mt-tabs',
             fix: 'manual',
             message: 'Migrate tab metadata to the items prop and move tab panel content outside of mt-tabs.',
         }),
+    ],
+    onEveryUsage: [
         renameProp({
             from: 'is-vertical',
             to: 'vertical',

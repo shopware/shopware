@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -2118,6 +2120,76 @@ class VersioningTest extends TestCase
         $clone = $this->loadOrderWithAddresses($cloneId, $context);
         static::assertCount(1, $clone->getDeliveries() ?? []);
         static::assertNotNull($clone->getBillingAddress());
+    }
+
+    public function testACloneOfAnOrderOwnsOneCopyOfARowItReadsTwice(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = $this->createOrder();
+        $cloneId = Uuid::randomHex();
+        $positionId = Uuid::randomHex();
+
+        $order = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addAssociation('lineItems')->addAssociation('transactions'),
+            $context
+        )->getEntities()->first();
+        static::assertNotNull($order);
+        $lineItemId = $order->getLineItems()?->first()?->getId();
+        $transactionId = $order->getTransactions()?->first()?->getId();
+        static::assertNotNull($lineItemId);
+        static::assertNotNull($transactionId);
+
+        // The refund position is read under the line item and under the transaction's capture refund.
+        $amount = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $this->orderRepository->update([[
+            'id' => $orderId,
+            'transactions' => [[
+                'id' => $transactionId,
+                'captures' => [[
+                    'stateId' => $this->getStateMachineState(OrderTransactionCaptureStates::STATE_MACHINE, OrderTransactionCaptureStates::STATE_COMPLETED),
+                    'amount' => $amount,
+                    'refunds' => [[
+                        'stateId' => $this->getStateMachineState(OrderTransactionCaptureRefundStates::STATE_MACHINE, OrderTransactionCaptureRefundStates::STATE_OPEN),
+                        'amount' => $amount,
+                        'positions' => [[
+                            'id' => $positionId,
+                            'orderLineItemId' => $lineItemId,
+                            'quantity' => 1,
+                            'amount' => $amount,
+                        ]],
+                    ]],
+                ]],
+            ]],
+        ]], $context);
+
+        $this->orderRepository->clone($orderId, $context, $cloneId, new CloneBehavior([
+            'orderNumber' => Uuid::randomHex(),
+            'deepLinkCode' => Uuid::randomHex(),
+        ]));
+
+        $clone = $this->orderRepository->search(
+            (new Criteria([$cloneId]))
+                ->addAssociation('lineItems.orderTransactionCaptureRefundPositions')
+                ->addAssociation('transactions.captures.refunds.positions'),
+            $context
+        )->getEntities()->first();
+        static::assertNotNull($clone);
+
+        $cloneLineItem = $clone->getLineItems()?->first();
+        static::assertNotNull($cloneLineItem);
+        $lineItemPositions = $cloneLineItem->getOrderTransactionCaptureRefundPositions();
+        static::assertNotNull($lineItemPositions);
+        static::assertCount(1, $lineItemPositions);
+
+        $refundPositions = $clone->getTransactions()?->first()?->getCaptures()?->first()?->getRefunds()?->first()?->getPositions();
+        static::assertNotNull($refundPositions);
+        static::assertCount(1, $refundPositions);
+
+        $clonePosition = $refundPositions->first();
+        static::assertNotNull($clonePosition);
+        static::assertNotSame($positionId, $clonePosition->getId());
+        static::assertSame($clonePosition->getId(), $lineItemPositions->first()?->getId());
+        static::assertSame($cloneLineItem->getId(), $clonePosition->getOrderLineItemId());
     }
 
     public function testACloneOfAProductOwnsItsCover(): void

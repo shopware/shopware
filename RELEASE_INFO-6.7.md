@@ -269,6 +269,10 @@ The `CheapestPriceContainer` now stores them once per product family, plus once 
 Use `CheapestPriceContainer::getSalesChannelIdsForVariant()` to read the sales channel ids of a variant; it returns `null` for containers written before this change.
 Run `bin/console dal:refresh:index --only=product.indexer` to shrink existing containers; until then they resolve as before.
 
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

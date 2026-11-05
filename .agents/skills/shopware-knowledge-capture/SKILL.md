@@ -1,6 +1,13 @@
 ---
 name: shopware-knowledge-capture
-description: Preserve Shopware knowledge for later. Use when the user asks to save, remember, preserve, document, or store information, rules, lessons learned, workflow knowledge, coding guidance, or agent instructions for future humans or agents.
+description: >
+  Save Shopware knowledge for later humans or agents. Use when the user says "remember
+  this", "remember for next time", "save this lesson", "note this down", "document this
+  rule", "add this to the guidelines", "put this in AGENTS.md", "write an ADR", "store
+  this workflow", or asks where a rule, convention, setup note, or agent instruction
+  belongs (AGENTS.md, CLAUDE.md, coding-guidelines, README, ADR, skill, local notes).
+  Also use after a correction or finding that other agents should not repeat. Not for
+  writing code, tests, PR text, or release notes.
 license: MIT
 ---
 

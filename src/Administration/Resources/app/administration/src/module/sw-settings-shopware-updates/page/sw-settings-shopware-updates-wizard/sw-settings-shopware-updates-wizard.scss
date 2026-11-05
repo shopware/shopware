@@ -77,18 +77,18 @@
     .sw-modal__footer {
         display: flex;
         align-items: center;
+        gap: var(--scale-size-16);
     }
 
-    .sw-field--checkbox {
+    .mt-field--checkbox {
         margin-bottom: 0;
     }
 
     .sw-settings-shopware-updates-check__start-update-actions {
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--scale-size-8);
         margin-left: auto;
-
-        .mt-button:not(:last-child) {
-            margin-right: 6px;
-        }
     }
 
     .mt-banner {

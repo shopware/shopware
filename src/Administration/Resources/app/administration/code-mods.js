@@ -1,3 +1,7 @@
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, use `administration:upgrade-extensions` instead.
+ */
+
 const { ESLint } = require('eslint');
 const process = require('process');
 const commandLineArgs = require('command-line-args');
@@ -88,6 +92,11 @@ const sections = [
 
 // Use IIFE to be able to await
 (async function codeMods() {
+    console.warn(colors.yellow(
+        'admin:code-mods is deprecated and will be removed with Shopware 6.8. ' +
+        'Use "bin/console administration:upgrade-extensions" or "composer admin:upgrade-extensions" instead.',
+    ));
+
     // Parse options into object
     const options = commandLineArgs(optionDefinitions);
     if (options.help || Object.keys(options).length === 0) {

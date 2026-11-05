@@ -402,6 +402,13 @@ class StorybookControllerTest extends TestCase
         $controller->storybook('my-button', $this->createStorybookRequest());
     }
 
+    public function testStorybookRejectsInvalidComponentName(): void
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->createController()->storybook('my-button><script>', $this->createStorybookRequest());
+    }
+
     private function createStorybookRequest(): Request
     {
         $request = new Request();

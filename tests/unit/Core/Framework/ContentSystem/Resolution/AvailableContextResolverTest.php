@@ -47,6 +47,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 
 /**
  * @internal
@@ -708,7 +709,7 @@ class AvailableContextResolverTest extends TestCase
             $elementResolver,
             new ProviderDeliveryKeyResolver(),
             new ContextPathResolver(),
-            new StoredMappingInspector($registry, $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']), new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser()),
+            new StoredMappingInspector($registry, new TestMappingCandidateRegistry(), new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser()),
         );
     }
 }

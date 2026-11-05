@@ -30,6 +30,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingC
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 
 /**
  * An unresolved candidate or value returns null so the render caller can omit the token; a resolved value returns
@@ -80,9 +81,10 @@ class InlineMappingInterpolatorTest extends TestCase
             valueType: 'string',
             source: new MappingSourceReference('plugin', 'example', path: 'message'),
         );
-        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $candidates->method('forRootSource')->willReturn([$candidate->source->displayName() => $candidate]);
-        $candidates->method('resolveAdmittedSource')->willReturn(MappingSourceResolution::resolved('EUR'));
+        $candidates = new TestMappingCandidateRegistry(
+            candidates: [$candidate->source->displayName() => $candidate],
+            resolution: MappingSourceResolution::resolved('EUR'),
+        );
         $interpolator = new InlineMappingInterpolator(
             new MappingRuntimeResolver(
                 $candidates,
@@ -108,9 +110,10 @@ class InlineMappingInterpolatorTest extends TestCase
     public function testBooleanValuesUseNumericText(bool $value, string $expected): void
     {
         $candidate = new MappingCandidate('product.available', 'Available', '', 'basic', 'boolean');
-        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveAdmittedSource')->willReturn(MappingSourceResolution::resolved($value));
+        $candidates = new TestMappingCandidateRegistry(
+            candidates: [$candidate->path => $candidate],
+            resolution: MappingSourceResolution::resolved($value),
+        );
         $interpolator = new InlineMappingInterpolator(new MappingRuntimeResolver($candidates, $this->mappingInspector($candidates)));
 
         static::assertSame($expected, $interpolator->interpolate(
@@ -137,9 +140,10 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $failure = new \RuntimeException('provider failed');
         $candidate = new MappingCandidate('product.name', 'name', '', 'basic', 'string');
-        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveAdmittedSource')->willThrowException($failure);
+        $candidates = new TestMappingCandidateRegistry(
+            candidates: [$candidate->path => $candidate],
+            resolution: static fn (): never => throw $failure,
+        );
         $interpolator = new InlineMappingInterpolator(new MappingRuntimeResolver($candidates, $this->mappingInspector($candidates)));
 
         $this->expectExceptionObject($failure);

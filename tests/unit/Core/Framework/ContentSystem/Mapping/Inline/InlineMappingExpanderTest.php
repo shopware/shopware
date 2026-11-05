@@ -28,6 +28,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 
 /**
  * The stored-tree rewrite that turns tokens into text before the mint reads a property.
@@ -122,9 +123,10 @@ class InlineMappingExpanderTest extends TestCase
             valueType: 'string',
             source: new MappingSourceReference('plugin', 'example', path: 'message'),
         );
-        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveAdmittedSource')->willReturn(MappingSourceResolution::resolved('EUR'));
+        $candidates = new TestMappingCandidateRegistry(
+            candidates: [$candidate->path => $candidate],
+            resolution: MappingSourceResolution::resolved('EUR'),
+        );
         $mappingInspector = $this->mappingInspector($candidates);
         $expander = new InlineMappingExpander(
             $mappingInspector,
@@ -374,18 +376,17 @@ class InlineMappingExpanderTest extends TestCase
     private function expander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
     {
         if ($candidates === null) {
-            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-            $candidates->method('forRootSource')->willReturnCallback(static fn (string $rootSource): array => $rootSource !== 'product' ? [] : [
-                'product.name' => new MappingCandidate(
-                    path: 'product.name',
-                    label: 'a label',
-                    description: 'a description',
-                    group: 'basic',
-                    valueType: 'string',
-                ),
-            ]);
-            $candidates->method('resolveAdmittedSource')->willReturnCallback(
-                static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
+            $candidates = new TestMappingCandidateRegistry(
+                candidates: static fn (string $rootSource): array => $rootSource !== 'product' ? [] : [
+                    'product.name' => new MappingCandidate(
+                        path: 'product.name',
+                        label: 'a label',
+                        description: 'a description',
+                        group: 'basic',
+                        valueType: 'string',
+                    ),
+                ],
+                resolution: static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
                     $root = $context->rootValues[$source->id] ?? null;
 
                     $values = $root instanceof StubPathStruct ? $root->getVars() : [];
@@ -393,7 +394,7 @@ class InlineMappingExpanderTest extends TestCase
                     return \array_key_exists($source->path ?? '', $values)
                         ? MappingSourceResolution::resolved($values[$source->path ?? ''])
                         : MappingSourceResolution::noValue();
-                }
+                },
             );
         }
 

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 
 /**
  * @internal
@@ -25,9 +26,10 @@ class AbstractContentSystemMappingCandidateRegistryTest extends TestCase
     public function testAnImmediateOverrideCannotResolveAnUnapprovedSource(string $rootSource, MappingSourceReference $source): void
     {
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string', cacheTags: ['candidate-metadata']);
-        $inner = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $inner->method('forRootSource')->willReturnCallback(static fn (string $root): array => $root === 'product' ? [$candidate->path => $candidate] : []);
-        $inner->method('cacheTagsForMapping')->willReturn(['attempt-metadata']);
+        $inner = new TestMappingCandidateRegistry(
+            candidates: static fn (string $root): array => $root === 'product' ? [$candidate->path => $candidate] : [],
+            cacheTags: ['attempt-metadata'],
+        );
         $registry = new ImmediateOverrideMappingRegistry($inner, MappingSourceResolution::resolved('Private value'));
         $cache = new RenderingCacheContext();
         $context = new MappingSourceResolutionContext(new StoredElement('element', 'text'), [], [], $cache);
@@ -54,9 +56,10 @@ class AbstractContentSystemMappingCandidateRegistryTest extends TestCase
     public function testAnApprovedOverridePreservesItsResultAndCollectsDependencies(MappingSourceResolution $expected): void
     {
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string', cacheTags: ['candidate-metadata']);
-        $inner = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $inner->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $inner->method('cacheTagsForMapping')->willReturn(['attempt-metadata']);
+        $inner = new TestMappingCandidateRegistry(
+            candidates: [$candidate->path => $candidate],
+            cacheTags: ['attempt-metadata'],
+        );
         $registry = new ImmediateOverrideMappingRegistry($inner, $expected);
         $cache = new RenderingCacheContext();
         $context = new MappingSourceResolutionContext(new StoredElement('element', 'text'), [], [], $cache);
@@ -83,8 +86,9 @@ class AbstractContentSystemMappingCandidateRegistryTest extends TestCase
         $catalogued = new MappingSourceReference('AcmePlugin', 'recommendations', ['limit' => 5, 'options' => ['country' => 'DE', 'currency' => 'EUR']], 'title');
         $requested = new MappingSourceReference('AcmePlugin', 'recommendations', ['options' => ['currency' => 'EUR', 'country' => 'DE'], 'limit' => 5], 'title');
         $candidate = new MappingCandidate($catalogued->displayName(), 'Recommendations', '', 'plugin', 'string', source: $catalogued);
-        $inner = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $inner->method('forRootSource')->willReturn([$candidate->path => $candidate]);
+        $inner = new TestMappingCandidateRegistry(
+            candidates: [$candidate->path => $candidate],
+        );
         $result = MappingSourceResolution::resolved('Plugin title');
         $registry = new ImmediateOverrideMappingRegistry($inner, $result);
         $context = new MappingSourceResolutionContext(new StoredElement('element', 'text'), [], [], new RenderingCacheContext());
@@ -96,9 +100,10 @@ class AbstractContentSystemMappingCandidateRegistryTest extends TestCase
     public function testOverrideErrorsPropagateAfterDependenciesAreCollected(): void
     {
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string', cacheTags: ['candidate-metadata']);
-        $inner = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $inner->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $inner->method('cacheTagsForMapping')->willReturn(['attempt-metadata']);
+        $inner = new TestMappingCandidateRegistry(
+            candidates: [$candidate->path => $candidate],
+            cacheTags: ['attempt-metadata'],
+        );
         $failure = new \TypeError('Override failed');
         $registry = new ImmediateOverrideMappingRegistry($inner, MappingSourceResolution::noValue(), $failure);
         $cache = new RenderingCacheContext();
@@ -130,8 +135,9 @@ class AbstractContentSystemMappingCandidateRegistryTest extends TestCase
     public function testCatalogueFailuresDoNotReachTheOverride(): void
     {
         $failure = new \RuntimeException('Catalogue unavailable');
-        $inner = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $inner->method('forRootSource')->willThrowException($failure);
+        $inner = new TestMappingCandidateRegistry(
+            candidates: static fn (): never => throw $failure,
+        );
         $registry = new ImmediateOverrideMappingRegistry($inner, MappingSourceResolution::resolved('Override'));
         $context = new MappingSourceResolutionContext(new StoredElement('element', 'text'), [], [], new RenderingCacheContext());
 

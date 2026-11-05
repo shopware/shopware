@@ -64,6 +64,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfigSerializer;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -473,7 +474,7 @@ class ElementLoweringTest extends TestCase
             'Context data is not a Struct instance'
         ));
 
-        $this->lower($this->loader(), [$parent]);
+        $this->lower($this->stubLoader(), [$parent]);
     }
 
     /**
@@ -892,8 +893,7 @@ class ElementLoweringTest extends TestCase
         $configSerializer ??= new StubLoaderConfigSerializer();
         $types = $this->typeRegistry();
         if ($candidates === null) {
-            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-            $candidates->method('forRootSource')->willReturn([]);
+            $candidates = new TestMappingCandidateRegistry();
         }
         $parser = new InlineMappingTokenParser();
         $mappingInspector = MappingTestFactory::inspector($types, $candidates, $parser);
@@ -946,12 +946,23 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
-     * @return AbstractContentDataLoader<Struct>&MockObject
+     * @return AbstractContentDataLoader<Struct>&Stub
      */
-    private function loaderReturning(ContentDataLoaderResult ...$results): AbstractContentDataLoader&MockObject
+    private function loaderReturning(ContentDataLoaderResult ...$results): AbstractContentDataLoader&Stub
     {
-        $loader = $this->loader();
+        $loader = $this->stubLoader();
         $loader->method('load')->willReturnOnConsecutiveCalls(...array_values($results));
+
+        return $loader;
+    }
+
+    /**
+     * @return AbstractContentDataLoader<Struct>&Stub
+     */
+    private function stubLoader(): AbstractContentDataLoader&Stub
+    {
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
 
         return $loader;
     }

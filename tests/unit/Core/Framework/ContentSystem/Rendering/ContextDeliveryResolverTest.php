@@ -43,6 +43,7 @@ use Shopware\Core\Test\Stub\ContentSystem\MappingTestFactory;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 
 /**
  * @internal
@@ -637,9 +638,10 @@ class ContextDeliveryResolverTest extends TestCase
     {
         $failure = new \RuntimeException('provider failed');
         $candidate = new MappingCandidate('product.cover', 'cover', '', 'media', 'string');
-        $mappingSources = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $mappingSources->method('forRootSource')->willReturn(['product.cover' => $candidate]);
-        $mappingSources->method('resolveAdmittedSource')->willThrowException($failure);
+        $mappingSources = new TestMappingCandidateRegistry(
+            candidates: ['product.cover' => $candidate],
+            resolution: static fn (): never => throw $failure,
+        );
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
@@ -930,10 +932,9 @@ class ContextDeliveryResolverTest extends TestCase
             $candidates[$candidate->source->displayName()] = $candidate;
         }
 
-        $mappingSources = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $mappingSources->method('forRootSource')->willReturn($candidates);
-        $mappingSources->method('resolveAdmittedSource')->willReturnCallback(
-            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
+        $mappingSources = new TestMappingCandidateRegistry(
+            candidates: $candidates,
+            resolution: static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
                 $root = $context->rootValues[$source->id] ?? null;
                 if ($source->path === null) {
                     return $root === null ? MappingSourceResolution::noValue() : MappingSourceResolution::resolved($root);
@@ -948,7 +949,7 @@ class ContextDeliveryResolverTest extends TestCase
                 return $result['found']
                     ? MappingSourceResolution::resolved($result['value'])
                     : MappingSourceResolution::noValue();
-            }
+            },
         );
 
         return new ContextDeliveryResolver(

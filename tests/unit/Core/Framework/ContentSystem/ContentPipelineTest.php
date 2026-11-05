@@ -74,6 +74,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -353,14 +354,13 @@ class ContentPipelineTest extends TestCase
         $order = [];
         $source = MappingSourceReference::root('product', 'name');
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string', source: $source);
-        $candidateRegistry = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $candidateRegistry->method('forRootSource')->willReturn(['product.name' => $candidate]);
-        $candidateRegistry->method('resolveAdmittedSource')->willReturnCallback(
-            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use (&$order): MappingSourceResolution {
+        $candidateRegistry = new TestMappingCandidateRegistry(
+            candidates: ['product.name' => $candidate],
+            resolution: static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use (&$order): MappingSourceResolution {
                 $order[] = 'inline expansion';
 
                 return MappingSourceResolution::resolved('Mapped product');
-            }
+            },
         );
 
         $loader = $this->createMock(AbstractContentDataLoader::class);
@@ -1759,8 +1759,7 @@ class ContentPipelineTest extends TestCase
 
         $types = $this->typeRegistry();
         if ($candidateRegistry === null) {
-            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-            $candidates->method('forRootSource')->willReturn([]);
+            $candidates = new TestMappingCandidateRegistry();
         } else {
             $candidates = $candidateRegistry;
         }
@@ -1799,8 +1798,7 @@ class ContentPipelineTest extends TestCase
     private function inlineMappingExpander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
     {
         if ($candidates === null) {
-            $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-            $candidates->method('forRootSource')->willReturn([]);
+            $candidates = new TestMappingCandidateRegistry();
         }
         $types = $this->typeRegistry();
         $parser = new InlineMappingTokenParser();

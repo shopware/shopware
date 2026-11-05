@@ -11,6 +11,11 @@ class Transaction extends Struct
 {
     protected ?Struct $validationStruct = null;
 
+    /**
+     * @var array<string, scalar|array<array-key, mixed>|null>
+     */
+    protected array $payload = [];
+
     public function __construct(
         protected CalculatedPrice $amount,
         protected string $paymentMethodId
@@ -45,6 +50,45 @@ class Transaction extends Struct
     public function setValidationStruct(?Struct $validationStruct): void
     {
         $this->validationStruct = $validationStruct;
+    }
+
+    /**
+     * @return array<string, scalar|array<array-key, mixed>|null>
+     */
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
+
+    /**
+     * @param array<string, scalar|array<array-key, mixed>|null> $payload
+     */
+    public function setPayload(array $payload): void
+    {
+        $this->payload = $payload;
+    }
+
+    public function getPayloadValue(string $key): mixed
+    {
+        return $this->payload[$key] ?? null;
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
+    /**
+     * @param scalar|array<array-key, mixed>|null $value
+     */
+    public function setPayloadValue(string $key, string|int|float|bool|array|null $value): void
+    {
+        $this->payload[$key] = $value;
+    }
+
+    public function removePayloadValue(string $key): void
+    {
+        unset($this->payload[$key]);
     }
 
     public function getApiAlias(): string

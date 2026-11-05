@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -13,8 +15,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
@@ -30,12 +34,21 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -43,6 +56,7 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class OrderConverterTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
 
     private OrderConverter $orderConverter;
@@ -111,6 +125,106 @@ class OrderConverterTest extends TestCase
         static::assertSame($thirdDeliveryId, $convertedCart->getDeliveries()->getAt(2)->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
         static::assertNotNull($convertedCart->getDeliveries()->getAt(3));
         static::assertSame($fourthDeliveryId, $convertedCart->getDeliveries()->getAt(3)->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
+    }
+
+    public function testPayloadOfDeliveriesAndTransactionsSurvivesTheRoundTripThroughAnOrder(): void
+    {
+        $productId = $this->createProduct();
+        $context = $this->createSalesChannelContextWithCustomer();
+        $cart = $this->createProcessedCartWithProduct($productId, $context);
+
+        $delivery = $cart->getDeliveries()->first();
+        static::assertNotNull($delivery);
+        $delivery->setPayload(['group' => 'now', 'warehouseId' => 'wh-1']);
+
+        $transaction = $cart->getTransactions()->first();
+        static::assertNotNull($transaction);
+        $transaction->setPayload(['psp' => 'reference-1']);
+
+        $orderId = static::getContainer()->get(OrderPersister::class)->persist($cart, $context);
+
+        $criteria = (new Criteria([$orderId]))->addAssociations([
+            'deliveries.shippingMethod',
+            'deliveries.shippingOrderAddress.country',
+            'deliveries.positions',
+            'transactions',
+            'lineItems',
+        ]);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+        static::assertSame(['group' => 'now', 'warehouseId' => 'wh-1'], $order->getDeliveries()?->first()?->getPayload());
+        static::assertSame(['psp' => 'reference-1'], $order->getTransactions()?->first()?->getPayload());
+
+        $convertedCart = $this->orderConverter->convertToCart($order, $context->getContext());
+
+        static::assertSame(['group' => 'now', 'warehouseId' => 'wh-1'], $convertedCart->getDeliveries()->first()?->getPayload());
+        static::assertSame(['psp' => 'reference-1'], $convertedCart->getTransactions()->first()?->getPayload());
+    }
+
+    private function createSalesChannelContextWithCustomer(): SalesChannelContext
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+        static::getContainer()->get('customer.repository')->create([[
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddressId' => $addressId,
+            'defaultBillingAddressId' => $addressId,
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => Uuid::randomHex(),
+            'addresses' => [[
+                'id' => $addressId,
+                'customerId' => $customerId,
+                'countryId' => $this->getValidCountryId(),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Ebbinghoff 10',
+                'zipcode' => '48624',
+                'city' => 'Schöppingen',
+            ]],
+        ]], Context::createDefaultContext());
+
+        $this->addCountriesToSalesChannel();
+
+        return static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [SalesChannelContextService::CUSTOMER_ID => $customerId]
+        );
+    }
+
+    private function createProduct(): string
+    {
+        $productId = Uuid::randomHex();
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $productId,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 119, 'net' => 100, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'stock' => 10,
+            'active' => true,
+            'visibilities' => [['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL]],
+        ]], Context::createDefaultContext());
+
+        return $productId;
+    }
+
+    private function createProcessedCartWithProduct(string $productId, SalesChannelContext $context): Cart
+    {
+        $cart = new Cart($context->getToken());
+        $cart->add((new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId))->setGood(true)->setStackable(true));
+
+        static::getContainer()->get(CartRuleLoader::class)->loadByToken($context, $context->getToken());
+
+        return static::getContainer()->get(Processor::class)->process($cart, $context, new CartBehavior());
     }
 
     private function getCustomer(): CustomerEntity

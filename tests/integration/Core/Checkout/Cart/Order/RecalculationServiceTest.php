@@ -614,6 +614,23 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($order['total'], $transaction->getAmount()->getTotalPrice());
     }
 
+    public function testRecalculationKeepsThePayloadOfDeliveriesAndTransactions(): void
+    {
+        $cart = $this->generateDemoCart();
+        $cart->getDeliveries()->first()?->setPayload(['group' => 'now']);
+        $cart->getTransactions()->first()?->setPayload(['psp' => 'reference-1']);
+        $order = $this->persistCart($cart);
+
+        $versionId = $this->createVersionedOrder($order['orderId']);
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $order['orderId'], $versionId, $order['total']);
+
+        $criteria = (new Criteria([$order['orderId']]))->addAssociations(['deliveries', 'transactions']);
+        $versionedOrder = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->first();
+        static::assertNotNull($versionedOrder);
+        static::assertSame(['group' => 'now'], $versionedOrder->getDeliveries()?->first()?->getPayload());
+        static::assertSame(['psp' => 'reference-1'], $versionedOrder->getTransactions()?->first()?->getPayload());
+    }
+
     #[DataProvider('liveTransactionTransitionProvider')]
     public function testMergeMovesTheTransactionOnlyWhileItStillAwaitsPayment(?string $liveTransition, bool $followsTheNewTotal): void
     {

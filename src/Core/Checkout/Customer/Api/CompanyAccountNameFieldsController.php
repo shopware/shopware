@@ -10,13 +10,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @internal
+ */
 #[Package('checkout')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class CompanyAccountNameFieldsController
 {
-    /**
-     * @internal
-     */
     public function __construct(private readonly CompanyAccountNameFields $companyAccountNameFields)
     {
     }

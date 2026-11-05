@@ -5,7 +5,7 @@
     "components": {
         "schemas": {
             "CustomerAddressUpdateBody": {
-                "description": "Added since version: 6.7.16.0",
+                "description": "Added since version: 6.7.17.0",
                 "required": [
                     "countryId",
                     "zipcode",
@@ -50,7 +50,7 @@
                         ]
                     },
                     "company": {
-                        "description": "Company of the address. Required when `accountType` is `business`. An omitted company keeps the stored value.",
+                        "description": "Company of the address. Required when `accountType` is `business`. An omitted company keeps the stored value only when the names are optional, see `firstName`. Otherwise it is stored as `null`.",
                         "type": "string"
                     },
                     "street": {

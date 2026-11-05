@@ -262,6 +262,12 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Id-only lookups no longer dispatch entity loaded events
+
+Lookups that only need ids or check that an entity exists now use `EntityRepository::searchIds()` instead of `search()`.
+These lookups no longer load the entities, so no `<entity>.loaded` event is dispatched for them.
+Subscribers that relied on these events to see such lookups must listen to `<entity>.id.search.result.loaded` instead.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

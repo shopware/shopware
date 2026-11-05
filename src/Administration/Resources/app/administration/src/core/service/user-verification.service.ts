@@ -136,6 +136,8 @@ export default class UserVerificationService {
 
         // the identity provider lets the user sign in with another account, whose cookie now holds the session
         if (this.readSubject() !== subject) {
+            // the login page reloads after the logout, so it shows the reason instead of a notification
+            sessionStorage.setItem('sw-login-alert', 'global.sw-verify-user-modal.failure.other-user');
             this.loginService.logout();
 
             throw UserVerificationError.otherUser();
@@ -176,7 +178,7 @@ export default class UserVerificationService {
     }
 
     private notifyFailure(error: UserVerificationError): void {
-        if (error.isCancelled) {
+        if (error.isCancelled || error.reason === 'other-user') {
             return;
         }
 

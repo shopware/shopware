@@ -244,9 +244,9 @@ describe('src/core/service/user-verification.service.ts', () => {
             UserVerificationError.otherUser(),
         );
         expect(loginService.logout).toHaveBeenCalledTimes(1);
-        expect(createNotification).toHaveBeenCalledWith(
-            expect.objectContaining({ message: 'global.sw-verify-user-modal.failure.other-user' }),
-        );
+        // the login page shows the reason after its reload; a notification would not survive it
+        expect(sessionStorage.getItem('sw-login-alert')).toBe('global.sw-verify-user-modal.failure.other-user');
+        expect(createNotification).not.toHaveBeenCalled();
     });
 
     it('reads the verified scope from the access token', () => {

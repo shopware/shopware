@@ -104,6 +104,51 @@ async function createWrapper(
     return { wrapper, passwordInput, usernameInput, rememberMeCheckbox };
 }
 
+async function mountSsoOnly(navigateToSpy) {
+    const component = await wrapTestComponent('sw-login-login', { sync: true });
+    component.methods._navigateTo = navigateToSpy;
+
+    const wrapper = mount(component, {
+        global: {
+            mocks: {
+                $t: (...args) => JSON.stringify([...args]),
+            },
+            provide: {
+                loginService: {
+                    loginByUsername: () => Promise.resolve(),
+                    setRememberMe: () => {},
+                    getLoginTemplateConfig: () => {
+                        return Promise.resolve({ useDefault: false, ssoProviders: [], url: 'https://sso.test' });
+                    },
+                },
+                userService: {},
+                licenseViolationService: {},
+            },
+            stubs: {
+                'router-view': true,
+                'sw-loader': true,
+                'sw-text-field': true,
+                'sw-text-field-deprecated': true,
+                'sw-contextual-field': true,
+                'sw-block-field': true,
+                'router-link': true,
+                'sw-checkbox-field': true,
+                'sw-checkbox-field-deprecated': true,
+                'sw-base-field': true,
+                'sw-field-error': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+            },
+        },
+    });
+
+    await flushPromises();
+
+    return wrapper;
+}
+
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     beforeEach(() => {
         Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
@@ -148,6 +193,23 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
+    });
+
+    it('should show the reason a logout left behind until the next login', async () => {
+        sessionStorage.setItem('sw-login-alert', 'global.sw-verify-user-modal.failure.other-user');
+
+        const { wrapper, usernameInput, passwordInput } = await createWrapper(true);
+
+        expect(wrapper.get('.sw-login__alert-banner').text()).toBe('["global.sw-verify-user-modal.failure.other-user"]');
+        // the login page renders once more after the logout reload, so the reason stays until the next login
+        expect(sessionStorage.getItem('sw-login-alert')).toBe('global.sw-verify-user-modal.failure.other-user');
+
+        await usernameInput.setValue('admin');
+        await passwordInput.setValue('admin');
+        await wrapper.get('.sw-login-login').trigger('submit');
+        await flushPromises();
+
+        expect(sessionStorage.getItem('sw-login-alert')).toBeNull();
     });
 
     it('should show an inline error banner for invalid credentials', async () => {
@@ -294,47 +356,22 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
 
     it('should redirect for SSO login', async () => {
         const navigateToSpy = jest.fn();
-        const component = await wrapTestComponent('sw-login-login', { sync: true });
-        component.methods._navigateTo = navigateToSpy;
-
-        mount(component, {
-            global: {
-                mocks: {
-                    $t: (...args) => JSON.stringify([...args]),
-                },
-                provide: {
-                    loginService: {
-                        loginByUsername: () => Promise.resolve(),
-                        setRememberMe: () => {},
-                        getLoginTemplateConfig: () => {
-                            return Promise.resolve({ useDefault: false, ssoProviders: [], url: 'https://sso.test' });
-                        },
-                    },
-                    userService: {},
-                    licenseViolationService: {},
-                },
-                stubs: {
-                    'router-view': true,
-                    'sw-loader': true,
-                    'sw-text-field': true,
-                    'sw-text-field-deprecated': true,
-                    'sw-contextual-field': true,
-                    'sw-block-field': true,
-                    'router-link': true,
-                    'sw-checkbox-field': true,
-                    'sw-checkbox-field-deprecated': true,
-                    'sw-base-field': true,
-                    'sw-field-error': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                },
-            },
-        });
-
-        await flushPromises();
+        await mountSsoOnly(navigateToSpy);
 
         expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
+    });
+
+    it('should show the logout reason instead of redirecting a shop without password login', async () => {
+        sessionStorage.setItem('sw-login-alert', 'global.sw-verify-user-modal.failure.other-user');
+        const navigateToSpy = jest.fn();
+        const wrapper = await mountSsoOnly(navigateToSpy);
+
+        expect(navigateToSpy).not.toHaveBeenCalled();
+        expect(wrapper.get('.sw-login__alert-banner').text()).toBe('["global.sw-verify-user-modal.failure.other-user"]');
+
+        await wrapper.get('.sw-login__sso-button').trigger('click');
+
+        expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
+        expect(sessionStorage.getItem('sw-login-alert')).toBeNull();
     });
 });

@@ -171,6 +171,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         });
 
         expect(productStorefrontUrlApiService.fetchProductUrls).not.toHaveBeenCalled();
+        expect(wrapper.findComponent({ name: 'mt-select' }).props('hideClearableButton')).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-select' }).props('options')).toEqual([
             { value: 'a', label: 'Alpha' },
             { value: 'b', label: 'Beta' },

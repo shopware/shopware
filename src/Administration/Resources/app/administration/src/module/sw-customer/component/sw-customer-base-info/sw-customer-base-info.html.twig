@@ -292,6 +292,7 @@
         {% endblock %}
 
         {% block sw_customer_base_metadata_birthday %}
+        {# Birthdays are calendar dates; UTC prevents user timezones from changing the day. #}
         <sw-description-list>
             {% block sw_customer_base_metadata_birthday_label %}
             <dt class="sw-customer-base-info__label">

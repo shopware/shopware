@@ -1,6 +1,12 @@
 ---
 name: shopware-phpunit-tests
-description: Write or update Shopware PHPUnit tests. Use when adding or changing tests under tests/ (unit, integration, migration, BC) — including data providers, feature flags, and coverage annotations.
+description: >
+  Write or update Shopware PHPUnit tests. Use when adding or changing tests under tests/
+  (unit, integration, migration, BC) — including data providers, feature flags, and
+  coverage annotations. Also use for issue-style requests whose fix needs a regression
+  test, such as "fix #12345 and add a regression test", "this bug must not come back",
+  or "cover the fixed entity definition with a unit test", even when no test file is
+  named.
 license: MIT
 ---
 

@@ -157,9 +157,11 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(links[0].attributes('href')).toBe('https://shop.test/Shirt/SW10000');
         expect(disabledDomain.attributes('aria-disabled')).toBe('true');
         expect(disabledDomain.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('ftp://shop.test');
-        expect(disabledDomain.find('.sw-product-open-in-storefront-modal__domain-hint').text()).toBe(
-            'sw-product.openInStorefrontModal.infoDomainWithoutValidUrl',
-        );
+        expect(disabledDomain.find('.sw-product-open-in-storefront-modal__domain-hint').exists()).toBe(false);
+
+        const banner = wrapper.find('.sw-product-open-in-storefront-modal__invalid-domains');
+        expect(banner.classes()).toContain('mt-banner--attention');
+        expect(banner.text()).toBe('sw-product.openInStorefrontModal.infoDomainsWithoutValidUrl ftp://shop.test 1');
     });
 
     it('loads nothing before a sales channel is selected', async () => {
@@ -224,6 +226,7 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         const { wrapper } = await createWrapper(options);
 
         expect(failingReasons(wrapper)).toEqual([`sw-product.openInStorefrontModal.checks.${reason}`]);
+        expect(wrapper.find('.sw-product-open-in-storefront-modal__check').classes()).toContain('mt-banner--attention');
         expect(wrapper.find('.sw-product-open-in-storefront-modal__domain').exists()).toBe(false);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__domains-headline').exists()).toBe(false);
     });
@@ -247,9 +250,9 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
     it('hints at maintenance mode without hiding the product link', async () => {
         const { wrapper } = await createWrapper({ salesChannels: [salesChannel({ maintenance: true })] });
 
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__maintenance').text()).toBe(
-            'sw-product.openInStorefrontModal.maintenanceHint',
-        );
+        const banner = wrapper.find('.sw-product-open-in-storefront-modal__maintenance');
+        expect(banner.classes()).toContain('mt-banner--info');
+        expect(banner.text()).toBe('sw-product.openInStorefrontModal.maintenanceHint');
         expect(wrapper.find('a.sw-product-open-in-storefront-modal__domain').exists()).toBe(true);
     });
 

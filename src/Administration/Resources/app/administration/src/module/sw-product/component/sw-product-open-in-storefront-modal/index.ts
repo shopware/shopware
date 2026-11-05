@@ -126,6 +126,10 @@ export default Shopware.Component.wrapComponentConfig({
                 languageNames,
             };
         },
+
+        invalidDomainUrls(): string[] {
+            return (this.result?.domains ?? []).filter(({ productUrl }) => !productUrl).map(({ url }) => url);
+        },
     },
 
     watch: {

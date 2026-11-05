@@ -336,7 +336,7 @@
         "storefrontShowsProduct": "This sales channel does not show the product, for example because of visibility, stock or an installed extension"
       },
       "maintenanceHint": "Sales channel is in maintenance mode. Only IP addresses on its allowlist can open it.",
-      "infoDomainWithoutValidUrl": "This domain has no valid http or https URL.",
+      "infoDomainsWithoutValidUrl": "This domain has no valid http or https URL: {urls} | These domains have no valid http or https URL: {urls}",
       "notificationOpenInStorefrontError": "The Storefront URLs of the product could not be loaded."
     },
     "mediaForm": {

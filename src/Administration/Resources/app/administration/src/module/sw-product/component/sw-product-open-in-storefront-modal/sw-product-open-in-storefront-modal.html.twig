@@ -55,17 +55,13 @@
                 class="sw-product-open-in-storefront-modal__result"
             >
                 {% block sw_product_open_in_storefront_modal_maintenance %}
-                <p
+                <mt-banner
                     v-if="result.maintenance"
                     class="sw-product-open-in-storefront-modal__maintenance"
+                    variant="info"
                 >
-                    <mt-icon
-                        name="regular-info-circle"
-                        size="12px"
-                        aria-hidden="true"
-                    />
-                    <span>{{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}</span>
-                </p>
+                    {{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}
+                </mt-banner>
                 {% endblock %}
 
                 {% block sw_product_open_in_storefront_modal_domains %}
@@ -97,12 +93,6 @@
                         <span class="sw-product-open-in-storefront-modal__domain-url">
                             {{ domain.productUrl ?? domain.url }}
                         </span>
-                        <span
-                            v-if="!domain.productUrl"
-                            class="sw-product-open-in-storefront-modal__domain-hint"
-                        >
-                            {{ $t('sw-product.openInStorefrontModal.infoDomainWithoutValidUrl') }}
-                        </span>
                     </span>
 
                     <mt-icon
@@ -114,25 +104,25 @@
                 </component>
                 {% endblock %}
 
-                {% block sw_product_open_in_storefront_modal_checks %}
-                <ul
-                    v-if="result.failingReasons.length > 0"
-                    class="sw-product-open-in-storefront-modal__checks"
+                {% block sw_product_open_in_storefront_modal_invalid_domains %}
+                <mt-banner
+                    v-if="invalidDomainUrls.length > 0"
+                    class="sw-product-open-in-storefront-modal__invalid-domains"
+                    variant="attention"
                 >
-                    <li
-                        v-for="reason in result.failingReasons"
-                        :key="reason"
-                        class="sw-product-open-in-storefront-modal__check"
-                    >
-                        <mt-icon
-                            class="sw-product-open-in-storefront-modal__check-icon"
-                            name="regular-times-s"
-                            size="12px"
-                            aria-hidden="true"
-                        />
-                        <span>{{ $t(`sw-product.openInStorefrontModal.checks.${reason}`) }}</span>
-                    </li>
-                </ul>
+                    {{ $t('sw-product.openInStorefrontModal.infoDomainsWithoutValidUrl', { urls: invalidDomainUrls.join(', '), count: invalidDomainUrls.length }, invalidDomainUrls.length) }}
+                </mt-banner>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_checks %}
+                <mt-banner
+                    v-for="reason in result.failingReasons"
+                    :key="reason"
+                    class="sw-product-open-in-storefront-modal__check"
+                    variant="attention"
+                >
+                    {{ $t(`sw-product.openInStorefrontModal.checks.${reason}`) }}
+                </mt-banner>
                 {% endblock %}
             </div>
             {% endblock %}

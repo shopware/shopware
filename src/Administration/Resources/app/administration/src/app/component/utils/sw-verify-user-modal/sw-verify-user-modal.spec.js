@@ -119,6 +119,29 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(loginService.verifyUserToken).not.toHaveBeenCalled();
     });
 
+    it('ignores a second click while the identity provider window is open', async () => {
+        let finishLogin;
+        userVerificationService.verifyWithSso.mockReturnValueOnce(
+            new Promise((resolve) => {
+                finishLogin = resolve;
+            }),
+        );
+        wrapper = await createWrapper({ ssoSession: true, loginUrl: 'https://shop.test/sso' });
+
+        const button = wrapper.find('.sw-verify-user-modal__verify-with-sso');
+        await button.trigger('click');
+        await button.trigger('click');
+
+        expect(userVerificationService.verifyWithSso).toHaveBeenCalledTimes(1);
+        expect(button.attributes('disabled')).toBeDefined();
+
+        finishLogin(ssoContext);
+        await flushPromises();
+
+        expect(wrapper.emitted('verified')).toEqual([[ssoContext]]);
+        expect(button.attributes('disabled')).toBeUndefined();
+    });
+
     it('stays open for another try when the identity provider login fails', async () => {
         userVerificationService.verifyWithSso.mockRejectedValueOnce(new Error('cancelled'));
         wrapper = await createWrapper({ ssoSession: true, loginUrl: 'https://shop.test/sso' });

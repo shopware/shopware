@@ -36,6 +36,7 @@
             v-if="ssoLoginUrl"
             class="sw-verify-user-modal__verify-with-sso"
             size="small"
+            :disabled="isLoading"
             :variant="ssoSession ? 'primary' : 'secondary'"
             @click="onVerifyWithSso"
         >

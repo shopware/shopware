@@ -94,7 +94,13 @@ export default {
         },
 
         onVerifyWithSso() {
+            // a second click would reuse the open window and resolve the verification twice
+            if (this.isLoading) {
+                return Promise.resolve();
+            }
+
             this.confirmPassword = '';
+            this.isLoading = true;
 
             return this.userVerificationService
                 .verifyWithSso(this.ssoLoginUrl)
@@ -104,6 +110,9 @@ export default {
                 })
                 .catch(() => {
                     // the service already told the user; the modal stays open for another try
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
         },
 

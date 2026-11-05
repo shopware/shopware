@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+const REVIEW_MARKER = 'TODO Codemod';
+
 /**
  * Builds the review comment a codemod leaves in a template. `no-warning-comments` turns every
  * leftover into a lint error, so each one gets reviewed and removed.
@@ -10,7 +12,7 @@
  * templateCodemodComment('Check the icon'); // the HTML review comment that carries 'Check the icon'
  */
 function templateCodemodComment(text) {
-    return `<!-- TODO Codemod: ${text} -->`;
+    return `<!-- ${REVIEW_MARKER}: ${text} -->`;
 }
 
 /**
@@ -20,17 +22,31 @@ function templateCodemodComment(text) {
  * scriptCodemodComment('Check the plural'); // the block review comment that carries 'Check the plural'
  */
 function scriptCodemodComment(text) {
-    return `/* TODO Codemod: ${text} */`;
+    return `/* ${REVIEW_MARKER}: ${text} */`;
 }
 
 /**
- * Puts a template review comment on its own line above `node`, indented like `node`.
+ * The text to insert before `node` so that `comment` directly precedes it: on its own line with the
+ * indentation of the node's line, tabs included, or in front of the node when other content shares
+ * its line, so the line is not split.
  *
  * @example
- * insertTemplateCodemodComment(fixer, slotNode, 'Move this content'); // comment line, then the slot at its old indentation
+ * commentBefore(sourceCode, iconNode, '<!-- x -->'); // '<!-- x -->\n\t\t' or '<!-- x --> '
  */
-function insertTemplateCodemodComment(fixer, node, text) {
-    return fixer.insertTextBefore(node, `${templateCodemodComment(text)}\n${' '.repeat(node.loc.start.column)}`);
+function commentBefore(sourceCode, node, comment) {
+    const textBefore = sourceCode.lines[node.loc.start.line - 1].slice(0, node.loc.start.column);
+
+    return textBefore.trim() === '' ? `${comment}\n${textBefore}` : `${comment} `;
+}
+
+/**
+ * Puts a template review comment directly above `node`, see `commentBefore`.
+ *
+ * @example
+ * insertTemplateCodemodComment(fixer, sourceCode, slotNode, 'Move this content');
+ */
+function insertTemplateCodemodComment(fixer, sourceCode, node, text) {
+    return fixer.insertTextBefore(node, commentBefore(sourceCode, node, templateCodemodComment(text)));
 }
 
 /**
@@ -101,6 +117,8 @@ function hasCodemodComment(sourceCode, node, text) {
 }
 
 module.exports = {
+    REVIEW_MARKER,
+    commentBefore,
     convertedFromText,
     getLeadingComments,
     hasCodemodComment,

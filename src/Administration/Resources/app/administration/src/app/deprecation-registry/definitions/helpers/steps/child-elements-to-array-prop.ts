@@ -463,10 +463,17 @@ function removeItems(api: ComponentUsageRuleApi, fixer: Fixer, slot: TemplateNod
 
         return [
             fixer.replaceTextRange([startTagEnd - 1, api.node.range[1] as number], /\s/.test(beforeClose) ? '/>' : ' />'),
+            ...api.keepCommentsOf(fixer, [[startTagEnd, api.node.endTag.range[0] as number]]),
         ];
     }
 
-    return removed.map((node) => fixer.removeRange(api.ast.getRemovalRange(node)));
+    return [
+        ...removed.map((node) => fixer.removeRange(api.ast.getRemovalRange(node))),
+        ...api.keepCommentsOf(
+            fixer,
+            removed.map((node) => node.range as [number, number]),
+        ),
+    ];
 }
 
 /**

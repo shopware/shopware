@@ -138,6 +138,7 @@ module.exports = withRunLevel({
                             if (usage.fix === 'unsafe-auto') {
                                 yield insertTemplateCodemodComment(
                                     fixer,
+                                    context.sourceCode,
                                     node,
                                     usage.message ?? 'Verify this automatic event rename.',
                                 );

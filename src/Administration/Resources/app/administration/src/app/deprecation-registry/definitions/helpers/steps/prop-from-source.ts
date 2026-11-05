@@ -390,6 +390,14 @@ function applyEdit(api: ComponentUsageRuleApi, fixer: Fixer, step: PropFromSourc
             ? api.removeAttribute(fixer, node)
             : fixer.removeRange(api.ast.getRemovalRange(node));
     });
+    const removedContent = edit.remove.filter((node) => node.type !== 'VAttribute');
+
+    fixes.push(
+        ...api.keepCommentsOf(
+            fixer,
+            removedContent.map((node) => node.range as [number, number]),
+        ),
+    );
 
     if (edit.rename) {
         const key = (edit.rename.directive ? edit.rename.key.argument : edit.rename.key) as TemplateNode;

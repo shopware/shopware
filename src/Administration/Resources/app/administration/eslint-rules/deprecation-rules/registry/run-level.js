@@ -2,7 +2,13 @@
  * @sw-package framework
  */
 
-const { getLeadingComments, scriptCodemodComment, templateCodemodComment } = require('./codemod-comment');
+const {
+    REVIEW_MARKER,
+    commentBefore,
+    getLeadingComments,
+    scriptCodemodComment,
+    templateCodemodComment,
+} = require('./codemod-comment');
 const { isFixDisabled } = require('./fix-policy');
 
 /**
@@ -21,8 +27,6 @@ const RUN_LEVELS = [
 
 // ESLint `settings` key the run level is read from
 const SETTINGS_KEY = 'sw-deprecation-rules';
-
-const REVIEW_MARKER = 'TODO Codemod';
 
 /**
  * Returns the run level from the shared ESLint settings. Without a setting, rules run at `safe`, so a
@@ -186,10 +190,7 @@ function createReviewCommentFix(sourceCode, descriptor, text, fixes = []) {
         const comment = templateCodemodComment(text.replace(/--+>/g, '->'));
         const exists = getLeadingComments(sourceCode, element).some((leading) => `<!--${leading.value}-->` === comment);
 
-        // The element starts its line, so the text before it is its indentation, tabs included
-        const indentation = sourceCode.lines[element.loc.start.line - 1].slice(0, element.loc.start.column);
-
-        return exists ? null : (fixer) => fixer.insertTextBeforeRange(element.range, `${comment}\n${indentation}`);
+        return exists ? null : (fixer) => fixer.insertTextBeforeRange(element.range, commentBefore(sourceCode, element, comment));
     }
 
     const start = descriptor.node?.loc?.start ?? descriptor.loc.start ?? descriptor.loc;

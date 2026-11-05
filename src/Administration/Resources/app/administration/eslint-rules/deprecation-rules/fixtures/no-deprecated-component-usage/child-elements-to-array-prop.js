@@ -38,6 +38,11 @@ const childElementsToArrayPropInvalidTests = [
         `<template><mt-select :options="[{ value: 'a', label: 'A' }, { value: null, label: $t('none') }]" v-model="x" /></template>`,
     ),
     convertedCase(
+        'comments between the options move above the element',
+        `<template><div><mt-select v-model="x"><!-- sorted by rank --><option value="a">A</option></mt-select></div></template>`,
+        `<template><div><!-- sorted by rank --> <mt-select :options="[{ value: 'a', label: 'A' }]" v-model="x" /></div></template>`,
+    ),
+    convertedCase(
         'quotes and entities in static text stay readable inside the attribute',
         `<template><mt-select v-model="x"><option value="a">It's "A" &amp; B</option></mt-select></template>`,
         `<template><mt-select :options="[{ value: 'a', label: 'It\\'s &quot;A&quot; &amp; B' }]" v-model="x" /></template>`,

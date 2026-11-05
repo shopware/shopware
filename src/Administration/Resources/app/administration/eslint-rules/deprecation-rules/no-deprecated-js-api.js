@@ -76,6 +76,40 @@ function getObjectOptionReplacement(sourceCode, property, optionName) {
     return `${optionName}() { return ${sourceCode.getText(property.value)}; }`;
 }
 
+const COMPONENT_OPTION_CALLS = new Set([
+    'register',
+    'extend',
+    'override',
+    'wrapComponentConfig',
+    'defineComponent',
+]);
+
+/**
+ * Tells whether an object literal is the options object of a component: exported as default, or the
+ * options argument of `Component.register` / `extend` / `override`, `wrapComponentConfig` or
+ * `defineComponent`. Other objects can carry a property of the same name, such as a store payload.
+ *
+ * @example
+ * isComponentOptions(objectOf("Shopware.Component.register('sw-foo', { metaInfo: {} })")); // true
+ * isComponentOptions(objectOf('store.save({ metaInfo: {} })')); // false
+ */
+function isComponentOptions(objectNode) {
+    const parent = objectNode.parent;
+
+    if (parent?.type === 'ExportDefaultDeclaration') {
+        return true;
+    }
+
+    if (parent?.type !== 'CallExpression' || parent.arguments[parent.arguments.length - 1] !== objectNode) {
+        return false;
+    }
+
+    const callee = parent.callee;
+    const calleeName = callee.type === 'MemberExpression' ? getPropertyName(callee.property) : callee.name;
+
+    return COMPONENT_OPTION_CALLS.has(calleeName);
+}
+
 /**
  * Normalizes a callee's source text for comparison with a registry `from`, which may contain a call
  * such as `Shopware.Store.get('shopwareApps').setAppModules`: whitespace, trailing commas and quote
@@ -209,7 +243,7 @@ module.exports = withRunLevel({
                 const propertyName = getPropertyName(node.key);
                 const match = objectOptionUsages.find(({ usage }) => usage.from === propertyName);
 
-                if (!match || node.method || node.value.type !== 'ObjectExpression') {
+                if (!match || node.method || node.value.type !== 'ObjectExpression' || !isComponentOptions(node.parent)) {
                     return;
                 }
 

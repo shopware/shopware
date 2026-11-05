@@ -34,6 +34,13 @@ const slotTextToPropInvalidTests = [
         errors: [{ message: HEADLINE }],
     },
     {
+        name: 'a comment in the slot moves above the element',
+        filename: 'test.html.twig',
+        code: `<template>\n\t<mt-text-field><template #label><!-- shown in the form -->Name</template></mt-text-field>\n</template>`,
+        output: `<template>\n\t<!-- shown in the form -->\n\t<mt-text-field label="Name"></mt-text-field>\n</template>`,
+        errors: [{ message: HEADLINE }],
+    },
+    {
         name: 'text around a mustache becomes a template literal',
         filename: 'test.html.twig',
         code: `<template><mt-text-field><template #label>Name ({{ count }})</template></mt-text-field></template>`,

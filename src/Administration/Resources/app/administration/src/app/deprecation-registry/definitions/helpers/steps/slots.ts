@@ -43,7 +43,12 @@ export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotSte
             apiName: step.slot,
             headline: `The "${step.slot}" slot is removed.`,
             ...(isEmpty
-                ? { fix: (fixer: Fixer) => fixer.removeRange(api.ast.getRemovalRange(slot)) }
+                ? {
+                      fix: (fixer: Fixer) => [
+                          fixer.removeRange(api.ast.getRemovalRange(slot)),
+                          ...api.keepCommentsOf(fixer, [slot.range as [number, number]]),
+                      ],
+                  }
                 : {
                       manualReason:
                           step.hint ??
@@ -152,7 +157,10 @@ function planSlotToProp(api: ComponentUsageRuleApi, step: SlotTextToPropStep, sl
         return { manualReason: `The slot contains markup or Twig, which a prop cannot hold. ${manualMove}` };
     }
 
-    const removeSlotElement = (fixer: Fixer) => fixer.removeRange(api.ast.getRemovalRange(slot));
+    const removeSlotElement = (fixer: Fixer) => [
+        fixer.removeRange(api.ast.getRemovalRange(slot)),
+        ...api.keepCommentsOf(fixer, [slot.range as [number, number]]),
+    ];
 
     if (value.kind === 'none') {
         return { fix: removeSlotElement };
@@ -170,7 +178,7 @@ function planSlotToProp(api: ComponentUsageRuleApi, step: SlotTextToPropStep, sl
         produces: { kind: 'prop', name: step.toProp },
         fix: (fixer) => [
             fixer.insertTextAfterRange([tagNameEnd, tagNameEnd], ` ${attribute}`),
-            removeSlotElement(fixer),
+            ...removeSlotElement(fixer),
         ],
     };
 }

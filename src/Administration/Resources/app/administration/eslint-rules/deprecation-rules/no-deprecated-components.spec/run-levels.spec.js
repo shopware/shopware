@@ -92,6 +92,22 @@ tester.run('no-deprecated-components (review level)', rule, {
     valid: [],
     invalid: [
         {
+            name: 'puts the conversion comment in front of an element that shares its line',
+            filename: 'test.html.twig',
+            settings: atLevel('review'),
+            code: '<template>\n\t<div>Hi <sw-alert appearance="system">Hi</sw-alert></div>\n</template>',
+            output: `<template>\n\t<div>Hi ${CONVERTED_ALERT} <mt-banner appearance="system">Hi</mt-banner></div>\n</template>`,
+            errors: [{ message: /^"sw-alert" is deprecated\. Please use "mt-banner" instead\.\n/ }],
+        },
+        {
+            name: 'indents the conversion comment with the tabs of the element',
+            filename: 'test.html.twig',
+            settings: atLevel('review'),
+            code: '<template>\n\t\t<sw-alert appearance="system">Hi</sw-alert>\n</template>',
+            output: `<template>\n\t\t${CONVERTED_ALERT}\n\t\t<mt-banner appearance="system">Hi</mt-banner>\n</template>`,
+            errors: [{ message: /^"sw-alert" is deprecated\. Please use "mt-banner" instead\.\n/ }],
+        },
+        {
             name: 'converts an element with a part that needs a review and leaves that part to the follow-up rule',
             filename: 'test.html.twig',
             settings: atLevel('review'),

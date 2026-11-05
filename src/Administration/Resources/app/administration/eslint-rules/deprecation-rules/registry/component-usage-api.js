@@ -4,7 +4,14 @@
 
 const { appendRegistryContext } = require('./format-migration-message');
 const { canAutoFix } = require('./fix-policy');
-const { getLeadingComments, hasCodemodComment, insertTemplateCodemodComment, isConvertedFrom } = require('./codemod-comment');
+const {
+    REVIEW_MARKER,
+    commentBefore,
+    getLeadingComments,
+    hasCodemodComment,
+    insertTemplateCodemodComment,
+    isConvertedFrom,
+} = require('./codemod-comment');
 const ast = require('./template-ast');
 const { containsTwig, getInnerSource, getRemovalRange, slotContentToValue, toPropAttribute } = require('./slot-content');
 
@@ -156,7 +163,26 @@ function createComponentUsageRuleApi(context, node, migration, usage, { assumeCo
                 fix: duplicate.fix,
             });
         },
-        insertCodemodCommentBefore: insertTemplateCodemodComment,
+        insertCodemodCommentBefore(fixer, target, text) {
+            return insertTemplateCodemodComment(fixer, sourceCode, target, text);
+        },
+        keepCommentsOf(fixer, ranges) {
+            // The codemod's own comments describe elements that are gone with the content
+            const comments = (sourceCode.ast?.templateBody?.comments ?? []).filter((comment) => {
+                return (
+                    !comment.value.trim().startsWith(REVIEW_MARKER) &&
+                    ranges.some(([start, end]) => start <= comment.range[0] && comment.range[1] <= end)
+                );
+            });
+
+            if (comments.length === 0) {
+                return [];
+            }
+
+            const text = comments.map((comment) => commentBefore(sourceCode, node, sourceCode.getText(comment))).join('');
+
+            return [fixer.insertTextBefore(node, text)];
+        },
         removeAttribute(fixer, attribute) {
             return fixer.removeRange(ast.getAttributeRemovalRange(sourceCode, node, attribute));
         },

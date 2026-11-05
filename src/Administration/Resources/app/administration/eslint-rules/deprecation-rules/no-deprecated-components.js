@@ -6,7 +6,7 @@ const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { canAutoFix } = require('./registry/fix-policy');
-const { convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
+const { commentBefore, convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
 const { defineTemplateBodyVisitor, findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
 const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
 const {
@@ -242,7 +242,11 @@ module.exports = withRunLevel({
 
                         yield fixer.insertTextBeforeRange(
                             nameRange,
-                            `${getConversionComment(oldName, node, parts.map((part) => part.note).filter(Boolean))}\n${' '.repeat(node.loc.start.column)}`,
+                            commentBefore(
+                                context.sourceCode,
+                                node,
+                                getConversionComment(oldName, node, parts.map((part) => part.note).filter(Boolean)),
+                            ),
                         );
                         yield* renameFixes(fixer);
                     },

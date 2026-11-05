@@ -21,6 +21,12 @@ tester.run('no-deprecated-js-api', rule, {
             `,
         },
         {
+            name: 'leaves a metaInfo object outside component options alone',
+            code: `
+                store.save({ metaInfo: { title: 'Example' } });
+            `,
+        },
+        {
             name: 'allows Options API component overrides, which stay supported for Options API targets',
             code: `
                 Shopware.Component.override('sw-example', {
@@ -166,6 +172,24 @@ tester.run('no-deprecated-js-api', rule, {
                 export default {
                     metaInfo() { return { title: 'Example' }; },
                 };
+            `,
+            errors: [
+                {
+                    message: /Providing metaInfo as an object is not supported anymore/,
+                },
+            ],
+        },
+        {
+            name: 'migrates a metaInfo object in a component override',
+            code: `
+                Shopware.Component.override('sw-example', {
+                    metaInfo: { title: 'Example' },
+                });
+            `,
+            output: `
+                Shopware.Component.override('sw-example', {
+                    metaInfo() { return { title: 'Example' }; },
+                });
             `,
             errors: [
                 {

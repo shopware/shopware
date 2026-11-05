@@ -77,8 +77,15 @@ export type ComponentUsageRuleApi = {
     removeAttribute(fixer: Fixer, attribute: TemplateNode): Fix;
     /** Tells whether the codemod converted this element from the migration's deprecated component. */
     isConverted(): boolean;
-    /** Inserts a codemod review comment with `text` before the target, on its own line with the target's indentation. */
+    /** Inserts a codemod review comment with `text` directly before the target, without splitting its line. */
     insertCodemodCommentBefore(fixer: Fixer, target: TemplateNode, text: string): Fix;
+    /**
+     * Moves the HTML comments inside the ranges above the element, for fixes that remove that content.
+     *
+     * @example
+     * fix: (fixer) => [removeSlot(fixer), ...api.keepCommentsOf(fixer, [slot.range])]
+     */
+    keepCommentsOf(fixer: Fixer, ranges: Array<[number, number]>): Fix[];
     ast: {
         findMatchingPropAttribute(node: TemplateNode, propName: string): TemplateNode | undefined;
         hasMatchingPropAttribute(node: TemplateNode, propName: string): boolean;

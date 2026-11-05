@@ -34,9 +34,13 @@ class StorybookTwigEnvironmentStub extends Environment
      */
     public array $renderContext = [];
 
+    public string $createdTemplate = '';
+
     public function __construct()
     {
-        parent::__construct(new ArrayLoader([]));
+        parent::__construct(new ArrayLoader([
+            'storybook-component' => '{% block content %}{% endblock %}{% block title %}{% endblock %}',
+        ]));
     }
 
     public function addGlobal(string $name, mixed $value): void
@@ -46,6 +50,8 @@ class StorybookTwigEnvironmentStub extends Environment
 
     public function createTemplate(string $template, ?string $name = null): TemplateWrapper
     {
+        $this->createdTemplate = $template;
+
         if ($this->createTemplateException !== null) {
             throw $this->createTemplateException;
         }

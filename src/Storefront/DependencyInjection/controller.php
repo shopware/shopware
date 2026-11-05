@@ -138,6 +138,7 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
+use Shopware\Storefront\Storybook\StorybookHtmlSanitizer;
 use Shopware\Storefront\Storybook\StorybookService;
 use Shopware\Storefront\System\SalesChannel\SalesChannelAnalyticsLoader;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -466,7 +467,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('twig'),
+            service('ux.twig_component.component_factory'),
             service(StorybookService::class),
+            service(StorybookHtmlSanitizer::class),
         ])
         ->call('setContainer', [service('service_container')]);
 };

@@ -6,8 +6,9 @@
 export function resetDocumentTranslation(
     document: Entity<'product_document'>,
     language: { parentId?: string | null } | null,
+    systemLanguageId: string | null,
 ) {
-    const fallbackLanguages = [language?.parentId, Shopware.Context.api.systemLanguageId];
+    const fallbackLanguages = [language?.parentId, systemLanguageId];
     const translations = fallbackLanguages.flatMap(
         (languageId) => document.translations?.filter((translation) => translation.languageId === languageId) || [],
     );
@@ -33,7 +34,7 @@ export type DocumentChanges = {
 export function getDocumentTranslationChanges(
     document: Entity<'product_document'>,
     changes: DocumentChanges,
-    language: { parentId?: string | null } | null,
+    context: Pick<typeof Shopware.Context.api, 'language' | 'systemLanguageId'>,
     useTranslatedValues = false,
 ): DocumentChanges {
     const result: DocumentChanges = {};
@@ -51,7 +52,7 @@ export function getDocumentTranslationChanges(
     }
     const resetFields = (['title', 'mediaId'] as const).filter((field) => result[field] === null);
     if (resetFields.length) {
-        const fallback = resetDocumentTranslation(document, language).translated;
+        const fallback = resetDocumentTranslation(document, context.language, context.systemLanguageId).translated;
         result.translated = {
             ...document.translated,
             ...Object.fromEntries(resetFields.map((field) => [field, fallback[field]])),
@@ -71,7 +72,7 @@ export function getEditChanges(
         isDefaultLanguage: boolean;
     },
     displayTitle: string,
-    language: { parentId?: string | null } | null,
+    context: Pick<typeof Shopware.Context.api, 'language' | 'systemLanguageId'>,
 ) {
     const title = editor.documentTitle.trim();
     const titleChanged = !editor.isDefaultLanguage || title !== displayTitle.trim();
@@ -81,7 +82,7 @@ export function getEditChanges(
             title: titleChanged ? title || null : undefined,
             mediaId: editor.replacementMedia?.id ?? (editor.documentFileRemoved ? null : undefined),
         },
-        language,
+        context,
     );
     return {
         changes,

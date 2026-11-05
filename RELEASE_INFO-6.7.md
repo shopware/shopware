@@ -15,6 +15,12 @@ App permissions do not grant additional access to protected associations through
 
 ## Security Fixes
 
+### Recovery associations removed
+
+Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations, which were removed in a security update.
+`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` are deprecated and will be removed in 6.8.
+The outgoing `user_recovery.user` and `customer_recovery.customer` associations remain available.
+
 ### Extension XML files are parsed without resolving document types
 
 App manifests, plugin `config.xml` files, custom entity, admin UI, flow, CMS and custom field XML files are now read through `Shopware\Core\Framework\Util\XmlParser`.

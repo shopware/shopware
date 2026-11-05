@@ -6,8 +6,9 @@
 export function resetDocumentTranslation(
     document: Entity<'product_document'>,
     language: { parentId?: string | null } | null,
+    systemLanguageId: string | null,
 ) {
-    const fallbackLanguages = [language?.parentId, Shopware.Context.api.systemLanguageId];
+    const fallbackLanguages = [language?.parentId, systemLanguageId];
     const translations = fallbackLanguages.flatMap(
         (languageId) => document.translations?.filter((translation) => translation.languageId === languageId) || [],
     );

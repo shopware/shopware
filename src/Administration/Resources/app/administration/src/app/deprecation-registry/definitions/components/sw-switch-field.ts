@@ -10,7 +10,7 @@ import {
     renameEvent,
     renameProp,
     renameVModelArgument,
-    slotToProp,
+    slotTextToProp,
     upgradeGuide,
 } from '../helpers';
 
@@ -54,9 +54,9 @@ export default componentMigration({
         removeProp({
             prop: 'partly-checked',
         }),
-        slotToProp({
-            slot: 'label',
-            prop: 'label',
+        slotTextToProp({
+            fromSlot: 'label',
+            toProp: 'label',
         }),
         removeSlot({
             slot: 'hint',

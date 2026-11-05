@@ -5,11 +5,11 @@
 import {
     componentMigration,
     invertBooleanProp,
-    mapPropValue,
     removeProp,
     removeSlot,
     renameComponent,
     renameProp,
+    replacePropValue,
     upgradeGuide,
 } from '../helpers';
 
@@ -42,20 +42,20 @@ export default componentMigration({
             from: 'show-icon',
             to: 'hide-icon',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'warning',
-            to: 'attention',
+            fromValue: 'warning',
+            toValue: 'attention',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'error',
-            to: 'critical',
+            fromValue: 'error',
+            toValue: 'critical',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'success',
-            to: 'positive',
+            fromValue: 'success',
+            toValue: 'positive',
         }),
         removeSlot({
             slot: 'actions',

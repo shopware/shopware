@@ -9,7 +9,7 @@ import {
     renameEvent,
     renameProp,
     renameVModelArgument,
-    slotToProp,
+    slotTextToProp,
     upgradeGuide,
 } from '../helpers';
 
@@ -36,9 +36,9 @@ export default componentMigration({
             from: 'value',
             to: 'model-value',
         }),
-        slotToProp({
-            slot: 'hint',
-            prop: 'label',
+        slotTextToProp({
+            fromSlot: 'hint',
+            toProp: 'label',
         }),
         removeProp({
             prop: 'ghost-value',

@@ -163,12 +163,14 @@ export type InvertBooleanPropStep = ComponentUsageStepBase & {
     to: string;
 };
 
-export type BooleanPropToValueStep = ComponentUsageStepBase & {
-    kind: 'boolean-prop-to-value';
-    from: string;
-    to: string;
-    /** The static value the replacement prop gets when the old boolean prop is set. */
-    value: string;
+export type BooleanPropToPropValueStep = ComponentUsageStepBase & {
+    kind: 'boolean-prop-to-prop-value';
+    /** The deprecated boolean prop. */
+    fromProp: string;
+    /** The prop that takes a value instead. */
+    toProp: string;
+    /** The static value `toProp` gets when `fromProp` is set. */
+    withValue: string;
 };
 
 export type RemovePropStep = ComponentUsageStepBase & {
@@ -189,31 +191,31 @@ export type ReplacePropStep = ComponentUsageStepBase & {
     with: PropReplacement;
 };
 
-export type MapPropValueStep = ComponentUsageStepBase & {
-    kind: 'map-prop-value';
+export type ReplacePropValueStep = ComponentUsageStepBase & {
+    kind: 'replace-prop-value';
     prop: string;
     /** The static value that is deprecated. */
-    from: string;
+    fromValue: string;
     /** The value that replaces it; unset for a value without replacement, which only a manual step can have. */
-    to?: string;
-    /** A boolean prop the replacement value needs, for example `ghost` when `variant="ghost"` becomes `variant="primary"`. */
-    addBooleanProp?: string;
+    toValue?: string;
+    /** A boolean prop the new value needs, for example `ghost` when `variant="ghost"` becomes `variant="primary"`. */
+    alsoAddProp?: string;
 };
 
-export type MapOptionsPropKeysStep = ComponentUsageStepBase & {
-    kind: 'map-options-prop-keys';
-    /** The prop that receives the option objects. */
+export type RenameArrayPropKeysStep = ComponentUsageStepBase & {
+    kind: 'rename-array-prop-keys';
+    /** The prop that receives the array of objects. */
     prop: string;
-    /** Maps each deprecated option object key to its replacement key. */
-    from: Record<string, string>;
-    /** The step is skipped when the element already maps keys through one of these props. */
-    unlessProps?: string[];
+    /** Maps each deprecated object key to its replacement key. */
+    renameKeys: Record<string, string>;
+    /** The step is skipped when the element sets one of these props, for example a prop that names the keys. */
+    unlessElementHas?: string[];
     /** Reported instead of a fix when the options expression cannot be rewritten automatically. */
     unsafeMessage?: string;
 };
 
-export type MissingPropStep = ComponentUsageStepBase & {
-    kind: 'missing-prop';
+export type AddPropWhenMissingStep = ComponentUsageStepBase & {
+    kind: 'add-prop-when-missing';
     prop: string;
     /** The value source the fix writes into the added attribute; unset adds a valueless boolean attribute. */
     value?: string;
@@ -222,7 +224,7 @@ export type MissingPropStep = ComponentUsageStepBase & {
     /** Where the prop goes in the start tag; defaults to `before-end`. */
     insertPosition?: 'after-name' | 'before-end';
     /** The step is skipped when the element already sets one of these props; defaults to `[prop]`. */
-    unlessProps?: string[];
+    unlessElementHas?: string[];
     /** Puts a codemod review comment above the element when the prop is added. */
     reviewHint?: string;
 };
@@ -240,10 +242,10 @@ export type RenameSlotStep = ComponentUsageStepBase & {
     to: string;
 };
 
-export type SlotToPropStep = ComponentUsageStepBase & {
-    kind: 'slot-to-prop';
-    slot: string;
-    prop: string;
+export type SlotTextToPropStep = ComponentUsageStepBase & {
+    kind: 'slot-text-to-prop';
+    fromSlot: string;
+    toProp: string;
 };
 
 export type FlagSlotForManualMoveStep = ComponentUsageStepBase & {
@@ -254,62 +256,65 @@ export type FlagSlotForManualMoveStep = ComponentUsageStepBase & {
 };
 
 /**
- * Where a field of a generated item takes its value from: an attribute of the item element, or its
- * text content.
- *
- * @example
- * { attribute: 'value', emptyAsNull: true } // <option value="">… → value: null
- * { content: true } // <option>{{ $t('a') }}</option> → label: $t('a')
+ * Where a field of an array item takes its value from: the text of the child element, or one of its
+ * attributes. Build it with `fromText()` or `fromAttribute()`.
  */
 export type ItemFieldSource =
     | {
+          from: 'attribute';
           attribute: string;
-          /** An item without the attribute needs a manual migration instead of an item without the field. */
+          /** A child element without the attribute needs a manual migration instead of an item without the field. */
           required?: boolean;
           /** Writes an empty static value as `null`, for components that turned an empty value into null. */
           emptyAsNull?: boolean;
           /** Review note for a bound value, for example when the new component keeps its type and the old one did not. */
           boundReview?: string;
       }
-    | { content: true };
+    | { from: 'text' };
 
-export type SlotToItemsPropStep = ComponentUsageStepBase & {
-    kind: 'slot-to-items-prop';
-    /** The slot that holds the item elements; defaults to `default`. */
-    slot?: string;
-    /** The prop that receives the generated items array. */
-    prop: string;
-    /** The element name of each item inside the slot, for example `option`. */
-    item: string;
-    /** The fields of each generated item and where they come from. */
-    fields: Record<string, ItemFieldSource>;
+export type ChildElementsToArrayPropStep = ComponentUsageStepBase & {
+    kind: 'child-elements-to-array-prop';
+    /** The slot that holds the child elements; defaults to `default`. */
+    inSlot?: string;
+    /** The element name of each child that becomes an array item, for example `option`. */
+    childElement: string;
+    /** The prop that receives the array. */
+    arrayProp: string;
+    /** The fields of each array item and where they come from. */
+    eachItem: Record<string, ItemFieldSource>;
     /**
-     * Props that name the item key of a field. A `v-for` list whose fields are plain keys of the list
-     * entries is then passed as it is, instead of being mapped into new objects.
+     * Props that name the key of a field. A single `v-for` child whose fields are plain keys of the list
+     * entries then passes the list as it is, instead of mapping it into new objects.
      */
-    keyProps?: Record<string, string>;
+    forBoundList?: Record<string, string>;
 };
 
 /**
- * One place a value of the old component could come from.
- *
- * @example
- * { slot: 'default' } // the text of the default slot
- * { slot: 'icon', element: ['mt-icon'], attribute: 'name' } // the name of the single icon in the icon slot
- * { prop: 'subline' }
+ * One place the old component could take a value from. Build it with `fromSlot()` or `fromProp()`.
  */
-export type PropSource = { slot: string; element?: string[]; attribute?: string } | { prop: string };
+export type PropSource =
+    | {
+          from: 'slot';
+          slot: string;
+          /** Reads `attribute` of the single child element of these names, instead of the slot's text. */
+          childElement?: string[];
+          attribute?: string;
+      }
+    | { from: 'prop'; prop: string };
 
-export type PropFromSourcesStep = ComponentUsageStepBase & {
-    kind: 'prop-from-sources';
+/** Several sources, of which the first one the element uses wins. Build it with `firstFoundOf()`. */
+export type FirstFoundOf = { from: 'first-found-of'; sources: PropSource[] };
+
+export type PropFromSourceStep = ComponentUsageStepBase & {
+    kind: 'prop-from-source';
     /** The prop of the new component. */
-    prop: string;
-    /** Where the old component took the value from, first match wins. */
-    sources: PropSource[];
-    /** The expression the old component used when no source was set. */
-    fallback?: string;
-    /** A boolean prop of the old component that hid the value; `otherwise` is passed while it is false. */
-    condition?: { prop: string; otherwise: string };
+    toProp: string;
+    /** Where the old component took the value from. */
+    source: PropSource | FirstFoundOf;
+    /** The expression the old component showed when no source was set, or a bound source was null or undefined. */
+    oldComponentFallback?: string;
+    /** A boolean prop of the old component that hid the value; `valueWhenOff` is passed while it is false. */
+    oldComponentToggle?: { prop: string; valueWhenOff: string };
     /** The new prop renders plain text, so static HTML in the value needs a review. */
     plainText?: boolean;
 };
@@ -329,18 +334,18 @@ export type RenameVModelArgumentStep = ComponentUsageStepBase & {
 export type ComponentUsageStep =
     | RenamePropStep
     | InvertBooleanPropStep
-    | BooleanPropToValueStep
+    | BooleanPropToPropValueStep
     | RemovePropStep
     | ReplacePropStep
-    | MapPropValueStep
-    | MapOptionsPropKeysStep
-    | MissingPropStep
+    | ReplacePropValueStep
+    | RenameArrayPropKeysStep
+    | AddPropWhenMissingStep
     | RemoveSlotStep
     | RenameSlotStep
-    | SlotToPropStep
+    | SlotTextToPropStep
     | FlagSlotForManualMoveStep
-    | SlotToItemsPropStep
-    | PropFromSourcesStep
+    | ChildElementsToArrayPropStep
+    | PropFromSourceStep
     | RenameEventStep
     | RemoveEventStep
     | RenameVModelArgumentStep;
@@ -399,8 +404,8 @@ export type ComponentMigration = MigrationBase<ComponentStep> & {
  * usage of the replacement only `onEveryUsage`.
  *
  * @example
- * onConvert: [renameComponent({ from: 'sw-button', to: 'mt-button' }), missingProp({ prop: 'variant', value: 'secondary' })],
- * onEveryUsage: [mapPropValue({ prop: 'variant', from: 'danger', to: 'critical' })],
+ * onConvert: [renameComponent({ from: 'sw-button', to: 'mt-button' }), addPropWhenMissing({ prop: 'variant', value: 'secondary' })],
+ * onEveryUsage: [replacePropValue({ prop: 'variant', fromValue: 'danger', toValue: 'critical' })],
  */
 export type ComponentMigrationConfig = Omit<ComponentMigration, 'usage'> & {
     /** The conversion: the component rename, then the steps that carry the old component's behaviour over. */

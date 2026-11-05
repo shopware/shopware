@@ -2,15 +2,19 @@
  * @sw-package framework
  */
 import {
-    booleanPropToValue,
+    addPropWhenMissing,
+    booleanPropToPropValue,
+    childElementsToArrayProp,
     componentMigration,
+    firstFoundOf,
     flagSlotForManualMove,
+    fromAttribute,
+    fromProp,
+    fromSlot,
+    fromText,
     invertBooleanProp,
-    mapOptionsPropKeys,
-    mapPropValue,
     memberCall,
-    missingProp,
-    propFromSources,
+    propFromSource,
     removeAsset,
     removeEvent,
     removeProp,
@@ -21,15 +25,16 @@ import {
     renameComponent,
     renameEvent,
     renamePackage,
+    renameArrayPropKeys,
     renameProp,
     renameTemplateBlock,
     renameVModelArgument,
     replaceExtension,
     replaceObjectOption,
     replaceProp,
+    replacePropValue,
     routerLinkClickHandler,
-    slotToItemsProp,
-    slotToProp,
+    slotTextToProp,
     templateEventUsage,
     upgradeGuide,
 } from './index';
@@ -39,21 +44,21 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
     it.each([
         ['rename-prop', 'auto', renameProp({ from: 'a', to: 'b' })],
         ['invert-boolean-prop', 'auto', invertBooleanProp({ from: 'a', to: 'b' })],
-        ['boolean-prop-to-value', 'auto', booleanPropToValue({ from: 'a', to: 'b', value: '1' })],
+        ['boolean-prop-to-prop-value', 'auto', booleanPropToPropValue({ fromProp: 'a', toProp: 'b', withValue: '1' })],
         ['remove-prop', 'auto', removeProp({ prop: 'a' })],
         ['replace-prop', 'auto', replaceProp({ prop: 'a', with: routerLinkClickHandler })],
-        ['map-prop-value', 'auto', mapPropValue({ prop: 'a', from: 'b', to: 'c' })],
-        ['map-options-prop-keys', 'auto', mapOptionsPropKeys({ prop: 'options', from: { name: 'label' } })],
-        ['missing-prop', 'auto', missingProp({ prop: 'a', value: 'b' })],
+        ['replace-prop-value', 'auto', replacePropValue({ prop: 'a', fromValue: 'b', toValue: 'c' })],
+        ['rename-array-prop-keys', 'auto', renameArrayPropKeys({ prop: 'options', renameKeys: { name: 'label' } })],
+        ['add-prop-when-missing', 'auto', addPropWhenMissing({ prop: 'a', value: 'b' })],
         ['remove-slot', 'auto', removeSlot({ slot: 'a' })],
-        ['slot-to-prop', 'auto', slotToProp({ slot: 'a', prop: 'b' })],
+        ['slot-text-to-prop', 'auto', slotTextToProp({ fromSlot: 'a', toProp: 'b' })],
         ['flag-slot-for-manual-move', 'manual', flagSlotForManualMove({ slot: 'a', hint: 'Move it.' })],
         [
-            'slot-to-items-prop',
+            'child-elements-to-array-prop',
             'auto',
-            slotToItemsProp({ item: 'sw-tabs-item', prop: 'items', fields: { label: { content: true } } }),
+            childElementsToArrayProp({ childElement: 'sw-tabs-item', arrayProp: 'items', eachItem: { label: fromText() } }),
         ],
-        ['prop-from-sources', 'auto', propFromSources({ prop: 'a', sources: [{ prop: 'b' }] })],
+        ['prop-from-source', 'auto', propFromSource({ toProp: 'a', source: fromProp('b') })],
         ['rename-event', 'auto', renameEvent({ from: 'a', to: 'b' })],
         ['remove-event', 'auto', removeEvent({ event: 'a' })],
         ['rename-v-model-argument', 'auto', renameVModelArgument({ from: 'value' })],
@@ -114,6 +119,23 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
             expect.objectContaining({ from: 'a', onlyAfterConversion: true }),
             expect.not.objectContaining({ onlyAfterConversion: true }),
         ]);
+    });
+
+    it('describes where a value comes from', () => {
+        expect(firstFoundOf([fromSlot('icon', { childElement: ['mt-icon'], attribute: 'name' }), fromProp('icon')])).toEqual(
+            {
+                from: 'first-found-of',
+                sources: [
+                    { from: 'slot', slot: 'icon', childElement: ['mt-icon'], attribute: 'name' },
+                    { from: 'prop', prop: 'icon' },
+                ],
+            },
+        );
+        expect(fromAttribute('value', { required: true })).toEqual({
+            from: 'attribute',
+            attribute: 'value',
+            required: true,
+        });
     });
 
     it('links an upgrade guide heading', () => {

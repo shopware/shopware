@@ -3,11 +3,11 @@
  */
 
 import {
+    addPropWhenMissing,
     componentMigration,
-    mapPropValue,
-    missingProp,
     renameComponent,
     replaceProp,
+    replacePropValue,
     routerLinkClickHandler,
     upgradeGuide,
 } from '../helpers';
@@ -25,7 +25,7 @@ export default componentMigration({
     ],
     onConvert: [
         renameComponent({ from: 'sw-button', to: 'mt-button' }),
-        missingProp({
+        addPropWhenMissing({
             prop: 'variant',
             value: 'secondary',
             fix: 'auto',
@@ -33,34 +33,34 @@ export default componentMigration({
         }),
     ],
     onEveryUsage: [
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'ghost',
-            to: 'primary',
-            addBooleanProp: 'ghost',
+            fromValue: 'ghost',
+            toValue: 'primary',
+            alsoAddProp: 'ghost',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'danger',
-            to: 'critical',
+            fromValue: 'danger',
+            toValue: 'critical',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'contrast',
+            fromValue: 'contrast',
             fix: 'manual',
             message: 'The "variant" prop with value "contrast" is deprecated without replacement.',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'context',
+            fromValue: 'context',
             fix: 'manual',
             message: 'The "variant" prop with value "context" is deprecated without replacement.',
         }),
-        mapPropValue({
+        replacePropValue({
             prop: 'variant',
-            from: 'ghost-danger',
-            to: 'critical',
-            addBooleanProp: 'ghost',
+            fromValue: 'ghost-danger',
+            toValue: 'critical',
+            alsoAddProp: 'ghost',
         }),
         replaceProp({
             prop: 'router-link',

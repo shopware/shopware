@@ -3,31 +3,39 @@
  * @sw-package framework
  */
 
-import type { ComponentUsageRuleApi, FixLevel, MapPropValueStep, TemplateNode } from '../types';
+import type { ComponentUsageRuleApi, FixLevel, ReplacePropValueStep, TemplateNode } from '../types';
 import type { UsagePlan } from '../shared';
 import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
 
-/** Builder input of `mapPropValue`; a value without replacement can only be reported for a manual migration. */
-export type MapPropValueConfig = {
+/** Builder input of `replacePropValue`; a value without replacement can only be reported for a manual migration. */
+export type ReplacePropValueConfig = {
     prop: string;
-    from: string;
+    fromValue: string;
     message?: string;
-} & ({ to: string; fix?: FixLevel; addBooleanProp?: string } | { to?: never; fix: 'manual'; addBooleanProp?: never });
+} & ({ toValue: string; fix?: FixLevel; alsoAddProp?: string } | { toValue?: never; fix: 'manual'; alsoAddProp?: never });
 
 /**
- * Replaces a deprecated static value of a prop. `addBooleanProp` adds the boolean prop the new value
- * needs to keep the old look, for example `ghost` for the former `variant="ghost"`.
+ * Replaces a deprecated static value of a prop. `alsoAddProp` adds the boolean prop the new value needs
+ * to keep the old look.
+ *
+ * - static `fromValue` → `toValue`
+ * - no `toValue` → reported for a manual migration with `message`
+ * - a bound expression that contains `fromValue` as a string → manual
+ * - any other bound expression on a converted element → review comment listing every deprecated value
  *
  * @example
- * mapPropValue({ prop: 'variant', from: 'warning', to: 'attention' });
- * mapPropValue({ prop: 'variant', from: 'ghost', to: 'primary', addBooleanProp: 'ghost' });
- * mapPropValue({ prop: 'variant', from: 'contrast', fix: 'manual', message: 'No replacement.' });
+ * replacePropValue({ prop: 'variant', fromValue: 'danger', toValue: 'critical' });
+ * // <mt-button variant="danger"> → <mt-button variant="critical">
+ * replacePropValue({ prop: 'variant', fromValue: 'ghost', toValue: 'primary', alsoAddProp: 'ghost' });
+ * // <mt-button variant="ghost"> → <mt-button variant="primary" ghost>
+ * replacePropValue({ prop: 'variant', fromValue: 'contrast', fix: 'manual', message: 'No replacement.' });
+ * // <mt-button :variant="isError ? 'danger' : 'primary'"> → manual
  */
-export function mapPropValue({ fix = 'auto', ...config }: MapPropValueConfig): MapPropValueStep {
-    return defineUsageStep<MapPropValueStep>({ kind: 'map-prop-value', fix, ...config }, reportMapPropValue);
+export function replacePropValue({ fix = 'auto', ...config }: ReplacePropValueConfig): ReplacePropValueStep {
+    return defineUsageStep<ReplacePropValueStep>({ kind: 'replace-prop-value', fix, ...config }, reportReplacePropValue);
 }
 
-function reportMapPropValue(api: ComponentUsageRuleApi, step: MapPropValueStep): void {
+function reportReplacePropValue(api: ComponentUsageRuleApi, step: ReplacePropValueStep): void {
     const attribute = api.ast.findMatchingPropAttribute(api.node, step.prop);
 
     if (!attribute) {
@@ -40,14 +48,14 @@ function reportMapPropValue(api: ComponentUsageRuleApi, step: MapPropValueStep):
         return;
     }
 
-    if (attribute.value?.value !== step.from) {
+    if (attribute.value?.value !== step.fromValue) {
         return;
     }
 
     reportUsage(api, {
         node: attribute,
         apiName: step.prop,
-        replacement: step.to,
+        replacement: step.toValue,
         ...planValueMapping(api, step, attribute),
     });
 }
@@ -58,24 +66,24 @@ function reportMapPropValue(api: ComponentUsageRuleApi, step: MapPropValueStep):
  * literal is only known at runtime: on a just converted element it gets a review comment that lists
  * every deprecated value of the prop, once per prop.
  */
-function reportBoundValue(api: ComponentUsageRuleApi, step: MapPropValueStep, attribute: TemplateNode): void {
+function reportBoundValue(api: ComponentUsageRuleApi, step: ReplacePropValueStep, attribute: TemplateNode): void {
     const source = api.ast.getAttributeValueSource(attribute) ?? '';
 
-    if (containsStringLiteral(source, step.from)) {
-        const replacementHint = step.to === undefined ? '' : ` with "${step.to}"`;
+    if (containsStringLiteral(source, step.fromValue)) {
+        const replacementHint = step.toValue === undefined ? '' : ` with "${step.toValue}"`;
 
         reportUsage(api, {
             node: attribute,
             apiName: step.prop,
-            replacement: step.to,
-            manualReason: `The bound expression can pass the deprecated value "${step.from}". Replace it${replacementHint} in the expression manually.`,
+            replacement: step.toValue,
+            manualReason: `The bound expression can pass the deprecated value "${step.fromValue}". Replace it${replacementHint} in the expression manually.`,
         });
 
         return;
     }
 
-    const valueSteps = api.migration.usage.filter((usage): usage is MapPropValueStep => {
-        return usage.kind === 'map-prop-value' && usage.prop === step.prop;
+    const valueSteps = api.migration.usage.filter((usage): usage is ReplacePropValueStep => {
+        return usage.kind === 'replace-prop-value' && usage.prop === step.prop;
     });
     const isLiteral = attribute.value?.expression?.type === 'Literal';
 
@@ -83,7 +91,7 @@ function reportBoundValue(api: ComponentUsageRuleApi, step: MapPropValueStep, at
         return;
     }
 
-    const deprecatedValues = valueSteps.map((valueStep) => `"${valueStep.from}"`).join(', ');
+    const deprecatedValues = valueSteps.map((valueStep) => `"${valueStep.fromValue}"`).join(', ');
 
     reportUsage(api, {
         node: attribute,
@@ -106,8 +114,8 @@ function containsStringLiteral(source: string, value: string): boolean {
     return new RegExp(`(['"\`])${escapedValue}\\1`).test(source);
 }
 
-function planValueMapping(api: ComponentUsageRuleApi, step: MapPropValueStep, attribute: TemplateNode): UsagePlan {
-    const { to, addBooleanProp } = step;
+function planValueMapping(api: ComponentUsageRuleApi, step: ReplacePropValueStep, attribute: TemplateNode): UsagePlan {
+    const { toValue: to, alsoAddProp: addBooleanProp } = step;
 
     if (to === undefined) {
         return {};

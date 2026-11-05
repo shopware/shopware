@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, missingProp, removeProp, renameComponent, renameProp, upgradeGuide } from '../helpers';
+import { addPropWhenMissing, componentMigration, removeProp, renameComponent, renameProp, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-popover',
@@ -34,12 +34,12 @@ export default componentMigration({
             to: 'is-opened',
             fix: 'manual',
         }),
-        missingProp({
+        addPropWhenMissing({
             prop: 'is-opened',
             value: 'true',
             bind: true,
             insertPosition: 'after-name',
-            unlessProps: [
+            unlessElementHas: [
                 'is-opened',
                 'open',
             ],

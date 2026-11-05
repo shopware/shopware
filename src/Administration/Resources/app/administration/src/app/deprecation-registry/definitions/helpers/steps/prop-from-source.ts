@@ -7,7 +7,7 @@ import type {
     ComponentUsageRuleApi,
     Fix,
     Fixer,
-    PropFromSourcesStep,
+    PropFromSourceStep,
     PropSource,
     PropValue,
     StepConfig,
@@ -36,30 +36,51 @@ const TWIG = /{%|%}|{#|#}/;
 const STRING_FUNCTIONS = ['$t', '$tc'];
 
 /**
- * Fills one prop of the new component from the first source the element uses, in order: a slot, an
- * element inside a slot, or a prop; otherwise from `fallback`. This is how components fell back from a
- * slot to a prop to a default. The used sources are removed. A `condition` prop of the old component
- * that hid the value is folded into the new prop.
+ * Fills one prop of the new component from where the old component took that value. `source` is one
+ * `fromSlot()` / `fromProp()`, or `firstFoundOf([...])` when the old component fell back from one to the
+ * next. The used sources are removed; an element that already sets `toProp` keeps it.
+ *
+ * - a source found → its value
+ * - nothing found → `oldComponentFallback`
+ * - a bound source that can be null or undefined → review comment, because the old component showed
+ *   `oldComponentFallback` then and the new one shows nothing
+ * - `oldComponentToggle.prop` false → `valueWhenOff`; bound to an expression → a conditional value
+ * - `plainText` with static HTML → review comment, because the new prop shows the tags as text
+ * - a conditional slot, Twig, or markup a prop cannot hold → manual
  *
  * @example
- * propFromSources({
- *     prop: 'description',
- *     sources: [{ slot: 'default' }, { prop: 'subline' }],
- *     fallback: '$t($route.meta.$module.description)',
- *     condition: { prop: 'show-description', otherwise: '' },
+ * propFromSource({
+ *     toProp: 'description',
+ *     source: firstFoundOf([
+ *         fromSlot('default'),
+ *         fromProp('subline'),
+ *     ]),
+ *     oldComponentFallback: '$t($route.meta.$module.description)',
+ *     oldComponentToggle: { prop: 'show-description', valueWhenOff: '' },
  * });
- * // <sw-empty-state subline="Hi" :show-description="isShown" /> → :description="isShown ? 'Hi' : ''"
+ * // <sw-empty-state>Hi</sw-empty-state> → <mt-empty-state description="Hi" />
+ * // <sw-empty-state subline="Hi" /> → <mt-empty-state description="Hi" />
+ * // <sw-empty-state /> → <mt-empty-state :description="$t($route.meta.$module.description)" />
+ * // <sw-empty-state :subline="text" /> → <mt-empty-state :description="text" /> + review comment
+ * // <sw-empty-state subline="Hi" :show-description="false" /> → <mt-empty-state description="" />
+ * // <sw-empty-state subline="Hi" :show-description="isShown" /> → <mt-empty-state :description="isShown ? 'Hi' : ''" />
+ *
+ * propFromSource({
+ *     toProp: 'icon',
+ *     source: fromSlot('icon', { childElement: ['mt-icon', 'sw-icon'], attribute: 'name' }),
+ * });
+ * // <template #icon><mt-icon name="regular-rocket" /></template> → icon="regular-rocket"
  */
-export function propFromSources({ fix = 'auto', ...config }: StepConfig<PropFromSourcesStep>): PropFromSourcesStep {
-    return defineUsageStep<PropFromSourcesStep>({ kind: 'prop-from-sources', fix, ...config }, (api, step) => {
+export function propFromSource({ fix = 'auto', ...config }: StepConfig<PropFromSourceStep>): PropFromSourceStep {
+    return defineUsageStep<PropFromSourceStep>({ kind: 'prop-from-source', fix, ...config }, (api, step) => {
         const found = findSources(api, step);
 
         if ('manualReason' in found) {
             reportUsage(api, {
                 node: api.node,
-                apiName: step.prop,
+                apiName: step.toProp,
                 headline: headline(step),
-                manualReason: `${found.manualReason} Pass it as the "${step.prop}" prop manually.`,
+                manualReason: `${found.manualReason} Pass it as the "${step.toProp}" prop manually.`,
             });
 
             return;
@@ -68,21 +89,28 @@ export function propFromSources({ fix = 'auto', ...config }: StepConfig<PropFrom
         const plan = planProp(api, step, found.sources);
 
         if (plan) {
-            reportUsage(api, { node: api.node, apiName: step.prop, headline: headline(step), ...plan });
+            reportUsage(api, { node: api.node, apiName: step.toProp, headline: headline(step), ...plan });
         }
     });
 }
 
-function headline(step: PropFromSourcesStep): string {
-    const sources = step.sources.map((source) => {
-        if ('prop' in source) {
+/** The sources of a step in the order they are tried. */
+function listSources(step: PropFromSourceStep): PropSource[] {
+    return step.source.from === 'first-found-of' ? step.source.sources : [step.source];
+}
+
+function headline(step: PropFromSourceStep): string {
+    const sources = listSources(step).map((source) => {
+        if (source.from === 'prop') {
             return `the "${source.prop}" prop`;
         }
 
-        return source.element ? `the <${source.element[0]}> in the "${source.slot}" slot` : `the "${source.slot}" slot`;
+        return source.childElement
+            ? `the <${source.childElement[0]}> in the "${source.slot}" slot`
+            : `the "${source.slot}" slot`;
     });
 
-    return `The "${step.prop}" prop replaces ${sources.join(' and ')}.`;
+    return `The "${step.toProp}" prop replaces ${sources.join(' and ')}.`;
 }
 
 /**
@@ -90,15 +118,16 @@ function headline(step: PropFromSourcesStep): string {
  */
 function findSources(
     api: ComponentUsageRuleApi,
-    step: PropFromSourcesStep,
+    step: PropFromSourceStep,
 ): { sources: FoundSource[] } | { manualReason: string } {
     const sources: FoundSource[] = [];
-    const listsTarget = step.sources.some((source) => 'prop' in source && source.prop === step.prop);
+    const stepSources = listSources(step);
+    const listsTarget = stepSources.some((source) => source.from === 'prop' && source.prop === step.toProp);
     // An element that already passes the new prop keeps it, the old sources come after it
-    const orderedSources: PropSource[] = listsTarget ? step.sources : [{ prop: step.prop }, ...step.sources];
+    const orderedSources: PropSource[] = listsTarget ? stepSources : [{ from: 'prop', prop: step.toProp }, ...stepSources];
 
     for (const source of orderedSources) {
-        if ('prop' in source) {
+        if (source.from === 'prop') {
             const attribute = api.ast.findMatchingPropAttribute(api.node, source.prop);
 
             if (attribute) {
@@ -138,7 +167,7 @@ function readAttribute(api: ComponentUsageRuleApi, attribute: TemplateNode): Val
  */
 function readSlot(
     api: ComponentUsageRuleApi,
-    source: Extract<PropSource, { slot: string }>,
+    source: Extract<PropSource, { from: 'slot' }>,
 ): FoundSource | { manualReason: string } | null {
     const template = api.ast.findSlot(api.node, source.slot);
     const nodes = template
@@ -169,7 +198,7 @@ function readSlot(
         return { manualReason: `The "${source.slot}" slot contains Twig, which a prop cannot hold.` };
     }
 
-    const value = source.element ? readSlotElement(api, source, content) : api.ast.getContentValue(content);
+    const value = source.childElement ? readSlotElement(api, source, content) : api.ast.getContentValue(content);
 
     if (!value || value.kind === 'none') {
         return { manualReason: `The "${source.slot}" slot renders content that the prop cannot hold.` };
@@ -207,12 +236,12 @@ function isSlotTemplate(api: ComponentUsageRuleApi, node: TemplateNode): boolean
  */
 function readSlotElement(
     api: ComponentUsageRuleApi,
-    source: Extract<PropSource, { slot: string }>,
+    source: Extract<PropSource, { from: 'slot' }>,
     content: TemplateNode[],
 ): Value | null {
     const [element] = content;
     const isListedElement =
-        content.length === 1 && element.type === 'VElement' && source.element?.includes(element.name as string);
+        content.length === 1 && element.type === 'VElement' && source.childElement?.includes(element.name as string);
     const attribute =
         isListedElement && source.attribute ? api.ast.findMatchingPropAttribute(element, source.attribute) : undefined;
 
@@ -232,24 +261,26 @@ type Edit = {
  * Plans the new prop from the found sources, or returns null when the element already passes it as
  * the new component expects.
  */
-function planProp(api: ComponentUsageRuleApi, step: PropFromSourcesStep, sources: FoundSource[]): UsagePlan | null {
+function planProp(api: ComponentUsageRuleApi, step: PropFromSourceStep, sources: FoundSource[]): UsagePlan | null {
     const chosen = sources.find((found) => found.value !== null);
-    const conditionAttribute = step.condition ? api.ast.findMatchingPropAttribute(api.node, step.condition.prop) : undefined;
-    const condition = conditionAttribute ? readCondition(api, conditionAttribute) : true;
+    const toggleAttribute = step.oldComponentToggle
+        ? api.ast.findMatchingPropAttribute(api.node, step.oldComponentToggle.prop)
+        : undefined;
+    const toggle = toggleAttribute ? readToggle(api, toggleAttribute) : true;
 
-    if (sources.length === 0 && !conditionAttribute && !step.fallback) {
+    if (sources.length === 0 && !toggleAttribute && !step.oldComponentFallback) {
         return null;
     }
 
-    const value = applyCondition(step, chosen?.value ?? fallbackValue(step), condition);
-    const attribute = value ? api.ast.toPropAttribute(step.prop, value) : null;
+    const value = applyToggle(step, chosen?.value ?? fallbackValue(step), toggle);
+    const attribute = value ? api.ast.toPropAttribute(step.toProp, value) : null;
 
     if (value && !attribute) {
-        return { manualReason: `The value mixes single and double quotes. Pass it as the "${step.prop}" prop manually.` };
+        return { manualReason: `The value mixes single and double quotes. Pass it as the "${step.toProp}" prop manually.` };
     }
 
-    const edit = planEdit(api, step, { sources, chosen, conditionAttribute, value, attribute });
-    const reviews = collectReviews(api, step, { chosen, value, condition });
+    const edit = planEdit(api, step, { sources, chosen, toggleAttribute, value, attribute });
+    const reviews = collectReviews(api, step, { chosen, value, toggle });
     const reviewReason = reviews.length > 0 ? { reviewReason: reviews.join(' ') } : null;
 
     if (edit.remove.length === 0 && !edit.rename && !edit.insert) {
@@ -259,56 +290,56 @@ function planProp(api: ComponentUsageRuleApi, step: PropFromSourcesStep, sources
     return { fix: (fixer: Fixer) => applyEdit(api, fixer, step, edit), ...reviewReason };
 }
 
-function fallbackValue(step: PropFromSourcesStep): Value | null {
-    return step.fallback ? { kind: 'expr', code: step.fallback } : null;
+function fallbackValue(step: PropFromSourceStep): Value | null {
+    return step.oldComponentFallback ? { kind: 'expr', code: step.oldComponentFallback } : null;
 }
 
 /**
- * Folds the condition prop into the value: `otherwise` while it is false, a conditional expression
+ * Folds the toggle prop into the value: `valueWhenOff` while it is false, a conditional expression
  * while it is bound to an expression.
  *
  * @example
- * applyCondition(step, { kind: 'static', text: 'Hi' }, 'isShown'); // { kind: 'expr', code: "isShown ? 'Hi' : ''" }
+ * applyToggle(step, { kind: 'static', text: 'Hi' }, 'isShown'); // { kind: 'expr', code: "isShown ? 'Hi' : ''" }
  */
-function applyCondition(step: PropFromSourcesStep, value: Value | null, condition: boolean | string): Value | null {
-    if (!step.condition || condition === true) {
+function applyToggle(step: PropFromSourceStep, value: Value | null, toggle: boolean | string): Value | null {
+    if (!step.oldComponentToggle || toggle === true) {
         return value;
     }
 
-    const otherwise: Value = { kind: 'static', text: step.condition.otherwise };
+    const valueWhenOff: Value = { kind: 'static', text: step.oldComponentToggle.valueWhenOff };
 
-    if (condition === false) {
-        return otherwise;
+    if (toggle === false) {
+        return valueWhenOff;
     }
 
-    return value ? { kind: 'expr', code: `${wrap(condition)} ? ${toCode(value)} : ${toCode(otherwise)}` } : value;
+    return value ? { kind: 'expr', code: `${wrap(toggle)} ? ${toCode(value)} : ${toCode(valueWhenOff)}` } : value;
 }
 
 function planEdit(
     api: ComponentUsageRuleApi,
-    step: PropFromSourcesStep,
+    step: PropFromSourceStep,
     plan: {
         sources: FoundSource[];
         chosen: FoundSource | undefined;
-        conditionAttribute: TemplateNode | undefined;
+        toggleAttribute: TemplateNode | undefined;
         value: Value | null;
         attribute: string | null;
     },
 ): Edit {
-    const { sources, chosen, conditionAttribute, attribute } = plan;
+    const { sources, chosen, toggleAttribute, attribute } = plan;
     const { keeps, rename } = findReusedAttribute(api, step, chosen, plan.value);
     const removedAttributes = sources.flatMap((found) => {
         return found.attribute && found.attribute !== keeps && found.attribute !== rename ? [found.attribute] : [];
     });
 
-    if (keeps && sources.length === 1 && !conditionAttribute) {
+    if (keeps && sources.length === 1 && !toggleAttribute) {
         return { remove: [] };
     }
 
     return {
         remove: [
             ...removedAttributes,
-            ...(conditionAttribute ? [conditionAttribute] : []),
+            ...(toggleAttribute ? [toggleAttribute] : []),
             ...sources.flatMap((found) => found.slotNodes ?? []),
         ],
         rename,
@@ -322,7 +353,7 @@ function planEdit(
  */
 function findReusedAttribute(
     api: ComponentUsageRuleApi,
-    step: PropFromSourcesStep,
+    step: PropFromSourceStep,
     chosen: FoundSource | undefined,
     value: Value | null,
 ): { keeps?: TemplateNode; rename?: TemplateNode } {
@@ -335,23 +366,25 @@ function findReusedAttribute(
 
 function collectReviews(
     api: ComponentUsageRuleApi,
-    step: PropFromSourcesStep,
-    plan: { chosen: FoundSource | undefined; value: Value | null; condition: boolean | string },
+    step: PropFromSourceStep,
+    plan: { chosen: FoundSource | undefined; value: Value | null; toggle: boolean | string },
 ): string[] {
     const reviews: string[] = [];
 
-    if (plan.condition !== false && losesFallback(api, step, plan.chosen)) {
-        reviews.push(`"${step.prop}" no longer falls back to "${step.fallback}" when it is null or undefined.`);
+    if (plan.toggle !== false && losesFallback(api, step, plan.chosen)) {
+        reviews.push(
+            `"${step.toProp}" no longer falls back to "${step.oldComponentFallback}" when it is null or undefined.`,
+        );
     }
 
     if (step.plainText && plan.value?.kind === 'static' && /<[a-z]/i.test(plan.value.text)) {
-        reviews.push(`"${step.prop}" is rendered as plain text, so HTML in it shows as text.`);
+        reviews.push(`"${step.toProp}" is rendered as plain text, so HTML in it shows as text.`);
     }
 
     return reviews;
 }
 
-function applyEdit(api: ComponentUsageRuleApi, fixer: Fixer, step: PropFromSourcesStep, edit: Edit): Fix[] {
+function applyEdit(api: ComponentUsageRuleApi, fixer: Fixer, step: PropFromSourceStep, edit: Edit): Fix[] {
     const fixes = edit.remove.map((node) => {
         return node.type === 'VAttribute'
             ? api.removeAttribute(fixer, node)
@@ -360,7 +393,7 @@ function applyEdit(api: ComponentUsageRuleApi, fixer: Fixer, step: PropFromSourc
 
     if (edit.rename) {
         const key = (edit.rename.directive ? edit.rename.key.argument : edit.rename.key) as TemplateNode;
-        fixes.push(fixer.replaceText(key, step.prop));
+        fixes.push(fixer.replaceText(key, step.toProp));
     }
 
     if (edit.insert) {
@@ -370,15 +403,15 @@ function applyEdit(api: ComponentUsageRuleApi, fixer: Fixer, step: PropFromSourc
     return fixes;
 }
 
-function isTargetAttribute(api: ComponentUsageRuleApi, step: PropFromSourcesStep, attribute: TemplateNode): boolean {
-    return api.ast.findMatchingPropAttribute(api.node, step.prop) === attribute;
+function isTargetAttribute(api: ComponentUsageRuleApi, step: PropFromSourceStep, attribute: TemplateNode): boolean {
+    return api.ast.findMatchingPropAttribute(api.node, step.toProp) === attribute;
 }
 
 /**
- * Reads the condition prop: true when it is set or bound to true, false when bound to false, otherwise
+ * Reads the toggle prop: true when it is set or bound to true, false when bound to false, otherwise
  * the bound expression.
  */
-function readCondition(api: ComponentUsageRuleApi, attribute: TemplateNode): boolean | string {
+function readToggle(api: ComponentUsageRuleApi, attribute: TemplateNode): boolean | string {
     if (api.ast.getDirectiveName(attribute) !== 'bind') {
         return true;
     }
@@ -396,16 +429,19 @@ function readCondition(api: ComponentUsageRuleApi, attribute: TemplateNode): boo
  * Tells whether the chosen source is a bound prop that can be null or undefined, in which case the old
  * component used the fallback.
  */
-function losesFallback(api: ComponentUsageRuleApi, step: PropFromSourcesStep, chosen: FoundSource | undefined): boolean {
+function losesFallback(api: ComponentUsageRuleApi, step: PropFromSourceStep, chosen: FoundSource | undefined): boolean {
     const attribute = chosen?.attribute;
 
-    if (!step.fallback || !attribute || api.ast.getDirectiveName(attribute) !== 'bind') {
+    if (!step.oldComponentFallback || !attribute || api.ast.getDirectiveName(attribute) !== 'bind') {
         return false;
     }
 
     const code = api.ast.getAttributeValueSource(attribute) ?? '';
 
-    return !isNeverNullish(attribute.value?.expression) && code.replace(/\s/g, '') !== step.fallback.replace(/\s/g, '');
+    return (
+        !isNeverNullish(attribute.value?.expression) &&
+        code.replace(/\s/g, '') !== step.oldComponentFallback.replace(/\s/g, '')
+    );
 }
 
 /**

@@ -46,6 +46,11 @@ function simpleStep<Step extends SimpleStep>(kind: Step['kind'], defaultFix: Fix
 
 /**
  * Replaces a deprecated component with its successor; `no-deprecated-components` converts the element.
+ * Put it first in `onConvert`: the steps after it carry the old component's behaviour over.
+ *
+ * - converted together with the `onConvert` steps; the run level decides whether an element whose
+ *   steps need manual work is converted
+ * - `fix: 'manual'` → only reported, with `message` as the hint
  *
  * @example
  * renameComponent({ from: 'sw-loader', to: 'mt-loader' });

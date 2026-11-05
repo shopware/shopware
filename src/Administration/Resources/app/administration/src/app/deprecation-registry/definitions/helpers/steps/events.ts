@@ -9,8 +9,12 @@ import { defineUsageStep, hasObjectVOn, reportUsage } from '../shared';
 /**
  * Renames a deprecated event listener, keeping its handler.
  *
+ * - `@from` → `@to`
+ * - an object `v-on` on the element → manual, because the bound object can listen to the old name
+ *
  * @example
  * renameEvent({ from: 'update:value', to: 'update:model-value' });
+ * // <mt-x @update:value="onChange" /> → <mt-x @update:model-value="onChange" />
  */
 export function renameEvent({ fix = 'auto', ...config }: StepConfig<RenameEventStep>): RenameEventStep {
     return defineUsageStep<RenameEventStep>({ kind: 'rename-event', fix, ...config }, (api, step) => {
@@ -39,8 +43,12 @@ export function renameEvent({ fix = 'auto', ...config }: StepConfig<RenameEventS
 /**
  * Removes the listener of an event the replacement component no longer emits.
  *
+ * - `@event` → removed
+ * - an object `v-on` on the element → manual
+ *
  * @example
  * removeEvent({ event: 'base-field-mounted' });
+ * // <mt-x @base-field-mounted="onMounted" /> → <mt-x />
  */
 export function removeEvent({ fix = 'auto', ...config }: StepConfig<RemoveEventStep>): RemoveEventStep {
     return defineUsageStep<RemoveEventStep>({ kind: 'remove-event', fix, ...config }, (api, step) => {

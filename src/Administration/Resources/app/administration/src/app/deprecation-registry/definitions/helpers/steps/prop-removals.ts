@@ -7,12 +7,21 @@ import type { UsagePlan } from '../shared';
 import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
 
 /**
- * Removes a deprecated prop that has no replacement. For a boolean prop whose "true" behaviour is
- * lost, `reviewWhenTrue` puts a review comment on every element where it was or could be true.
+ * Removes a deprecated prop that has no replacement.
+ *
+ * - set → removed
+ * - an object `v-bind` on the element → manual
+ * - `reviewWhenTrue`, for a boolean prop whose "true" behaviour the new component lost → review
+ *   comment wherever the prop was or could be true; bound to `false` → removed without one
+ * - `trueByDefault`, for a prop the old component treated as true when unset → the review comment
+ *   also on converted elements that did not set it
  *
  * @example
  * removeProp({ prop: 'is-invalid' });
+ * // <mt-x is-invalid /> → <mt-x />
  * removeProp({ prop: 'absolute', trueByDefault: true, reviewWhenTrue: 'It covered its container: check the spacing.' });
+ * // <sw-empty-state /> → <mt-empty-state /> + review comment
+ * // <sw-empty-state :absolute="false" /> → <mt-empty-state />
  */
 export function removeProp({ fix = 'auto', ...config }: StepConfig<RemovePropStep>): RemovePropStep {
     return defineUsageStep<RemovePropStep>({ kind: 'remove-prop', fix, ...config }, (api, step) => {
@@ -38,6 +47,9 @@ export function removeProp({ fix = 'auto', ...config }: StepConfig<RemovePropSte
 
 /**
  * Rewrites a deprecated prop into what the new component uses instead, as described by a `PropReplacement`.
+ *
+ * - set → rewritten by `with.fix`
+ * - an object `v-bind` on the element → manual with `with.objectVBindReason`
  *
  * @example
  * replaceProp({ prop: 'router-link', with: routerLinkClickHandler, fix: 'unsafe-auto' });

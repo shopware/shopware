@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 // How slot content becomes a prop value, and when the slot is left for a manual move. Uses the
 // "label" slot of mt-text-field, which the registry moves into the "label" prop.
 
@@ -14,7 +18,7 @@ function manualCase(name, code, reason) {
     };
 }
 
-const slotToPropInvalidTests = [
+const slotTextToPropInvalidTests = [
     {
         name: 'a translated label in a twig template becomes a bound prop',
         filename: 'test.html.twig',
@@ -91,5 +95,5 @@ const slotToPropInvalidTests = [
 
 module.exports = {
     valid: [],
-    invalid: slotToPropInvalidTests,
+    invalid: slotTextToPropInvalidTests,
 };

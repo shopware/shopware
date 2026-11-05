@@ -3,7 +3,7 @@
  * @sw-package framework
  */
 
-import type { ComponentUsageRuleApi, Fix, Fixer, MapOptionsPropKeysStep, StepConfig, TemplateNode } from '../types';
+import type { ComponentUsageRuleApi, Fix, Fixer, RenameArrayPropKeysStep, StepConfig, TemplateNode } from '../types';
 import type { UsagePlan } from '../shared';
 import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
 
@@ -11,22 +11,34 @@ const DEFAULT_UNSAFE_MESSAGE =
     'Migrate option object keys manually because this options expression is dynamic or structurally unsafe to rewrite automatically.';
 
 /**
- * Renames keys of the option objects passed to an options prop. Only literal option objects are
- * rewritten; any other expression with a deprecated key, or any non-literal expression on a just
- * converted element, is reported with `unsafeMessage` for a manual migration.
+ * Renames keys of the objects in an array prop, such as the options of a select.
+ *
+ * - a literal array or object → keys renamed
+ * - any other expression that names a deprecated key → manual with `unsafeMessage`
+ * - any other bound expression on a converted element → manual, because its keys are unknown
+ * - an element that sets one of `unlessElementHas` → skipped
  *
  * @example
- * mapOptionsPropKeys({ prop: 'options', from: { name: 'label', id: 'value' }, unlessProps: ['label-property'] });
+ * renameArrayPropKeys({
+ *     prop: 'options',
+ *     renameKeys: { name: 'label', id: 'value' },
+ *     unlessElementHas: ['label-property', 'value-property'],
+ * });
+ * // :options="[{ id: 1, name: 'A' }]" → :options="[{ value: 1, label: 'A' }]"
+ * // :options="salutations" right after a conversion → manual
  */
-export function mapOptionsPropKeys({ fix = 'auto', ...config }: StepConfig<MapOptionsPropKeysStep>): MapOptionsPropKeysStep {
-    return defineUsageStep<MapOptionsPropKeysStep>(
-        { kind: 'map-options-prop-keys', fix, ...config },
-        reportMapOptionsPropKeys,
+export function renameArrayPropKeys({
+    fix = 'auto',
+    ...config
+}: StepConfig<RenameArrayPropKeysStep>): RenameArrayPropKeysStep {
+    return defineUsageStep<RenameArrayPropKeysStep>(
+        { kind: 'rename-array-prop-keys', fix, ...config },
+        reportRenameArrayPropKeys,
     );
 }
 
-function reportMapOptionsPropKeys(api: ComponentUsageRuleApi, step: MapOptionsPropKeysStep): void {
-    const mapsKeysThroughProp = (step.unlessProps ?? []).some((propName) => {
+function reportRenameArrayPropKeys(api: ComponentUsageRuleApi, step: RenameArrayPropKeysStep): void {
+    const mapsKeysThroughProp = (step.unlessElementHas ?? []).some((propName) => {
         return api.ast.hasMatchingPropAttribute(api.node, propName);
     });
 
@@ -37,7 +49,11 @@ function reportMapOptionsPropKeys(api: ComponentUsageRuleApi, step: MapOptionsPr
     const attribute = api.ast.findMatchingPropAttribute(api.node, step.prop);
     const source = attribute ? api.ast.getAttributeValueSource(attribute) : null;
 
-    if (!attribute || !source || !(hasDeprecatedKeys(source, step.from) || isDynamicOnConvertedElement(api, attribute))) {
+    if (
+        !attribute ||
+        !source ||
+        !(hasDeprecatedKeys(source, step.renameKeys) || isDynamicOnConvertedElement(api, attribute))
+    ) {
         return;
     }
 
@@ -67,7 +83,7 @@ function isDynamicOnConvertedElement(api: ComponentUsageRuleApi, attribute: Temp
     );
 }
 
-function planKeyMapping(api: ComponentUsageRuleApi, step: MapOptionsPropKeysStep, attribute: TemplateNode): UsagePlan {
+function planKeyMapping(api: ComponentUsageRuleApi, step: RenameArrayPropKeysStep, attribute: TemplateNode): UsagePlan {
     if (hasObjectVBind(api)) {
         return {
             manualReason: `Object v-bind can hide the "${step.prop}" prop. Review the bound object and migrate option keys manually if needed.`,
@@ -75,14 +91,14 @@ function planKeyMapping(api: ComponentUsageRuleApi, step: MapOptionsPropKeysStep
     }
 
     const optionObjects = getLiteralOptionObjects(attribute.value?.expression as TemplateNode | undefined);
-    const deprecatedProperties = optionObjects ? collectDeprecatedProperties(optionObjects, step.from) : [];
+    const deprecatedProperties = optionObjects ? collectDeprecatedProperties(optionObjects, step.renameKeys) : [];
 
-    if (!optionObjects || deprecatedProperties.length === 0 || hasReplacementKeyConflict(optionObjects, step.from)) {
+    if (!optionObjects || deprecatedProperties.length === 0 || hasReplacementKeyConflict(optionObjects, step.renameKeys)) {
         return { manualReason: step.unsafeMessage ?? DEFAULT_UNSAFE_MESSAGE };
     }
 
     return {
-        fix: (fixer) => deprecatedProperties.map((property) => renameOptionKey(api, fixer, property, step.from)),
+        fix: (fixer) => deprecatedProperties.map((property) => renameOptionKey(api, fixer, property, step.renameKeys)),
     };
 }
 

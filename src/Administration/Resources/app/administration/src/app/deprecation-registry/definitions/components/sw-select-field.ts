@@ -3,16 +3,18 @@
  */
 
 import {
+    addPropWhenMissing,
+    childElementsToArrayProp,
     componentMigration,
-    mapOptionsPropKeys,
-    missingProp,
+    fromAttribute,
+    fromText,
     removeProp,
+    renameArrayPropKeys,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
-    slotToItemsProp,
-    slotToProp,
+    slotTextToProp,
     upgradeGuide,
 } from '../helpers';
 
@@ -29,7 +31,7 @@ export default componentMigration({
     ],
     onConvert: [
         renameComponent({ from: 'sw-select-field', to: 'mt-select' }),
-        missingProp({
+        addPropWhenMissing({
             prop: 'hide-clearable-button',
             message:
                 'mt-select shows a clear button by default, which sw-select-field never had. Add "hide-clearable-button" to keep the field unclearable.',
@@ -45,13 +47,13 @@ export default componentMigration({
         removeProp({
             prop: 'aside',
         }),
-        mapOptionsPropKeys({
+        renameArrayPropKeys({
             prop: 'options',
-            from: {
+            renameKeys: {
                 name: 'label',
                 id: 'value',
             },
-            unlessProps: [
+            unlessElementHas: [
                 'label-property',
                 'value-property',
             ],
@@ -59,21 +61,20 @@ export default componentMigration({
             unsafeMessage:
                 'Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }),
-        slotToProp({ slot: 'label', prop: 'label' }),
-        slotToItemsProp({
-            item: 'option',
-            prop: 'options',
-            fields: {
-                value: {
-                    attribute: 'value',
+        slotTextToProp({ fromSlot: 'label', toProp: 'label' }),
+        childElementsToArrayProp({
+            childElement: 'option',
+            arrayProp: 'options',
+            eachItem: {
+                value: fromAttribute('value', {
                     required: true,
                     emptyAsNull: true,
                     boundReview:
                         'sw-select-field passed the selected value on as a string, mt-select passes it on as it is: check that the bound value has the type the model expects.',
-                },
-                label: { content: true },
+                }),
+                label: fromText(),
             },
-            keyProps: { value: 'value-property', label: 'label-property' },
+            forBoundList: { value: 'value-property', label: 'label-property' },
         }),
     ],
 });

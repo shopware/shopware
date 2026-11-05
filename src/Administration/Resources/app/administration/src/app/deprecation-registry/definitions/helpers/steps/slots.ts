@@ -9,7 +9,7 @@ import type {
     FlagSlotForManualMoveStep,
     RemoveSlotStep,
     RenameSlotStep,
-    SlotToPropStep,
+    SlotTextToPropStep,
     StepConfig,
     TemplateNode,
 } from '../types';
@@ -17,12 +17,16 @@ import type { UsagePlan } from '../shared';
 import { defineUsageStep, reportUsage } from '../shared';
 
 /**
- * Handles a slot the new component no longer has. An empty slot is deleted. A slot with content is
- * reported for a manual move, because the new component does not render it and only a developer can
- * decide where it goes.
+ * Handles a slot the new component no longer has.
+ *
+ * - empty → removed
+ * - with content → manual with `hint`, because the new component does not render it and only a
+ *   developer can decide where it goes
  *
  * @example
  * removeSlot({ slot: 'actions', hint: 'mt-banner has no "actions" slot. Render the actions next to the banner.' });
+ * // <template #actions></template> → removed
+ * // <template #actions><mt-button /></template> → manual
  */
 export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotStep>): RemoveSlotStep {
     return defineUsageStep<RemoveSlotStep>({ kind: 'remove-slot', fix, ...config }, (api, step) => {
@@ -51,7 +55,9 @@ export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotSte
 
 /**
  * Renames a slot the replacement component renders under another name, keeping its slot props.
- * Both `#from` and `v-slot:from` are matched.
+ *
+ * - `#from` and `v-slot:from` → renamed, every template that fills it (`v-if` / `v-else`)
+ * - the element already fills `to` → manual, both slots have to be merged
  *
  * @example
  * renameSlot({ from: 'header-right', to: 'headerRight' });
@@ -97,17 +103,24 @@ function findSlotDirectives(api: ComponentUsageRuleApi, slotName: string): Templ
 }
 
 /**
- * Moves the content of a removed slot into a prop: plain text becomes a static prop, a single mustache a
- * bound prop, mixed text and mustaches a template literal. Markup, Twig, a conditional or scoped slot,
- * or a prop that is already set leave the slot for a manual move.
+ * Moves the text of a removed slot into a prop. For a slot whose value can also come from other
+ * places, use `propFromSource()`.
+ *
+ * - plain text → static prop
+ * - a single mustache → bound prop
+ * - text mixed with mustaches → bound template literal
+ * - an empty slot → removed
+ * - markup, Twig, a conditional or scoped slot, or `toProp` already set → manual
  *
  * @example
- * slotToProp({ slot: 'label', prop: 'label' });
+ * slotTextToProp({ fromSlot: 'label', toProp: 'label' });
+ * // <template #label>Name</template> → label="Name"
  * // <template #label>{{ $t('sw-foo.label') }}</template> → :label="$t('sw-foo.label')"
+ * // <template #label>{{ count }} items</template> → :label="`${count} items`"
  */
-export function slotToProp({ fix = 'auto', ...config }: StepConfig<SlotToPropStep>): SlotToPropStep {
-    return defineUsageStep<SlotToPropStep>({ kind: 'slot-to-prop', fix, ...config }, (api, step) => {
-        const slot = api.ast.findSlot(api.node, step.slot);
+export function slotTextToProp({ fix = 'auto', ...config }: StepConfig<SlotTextToPropStep>): SlotTextToPropStep {
+    return defineUsageStep<SlotTextToPropStep>({ kind: 'slot-text-to-prop', fix, ...config }, (api, step) => {
+        const slot = api.ast.findSlot(api.node, step.fromSlot);
 
         if (!slot) {
             return;
@@ -115,22 +128,22 @@ export function slotToProp({ fix = 'auto', ...config }: StepConfig<SlotToPropSte
 
         reportUsage(api, {
             node: slot,
-            apiName: step.slot,
-            headline: `The "${step.slot}" slot is removed. Pass its content as the "${step.prop}" prop.`,
+            apiName: step.fromSlot,
+            headline: `The "${step.fromSlot}" slot is removed. Pass its content as the "${step.toProp}" prop.`,
             ...planSlotToProp(api, step, slot),
         });
     });
 }
 
-function planSlotToProp(api: ComponentUsageRuleApi, step: SlotToPropStep, slot: TemplateNode): UsagePlan {
-    const manualMove = `Move the content of the "${step.slot}" slot into the "${step.prop}" prop manually.`;
+function planSlotToProp(api: ComponentUsageRuleApi, step: SlotTextToPropStep, slot: TemplateNode): UsagePlan {
+    const manualMove = `Move the content of the "${step.fromSlot}" slot into the "${step.toProp}" prop manually.`;
 
     if (isConditionalOrScopedSlot(api, slot)) {
         return { manualReason: `The slot is rendered conditionally or uses slot props. ${manualMove}` };
     }
 
-    if (api.ast.hasMatchingPropAttribute(api.node, step.prop)) {
-        return { manualReason: `The element already sets "${step.prop}". ${manualMove}` };
+    if (api.ast.hasMatchingPropAttribute(api.node, step.toProp)) {
+        return { manualReason: `The element already sets "${step.toProp}". ${manualMove}` };
     }
 
     const value = api.ast.getSlotContentValue(slot);
@@ -145,7 +158,7 @@ function planSlotToProp(api: ComponentUsageRuleApi, step: SlotToPropStep, slot: 
         return { fix: removeSlotElement };
     }
 
-    const attribute = api.ast.toPropAttribute(step.prop, value);
+    const attribute = api.ast.toPropAttribute(step.toProp, value);
 
     if (attribute === null) {
         return { manualReason: `The slot content mixes single and double quotes. ${manualMove}` };
@@ -154,7 +167,7 @@ function planSlotToProp(api: ComponentUsageRuleApi, step: SlotToPropStep, slot: 
     const tagNameEnd = (api.node.startTag.range[0] as number) + 1 + (api.node.rawName as string).length;
 
     return {
-        produces: { kind: 'prop', name: step.prop },
+        produces: { kind: 'prop', name: step.toProp },
         fix: (fixer) => [
             fixer.insertTextAfterRange([tagNameEnd, tagNameEnd], ` ${attribute}`),
             removeSlotElement(fixer),
@@ -184,6 +197,8 @@ export type FlagSlotForManualMoveConfig = {
 /**
  * Reports a slot whose content cannot move automatically for a manual move. Use it when the content
  * is markup that only a developer can turn into a prop or move elsewhere.
+ *
+ * - filled → always manual, with `hint` or "use the `toProp` prop instead"
  *
  * @example
  * flagSlotForManualMove({ slot: 'label', toProp: 'label' });

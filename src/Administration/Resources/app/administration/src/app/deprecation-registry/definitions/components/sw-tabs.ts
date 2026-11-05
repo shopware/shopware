@@ -3,12 +3,14 @@
  */
 
 import {
+    childElementsToArrayProp,
     componentMigration,
     flagSlotForManualMove,
+    fromAttribute,
+    fromText,
     removeProp,
     renameComponent,
     renameProp,
-    slotToItemsProp,
     upgradeGuide,
 } from '../helpers';
 
@@ -39,14 +41,14 @@ export default componentMigration({
         removeProp({
             prop: 'align-right',
         }),
-        slotToItemsProp({
-            item: 'sw-tabs-item',
-            prop: 'items',
-            fields: {
-                label: { content: true },
-                name: { attribute: 'name', required: true },
-                hasError: { attribute: 'has-error' },
-                disabled: { attribute: 'disabled' },
+        childElementsToArrayProp({
+            childElement: 'sw-tabs-item',
+            arrayProp: 'items',
+            eachItem: {
+                label: fromText(),
+                name: fromAttribute('name', { required: true }),
+                hasError: fromAttribute('has-error'),
+                disabled: fromAttribute('disabled'),
             },
         }),
         flagSlotForManualMove({

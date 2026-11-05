@@ -4,14 +4,14 @@
 
 import {
     componentMigration,
-    mapPropValue,
     removeEvent,
     removeProp,
     renameComponent,
     renameEvent,
     renameProp,
     renameVModelArgument,
-    slotToProp,
+    replacePropValue,
+    slotTextToProp,
     upgradeGuide,
 } from '../helpers';
 
@@ -36,10 +36,10 @@ export default componentMigration({
         }),
         renameEvent({ from: 'update:value', to: 'update:model-value' }),
         renameVModelArgument({ from: 'value', to: null }),
-        mapPropValue({
+        replacePropValue({
             prop: 'size',
-            from: 'medium',
-            to: 'default',
+            fromValue: 'medium',
+            toValue: 'default',
         }),
         removeProp({
             prop: 'is-invalid',
@@ -48,9 +48,9 @@ export default componentMigration({
         removeProp({
             prop: 'ai-badge',
         }),
-        slotToProp({
-            slot: 'label',
-            prop: 'label',
+        slotTextToProp({
+            fromSlot: 'label',
+            toProp: 'label',
         }),
     ],
 });

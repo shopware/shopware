@@ -1,10 +1,15 @@
+/**
+ * @sw-package framework
+ */
+
 // How the <option> elements of a select become its "options" prop, and when they are left for a
 // manual move. Uses mt-select, whose registry entry reads "value" and the text of each option.
 
 const HEADLINE = '[mt-select] The "default" slot is removed. Pass its <option> elements as the "options" prop.';
 const MANUAL_MOVE = 'Move the <option> elements into the "options" prop manually.';
 const LIST_REVIEW = 'The items come from "tags", which has to be an array.';
-const BOUND_REVIEW = 'sw-select-field passed the selected value on as a string, mt-select passes it on as it is: check that the bound value has the type the model expects.';
+const BOUND_REVIEW =
+    'sw-select-field passed the selected value on as a string, mt-select passes it on as it is: check that the bound value has the type the model expects.';
 
 function convertedCase(name, code, output, reviews = []) {
     return {
@@ -26,7 +31,7 @@ function manualCase(name, code, reason) {
     };
 }
 
-const slotToItemsPropInvalidTests = [
+const childElementsToArrayPropInvalidTests = [
     convertedCase(
         'static options become an array, an empty value becomes null',
         `<template><mt-select v-model="x"><option value="a">A</option><option value="">{{ $t('none') }}</option></mt-select></template>`,
@@ -147,5 +152,5 @@ module.exports = {
             code: `<template><mt-select v-model="x" :options="list"><template #hint>H</template></mt-select></template>`,
         },
     ],
-    invalid: slotToItemsPropInvalidTests,
+    invalid: childElementsToArrayPropInvalidTests,
 };

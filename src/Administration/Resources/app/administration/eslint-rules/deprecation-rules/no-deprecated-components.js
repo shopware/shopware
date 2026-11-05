@@ -7,11 +7,7 @@ const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { canAutoFix } = require('./registry/fix-policy');
 const { convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
-const {
-    defineTemplateBodyVisitor,
-    findObjectVBindAttribute,
-    findObjectVOnAttribute,
-} = require('./registry/template-ast');
+const { defineTemplateBodyVisitor, findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
 const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
 const {
     RANGE_FIXER,
@@ -99,16 +95,21 @@ function findBlockingParts(level, node, renameUsage, parts) {
  * getConversionComment('sw-icon', node, []); // the review comment carrying convertedFromText('sw-icon')
  */
 function getConversionComment(componentName, node, notes) {
-    const vBindWarning = findObjectVBindAttribute(node)
-        ? '. Dynamic v-bind props may still contain deprecated API usage and need manual review.'
-        : '';
-    const vOnWarning = findObjectVOnAttribute(node)
-        ? '. Dynamic v-on listeners may still contain deprecated event usage and need manual review.'
-        : '';
+    const warnings = [
+        findObjectVBindAttribute(node) &&
+            'Dynamic v-bind props may still contain deprecated API usage and need manual review',
+        findObjectVOnAttribute(node) &&
+            'Dynamic v-on listeners may still contain deprecated event usage and need manual review',
+    ].filter(Boolean);
+    const sentences = [
+        ...warnings,
+        ...notes.map((note) => note.replace(/\.$/, '')),
+    ];
+    const closingPeriod = notes.length === 0 && warnings.length > 0 ? '.' : '';
 
-    const noteText = notes.map((note) => `. ${note.replace(/\.$/, '')}`).join('');
-
-    return templateCodemodComment(`${convertedFromText(componentName)}${vBindWarning}${vOnWarning}${noteText}`);
+    return templateCodemodComment(
+        `${convertedFromText(componentName)}${sentences.map((sentence) => `. ${sentence}`).join('')}${closingPeriod}`,
+    );
 }
 
 /**
@@ -203,9 +204,11 @@ module.exports = withRunLevel({
                 if (level === 'safe') {
                     const partFixes = parts.flatMap((part) => part.fixes);
                     // A part that turns the element self-closing replaces the end tag itself
-                    const replacesEndTag = node.endTag && partFixes.some((fix) => {
-                        return fix.range[0] <= node.endTag.range[0] && node.endTag.range[1] <= fix.range[1];
-                    });
+                    const replacesEndTag =
+                        node.endTag &&
+                        partFixes.some((fix) => {
+                            return fix.range[0] <= node.endTag.range[0] && node.endTag.range[1] <= fix.range[1];
+                        });
                     const fixes = [
                         ...renameFixes(RANGE_FIXER).slice(0, replacesEndTag ? 1 : undefined),
                         ...partFixes,

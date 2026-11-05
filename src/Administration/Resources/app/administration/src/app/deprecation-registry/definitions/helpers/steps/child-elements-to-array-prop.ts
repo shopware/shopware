@@ -3,7 +3,14 @@
  * @sw-package framework
  */
 
-import type { ComponentUsageRuleApi, Fixer, ItemFieldSource, SlotToItemsPropStep, StepConfig, TemplateNode } from '../types';
+import type {
+    ChildElementsToArrayPropStep,
+    ComponentUsageRuleApi,
+    Fixer,
+    ItemFieldSource,
+    StepConfig,
+    TemplateNode,
+} from '../types';
 import type { UsagePlan } from '../shared';
 import { defineUsageStep, reportUsage } from '../shared';
 import { isConditionalOrScopedSlot } from './slots';
@@ -25,49 +32,66 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 const MAX_INLINE_LENGTH = 80;
 
 /**
- * Turns the item elements of a slot into an array prop: each item becomes an object whose fields are
- * read from the item's attributes or text, and an item with `v-for` becomes its list mapped into such
- * objects. The slot is removed. Items with other attributes, markup, Twig or conditions leave the slot
- * for a manual move; items from a `v-for` list get a review comment, because the list has to be an array.
+ * Turns child elements into an array prop: each `childElement` becomes one array item, whose fields
+ * `eachItem` reads with `fromText()` or `fromAttribute()`. The children are removed.
+ *
+ * - static children → an array literal
+ * - a `v-for` child → its list mapped into items
+ * - a single `v-for` child whose fields are plain keys of the entries, with `forBoundList` → the list as it is
+ * - every `v-for` list → review comment, because the list has to be an array
+ * - a child without a `required` attribute, with another attribute, markup or Twig, other content
+ *   next to the children, a conditional slot, or `arrayProp` already set → manual
  *
  * @example
- * slotToItemsProp({
- *     item: 'option',
- *     prop: 'options',
- *     fields: { value: { attribute: 'value' }, label: { content: true } },
- *     keyProps: { value: 'value-property', label: 'label-property' },
+ * childElementsToArrayProp({
+ *     childElement: 'option',
+ *     arrayProp: 'options',
+ *     eachItem: {
+ *         value: fromAttribute('value', { required: true }),
+ *         label: fromText(),
+ *     },
+ *     forBoundList: { value: 'value-property', label: 'label-property' },
  * });
  * // <mt-select><option value="a">A</option></mt-select> → <mt-select :options="[{ value: 'a', label: 'A' }]" />
  * // <option v-for="tag in tags" :value="tag.key">{{ tag.name }}</option>
  * // → :options="tags" value-property="key" label-property="name"
+ * // <option v-for="tag in tags" :value="tag.key">{{ $t(tag.name) }}</option>
+ * // → :options="tags.map((tag) => ({ value: tag.key, label: $t(tag.name) }))"
+ * // <option>No value</option> → manual: "value" is required
  */
-export function slotToItemsProp({ fix = 'auto', ...config }: StepConfig<SlotToItemsPropStep>): SlotToItemsPropStep {
-    return defineUsageStep<SlotToItemsPropStep>({ kind: 'slot-to-items-prop', fix, ...config }, (api, step) => {
-        const slotName = step.slot ?? 'default';
-        const slot = api.ast.findSlot(api.node, slotName);
-        const container = slot ?? (slotName === 'default' ? api.node : null);
-        const content = ((container?.children ?? []) as TemplateNode[]).filter((child) => {
-            const isSlotTemplate = !slot && child.type === 'VElement' && child.name === 'template';
+export function childElementsToArrayProp({
+    fix = 'auto',
+    ...config
+}: StepConfig<ChildElementsToArrayPropStep>): ChildElementsToArrayPropStep {
+    return defineUsageStep<ChildElementsToArrayPropStep>(
+        { kind: 'child-elements-to-array-prop', fix, ...config },
+        (api, step) => {
+            const slotName = step.inSlot ?? 'default';
+            const slot = api.ast.findSlot(api.node, slotName);
+            const container = slot ?? (slotName === 'default' ? api.node : null);
+            const content = ((container?.children ?? []) as TemplateNode[]).filter((child) => {
+                const isSlotTemplate = !slot && child.type === 'VElement' && child.name === 'template';
 
-            return !isSlotTemplate && !isWhitespace(child);
-        });
-        const items = content.filter((child) => isItem(step, child));
+                return !isSlotTemplate && !isWhitespace(child);
+            });
+            const items = content.filter((child) => isItem(step, child));
 
-        if (content.length === 0) {
-            return;
-        }
+            if (content.length === 0) {
+                return;
+            }
 
-        reportUsage(api, {
-            node: slot ?? items[0] ?? content[0],
-            apiName: slotName,
-            headline: `The "${slotName}" slot is removed. Pass its <${step.item}> elements as the "${step.prop}" prop.`,
-            ...planItemsProp(api, step, slot, { items, otherContentCount: content.length - items.length }),
-        });
-    });
+            reportUsage(api, {
+                node: slot ?? items[0] ?? content[0],
+                apiName: slotName,
+                headline: `The "${slotName}" slot is removed. Pass its <${step.childElement}> elements as the "${step.arrayProp}" prop.`,
+                ...planItemsProp(api, step, slot, { items, otherContentCount: content.length - items.length }),
+            });
+        },
+    );
 }
 
-function isItem(step: SlotToItemsPropStep, node: TemplateNode): boolean {
-    return node.type === 'VElement' && node.name === step.item;
+function isItem(step: ChildElementsToArrayPropStep, node: TemplateNode): boolean {
+    return node.type === 'VElement' && node.name === step.childElement;
 }
 
 function isWhitespace(node: TemplateNode): boolean {
@@ -76,14 +100,14 @@ function isWhitespace(node: TemplateNode): boolean {
 
 function planItemsProp(
     api: ComponentUsageRuleApi,
-    step: SlotToItemsPropStep,
+    step: ChildElementsToArrayPropStep,
     slot: TemplateNode | undefined,
     { items, otherContentCount }: { items: TemplateNode[]; otherContentCount: number },
 ): UsagePlan {
-    const manualMove = `Move the <${step.item}> elements into the "${step.prop}" prop manually.`;
+    const manualMove = `Move the <${step.childElement}> elements into the "${step.arrayProp}" prop manually.`;
     const blocker =
         otherContentCount > 0
-            ? { manualReason: `The slot holds other content than <${step.item}> elements.` }
+            ? { manualReason: `The slot holds other content than <${step.childElement}> elements.` }
             : findSlotBlocker(api, step, slot, items);
 
     if (blocker) {
@@ -104,7 +128,9 @@ function planItemsProp(
 
     // Static text is written with &quot;, so a double quote can only come from an expression
     if (itemCodes.some((itemCode) => itemCode.code.includes('"'))) {
-        return { manualReason: `An item uses double quotes, which the "${step.prop}" attribute cannot hold. ${manualMove}` };
+        return {
+            manualReason: `An item uses double quotes, which the "${step.arrayProp}" attribute cannot hold. ${manualMove}`,
+        };
     }
 
     const attributes = buildAttributes(api, step, itemCodes);
@@ -125,12 +151,12 @@ function planItemsProp(
  */
 function findSlotBlocker(
     api: ComponentUsageRuleApi,
-    step: SlotToItemsPropStep,
+    step: ChildElementsToArrayPropStep,
     slot: TemplateNode | undefined,
     items: TemplateNode[],
 ): Blocker | undefined {
-    if (api.ast.hasMatchingPropAttribute(api.node, step.prop)) {
-        return { manualReason: `The element already sets "${step.prop}".` };
+    if (api.ast.hasMatchingPropAttribute(api.node, step.arrayProp)) {
+        return { manualReason: `The element already sets "${step.arrayProp}".` };
     }
 
     const itemsSource = api.sourceCode.text.slice(items[0].range[0], items[items.length - 1].range[1]);
@@ -171,7 +197,7 @@ function isUnusedSlotScope(api: ComponentUsageRuleApi, slot: TemplateNode, items
  * @example
  * readItem(api, step, optionOf('<option value="a">A</option>')); // { code: "{ value: 'a', label: 'A' }", reviews: [] }
  */
-function readItem(api: ComponentUsageRuleApi, step: SlotToItemsPropStep, item: TemplateNode): ItemCode | Blocker {
+function readItem(api: ComponentUsageRuleApi, step: ChildElementsToArrayPropStep, item: TemplateNode): ItemCode | Blocker {
     const vFor = (item.startTag.attributes as TemplateNode[]).find((attribute) => {
         return api.ast.getDirectiveName(attribute) === 'for';
     });
@@ -179,14 +205,14 @@ function readItem(api: ComponentUsageRuleApi, step: SlotToItemsPropStep, item: T
 
     if (unknownAttribute) {
         return {
-            manualReason: `A <${step.item}> element has "${api.sourceCode.getText(unknownAttribute.key)}", which an item of "${step.prop}" cannot hold.`,
+            manualReason: `A <${step.childElement}> element has "${api.sourceCode.getText(unknownAttribute.key)}", which an item of "${step.arrayProp}" cannot hold.`,
         };
     }
 
     const fields: Record<string, string> = {};
     const reviews: string[] = [];
 
-    for (const [field, source] of Object.entries(step.fields)) {
+    for (const [field, source] of Object.entries(step.eachItem)) {
         const value = readField(api, step, item, source);
 
         if (typeof value === 'object') {
@@ -197,7 +223,7 @@ function readItem(api: ComponentUsageRuleApi, step: SlotToItemsPropStep, item: T
             fields[field] = value;
         }
 
-        if ('attribute' in source && source.boundReview && isBound(api, item, source.attribute)) {
+        if (source.from === 'attribute' && source.boundReview && isBound(api, item, source.attribute)) {
             reviews.push(source.boundReview);
         }
     }
@@ -211,12 +237,12 @@ function readItem(api: ComponentUsageRuleApi, step: SlotToItemsPropStep, item: T
 
 function findUnknownAttribute(
     api: ComponentUsageRuleApi,
-    step: SlotToItemsPropStep,
+    step: ChildElementsToArrayPropStep,
     item: TemplateNode,
     hasVFor: boolean,
 ): TemplateNode | undefined {
-    const fieldAttributes = Object.values(step.fields).flatMap((source) =>
-        'attribute' in source ? [source.attribute] : [],
+    const fieldAttributes = Object.values(step.eachItem).flatMap((source) =>
+        source.from === 'attribute' ? [source.attribute] : [],
     );
 
     return (item.startTag.attributes as TemplateNode[]).find((attribute) => {
@@ -249,16 +275,16 @@ function isBound(api: ComponentUsageRuleApi, item: TemplateNode, attributeName: 
  */
 function readField(
     api: ComponentUsageRuleApi,
-    step: SlotToItemsPropStep,
+    step: ChildElementsToArrayPropStep,
     item: TemplateNode,
     source: ItemFieldSource,
 ): string | Blocker | undefined {
-    if ('content' in source) {
+    if (source.from === 'text') {
         const value = api.ast.getSlotContentValue(item);
 
         if (value === null) {
             return {
-                manualReason: `A <${step.item}> element contains markup, which an item of "${step.prop}" cannot hold.`,
+                manualReason: `A <${step.childElement}> element contains markup, which an item of "${step.arrayProp}" cannot hold.`,
             };
         }
 
@@ -273,7 +299,7 @@ function readField(
 
     if (!attribute) {
         return source.required
-            ? { manualReason: `A <${step.item}> element has no "${source.attribute}", which every item needs.` }
+            ? { manualReason: `A <${step.childElement}> element has no "${source.attribute}", which every item needs.` }
             : undefined;
     }
 
@@ -301,7 +327,7 @@ function readField(
  */
 function mapList(
     api: ComponentUsageRuleApi,
-    step: SlotToItemsPropStep,
+    step: ChildElementsToArrayPropStep,
     vFor: TemplateNode,
     item: { fields: Record<string, string>; objectCode: string; reviews: string[] },
 ): ItemCode | Blocker {
@@ -310,11 +336,11 @@ function mapList(
     const aliases = (expression?.left ?? []) as TemplateNode[];
 
     if (!expression || aliases.length === 0 || aliases.length > 2 || aliases.some((alias) => alias?.type !== 'Identifier')) {
-        return { manualReason: `A <${step.item}> element iterates over an object or with a destructured entry.` };
+        return { manualReason: `A <${step.childElement}> element iterates over an object or with a destructured entry.` };
     }
 
     if (expression.right.type === 'Literal') {
-        return { manualReason: `A <${step.item}> element iterates over a number.` };
+        return { manualReason: `A <${step.childElement}> element iterates over a number.` };
     }
 
     const source = api.sourceCode.getText(expression.right);
@@ -326,7 +352,7 @@ function mapList(
             code.match(new RegExp(`^${entry}\\.([A-Za-z_$][\\w$]*)$`))?.[1],
         ]),
     );
-    const isPlainList = Object.keys(step.fields).every((field) => keys[field] !== undefined);
+    const isPlainList = Object.keys(step.eachItem).every((field) => keys[field] !== undefined);
 
     return {
         code: `...${source}.map((${parameters}) => (${objectCode}))`,
@@ -347,28 +373,33 @@ function mapList(
  * @example
  * buildAttributes(api, step, [listItem]); // [':options="tags"', 'value-property="key"', 'label-property="name"']
  */
-function buildAttributes(api: ComponentUsageRuleApi, step: SlotToItemsPropStep, itemCodes: ItemCode[]): string[] {
+function buildAttributes(api: ComponentUsageRuleApi, step: ChildElementsToArrayPropStep, itemCodes: ItemCode[]): string[] {
     const [onlyItem] = itemCodes;
-    const keyProps = step.keyProps;
+    const keyProps = step.forBoundList;
 
-    if (itemCodes.length === 1 && onlyItem.list && keyProps && Object.keys(step.fields).every((field) => keyProps[field])) {
+    if (
+        itemCodes.length === 1 &&
+        onlyItem.list &&
+        keyProps &&
+        Object.keys(step.eachItem).every((field) => keyProps[field])
+    ) {
         const { source, keys } = onlyItem.list;
         const keyAttributes = Object.entries(keys)
             .filter(([field, key]) => field !== key)
             .map(([field, key]) => `${keyProps[field]}="${key}"`);
 
         return [
-            `:${step.prop}="${source}"`,
+            `:${step.arrayProp}="${source}"`,
             ...keyAttributes,
         ];
     }
 
     if (itemCodes.length === 1 && onlyItem.code.startsWith('...')) {
-        return [`:${step.prop}="${onlyItem.code.slice(3)}"`];
+        return [`:${step.arrayProp}="${onlyItem.code.slice(3)}"`];
     }
 
     return [
-        `:${step.prop}="${formatArray(
+        `:${step.arrayProp}="${formatArray(
             api,
             itemCodes.map((itemCode) => itemCode.code),
         )}"`,

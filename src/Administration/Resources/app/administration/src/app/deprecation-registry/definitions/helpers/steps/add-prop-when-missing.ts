@@ -3,25 +3,34 @@
  * @sw-package framework
  */
 
-import type { ComponentUsageRuleApi, Fix, Fixer, MissingPropStep, StepConfig, TemplateNode } from '../types';
+import type { AddPropWhenMissingStep, ComponentUsageRuleApi, Fix, Fixer, StepConfig, TemplateNode } from '../types';
 import type { UsagePlan } from '../shared';
 import { defineUsageStep, insertAttributeAtEnd, reportUsage } from '../shared';
 
 /**
- * Adds a prop the element does not set, to keep a default of the deprecated component that the
- * replacement does not share.
+ * Adds a prop the element does not set, to keep a default of the old component that the new one does
+ * not share. Put it into `onConvert`, so hand-written usages of the new component keep its default.
+ *
+ * - `prop`, or one of `unlessElementHas`, already set → skipped
+ * - `value` unset → a valueless boolean attribute
+ * - an object `v-bind` → added in front of it, so the bound object still wins; manual when the bound
+ *   object can hide one of `unlessElementHas`
+ * - `reviewHint` → a review comment above the element
  *
  * @example
- * missingProp({ prop: 'variant', value: 'secondary' });
- * missingProp({ prop: 'hide-clearable-button' }); // a valueless boolean attribute
- * missingProp({ prop: 'is-opened', value: 'true', bind: true, insertPosition: 'after-name', unlessProps: ['is-opened', 'open'] });
+ * addPropWhenMissing({ prop: 'variant', value: 'secondary' });
+ * // <mt-button> → <mt-button variant="secondary">
+ * addPropWhenMissing({ prop: 'hide-clearable-button' });
+ * // <mt-select> → <mt-select hide-clearable-button>
+ * addPropWhenMissing({ prop: 'size', value: '24px', unlessElementHas: ['size', 'small', 'large'] });
+ * // <mt-icon small> → unchanged
  */
-export function missingProp({ fix = 'auto', ...config }: StepConfig<MissingPropStep>): MissingPropStep {
-    return defineUsageStep<MissingPropStep>({ kind: 'missing-prop', fix, ...config }, reportMissingProp);
+export function addPropWhenMissing({ fix = 'auto', ...config }: StepConfig<AddPropWhenMissingStep>): AddPropWhenMissingStep {
+    return defineUsageStep<AddPropWhenMissingStep>({ kind: 'add-prop-when-missing', fix, ...config }, reportMissingProp);
 }
 
-function reportMissingProp(api: ComponentUsageRuleApi, step: MissingPropStep): void {
-    const unlessProps = step.unlessProps ?? [step.prop];
+function reportMissingProp(api: ComponentUsageRuleApi, step: AddPropWhenMissingStep): void {
+    const unlessProps = step.unlessElementHas ?? [step.prop];
     const setsProp = unlessProps.some((propName) => api.ast.hasMatchingPropAttribute(api.node, propName));
 
     if (setsProp) {
@@ -35,7 +44,7 @@ function reportMissingProp(api: ComponentUsageRuleApi, step: MissingPropStep): v
     });
 }
 
-function planAddition(api: ComponentUsageRuleApi, step: MissingPropStep, unlessProps: string[]): UsagePlan {
+function planAddition(api: ComponentUsageRuleApi, step: AddPropWhenMissingStep, unlessProps: string[]): UsagePlan {
     const objectVBind = api.ast.findObjectVBindAttribute(api.node) ?? null;
     const hasFallbackProps = unlessProps.some((propName) => propName !== step.prop);
 
@@ -66,7 +75,12 @@ function planAddition(api: ComponentUsageRuleApi, step: MissingPropStep, unlessP
  * Inserts the prop at the configured position. With an object v-bind it goes in front of the bound
  * object, so values in the object still win.
  */
-function insertProp(api: ComponentUsageRuleApi, fixer: Fixer, step: MissingPropStep, objectVBind: TemplateNode | null): Fix {
+function insertProp(
+    api: ComponentUsageRuleApi,
+    fixer: Fixer,
+    step: AddPropWhenMissingStep,
+    objectVBind: TemplateNode | null,
+): Fix {
     const propSource = step.value === undefined ? step.prop : `${step.bind ? ':' : ''}${step.prop}="${step.value}"`;
 
     if (objectVBind) {

@@ -17,11 +17,11 @@ const COMPONENT_CODEMOD_KINDS = new Set([
 const PROP_CODEMOD_KINDS = new Set([
     'rename-prop',
     'invert-boolean-prop',
-    'boolean-prop-to-value',
+    'boolean-prop-to-prop-value',
     'remove-prop',
     'replace-prop',
-    'map-prop-value',
-    'map-options-prop-keys',
+    'replace-prop-value',
+    'rename-array-prop-keys',
 ]);
 
 /**
@@ -200,7 +200,7 @@ function getPropDefinitions(options) {
 function getPropCodemodNames(migration) {
     return migration.usage
         .filter((usage) => PROP_CODEMOD_KINDS.has(usage.kind))
-        .map((usage) => usage.prop ?? usage.from)
+        .map((usage) => usage.prop ?? usage.from ?? usage.fromProp)
         .filter((propName) => typeof propName === 'string')
         .map(toPropName);
 }

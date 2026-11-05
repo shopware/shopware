@@ -307,7 +307,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves an image in the icon slot for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -330,7 +330,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves conditional icon slots for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -351,7 +351,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves a conditional default slot for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -370,7 +370,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves markup in the default slot for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -393,7 +393,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves a Twig block in the default slot content for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -412,7 +412,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves a Twig block in the default slot template for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -453,7 +453,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves the props of an object v-bind for a manual review',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -461,14 +461,14 @@ module.exports = [
 </template>`,
         partial: `
 <template>
-    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Dynamic v-bind props may still contain deprecated API usage and need manual review.. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Dynamic v-bind props may still contain deprecated API usage and need manual review. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
     <!-- TODO Codemod: [mt-empty-state] The "title" API is deprecated. Use "headline" instead. Object v-bind can hide the replacement prop. Review the bound object and rename "title" to "headline" manually if needed. -->
     <mt-empty-state title="Title" centered v-bind="emptyStateProps" :description="$t($route.meta.$module.description)" :icon="$route.meta.$module.icon" />
 </template>`,
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves a dynamic slot name for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>
@@ -486,7 +486,7 @@ module.exports = [
         safe: null,
     },
     {
-        name: 'leaves  for a manual move',
+        name: 'leaves a translation with mixed quotes for a manual move',
         filename: 'test.html.twig',
         code: `
 <template>

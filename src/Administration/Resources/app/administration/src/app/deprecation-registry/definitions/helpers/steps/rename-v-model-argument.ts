@@ -7,11 +7,15 @@ import type { ComponentUsageRuleApi, RenameVModelArgumentStep, StepConfig, Templ
 import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
 
 /**
- * Renames the argument of a `v-model`, keeping its modifiers; `to: null` (the default) turns it into a
- * plain `v-model`.
+ * Renames the argument of a `v-model`, keeping its modifiers.
+ *
+ * - `v-model:from` → `v-model:to`; `to: null` (the default) → a plain `v-model`
+ * - `from: null` → matches a plain `v-model`
+ * - an object `v-bind` on the element → manual
  *
  * @example
- * renameVModelArgument({ from: 'value', to: null }); // v-model:value.trim="x" → v-model.trim="x"
+ * renameVModelArgument({ from: 'value', to: null });
+ * // <mt-x v-model:value.trim="x" /> → <mt-x v-model.trim="x" />
  */
 export function renameVModelArgument({
     fix = 'auto',

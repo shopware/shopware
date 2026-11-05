@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { booleanPropToValue, componentMigration, missingProp, renameComponent, upgradeGuide } from '../helpers';
+import { addPropWhenMissing, booleanPropToPropValue, componentMigration, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-icon',
@@ -17,10 +17,10 @@ export default componentMigration({
     ],
     onConvert: [
         renameComponent({ from: 'sw-icon', to: 'mt-icon' }),
-        missingProp({
+        addPropWhenMissing({
             prop: 'size',
             value: '24px',
-            unlessProps: [
+            unlessElementHas: [
                 'size',
                 'small',
                 'large',
@@ -33,15 +33,15 @@ export default componentMigration({
         }),
     ],
     onEveryUsage: [
-        booleanPropToValue({
-            from: 'small',
-            to: 'size',
-            value: '16px',
+        booleanPropToPropValue({
+            fromProp: 'small',
+            toProp: 'size',
+            withValue: '16px',
         }),
-        booleanPropToValue({
-            from: 'large',
-            to: 'size',
-            value: '32px',
+        booleanPropToPropValue({
+            fromProp: 'large',
+            toProp: 'size',
+            withValue: '32px',
         }),
     ],
 });

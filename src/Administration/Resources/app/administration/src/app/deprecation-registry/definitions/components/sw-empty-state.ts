@@ -3,9 +3,12 @@
  */
 
 import {
+    addPropWhenMissing,
     componentMigration,
-    missingProp,
-    propFromSources,
+    firstFoundOf,
+    fromProp,
+    fromSlot,
+    propFromSource,
     removeProp,
     renameComponent,
     renameProp,
@@ -34,26 +37,26 @@ export default componentMigration({
     onConvert: [
         renameComponent({ from: 'sw-empty-state', to: 'mt-empty-state' }),
         renameProp({ from: 'title', to: 'headline' }),
-        propFromSources({
-            prop: 'description',
-            sources: [
-                { slot: 'default' },
-                { prop: 'subline' },
-            ],
-            fallback: '$t($route.meta.$module.description)',
-            condition: { prop: 'show-description', otherwise: '' },
+        propFromSource({
+            toProp: 'description',
+            source: firstFoundOf([
+                fromSlot('default'),
+                fromProp('subline'),
+            ]),
+            oldComponentFallback: '$t($route.meta.$module.description)',
+            oldComponentToggle: { prop: 'show-description', valueWhenOff: '' },
             plainText: true,
         }),
-        propFromSources({
-            prop: 'icon',
-            sources: [
-                { slot: 'icon', element: ['mt-icon', 'sw-icon'], attribute: 'name' },
-                { prop: 'icon' },
-            ],
-            fallback: '$route.meta.$module.icon',
+        propFromSource({
+            toProp: 'icon',
+            source: firstFoundOf([
+                fromSlot('icon', { childElement: ['mt-icon', 'sw-icon'], attribute: 'name' }),
+                fromProp('icon'),
+            ]),
+            oldComponentFallback: '$route.meta.$module.icon',
         }),
         renameSlot({ from: 'actions', to: 'button' }),
-        missingProp({
+        addPropWhenMissing({
             prop: 'centered',
             message: 'sw-empty-state was centered, mt-empty-state is left-aligned by default.',
         }),

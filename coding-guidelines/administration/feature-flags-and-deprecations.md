@@ -64,12 +64,15 @@ A component replacement splits its steps into two lists:
 ```ts
 onConvert: [
     renameComponent({ from: 'sw-button', to: 'mt-button' }),
-    missingProp({ prop: 'variant', value: 'secondary' }),
+    addPropWhenMissing({ prop: 'variant', value: 'secondary' }),
 ],
 onEveryUsage: [
-    mapPropValue({ prop: 'variant', from: 'danger', to: 'critical' }),
+    replacePropValue({ prop: 'variant', fromValue: 'danger', toValue: 'critical' }),
 ],
 ```
+
+Every step helper documents its scenarios: what it fixes, what gets a review comment, and what it leaves for a manual migration.
+Steps that read a value from the old usage take a source: `fromSlot()`, `fromProp()` and `firstFoundOf()` for a prop, `fromText()` and `fromAttribute()` for the fields of an array item.
 
 Give every usage step the most automatic fix level that is still correct:
 
@@ -119,7 +122,7 @@ settings: { 'sw-deprecation-rules': { level: 'safe' } },
 ```
 
 A step that is safe only for some usages says so per usage.
-For example, `slotToItemsProp` turns static `<option>` elements into the `options` prop of `mt-select` at `safe`;
+For example, `childElementsToArrayProp` turns static `<option>` elements into the `options` prop of `mt-select` at `safe`;
 options from a `v-for` list need a review, because the list has to be an array.
 
 ### Deprecation baseline

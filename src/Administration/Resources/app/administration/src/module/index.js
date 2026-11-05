@@ -52,7 +52,9 @@ export const login = () => {
     return dependencies;
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export const ssoError = () => {
     const context = importSSOError();
 

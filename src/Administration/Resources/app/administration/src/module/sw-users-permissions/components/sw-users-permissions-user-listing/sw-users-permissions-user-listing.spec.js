@@ -6,6 +6,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/mixin/translate-with-fallback.mixin';
 
+const userVerificationService = {
+    verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+};
+
 async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-user-listing', {
@@ -15,6 +19,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
+                    userVerificationService,
                     acl: {
                         can: (identifier) => {
                             if (!identifier) {
@@ -84,7 +89,6 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                         props: ['disabled', 'routerLink', 'variant'],
                     },
                     'sw-user-sso-invitation-modal': true,
-                    'sw-verify-user-modal': true,
                     'sw-container': true,
                     'sw-simple-search-field': true,
                     'sw-avatar': true,
@@ -344,9 +348,10 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(addUserButton.find('span').text()).toBe('sw-users-permissions.sso.inviteButtonLabel');
     });
 
-    it('should open the verification modal before deleting a user', async () => {
+    it('should verify the user before deleting a user', async () => {
         const deleteFunction = jest.fn().mockResolvedValue(undefined);
         wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: false }, deleteFunction);
+        userVerificationService.verify.mockReturnValueOnce(new Promise(() => {}));
         const user = { id: 'different-user', firstName: 'Max', lastName: 'Mustermann' };
         Shopware.Store.get('session').setCurrentUser({ id: 'current-user' });
 
@@ -354,8 +359,29 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         wrapper.vm.onConfirmDelete(user);
         await flushPromises();
 
-        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(true);
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
         expect(deleteFunction).not.toHaveBeenCalled();
+    });
+
+    it('should not delete the user when the verification is cancelled', async () => {
+        const deleteFunction = jest.fn().mockResolvedValue(undefined);
+        wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: false }, deleteFunction);
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+        Shopware.Store.get('session').setCurrentUser({ id: 'current-user' });
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-user-list__user-delete-action').trigger('click');
+        await flushPromises();
+
+        const confirmButton = wrapper
+            .findAll('.sw-settings-user-list__delete-modal .mt-button')
+            .find((button) => button.text() === 'global.default.delete');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(deleteFunction).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-settings-user-list__delete-modal').exists()).toBe(false);
     });
 
     it('should delete an SSO user without password verification', async () => {

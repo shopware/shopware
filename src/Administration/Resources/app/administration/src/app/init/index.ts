@@ -32,6 +32,7 @@ import initializeActionButtons from './action-button.init';
 import initializeActions from './actions.init';
 import initializeExtensionDataHandling from './extension-data-handling.init';
 import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
+import initializeUserVerification from './user-verification.init';
 import initializeTopBarButtons from './topbar-button.init';
 import initializeTeaserPopovers from './teaser-popover.init';
 import initializeMediaModal from './media-modal.init';
@@ -69,6 +70,7 @@ export default {
     actions: initializeActions,
     extensionDataHandling: initializeExtensionDataHandling,
     inAppPurchaseCheckout: initializeInAppPurchaseCheckout,
+    userVerification: initializeUserVerification,
     topbarButton: initializeTopBarButtons,
     teaserPopover: initializeTeaserPopovers,
     mediaModal: initializeMediaModal,

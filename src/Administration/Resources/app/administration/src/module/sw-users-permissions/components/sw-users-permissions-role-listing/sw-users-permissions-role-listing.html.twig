@@ -29,13 +29,7 @@
     </div>
     {% endblock %}
 
-    {% block sw_users_permissions_role_listing_verify_modal %}
-    <sw-verify-user-modal
-        v-if="isConfirmingPasswordModalOpen"
-        @verified="deleteRole"
-        @close="onCloseConfirmPasswordModal"
-    />
-    {% endblock %}
+    {% block sw_users_permissions_role_listing_verify_modal %}{% endblock %}
 
     {% block sw_users_permissions_role_listing_grid %}
     <sw-data-grid

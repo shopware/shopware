@@ -10,6 +10,7 @@ const componentNames = [
     'sw-wizard',
     'sw-vnode-renderer',
     'sw-verify-user-modal',
+    'sw-user-verification',
     'sw-upload-listener',
     'sw-time-ago',
     'sw-text-preview',

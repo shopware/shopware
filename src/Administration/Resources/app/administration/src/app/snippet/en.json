@@ -1,5 +1,16 @@
 {
   "global": {
+    "sw-verify-user-modal": {
+      "buttonVerifyWithSso": "Verify with single sign-on",
+      "titleVerifyWithSso": "Confirm your identity",
+      "textVerifyWithSso": "Sign in again at your identity provider to continue.",
+      "failure": {
+        "sso-not-configured": "The sign-in at your identity provider could not be started. Please try again.",
+        "sso-window-blocked": "Your browser blocked the sign-in window. Please allow pop-ups for the Administration and try again.",
+        "no-session": "The sign-in at your identity provider did not end in a new session. Please try again.",
+        "other-user": "You signed in with a different account. For your security, you have been logged out."
+      }
+    },
     "error-codes": {
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
       "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",

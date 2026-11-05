@@ -245,7 +245,7 @@ export default {
             this.getState();
             this.splitPattern();
             await Promise.all([
-                this.loadSalesChannels(),
+                this.loadSelectedSalesChannels(),
                 this.checkPatternCollision().catch((error) => {
                     Shopware.Utils.debug.error(error);
                 }),
@@ -331,6 +331,21 @@ export default {
             );
 
             this.buildSelectedSalesChannelsCollection();
+        },
+
+        /**
+         * Builds the selected sales channels, through the deprecated `loadSalesChannels()` before 6.8, so its
+         * overrides keep running until then.
+         *
+         * @private
+         */
+        loadSelectedSalesChannels() {
+            // @deprecated tag:v6.8.0 - Only the else branch stays.
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => this.loadSalesChannels());
+            } else {
+                this.buildSelectedSalesChannelsCollection();
+            }
         },
 
         buildSelectedSalesChannelsCollection() {
@@ -443,7 +458,7 @@ export default {
         },
 
         onChangeType() {
-            this.loadSalesChannels();
+            this.loadSelectedSalesChannels();
         },
 
         addSalesChannel(salesChannel) {

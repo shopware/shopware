@@ -245,6 +245,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
@@ -365,6 +366,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldLifecycleHandler::class)
         ->args([
             service(CustomFieldSetPersister::class),
+            service('logger'),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1100]);
 

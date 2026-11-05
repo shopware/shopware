@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { useId } from 'vue';
 import template from './sw-product-document-add-button.html.twig';
 import './sw-product-document-add-button.scss';
 
@@ -21,6 +22,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    setup() {
+        return { hintId: useId() };
+    },
+
     data() {
         return {
             isHintOpen: false,
@@ -31,6 +36,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
+
+        hintLabel(): string {
+            return this.$t(
+                this.isInherited ? 'sw-product.documentForm.unlinkToAdd' : 'sw-product.documentForm.switchContentLanguage',
+            );
+        },
     },
 
     beforeUnmount() {
@@ -43,23 +54,23 @@ export default Shopware.Component.wrapComponentConfig({
             this.focusRequested = true;
             this.openHint();
             await this.$nextTick();
-            this.focusLanguageLink();
+            this.focusHintContent();
         },
 
-        focusLanguageLink(): void {
+        focusHintContent(): void {
             if (!this.focusRequested) {
                 return;
             }
             const hint = this.$refs.languageHint as { $el: HTMLElement } | undefined;
-            const link = hint?.$el.querySelector('button');
-            if (link) {
-                link.focus();
+            const target = this.isInherited ? hint?.$el : hint?.$el.querySelector('button');
+            if (target) {
+                target.focus();
                 this.focusRequested = false;
             }
         },
 
         openHint(): void {
-            if (this.isDefaultLanguage) {
+            if (this.isDefaultLanguage && !this.isInherited) {
                 return;
             }
             if (this.hideTimer) {
@@ -72,7 +83,16 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.hideTimer) {
                 clearTimeout(this.hideTimer);
             }
-            this.hideTimer = setTimeout(() => this.closeHint(), 150);
+            this.hideTimer = setTimeout(() => {
+                const trigger = this.$refs.trigger as HTMLElement | undefined;
+                const hint = this.$refs.languageHint as { $el: HTMLElement } | undefined;
+                const isInteracting = [trigger, hint?.$el].some(
+                    (element) => element?.matches(':hover') || element?.contains(document.activeElement),
+                );
+                if (!isInteracting) {
+                    this.closeHint();
+                }
+            }, 150);
         },
 
         closeHint(): void {

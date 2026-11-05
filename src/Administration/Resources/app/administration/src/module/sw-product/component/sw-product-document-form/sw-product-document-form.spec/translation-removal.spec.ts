@@ -4,7 +4,7 @@
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, clickButton } from './helpers';
+import { createWrapper, createMedia, clickButton, selectMedia } from './helpers';
 
 describe('sw-product-document-form language-version removal', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -94,7 +94,9 @@ describe('sw-product-document-form language-version removal', () => {
     beforeEach(() => {
         Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
         Shopware.Context.api.languageId = germanLanguageId;
-        Object.assign(Shopware.Store.get('context').api, { language: { name: 'Deutsch', locale: { code: 'de-DE' } } });
+        Object.assign(Shopware.Store.get('context').api, {
+            language: { id: Shopware.Context.api.languageId, name: 'Deutsch', locale: { code: 'de-DE' } },
+        });
         Shopware.Store.get('swProductDetail').$reset();
         Shopware.Store.get('swProductDetail').parentProduct = repository.create();
     });
@@ -144,6 +146,74 @@ describe('sw-product-document-form language-version removal', () => {
         });
         expect(patchSpy.mock.calls[0][2]).toMatchObject({ headers: { 'sw-language-id': germanLanguageId } });
         store.product = await loadProduct(null, null, store.product.id);
+        await flushPromises();
+        expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
+        expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });
+    });
+
+    it.each([
+        ['name', 'Handbuch', null],
+        ['file', null, germanMedia.id],
+        ['name and file', 'Handbuch', germanMedia.id],
+    ])('keeps the saved %s override when removal is undone before saving', async (_field, title, mediaId) => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = await loadProduct(title, mediaId);
+        wrapper = await createWrapper(undefined, undefined, repository);
+        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
+        await clickButton(wrapper, 'global.default.remove');
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        if (title) {
+            await wrapper.get('.sw-product-document-form__name-input input').setValue(title);
+        }
+        if (mediaId) {
+            await selectMedia(wrapper, [germanMedia]);
+        }
+        await clickButton(wrapper, 'global.default.apply');
+        const document = store.product.documents![0];
+        expect(document).toMatchObject({ title, mediaId });
+        expect(document.translations.find((translation) => translation.languageId === germanLanguageId)).toMatchObject({
+            title,
+            mediaId,
+        });
+
+        const patchSpy = jest.spyOn(repository.httpClient, 'patch').mockResolvedValue({ data: {} });
+        await repository.save(store.product, Shopware.Context.api);
+        const requests = JSON.stringify(patchSpy.mock.calls);
+        expect(requests).not.toContain('"translations"');
+        expect(requests).not.toContain('"title":null');
+        expect(requests).not.toContain('"mediaId":null');
+    });
+
+    it('saves the language removal after unlinking inherited documents, preserving other languages', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.parentProduct = await loadProduct('Handbuch', germanMedia.id);
+        store.product = repository.create();
+        store.product.parentId = store.parentProduct.id;
+        wrapper = await createWrapper(undefined, undefined, repository);
+
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+        const document = store.product.documents![0];
+        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
+        await clickButton(wrapper, 'global.default.remove');
+        expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
+        expect(document).toMatchObject({ title: null, mediaId: null });
+
+        const postSpy = jest.spyOn(repository.httpClient, 'post').mockResolvedValue({ data: {} });
+        await repository.save(store.product, Shopware.Context.api);
+        expect(document.translations.find((translation) => translation.languageId === germanLanguageId)).toMatchObject({
+            title: null,
+            mediaId: null,
+        });
+        expect(postSpy.mock.calls[0][1]).toMatchObject({ documents: [{ id: document.id }] });
+        const payload = JSON.stringify(postSpy.mock.calls[0][1]);
+        expect(payload).not.toContain('Handbuch');
+        expect(payload).not.toContain(germanMedia.id);
+        expect(payload).toContain('Manual');
+        expect(payload).toContain(englishMedia.id);
+        expect(store.parentProduct.documents![0]).toMatchObject({ title: 'Handbuch', mediaId: germanMedia.id });
+
+        postSpy.mockRestore();
+        store.product = await loadProduct(null, null, store.product.id, store.parentProduct.id);
         await flushPromises();
         expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
         expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });

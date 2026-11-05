@@ -128,7 +128,7 @@
                             >
                                 {% block sw_product_document_form_variant_badge %}
                                 <sw-product-document-variant-badge
-                                    v-if="!isInherited && newDocuments.has(item)"
+                                    v-if="!isInherited"
                                     :document="item"
                                 />
                                 {% endblock %}
@@ -260,7 +260,7 @@
                 :allow-fallback="!isDefaultLanguage"
                 :language-name="contentLanguageName"
                 :is-adding-language-version="!isDefaultLanguage && !editingDocument.title && !editingDocument.mediaId"
-                :document-title-placeholder="isDefaultLanguage ? '' : getTitle(editingDocument)"
+                :document-title-placeholder="documentTitlePlaceholder"
                 :editing-media="editingMedia"
                 :document-name-error="documentNameError"
                 :document-file-error="documentFileError"

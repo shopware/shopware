@@ -8,11 +8,6 @@ async function createWrapper(props = {}) {
     return shallowMount(await wrapTestComponent('sw-product-document-remove-modal', { sync: true }), {
         props: { documentTitle: 'Safety certificate', canEdit: true, ...props },
         global: {
-            provide: {
-                repositoryFactory: {
-                    create: () => ({ get: jest.fn().mockResolvedValue({ name: 'English', locale: { code: 'en-GB' } }) }),
-                },
-            },
             stubs: {
                 'mt-modal-root': { name: 'ModalRootStub', template: '<div><slot /></div>' },
                 'mt-modal': {

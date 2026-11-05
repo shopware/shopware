@@ -82,6 +82,17 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 
+    it('keeps the unsaved badge when returning to the form after a tab remount', async () => {
+        await unlinkDocuments();
+        await addMedia(wrapper, [createMedia('variant-manual')]);
+        const document = getDocuments()![1];
+        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
+        wrapper.unmount();
+        wrapper = await createWrapper();
+        expect(getDocuments()![1]).toBe(document);
+        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
+    });
+
     it('clears the session badge when the product is reloaded as new entities', async () => {
         await unlinkDocuments();
         const media = createMedia('variant-manual');

@@ -13,7 +13,9 @@ describe('sw-product-document-form language markers', () => {
     beforeEach(() => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        Object.assign(Shopware.Store.get('context').api, { language: { name: 'Deutsch', locale: { code: 'de-DE' } } });
+        Object.assign(Shopware.Store.get('context').api, {
+            language: { id: Shopware.Context.api.languageId, name: 'Deutsch', locale: { code: 'de-DE' } },
+        });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
         store.product = repositoryFactory.create('product').create();

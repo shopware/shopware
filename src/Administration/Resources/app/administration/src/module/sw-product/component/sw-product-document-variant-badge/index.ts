@@ -17,9 +17,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         isVariantOnly(): boolean {
-            const { product, parentProduct } = Shopware.Store.get('swProductDetail');
+            const { product, parentProduct, newDocuments } = Shopware.Store.get('swProductDetail');
             const mediaId = this.document.mediaId || this.document.translated?.mediaId;
             return (
+                newDocuments.has(this.document) &&
                 !!product.parentId &&
                 !!mediaId &&
                 !parentProduct.documents?.some(

@@ -74,7 +74,14 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->createOrder($ids);
 
         $this->assertEvent('state_leave.order_transaction_capture.state.pending');
-        $this->assertEvent('state_enter.order_transaction_capture.state.completed');
+
+        $enterEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'state_enter.order_transaction_capture.state.completed',
+            static function (OrderStateMachineStateChangeEvent $event) use (&$enterEvent): void {
+                $enterEvent = $event;
+            }
+        );
 
         static::getContainer()
             ->get(StateMachineRegistry::class)
@@ -87,6 +94,10 @@ class OrderStateChangeEventListenerTest extends TestCase
                 ),
                 Context::createDefaultContext()
             );
+
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $enterEvent);
+        $capture = $enterEvent->getOrder()->getTransactions()?->first()?->getCaptures()?->get($ids->get('capture'));
+        static::assertNotNull($capture);
     }
 
     public function testTriggerRefundEvents(): void
@@ -97,7 +108,14 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->createOrder($ids);
 
         $this->assertEvent('state_leave.order_transaction_capture_refund.state.open');
-        $this->assertEvent('state_enter.order_transaction_capture_refund.state.in_progress');
+
+        $enterEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'state_enter.order_transaction_capture_refund.state.in_progress',
+            static function (OrderStateMachineStateChangeEvent $event) use (&$enterEvent): void {
+                $enterEvent = $event;
+            }
+        );
 
         static::getContainer()
             ->get(StateMachineRegistry::class)
@@ -110,6 +128,10 @@ class OrderStateChangeEventListenerTest extends TestCase
                 ),
                 Context::createDefaultContext()
             );
+
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $enterEvent);
+        $refund = $enterEvent->getOrder()->getTransactions()?->first()?->getCaptures()?->first()?->getRefunds()?->get($ids->get('refund'));
+        static::assertNotNull($refund);
     }
 
     public function testTriggerOrderEvent(): void

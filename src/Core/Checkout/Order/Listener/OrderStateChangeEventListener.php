@@ -264,6 +264,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 'language.locale',
                 'transactions.paymentMethod',
                 'transactions.stateMachineState',
+                'transactions.captures.refunds',
                 'lineItems',
                 'lineItems.downloads.media',
                 'currency',

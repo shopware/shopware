@@ -20,6 +20,7 @@ trait OutputFormatTrait
 {
     protected const FORMAT_TABLE = 'table';
     protected const FORMAT_JSON = 'json';
+    protected const FORMAT_MARKDOWN = 'markdown';
 
     /**
      * @param list<string> $formats the output formats this command supports
@@ -51,5 +52,22 @@ trait OutputFormatTrait
         }
 
         return $format;
+    }
+
+    /**
+     * Same as {@see SymfonyStyle::table()}, but renders a Markdown table for the markdown format.
+     *
+     * @param list<string> $headers
+     * @param array<array<mixed>> $rows
+     */
+    protected function renderFormattedTable(SymfonyStyle $io, string $format, array $headers, array $rows): void
+    {
+        $table = $io->createTable()->setHeaders($headers)->setRows($rows);
+        if ($format === self::FORMAT_MARKDOWN) {
+            $table->setStyle('markdown');
+        }
+
+        $table->render();
+        $io->newLine();
     }
 }

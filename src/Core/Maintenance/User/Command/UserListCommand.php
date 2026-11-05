@@ -43,7 +43,7 @@ class UserListCommand extends Command
 
     protected function configure(): void
     {
-        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON, self::FORMAT_MARKDOWN]);
         /** @deprecated tag:v6.8.0 - Use `--format json` instead */
         $this->addOption('json', null, InputOption::VALUE_NONE, '[DEPRECATED] Use `--format json` instead.');
     }
@@ -61,7 +61,7 @@ class UserListCommand extends Command
             $input->setOption('format', self::FORMAT_JSON);
         }
 
-        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON, self::FORMAT_MARKDOWN]);
         if ($format === null) {
             return self::INVALID;
         }
@@ -84,7 +84,9 @@ class UserListCommand extends Command
             return self::SUCCESS;
         }
 
-        $io->table(
+        $this->renderFormattedTable(
+            $io,
+            $format,
             ['Id', 'E-mail', 'Username', 'Name', 'Active', 'Roles', 'Created At'],
             $this->mapUsersToConsole($result->getEntities())
         );

@@ -64,6 +64,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureBuilder;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
@@ -1959,6 +1960,69 @@ class VersioningTest extends TestCase
         $versionId = $this->orderRepository->createVersion($this->createOrder(), $this->context);
 
         static::assertTrue(Uuid::isValid($versionId));
+    }
+
+    public function testCreateOrderVersionOfAClonedOrderSourceOnlyCopiesItsOwnDeliveries(): void
+    {
+        $orderId = $this->createOrder();
+        $this->orderRepository->clone($orderId, $this->context, null, new CloneBehavior([
+            'orderNumber' => Uuid::randomHex(),
+            'deepLinkCode' => Uuid::randomHex(),
+        ]));
+
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context);
+
+        static::assertSame(
+            [$orderId],
+            static::getContainer()->get(Connection::class)->fetchFirstColumn(
+                'SELECT LOWER(HEX(order_id)) FROM order_delivery WHERE version_id = :versionId',
+                ['versionId' => Uuid::fromHexToBytes($versionId)]
+            )
+        );
+    }
+
+    public function testCreateOrderVersionOfAClonedOrderSourceOnlyCopiesItsOwnRefundPositions(): void
+    {
+        $orderId = $this->createOrder();
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $capture = (new OrderTransactionCaptureBuilder(
+            $ids,
+            'capture',
+            (string) $connection->fetchOne(
+                'SELECT LOWER(HEX(id)) FROM order_transaction WHERE order_id = :orderId',
+                ['orderId' => Uuid::fromHexToBytes($orderId)]
+            )
+        ))->addRefund('refund', [
+            'positions' => [
+                [
+                    'orderLineItemId' => (string) $connection->fetchOne(
+                        'SELECT LOWER(HEX(id)) FROM order_line_item WHERE order_id = :orderId',
+                        ['orderId' => Uuid::fromHexToBytes($orderId)]
+                    ),
+                    'quantity' => 1,
+                    'amount' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ],
+            ],
+        ])->build();
+
+        static::getContainer()->get('order_transaction_capture.repository')->create([$capture], $this->context);
+
+        $this->orderRepository->clone($orderId, $this->context, null, new CloneBehavior([
+            'orderNumber' => Uuid::randomHex(),
+            'deepLinkCode' => Uuid::randomHex(),
+        ]));
+
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context);
+
+        static::assertSame(
+            [$ids->get('refund')],
+            $connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(refund_id)) FROM order_transaction_capture_refund_position WHERE version_id = :versionId',
+                ['versionId' => Uuid::fromHexToBytes($versionId)]
+            )
+        );
     }
 
     public function testCascadeDeleteFlag(): void

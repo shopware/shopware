@@ -201,6 +201,13 @@ class ShopwareClass implements CustomShopwareProperties {
         return this._state;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use Store instead.
+     */
+    public set State(state: ShopwareClass['_state']) {
+        this._state = state;
+    }
+
     public Store = Store.instance;
 
     public Mixin = {

@@ -9,6 +9,19 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Rules can be evaluated per cart delivery
+
+The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
+The shipping address rules (`ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingStreetRule`, `ShippingCityRule`), `ShippingMethodRule`, `CartVolumeRule`, `CartWeightRule` and `CartHasDeliveryFreeItemRule` read the delivery instead of the sales channel context or the whole cart when they are matched in that scope.
+Every other scope behaves as before.
+
+With the `v6.8.0.0` feature flag active, the `DeliveryProcessor` matches the rules a delivery's shipping method references (availability rule, price row rules, calculation rules) against each delivery and stores the matching ids on the delivery, available through `Delivery::getRuleIds()`.
+`DeliveryCalculator` and `DeliveryValidator` then select rule based price rows and check the availability rule per delivery.
+A cart with a single delivery gets the same result as before, and a delivery without matched rule ids keeps using the rule ids of the sales channel context.
+
+Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
+See `UPGRADE-6.8.md` for an example.
+
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.

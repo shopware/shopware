@@ -7,11 +7,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
@@ -222,6 +230,33 @@ class ShippingZipCodeRuleTest extends TestCase
         yield 'operator_empty / match / no address' => [Rule::OPERATOR_EMPTY, true, 'ky', '', true];
     }
 
+    public function testDeliveryScopeReadsTheZipCodeOfTheDeliveryAddress(): void
+    {
+        $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['DELIVERY']]);
+
+        $this->context
+            ->method('getShippingLocation')
+            ->willReturn(ShippingLocation::createFromAddress($this->createAddress('CONTEXT')));
+
+        $delivery = $this->createDelivery(ShippingLocation::createFromAddress($this->createAddress('DELIVERY')));
+
+        static::assertTrue($rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $this->context)));
+    }
+
+    public function testCartScopeStillReadsTheZipCodeOfTheContextAddress(): void
+    {
+        $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['CONTEXT']]);
+
+        $this->context
+            ->method('getShippingLocation')
+            ->willReturn(ShippingLocation::createFromAddress($this->createAddress('CONTEXT')));
+
+        $delivery = $this->createDelivery(ShippingLocation::createFromAddress($this->createAddress('DELIVERY')));
+
+        static::assertTrue($rule->match(new CartRuleScope(new Cart('test'), $this->context)));
+        static::assertFalse($rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $this->context)));
+    }
+
     private function createAddress(string $code): CustomerAddressEntity
     {
         $address = new CustomerAddressEntity();
@@ -229,5 +264,16 @@ class ShippingZipCodeRuleTest extends TestCase
         $address->setCountry(new CountryEntity());
 
         return $address;
+    }
+
+    private function createDelivery(ShippingLocation $location): Delivery
+    {
+        return new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            $location,
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
     }
 }

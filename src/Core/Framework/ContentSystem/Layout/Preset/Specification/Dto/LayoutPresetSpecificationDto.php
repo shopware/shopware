@@ -27,6 +27,11 @@ final readonly class LayoutPresetSpecificationDto
         public string $icon,
         #[Assert\Type(type: 'list', message: 'The "layout" field must be a list of elements.')]
         public array $layout,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $category = null,
+        public int $priority = 0,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $illustration = null,
     ) {
     }
 }

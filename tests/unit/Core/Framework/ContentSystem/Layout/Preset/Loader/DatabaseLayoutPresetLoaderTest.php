@@ -36,7 +36,7 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         );
 
         $presets = $this->loader($this->connectionWithRows([
-            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[{"component":"text"}]}', 'app_name' => 'MyApp'],
+            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","category":"content","priority":-100,"illustration":"preset-media-and-text","layout":[{"component":"text"}]}', 'app_name' => 'MyApp'],
         ]), $environment, $compiler)->load();
 
         static::assertCount(1, $presets);
@@ -44,6 +44,9 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         static::assertSame('Hero', $presets[0]->name);
         static::assertSame('A hero.', $presets[0]->description);
         static::assertSame('regular-star', $presets[0]->icon);
+        static::assertSame('content', $presets[0]->category);
+        static::assertSame(-100, $presets[0]->priority);
+        static::assertSame('preset-media-and-text', $presets[0]->illustration);
         static::assertSame($compiled, $presets[0]->payload);
     }
 
@@ -56,6 +59,9 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         ]), 'prod')->load();
 
         static::assertSame(['MyApp:First', 'MyApp:Second'], array_map(static fn ($preset): string => $preset->id, $presets));
+        static::assertNull($presets[0]->category);
+        static::assertSame(0, $presets[0]->priority);
+        static::assertNull($presets[0]->illustration);
     }
 
     #[TestDox('aborts the load on a row whose stored data is valid JSON but not an array')]

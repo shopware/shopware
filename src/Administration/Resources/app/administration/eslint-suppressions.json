@@ -7104,15 +7104,6 @@
     }
   },
   "src/module/sw-experience-studio/page/sw-experience-studio-detail/index.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-call": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
     "max-lines": {
       "count": 1
     },

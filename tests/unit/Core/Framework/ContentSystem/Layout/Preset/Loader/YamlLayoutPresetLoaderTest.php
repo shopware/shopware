@@ -30,7 +30,7 @@ class YamlLayoutPresetLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->tempDir = sys_get_temp_dir() . '/yaml-preset-loader-test-' . uniqid('', true);
-        mkdir($this->tempDir, 0777, true);
+        (new Filesystem())->mkdir($this->tempDir);
     }
 
     protected function tearDown(): void
@@ -50,6 +50,28 @@ class YamlLayoutPresetLoaderTest extends TestCase
         sort($ids);
 
         static::assertSame(['Sw:Media', 'Sw:TextBlock'], $ids);
+    }
+
+    public function testLoadsCategoryAndPriorityIntoTheCompiledSpecification(): void
+    {
+        $this->writePreset('text-block.yaml', ['name' => 'Text block', 'category' => 'content', 'priority' => 100, 'illustration' => 'preset-media-and-text', 'layout' => []]);
+
+        $presets = $this->loader()->loadFromDirectory($this->tempDir, 'core', 'Sw');
+
+        static::assertCount(1, $presets);
+        static::assertSame('content', $presets[0]->category);
+        static::assertSame(100, $presets[0]->priority);
+        static::assertSame('preset-media-and-text', $presets[0]->illustration);
+        static::assertSame('preset-media-and-text', $presets[0]->toArray()['illustration']);
+        static::assertSame('content', $presets[0]->toArray()['category']);
+        static::assertSame(100, $presets[0]->toArray()['priority']);
+    }
+
+    public function testRejectsBlankCategory(): void
+    {
+        $this->writePreset('text-block.yaml', ['name' => 'Text block', 'category' => '', 'layout' => []]);
+
+        $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESETS_INVALID);
     }
 
     #[TestDox('returns an empty array for a directory that does not exist')]
@@ -106,7 +128,7 @@ class YamlLayoutPresetLoaderTest extends TestCase
     #[TestDox('fails hard on malformed YAML, naming the file')]
     public function testInvalidYamlThrows(): void
     {
-        file_put_contents($this->tempDir . '/broken.yaml', "name: [unclosed\n");
+        (new Filesystem())->dumpFile($this->tempDir . '/broken.yaml', "name: [unclosed\n");
 
         $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED);
     }
@@ -145,6 +167,6 @@ class YamlLayoutPresetLoaderTest extends TestCase
      */
     private function writePreset(string $file, array $data): void
     {
-        file_put_contents($this->tempDir . '/' . $file, Yaml::dump($data + ['description' => 'A preset.', 'icon' => 'regular-circle']));
+        (new Filesystem())->dumpFile($this->tempDir . '/' . $file, Yaml::dump($data + ['description' => 'A preset.', 'icon' => 'regular-circle']));
     }
 }

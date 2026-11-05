@@ -28,7 +28,16 @@ describe('contentSystemLayoutPresetService', () => {
     it('returns the presets from the info endpoint', async () => {
         const { service, clientMock } = createService();
         const presets: ContentSystemLayoutPreset[] = [
-            { id: 'core.text-block', name: 'Text block', description: null, icon: 'regular-align-left', payload: [] },
+            {
+                id: 'core.text-block',
+                name: 'Text block',
+                description: null,
+                icon: 'regular-align-left',
+                illustration: null,
+                category: 'content',
+                priority: 100,
+                payload: [],
+            },
         ];
 
         clientMock.onGet('/_info/content-system-layout-presets.json').reply(200, { presets });

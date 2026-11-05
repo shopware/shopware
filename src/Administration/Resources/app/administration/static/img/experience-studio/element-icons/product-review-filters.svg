@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(-15.016 -11.105) scale(1.1502)">
+      <path d="M40 37h48" stroke="#17265c" stroke-width="4" />
+      <rect x="38" y="48" width="124" height="23" rx="4" fill="url(#wash)" stroke="#aac8e8" />
+      <path d="M49 59h75" stroke="#1895ff" stroke-width="3" />
+      <path d="m143 57 4 4 4-4" fill="none" stroke="#1895ff" stroke-width="2" />
+      <rect x="40" y="83" width="12" height="12" rx="3" fill="#1895ff" stroke="#1895ff" />
+      <path d="M43 89l2 2 4-5" fill="none" stroke="white" stroke-width="1.8" />
+      <path d="M62 89h83" stroke="#a7b8cf" stroke-width="4" />
+    </g>
+  </g>
+</svg>

@@ -12,6 +12,7 @@ The decision is in [`adr/2026-10-16-administration-lint-gate.md`](../../../../..
 |---|---|
 | `src/Administration/Resources/app/administration/eslint-suppressions.json` | The Administration |
 | `src/Storefront/Resources/app/administration/eslint-suppressions.json` | The Storefront's Administration modules |
+| `src/Administration/Resources/app/administration/test-annotation-baseline.json` | Untagged Jest tests, per test, see [Test annotations](03-test-annotations.md) |
 
 Each baseline is ESLint's own [bulk suppressions](https://eslint.org/docs/latest/use/suppressions) file.
 It counts the violations per file and rule.
@@ -66,6 +67,7 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 | `sw-core-rules/no-swallowed-errors` | No tests | A `.catch()` that drops the error needs a comment that says why |
 | `filename-rules/not-match` | JavaScript files in `src`, specs are excluded | New source files in `src` are TypeScript |
 | `sw-core-rules/no-new-mixins` | `src`, specs are excluded | Shared logic goes into a composable in `src/app/composables`, using existing mixins stays allowed |
+| `sw-test-rules/test-annotation` | Specs in `src` | Every test says why it exists, see [Test annotations](03-test-annotations.md) |
 | `sw-test-rules/no-vm-access` | `*.spec.js`, `*.spec.ts` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
 
 `sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.

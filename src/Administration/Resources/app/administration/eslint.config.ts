@@ -822,6 +822,25 @@ export default [
             'sw-test-rules/no-vm-access': 'error',
         },
     },
+    {
+        files: [
+            'src/**/*.spec.js',
+            'src/**/*.spec.ts',
+            'src/**/*.spec/*.spec.js',
+            'src/**/*.spec/*.spec.ts',
+        ],
+        rules: {
+            'sw-test-rules/test-annotation': [
+                'error',
+                {
+                    // Untagged tests that predate the rule, see technical-docs/11-code-quality/03-test-annotations.md
+                    baseline: path.join(__dirname, 'test-annotation-baseline.json'),
+                    repoRoot: path.resolve(__dirname, '../../../../..'),
+                },
+            ],
+            'sw-test-rules/test-annotation-see-exception': 'warn',
+        },
+    },
 
     // New source code is TypeScript, shared logic goes into composables
     {

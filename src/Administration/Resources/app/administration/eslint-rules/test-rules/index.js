@@ -9,5 +9,7 @@ module.exports = {
         'test-file-max-lines-warning': require('./test-file-max-lines/warning'),
         'test-file-max-lines-error': require('./test-file-max-lines/error'),
         'no-vm-access': require('./no-vm-access'),
+        'test-annotation': require('./test-annotation'),
+        'test-annotation-see-exception': require('./test-annotation/see-exception'),
     },
 };

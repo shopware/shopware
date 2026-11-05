@@ -1,0 +1,33 @@
+name: Regression test gate
+# Rule and reasoning: .github/bin/js/regression-test-gate.ts
+#
+# A pull request that closes an Administration bug adds a Jest test tagged @regression for it.
+# Public repository only: the closing issues and the @see links point at shopware/shopware.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Regression test
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          retries: 3
+          script: |
+            const { checkRegressionTest } = await import('${{ github.workspace }}/.github/bin/js/regression-test-gate.ts')
+            await checkRegressionTest({ github, core, context })

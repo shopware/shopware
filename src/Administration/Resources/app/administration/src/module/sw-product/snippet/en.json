@@ -320,8 +320,8 @@
       "buttonOpenInStorefront": "Open in Storefront"
     },
     "openInStorefrontModal": {
-      "title": "Open \"{name} ({productNumber})\" in the Storefront",
-      "description": "Choose the Sales Channel in which you would like to open the product \"{name} ({productNumber})\".",
+      "title": "Open in Storefront",
+      "description": "Choose the Sales Channel in which you would like to open the product.",
       "infoUnsavedChanges": "The product has unsaved changes. The Storefront shows the last saved state.",
       "infoNoSalesChannels": "The product is not assigned to any Storefront sales channel.",
       "labelSalesChannel": "Sales channel",

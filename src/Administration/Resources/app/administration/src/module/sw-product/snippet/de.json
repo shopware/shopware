@@ -320,8 +320,8 @@
       "buttonOpenInStorefront": "In der Storefront öffnen"
     },
     "openInStorefrontModal": {
-      "title": "„{name} ({productNumber})“ in der Storefront öffnen",
-      "description": "Wähle den Verkaufskanal, in dem Du das Produkt „{name} ({productNumber})“ öffnen möchtest.",
+      "title": "In der Storefront öffnen",
+      "description": "Wähle den Verkaufskanal, in dem Du das Produkt öffnen möchtest.",
       "infoUnsavedChanges": "Das Produkt hat ungespeicherte Änderungen. Die Storefront zeigt den zuletzt gespeicherten Stand.",
       "infoNoSalesChannels": "Das Produkt ist keinem Storefront-Verkaufskanal zugewiesen.",
       "labelSalesChannel": "Verkaufskanal",

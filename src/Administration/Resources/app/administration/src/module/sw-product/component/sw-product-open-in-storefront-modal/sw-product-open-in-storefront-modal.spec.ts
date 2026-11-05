@@ -66,7 +66,7 @@ async function createWrapper({
                 },
                 'mt-modal': {
                     name: 'mt-modal',
-                    props: ['title'],
+                    props: ['title', 'subtitle'],
                     template: '<div><slot /><slot name="footer" /></div>',
                 },
                 'mt-modal-close': {
@@ -117,14 +117,14 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
     });
 
-    it('shows the product name and number in the title and the description', async () => {
+    it('shows the product name as subtitle and keeps the product number out of title and description', async () => {
         const { wrapper } = await createWrapper({ product: { productNumber: 'SW10000' } });
+        const modal = wrapper.findComponent({ name: 'mt-modal' });
 
-        expect(wrapper.findComponent({ name: 'mt-modal' }).props('title')).toBe(
-            'sw-product.openInStorefrontModal.title Shirt SW10000',
-        );
+        expect(modal.props('title')).toBe('sw-product.openInStorefrontModal.title');
+        expect(modal.props('subtitle')).toBe('Shirt');
         expect(wrapper.find('.sw-product-open-in-storefront-modal__description').text()).toBe(
-            'sw-product.openInStorefrontModal.description Shirt SW10000',
+            'sw-product.openInStorefrontModal.description',
         );
     });
 

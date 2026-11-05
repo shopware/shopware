@@ -79,13 +79,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        modalTitle(): string {
-            return this.$t('sw-product.openInStorefrontModal.title', {
-                name: this.productName,
-                productNumber: this.product.productNumber,
-            });
-        },
-
         salesChannelOptions(): { value: string; label: string }[] {
             return this.salesChannels
                 .map((salesChannel) => ({
@@ -101,13 +94,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         isProductActive(): boolean {
             return this.product.active ?? this.parentProduct?.active ?? false;
-        },
-
-        modalDescription(): string {
-            return this.$t('sw-product.openInStorefrontModal.description', {
-                name: this.productName,
-                productNumber: this.product.productNumber,
-            });
         },
 
         selectedSalesChannelName(): string {

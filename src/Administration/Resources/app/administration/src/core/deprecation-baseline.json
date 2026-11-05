@@ -328,6 +328,16 @@
             "major"
         ]
     },
+    "sw-promotion-v2-settings-rule-selection.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-settings-rule-selection": [
+            "default"
+        ]
+    },
+    "sw-promotion-v2-settings-trigger.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-settings-trigger": [
+            "default"
+        ]
+    },
     "sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.": {
         "sw-sales-channel-create-base": [
             "default",

@@ -3,10 +3,10 @@
  */
 import componentMigrations from './index';
 import { expectWellFormedMigrations } from '../helpers/test-utils';
-import type { CodemodRuleStep, ComponentStep, RenameComponentStep } from '../helpers';
+import type { ComponentStep, RenameComponentStep } from '../helpers';
 
-function isComponentStep(usage: ComponentStep): usage is RenameComponentStep | CodemodRuleStep {
-    return usage.kind === 'rename-component' || usage.kind === 'codemod-rule';
+function isComponentStep(usage: ComponentStep): usage is RenameComponentStep {
+    return usage.kind === 'rename-component';
 }
 
 describe('src/app/deprecation-registry/definitions/components', () => {

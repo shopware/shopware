@@ -7,13 +7,31 @@ import type { UsagePlan } from '../shared';
 import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
 
 /**
- * Removes a deprecated prop that has no replacement.
+ * Removes a deprecated prop that has no replacement. For a boolean prop whose "true" behaviour is
+ * lost, `reviewWhenTrue` puts a review comment on every element where it was or could be true.
  *
  * @example
  * removeProp({ prop: 'is-invalid' });
+ * removeProp({ prop: 'absolute', trueByDefault: true, reviewWhenTrue: 'It covered its container: check the spacing.' });
  */
 export function removeProp({ fix = 'auto', ...config }: StepConfig<RemovePropStep>): RemovePropStep {
     return defineUsageStep<RemovePropStep>({ kind: 'remove-prop', fix, ...config }, (api, step) => {
+        const isSet = api.ast.hasMatchingPropAttribute(api.node, step.prop);
+        // Once converted, an unset prop could also be one this step removed, so only the old element tells
+        const isOldElement = api.node.name === api.migration.component;
+
+        if (!isSet && step.trueByDefault && step.reviewWhenTrue && isOldElement) {
+            reportUsage(api, {
+                node: api.node,
+                apiName: step.prop,
+                headline: `The "${step.prop}" prop is not set.`,
+                reviewReason: step.reviewWhenTrue,
+                conversionNote: true,
+            });
+
+            return;
+        }
+
         reportPropAttribute(api, step.prop, (attribute) => planRemoval(api, step, attribute));
     });
 }
@@ -31,7 +49,11 @@ export function replaceProp({ fix = 'auto', ...config }: StepConfig<ReplacePropS
     });
 }
 
-function reportPropAttribute(api: ComponentUsageRuleApi, prop: string, plan: (attribute: TemplateNode) => UsagePlan): void {
+function reportPropAttribute(
+    api: ComponentUsageRuleApi,
+    prop: string,
+    plan: (attribute: TemplateNode) => UsagePlan & { headline?: string },
+): void {
     const attribute = api.ast.findMatchingPropAttribute(api.node, prop);
 
     if (!attribute) {
@@ -41,14 +63,25 @@ function reportPropAttribute(api: ComponentUsageRuleApi, prop: string, plan: (at
     reportUsage(api, { node: attribute, apiName: prop, ...plan(attribute) });
 }
 
-function planRemoval(api: ComponentUsageRuleApi, step: RemovePropStep, attribute: TemplateNode): UsagePlan {
+function planRemoval(
+    api: ComponentUsageRuleApi,
+    step: RemovePropStep,
+    attribute: TemplateNode,
+): UsagePlan & { headline?: string } {
     if (hasObjectVBind(api)) {
         return {
             manualReason: `Object v-bind can hide this prop. Review the bound object and remove "${step.prop}" manually if needed.`,
         };
     }
 
-    return { fix: (fixer) => api.removeAttribute(fixer, attribute) };
+    const isFalse = api.ast.getAttributeValueSource(attribute) === 'false' && api.ast.getDirectiveName(attribute) === 'bind';
+
+    return {
+        fix: (fixer) => api.removeAttribute(fixer, attribute),
+        ...(step.reviewWhenTrue && !isFalse
+            ? { headline: `The "${step.prop}" prop is removed.`, reviewReason: step.reviewWhenTrue }
+            : {}),
+    };
 }
 
 function planReplacement(api: ComponentUsageRuleApi, step: ReplacePropStep, attribute: TemplateNode): UsagePlan {

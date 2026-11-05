@@ -420,7 +420,8 @@ const mtIconInvalidTests = [
                 <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size, and remove the "Converted from sw-icon" comment so the size is not added again. -->
                 <mt-icon
-                    name="regular-times-s" size="24px"
+                    name="regular-times-s"
+                    size="24px"
                 />
             </template>`,
         errors: [

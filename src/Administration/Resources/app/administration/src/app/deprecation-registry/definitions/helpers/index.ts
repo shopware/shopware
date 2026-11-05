@@ -18,5 +18,6 @@ export { mapOptionsPropKeys } from './steps/map-options-prop-keys';
 export { missingProp } from './steps/missing-prop';
 export { removeSlot, renameSlot, slotToProp, flagSlotForManualMove } from './steps/slots';
 export { slotToItemsProp } from './steps/slot-to-items-prop';
+export { propFromSources } from './steps/prop-from-sources';
 export { renameEvent, removeEvent } from './steps/events';
 export { renameVModelArgument } from './steps/rename-v-model-argument';

@@ -19,10 +19,7 @@ const tester = new RuleTester({
 describe('registry helper ownership', () => {
     it('keeps component usage ESLint behavior owned by registry helpers', () => {
         const registry = loadRegistry();
-        const componentLevelKinds = new Set([
-            'rename-component',
-            'codemod-rule',
-        ]);
+        const componentLevelKinds = new Set(['rename-component']);
         const usagesWithoutHelperEslint = registry.componentApiMigrations.flatMap((migration) => {
             return migration.usage
                 .filter((usage) => !componentLevelKinds.has(usage.kind) && !usage.eslint?.report)

@@ -43,6 +43,7 @@ function planConversion(context, node, migration) {
                 kind,
                 headline: descriptor.message.split(`\n${migration.description}`)[0],
                 fixes: kind === 'manual' ? [] : collectFixes(descriptor.fix),
+                note: descriptor.conversionNote,
             });
         },
     };
@@ -91,12 +92,13 @@ function findBlockingParts(level, node, renameUsage, parts) {
 
 /**
  * Builds the comment above a converted element. Object `v-bind` / `v-on` can still pass deprecated
- * props or listeners, so they get an extra review sentence.
+ * props or listeners, so they get an extra review sentence. `notes` are reviews of the conversion
+ * itself, which steps can only judge on the old element.
  *
  * @example
- * getConversionComment('sw-icon', node); // the review comment carrying convertedFromText('sw-icon')
+ * getConversionComment('sw-icon', node, []); // the review comment carrying convertedFromText('sw-icon')
  */
-function getConversionComment(componentName, node) {
+function getConversionComment(componentName, node, notes) {
     const vBindWarning = findObjectVBindAttribute(node)
         ? '. Dynamic v-bind props may still contain deprecated API usage and need manual review.'
         : '';
@@ -104,7 +106,9 @@ function getConversionComment(componentName, node) {
         ? '. Dynamic v-on listeners may still contain deprecated event usage and need manual review.'
         : '';
 
-    return templateCodemodComment(`${convertedFromText(componentName)}${vBindWarning}${vOnWarning}`);
+    const noteText = notes.map((note) => `. ${note.replace(/\.$/, '')}`).join('');
+
+    return templateCodemodComment(`${convertedFromText(componentName)}${vBindWarning}${vOnWarning}${noteText}`);
 }
 
 /**
@@ -235,7 +239,7 @@ module.exports = withRunLevel({
 
                         yield fixer.insertTextBeforeRange(
                             nameRange,
-                            `${getConversionComment(oldName, node)}\n${' '.repeat(node.loc.start.column)}`,
+                            `${getConversionComment(oldName, node, parts.map((part) => part.note).filter(Boolean))}\n${' '.repeat(node.loc.start.column)}`,
                         );
                         yield* renameFixes(fixer);
                     },

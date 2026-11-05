@@ -3,7 +3,6 @@
  */
 import {
     booleanPropToValue,
-    codemodRule,
     flagSlotForManualMove,
     invertBooleanProp,
     mapOptionsPropKeys,
@@ -11,6 +10,7 @@ import {
     memberCall,
     missingProp,
     onlyAfterConversion,
+    propFromSources,
     removeAsset,
     removeEvent,
     removeProp,
@@ -53,6 +53,7 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
             'auto',
             slotToItemsProp({ item: 'sw-tabs-item', prop: 'items', fields: { label: { content: true } } }),
         ],
+        ['prop-from-sources', 'auto', propFromSources({ prop: 'a', sources: [{ prop: 'b' }] })],
         ['rename-event', 'auto', renameEvent({ from: 'a', to: 'b' })],
         ['remove-event', 'auto', removeEvent({ event: 'a' })],
         ['rename-v-model-argument', 'auto', renameVModelArgument({ from: 'value' })],
@@ -63,7 +64,6 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
 
     it.each([
         ['rename-component', 'auto', renameComponent({ from: 'sw-a', to: 'mt-a' })],
-        ['codemod-rule', 'unsafe-auto', codemodRule({ rule: 'r', from: 'sw-a', to: 'mt-a' })],
         ['rename-call', 'unsafe-auto', renameCall({ from: '$tc', to: '$t' })],
         ['replace-object-option', 'auto', replaceObjectOption({ from: 'a', to: 'b' })],
         ['member-call', 'manual', memberCall({ from: 'this.a' })],

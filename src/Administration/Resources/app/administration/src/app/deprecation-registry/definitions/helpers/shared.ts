@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access -- vue-eslint-parser template nodes are untyped records */
 /**
  * @sw-package framework
  */
@@ -6,6 +7,7 @@ import type {
     ComponentUsageReport,
     ComponentUsageRuleApi,
     ComponentUsageStep,
+    Fix,
     Fixer,
     FixLevel,
     ProducedAttribute,
@@ -28,6 +30,8 @@ export type UsagePlan = {
     reviewReason?: string;
     /** Overrides the step's fix level for this usage, for steps whose risk depends on the usage. */
     fixLevel?: FixLevel;
+    /** The review applies to the conversion itself and goes into its review comment; see `no-deprecated-components`. */
+    conversionNote?: boolean;
 };
 
 type UsageReport = UsagePlan & {
@@ -76,6 +80,7 @@ export function reportUsage(api: ComponentUsageRuleApi, report: UsageReport): vo
         fix: fixes ? fix : undefined,
         fixLevel: getFixLevel(api, report, fixes && Boolean(fix)),
         reviewComment,
+        ...(report.conversionNote && reviewReason ? { conversionNote: reviewReason } : {}),
     });
 }
 
@@ -134,4 +139,29 @@ export function defineUsageStep<Step extends ComponentUsageStep>(
     } as Step;
 
     return step;
+}
+
+/**
+ * Inserts an attribute after the last attribute of the element's start tag. In a start tag that puts its
+ * attributes on their own lines, the new attribute gets its own line too.
+ *
+ * @example
+ * insertAttributeAtEnd(api, fixer, 'centered'); // <mt-empty-state headline="A" centered />
+ */
+export function insertAttributeAtEnd(api: ComponentUsageRuleApi, fixer: Fixer, attribute: string): Fix {
+    const startTag = api.node.startTag as TemplateNode;
+    const attributes = startTag.attributes as TemplateNode[];
+    const [first] = attributes;
+    const last = attributes[attributes.length - 1];
+    const tagNameEnd = (startTag.range as [number, number])[0] + 1 + (api.node.rawName as string).length;
+    const offset = last ? (last.range as [number, number])[1] : tagNameEnd;
+    const onOwnLines = first && (first.loc as TemplateNode).start.line !== (api.node.loc as TemplateNode).start.line;
+    const indentation = onOwnLines
+        ? (api.sourceCode.text
+              .slice(0, first.range[0] as number)
+              .split('\n')
+              .pop() ?? '')
+        : '';
+
+    return fixer.insertTextAfterRange([offset, offset], `${onOwnLines ? `\n${indentation}` : ' '}${attribute}`);
 }

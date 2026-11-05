@@ -59,38 +59,37 @@ export function removeSlot({ fix = 'auto', ...config }: StepConfig<RemoveSlotSte
  */
 export function renameSlot({ fix = 'auto', ...config }: StepConfig<RenameSlotStep>): RenameSlotStep {
     return defineUsageStep<RenameSlotStep>({ kind: 'rename-slot', fix, ...config }, (api, step) => {
-        const slotDirective = findSlotDirective(api, step.from);
+        const fillsTarget = findSlotDirectives(api, step.to).length > 0;
 
-        if (!slotDirective) {
-            return;
-        }
-
-        reportUsage(api, {
-            node: slotDirective,
-            apiName: step.from,
-            headline: `The "${step.from}" slot is renamed. Use "${step.to}" instead.`,
-            ...(findSlotDirective(api, step.to)
-                ? { manualReason: `The element already fills the "${step.to}" slot. Merge both slots manually.` }
-                : { fix: (fixer) => fixer.replaceText(slotDirective.key.argument as TemplateNode, step.to) }),
+        // Several templates can fill the slot, for example with v-if and v-else
+        findSlotDirectives(api, step.from).forEach((slotDirective) => {
+            reportUsage(api, {
+                node: slotDirective,
+                apiName: step.from,
+                headline: `The "${step.from}" slot is renamed. Use "${step.to}" instead.`,
+                ...(fillsTarget
+                    ? { manualReason: `The element already fills the "${step.to}" slot. Merge both slots manually.` }
+                    : { fix: (fixer) => fixer.replaceText(slotDirective.key.argument as TemplateNode, step.to) }),
+            });
         });
     });
 }
 
 /**
- * Finds the `v-slot` directive of a child template that fills the named slot. Slot names are compared
- * case-insensitively only, because the parser lowercases them and `header-right` and `headerRight`
- * are different slots.
+ * Finds the `v-slot` directives of the child templates that fill the named slot. Slot names are
+ * compared case-insensitively only, because the parser lowercases them and `header-right` and
+ * `headerRight` are different slots.
  *
  * @example
- * findSlotDirective(api, 'headerRight'); // the #headerRight attribute of <template #headerRight>
+ * findSlotDirectives(api, 'headerRight'); // the #headerRight attribute of <template #headerRight>
  */
-function findSlotDirective(api: ComponentUsageRuleApi, slotName: string): TemplateNode | undefined {
+function findSlotDirectives(api: ComponentUsageRuleApi, slotName: string): TemplateNode[] {
     const children = api.node.children as TemplateNode[];
 
     return children
         .filter((child) => child.type === 'VElement' && child.name === 'template')
         .flatMap((child) => child.startTag.attributes as TemplateNode[])
-        .find((attribute) => {
+        .filter((attribute) => {
             const argumentName = api.ast.getDirectiveArgumentName(attribute);
 
             return api.ast.getDirectiveName(attribute) === 'slot' && argumentName?.toLowerCase() === slotName.toLowerCase();

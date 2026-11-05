@@ -3,7 +3,6 @@
  */
 
 import type {
-    CodemodRuleStep,
     FixLevel,
     MemberCallStep,
     RemoveAssetStep,
@@ -20,7 +19,6 @@ import type {
 } from '../types';
 
 type SimpleStep =
-    | CodemodRuleStep
     | MemberCallStep
     | RemoveAssetStep
     | RemoveSnippetKeyStep
@@ -53,15 +51,6 @@ function simpleStep<Step extends SimpleStep>(kind: Step['kind'], defaultFix: Fix
  * renameComponent({ from: 'sw-loader', to: 'mt-loader' });
  */
 export const renameComponent = simpleStep<RenameComponentStep>('rename-component', 'auto');
-
-/**
- * Hands the whole component conversion to a dedicated ESLint rule, for migrations too involved for the
- * declarative steps. The registry still owns the metadata; `deprecation:migrate` enables the rule.
- *
- * @example
- * codemodRule({ rule: 'sw-deprecation-rules/no-sw-empty-state-usage', from: 'sw-empty-state', to: 'mt-empty-state' });
- */
-export const codemodRule = simpleStep<CodemodRuleStep>('codemod-rule', 'unsafe-auto');
 
 /**
  * Renames a deprecated global template function call.

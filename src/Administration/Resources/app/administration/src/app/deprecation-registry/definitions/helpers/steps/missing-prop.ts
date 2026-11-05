@@ -5,7 +5,7 @@
 
 import type { ComponentUsageRuleApi, Fix, Fixer, MissingPropStep, StepConfig, TemplateNode } from '../types';
 import type { UsagePlan } from '../shared';
-import { defineUsageStep, reportUsage } from '../shared';
+import { defineUsageStep, insertAttributeAtEnd, reportUsage } from '../shared';
 
 /**
  * Adds a prop the element does not set, to keep a default of the deprecated component that the
@@ -78,12 +78,14 @@ function insertProp(api: ComponentUsageRuleApi, fixer: Fixer, step: MissingPropS
         return fixer.insertTextBefore(objectVBind, `${propSource}${separator}`);
     }
 
-    const offset = step.insertPosition === 'after-name' ? afterNameOffset(api) : beforeEndOffset(api);
+    if (step.insertPosition !== 'after-name') {
+        return insertAttributeAtEnd(api, fixer, propSource);
+    }
 
     return fixer.insertTextAfterRange(
         [
-            offset,
-            offset,
+            afterNameOffset(api),
+            afterNameOffset(api),
         ],
         ` ${propSource}`,
     );
@@ -91,11 +93,4 @@ function insertProp(api: ComponentUsageRuleApi, fixer: Fixer, step: MissingPropS
 
 function afterNameOffset(api: ComponentUsageRuleApi): number {
     return (api.node.startTag.range[0] as number) + `<${api.node.name}`.length;
-}
-
-function beforeEndOffset(api: ComponentUsageRuleApi): number {
-    const startTagEnd = api.node.startTag.range[1] as number;
-    const selfClosingEnd = api.sourceCode.getText(api.node.startTag).match(/\s*\/>\s*$/);
-
-    return selfClosingEnd ? startTagEnd - selfClosingEnd[0].length : startTagEnd - 1;
 }

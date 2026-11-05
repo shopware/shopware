@@ -231,7 +231,7 @@ function withReviewComment(sourceCode, descriptor, fix, reviewText) {
  * Applies the run level to one report: keeps, drops or replaces its fix with a review comment.
  */
 function applyRunLevel(level, sourceCode, descriptor, message) {
-    const { fixLevel, reviewComment, ...report } = descriptor;
+    const { fixLevel, reviewComment, conversionNote, ...report } = descriptor;
     const kind = classifyReport(descriptor);
     const reviewText = reviewComment ?? message.split('\n')[0];
 

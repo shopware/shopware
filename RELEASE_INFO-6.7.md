@@ -322,6 +322,8 @@ Steps that need a decision, such as keeping the former `sw-icon` default size of
 In the Administration itself, `npm run deprecation:migrate -- --list` lists every migration with its fix level, and `npm run deprecation:migrate -- --id <id> --fix` applies one.
 `--level` sets how much `--fix` may change: `safe` (the default) applies only fixes that keep the behaviour, `review` also applies fixes that leave a `TODO Codemod` comment, `partial` converts everything and comments the parts that need manual work, and `manual` only adds comments.
 Extension ESLint configs choose the level with `settings: { 'sw-deprecation-rules': { level } }`; without it, the rules run at `review`.
+`sw-empty-state` is migrated by these rules too.
+`sw-deprecation-rules/no-sw-empty-state-usage` is deprecated and reports nothing; remove it from ESLint configs that name it.
 
 The new `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on an Administration component or prop that has no codemod in the registry.
 Add a migration in `src/app/deprecation-registry/definitions/components`, or disable the rule for that line with the reason why no codemod is possible:

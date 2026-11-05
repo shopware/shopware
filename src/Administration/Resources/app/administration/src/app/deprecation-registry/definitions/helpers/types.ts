@@ -53,6 +53,8 @@ export type ComponentUsageReport = {
     fixLevel?: FixLevel;
     /** The review comment for this usage when the run level asks for one. */
     reviewComment?: string;
+    /** A review of the conversion itself, which the conversion's review comment carries. */
+    conversionNote?: string;
 };
 
 /** What `no-deprecated-component-usage` hands to a step's `eslint.report` for every matching element. */
@@ -97,6 +99,8 @@ export type ComponentUsageRuleApi = {
         findObjectVOnAttribute(node: TemplateNode): TemplateNode | null | undefined;
         /** Slot content as a prop value; null when it holds markup or Twig, which a prop cannot carry. */
         getSlotContentValue(slot: TemplateNode): PropValue | null;
+        /** Like `getSlotContentValue`, for content nodes written without a slot template. */
+        getContentValue(nodes: TemplateNode[]): PropValue | null;
         /** The range of a child node including the whitespace before it, so removing it leaves no empty line. */
         getRemovalRange(node: TemplateNode): [number, number];
         /** Attribute text for a prop value; null for an expression that mixes both quote styles. */
@@ -134,9 +138,6 @@ export type StepConfig<Step extends UsageStepBase> = Omit<Step, 'kind' | 'fix' |
 
 export type RenameComponentStep = UsageStepBase & { kind: 'rename-component'; from: string; to: string };
 
-/** Hands the whole conversion to the ESLint rule `rule`, which `deprecation:migrate` enables. */
-export type CodemodRuleStep = UsageStepBase & { kind: 'codemod-rule'; rule: string; from: string; to: string };
-
 /**
  * Rewrites a removed prop into something else instead of only deleting it.
  *
@@ -173,6 +174,13 @@ export type BooleanPropToValueStep = ComponentUsageStepBase & {
 export type RemovePropStep = ComponentUsageStepBase & {
     kind: 'remove-prop';
     prop: string;
+    /**
+     * Review note for a boolean prop whose "true" behaviour the new component lost. A prop bound to a
+     * literal `false` is removed without it.
+     */
+    reviewWhenTrue?: string;
+    /** The old component behaved as if the prop was true when it was not set; such elements get the review note too. */
+    trueByDefault?: boolean;
 };
 
 export type ReplacePropStep = ComponentUsageStepBase & {
@@ -282,6 +290,30 @@ export type SlotToItemsPropStep = ComponentUsageStepBase & {
     keyProps?: Record<string, string>;
 };
 
+/**
+ * One place a value of the old component could come from.
+ *
+ * @example
+ * { slot: 'default' } // the text of the default slot
+ * { slot: 'icon', element: ['mt-icon'], attribute: 'name' } // the name of the single icon in the icon slot
+ * { prop: 'subline' }
+ */
+export type PropSource = { slot: string; element?: string[]; attribute?: string } | { prop: string };
+
+export type PropFromSourcesStep = ComponentUsageStepBase & {
+    kind: 'prop-from-sources';
+    /** The prop of the new component. */
+    prop: string;
+    /** Where the old component took the value from, first match wins. */
+    sources: PropSource[];
+    /** The expression the old component used when no source was set. */
+    fallback?: string;
+    /** A boolean prop of the old component that hid the value; `otherwise` is passed while it is false. */
+    condition?: { prop: string; otherwise: string };
+    /** The new prop renders plain text, so static HTML in the value needs a review. */
+    plainText?: boolean;
+};
+
 export type RenameEventStep = ComponentUsageStepBase & { kind: 'rename-event'; from: string; to: string };
 
 export type RemoveEventStep = ComponentUsageStepBase & { kind: 'remove-event'; event: string };
@@ -308,11 +340,12 @@ export type ComponentUsageStep =
     | SlotToPropStep
     | FlagSlotForManualMoveStep
     | SlotToItemsPropStep
+    | PropFromSourcesStep
     | RenameEventStep
     | RemoveEventStep
     | RenameVModelArgumentStep;
 
-export type ComponentStep = RenameComponentStep | CodemodRuleStep | ComponentUsageStep;
+export type ComponentStep = RenameComponentStep | ComponentUsageStep;
 
 export type RenameCallStep = UsageStepBase & { kind: 'rename-call'; from: string; to: string };
 export type ReplaceObjectOptionStep = UsageStepBase & { kind: 'replace-object-option'; from: string; to: string };

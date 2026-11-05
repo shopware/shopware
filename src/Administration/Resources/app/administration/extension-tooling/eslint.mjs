@@ -257,7 +257,6 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules/no-deprecated-components': templateDeprecationSeverity,
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
                 'sw-deprecation-rules/no-deprecated-component-option-usage': templateDeprecationSeverity,
-                'sw-deprecation-rules/no-sw-empty-state-usage': templateDeprecationSeverity,
             },
         },
         // typescript-eslint types `.vue` SFCs only partially — without the Vue

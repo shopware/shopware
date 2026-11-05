@@ -7,7 +7,6 @@ import twigVue from 'eslint-plugin-twig-vue';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
 const { SETTINGS_KEY } = require('../../eslint-rules/deprecation-rules/registry/run-level');
 
 // `deprecation:migrate --level` passes the run level of the deprecation rules
@@ -26,24 +25,8 @@ const scriptDeprecationRules = {
     'sw-deprecation-rules/no-deprecated-js-api': 'error',
 };
 
-/**
- * Enables the dedicated rules that `codemod-rule` usages of the registry delegate their migration to.
- *
- * @example
- * getCodemodRules(); // { 'sw-deprecation-rules/no-sw-empty-state-usage': 'error' }
- */
-function getCodemodRules() {
-    const rules = loadRegistry()
-        .componentApiMigrations.flatMap((migration) => migration.usage)
-        .filter((usage) => usage.kind === 'codemod-rule')
-        .map((usage) => [usage.rule, 'error']);
-
-    return Object.fromEntries(rules);
-}
-
 const templateDeprecationRules = {
     ...scriptDeprecationRules,
-    ...getCodemodRules(),
     'sw-deprecation-rules/no-deprecated-components': 'error',
     'sw-deprecation-rules/no-deprecated-component-usage': 'error',
     'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',

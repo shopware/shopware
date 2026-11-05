@@ -309,7 +309,8 @@ const mtButtonInvalidChecks = [
                     v-tooltip.bottom="tooltipCancel"
                     :disabled="isLoading"
                     @click="onCancel"
-                 variant="secondary">
+                    variant="secondary"
+                >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
             </template>`,

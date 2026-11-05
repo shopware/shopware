@@ -6,7 +6,6 @@ const TEMPLATE_RULES = [
     'no-deprecated-component-usage',
     'no-deprecated-template-events',
     'no-sw-tabs-usage',
-    'no-sw-empty-state-usage',
 ];
 
 const tester = new RuleTester({

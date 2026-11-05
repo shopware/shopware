@@ -183,6 +183,11 @@ function createComponentUsageRuleApi(context, node, migration, usage, { assumeCo
             getSlotContentValue: (slot) => {
                 return containsTwig(getInnerSource(sourceCode, slot)) ? null : slotContentToValue(sourceCode, slot.children);
             },
+            getContentValue: (nodes) => {
+                const source = nodes.length ? sourceCode.text.slice(nodes[0].range[0], nodes[nodes.length - 1].range[1]) : '';
+
+                return containsTwig(source) ? null : slotContentToValue(sourceCode, nodes);
+            },
             getRemovalRange: (node) => getRemovalRange(sourceCode.text, node),
             toPropAttribute,
         },

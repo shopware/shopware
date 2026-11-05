@@ -13,7 +13,17 @@ export const MIN_LENGTH = 50;
 type Logger = { setFailed(message: string): void; info(message: string): void };
 type PullRequestContext = { payload: { pull_request?: { body?: string | null } } };
 
-const stripComments = (text: string): string => text.replace(/<!--[\s\S]*?-->/g, '');
+/** Removes HTML comments until none is left, so a comment wrapped in another comment leaves no `<!--` behind. */
+const stripComments = (text: string): string => {
+    let stripped = text;
+    let previous: string;
+    do {
+        previous = stripped;
+        stripped = stripped.replace(/<!--[\s\S]*?-->/g, '');
+    } while (stripped !== previous);
+
+    return stripped;
+};
 
 const lines = (text: string): string[] => stripComments(text).split(/\r\n|\r|\n/);
 

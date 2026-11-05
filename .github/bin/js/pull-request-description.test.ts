@@ -20,6 +20,7 @@ describe('evaluateDescription', () => {
         ['untouched template', template, 'has no description'],
         ['template with only ticked checkboxes', template.replaceAll('- [ ]', '- [x]'), 'has no description'],
         ['only an html comment', '<!-- a multi line\ncomment that is long enough on its own but is not authored text -->', 'has no description'],
+        ['comment markers wrapped in a comment', '<!-<!-- inner -->- outer comment that is long enough on its own -->', 'has no description'],
         ['too short', 'Fix typo.', `too short (9 of at least ${MIN_LENGTH} characters)`],
         ['too short spread over template sections', template.replace('### 1. What and why?', '### 1. What and why?\nBug.'), `too short (4 of at least ${MIN_LENGTH} characters)`],
         ['exactly the minimum length', 'a'.repeat(MIN_LENGTH), undefined],

@@ -86,7 +86,7 @@ function describe(project: ExtensionToolingProject): string {
 }
 
 /** Renders the numbered menu and resolves the user's choice, re-prompting on invalid input. */
-export async function promptSelection(
+async function promptSelection(
     projects: ExtensionToolingProject[],
     title: string,
 ): Promise<{ names: string[] } | 'all' | 'cancel'> {

@@ -133,7 +133,7 @@ export const CODEMODS: Codemod[] = [
     },
 ];
 
-export function compareVersions(left: string, right: string): number {
+function compareVersions(left: string, right: string): number {
     const leftParts = left.split('.').map(Number);
     const rightParts = right.split('.').map(Number);
 

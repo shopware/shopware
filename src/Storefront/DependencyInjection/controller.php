@@ -300,6 +300,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextSwitchRoute::class),
             service('request_stack'),
             service('router.default'),
+            service(SeoUrlPlaceholderHandlerInterface::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

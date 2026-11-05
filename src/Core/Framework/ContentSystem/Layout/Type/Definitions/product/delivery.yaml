@@ -17,3 +17,11 @@ properties:
     required: false
     title: "Product"
     description: "Hydrated product that provides the shipping and delivery data; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without free shipping or an available delivery time, the component renders nothing."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"

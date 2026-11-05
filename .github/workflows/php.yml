@@ -385,7 +385,8 @@ jobs:
   phpunit-13:
     # PHPUnit 13 gate: runs the unit, migration and devops suites on PHPUnit 13 and
     # tolerates no PHPUnit notices, warnings or deprecations; plain PHP ones stay tolerated.
-    # Coverage stays on the PHPUnit 11 `phpunit` job above; this job gates the upgrade.
+    # Composer resolves PHPUnit 13 from the root constraint on PHP 8.4.1+; the `phpunit` job
+    # above runs on PHP 8.2 and keeps PHPUnit 11 and the coverage upload.
     name: "PHPUnit 13 for ${{ matrix.suite }}"
     needs:
       - markdown-only-changes
@@ -436,7 +437,13 @@ jobs:
           php-version: "8.5"
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
-          phpunit-version: "^13.3"
+      - name: Assert the install resolved PHPUnit 13
+        # a dev package that caps PHPUnit would silently drop this gate back to PHPUnit 11
+        run: |
+          set -euo pipefail
+          version=$(vendor/bin/phpunit --version)
+          echo "$version"
+          [[ "$version" == "PHPUnit 13."* ]]
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction

@@ -420,6 +420,11 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+## Recovery entity accessors
+
+`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` were removed.
+Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations, which were removed in a security update.
+
 <details>
 
 ## Invalid price definition exceptions

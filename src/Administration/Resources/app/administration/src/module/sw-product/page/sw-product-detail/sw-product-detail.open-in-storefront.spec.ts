@@ -32,10 +32,13 @@ async function createWrapper({
                 },
                 'sw-card-view': { template: '<div><slot></slot></div>' },
                 'router-view': true,
-                'mt-button': {
-                    props: ['disabled'],
-                    emits: ['click'],
-                    template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+                'mt-dropdown-menu-root': { template: '<div><slot /></div>' },
+                'mt-dropdown-menu-trigger': { template: '<div><slot /></div>' },
+                'mt-dropdown-menu-portal': { template: '<div><slot /></div>' },
+                'mt-action-menu': { template: '<div><slot /></div>' },
+                'mt-action-menu-item': {
+                    emits: ['select'],
+                    template: '<button @click="$emit(\'select\')"><slot /></button>',
                 },
                 'sw-product-open-in-storefront-modal': openInStorefrontModalStub,
             },
@@ -128,9 +131,10 @@ describe('module/sw-product/page/sw-product-detail open in Storefront', () => {
         expect(wrapper.findComponent(openInStorefrontModalStub).exists()).toBe(false);
     });
 
-    it('disables the button for a product that is not saved yet', async () => {
+    it('shows no context menu for a product that is not saved yet', async () => {
         wrapper = await createWrapper({ productId: null });
 
-        expect(wrapper.find('.sw-product-detail__open-in-storefront').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.sw-product-detail__context-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-detail__open-in-storefront').exists()).toBe(false);
     });
 });

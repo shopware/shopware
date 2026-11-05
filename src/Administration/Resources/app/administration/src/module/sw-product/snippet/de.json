@@ -317,8 +317,7 @@
       "messageSaveWarning": "Keine Änderung vorgenommen.",
       "messageProductNotFound": "Das Produkt konnte nicht gefunden werden. Es wurde möglicherweise gelöscht.",
       "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme.",
-      "buttonOpenInStorefront": "In der Storefront öffnen",
-      "tooltipOpenInStorefrontNewProduct": "Speichere das Produkt zuerst, um es in der Storefront zu öffnen."
+      "buttonOpenInStorefront": "In der Storefront öffnen"
     },
     "openInStorefrontModal": {
       "title": "„{name} ({productNumber})“ in der Storefront öffnen",

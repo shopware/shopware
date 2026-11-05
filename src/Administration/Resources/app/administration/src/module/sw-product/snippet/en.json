@@ -317,8 +317,7 @@
       "messageSaveWarning": "No changes detected.",
       "messageProductNotFound": "The product could not be found. It may have been deleted.",
       "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity.",
-      "buttonOpenInStorefront": "Open in Storefront",
-      "tooltipOpenInStorefrontNewProduct": "Save the product first to open it in the Storefront."
+      "buttonOpenInStorefront": "Open in Storefront"
     },
     "openInStorefrontModal": {
       "title": "Open \"{name} ({productNumber})\" in the Storefront",

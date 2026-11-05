@@ -16,24 +16,35 @@
 
     {% block sw_product_detail_actions %}
     <template #smart-bar-actions>
-        {% block sw_product_detail_actions_open_in_storefront %}
-        <mt-button
-            v-tooltip.bottom="tooltipOpenInStorefront"
-            class="sw-product-detail__open-in-storefront"
-            :disabled="isLoading || !productId"
-            variant="secondary"
-            size="default"
-            @click="onOpenInStorefront"
-        >
-            {{ $t('sw-product.detail.buttonOpenInStorefront') }}
+        {% block sw_product_detail_actions_context_menu %}
+        <mt-dropdown-menu-root v-if="productId">
+            <mt-dropdown-menu-trigger as-child>
+                <mt-button
+                    class="sw-product-detail__context-button"
+                    :disabled="isLoading"
+                    variant="secondary"
+                    size="default"
+                    square
+                    :aria-label="$t('global.sw-data-grid.actionsMenu')"
+                >
+                    <mt-icon name="solid-ellipsis-h-s" />
+                </mt-button>
+            </mt-dropdown-menu-trigger>
 
-            <template #iconBack>
-                <mt-icon
-                    name="regular-external-link-s"
-                    size="12px"
-                />
-            </template>
-        </mt-button>
+            <mt-dropdown-menu-portal>
+                <mt-action-menu>
+                    {% block sw_product_detail_actions_context_menu_open_in_storefront %}
+                    <mt-action-menu-item
+                        class="sw-product-detail__open-in-storefront"
+                        icon="regular-external-link-s"
+                        @select="onOpenInStorefront"
+                    >
+                        {{ $t('sw-product.detail.buttonOpenInStorefront') }}
+                    </mt-action-menu-item>
+                    {% endblock %}
+                </mt-action-menu>
+            </mt-dropdown-menu-portal>
+        </mt-dropdown-menu-root>
         {% endblock %}
 
         {% block sw_product_detail_actions_abort %}

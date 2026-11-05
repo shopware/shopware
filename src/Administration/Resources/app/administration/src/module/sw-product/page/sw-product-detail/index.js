@@ -349,14 +349,6 @@ export default {
                 .filter((salesChannel) => salesChannel?.typeId === Shopware.Defaults.storefrontSalesChannelTypeId);
         },
 
-        tooltipOpenInStorefront() {
-            return {
-                message: this.$t('sw-product.detail.tooltipOpenInStorefrontNewProduct'),
-                disabled: !!this.productId,
-                showOnDisabledElements: true,
-            };
-        },
-
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */

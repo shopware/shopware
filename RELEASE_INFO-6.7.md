@@ -371,7 +371,7 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ### Open a product in the Storefront from the Administration
 
-The product detail page has a new "Open in Storefront" button.
+The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
 It opens a modal to select one of the Storefront sales channels the product is assigned to.
 For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
 Sales channels in maintenance mode get a hint, but their links stay available.

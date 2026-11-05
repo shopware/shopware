@@ -42,7 +42,7 @@ final class InlineMappingTokenParser
 
     private const TOKEN_PATTERN = '/\{\{\s*map:(?<path>[^{}]*?)\s*\}\}/';
 
-    private const VALID_PATH_PATTERN = '/^(?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_\x7f-\xff]+)+$/';
+    private const VALID_PATH_PATTERN = '/^(?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_\x7f-\xff]+)+$/D';
 
     /**
      * Cheap guard so callers can skip a string without running the full match. Every token contains the prefix,

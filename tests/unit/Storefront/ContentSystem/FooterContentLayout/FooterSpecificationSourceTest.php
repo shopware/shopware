@@ -33,8 +33,7 @@ class FooterSpecificationSourceTest extends TestCase
     {
         $this->resolver = static::createStub(DomainAwareLayoutResolver::class);
 
-        /** @var StaticEntityRepository<FooterContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(FooterContentLayoutCollection::class, []);
 
         $this->source = new FooterSpecificationSource(
             $this->resolver,

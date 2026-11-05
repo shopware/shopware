@@ -114,7 +114,7 @@ class ContentPipelineTest extends TestCase
 
         $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
-        static::assertNotEmpty($result->tree);
+        static::assertArrayHasKey(0, $result->tree);
         static::assertSame('section', $result->tree[0]->component);
         static::assertSame($layoutId, $result->reference->id);
         static::assertSame('My Layout', $result->reference->name);

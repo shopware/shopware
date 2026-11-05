@@ -89,9 +89,8 @@ class YamlTypeLoaderTest extends TestCase
     #[TestDox('defines grid container spacing as breakpoint-aware element properties')]
     public function testGridContainerDefinesBreakpointAwareSpacingProperties(): void
     {
-        $loaderDirectory = \dirname((string) (new \ReflectionClass(YamlTypeLoader::class))->getFileName());
         $definitions = $this->createLoader([
-            new ElementTypeSourceDirectory('core', $loaderDirectory . '/../Definitions', 'Sw'),
+            new ElementTypeSourceDirectory('core', __DIR__ . '/../../../../../../../../src/Core/Framework/ContentSystem/Layout/Type/Definitions', 'Sw'),
         ])->load();
 
         $byName = [];
@@ -189,9 +188,8 @@ class YamlTypeLoaderTest extends TestCase
     #[TestDox('declares variant selection product as mappable with the current product as its default mapping')]
     public function testVariantSelectionProductCanBeMapped(): void
     {
-        $loaderDirectory = \dirname((string) (new \ReflectionClass(YamlTypeLoader::class))->getFileName());
         $definitions = $this->createLoader([
-            new ElementTypeSourceDirectory('core', $loaderDirectory . '/../Definitions', 'Sw'),
+            new ElementTypeSourceDirectory('core', __DIR__ . '/../../../../../../../../src/Core/Framework/ContentSystem/Layout/Type/Definitions', 'Sw'),
         ])->load();
 
         $byName = [];

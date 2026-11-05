@@ -687,7 +687,7 @@ class LayoutMutationControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($body['errors']);
+        static::assertNotSame([], $body['errors']);
         static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 

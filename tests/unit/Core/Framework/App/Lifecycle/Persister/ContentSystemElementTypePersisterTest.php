@@ -72,8 +72,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
     {
         $appId = $this->ids->get('app');
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([
+        $repo = StaticEntityRepository::of(AppContentSystemElementTypeCollection::class, [
             static function (Criteria $criteria, Context $context) use ($appId): AppContentSystemElementTypeCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
@@ -114,7 +113,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $existing = $this->buildExistingEntity('type-hero', 'DemoApp:Hero');
         $existing->setHash('outdated-hash-value');
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$existing]),
             new AppContentSystemElementTypeCollection(),
@@ -146,7 +144,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $seeded->setHash($hash);
         $seeded->setSchema($this->serializer->normalize($spec[0]->dto));
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$seeded]),
             new AppContentSystemElementTypeCollection(),
@@ -164,7 +161,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
     {
         $obsolete = $this->buildExistingEntity('type-old', 'App:Old:Type');
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$obsolete]),
             new AppContentSystemElementTypeCollection(),
@@ -224,7 +220,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $existingBanner = $this->buildExistingEntity('type-banner', 'DemoApp:Banner');
         $existingBanner->setHash('outdated-hash');
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$existingHero, $existingBanner]),
             new AppContentSystemElementTypeCollection(),
@@ -253,7 +248,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
 
         $orphan = $this->buildExistingEntity('type-orphan', 'DemoApp:Orphan');
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$orphan]),
         ]);
@@ -400,7 +394,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $loader = static::createStub(YamlTypeLoader::class);
         $loader->method('loadDtosFromDirectory')->willReturn([]);
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection(),
         ]);
@@ -425,7 +418,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $orphanedEntity->setSchema([]);
         $orphanedEntity->setAppId($this->ids->create('deleted-app'));
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection(),
             new AppContentSystemElementTypeCollection([$orphanedEntity]),
@@ -446,8 +438,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $loader = static::createStub(YamlTypeLoader::class);
         $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([]);
+        $repo = StaticEntityRepository::of(AppContentSystemElementTypeCollection::class, []);
 
         $persister = $this->buildPersister($repo, loader: $loader);
 
@@ -475,7 +466,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
             ),
         ]);
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection(),
             new AppContentSystemElementTypeCollection(),
@@ -566,7 +556,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn([]);
 
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection(),
             new AppContentSystemElementTypeCollection([$inactiveEntity]),

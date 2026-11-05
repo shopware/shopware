@@ -33,8 +33,7 @@ class HeaderSpecificationSourceTest extends TestCase
     {
         $this->resolver = static::createStub(DomainAwareLayoutResolver::class);
 
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, []);
 
         $this->source = new HeaderSpecificationSource(
             $this->resolver,

@@ -290,8 +290,7 @@ class PersistedLayoutMutatorTest extends TestCase
     {
         $collection = new ContentLayoutCollection($entity === null ? [] : [$entity]);
 
-        /** @var StaticEntityRepository<ContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ContentLayoutCollection::class, [
             static function (Criteria $criteria, Context $context) use ($collection, $expectedLayoutId, $expectedContext): ContentLayoutCollection {
                 static::assertSame([$expectedLayoutId], array_values($criteria->getIds()));
                 static::assertSame($expectedContext, $context);

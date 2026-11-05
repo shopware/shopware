@@ -25,8 +25,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCacheTags;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -122,12 +122,12 @@ class CustomFieldMappingCacheInvalidationTest extends TestCase
                 static::assertArrayNotHasKey('customFieldSetId', $payload);
             }
         };
-        $dispatcher = static::getContainer()->get(EventDispatcherInterface::class);
-        $dispatcher->addListener(EntityWrittenContainerEvent::class, $listener);
+        $dispatcher = EventHookDispatcher::fromContainer(static::getContainer());
+        $dispatcher->on(EntityWrittenContainerEvent::class, $listener);
         try {
             static::getContainer()->get('custom_field_set_relation.repository')->delete([['id' => $this->relationId]], Context::createDefaultContext());
         } finally {
-            $dispatcher->removeListener(EntityWrittenContainerEvent::class, $listener);
+            $dispatcher->off(EntityWrittenContainerEvent::class, $listener);
         }
         static::assertTrue($observed);
         $this->invalidator->invalidateExpired();

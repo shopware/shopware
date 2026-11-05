@@ -256,7 +256,7 @@ final class StoredTreePreparer
     private function substitute(string $input, PlaceholderValues $values): ?string
     {
         $substituted = $this->substituteLiteral($input, $values);
-        if (preg_match('/^\{\{(?<key>[^{}]+)\}\}$/', $substituted, $matches) === 1
+        if (preg_match('/^\{\{(?<key>[^{}]+)\}\}$/D', $substituted, $matches) === 1
             && !InlineMappingTokenParser::isReservedPlaceholderKey($matches['key'])
         ) {
             return null;

@@ -40,7 +40,7 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
 
         $all = $this->registry()->all();
 
-        static::assertNotEmpty($all, 'The integration environment must register at least one binding specification.');
+        static::assertNotSame([], $all, 'The integration environment must register at least one binding specification.');
 
         // One aggregate assertion over a runtime-dynamic set (the registry cannot be a static data provider): each
         // non-canonical or non-decodable loader binding contributes a diagnostic line, and the empty-list assertion

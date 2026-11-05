@@ -89,15 +89,81 @@ describe('sw-product-document-add-button', () => {
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
     });
 
-    it('allows keyboard users to reach the language link and return to the trigger', async () => {
+    it.each(['Enter', ' '])('supports %p activation and returns focus on Escape', async (key) => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         wrapper = await createWrapper();
-        await wrapper.get('.sw-product-document-add-button__trigger').trigger('keydown', { key: 'Enter' });
+        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+        wrapper.get('.sw-product-document-add-button__trigger').element.dispatchEvent(event);
         await flushPromises();
+        expect(event.defaultPrevented).toBe(true);
         expect(document.activeElement).toBe(wrapper.get('button.mt-link').element);
         await wrapper.get('[role="dialog"]').trigger('keydown', { key: 'Escape' });
         expect(document.activeElement).toBe(wrapper.get('.sw-product-document-add-button__trigger').element);
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+    });
+
+    it('includes the visible button label in its accessible name', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        wrapper = await createWrapper();
+        const trigger = wrapper.get('.sw-product-document-add-button__trigger');
+        expect(trigger.attributes('aria-label')).toContain(wrapper.get('button').text());
+        expect(trigger.attributes('aria-label')).toContain('sw-product.documentForm.switchContentLanguage');
+    });
+
+    it('keeps a focused link open when the pointer leaves, then closes after focus leaves', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        wrapper = await createWrapper();
+        await wrapper.get('.sw-product-document-add-button__trigger').trigger('mouseenter');
+        await flushPromises();
+        const link = wrapper.get<HTMLButtonElement>('button.mt-link');
+        link.element.focus();
+        jest.useFakeTimers();
+        await wrapper.get('[role="dialog"]').trigger('mouseleave');
+        jest.advanceTimersByTime(150);
+        await nextTick();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(true);
+        expect(document.activeElement).toBe(link.element);
+
+        const outside = document.createElement('button');
+        document.body.appendChild(outside);
+        try {
+            outside.focus();
+            jest.advanceTimersByTime(150);
+            await nextTick();
+            expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+        } finally {
+            outside.remove();
+        }
+    });
+
+    it('keeps the hint open while its trigger is hovered after focus leaves', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        wrapper = await createWrapper();
+        const trigger = wrapper.get<HTMLElement>('.sw-product-document-add-button__trigger');
+        trigger.element.focus();
+        await flushPromises();
+        // jsdom does not compute pointer hover state.
+        const matches = trigger.element.matches.bind(trigger.element);
+        const hovered = jest
+            .spyOn(trigger.element, 'matches')
+            .mockImplementation((selector) => selector === ':hover' || matches(selector));
+        const outside = document.createElement('button');
+        document.body.appendChild(outside);
+        jest.useFakeTimers();
+        try {
+            outside.focus();
+            jest.advanceTimersByTime(150);
+            await nextTick();
+            expect(wrapper.find('[role="dialog"]').exists()).toBe(true);
+            hovered.mockRestore();
+            await trigger.trigger('mouseleave');
+            jest.advanceTimersByTime(150);
+            await nextTick();
+            expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+        } finally {
+            hovered.mockRestore();
+            outside.remove();
+        }
     });
 
     it('renders the language link in the real Meteor floating panel', async () => {

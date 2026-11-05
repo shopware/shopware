@@ -95,6 +95,12 @@ export default class FormValidation {
         this.addValidator('email', this.validateEmail, window.validationMessages['email']);
         this.addValidator('confirmation', this.validateConfirmation, window.validationMessages['confirmation']);
         this.addValidator('minLength', this.validateMinLength, window.validationMessages['minLength']);
+        // Same key as in 6.7. Falls back to the required message for themes that replace the `form_validation_config` block.
+        this.addValidator(
+            'grecaptcha',
+            this.validateGrecaptcha,
+            window.validationMessages['grecaptchaToken'] ?? window.validationMessages['required']
+        );
     }
 
     /**
@@ -340,6 +346,35 @@ export default class FormValidation {
         const minLength = minLengthAttr ? minLengthAttr : this.config.defaultMinLength;
 
         return value.length >= minLength;
+    }
+
+    /**
+     * Checks that the reCAPTCHA field carries a token before the form is submitted.
+     * Only the hidden reCAPTCHA fields ('_grecaptcha_v3' / '_grecaptcha_v2') are checked.
+     * Every other field passes straight through.
+     *
+     * The field is empty while the reCAPTCHA script is still loading, when it is blocked
+     * (e.g. by an ad blocker), or while a reCAPTCHA v2 checkbox is not solved.
+     * The dedicated message tells the customer that the reCAPTCHA verification is the problem,
+     * instead of the generic message of the `required` rule.
+     *
+     * @param {string} value - The field value, i.e. the reCAPTCHA token
+     * @param {HTMLElement} field
+     * @returns {boolean}
+     */
+    validateGrecaptcha(value, field) {
+        if (!(field instanceof HTMLElement)) {
+            console.error('[FormValidation]: Missing or invalid required parameter "field".');
+            return true;
+        }
+
+        const fieldName = field.getAttribute('name');
+
+        if (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2') {
+            return true;
+        }
+
+        return value.length > 0;
     }
 
     /**

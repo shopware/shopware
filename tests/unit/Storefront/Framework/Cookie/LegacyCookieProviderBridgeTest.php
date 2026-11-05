@@ -181,6 +181,84 @@ class LegacyCookieProviderBridgeTest extends TestCase
         static::assertCount(4, $required->getEntries() ?? []);
     }
 
+    public function testChangedRequiredFlagValueAndExpirationOfACoreGroupAreApplied(): void
+    {
+        $decorator = $this->decorate(static function (array $groups): array {
+            foreach ($groups as &$group) {
+                if ($group['snippet_name'] === CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES) {
+                    $group['isRequired'] = true;
+                    $group['value'] = 'legacy-value';
+                    $group['expiration'] = '7';
+                }
+            }
+
+            return $groups;
+        });
+
+        $comfortFeatures = $this->collect($decorator)->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
+
+        static::assertNotNull($comfortFeatures);
+        static::assertTrue($comfortFeatures->isRequired);
+        static::assertSame('legacy-value', $comfortFeatures->value);
+        static::assertSame(7, $comfortFeatures->expiration);
+        static::assertSame(['youtube-video', 'vimeo-video'], array_keys($comfortFeatures->getEntries()?->getElements() ?? []));
+    }
+
+    public function testLegacyCookieReplacesTheCookieOfAGroupAddedByAListener(): void
+    {
+        $decorator = $this->decorate(static function (array $groups): array {
+            $groups[] = ['snippet_name' => 'shared.group', 'cookie' => 'legacy-cookie'];
+
+            return $groups;
+        });
+
+        $groups = $this->collect($decorator, static function (CookieGroupCollectEvent $event): void {
+            $group = new CookieGroup('shared.group');
+            $group->setCookie('event-cookie');
+            $event->cookieGroupCollection->add($group);
+        }, listenerPriority: 20000);
+
+        $sharedGroup = $groups->get('shared.group');
+        static::assertNotNull($sharedGroup);
+        static::assertSame('legacy-cookie', $sharedGroup->getCookie());
+        static::assertNull($sharedGroup->getEntries());
+    }
+
+    public function testLegacyEntriesAreIgnoredForAGroupWithASingleCookieAddedByAListener(): void
+    {
+        $decorator = $this->decorate(static function (array $groups): array {
+            $groups[] = ['snippet_name' => 'shared.group', 'entries' => [['cookie' => 'legacy-cookie']]];
+
+            return $groups;
+        });
+
+        $groups = $this->collect($decorator, static function (CookieGroupCollectEvent $event): void {
+            $group = new CookieGroup('shared.group');
+            $group->setCookie('event-cookie');
+            $event->cookieGroupCollection->add($group);
+        }, listenerPriority: 20000);
+
+        $sharedGroup = $groups->get('shared.group');
+        static::assertNotNull($sharedGroup);
+        static::assertSame('event-cookie', $sharedGroup->getCookie());
+        static::assertNull($sharedGroup->getEntries());
+    }
+
+    public function testLegacyEntriesAreAddedToAGroupWithoutCookiesAddedByAListener(): void
+    {
+        $decorator = $this->decorate(static function (array $groups): array {
+            $groups[] = ['snippet_name' => 'shared.group', 'entries' => [['cookie' => 'legacy-cookie']]];
+
+            return $groups;
+        });
+
+        $groups = $this->collect($decorator, static function (CookieGroupCollectEvent $event): void {
+            $event->cookieGroupCollection->add(new CookieGroup('shared.group'));
+        }, listenerPriority: 20000);
+
+        static::assertSame(['legacy-cookie'], array_keys($groups->get('shared.group')?->getEntries()?->getElements() ?? []));
+    }
+
     public function testCoreGroupRemovedByAnEarlierListenerStaysRemoved(): void
     {
         $decorator = $this->decorate(static function (array $groups): array {

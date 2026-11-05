@@ -1500,7 +1500,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 50
+      "count": 46
     }
   },
   "src/app/component/media/sw-media-url-form/index.js": {
@@ -11583,7 +11583,7 @@
   },
   "src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid/sw-settings-listing-option-criteria-grid.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 24
+      "count": 17
     }
   },
   "src/module/sw-settings-listing/component/sw-settings-listing-option-general-info/index.js": {

@@ -178,7 +178,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -511,7 +511,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentSystemLayoutPresetPersister::class)
         ->args([
             service('app_content_system_layout_preset.repository'),
-            service(YamlLayoutPresetLoader::class),
+            service(ContentSystemLayoutPresetAppLoader::class),
             service(LayoutPresetSpecificationSerializer::class),
             service(ContentSystemLayoutPresetRegistry::class),
             service(Connection::class),
@@ -527,7 +527,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ContentSystemLayoutPresetAppValidator::class)
         ->args([
-            service(YamlLayoutPresetLoader::class),
+            service(ContentSystemLayoutPresetAppLoader::class),
         ])
         ->tag('shopware.app_manifest.validator');
 

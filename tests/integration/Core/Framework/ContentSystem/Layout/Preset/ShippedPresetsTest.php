@@ -47,7 +47,7 @@ class ShippedPresetsTest extends TestCase
             $logger,
         ))->all();
 
-        static::assertNotEmpty($presets);
+        static::assertNotSame([], $presets);
 
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 

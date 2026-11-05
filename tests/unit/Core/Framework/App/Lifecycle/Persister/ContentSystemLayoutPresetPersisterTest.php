@@ -15,10 +15,13 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemLayoutPresetPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -285,6 +288,27 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         }
     }
 
+    #[TestDox('rejects an app preset with an unresolvable reference before persisting anything')]
+    public function testRejectsUnresolvablePresetReference(): void
+    {
+        $loader = $this->dtoLoader([
+            'DemoApp:Hero' => new LayoutPresetSpecificationDto('Hero', 'A preset.', 'regular-star', [['preset' => 'Sw:ProductReviewz']]),
+        ]);
+
+        $repo = StaticEntityRepository::of(AppContentSystemLayoutPresetCollection::class, []);
+
+        try {
+            $this->buildPersister($repo, $loader)->persist($this->buildContext());
+            static::fail('Expected app validation to reject the preset reference.');
+        } catch (AppException $exception) {
+            static::assertSame(400, $exception->getStatusCode());
+            static::assertSame(AppException::CONTENT_SYSTEM_LAYOUT_PRESET_LOAD_FAILED, $exception->getErrorCode());
+            static::assertStringContainsString('references unknown preset "Sw:ProductReviewz"', $exception->getMessage());
+        }
+
+        static::assertSame([], $repo->upserts);
+    }
+
     #[TestDox('wraps a UniqueConstraintViolationException as an AppException on concurrent id collision')]
     public function testWrapsUniqueConstraintViolationAsAppException(): void
     {
@@ -307,7 +331,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
 
         $persister = new ContentSystemLayoutPresetPersister(
             $repo,
-            $loader,
+            new ContentSystemLayoutPresetAppLoader($loader, static::createStub(DatabaseLayoutPresetLoader::class), new ContentSystemLayoutPresetValidator()),
             new LayoutPresetSpecificationSerializer(),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
             $this->runTransactionStub(),
@@ -378,7 +402,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     ): ContentSystemLayoutPresetPersister {
         return new ContentSystemLayoutPresetPersister(
             $repo,
-            $loader,
+            new ContentSystemLayoutPresetAppLoader($loader, static::createStub(DatabaseLayoutPresetLoader::class), new ContentSystemLayoutPresetValidator()),
             new LayoutPresetSpecificationSerializer(),
             $registry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
             $connection ?? $this->runTransactionStub(),

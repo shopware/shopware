@@ -20,10 +20,11 @@ $integrationTests = [
 ];
 
 if ($major) {
-    // Nightly major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major).
+    // Major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major).
+    // 6.8 requires PHP 8.5, which also resolves PHPUnit 13 from the root composer constraint.
     echo \json_encode([
         'test' => $integrationTests,
-        'php' => ['8.2'],
+        'php' => ['8.5'],
         'db' => ['mysql:8.0'],
         'opensearch' => ['opensearchproject/opensearch:3'],
     ], \JSON_THROW_ON_ERROR);

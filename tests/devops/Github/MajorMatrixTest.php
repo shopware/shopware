@@ -18,7 +18,7 @@ class MajorMatrixTest extends TestCase
 
         static::assertArrayNotHasKey('major', $matrix);
         static::assertNotCount(0, $matrix['test']);
-        static::assertSame(['8.2'], $matrix['php']);
+        static::assertSame(['8.5'], $matrix['php']);
     }
 
     public function testPhpunitMatrixRunsPullRequestsOnPhp85AndAddsPhp82Nightly(): void

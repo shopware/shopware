@@ -140,6 +140,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $validation
             ->add(
                 'email',
+                new NotBlank(),
                 new Email()
             );
 

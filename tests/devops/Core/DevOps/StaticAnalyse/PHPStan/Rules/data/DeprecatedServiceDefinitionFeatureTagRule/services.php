@@ -48,7 +48,7 @@ return static function (ContainerConfigurator $container): void {
     // @deprecated tag:v6.9.0 Will be removed
     $services->alias('Shopware\Administration\Notification\NotificationDefinition', 'current');
 
-    // @deprecated tag:v6.8.0 Will be removed
+    // @deprecated tag:v6.9.0 Will be removed
     $services->alias(ProductStreamBuilderInterface::class, 'current');
 
     // @deprecated tag:v6.8.0 This comment is not adjacent to the registration

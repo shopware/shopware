@@ -17,9 +17,11 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
         'v6.8.0.0' => [
             'Shopware\Administration\Controller\NotificationController',
             'Shopware\Administration\Notification\NotificationDefinition',
-            'Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface',
             'Shopware\Core\Framework\Plugin\Util\AssetService',
             'Shopware\Elasticsearch\Product\SearchConfigLoader',
+        ],
+        'v6.9.0.0' => [
+            'Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface',
         ],
     ];
 

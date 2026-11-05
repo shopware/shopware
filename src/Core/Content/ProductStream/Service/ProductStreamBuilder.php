@@ -13,11 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
-class ProductStreamBuilder extends AbstractProductStreamBuilder implements ProductStreamBuilderInterface
+class ProductStreamBuilder extends AbstractProductStreamBuilder
 {
     /**
      * @internal
@@ -38,19 +37,6 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
         if (!$stream->isDisplayAsGroup()) {
             $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         }
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder::enrichCriteria instead.
-     */
-    public function buildFilters(string $id, Context $context): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'AbstractProductStreamBuilder::enrichCriteria')
-        );
-
-        return $this->parseFilters($this->loadStream($id, $context), $id);
     }
 
     private function loadStream(string $id, Context $context): ProductStreamEntity

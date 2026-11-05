@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
@@ -18,10 +20,12 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
  */
 #[Package('inventory')]
 #[CoversClass(AbstractProductStreamBuilder::class)]
+#[DisabledFeatures(['v6.9.0.0'])]
 class AbstractProductStreamBuilderTest extends TestCase
 {
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testForwardsLegacyBuildFiltersCallToEnrichCriteria(): void
+    use EnvTestBehaviour;
+
+    public function testForwardsLegacyBuildFiltersCallToEnrichCriteriaWithThe68FlagActive(): void
     {
         $filter = new EqualsFilter('active', true);
         $builder = new class($filter) extends AbstractProductStreamBuilder {
@@ -38,15 +42,26 @@ class AbstractProductStreamBuilderTest extends TestCase
         static::assertSame([$filter], $builder->buildFilters('stream-id', Context::createDefaultContext()));
     }
 
-    public function testLegacyBuildFiltersCallThrowsWhenV68IsActive(): void
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the legacy buildFilters() bridge.
+     */
+    public function testLegacyBuildFiltersCallThrowsWithThe69FlagActive(): void
     {
+        Feature::registerFeature('v6.8.0.0', ['default' => true]);
+        Feature::registerFeature('v6.9.0.0', ['default' => false]);
+        $this->setEnvVars(['V6_9_0_0' => '1']);
         $builder = new class extends AbstractProductStreamBuilder {
             public function enrichCriteria(Criteria $criteria, string $id, Context $context): void
             {
             }
         };
 
-        $this->expectException(FeatureException::class);
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(
+            AbstractProductStreamBuilder::class,
+            AbstractProductStreamBuilder::class . '::buildFilters',
+            'v6.9.0.0',
+            AbstractProductStreamBuilder::class . '::enrichCriteria',
+        )));
 
         $builder->buildFilters('stream-id', Context::createDefaultContext());
     }

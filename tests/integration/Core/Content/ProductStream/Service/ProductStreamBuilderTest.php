@@ -180,36 +180,30 @@ class ProductStreamBuilderTest extends TestCase
         static::assertEquals($expected, $filter);
     }
 
-    #[IgnoreDeprecations]
-    public function testDeprecatedBuildFiltersTriggersDeprecationAndStillBuildsFilters(): void
+    public function testDeprecatedBuildFiltersStillBuildsFiltersBeforeV68(): void
     {
-        // Before v6.8.0.0 the deprecated fallback (used for builders that do not extend
-        // AbstractProductStreamBuilder) must stay functional and emit a deprecation notice; TESTS_RUNNING is
-        // disabled so the notice is triggered instead of suppressed. Once the flag is active it throws
-        // instead, which the unit test covers. #[DisabledFeatures] has no effect in integration tests
-        // (the FeatureFlagExtension only covers the unit-test namespace), so skip explicitly.
+        // #[DisabledFeatures] has no effect in integration tests, so skip explicitly.
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
+        $filters = $this->service->buildFilters($this->createStreamWithOneFilter(), Context::createDefaultContext());
+
+        static::assertCount(1, $filters);
+    }
+
+    #[IgnoreDeprecations]
+    public function testDeprecatedBuildFiltersTriggersDeprecationAndStillBuildsFiltersWithV68Active(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        // TESTS_RUNNING suppresses deprecation notices, so disable it to trigger the notice.
         $this->setEnvVars(['TESTS_RUNNING' => false]);
-
-        $ids = new IdsCollection();
-        $value = Uuid::randomHex();
-
-        static::getContainer()->get('product_stream.repository')->create([[
-            'id' => $ids->get('stream'),
-            'name' => 'bc-build-filters',
-            'filters' => [[
-                'type' => 'equals',
-                'field' => 'product.id',
-                'value' => $value,
-            ]],
-        ]], Context::createDefaultContext());
+        $streamId = $this->createStreamWithOneFilter();
 
         $this->expectUserDeprecationMessage(
-            'Method "' . ProductStreamBuilder::class . '::buildFilters()" is deprecated and will be removed in v6.8.0.0. Use "AbstractProductStreamBuilder::enrichCriteria" instead.'
+            'Method "' . AbstractProductStreamBuilder::class . '::buildFilters()" is deprecated and will be removed in v6.9.0.0. Use "' . AbstractProductStreamBuilder::class . '::enrichCriteria" instead.'
         );
 
-        $filters = $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
+        $filters = $this->service->buildFilters($streamId, Context::createDefaultContext());
 
         static::assertCount(1, $filters);
     }
@@ -325,6 +319,23 @@ class ProductStreamBuilderTest extends TestCase
                 (UNHEX(\'137B079935714281BA80B40F83F8D7EB\'), \'[]\', 0, \'2019-08-16 08:43:57.488\', NULL);
         '
         );
+    }
+
+    private function createStreamWithOneFilter(): string
+    {
+        $streamId = Uuid::randomHex();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $streamId,
+            'name' => 'bc-build-filters',
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        return $streamId;
     }
 
     /**

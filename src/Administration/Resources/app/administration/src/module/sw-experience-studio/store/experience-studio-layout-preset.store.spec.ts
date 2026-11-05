@@ -8,7 +8,15 @@ import './experience-studio-layout-preset.store';
 
 describe('src/module/sw-experience-studio/store/experience-studio-layout-preset.store.ts', () => {
     const presets: ContentSystemLayoutPreset[] = [
-        { id: 'core.text-block', name: 'Text block', description: 'A text block', icon: 'regular-align-left', payload: [] },
+        {
+            id: 'core.text-block',
+            name: 'Text block',
+            description: 'A text block',
+            icon: 'regular-align-left',
+            category: 'content',
+            priority: 100,
+            payload: [],
+        },
     ];
 
     const getStore = () => Shopware.Store.get('experienceStudioLayoutPreset' as never) as ExperienceStudioLayoutPresetStore;

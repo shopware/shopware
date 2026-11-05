@@ -33,6 +33,8 @@
                           "name",
                           "description",
                           "icon",
+                          "category",
+                          "priority",
                           "payload"
                         ],
                         "properties": {
@@ -59,6 +61,18 @@
                               "null"
                             ],
                             "description": "An optional icon identifier for the preset."
+                          },
+                          "category": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Optional category for grouping presets in the Experience Studio picker."
+                          },
+                          "priority": {
+                            "type": "integer",
+                            "default": 0,
+                            "description": "Preset picker priority within its category. Higher values appear first; defaults to 0 when omitted from the preset declaration."
                           },
                           "payload": {
                             "type": "array",

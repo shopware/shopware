@@ -34,6 +34,21 @@ class CachedContentSystemLayoutPresetRegistryTest extends TestCase
         static::assertSame($preset, $result['core.text-block']);
     }
 
+    public function testIgnoresCachedSpecificationsWithoutTheNewMetadata(): void
+    {
+        $preset = $this->createPreset('core.text-block');
+        $inner = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $inner->expects($this->once())->method('all')->willReturn(['core.text-block' => $preset]);
+        $cache = new ArrayAdapter();
+        $legacyItem = $cache->getItem('content_system.layout_presets');
+        $legacyItem->set(['core.text-block' => 'stale specification payload']);
+        $cache->save($legacyItem);
+
+        $registry = new CachedContentSystemLayoutPresetRegistry($inner, $cache);
+
+        static::assertSame(['core.text-block' => $preset], $registry->all());
+    }
+
     #[TestDox('returns cached result on second all() call without calling inner again')]
     public function testAllReturnsCachedResultOnSecondCall(): void
     {

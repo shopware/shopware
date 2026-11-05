@@ -144,15 +144,12 @@ export default Shopware.Component.wrapComponentConfig({
                 .map((group) => ({
                     key: group.key,
                     headlineSnippetKey: group.headlineSnippetKey,
-                    elements:
-                        this.activeTab === 'presets'
-                            ? group.elements
-                            : [...group.elements].sort(
-                                  (a, b) =>
-                                      (b.priority ?? 0) - (a.priority ?? 0) ||
-                                      a.label.localeCompare(b.label) ||
-                                      a.name.localeCompare(b.name),
-                              ),
+                    elements: [...group.elements].sort(
+                        (a, b) =>
+                            (b.priority ?? 0) - (a.priority ?? 0) ||
+                            a.label.localeCompare(b.label) ||
+                            a.name.localeCompare(b.name),
+                    ),
                 }));
         },
     },

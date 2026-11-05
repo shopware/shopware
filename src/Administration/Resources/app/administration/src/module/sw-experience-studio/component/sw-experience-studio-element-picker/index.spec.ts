@@ -57,57 +57,63 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         expect(groups[4].key).toBe('other');
     });
 
-    it('orders elements by descending priority, label, and type name without changing the input', () => {
+    it.each(['elements', 'presets'])(
+        'orders %s by descending priority, label, and identifier without changing the input',
+        (activeTab) => {
+            const elements = [
+                { name: 'negative', label: 'A', priority: -100 },
+                { name: 'default-z', label: 'Z' },
+                { name: 'same-b', label: 'Same', priority: 100 },
+                { name: 'highest', label: 'Z', priority: 200 },
+                { name: 'same-a', label: 'Same', priority: 100 },
+                { name: 'default-a', label: 'A', priority: 0 },
+                { name: 'first-label', label: 'A', priority: 100 },
+            ];
+            const original = [...elements];
+            const vm = {
+                activeTab,
+                visibleElements: elements,
+                categoryOrder: [],
+                fallbackCategoryKey: 'other',
+                normalizeCategoryKey: methods.normalizeCategoryKey,
+                categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
+            };
+
+            const groups = computed.groupedElements.call(vm) as Array<{ elements: Array<{ name: string }> }>;
+
+            expect(groups[0].elements.map((element) => element.name)).toEqual([
+                'highest',
+                'first-label',
+                'same-a',
+                'same-b',
+                'default-a',
+                'default-z',
+                'negative',
+            ]);
+            expect(elements).toEqual(original);
+        },
+    );
+
+    it('groups presets by category before sorting by priority and puts uncategorized presets under Other', () => {
         const elements = [
-            { name: 'negative', label: 'A', priority: -100 },
-            { name: 'default-z', label: 'Z' },
-            { name: 'same-b', label: 'Same', priority: 100 },
-            { name: 'highest', label: 'Z', priority: 200 },
-            { name: 'same-a', label: 'Same', priority: 100 },
-            { name: 'default-a', label: 'A', priority: 0 },
-            { name: 'first-label', label: 'A', priority: 100 },
-        ];
-        const original = [...elements];
-        const vm = {
-            activeTab: 'elements',
-            visibleElements: elements,
-            categoryOrder: [],
-            fallbackCategoryKey: 'other',
-            normalizeCategoryKey: methods.normalizeCategoryKey,
-            categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
-        };
-
-        const groups = computed.groupedElements.call(vm) as Array<{ elements: Array<{ name: string }> }>;
-
-        expect(groups[0].elements.map((element) => element.name)).toEqual([
-            'highest',
-            'first-label',
-            'same-a',
-            'same-b',
-            'default-a',
-            'default-z',
-            'negative',
-        ]);
-        expect(elements).toEqual(original);
-    });
-
-    it('keeps preset order even when labels or priorities differ', () => {
-        const elements = [
-            { name: 'z', label: 'Z', kind: 'preset', priority: -100 },
-            { name: 'a', label: 'A', kind: 'preset', priority: 100 },
+            { name: 'z', label: 'Z', kind: 'preset', category: 'content', priority: -100 },
+            { name: 'a', label: 'A', kind: 'preset', category: 'content', priority: 100 },
+            { name: 'layout', label: 'Layout', kind: 'preset', category: 'layout', priority: -1000 },
+            { name: 'legacy', label: 'Legacy', kind: 'preset' },
         ];
         const vm = {
             activeTab: 'presets',
             visibleElements: elements,
-            categoryOrder: [],
+            categoryOrder: ['layout', 'content', 'commerce'],
             fallbackCategoryKey: 'other',
             normalizeCategoryKey: methods.normalizeCategoryKey,
             categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
         };
 
-        const groups = computed.groupedElements.call(vm) as Array<{ elements: typeof elements }>;
+        const groups = computed.groupedElements.call(vm) as Array<{ key: string; elements: typeof elements }>;
 
-        expect(groups[0].elements).toEqual(elements);
+        expect(groups.map((group) => group.key)).toEqual(['layout', 'content', 'other']);
+        expect(groups.map((group) => group.elements.map((item) => item.name))).toEqual([['layout'], ['a', 'z'], ['legacy']]);
     });
 
     it('emits select-preset for a preset item and select for an element item', () => {
@@ -230,9 +236,28 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
                         name: 'core.text-block',
                         label: 'Text block',
                         icon: null,
-                        category: 'presets',
+                        category: 'content',
+                        priority: 100,
                         kind: 'preset',
                         id: 'core.text-block',
+                    },
+                    {
+                        name: 'core.high-priority',
+                        label: 'Z highest',
+                        icon: null,
+                        category: 'content',
+                        priority: 200,
+                        kind: 'preset',
+                        id: 'core.high-priority',
+                    },
+                    {
+                        name: 'core.tab-panel',
+                        label: 'Tab panel',
+                        icon: null,
+                        category: 'layout',
+                        priority: -100,
+                        kind: 'preset',
+                        id: 'core.tab-panel',
                     },
                 ],
             },
@@ -276,12 +301,20 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
 
             expect(tabs[1].attributes('aria-selected')).toBe('true');
             expect(wrapper.findAll('.sw-experience-studio-element-picker__label').map((label) => label.text())).toEqual([
+                'Tab panel',
+                'Z highest',
                 'Text block',
+            ]);
+            expect(
+                wrapper.findAll('.sw-experience-studio-element-picker__section-title').map((title) => title.text()),
+            ).toEqual([
+                'sw-experience-studio.detail.elementPicker.categoryHeadlines.layout',
+                'sw-experience-studio.detail.elementPicker.categoryHeadlines.content',
             ]);
 
             await wrapper.get('.sw-experience-studio-element-picker__item').trigger('click');
 
-            expect(wrapper.emitted('select-preset')).toEqual([['core.text-block']]);
+            expect(wrapper.emitted('select-preset')).toEqual([['core.tab-panel']]);
             expect(wrapper.emitted('select')).toHaveLength(1);
 
             await tabs[0].trigger('click');

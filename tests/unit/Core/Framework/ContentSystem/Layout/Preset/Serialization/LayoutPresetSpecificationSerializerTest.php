@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Preset\Serialization;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
@@ -38,6 +39,8 @@ class LayoutPresetSpecificationSerializerTest extends TestCase
 
         static::assertSame('', $dto->description);
         static::assertSame('', $dto->icon);
+        static::assertNull($dto->category);
+        static::assertSame(0, $dto->priority);
     }
 
     #[TestDox('normalizes a dto back into the raw authoring form')]
@@ -53,6 +56,61 @@ class LayoutPresetSpecificationSerializerTest extends TestCase
         ];
 
         static::assertSame($raw, $serializer->normalize($serializer->denormalize($raw)));
+    }
+
+    #[DataProvider('metadataProvider')]
+    public function testRoundTripsCategoryAndPriorityThroughAppJson(?string $category, int $priority): void
+    {
+        $serializer = $this->serializer();
+        $dto = $serializer->denormalize([
+            'name' => 'Text block',
+            'description' => 'A text block.',
+            'icon' => 'regular-align-left',
+            'layout' => [],
+            'category' => $category,
+            'priority' => $priority,
+        ]);
+        $persisted = json_encode($serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+
+        static::assertSame($category, $restored->category);
+        static::assertSame($priority, $restored->priority);
+    }
+
+    /**
+     * @return iterable<string, array{string|null, int}>
+     */
+    public static function metadataProvider(): iterable
+    {
+        yield 'content preset' => ['content', 200];
+        yield 'lower priority in a custom category' => ['my-plugin', -100];
+        yield 'default metadata' => [null, 0];
+    }
+
+    #[DataProvider('invalidMetadataProvider')]
+    public function testRejectsMalformedMetadata(string $field, mixed $value): void
+    {
+        $this->expectException(\TypeError::class);
+
+        $dto = $this->serializer()->denormalize([$field => $value]);
+
+        static::fail('Unexpectedly accepted invalid ' . $field . ' in preset ' . $dto->name . '.');
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function invalidMetadataProvider(): iterable
+    {
+        yield 'numeric priority string' => ['priority', '100'];
+        yield 'whole number priority float' => ['priority', 100.0];
+        yield 'fractional priority' => ['priority', 1.5];
+        yield 'boolean priority' => ['priority', true];
+        yield 'explicit null priority' => ['priority', null];
+        yield 'priority array' => ['priority', []];
+        yield 'numeric category' => ['category', 100];
+        yield 'boolean category' => ['category', false];
+        yield 'category array' => ['category', []];
     }
 
     private function serializer(): LayoutPresetSpecificationSerializer

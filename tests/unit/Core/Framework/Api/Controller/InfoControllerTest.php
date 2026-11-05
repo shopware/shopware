@@ -36,6 +36,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -122,6 +123,40 @@ class InfoControllerTest extends TestCase
 
         $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json'), true, 512, \JSON_THROW_ON_ERROR);
         $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-element-types.json']['get']['responses']['200']['content']['application/json']['schema']);
+        static::assertInstanceOf(\stdClass::class, $responseSchema);
+        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
+    }
+
+    public function testContentSystemLayoutPresetsIncludesPickerMetadata(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $preset = new ContentSystemLayoutPresetSpecification(
+            id: 'Sw:TextBlock',
+            name: 'Text block',
+            description: 'A text block.',
+            icon: 'regular-align-left',
+            payload: [],
+            category: 'content',
+            priority: 100,
+        );
+        $legacyPreset = new ContentSystemLayoutPresetSpecification('Sw:Legacy', 'Legacy', null, null, []);
+        $registry = static::createStub(AbstractContentSystemLayoutPresetRegistry::class);
+        $registry->method('all')->willReturn(['Sw:TextBlock' => $preset, 'Sw:Legacy' => $legacyPreset]);
+
+        $response = $this->createController(layoutPresetRegistry: $registry)->getContentSystemLayoutPresets();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('content', $data['presets'][0]['category']);
+        static::assertSame(100, $data['presets'][0]['priority']);
+        static::assertNull($data['presets'][1]['category']);
+        static::assertSame(0, $data['presets'][1]['priority']);
+
+        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-layout-presets.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-layout-presets.json']['get']['responses']['200']['content']['application/json']['schema']);
         static::assertInstanceOf(\stdClass::class, $responseSchema);
         static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
     }

@@ -1,6 +1,8 @@
 name: "Media & text"
 description: "An image next to a rich-text block inside a grid container."
 icon: "regular-image-text"
+category: "content"
+priority: 200
 layout:
   - component: Sw:Grid:Container
     slots:

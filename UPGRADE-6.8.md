@@ -2915,13 +2915,6 @@ The following variables were removed:
 The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
 Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
-## Refactor of providing cookies
-
-The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
-Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
-The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
-Use `name` and `description` instead.
-
 ## Deprecated theme.json translations
 
 The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager reads its labels from administration snippets with a constructed key.
@@ -3132,33 +3125,6 @@ State-based invalidation is not supported anymore.
 ```diff
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
-```
-
-## Inline `<custom-fields>` in `manifest.xml` removed
-
-Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is no longer supported.
-Move the definitions into a dedicated `Resources/config/custom-fields.xml` file instead, using the same XML format.
-
-```diff
-// manifest.xml
-- <custom-fields>
--     <custom-field-set>
--         <name>swag_example_set</name>
--         ...
--     </custom-field-set>
-- </custom-fields>
-```
-
-```xml
-<!-- Resources/config/custom-fields.xml -->
-<?xml version="1.0" encoding="utf-8"?>
-<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
-    <custom-field-set>
-        <name>swag_example_set</name>
-        ...
-    </custom-field-set>
-</custom-fields>
 ```
 
 </details>

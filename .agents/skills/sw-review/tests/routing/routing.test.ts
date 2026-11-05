@@ -15,7 +15,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { type Meta, type SourceReader, classify, loadRulesFromIndex, workingTreeReader } from '../../scripts/classify.ts';
+import { type Meta, classify, loadRulesFromIndex } from '../../scripts/classify.ts';
 
 type Expected = {
     signals: string[];
@@ -35,28 +35,6 @@ const cases = readdirSync(HERE, { withFileTypes: true })
 
 const read = (name: string, file: string): string => readFileSync(join(HERE, name, file), 'utf8');
 
-const diffReader = (diff: string): SourceReader => {
-    const added = new Map<string, string[]>();
-    let fromDevNull = false;
-    let current: string[] | null = null;
-    for (const line of diff.replaceAll('\r', '').split('\n')) {
-        if (line.startsWith('diff --git ')) {
-            fromDevNull = false;
-            current = null;
-        } else if (line === '--- /dev/null') {
-            fromDevNull = true;
-        } else if (line.startsWith('+++ b/') && fromDevNull) {
-            current = [];
-            added.set(line.slice(6), current);
-        } else if (current !== null && line.startsWith('+')) {
-            current.push(line.slice(1));
-        }
-    }
-    const fallback = workingTreeReader(ROOT);
-
-    return (path) => added.get(path)?.join('\n') ?? fallback(path);
-};
-
 test('routing cases exist', () => {
     assert.ok(cases.length > 0, `no routing cases found in ${HERE}`);
 });
@@ -64,15 +42,13 @@ test('routing cases exist', () => {
 for (const name of cases) {
     test(`routing case ${name}`, () => {
         const expected = JSON.parse(read(name, 'expected.json')) as Expected;
-        const diff = read(name, 'diff.patch');
         const profile = classify({
             files: read(name, 'files.txt').split('\n'),
-            diff,
+            diff: read(name, 'diff.patch'),
             base: 'trunk',
             meta: JSON.parse(read(name, 'meta.json')) as Meta,
             root: ROOT,
             rules,
-            readFile: diffReader(diff),
         });
 
         assert.deepEqual(expected.signals.filter((signal) => !profile.signals.includes(signal)), [], 'missing signals');

@@ -3,11 +3,11 @@
   "signals": [
     "filesystem",
     "api_contract",
+    "public_surface",
     "php_src",
     "tests_changed"
   ],
   "not_signals": [
-    "public_surface",
     "migration",
     "scheduled_task",
     "fork_pr"

@@ -79,6 +79,7 @@ type ElementPickerItem = {
     label: string;
     icon: string | null;
     category: string | null;
+    priority?: number;
     kind?: 'element' | 'preset';
     id?: string;
     description?: string | null;
@@ -370,6 +371,7 @@ export default Shopware.Component.wrapComponentConfig({
                 label: typeSpecification.label,
                 icon: typeSpecification.icon,
                 category: typeSpecification.category,
+                priority: typeSpecification.priority,
                 kind: 'element',
             }));
 

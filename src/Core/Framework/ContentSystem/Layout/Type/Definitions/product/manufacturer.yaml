@@ -3,6 +3,7 @@ meta:
   description: "Displays the current product's manufacturer name or logo, with an optional link to the manufacturer's website."
   icon: "regular-factory"
   category: "commerce"
+  priority: 78
   copilot:
     summary: "Product manufacturer name or logo."
     hints:

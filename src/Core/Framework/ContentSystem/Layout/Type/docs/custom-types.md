@@ -31,6 +31,7 @@ meta:
   description: "Inline product preview overlay"
   icon: "regular-eye"
   category: "product"
+  priority: 100
   copilot:
     summary: "Shows a quick product preview"
     hints:
@@ -56,7 +57,14 @@ slots:
       - "AcmeStore:AddToCart"
 ```
 
-**`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
+**`meta`** (required): `label`, `description` are required.
+`icon`, `category`, `priority`, `copilot` are optional.
+
+`meta.priority` is an integer controlling the element picker order within its category.
+Higher values appear first; an omitted priority defaults to `0`, and negative values are allowed.
+Equal priorities are ordered alphabetically by label, then by the unique type name.
+Use gaps such as `100`, `200`, and `300` to leave room for other elements.
+Priority does not change category order or preset order.
 
 **`properties`** (optional): Each property declares its type: a primitive (`string`, `boolean`, `integer`, `number`; the set is `PropertyType::PRIMITIVE_TYPES`) or any other value, read as a `class-string<Struct>` FQCN for hydrated data. Optional fields: `required`, `translatable` (`type: string` only), `enum` (primitives only, a list whose values match the declared type; enforced by `TypedEnumValidator`), `default` (primitives only, a value matching the declared type; enforced by `TypedDefaultValidator`), `title`, `description`, `adminUI`, `mappable`, `inlineMappable`, `defaultMapping`, `resolvedBy` (reference properties only; the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
 

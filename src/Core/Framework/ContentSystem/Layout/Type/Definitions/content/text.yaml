@@ -3,6 +3,7 @@ meta:
   description: "Sanitized rich text content."
   icon: "regular-align-left"
   category: "content"
+  priority: 100
   copilot:
     summary: "Text content element."
     hints:

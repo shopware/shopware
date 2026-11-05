@@ -31,6 +31,7 @@ final readonly class ElementTypeSpecificationDto
         public array $properties,
         #[Assert\Valid]
         public array $slots,
+        public int $priority = 0,
     ) {
     }
 
@@ -56,6 +57,7 @@ final readonly class ElementTypeSpecificationDto
             $properties,
             $slots,
             $source,
+            $this->priority,
         );
     }
 }

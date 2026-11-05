@@ -3,6 +3,7 @@ meta:
   description: "Displays a product's price — including list, regulation, reference and graduated (tiered) prices — on the product detail page."
   icon: "regular-tag"
   category: "commerce"
+  priority: 80
   copilot:
     summary: "Product detail page price element."
     hints:

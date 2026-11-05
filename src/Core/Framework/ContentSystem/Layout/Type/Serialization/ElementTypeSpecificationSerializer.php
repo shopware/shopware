@@ -59,6 +59,7 @@ class ElementTypeSpecificationSerializer
             copilot: $copilot,
             properties: $properties,
             slots: $slots,
+            priority: \array_key_exists('priority', $meta) ? $meta['priority'] : 0,
         );
     }
 
@@ -77,6 +78,10 @@ class ElementTypeSpecificationSerializer
         }
         if ($dto->category !== null) {
             $meta['category'] = $dto->category;
+        }
+
+        if ($dto->priority !== 0) {
+            $meta['priority'] = $dto->priority;
         }
 
         if ($dto->copilot->summary !== '' || $dto->copilot->hints !== []) {

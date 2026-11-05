@@ -22,7 +22,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
                 { name: 'type-1', label: 'Image', icon: null, category: 'media' },
                 { name: 'type-2', label: 'Text', icon: null, category: 'content' },
                 { name: 'type-3', label: 'Grid', icon: null, category: 'layout' },
-                { name: 'type-4', label: 'Listing', icon: null, category: 'commerce' },
+                { name: 'type-4', label: 'Listing', icon: null, category: 'commerce', priority: 1000 },
                 { name: 'type-5', label: 'Text 2', icon: null, category: 'Content' },
                 { name: 'type-7', label: 'Text', icon: null, category: 'content' },
                 { name: 'type-6', label: 'Unknown', icon: null, category: null },
@@ -49,12 +49,65 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         expect(groups[1].headlineSnippetKey).toBe('sw-experience-studio.detail.elementPicker.categoryHeadlines.content');
         expect(groups[1].elements.map((element) => element.name)).toEqual([
             'type-2',
-            'type-5',
             'type-7',
+            'type-5',
         ]);
         expect(groups[2].key).toBe('commerce');
         expect(groups[3].key).toBe('media');
         expect(groups[4].key).toBe('other');
+    });
+
+    it('orders elements by descending priority, label, and type name without changing the input', () => {
+        const elements = [
+            { name: 'negative', label: 'A', priority: -100 },
+            { name: 'default-z', label: 'Z' },
+            { name: 'same-b', label: 'Same', priority: 100 },
+            { name: 'highest', label: 'Z', priority: 200 },
+            { name: 'same-a', label: 'Same', priority: 100 },
+            { name: 'default-a', label: 'A', priority: 0 },
+            { name: 'first-label', label: 'A', priority: 100 },
+        ];
+        const original = [...elements];
+        const vm = {
+            activeTab: 'elements',
+            visibleElements: elements,
+            categoryOrder: [],
+            fallbackCategoryKey: 'other',
+            normalizeCategoryKey: methods.normalizeCategoryKey,
+            categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
+        };
+
+        const groups = computed.groupedElements.call(vm) as Array<{ elements: Array<{ name: string }> }>;
+
+        expect(groups[0].elements.map((element) => element.name)).toEqual([
+            'highest',
+            'first-label',
+            'same-a',
+            'same-b',
+            'default-a',
+            'default-z',
+            'negative',
+        ]);
+        expect(elements).toEqual(original);
+    });
+
+    it('keeps preset order even when labels or priorities differ', () => {
+        const elements = [
+            { name: 'z', label: 'Z', kind: 'preset', priority: -100 },
+            { name: 'a', label: 'A', kind: 'preset', priority: 100 },
+        ];
+        const vm = {
+            activeTab: 'presets',
+            visibleElements: elements,
+            categoryOrder: [],
+            fallbackCategoryKey: 'other',
+            normalizeCategoryKey: methods.normalizeCategoryKey,
+            categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
+        };
+
+        const groups = computed.groupedElements.call(vm) as Array<{ elements: typeof elements }>;
+
+        expect(groups[0].elements).toEqual(elements);
     });
 
     it('emits select-preset for a preset item and select for an element item', () => {

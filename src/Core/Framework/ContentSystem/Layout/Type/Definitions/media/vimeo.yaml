@@ -3,6 +3,7 @@ meta:
   description: "Embeds a Vimeo video with playback, privacy and consent options."
   icon: "regular-vimeo"
   category: "content"
+  priority: 87
   copilot:
     summary: "Vimeo video element."
     hints:

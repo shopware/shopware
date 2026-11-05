@@ -3,6 +3,7 @@ meta:
   description: "Product listing filter panel."
   icon: "regular-filter-s"
   category: "commerce"
+  priority: 99
   copilot:
     summary: "Listing filter panel."
     hints:

@@ -3,6 +3,7 @@ meta:
   description: "Rating summary for a product: average rating, per-star breakdown and a login prompt for guests."
   icon: "regular-star-half"
   category: "commerce"
+  priority: 59
   copilot:
     summary: "Product rating summary (average and per-star breakdown)."
     hints:

@@ -3,6 +3,7 @@ meta:
   description: "Allows customers to select the purchase quantity of the current product on the product detail page."
   icon: "regular-list-numbered-xs"
   category: "commerce"
+  priority: 79
   copilot:
     summary: "Product purchase quantity selector."
     hints:

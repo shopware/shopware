@@ -18,6 +18,7 @@ Response:
       "source": "core",
       "icon": null,
       "category": null,
+      "priority": 0,
       "copilot": { "summary": "...", "hints": ["..."] },
       "properties": {
         "<propertyName>": {
@@ -46,6 +47,9 @@ Response:
 ```
 
 `source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data.
+
+`priority` is always an integer, defaulting to `0` when the type declaration omits `meta.priority`.
+The Administration uses higher priorities first within each element picker category, with label and type name as tie-breakers.
 
 `mappable` says whether the property may be mapped. `contextTypes` derives accepted candidate cardinalities from `type`. Primitives and non-`Collection` classes accept `single`; `Collection` classes accept `collection`; bare `object` accepts both. A union combines its members' kinds: `string|integer` accepts only `single`, while a union mixing collection and non-collection classes accepts both. The client filters a candidate's `contextType` against this list; the server still checks effective-type assignability.
 

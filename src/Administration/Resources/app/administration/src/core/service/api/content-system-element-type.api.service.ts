@@ -106,6 +106,7 @@ export interface ContentSystemElementTypeSpecification {
     source: string;
     icon: string | null;
     category: string | null;
+    priority: number;
     copilot: {
         summary: string;
         hints: string[];

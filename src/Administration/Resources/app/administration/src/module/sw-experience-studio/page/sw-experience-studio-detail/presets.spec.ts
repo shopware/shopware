@@ -26,7 +26,9 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
     it('appends allowed presets to the picker elements and filters disallowed ones in slots', () => {
         const vm = {
             pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorElement: null },
-            getAvailableTypesForPayload: () => [{ name: 'Sw:Content:Text', label: 'Text', icon: 'i', category: 'content' }],
+            getAvailableTypesForPayload: () => [
+                { name: 'Sw:Content:Text', label: 'Text', icon: 'i', category: 'content', priority: 100 },
+            ],
             layoutPresetStore: {
                 allPresets: [
                     {
@@ -51,7 +53,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
         const items = computed.availablePickerElements.call(vm) as Array<{ name: string; kind: string; id?: string }>;
 
         expect(items).toEqual([
-            { name: 'Sw:Content:Text', label: 'Text', icon: 'i', category: 'content', kind: 'element' },
+            { name: 'Sw:Content:Text', label: 'Text', icon: 'i', category: 'content', priority: 100, kind: 'element' },
             {
                 name: 'allowed',
                 label: 'Allowed',

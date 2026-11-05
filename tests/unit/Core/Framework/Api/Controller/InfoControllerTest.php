@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use Opis\JsonSchema\Helper;
+use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -99,7 +101,7 @@ class InfoControllerTest extends TestCase
     {
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
-        $spec = $this->alertTypeSpecification();
+        $spec = $this->alertTypeSpecification(priority: 100);
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
@@ -116,6 +118,12 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $data['types']);
         static::assertSame('Sw:Alert', $data['types'][0]['name']);
         static::assertSame('core', $data['types'][0]['source']);
+        static::assertSame(100, $data['types'][0]['priority']);
+
+        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-element-types.json']['get']['responses']['200']['content']['application/json']['schema']);
+        static::assertInstanceOf(\stdClass::class, $responseSchema);
+        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
     }
 
     #[TestDox('returns content system entity types as JSON')]
@@ -801,7 +809,7 @@ class InfoControllerTest extends TestCase
         return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
     }
 
-    private function alertTypeSpecification(): ContentSystemElementTypeSpecification
+    private function alertTypeSpecification(int $priority = 0): ContentSystemElementTypeSpecification
     {
         return new ContentSystemElementTypeSpecification(
             name: 'Sw:Alert',
@@ -813,6 +821,7 @@ class InfoControllerTest extends TestCase
             properties: [],
             slots: [],
             source: 'core',
+            priority: $priority,
         );
     }
 

@@ -3,6 +3,7 @@ meta:
   description: "Embeds a YouTube video with playback, privacy and consent options."
   icon: "regular-youtube"
   category: "content"
+  priority: 88
   copilot:
     summary: "YouTube video element."
     hints:

@@ -28,6 +28,57 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         $this->serializer = new ElementTypeSpecificationSerializer();
     }
 
+    public function testDefaultsOmittedPriorityToZero(): void
+    {
+        $dto = $this->serializer->denormalize(['meta' => $this->buildMinimalMeta()]);
+
+        static::assertSame(0, $dto->priority);
+        static::assertSame(0, $dto->toContentSystemElementTypeSpecification('App:Text', 'app:Demo')->toSchema()['priority']);
+        static::assertArrayNotHasKey('priority', $this->serializer->normalize($dto)['meta']);
+    }
+
+    #[DataProvider('priorityProvider')]
+    public function testRoundTripsPriorityThroughAppJson(int $priority): void
+    {
+        $dto = $this->serializer->denormalize(['meta' => [...$this->buildMinimalMeta(), 'priority' => $priority]]);
+        $persisted = json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $this->serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+
+        static::assertSame($priority, $restored->priority);
+        static::assertSame($priority, $restored->toContentSystemElementTypeSpecification('App:Text', 'app:Demo')->toSchema()['priority']);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function priorityProvider(): iterable
+    {
+        yield 'prominent element' => [200];
+        yield 'explicit default' => [0];
+        yield 'less prominent element' => [-100];
+    }
+
+    #[DataProvider('invalidPriorityProvider')]
+    public function testRejectsNonIntegerPriority(mixed $priority): void
+    {
+        $this->expectException(\TypeError::class);
+
+        $this->serializer->denormalize(['meta' => [...$this->buildMinimalMeta(), 'priority' => $priority]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidPriorityProvider(): iterable
+    {
+        yield 'numeric string' => ['100'];
+        yield 'whole number float' => [100.0];
+        yield 'fractional number' => [1.5];
+        yield 'boolean' => [true];
+        yield 'explicit null' => [null];
+        yield 'array' => [[]];
+    }
+
     #[TestDox('populates optional meta fields icon and category from input')]
     public function testPopulatesOptionalMetaScalarFieldsFromInput(): void
     {

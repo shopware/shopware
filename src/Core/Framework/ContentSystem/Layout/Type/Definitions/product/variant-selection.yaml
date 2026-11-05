@@ -3,6 +3,7 @@ meta:
   description: "Displays the selectable variants of a product on a product detail page."
   icon: "regular-variants"
   category: "commerce"
+  priority: 77
   copilot:
     summary: "Product detail page variant selector."
     hints:

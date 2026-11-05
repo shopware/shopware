@@ -7,6 +7,7 @@ type PickerItem = {
     label: string;
     icon: string | null;
     category?: string | null;
+    priority?: number;
     kind?: 'element' | 'preset';
     id?: string;
     description?: string | null;
@@ -143,7 +144,15 @@ export default Shopware.Component.wrapComponentConfig({
                 .map((group) => ({
                     key: group.key,
                     headlineSnippetKey: group.headlineSnippetKey,
-                    elements: group.elements,
+                    elements:
+                        this.activeTab === 'presets'
+                            ? group.elements
+                            : [...group.elements].sort(
+                                  (a, b) =>
+                                      (b.priority ?? 0) - (a.priority ?? 0) ||
+                                      a.label.localeCompare(b.label) ||
+                                      a.name.localeCompare(b.name),
+                              ),
                 }));
         },
     },

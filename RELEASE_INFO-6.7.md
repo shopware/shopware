@@ -11,9 +11,21 @@ Entity aggregations in the Admin API and in app scripts now also require the rea
 
 Extensions and app scripts using `services.store` can only request associated entities exposed through the Store API.
 App permissions do not grant additional access to protected associations through `services.store`.
-# 6.7.16.1
 
 ## Security Fixes
+
+### ExtensionAPI repository operations no longer expose Administration access tokens
+
+Fixed an ExtensionAPI vulnerability that could expose the signed-in Administration user's access token to an app.
+The `save`, `saveAll`, and `delete` repository operations no longer return raw HTTP responses.
+Apps should await completion of these operations to detect success.
+
+### Clone overwrites enforce field protection and association permissions
+
+The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
+Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
+Copied source values retain their existing clone behavior without requiring additional association write privileges.
+Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
 
 ### Recovery associations removed
 
@@ -39,10 +51,17 @@ Twig templates can no longer call methods that change the request context or the
 Reading them stays possible, for example `context.languageId`.
 Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
 
+### App Script services use a separate context for each call
+
+The `repository` and `writer` App Script services now use their own context for every call.
+Context changes made during one call no longer carry over to later calls.
+
 ### Aggregation identifiers and JSON paths reject comment and quote characters
 
 Aggregation names and range aggregation keys containing a single or double quote, the `--`, `/*`, or `*/` SQL comment markers, a backslash, or a semicolon are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400), in addition to the previously rejected backtick, question mark, colon, and control characters.
-JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters. From 6.8.0.0 this fails as a `FRAMEWORK__INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500). Either way the request is blocked and no data is returned.
+JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters.
+From 6.8.0.0 this fails as a `FRAMEWORK__DBAL_INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500).
+Either way the request is blocked and no data is returned.
 These characters could desynchronise PDO placeholder parsing from the database server under emulated prepares on PHP 8.2 and 8.3 leading to SQL Injection.
 
 ### Store API criteria field paths are resolved per path segment
@@ -142,13 +161,6 @@ Apps that keep their files inside their own directory are not affected.
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes
-
-### Clone overwrites enforce field protection and association permissions
-
-The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
-Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
-Copied source values retain their existing clone behavior without requiring additional association write privileges.
-Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
 
 ### Theme configuration updates reach all descendants
 

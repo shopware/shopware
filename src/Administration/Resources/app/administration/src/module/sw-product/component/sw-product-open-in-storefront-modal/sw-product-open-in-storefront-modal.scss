@@ -19,6 +19,10 @@
         gap: var(--scale-size-12);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
+
+        > .mt-banner {
+            margin: 0;
+        }
     }
 
     &__domains-headline {

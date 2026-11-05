@@ -43,7 +43,7 @@ class Migration1736154963FixCyprusVatIdPatternTest extends TestCase
             ->executeQuery('SELECT `vat_id_pattern` FROM country WHERE vat_id_pattern = :pat', ['pat' => 'CY\d{8}[A-Z]'])
             ->fetchAssociative();
 
-        static::assertNotEmpty($result);
+        static::assertNotFalse($result);
         static::assertSame('CY\d{8}[A-Z]', $result['vat_id_pattern']);
     }
 }

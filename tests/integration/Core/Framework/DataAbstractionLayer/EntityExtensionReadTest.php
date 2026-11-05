@@ -65,8 +65,8 @@ class EntityExtensionReadTest extends TestCase
 
         $this->connection->rollBack();
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `extended_product`');
         $this->connection->executeStatement('
-            DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
@@ -81,8 +81,8 @@ class EntityExtensionReadTest extends TestCase
             )
         ');
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `many_to_one_product`');
         $this->connection->executeStatement('
-            DROP TABLE IF EXISTS `many_to_one_product`;
             CREATE TABLE `many_to_one_product` (
                 `id` BINARY(16) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
@@ -91,8 +91,8 @@ class EntityExtensionReadTest extends TestCase
             )
         ');
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `product_one_to_one_inherited`');
         $this->connection->executeStatement('
-            DROP TABLE IF EXISTS `product_one_to_one_inherited`;
             CREATE TABLE `product_one_to_one_inherited` (
                 `id` BINARY(16) NOT NULL,
                 `version_id` BINARY(16) NOT NULL,

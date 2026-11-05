@@ -132,7 +132,6 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         wrapper.vm.term = 'some-search-term';
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
@@ -142,6 +141,37 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
             checked: true,
             data: { translated: { name: 'some-data' } },
         });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+    });
+
+    it('should toggle the dropdown with the expand indicator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const indicator = wrapper.get('.sw-category-tree-field__expand-indicator');
+        expect(indicator.classes()).toContain('is--collapsed');
+
+        await indicator.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).not.toContain('is--collapsed');
+        expect(document.activeElement).toBe(wrapper.get('.sw-category-tree__input-field').element);
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).toContain('is--collapsed');
+    });
+
+    it('should not open the dropdown with the expand indicator when disabled', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+        await flushPromises();
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
@@ -222,11 +252,9 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         await flushPromises();
 
         await wrapper.find('.sw-category-tree-field__label-more').trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
-        wrapper.vm.$emit('categories-load-more');
-        expect(wrapper.emitted('categories-load-more')).toBeTruthy();
+        expect(wrapper.emitted('categories-load-more')).toHaveLength(1);
     });
 
     it('should have checked categories', async () => {
@@ -274,7 +302,6 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
 
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const documentBody = new DOMWrapper(document.body);

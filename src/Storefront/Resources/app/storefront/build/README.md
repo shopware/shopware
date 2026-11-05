@@ -73,6 +73,8 @@ When the dev server stops, Shopware falls back to production assets/import map.
     - clears `<bundle>/Resources/public/storefront/components` before processing
     - uses custom `<bundle>/Resources/app/storefront/vite.components.config.mts` when present
     - otherwise performs generic inline Vite build
+  - normalizes a trailing `/index` in component entry paths to the component directory name
+  - warns when multiple source files produce the same normalized entry name; the later entry replaces the earlier one
   - enforces one-style-source rule (`Foo.scss` xor `Foo.css`)
   - emits component chunks and `.vite/build-meta.json` under `<bundle>/Resources/public/storefront/components/`
   - after `assets:install`, published assets live at `public/bundles/<bundle>/storefront/components/`

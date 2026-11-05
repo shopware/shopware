@@ -240,6 +240,11 @@ async function createWrapper() {
                     },
                 },
             },
+            {
+                name: 'sw.profile.index.searchPreferences',
+                path: '/sw/profile/index/search-preferences',
+                component: { template: '<div></div>' },
+            },
         ],
     });
 
@@ -574,7 +579,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
         // Let that settle against the real service before installing the counting mocks, so the
         // assertion only counts the explicit getList below (otherwise the watcher's call leaks in).
@@ -597,7 +602,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -620,7 +625,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -651,10 +656,34 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
+        // a search without hits is not an empty catalogue, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should offer the create action in the empty state when no product exists at all', async () => {
+        jest.spyOn(wrapper.vm.productRepository, 'search').mockImplementation(() => {
+            const products = [];
+            products.total = 0;
+
+            return Promise.resolve(products);
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.text()).toBe('sw-product.list.buttonAddProduct');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
     });
 
     it('should push to a new route when editing items', async () => {
@@ -720,7 +749,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.setData({
             term: 'SW10001',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.filterCriteria.push(Criteria.equalsAny('manufacturer.id', [manufacturerId]));
 

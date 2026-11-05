@@ -114,6 +114,16 @@ class CustomFieldRuleTest extends TestCase
             'expected' => [],
         ];
 
+        yield 'switch field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::SWITCH],
+            'expected' => [],
+        ];
+
+        yield 'checkbox field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::CHECKBOX],
+            'expected' => [],
+        ];
+
         yield 'date field type' => [
             'renderedField' => ['type' => CustomFieldTypes::DATE],
             'expected' => $dateConstraints,

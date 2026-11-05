@@ -1,0 +1,5 @@
+src/Core/Content/DependencyInjection/product.php
+src/Core/Content/Product/SalesChannel/DeliveryEstimate/AbstractProductDeliveryEstimateRoute.php
+src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRoute.php
+src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRouteResponse.php
+src/Core/DevOps/StaticAnalyze/PHPStan/store-api-route-extensions.neon

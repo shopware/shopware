@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('framework')]
-class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
+class AppDeletedEvent extends Event implements ShopwareEvent, Hookable, AppLifecycleEvent
 {
     final public const NAME = 'app.deleted';
 

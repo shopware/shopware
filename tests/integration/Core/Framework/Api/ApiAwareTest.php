@@ -73,8 +73,12 @@ class ApiAwareTest extends TestCase
                 'product.states',
                 'order_address.vatId',
                 'order_line_item.states',
-                // the profile label translation is removed with v6.8 (#18097), dropping the runtime translated field
+                // the profile label translation is removed with v6.8 (#18097)
                 'import_export_profile.translated',
+                'import_export_profile_translation.createdAt',
+                'import_export_profile_translation.updatedAt',
+                'import_export_profile_translation.importExportProfileId',
+                'import_export_profile_translation.languageId',
             ]));
         }
 

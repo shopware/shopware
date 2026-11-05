@@ -26,8 +26,6 @@ class AnnotatePackageProcessor implements ProcessorInterface
      */
     public function __invoke(LogRecord $record)
     {
-        $packages = [];
-
         $exception = $record->context['exception'] ?? null;
         if ($exception instanceof \ErrorException && str_starts_with($exception->getMessage(), 'User Deprecated:')) {
             return $record;

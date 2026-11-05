@@ -54,7 +54,7 @@ class IncrementStorageRegistryTest extends TestCase
             'SQL'
         );
 
-        static::assertEmpty($sqlStorage->list());
+        static::assertCount(0, $sqlStorage->list());
 
         $registry->migrate('Array', 'SQL');
 
@@ -83,7 +83,7 @@ class IncrementStorageRegistryTest extends TestCase
             'SQL'
         );
 
-        static::assertEmpty($arrayStorage->list());
+        static::assertCount(0, $arrayStorage->list());
 
         $registry->migrate('SQL', 'Array');
 

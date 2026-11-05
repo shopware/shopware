@@ -69,7 +69,7 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
         $entityCompilerPass = new TwigLoaderConfigCompilerPass();
         $entityCompilerPass->process($container);
 
-        static::assertEmpty($filesystemLoaderDefinition->getMethodCalls(), 'no method calls expected, as no apps loaded');
+        static::assertCount(0, $filesystemLoaderDefinition->getMethodCalls(), 'no method calls expected, as no apps loaded');
     }
 
     public function testDevModeNoPluginsAndApps(): void

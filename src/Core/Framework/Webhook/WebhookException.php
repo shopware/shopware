@@ -19,6 +19,11 @@ class WebhookException extends HttpException
     public const TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_TARGET_NOT_ALLOWED';
     public const REDIRECT_TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED';
     public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
+    public const WEBHOOK_OWNER_MISSING = 'FRAMEWORK__WEBHOOK_OWNER_MISSING';
+    public const APP_WEBHOOK_NOT_MODIFIABLE = 'FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE';
+    public const WEBHOOK_NOT_OWNED = 'FRAMEWORK__WEBHOOK_NOT_OWNED';
+    public const WEBHOOK_EVENT_NOT_PERMITTED = 'FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED';
+    public const WEBHOOK_EVENT_PRIVILEGES_MISSING = 'FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -79,6 +84,15 @@ class WebhookException extends HttpException
         );
     }
 
+    public static function webhookOwnerMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBHOOK_OWNER_MISSING,
+            'A webhook without an app can only be created by a user or an integration, which becomes its owner.'
+        );
+    }
+
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidDataMapping(string $propertyName, string $className): self|\RuntimeException
     {
@@ -98,6 +112,49 @@ class WebhookException extends HttpException
             self::UNKNOWN_DATA_TYPE,
             'Unknown EventDataType: {{ type }}',
             ['type' => $type]
+        );
+    }
+
+    public static function appWebhookNotModifiable(string $webhookId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_WEBHOOK_NOT_MODIFIABLE,
+            'Webhook "{{ webhookId }}" belongs to an app and can only be changed by that app.',
+            ['webhookId' => $webhookId]
+        );
+    }
+
+    public static function webhookNotOwned(string $webhookId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBHOOK_NOT_OWNED,
+            'Webhook "{{ webhookId }}" can only be changed by its owner.',
+            ['webhookId' => $webhookId]
+        );
+    }
+
+    public static function webhookEventNotPermitted(string $eventName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBHOOK_EVENT_NOT_PERMITTED,
+            'Subscribing to event "{{ eventName }}" is not permitted.',
+            ['eventName' => $eventName]
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function webhookEventPrivilegesMissing(string $eventName, array $privileges): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBHOOK_EVENT_PRIVILEGES_MISSING,
+            'Subscribing to event "{{ eventName }}" requires the privileges: {{ privileges }}.',
+            ['eventName' => $eventName, 'privileges' => implode(', ', $privileges)]
         );
     }
 

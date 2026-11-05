@@ -153,20 +153,26 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
             const output = token.token!.output ?? [];
             const innerTemplate = reconstructInnerTemplate(output);
 
-            const existing = getBlockEntries(blockName);
+            const existing = blockIndex.get(blockName) ?? [];
             existing.push({ componentName, innerTemplate });
             blockIndex.set(blockName, existing);
         });
 }
 
-export function getBlockEntries(blockName: string): BlockEntry[] {
-    return blockIndex.get(blockName) ?? [];
+export function getBlockEntries(componentName: string, blockName: string): BlockEntry[] {
+    return (blockIndex.get(blockName) ?? []).filter((entry) => entry.componentName === componentName);
 }
 
-export function hasBlockEntries(blockName: string): boolean {
-    return blockIndex.has(blockName);
+export function hasBlockEntries(componentName: string, blockName: string): boolean {
+    return getBlockEntries(componentName, blockName).length > 0;
 }
 ```
+
+> **Component isolation.** Each entry records the `componentName` it was indexed under (the overridden
+> component). Both lookups require the owning component name and return only the entries for that component,
+> so a Twig override of block `foo` on component A is not applied to a `<sw-block name="foo">` in component
+> B. `sw-block` reads its owning component from the `sw-internal-component-name` attribute the Shopware setup transform
+> stamps on every native block, matching Twig's `componentName + blockName` identity.
 
 ### 2. Template Reconstruction — `src/core/factory/reconstruct-twig-template.ts`
 
@@ -266,15 +272,15 @@ const configResolveMethod = async (): Promise<ComponentConfig> => {
 
 Two separate function namespaces are involved here:
 
-- `hasBlockEntries` / `getBlockEntries` — from `twig-block-index.ts`; they query the Twig block index built during boot.
-- `addBlock` / `removeBlock` — from `useBlockContext()`; they register/deregister slots in the sw-block slot context (used by the `extends` path).
+- `hasBlockEntries` / `getBlockEntries` — from `twig-block-index.ts`; they query the Twig block index built during boot. Both take the owning component name (`props.swInternalComponentName`) so overrides of the same block name in another component are ignored.
+- `addBlock` / `removeBlock` — from `useBlockContext()`; they register/deregister slots in the sw-block slot context (used by the `extends` path). The key is `componentName + blockName`, so `name` and `extends` blocks only pair up within the same component.
 
 For the `name`-prop path, shim slots are **not** registered via `addBlock`. They are created once in `setup()` and stored in a local variable, keeping each `<sw-block name="...">` instance isolated:
 
 ```ts
 const shimSlots: Slot[] =
-    props.name && hasBlockEntries(props.name)
-        ? getBlockEntries(props.name).map((entry) => createShimSlot(entry, props.name!))
+    props.name && props.swInternalComponentName !== undefined && hasBlockEntries(props.swInternalComponentName, props.name)
+        ? getBlockEntries(props.swInternalComponentName, props.name).map((entry) => createShimSlot(entry, props.name!))
         : [];
 ```
 

@@ -20,10 +20,6 @@
         }
     }
 
-    .mt-card .mt-card__content {
-        padding: 0;
-    }
-
     .sw-product-detail-context-prices__toolbar {
         padding: var(--scale-size-26);
         background-color: var(--color-elevation-surface-sunken);
@@ -76,7 +72,7 @@
         gap: var(--scale-size-18);
     }
 
-    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition {
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .mt-field__addition {
         display: none;
     }
 
@@ -85,9 +81,6 @@
     }
 
     .sw-product-detail-context-prices__empty-state {
-        margin: 0 auto;
-        padding: var(--scale-size-64);
-
         &-card {
             width: 100%;
             max-width: none;

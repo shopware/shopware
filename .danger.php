@@ -17,12 +17,14 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingPullRequestDescriptio
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingReleaseInfo;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingUnitTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ProcessIsolationInTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RedisGroupUsage;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RemovedTwigBlocks;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RouteSnapshotExtension;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ShopwareYamlConfigSchemaHint;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\SingleCoversClassInTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\SqlHeredocUsage;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\TraitUsageInNewUnitTests;
 
 // danger runs on its own vendor-bin autoloader (vendor-bin/danger-php), which does not know the
 // Shopware namespaces — load the rule classes directly instead
@@ -46,10 +48,12 @@ return (new Config())
     ->useRule(new MissingPackageAttributeInTests())
     ->useRule(new RedisGroupUsage())
     ->useRule(new SingleCoversClassInTests())
+    ->useRule(new ProcessIsolationInTests())
     ->useRule(new SqlHeredocUsage())
     ->useRule(new RemovedTwigBlocks())
     ->useRule(new InvalidFileNameCharacters())
     ->useRule(new LegacyTestsInSrc())
+    ->useRule(new TraitUsageInNewUnitTests())
     ->useRule(new MissingUnitTests())
     ->useRule(new ComposerVersionConstraints())
     ->useRule(new MissingIntegrationTestInSplitSuite())

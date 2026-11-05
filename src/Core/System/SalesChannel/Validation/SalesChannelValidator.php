@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Validation;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
+use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -48,19 +48,12 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const CURRENCY_DELETE_VALIDATION_CODE = 'SYSTEM__CANNOT_DELETE_DEFAULT_CURRENCY_ID';
 
     /**
-     * These sales channel types are not customer facing and are not required to assign their default currency to the
-     * currency list, so the currency mapping validation is skipped for them.
-     */
-    private const CURRENCY_VALIDATION_EXCLUDED_TYPE_IDS = [
-        Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
-        Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
-    ];
-
-    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly SalesChannelTypeCapabilityRegistry $capabilityRegistry,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -98,12 +91,12 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: self::CURRENCY_DELETE_VALIDATION_CODE,
             updateValidationMessage: self::CURRENCY_UPDATE_VALIDATION_MESSAGE,
             updateValidationCode: self::CURRENCY_UPDATE_VALIDATION_CODE,
-            excludedTypeIds: self::CURRENCY_VALIDATION_EXCLUDED_TYPE_IDS,
+            validatedSalesChannelTypeIds: $this->capabilityRegistry->getTransactionalTypeIds(),
         );
     }
 
     /**
-     * @param list<string> $excludedTypeIds
+     * @param list<string>|null $validatedSalesChannelTypeIds null validates every sales channel type
      */
     private function validateMapping(
         PreWriteValidationEvent $event,
@@ -117,7 +110,7 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
-        array $excludedTypeIds = [],
+        ?array $validatedSalesChannelTypeIds = null,
     ): void {
         $mapping = $this->extractMapping($event, $defaultField, $mappingEntity, $mappingField);
         if ($mapping->count() === 0) {
@@ -135,7 +128,7 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: $deleteValidationCode,
             updateValidationMessage: $updateValidationMessage,
             updateValidationCode: $updateValidationCode,
-            excludedTypeIds: $excludedTypeIds,
+            validatedSalesChannelTypeIds: $validatedSalesChannelTypeIds,
         );
     }
 
@@ -213,7 +206,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $excludedTypeIds
+     * @param list<string>|null $validatedSalesChannelTypeIds null validates every sales channel type
      */
     private function validateMappingData(
         Mapping $mapping,
@@ -224,14 +217,14 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
-        array $excludedTypeIds = [],
+        ?array $validatedSalesChannelTypeIds = null,
     ): void {
         $inserts = [];
         $deletions = [];
         $updates = [];
 
         foreach ($mapping as $salesChannelId => $salesChannelData) {
-            if ($salesChannelData->typeId !== null && \in_array($salesChannelData->typeId, $excludedTypeIds, true)) {
+            if ($validatedSalesChannelTypeIds !== null && $salesChannelData->typeId !== null && !\in_array($salesChannelData->typeId, $validatedSalesChannelTypeIds, true)) {
                 continue;
             }
 

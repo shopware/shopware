@@ -134,8 +134,8 @@ class VideoTypeDataResolverTest extends TestCase
 
         $videoStruct = $slot->getData();
         static::assertInstanceOf(VideoStruct::class, $videoStruct);
-        static::assertEmpty($videoStruct->getMedia());
-        static::assertEmpty($videoStruct->getMediaId());
+        static::assertNull($videoStruct->getMedia());
+        static::assertNull($videoStruct->getMediaId());
     }
 
     public function testEnrichWithMediaOnly(): void
@@ -208,7 +208,7 @@ class VideoTypeDataResolverTest extends TestCase
         $videoStruct = $slot->getData();
         static::assertInstanceOf(VideoStruct::class, $videoStruct);
         static::assertSame('media123', $videoStruct->getMediaId());
-        static::assertEmpty($videoStruct->getMedia());
+        static::assertNull($videoStruct->getMedia());
     }
 
     public function testEnrichWithDefaultConfig(): void

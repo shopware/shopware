@@ -57,7 +57,7 @@ class MainCategoryExtensionTest extends TestCase
 
         static::assertNotNull($product->getMainCategories());
         static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
-        static::assertEmpty($product->getMainCategories());
+        static::assertCount(0, $product->getMainCategories());
 
         // update main category
         $categories = $this->categoryRepository->searchIds(new Criteria(), Context::createDefaultContext());

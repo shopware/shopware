@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * Dispatched with the ids of products whose `available` flag changed from true to false.
+ * Products which became available are dispatched with the `ProductBackInStockEvent`.
+ *
  * @codeCoverageIgnore
  */
 #[Package('inventory')]

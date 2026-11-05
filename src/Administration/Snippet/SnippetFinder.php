@@ -4,6 +4,8 @@ namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\StorageAttributes;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
+use Shopware\Core\System\Snippet\Files\FilesystemAdministrationSnippets;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -37,6 +40,7 @@ class SnippetFinder implements SnippetFinderInterface
         private readonly Kernel $kernel,
         private readonly Connection $connection,
         private readonly Filesystem $translationReader,
+        private readonly FilesystemOperator $privateFilesystem,
         private readonly TranslationConfig $translationConfig,
         private readonly AbstractTranslationLoader $translationLoader,
         private readonly HtmlSanitizer $htmlSanitizer,
@@ -57,10 +61,48 @@ class SnippetFinder implements SnippetFinderInterface
         $countrySpecificSnippets = $this->parseFiles($countrySpecificSnippetFiles);
 
         return array_replace_recursive(
+            $this->getFilesystemSnippets($locale),
             $countryAgnosticSnippets,
             $countrySpecificSnippets,
             $this->getAppAdministrationSnippets($locale),
         );
+    }
+
+    /**
+     * Snippets from the private filesystem, e.g. generated from legacy theme.json translations or
+     * placed there by an integration. They form the lowest-priority layer, so every snippet file
+     * shipped by the core, a plugin or an app overrides them.
+     *
+     * @return array<string, mixed>
+     */
+    private function getFilesystemSnippets(string $locale): array
+    {
+        if (!$this->privateFilesystem->directoryExists(FilesystemAdministrationSnippets::DIRECTORY)) {
+            return [];
+        }
+
+        $language = explode('-', $locale)[0];
+        $fileNames = [\sprintf('%s.json', $language), \sprintf('%s.json', $locale)];
+
+        $paths = $this->privateFilesystem
+            ->listContents(FilesystemAdministrationSnippets::DIRECTORY, true)
+            ->filter(static fn (StorageAttributes $attributes): bool => $attributes->isFile() && \in_array(basename($attributes->path()), $fileNames, true))
+            ->map(static fn (StorageAttributes $attributes): string => $attributes->path())
+            ->toArray();
+
+        // language files first, so a locale-specific file of the same source wins
+        usort($paths, static function (string $a, string $b) use ($fileNames): int {
+            $byName = array_search(basename($a), $fileNames, true) <=> array_search(basename($b), $fileNames, true);
+
+            return $byName !== 0 ? $byName : strcmp($a, $b);
+        });
+
+        $snippets = [[]];
+        foreach ($paths as $path) {
+            $snippets[] = $this->decodeSnippetFile($path, $this->privateFilesystem->read($path));
+        }
+
+        return \array_replace_recursive(...$snippets);
     }
 
     private function findSnippetFiles(string $locale, bool $isBaseLanguage = false): SnippetPathCollection
@@ -246,29 +288,39 @@ class SnippetFinder implements SnippetFinderInterface
                 $content = $this->translationReader->read($file->location);
             }
 
-            if ($content === '') {
-                continue;
-            }
-
-            try {
-                $snippets[] = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
-            } catch (\JsonException $e) {
-                if ($this->debug) {
-                    throw SnippetException::invalidSnippetFile($file->location, $e);
-                }
-
-                // a single broken snippet file (e.g. from a plugin) must not take down the whole administration
-                $this->logger->error(
-                    \sprintf('The administration snippet file "%s" is invalid and was skipped: %s', $file->location, $e->getMessage()),
-                    ['exception' => $e]
-                );
-            }
+            $snippets[] = $this->decodeSnippetFile($file->location, $content);
         }
 
         $snippets = \array_replace_recursive(...$snippets);
         \ksort($snippets);
 
         return $snippets;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeSnippetFile(string $location, string $content): array
+    {
+        if ($content === '') {
+            return [];
+        }
+
+        try {
+            return \json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+        } catch (\JsonException $e) {
+            if ($this->debug) {
+                throw SnippetException::invalidSnippetFile($location, $e);
+            }
+
+            // a single broken snippet file (e.g. from a plugin) must not take down the whole administration
+            $this->logger->error(
+                \sprintf('The administration snippet file "%s" is invalid and was skipped: %s', $location, $e->getMessage()),
+                ['exception' => $e]
+            );
+        }
+
+        return [];
     }
 
     /**

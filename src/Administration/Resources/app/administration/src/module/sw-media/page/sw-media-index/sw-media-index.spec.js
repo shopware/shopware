@@ -72,7 +72,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         global.activeAclRoles = ['media.viewer'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('sw-media-upload-v2-stub');
         expect(createButton.attributes().disabled).toBeTruthy();
@@ -82,7 +82,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         global.activeAclRoles = ['media.creator'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('sw-media-upload-v2-stub');
 
@@ -142,7 +142,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$route.query = { term: 'logo.png' };
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.term).toBe('logo.png');
         expect(wrapper.vm.selectedItems).toHaveLength(0);

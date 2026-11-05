@@ -231,3 +231,7 @@
         transition: none;
     }
 }
+
+.sw-sidebar-renderer-is-resizing iframe {
+    pointer-events: none;
+}

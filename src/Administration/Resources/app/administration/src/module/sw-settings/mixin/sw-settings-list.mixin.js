@@ -53,8 +53,8 @@ Mixin.register('sw-settings-list', {
                     name = this.deleteEntity.translated.name;
                 }
 
-                if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess)`)) {
-                    return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, 0, {
+                if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`)) {
+                    return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, {
                         name: name,
                     });
                 }

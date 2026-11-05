@@ -118,7 +118,7 @@ class ProductExportControllerTest extends TestCase
         );
 
         $context = Context::createDefaultContext();
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/theme');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/SwagTheme');
         $this->reloadAppSnippets();
 
         $criteria = new Criteria();

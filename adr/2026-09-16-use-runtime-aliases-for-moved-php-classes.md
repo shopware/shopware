@@ -3,7 +3,6 @@ title: Use runtime aliases for moved PHP classes
 date: 2026-09-16
 area: core
 tags: [core, backwards-compatibility, deprecation, php]
-status: accepted
 ---
 
 ## Context

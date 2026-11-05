@@ -105,6 +105,35 @@ class ValidateSnippetsCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $commandTester->execute(['--fix' => true]));
     }
 
+    public function testValidatesTheSnippetsBelowTheGivenDirectory(): void
+    {
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
+        $snippetFileHandler->method('findAdministrationSnippetFilesBelow')
+            ->willReturn([__DIR__ . '/snippet/de.json', __DIR__ . '/snippet/en.json']);
+        $snippetFileHandler->method('openJsonFile')
+            ->willReturnCallback(static fn (string $path): array => str_ends_with($path, 'en.json') ? ['onlyEnglish' => 'English'] : []);
+
+        $command = new ValidateSnippetsCommand(
+            new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '/project'),
+            static::createStub(SnippetFixer::class),
+        );
+        $commandTester = new CommandTester($command);
+
+        static::assertSame(-1, $commandTester->execute(['--dir' => __DIR__]));
+        static::assertStringContainsString('onlyEnglish', $commandTester->getDisplay());
+        static::assertStringContainsString('/snippet/en.json', $commandTester->getDisplay());
+    }
+
+    public function testRejectsAMissingDirectory(): void
+    {
+        $commandTester = $this->createCommandTester(new SnippetFileCollection(), []);
+
+        $commandTester->execute(['--dir' => __DIR__ . '/does-not-exist']);
+
+        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertStringContainsString('does not exist', $commandTester->getDisplay());
+    }
+
     /**
      * One english snippet file with a translation the german file is missing.
      *

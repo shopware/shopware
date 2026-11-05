@@ -24,6 +24,7 @@ class LegalGuaranteeNoticeTwigFilter extends AbstractExtension
         return [
             new TwigFilter('sw_legal_guarantee_notice', $this->render(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_legal_guarantee_notice_link', $this->link(...)),
+            new TwigFilter('sw_garan_label_link', $this->garanLabelLink(...)),
         ];
     }
 
@@ -35,5 +36,10 @@ class LegalGuaranteeNoticeTwigFilter extends AbstractExtension
     public function link(string $languageId): string
     {
         return $this->renderer->linkForLanguage($languageId);
+    }
+
+    public function garanLabelLink(string $languageId): string
+    {
+        return $this->renderer->garanLabelLinkForLanguage($languageId);
     }
 }

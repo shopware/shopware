@@ -3,7 +3,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 
 const itemMock = (options = {}) => {
@@ -239,6 +239,23 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).toContain('sw-media-sidebar__quickaction--disabled');
+    });
+
+    it('should limit the alt text to the 255 characters the database can store', async () => {
+        global.activeAclRoles = ['media.editor'];
+        // the alt field sits in the default slot of the stubbed metadata item
+        config.global.renderStubDefaultSlot = true;
+
+        const wrapper = await createWrapper({ hasFile: true });
+        await flushPromises();
+        config.global.renderStubDefaultSlot = false;
+
+        const altField = wrapper.findAll('sw-confirm-field-stub').find((field) => {
+            return field.attributes('placeholder')?.includes('sw-media.sidebar.metadata.altText');
+        });
+
+        expect(altField).toBeDefined();
+        expect(altField.attributes('max-length')).toBe('255');
     });
 
     it('should be able to edit', async () => {

@@ -21,8 +21,8 @@ class DbalKernelPluginLoaderTest extends TestCase
         $loader = new DbalKernelPluginLoader($this->classLoader, null, static::getContainer()->get(Connection::class));
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testLoadNoInit(): void
@@ -31,7 +31,7 @@ class DbalKernelPluginLoaderTest extends TestCase
         $this->insertPlugin($plugin);
 
         $loader = new DbalKernelPluginLoader($this->classLoader, null, static::getContainer()->get(Connection::class));
-        static::assertEmpty($loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInfos());
     }
 
     public function testLoadPlugins(): void
@@ -42,6 +42,6 @@ class DbalKernelPluginLoaderTest extends TestCase
         $loader = new DbalKernelPluginLoader($this->classLoader, null, static::getContainer()->get(Connection::class));
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertNotEmpty($loader->getPluginInfos());
+        static::assertNotCount(0, $loader->getPluginInfos());
     }
 }

@@ -10,7 +10,7 @@
     },
     "product": {
       "textTitle": "Mehrfachänderung: {productTotal} Produkt | Mehrfachänderung: {productTotal} Produkte",
-      "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
+      "messageEmptyTitle": "Keine Produkte ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
       "alertInheritance": {
         "message": "Diese Varianten besitzen vererbte Felder. Der Inhalt der vererbten Felder wird vom jeweiligen Hauptprodukt übernommen. Sie können Vererbungen aktivieren und deaktivieren, indem Sie auf das Kettensymbol anklicken."
@@ -151,6 +151,25 @@
           "placeholderReleaseDate": "Erscheinungsdatum eingeben ..."
         }
       },
+      "guarantee": {
+        "cardTitle": "Garantie (GARAN Label)",
+        "guaranteeMonths": {
+          "changeLabel": "Ändern: Dauer der herstellerseitigen Garantie",
+          "helpText": "Zwischen 30 und 600 Monaten, in Schritten von 6.",
+          "placeholder": "z. B. 30, 36 oder 42 Monate ..."
+        },
+        "guaranteeConfirmed": {
+          "changeLabel": "Ändern: Label in der Storefront anzeigen",
+          "label": "Label in der Storefront anzeigen",
+          "helpText": "Das Garantie-Label wird nur angezeigt, wenn eine gültige Garantiedauer, ein Hersteller und die Hersteller-Produktnummer angegeben sind."
+        },
+        "guaranteeTermsMedia": {
+          "changeLabel": "Ändern: Garantiebedingungen (PDF)"
+        },
+        "guaranteeTermsUrl": {
+          "changeLabel": "Ändern: URL der Garantiebedingungen"
+        }
+      },
       "seo": {
         "cardTitle": "SEO",
         "metaTitle": {
@@ -279,6 +298,10 @@
       "error": {
         "title": "Mehrfachänderung - Fehler",
         "description": "Mehrfachänderung mit Fehlern abgeschlossen.",
+        "failedStatusChanges": "Die folgende Statusänderung ist fehlgeschlagen: | Die folgenden {count} Statusänderungen sind fehlgeschlagen:",
+        "orderNotFound": "Bestellung nicht gefunden oder nicht mehr verfügbar.",
+        "orderLoadFailed": "Bestellung konnte nicht geladen werden. Es wurde keine Statusänderung versucht.",
+        "transitionFailed": "Bei der Statusänderung ist ein Fehler aufgetreten. Prüfe den aktuellen Bestellstatus, bevor Du es erneut versuchst.",
         "buttons": {
           "openLog": "Log-Datei öffnen"
         }
@@ -316,6 +339,11 @@
         "statusMails": {
           "label": "Versende: Status-E-Mails",
           "helpText": "Diese Option ist verfügbar, sobald mindestens ein Statuswechsel erfolgt ist."
+        },
+        "failedFields": {
+          "orderTransactions": "Zahlungsstatus",
+          "orderDeliveries": "Lieferstatus",
+          "orders": "Bestellstatus"
         },
         "documents": {
           "label": "Verschicken: Dokumente",

@@ -22,7 +22,9 @@ class UninstallContext extends InstallContext
     }
 
     /**
-     * If true is returned, migrations of the plugin will also be removed
+     * If false is returned, the plugin should remove its data (e.g. its tables) in `uninstall()`.
+     * Shopware then also removes the plugin's entries in the `migration` table, its system config,
+     * custom entities and custom fields, and its theme.
      */
     public function keepUserData(): bool
     {

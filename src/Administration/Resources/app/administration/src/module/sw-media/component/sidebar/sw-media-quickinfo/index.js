@@ -182,10 +182,23 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            this.systemConfigApiService.getSchema('core.media').then((schema) => {
-                schema
-                    .flatMap((tab) => tab.cards)
-                    .flatMap((card) => card.elements)
+            let elementsRequest;
+
+            // @deprecated tag:v6.8.0 - Only the else branch stays.
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    elementsRequest = this.systemConfigApiService
+                        .getConfig('core.media')
+                        .then((config) => config.flat()[0].elements);
+                });
+            } else {
+                elementsRequest = this.systemConfigApiService
+                    .getSchema('core.media')
+                    .then((schema) => schema.flatMap((tab) => tab.cards).flatMap((card) => card.elements));
+            }
+
+            elementsRequest.then((elements) => {
+                elements
                     .filter((element) => element.name === 'core.media.defaultARPlacement')
                     .forEach((element) => {
                         this.arPlacementOptions = element.config.options.map((option) => {

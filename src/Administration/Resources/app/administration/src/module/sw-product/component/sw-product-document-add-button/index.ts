@@ -68,7 +68,16 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.hideTimer) {
                 clearTimeout(this.hideTimer);
             }
-            this.hideTimer = setTimeout(() => this.closeHint(), 150);
+            this.hideTimer = setTimeout(() => {
+                const trigger = this.$refs.trigger as HTMLElement | undefined;
+                const hint = this.$refs.languageHint as { $el: HTMLElement } | undefined;
+                const isInteracting = [trigger, hint?.$el].some(
+                    (element) => element?.matches(':hover') || element?.contains(document.activeElement),
+                );
+                if (!isInteracting) {
+                    this.closeHint();
+                }
+            }, 150);
         },
 
         closeHint(): void {

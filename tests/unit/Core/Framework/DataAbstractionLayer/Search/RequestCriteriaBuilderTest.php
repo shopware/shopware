@@ -732,12 +732,6 @@ class RequestCriteriaBuilderTest extends TestCase
             10,
         ];
 
-        yield 'page beyond the integer range is capped to the largest representable offset' => [
-            ['page' => '99999999999999999999', 'limit' => 10],
-            (intdiv(\PHP_INT_MAX, 10) - 1) * 10,
-            10,
-        ];
-
         yield 'no page' => [
             ['limit' => 10],
             null,

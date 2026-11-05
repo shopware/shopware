@@ -86,7 +86,6 @@ class WishlistPageLoader
     {
         $limit = self::DEFAULT_LIMIT;
         $page = max((int) $request->query->get('p'), self::DEFAULT_PAGE);
-        $page = min($page, intdiv(\PHP_INT_MAX, $limit));
         $offset = $limit * ($page - 1);
 
         return (new Criteria())

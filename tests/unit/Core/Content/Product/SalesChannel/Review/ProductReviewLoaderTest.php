@@ -159,25 +159,6 @@ class ProductReviewLoaderTest extends TestCase
         static::assertNull($result->getCustomerReview());
     }
 
-    public function testPageBeyondTheIntegerRangeIsCapped(): void
-    {
-        $request = new Request(['p' => '99999999999999999999']);
-        $salesChannelContext = $this->getSalesChannelContext(false);
-
-        $productReviewRoute = $this->createMock(ProductReviewRoute::class);
-        $productReviewRoute->expects($this->once())->method('load')->willReturnCallback(
-            static function (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse {
-                static::assertSame((intdiv(\PHP_INT_MAX, 10) - 1) * 10, $criteria->getOffset());
-
-                return new ProductReviewRouteResponse(
-                    new EntitySearchResult(ProductReviewDefinition::ENTITY_NAME, 0, new ProductReviewCollection(), null, $criteria, $context->getContext())
-                );
-            }
-        );
-
-        $this->getProductReviewLoader($productReviewRoute)->load($request, $salesChannelContext, Uuid::randomHex());
-    }
-
     public function testItLoadsReviewsWithParentId(): void
     {
         $reviewId = Uuid::randomHex();

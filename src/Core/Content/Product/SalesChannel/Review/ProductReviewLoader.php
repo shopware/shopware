@@ -104,7 +104,6 @@ class ProductReviewLoader extends AbstractProductReviewLoader
     {
         $limit = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId());
         $page = max((int) RequestParamHelper::get($request, self::PARAMETER_NAME_PAGE), 1);
-        $page = min($page, intdiv(\PHP_INT_MAX, max($limit, 1)));
         $offset = $limit * ($page - 1);
 
         $criteria = new Criteria();

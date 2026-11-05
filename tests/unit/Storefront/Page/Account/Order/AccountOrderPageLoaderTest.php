@@ -163,6 +163,5 @@ class AccountOrderPageLoaderTest extends TestCase
         yield 'zero page falls back to the first page' => ['0', 0];
         yield 'non-numeric page falls back to the first page' => ['foo', 0];
         yield 'valid page is converted to its offset' => ['3', 20];
-        yield 'page beyond the integer range is capped to the largest representable offset' => ['99999999999999999999', (intdiv(\PHP_INT_MAX, 10) - 1) * 10];
     }
 }

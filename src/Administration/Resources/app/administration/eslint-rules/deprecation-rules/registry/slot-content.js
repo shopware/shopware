@@ -167,7 +167,6 @@ module.exports = {
     containsTwig,
     getInnerSource,
     getRemovalRange,
-    isWhitespaceText,
     slotContentToValue,
     toPropAttribute,
 };

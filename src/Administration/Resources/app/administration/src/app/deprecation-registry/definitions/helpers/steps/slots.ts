@@ -243,7 +243,7 @@ export function flagSlotForManualMove({
  * @example
  * findSlotContent(api, 'default'); // <option> in <mt-select><option /></mt-select>
  */
-export function findSlotContent(api: ComponentUsageRuleApi, slotName: string): TemplateNode | undefined {
+function findSlotContent(api: ComponentUsageRuleApi, slotName: string): TemplateNode | undefined {
     const slot = api.ast.findSlot(api.node, slotName);
 
     if (slot || slotName !== 'default') {

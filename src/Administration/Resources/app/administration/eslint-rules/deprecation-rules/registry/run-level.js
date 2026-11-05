@@ -25,15 +25,15 @@ const SETTINGS_KEY = 'sw-deprecation-rules';
 const REVIEW_MARKER = 'TODO Codemod';
 
 /**
- * Returns the run level from the shared ESLint settings. Without a setting, rules run at `review`, so a
- * plain `eslint --fix` never leaves code that only works after manual follow-up work.
+ * Returns the run level from the shared ESLint settings. Without a setting, rules run at `safe`, so a
+ * plain `eslint --fix` only applies fixes that keep the behaviour.
  *
  * @example
- * // eslint.config.mjs: settings: { 'sw-deprecation-rules': { level: 'safe' } }
- * getRunLevel(context); // 'safe'
+ * // eslint.config.mjs: settings: { 'sw-deprecation-rules': { level: 'review' } }
+ * getRunLevel(context); // 'review'
  */
 function getRunLevel(context) {
-    const level = context.settings?.[SETTINGS_KEY]?.level ?? 'review';
+    const level = context.settings?.[SETTINGS_KEY]?.level ?? 'safe';
 
     if (!RUN_LEVELS.includes(level)) {
         throw new Error(`Unknown deprecation run level "${level}". Use one of: ${RUN_LEVELS.join(', ')}.`);

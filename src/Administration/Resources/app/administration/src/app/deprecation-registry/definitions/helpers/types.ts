@@ -369,7 +369,7 @@ export type RenameTemplateEventStep = UsageStepBase & {
 export type RemoveSnippetKeyStep = UsageStepBase & { kind: 'remove-snippet-key'; from: string };
 export type RenamePackageStep = UsageStepBase & { kind: 'rename-package'; from: string; to: string };
 
-export type DeprecationUsage =
+type DeprecationUsage =
     | ComponentStep
     | RenameCallStep
     | ReplaceObjectOptionStep

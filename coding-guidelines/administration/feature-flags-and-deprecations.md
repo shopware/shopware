@@ -115,10 +115,10 @@ Run the levels in this order and commit after each one, so each commit has one k
    Do that work before you commit.
 4. `manual` changes no code and only puts a `TODO Codemod` comment above every deprecated usage.
 
-ESLint configs choose the level with the `sw-deprecation-rules` setting; without it, the rules run at `review`:
+ESLint configs choose the level with the `sw-deprecation-rules` setting; without it, the rules run at `safe`:
 
 ```js
-settings: { 'sw-deprecation-rules': { level: 'safe' } },
+settings: { 'sw-deprecation-rules': { level: 'review' } },
 ```
 
 A step that is safe only for some usages says so per usage.

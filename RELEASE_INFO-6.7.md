@@ -399,7 +399,7 @@ The other registry categories, such as template blocks, snippet keys and JavaScr
 Steps that need a decision, such as keeping the former `sw-icon` default size of 24px after the switch to `mt-icon`, are applied with a `TODO Codemod` comment that asks to confirm them.
 In the Administration itself, `npm run deprecation:migrate -- --list` lists every migration with its fix level, and `npm run deprecation:migrate -- --id <id> --fix` applies one.
 `--level` sets how much `--fix` may change: `safe` (the default) applies only fixes that keep the behaviour, `review` also applies fixes that leave a `TODO Codemod` comment, `partial` converts everything and comments the parts that need manual work, and `manual` only adds comments.
-Extension ESLint configs choose the level with `settings: { 'sw-deprecation-rules': { level } }`; without it, the rules run at `review`.
+Extension ESLint configs choose the level with `settings: { 'sw-deprecation-rules': { level } }`; without it, the rules run at `safe`.
 `sw-empty-state` is migrated by these rules too.
 `sw-deprecation-rules/no-sw-empty-state-usage` is deprecated and reports nothing; remove it from ESLint configs that name it.
 
@@ -1712,7 +1712,6 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 `Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
 
 The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
-
 ### Order line items are paginated
 
 The line item list on the order detail page shows 10 items per page once an order has more than 10 top-level line items. A pagination with an items-per-page selection appears below the list. Searching or adding a line item returns to the first page.

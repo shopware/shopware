@@ -6,6 +6,10 @@ const tester = new RuleTester({
         parser: require('vue-eslint-parser'),
         ecmaVersion: 2015,
     },
+    settings: {
+        // The fixtures show the fixes that leave a review comment too; the default level is safe
+        'sw-deprecation-rules': { level: 'review' },
+    },
 });
 
 tester.run('no-deprecated-template-events', rule, {

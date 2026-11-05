@@ -6,7 +6,6 @@
  */
 
 export type * from './types';
-export { FIX_LEVELS } from './types';
 export * from './migrations';
 export * from './steps/simple-steps';
 export { renameProp, invertBooleanProp, booleanPropToPropValue } from './steps/prop-renames';

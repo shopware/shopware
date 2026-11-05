@@ -46,8 +46,10 @@ describe('sw-empty-state migration', () => {
     });
 });
 
-describeWithSelectedDeprecationIds('component.sw-alert', () => {
-    it('leaves sw-empty-state alone when only another migration is selected', () => {
-        expect(migrate('<template><sw-empty-state title="Title" /></template>', 'test.html.twig', 'partial')).toBeNull();
+describe('sw-empty-state migration with another selection', () => {
+    describeWithSelectedDeprecationIds('component.sw-alert', () => {
+        it('leaves sw-empty-state alone when only another migration is selected', () => {
+            expect(migrate('<template><sw-empty-state title="Title" /></template>', 'test.html.twig', 'partial')).toBeNull();
+        });
     });
 });

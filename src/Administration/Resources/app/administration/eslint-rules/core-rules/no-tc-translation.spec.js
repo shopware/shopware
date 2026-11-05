@@ -10,6 +10,10 @@ const tester = new RuleTester({
         ecmaVersion: 2020,
         sourceType: 'module',
     },
+    settings: {
+        // The fixtures show the fixes that leave a review comment too; the default level is safe
+        'sw-deprecation-rules': { level: 'review' },
+    },
 });
 
 const templateTester = new RuleTester({
@@ -17,6 +21,10 @@ const templateTester = new RuleTester({
         parser: require('vue-eslint-parser'),
         ecmaVersion: 2020,
         sourceType: 'module',
+    },
+    settings: {
+        // The fixtures show the fixes that leave a review comment too; the default level is safe
+        'sw-deprecation-rules': { level: 'review' },
     },
 });
 

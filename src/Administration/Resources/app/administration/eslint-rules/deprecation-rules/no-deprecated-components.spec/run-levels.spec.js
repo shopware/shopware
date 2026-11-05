@@ -1,9 +1,11 @@
+const { RuleTester } = require('eslint');
 const { rule, tester } = require('./tester');
 
 const CONVERTED_ALERT = '<!-- TODO Codemod: Converted from sw-alert - please check if everything works correctly -->';
 const TEXT_FIELD = '<template>\n<sw-text-field value="x" />\n</template>';
 const ALERT_WITH_APPEARANCE = '<template>\n<sw-alert appearance="system">Hi</sw-alert>\n</template>';
-const ALERT_WITH_ACTIONS = '<template>\n<sw-alert><template #actions><mt-button>Retry</mt-button></template></sw-alert>\n</template>';
+const ALERT_WITH_ACTIONS =
+    '<template>\n<sw-alert><template #actions><mt-button>Retry</mt-button></template></sw-alert>\n</template>';
 
 function atLevel(level) {
     return { 'sw-deprecation-rules': { level } };
@@ -41,7 +43,15 @@ tester.run('no-deprecated-components (safe level)', rule, {
             settings: atLevel('safe'),
             code: ALERT_WITH_APPEARANCE,
             output: null,
-            errors: [{ message: notConverted('sw-alert', NEEDS_REVIEW_OR_MANUAL, '\\[sw-alert\\] mt-banner has no "appearance" prop') }],
+            errors: [
+                {
+                    message: notConverted(
+                        'sw-alert',
+                        NEEDS_REVIEW_OR_MANUAL,
+                        '\\[sw-alert\\] mt-banner has no "appearance" prop',
+                    ),
+                },
+            ],
         },
         {
             name: 'keeps an element whose conversion itself needs a review',
@@ -49,7 +59,15 @@ tester.run('no-deprecated-components (safe level)', rule, {
             settings: atLevel('safe'),
             code: '<template>\n<sw-textarea-field />\n</template>',
             output: null,
-            errors: [{ message: notConverted('sw-textarea-field', NEEDS_REVIEW_OR_MANUAL, 'The conversion itself needs a review\\.') }],
+            errors: [
+                {
+                    message: notConverted(
+                        'sw-textarea-field',
+                        NEEDS_REVIEW_OR_MANUAL,
+                        'The conversion itself needs a review\\.',
+                    ),
+                },
+            ],
         },
         {
             name: 'keeps an element with an object v-bind, which can pass deprecated props',
@@ -85,13 +103,6 @@ tester.run('no-deprecated-components (review level)', rule, {
             name: 'keeps an element with a part that needs a manual migration and names that part',
             filename: 'test.html.twig',
             settings: atLevel('review'),
-            code: ALERT_WITH_ACTIONS,
-            output: null,
-            errors: [{ message: notConverted('sw-alert', NEEDS_MANUAL, '\\[sw-alert\\] The "actions" slot is removed\\.') }],
-        },
-        {
-            name: 'runs at the review level without a setting',
-            filename: 'test.html.twig',
             code: ALERT_WITH_ACTIONS,
             output: null,
             errors: [{ message: notConverted('sw-alert', NEEDS_MANUAL, '\\[sw-alert\\] The "actions" slot is removed\\.') }],
@@ -157,3 +168,28 @@ tester.run('no-deprecated-components (report only)', rule, {
         },
     ],
 });
+
+new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVersion: 2015 } }).run(
+    'no-deprecated-components (no level setting)',
+    rule,
+    {
+        valid: [],
+        invalid: [
+            {
+                name: 'runs at the safe level',
+                filename: 'test.html.twig',
+                code: ALERT_WITH_APPEARANCE,
+                output: null,
+                errors: [
+                    {
+                        message: notConverted(
+                            'sw-alert',
+                            NEEDS_REVIEW_OR_MANUAL,
+                            '\\[sw-alert\\] mt-banner has no "appearance" prop',
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+);

@@ -10,7 +10,6 @@
   },
   "identity": "dc1",
   "unused_files": [
-    "unused-file:eslint-rules/deprecation-rules/no-deprecated-component-usage-checks/mt-loader.check.js",
     "unused-file:src/app/component/form/sw-colorpicker/sw-colorpicker.scss",
     "unused-file:src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/sw-settings-customer-group-list.scss",
     "unused-file:test/webpack/assets/ExamplePluginForTesting/src/Resources/administration/main.js",
@@ -20,8 +19,6 @@
     "unused-export:build/vue-setup-transform/index.spec/sourcemap-helpers.ts:positionForIndex",
     "unused-export:build/vue-setup-transform/script-analyzer/macros.ts:isWithDefaultsCall",
     "unused-export:build/vue-setup-transform/template-analyzer/index.ts:emptyTemplateAnalysis",
-    "unused-export:eslint-rules/deprecation-rules/no-deprecated-component-usage-checks/mt-url-field.check.js:mtUrlFieldInvalidTests",
-    "unused-export:eslint-rules/deprecation-rules/no-deprecated-component-usage-checks/mt-url-field.check.js:mtUrlFieldValidTests",
     "unused-export:scripts/codemods/sfc-migration/hoist-block-slots.ts:NON_HOISTABLE",
     "unused-export:scripts/codemods/sfc-migration/spec-helpers.ts:FIXTURES",
     "unused-export:scripts/extensionTooling/baseline.ts:baselineFilePath",

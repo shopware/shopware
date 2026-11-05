@@ -20,18 +20,15 @@ export default class PageQrcodeGeneratorPlugin extends Plugin {
      */
     public init() {
         const qrLink = new URL(window.location.href);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (this.options.params) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             for (const key in this.options.params) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 qrLink.searchParams.set(key, this.options.params[key]);
             }
         }
         // eslint-disable-next-line
         QRCode.toCanvas(qrLink.toString(), this.options, (err, canvas) => {
             if (err) return;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (this.options.params?.autostartAr) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
                 canvas.dataset.arModelId = this.options.params.autostartAr;

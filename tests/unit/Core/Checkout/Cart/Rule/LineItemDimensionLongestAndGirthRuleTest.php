@@ -541,10 +541,11 @@ class LineItemDimensionLongestAndGirthRuleTest extends TestCase
     public function testGetConfig(): void
     {
         $lineItemDimensionLongestAndGirthRule = new LineItemDimensionLongestAndGirthRule();
-
         $result = $lineItemDimensionLongestAndGirthRule->getConfig();
 
-        static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result->getData()['operatorSet']['operators']);
+        $expectedOperatorSet = array_merge(RuleConfig::OPERATOR_SET_NUMBER, [Rule::OPERATOR_EMPTY]);
+
+        static::assertSame($expectedOperatorSet, $result->getData()['operatorSet']['operators']);
         static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 

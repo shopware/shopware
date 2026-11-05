@@ -602,7 +602,7 @@
       "buttonAdd": "Add documents",
       "removeLanguageVersion": "Remove {language} version",
       "removeLanguageVersionTitle": "Remove {language} version of \"{name}\"?",
-      "removeLanguageVersionDescription": "The {language} version will be removed. Customers who shop in {language} will get the {fallbackLanguage} one instead. The file will still be available under 'Media'.",
+      "removeLanguageVersionDescription": "The {language} version will be removed. The fallback values for the name and file will be used instead. The file remains available in Media.",
       "changedForLanguage": "Changed for this language.",
       "switchContentLanguage": "Switch content language",
       "columnPosition": "Position",

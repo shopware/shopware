@@ -89,7 +89,8 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         $term = new TermQuery($config->getField(), $normalizedToken, ['boost' => $config->getRanking()]);
-        $this->nameClause($term, $config, (string) $normalizedToken, 'exact', $context);
+        // weighted: the boost above already folds the field ranking into the score.
+        $this->nameClause($term, $config, (string) $normalizedToken, 'exact', $context, true);
 
         return $term;
     }
@@ -138,7 +139,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             }
         }
 
-        return $this->buildDisMaxQuery(array_values(array_filter($clauses)));
+        return $this->buildDisMaxQuery(array_values(array_filter($clauses)), $config->getRanking());
     }
 
     /**
@@ -156,6 +157,8 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
 
         $lastWord = array_last(preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token]);
 
+        // The phrase boost is folded with the field ranking, since the caller adds this as a
+        // standalone SHOULD clause rather than a member of the per-field DisMax.
         $params = [
             'boost' => $this->phraseBoost * $config->getRanking(),
             'slop' => 3,
@@ -167,7 +170,8 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         $phrase = new MatchPhrasePrefixQuery($config->getField() . '.search', $token, $params);
-        $this->nameClause($phrase, $config, $token, 'phrase', $context);
+        // weighted: the boost above already folds the field ranking into the score.
+        $this->nameClause($phrase, $config, $token, 'phrase', $context, true);
 
         return $phrase;
     }
@@ -175,11 +179,11 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildExactMatchQuery(SearchFieldConfig $config, string $token): BuilderInterface
     {
         if ($config->useExactSubfield()) {
-            return new TermQuery($config->getField() . '.exact', $token, ['boost' => $this->exactBoost * $config->getRanking()]);
+            return new TermQuery($config->getField() . '.exact', $token, ['boost' => $this->exactBoost]);
         }
 
         $matchQueryParams = [
-            'boost' => $this->exactBoost * $config->getRanking(),
+            'boost' => $this->exactBoost,
             'fuzziness' => 0,
             'operator' => 'and',
         ];
@@ -194,7 +198,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
     {
         $matchQueryParams = [
-            'boost' => $this->fuzzyBoost * $config->getRanking(),
+            'boost' => $this->fuzzyBoost,
             'fuzziness' => $config->getFuzziness($token),
             'operator' => $config->isAndLogic() ? 'and' : 'or',
             'fuzzy_transpositions' => true,
@@ -215,7 +219,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return null;
         }
 
-        $matchBoolPrefixParams = ['boost' => $this->prefixBoost * $config->getRanking()];
+        $matchBoolPrefixParams = ['boost' => $this->prefixBoost];
 
         if (!$this->useLanguageAnalyzer) {
             $matchBoolPrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
@@ -240,34 +244,39 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         // enough to outrank an exact / fuzzy / prefix word match.
         return new ConstantScoreQuery(
             new MatchQuery($config->getField() . '.ngram', $token),
-            ['boost' => $this->partialBoost * $config->getRanking()],
+            ['boost' => $this->partialBoost],
         );
     }
 
     /**
-     * In explain mode, tag a clause with its match type so the live-search preview can report
-     * how the field matched. Gated on the state, so normal search is untouched.
-     * Every clause boost carries the field ranking, so the named score is `weighted`.
+     * Explain mode only: tag a clause with its match type for the live-search preview.
+     * `$weighted` = the clause boost already folds the field ranking, so the preview
+     * must not scale its score by the ranking again.
      */
-    private function nameClause(BuilderInterface $clause, SearchFieldConfig $config, string $term, string $type, Context $context): void
+    private function nameClause(BuilderInterface $clause, SearchFieldConfig $config, string $term, string $type, Context $context, bool $weighted = false): void
     {
         if (!$context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE) || !method_exists($clause, 'addParameter')) {
             return;
         }
 
-        $clause->addParameter('_name', (string) json_encode([
+        $payload = [
             'field' => $config->getField(),
             'term' => $term,
             'ranking' => $config->getRanking(),
             'type' => $type,
-            'weighted' => true,
-        ]));
+        ];
+
+        if ($weighted) {
+            $payload['weighted'] = true;
+        }
+
+        $clause->addParameter('_name', (string) json_encode($payload));
     }
 
     /**
      * @param list<BuilderInterface> $queries
      */
-    private function buildDisMaxQuery(array $queries): DisMaxQuery
+    private function buildDisMaxQuery(array $queries, float|int $boost): DisMaxQuery
     {
         $dismax = new DisMaxQuery();
 
@@ -275,6 +284,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             $dismax->addQuery($query);
         }
 
+        $dismax->addParameter('boost', $boost);
         $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
 
         return $dismax;

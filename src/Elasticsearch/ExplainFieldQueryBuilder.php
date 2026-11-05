@@ -40,21 +40,33 @@ class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
             return $query;
         }
 
-        // Text fields produce a DisMax whose individual clauses are already
-        // named with their match type by FieldQueryBuilder — don't add a
-        // second, type-less name on top of it.
+        // A DisMax's clauses are already named with their real match type by
+        // FieldQueryBuilder, as is any other clause that carries a name — keep those.
         if ($query instanceof DisMaxQuery) {
             return $query;
         }
 
-        // Like the clause names of FieldQueryBuilder, the field-level score already carries the field ranking.
-        $explainPayload = json_encode([
+        if (method_exists($query, 'hasParameter') && $query->hasParameter('_name')) {
+            return $query;
+        }
+
+        // Field-level name; its score already carries the field weight (the query's
+        // boost is the ranking), hence `weighted`.
+        $payload = [
             'field' => $config->getField(),
             'term' => $token,
             'ranking' => $config->getRanking(),
-            'type' => $config->isPhrase() ? 'phrase' : 'exact',
-            'weighted' => true,
-        ]);
+        ];
+
+        // No match type: the clauses inside a nested query decide how it matched and
+        // ES doesn't surface their names at hit level. Only the phrase path is certain.
+        if ($config->isPhrase()) {
+            $payload['type'] = 'phrase';
+        }
+
+        $payload['weighted'] = true;
+
+        $explainPayload = json_encode($payload);
 
         if ($query instanceof NestedQuery) {
             $query->addParameter('inner_hits', [

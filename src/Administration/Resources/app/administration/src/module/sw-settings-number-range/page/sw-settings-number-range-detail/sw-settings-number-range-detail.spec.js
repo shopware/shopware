@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(getNumberRangePatternCollisions = () => Promise.resolve({ collisions: [] }), numberRange = {}) {
     return mount(
@@ -104,7 +103,6 @@ async function createWrapper(getNumberRangePatternCollisions = () => Promise.res
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-detail', () => {
     beforeEach(async () => {
-        allowDeprecation('sw-settings-number-range-detail.loadSalesChannels() is deprecated');
         global.activeAclRoles = [];
     });
 

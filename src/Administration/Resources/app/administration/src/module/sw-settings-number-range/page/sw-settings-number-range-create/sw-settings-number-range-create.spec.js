@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(
     numberRangeService = {
@@ -135,10 +134,6 @@ async function createWrapper(
 }
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-create', () => {
-    beforeEach(() => {
-        allowDeprecation('sw-settings-number-range-detail.loadSalesChannels() is deprecated');
-    });
-
     it('should be has number range', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -160,7 +155,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
 
     it('should be able show product warning alert when number range is global', async () => {
         const wrapper = await createWrapper();
-        const loadSalesChannelsSpy = jest.spyOn(wrapper.vm, 'loadSalesChannels');
+        const loadSalesChannelsSpy = jest.spyOn(wrapper.vm, 'loadSelectedSalesChannels');
         await wrapper.setData({ isLoading: false });
         await flushPromises();
 

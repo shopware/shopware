@@ -488,11 +488,6 @@
             "major"
         ]
     },
-    "sw-settings-number-range-detail.loadSalesChannels() is deprecated and will be removed, use buildSelectedSalesChannelsCollection instead.": {
-        "src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js": [
-            "default"
-        ]
-    },
     "sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.": {
         "sw-settings-shipping-price-matrix": [
             "default",

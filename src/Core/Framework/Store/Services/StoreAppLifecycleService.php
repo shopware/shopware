@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -65,16 +66,16 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         if (!$app) {
             throw StoreException::extensionNotFoundFromId($id);
         }
+        $manifest = $this->findDeletableManifest($technicalName);
 
         $this->storeClient->cancelSubscription($licenseId, $context);
         $this->appLifecycle->uninstall($technicalName, ['id' => $id], $context);
-        $this->deleteExtension($technicalName, $keepUserData, $context);
+        $this->uninstallAndDeleteFiles($technicalName, $manifest, $keepUserData, $context);
     }
 
     public function deleteExtension(string $technicalName, bool $keepUserData, Context $context): void
     {
-        $this->uninstallExtension($technicalName, $context, $keepUserData);
-        $this->appLoader->deleteApp($technicalName);
+        $this->uninstallAndDeleteFiles($technicalName, $this->findDeletableManifest($technicalName), $keepUserData, $context);
     }
 
     public function activateExtension(string $technicalName, Context $context): void
@@ -143,6 +144,26 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     {
         foreach ($this->removalValidators as $validator) {
             $validator->validateCanBeRemoved($technicalName, $id, $context);
+        }
+    }
+
+    private function findDeletableManifest(string $technicalName): ?Manifest
+    {
+        $manifest = $this->appLoader->load()[$technicalName] ?? null;
+
+        if ($manifest?->isManagedByComposer()) {
+            throw StoreException::cannotDeleteManaged($technicalName);
+        }
+
+        return $manifest;
+    }
+
+    private function uninstallAndDeleteFiles(string $technicalName, ?Manifest $manifest, bool $keepUserData, Context $context): void
+    {
+        $this->uninstallExtension($technicalName, $context, $keepUserData);
+
+        if ($manifest !== null) {
+            $this->appLoader->deleteApp($manifest);
         }
     }
 }

@@ -654,11 +654,10 @@ export default {
 
         getThemeCompatibleSalesChannels() {
             const criteria = new Criteria();
-            criteria.addAssociation('type');
             criteria.addFilter(Criteria.equalsAny('type.name', ['Storefront', 'Headless']));
 
-            return this.salesChannelRepository.search(criteria).then((searchResult) => {
-                return searchResult.getIds();
+            return this.salesChannelRepository.searchIds(criteria).then(({ data }) => {
+                return data;
             });
         },
 

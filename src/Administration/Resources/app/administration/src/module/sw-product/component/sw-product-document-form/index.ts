@@ -401,16 +401,14 @@ export default Shopware.Component.wrapComponentConfig({
                 }
                 if (this.isDefaultLanguage) {
                     this.documents.remove(document.id);
+                    this.updatePositions();
                 } else {
-                    Object.assign(document, resetDocumentTranslation(document, Shopware.Store.get('context').api.language));
+                    this.resetDocumentLanguageVersion(document);
                 }
                 const store = Shopware.Store.get('swProductDetail');
                 store.documentSaveNotifications = store.documentSaveNotifications.filter(
                     (entry) => entry.documentId !== document.id,
                 );
-                if (this.isDefaultLanguage) {
-                    this.updatePositions();
-                }
                 this.closeRemoveDocumentModal();
             } catch {
                 if (isCurrentRemoval()) {
@@ -419,6 +417,15 @@ export default Shopware.Component.wrapComponentConfig({
                         message: this.$t('sw-product.documentForm.errorLoadVariants'),
                     });
                 }
+            }
+        },
+
+        resetDocumentLanguageVersion(document: ProductDocument): void {
+            const language = Shopware.Store.get('context').api.language;
+            Object.assign(document, resetDocumentTranslation(document, language, Shopware.Context.api.systemLanguageId));
+            const translation = document.translations?.find((entry) => entry.languageId === Shopware.Context.api.languageId);
+            if (translation) {
+                Object.assign(translation, { title: null, mediaId: null });
             }
         },
 
@@ -513,7 +520,7 @@ export default Shopware.Component.wrapComponentConfig({
                     if (this.isDefaultLanguage) {
                         documents.remove(copy.id);
                     } else {
-                        Object.assign(copy, resetDocumentTranslation(copy, Shopware.Store.get('context').api.language));
+                        this.resetDocumentLanguageVersion(copy);
                     }
                 });
                 if (this.isDefaultLanguage) {

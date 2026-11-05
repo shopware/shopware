@@ -149,6 +149,41 @@ describe('sw-product-document-form language-version removal', () => {
         expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });
     });
 
+    it('saves the language removal after unlinking inherited documents, preserving other languages', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.parentProduct = await loadProduct('Handbuch', germanMedia.id);
+        store.product = repository.create();
+        store.product.parentId = store.parentProduct.id;
+        wrapper = await createWrapper(undefined, undefined, repository);
+
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+        const document = store.product.documents![0];
+        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
+        await clickButton(wrapper, 'global.default.remove');
+        expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
+        expect(document).toMatchObject({ title: null, mediaId: null });
+
+        const postSpy = jest.spyOn(repository.httpClient, 'post').mockResolvedValue({ data: {} });
+        await repository.save(store.product, Shopware.Context.api);
+        expect(document.translations.find((translation) => translation.languageId === germanLanguageId)).toMatchObject({
+            title: null,
+            mediaId: null,
+        });
+        expect(postSpy.mock.calls[0][1]).toMatchObject({ documents: [{ id: document.id }] });
+        const payload = JSON.stringify(postSpy.mock.calls[0][1]);
+        expect(payload).not.toContain('Handbuch');
+        expect(payload).not.toContain(germanMedia.id);
+        expect(payload).toContain('Manual');
+        expect(payload).toContain(englishMedia.id);
+        expect(store.parentProduct.documents![0]).toMatchObject({ title: 'Handbuch', mediaId: germanMedia.id });
+
+        postSpy.mockRestore();
+        store.product = await loadProduct(null, null, store.product.id, store.parentProduct.id);
+        await flushPromises();
+        expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
+        expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });
+    });
+
     it('does not offer language removal for a document using only fallback values', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct(null, null);

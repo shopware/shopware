@@ -37,7 +37,7 @@ describe('document translation reset', () => {
             mediaId: 'current-file',
             translated: { customFields: { note: 'Keep' } },
         });
-        expect(resetDocumentTranslation(document, language)).toEqual({
+        expect(resetDocumentTranslation(document, language, Shopware.Context.api.systemLanguageId)).toEqual({
             title: null,
             mediaId: null,
             translated: { title: 'Parent name', mediaId: 'system-file', customFields: { note: 'Keep' } },

@@ -593,6 +593,7 @@
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."
     },
     "documentForm": {
+      "variantOnly": "Variant only",
       "cardTitle": "Documents ({count})",
       "cardSubtitle": "Files customers can download on the product detail page in the Storefront.",
       "emptyState": "No documents yet",
@@ -633,7 +634,8 @@
       "errorDocumentDuplicated": "This file is already assigned to the product.",
       "languageHint": "Add documents in the default language. Switch the content language to translate their names and files.",
       "fileUploadLabel": "File upload",
-      "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each."
+      "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each.",
+      "unlinkToAdd": "Unlink the card to add documents for this variant."
     }
   },
   "sw-privileges": {

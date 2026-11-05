@@ -380,6 +380,24 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Codemods for extensions in the extension tooling
+
+The new `administration:upgrade-extensions` command runs the codemods that prepare the Administration code of an extension for a Shopware major.
+Use it instead of `composer run admin:code-mods`: it also works in a Composer installation and through `shopware-cli project console`.
+
+```bash
+bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --write  # apply
+```
+
+`--target` defaults to the newest major the installed Administration ships codemods for, and `--list` shows them.
+`--write` refuses extensions that are not committed to git, and outside an interactive terminal it needs `--only` or `--all`.
+`--only` also finds plugins in `custom/plugins` that are not installed or activated.
+`--with=sfc-migration` additionally converts Options API components into native setup SFCs.
+
+`composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
+It now prints a deprecation warning.
+
 ### Native setup stays experimental until 6.9
 
 The experimental phase of native setup and the Composition API extension system now ends with 6.9 instead of 6.8, like the composables in `shopware:composables`.
@@ -560,7 +578,7 @@ Changes to plugin files reload the page instead of using HMR.
 
 Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
 Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
-`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
 Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
 If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 

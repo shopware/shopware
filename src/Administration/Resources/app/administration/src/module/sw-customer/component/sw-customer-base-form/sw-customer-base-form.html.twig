@@ -138,7 +138,8 @@
         {% block sw_customer_base_form_birthday_field %}
         <mt-datepicker
             v-model="customer.birthday"
-            type="date"
+            date-type="date"
+            time-zone="UTC"
             name="birthday"
             hide-hint
             :label="$t('sw-customer.baseForm.labelBirthday')"

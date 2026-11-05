@@ -85,10 +85,6 @@ export default Shopware.Component.wrapComponentConfig({
             return getSessionStore().currentUser?.timeZone ?? 'UTC';
         },
 
-        datePickerTimeZone(): string {
-            return this.dateType === 'date' ? 'UTC' : this.timeZone || this.userTimeZone;
-        },
-
         is24HourFormat(): boolean {
             if (this.is24) {
                 return this.is24 as boolean;
@@ -103,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
             const defaultFormat = {
                 hour12: !this.is24HourFormat,
                 locale: this.userLocale,
-                timeZone: this.datePickerTimeZone,
+                timeZone: this.timeZone || this.userTimeZone,
             };
 
             let format: {

@@ -138,7 +138,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             }
         }
 
-        return $this->buildDisMaxQuery(array_values(array_filter($clauses)), $config->getRanking());
+        return $this->buildDisMaxQuery(array_values(array_filter($clauses)));
     }
 
     /**
@@ -156,8 +156,6 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
 
         $lastWord = array_last(preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token]);
 
-        // The phrase boost is folded with the field ranking, since the caller adds this as a
-        // standalone SHOULD clause rather than a member of the per-field DisMax.
         $params = [
             'boost' => $this->phraseBoost * $config->getRanking(),
             'slop' => 3,
@@ -177,11 +175,11 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildExactMatchQuery(SearchFieldConfig $config, string $token): BuilderInterface
     {
         if ($config->useExactSubfield()) {
-            return new TermQuery($config->getField() . '.exact', $token, ['boost' => $this->exactBoost]);
+            return new TermQuery($config->getField() . '.exact', $token, ['boost' => $this->exactBoost * $config->getRanking()]);
         }
 
         $matchQueryParams = [
-            'boost' => $this->exactBoost,
+            'boost' => $this->exactBoost * $config->getRanking(),
             'fuzziness' => 0,
             'operator' => 'and',
         ];
@@ -196,7 +194,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
     {
         $matchQueryParams = [
-            'boost' => $this->fuzzyBoost,
+            'boost' => $this->fuzzyBoost * $config->getRanking(),
             'fuzziness' => $config->getFuzziness($token),
             'operator' => $config->isAndLogic() ? 'and' : 'or',
             'fuzzy_transpositions' => true,
@@ -217,7 +215,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return null;
         }
 
-        $matchBoolPrefixParams = ['boost' => $this->prefixBoost];
+        $matchBoolPrefixParams = ['boost' => $this->prefixBoost * $config->getRanking()];
 
         if (!$this->useLanguageAnalyzer) {
             $matchBoolPrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
@@ -242,13 +240,14 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         // enough to outrank an exact / fuzzy / prefix word match.
         return new ConstantScoreQuery(
             new MatchQuery($config->getField() . '.ngram', $token),
-            ['boost' => $this->partialBoost],
+            ['boost' => $this->partialBoost * $config->getRanking()],
         );
     }
 
     /**
      * In explain mode, tag a clause with its match type so the live-search preview can report
      * how the field matched. Gated on the state, so normal search is untouched.
+     * Every clause boost carries the field ranking, so the named score is `weighted`.
      */
     private function nameClause(BuilderInterface $clause, SearchFieldConfig $config, string $term, string $type, Context $context): void
     {
@@ -261,13 +260,14 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             'term' => $term,
             'ranking' => $config->getRanking(),
             'type' => $type,
+            'weighted' => true,
         ]));
     }
 
     /**
      * @param list<BuilderInterface> $queries
      */
-    private function buildDisMaxQuery(array $queries, float|int $boost): DisMaxQuery
+    private function buildDisMaxQuery(array $queries): DisMaxQuery
     {
         $dismax = new DisMaxQuery();
 
@@ -275,7 +275,6 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             $dismax->addQuery($query);
         }
 
-        $dismax->addParameter('boost', $boost);
         $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
 
         return $dismax;

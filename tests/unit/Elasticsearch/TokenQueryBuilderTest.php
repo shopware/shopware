@@ -110,19 +110,19 @@ class TokenQueryBuilderTest extends TestCase
 
         $nameField = 'name.' . Defaults::LANGUAGE_SYSTEM;
         $nameQuery = self::disMax([
-            self::exactAnalyzed($nameField . '.search', 'foo', self::clauseName($nameField, 'foo', 1000, 'exact')),
-            self::match($nameField . '.search', 'foo', 0.4, $expectedFuzziness, 'or', $expectedMaxExpansions, name: self::clauseName($nameField, 'foo', 1000, 'fuzzy')),
-            self::prefix($nameField . '.search', 'foo', 0.4, self::clauseName($nameField, 'foo', 1000, 'prefix')),
-        ], 1000);
+            self::exactAnalyzed($nameField . '.search', 'foo', 2.0 * 1000, self::clauseName($nameField, 'foo', 1000, 'exact')),
+            self::match($nameField . '.search', 'foo', 0.4 * 1000, $expectedFuzziness, 'or', $expectedMaxExpansions, name: self::clauseName($nameField, 'foo', 1000, 'fuzzy')),
+            self::prefix($nameField . '.search', 'foo', 0.4 * 1000, self::clauseName($nameField, 'foo', 1000, 'prefix')),
+        ]);
 
         // A DisMax field query is not given a field-level `_name`: its individual clauses
         // already carry their own names (see ExplainFieldQueryBuilder).
 
         $tagQuery = self::disMax([
-            self::exactAnalyzed('tags.name.search', 'foo', self::clauseName('tags.name', 'foo', 500, 'exact')),
-            self::match('tags.name.search', 'foo', 0.4, $expectedFuzziness, 'or', $expectedMaxExpansions, name: self::clauseName('tags.name', 'foo', 500, 'fuzzy')),
-            self::prefix('tags.name.search', 'foo', 0.4, self::clauseName('tags.name', 'foo', 500, 'prefix')),
-        ], 500);
+            self::exactAnalyzed('tags.name.search', 'foo', 2.0 * 500, self::clauseName('tags.name', 'foo', 500, 'exact')),
+            self::match('tags.name.search', 'foo', 0.4 * 500, $expectedFuzziness, 'or', $expectedMaxExpansions, name: self::clauseName('tags.name', 'foo', 500, 'fuzzy')),
+            self::prefix('tags.name.search', 'foo', 0.4 * 500, self::clauseName('tags.name', 'foo', 500, 'prefix')),
+        ]);
 
         $expected = self::bool([
             $nameQuery,
@@ -175,19 +175,19 @@ class TokenQueryBuilderTest extends TestCase
 
         $expected = self::bool([
             self::disMax([
-                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo'),
-                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4, $expectedFuzziness, 'or', $expectedMaxExpansions),
-                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
-            ], 1000),
+                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 2.0 * 1000),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000, $expectedFuzziness, 'or', $expectedMaxExpansions),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000),
+            ]),
             self::disMax([
-                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo'),
-                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4, $expectedFuzziness, 'and', $expectedMaxExpansions),
-            ], 800),
+                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 2.0 * 800),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 800, $expectedFuzziness, 'and', $expectedMaxExpansions),
+            ]),
             self::nested('tags', self::disMax([
-                self::exactAnalyzed('tags.name.search', 'foo'),
-                self::match('tags.name.search', 'foo', 0.4, $expectedFuzziness, 'or', $expectedMaxExpansions),
-                self::prefix('tags.name.search', 'foo', 0.4),
-            ], 500)),
+                self::exactAnalyzed('tags.name.search', 'foo', 2.0 * 500),
+                self::match('tags.name.search', 'foo', 0.4 * 500, $expectedFuzziness, 'or', $expectedMaxExpansions),
+                self::prefix('tags.name.search', 'foo', 0.4 * 500),
+            ])),
         ]);
 
         static::assertSame($expected, $query->toArray());
@@ -250,15 +250,15 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo'),
-                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
-                ], 1000),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 2.0 * 1000),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000, 'AUTO:5,10', 'or', 5),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000),
+                ]),
                 self::nested('tags', self::disMax([
-                    self::exactAnalyzed('tags.name.search', 'foo'),
-                    self::match('tags.name.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                    self::prefix('tags.name.search', 'foo', 0.4),
-                ], 500)),
+                    self::exactAnalyzed('tags.name.search', 'foo', 2.0 * 500),
+                    self::match('tags.name.search', 'foo', 0.4 * 500, 'AUTO:5,10', 'or', 5),
+                    self::prefix('tags.name.search', 'foo', 0.4 * 500),
+                ])),
             ]),
         ];
 
@@ -268,10 +268,10 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => ' FoO ',
             'expected' => self::disMax([
-                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo'),
-                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
-            ], 1000),
+                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 2.0 * 1000),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000, 'AUTO:5,10', 'or', 5),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000),
+            ]),
         ];
 
         yield 'Tokenized field uses ngram match for long term' => [
@@ -280,11 +280,11 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => 'foooooooooo',
             'expected' => self::disMax([
-                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo'),
-                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4, 'AUTO:5,10', 'or', 20),
-                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4),
-                self::ngramConstantScore('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
-            ], 1000),
+                self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 2.0 * 1000),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4 * 1000, 'AUTO:5,10', 'or', 20),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4 * 1000),
+                self::ngramConstantScore('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4 * 1000),
+            ]),
         ];
 
         yield 'Test multiple fields OR search' => [
@@ -300,20 +300,20 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023'),
-                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'or', 20),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4),
-                ], 1000),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 2.0 * 1000),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000, 0, 'or', 20),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000),
+                ]),
                 self::disMax([
-                    self::exactAnalyzed('ean.search', 'foo 2023'),
-                    self::match('ean.search', 'foo 2023', 0.4, 0, 'or', 20),
-                    self::prefix('ean.search', 'foo 2023', 0.4),
-                ], 2000),
+                    self::exactAnalyzed('ean.search', 'foo 2023', 2.0 * 2000),
+                    self::match('ean.search', 'foo 2023', 0.4 * 2000, 0, 'or', 20),
+                    self::prefix('ean.search', 'foo 2023', 0.4 * 2000),
+                ]),
                 self::nested('tags', self::disMax([
-                    self::exactAnalyzed('tags.name.search', 'foo 2023'),
-                    self::match('tags.name.search', 'foo 2023', 0.4, 0, 'or', 20),
-                    self::prefix('tags.name.search', 'foo 2023', 0.4),
-                ], 500)),
+                    self::exactAnalyzed('tags.name.search', 'foo 2023', 2.0 * 500),
+                    self::match('tags.name.search', 'foo 2023', 0.4 * 500, 0, 'or', 20),
+                    self::prefix('tags.name.search', 'foo 2023', 0.4 * 500),
+                ])),
             ]),
         ];
 
@@ -330,20 +330,20 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023'),
-                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 20),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4),
-                ], 1000),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 2.0 * 1000),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000, 0, 'and', 20),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000),
+                ]),
                 self::disMax([
-                    self::exactAnalyzed('ean.search', 'foo 2023'),
-                    self::match('ean.search', 'foo 2023', 0.4, 0, 'and', 20),
-                    self::prefix('ean.search', 'foo 2023', 0.4),
-                ], 2000),
+                    self::exactAnalyzed('ean.search', 'foo 2023', 2.0 * 2000),
+                    self::match('ean.search', 'foo 2023', 0.4 * 2000, 0, 'and', 20),
+                    self::prefix('ean.search', 'foo 2023', 0.4 * 2000),
+                ]),
                 self::nested('tags', self::disMax([
-                    self::exactAnalyzed('tags.name.search', 'foo 2023'),
-                    self::match('tags.name.search', 'foo 2023', 0.4, 0, 'and', 20),
-                    self::prefix('tags.name.search', 'foo 2023', 0.4),
-                ], 500)),
+                    self::exactAnalyzed('tags.name.search', 'foo 2023', 2.0 * 500),
+                    self::match('tags.name.search', 'foo 2023', 0.4 * 500, 0, 'and', 20),
+                    self::prefix('tags.name.search', 'foo 2023', 0.4 * 500),
+                ])),
             ]),
         ];
 
@@ -357,10 +357,10 @@ class TokenQueryBuilderTest extends TestCase
             'term' => '2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed($prefix . 'evolvesText.search', '2023'),
-                    self::match($prefix . 'evolvesText.search', '2023', 0.4, 0, 'and', 10),
-                    self::prefix($prefix . 'evolvesText.search', '2023', 0.4),
-                ], 500),
+                    self::exactAnalyzed($prefix . 'evolvesText.search', '2023', 2.0 * 500),
+                    self::match($prefix . 'evolvesText.search', '2023', 0.4 * 500, 0, 'and', 10),
+                    self::prefix($prefix . 'evolvesText.search', '2023', 0.4 * 500),
+                ]),
                 self::term($prefix . 'evolvesInt', 2023, 400),
                 self::term($prefix . 'evolvesFloat', 2023.0, 500),
                 self::nested('categories', self::term('categories.childCount', 2023, 500)),
@@ -385,26 +385,26 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo'),
-                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
-                ], 1000),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 2.0 * 1000),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000, 'AUTO:5,10', 'or', 5),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 1000),
+                ]),
                 self::nested('tags', self::disMax([
-                    self::exactAnalyzed('tags.name.search', 'foo'),
-                    self::match('tags.name.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                    self::prefix('tags.name.search', 'foo', 0.4),
-                ], 500)),
+                    self::exactAnalyzed('tags.name.search', 'foo', 2.0 * 500),
+                    self::match('tags.name.search', 'foo', 0.4 * 500, 'AUTO:5,10', 'or', 5),
+                    self::prefix('tags.name.search', 'foo', 0.4 * 500),
+                ])),
                 self::nested('categories', self::disMax([
                     self::disMax([
-                        self::exactAnalyzed('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo'),
-                        self::match('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                        self::prefix('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
-                    ], 200),
+                        self::exactAnalyzed('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 2.0 * 200),
+                        self::match('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 200, 'AUTO:5,10', 'or', 5),
+                        self::prefix('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4 * 200),
+                    ]),
                     self::disMax([
-                        self::exactAnalyzed('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo'),
-                        self::match('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4, 'AUTO:5,10', 'or', 5),
-                        self::prefix('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4),
-                    ], 160),
+                        self::exactAnalyzed('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 2.0 * 160),
+                        self::match('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4 * 160, 'AUTO:5,10', 'or', 5),
+                        self::prefix('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4 * 160),
+                    ]),
                 ])),
             ]),
         ];
@@ -422,20 +422,20 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023'),
-                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'or', 20),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4),
-                ], 1000),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 2.0 * 1000),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000, 0, 'or', 20),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000),
+                ]),
                 self::disMax([
-                    self::exactAnalyzed('ean.search', 'foo 2023'),
-                    self::match('ean.search', 'foo 2023', 0.4, 0, 'or', 20),
-                    self::prefix('ean.search', 'foo 2023', 0.4),
-                ], 2000),
+                    self::exactAnalyzed('ean.search', 'foo 2023', 2.0 * 2000),
+                    self::match('ean.search', 'foo 2023', 0.4 * 2000, 0, 'or', 20),
+                    self::prefix('ean.search', 'foo 2023', 0.4 * 2000),
+                ]),
                 self::nested('tags', self::disMax([
-                    self::exactAnalyzed('tags.name.search', 'foo 2023'),
-                    self::match('tags.name.search', 'foo 2023', 0.4, 0, 'or', 20),
-                    self::prefix('tags.name.search', 'foo 2023', 0.4),
-                ], 500)),
+                    self::exactAnalyzed('tags.name.search', 'foo 2023', 2.0 * 500),
+                    self::match('tags.name.search', 'foo 2023', 0.4 * 500, 0, 'or', 20),
+                    self::prefix('tags.name.search', 'foo 2023', 0.4 * 500),
+                ])),
             ]),
         ];
 
@@ -452,20 +452,20 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023'),
-                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 20),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4),
-                ], 1000),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 2.0 * 1000),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000, 0, 'and', 20),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4 * 1000),
+                ]),
                 self::disMax([
-                    self::exactAnalyzed('ean.search', 'foo 2023'),
-                    self::match('ean.search', 'foo 2023', 0.4, 0, 'and', 20),
-                    self::prefix('ean.search', 'foo 2023', 0.4),
-                ], 2000),
+                    self::exactAnalyzed('ean.search', 'foo 2023', 2.0 * 2000),
+                    self::match('ean.search', 'foo 2023', 0.4 * 2000, 0, 'and', 20),
+                    self::prefix('ean.search', 'foo 2023', 0.4 * 2000),
+                ]),
                 self::nested('tags', self::disMax([
-                    self::exactAnalyzed('tags.name.search', 'foo 2023'),
-                    self::match('tags.name.search', 'foo 2023', 0.4, 0, 'and', 20),
-                    self::prefix('tags.name.search', 'foo 2023', 0.4),
-                ], 500)),
+                    self::exactAnalyzed('tags.name.search', 'foo 2023', 2.0 * 500),
+                    self::match('tags.name.search', 'foo 2023', 0.4 * 500, 0, 'and', 20),
+                    self::prefix('tags.name.search', 'foo 2023', 0.4 * 500),
+                ])),
             ]),
         ];
 
@@ -480,15 +480,15 @@ class TokenQueryBuilderTest extends TestCase
             'expected' => self::bool([
                 self::disMax([
                     self::disMax([
-                        self::exactAnalyzed($prefixCfLang1 . 'evolvesText.search', '2023'),
-                        self::match($prefixCfLang1 . 'evolvesText.search', '2023', 0.4, 0, 'and', 10),
-                        self::prefix($prefixCfLang1 . 'evolvesText.search', '2023', 0.4),
-                    ], 500),
+                        self::exactAnalyzed($prefixCfLang1 . 'evolvesText.search', '2023', 2.0 * 500),
+                        self::match($prefixCfLang1 . 'evolvesText.search', '2023', 0.4 * 500, 0, 'and', 10),
+                        self::prefix($prefixCfLang1 . 'evolvesText.search', '2023', 0.4 * 500),
+                    ]),
                     self::disMax([
-                        self::exactAnalyzed($prefixCfLang2 . 'evolvesText.search', '2023'),
-                        self::match($prefixCfLang2 . 'evolvesText.search', '2023', 0.4, 0, 'and', 10),
-                        self::prefix($prefixCfLang2 . 'evolvesText.search', '2023', 0.4),
-                    ], 400),
+                        self::exactAnalyzed($prefixCfLang2 . 'evolvesText.search', '2023', 2.0 * 400),
+                        self::match($prefixCfLang2 . 'evolvesText.search', '2023', 0.4 * 400, 0, 'and', 10),
+                        self::prefix($prefixCfLang2 . 'evolvesText.search', '2023', 0.4 * 400),
+                    ]),
                 ]),
                 self::disMax([
                     self::term($prefixCfLang1 . 'evolvesInt', 2023, 400),
@@ -512,15 +512,15 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo',
             'expected' => self::disMax([
                 self::disMax([
-                    self::exactAnalyzed($prefixCfLang1 . 'evolvesText.search', 'foo'),
-                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4, 'AUTO:5,10', 'and', 5),
-                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4),
-                ], 500),
+                    self::exactAnalyzed($prefixCfLang1 . 'evolvesText.search', 'foo', 2.0 * 500),
+                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4 * 500, 'AUTO:5,10', 'and', 5),
+                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4 * 500),
+                ]),
                 self::disMax([
-                    self::exactAnalyzed($prefixCfLang2 . 'evolvesText.search', 'foo'),
-                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4, 'AUTO:5,10', 'and', 5),
-                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
-                ], 400),
+                    self::exactAnalyzed($prefixCfLang2 . 'evolvesText.search', 'foo', 2.0 * 400),
+                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4 * 400, 'AUTO:5,10', 'and', 5),
+                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4 * 400),
+                ]),
             ]),
         ];
 
@@ -586,15 +586,15 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo',
             'expected' => self::disMax([
                 self::disMax([
-                    self::exactAnalyzed($prefixCfLang1 . 'evolvesText.search', 'foo'),
-                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4, 'AUTO:5,10', 'and', 5),
-                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4),
-                ], 500),
+                    self::exactAnalyzed($prefixCfLang1 . 'evolvesText.search', 'foo', 2.0 * 500),
+                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4 * 500, 'AUTO:5,10', 'and', 5),
+                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4 * 500),
+                ]),
                 self::disMax([
-                    self::exactAnalyzed($prefixCfLang2 . 'evolvesText.search', 'foo'),
-                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4, 'AUTO:5,10', 'and', 5),
-                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
-                ], 400),
+                    self::exactAnalyzed($prefixCfLang2 . 'evolvesText.search', 'foo', 2.0 * 400),
+                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4 * 400, 'AUTO:5,10', 'and', 5),
+                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4 * 400),
+                ]),
             ]),
         ];
     }
@@ -722,8 +722,10 @@ class TokenQueryBuilderTest extends TestCase
         static::assertSame(0.2, $lang1Query['dis_max']['tie_breaker']);
         static::assertSame(0.2, $lang2Query['dis_max']['tie_breaker']);
 
-        static::assertSame(200.0, $lang1Query['dis_max']['boost']);
-        static::assertSame(160.0, $lang2Query['dis_max']['boost']);
+        // The field ranking (decayed per fallback language) is folded into each clause boost.
+        static::assertArrayNotHasKey('boost', $lang1Query['dis_max']);
+        static::assertSame(2.0 * 200, $lang1Query['dis_max']['queries'][0]['match']['categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search']['boost']);
+        static::assertSame(2.0 * 160, $lang2Query['dis_max']['queries'][0]['match']['categories.name.' . self::SECOND_LANGUAGE_ID . '.search']['boost']);
     }
 
     public function testTieBreakerAcrossMultipleFields(): void
@@ -747,11 +749,11 @@ class TokenQueryBuilderTest extends TestCase
 
         $nameDisMax = $shouldClauses[0]['dis_max'];
         static::assertSame(0.2, $nameDisMax['tie_breaker']);
-        static::assertSame(1000.0, $nameDisMax['boost']);
+        static::assertArrayNotHasKey('boost', $nameDisMax);
 
         $tagsNested = $shouldClauses[1]['nested']['query']['dis_max'];
         static::assertSame(0.2, $tagsNested['tie_breaker']);
-        static::assertSame(500.0, $tagsNested['boost']);
+        static::assertArrayNotHasKey('boost', $tagsNested);
     }
 
     public function testTieBreakerWithNgramClause(): void
@@ -847,11 +849,11 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array{match: array<string, array{query: string|int|float, boost: int|float, fuzziness: int, operator: string, _name? :string}>}
      */
-    private static function exactAnalyzed(string $field, string|int|float $query, ?string $name = null): array
+    private static function exactAnalyzed(string $field, string|int|float $query, float $boost, ?string $name = null): array
     {
         $payload = [
             'query' => $query,
-            'boost' => 2.0,
+            'boost' => $boost,
             'fuzziness' => 0,
             'operator' => 'and',
         ];
@@ -878,6 +880,7 @@ class TokenQueryBuilderTest extends TestCase
             'term' => $term,
             'ranking' => $ranking,
             'type' => $type,
+            'weighted' => true,
         ], \JSON_THROW_ON_ERROR);
     }
 

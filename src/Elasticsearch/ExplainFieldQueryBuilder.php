@@ -47,11 +47,7 @@ class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
             return $query;
         }
 
-        // A nested / leaf field query is named at the field level, so its matched-query
-        // score already carries the field weight (the query's boost is the field ranking).
-        // A text field's DisMax (handled above) instead names its individual clauses, whose
-        // scores are the raw relevance without the field weight. Flag the difference so the
-        // preview can put every field on the same footing when it draws the bars.
+        // Like the clause names of FieldQueryBuilder, the field-level score already carries the field ranking.
         $explainPayload = json_encode([
             'field' => $config->getField(),
             'term' => $token,

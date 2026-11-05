@@ -135,7 +135,7 @@ class FieldQueryBuilderTest extends TestCase
         static::assertNotNull($exactMatch);
         static::assertArrayHasKey('match', $exactMatch);
         static::assertArrayHasKey('name.search', $exactMatch['match']);
-        static::assertEquals(2.0, $exactMatch['match']['name.search']['boost']);
+        static::assertSame(2.0 * 500, $exactMatch['match']['name.search']['boost']);
         static::assertSame(0, $exactMatch['match']['name.search']['fuzziness']);
         static::assertSame('and', $exactMatch['match']['name.search']['operator']);
     }
@@ -157,7 +157,7 @@ class FieldQueryBuilderTest extends TestCase
             $match = $q['constant_score']['filter']['match'] ?? null;
             if ($match !== null && array_key_first($match) === 'name.ngram') {
                 $hasNgram = true;
-                static::assertSame(0.4, $q['constant_score']['boost']);
+                static::assertSame(0.4 * 500, $q['constant_score']['boost']);
             }
         }
         static::assertTrue($hasNgram);
@@ -366,5 +366,8 @@ class FieldQueryBuilderTest extends TestCase
         static::assertSame('name', $payload['field']);
         static::assertSame('foobar', $payload['term']);
         static::assertSame('exact', $payload['type']);
+        static::assertTrue($payload['weighted']);
+        static::assertArrayNotHasKey('boost', $array['dis_max']);
+        static::assertSame(2.0 * 500, $array['dis_max']['queries'][0]['match']['name.search']['boost']);
     }
 }

@@ -101,7 +101,7 @@ class StorybookHtmlSanitizer
         }
     }
 
-    private function createHtmlSanitizer(string $requestOrigin): HtmlSanitizer
+    protected function createHtmlSanitizer(string $requestOrigin): HtmlSanitizer
     {
         // WHY: Global settings can disable sanitization or permit markup unsafe in the Storybook document.
         return new HtmlSanitizer(

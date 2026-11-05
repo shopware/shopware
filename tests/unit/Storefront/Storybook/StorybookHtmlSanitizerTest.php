@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Storefront\Storybook;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Storefront\Storybook\StorybookHtmlSanitizer;
+use Shopware\Storefront\Storybook\StorybookHtmlSanitizerException;
 
 /**
  * @internal
@@ -71,5 +73,37 @@ class StorybookHtmlSanitizerTest extends TestCase
 
         static::assertStringContainsString('{{ 7 * 7 }}', $result);
         static::assertStringContainsString('{% include "secret" %}', $result);
+    }
+
+    public function testWrapsHtmlSanitizerFailure(): void
+    {
+        $failure = new \RuntimeException('HTMLPurifier failed');
+        $sanitizer = new class($failure) extends StorybookHtmlSanitizer {
+            public function __construct(private readonly \Throwable $failure)
+            {
+            }
+
+            protected function createHtmlSanitizer(string $requestOrigin): HtmlSanitizer
+            {
+                return new class($this->failure) extends HtmlSanitizer {
+                    public function __construct(private readonly \Throwable $failure)
+                    {
+                    }
+
+                    public function sanitize(string $text, ?array $options = [], bool $override = false, ?string $field = null): string
+                    {
+                        throw $this->failure;
+                    }
+                };
+            }
+        };
+
+        try {
+            $sanitizer->sanitize('<p>content</p>', 'https://shop.example');
+            static::fail('Expected the HTML sanitizer failure to be wrapped.');
+        } catch (StorybookHtmlSanitizerException $exception) {
+            static::assertSame('Storybook HTML could not be sanitized.', $exception->getMessage());
+            static::assertSame($failure, $exception->getPrevious());
+        }
     }
 }

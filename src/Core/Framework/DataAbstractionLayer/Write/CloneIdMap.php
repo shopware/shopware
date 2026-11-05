@@ -26,10 +26,7 @@ final class CloneIdMap
         return $this->ids[$entityName][$sourceId] ??= Uuid::randomHex();
     }
 
-    /**
-     * Returns the clone's id for a source row, or null when the row was not cloned.
-     */
-    public function get(string $entityName, string $sourceId): ?string
+    public function findCloneId(string $entityName, string $sourceId): ?string
     {
         return $this->ids[$entityName][$sourceId] ?? null;
     }

@@ -25,7 +25,7 @@ class CloneIdMapTest extends TestCase
         static::assertTrue(Uuid::isValid($cloneId));
         static::assertNotSame($sourceId, $cloneId);
         static::assertSame($cloneId, $map->cloneIdFor('order_address', $sourceId));
-        static::assertSame($cloneId, $map->get('order_address', $sourceId));
+        static::assertSame($cloneId, $map->findCloneId('order_address', $sourceId));
         static::assertFalse($map->isEmpty());
     }
 
@@ -42,6 +42,6 @@ class CloneIdMapTest extends TestCase
         $map = new CloneIdMap();
 
         static::assertTrue($map->isEmpty());
-        static::assertNull($map->get('order_address', Uuid::randomHex()));
+        static::assertNull($map->findCloneId('order_address', Uuid::randomHex()));
     }
 }

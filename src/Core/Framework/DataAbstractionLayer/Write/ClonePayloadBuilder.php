@@ -449,7 +449,7 @@ final class ClonePayloadBuilder
 
             if ($field instanceof FkField && !$field instanceof ReferenceVersionField) {
                 $entityName = $field->getReferenceDefinition()->getEntityName();
-                $clonedId = \is_string($value) ? $clonedIds->get($entityName, $value) : null;
+                $clonedId = \is_string($value) ? $clonedIds->findCloneId($entityName, $value) : null;
                 if ($clonedId !== null && ($field->is(NoConstraint::class) || !isset($nestedIds[$entityName][$clonedId]))) {
                     $payload[$property] = $clonedId;
                 }

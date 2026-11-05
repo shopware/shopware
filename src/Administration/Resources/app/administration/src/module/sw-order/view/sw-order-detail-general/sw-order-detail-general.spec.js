@@ -72,7 +72,7 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
             stubs: {
@@ -129,6 +129,7 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
+            ...props,
         },
     });
 }
@@ -139,6 +140,12 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeAll(() => {
         setActivePinia(createPinia());
         Shopware.Store.get('swOrderDetail').order = orderMock;
+    });
+
+    it('should accept the isSaveSuccessful flag the order detail page passes to its views', async () => {
+        wrapper = await createWrapper({ isSaveSuccessful: true });
+
+        expect(wrapper.props('isSaveSuccessful')).toBe(true);
     });
 
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {

@@ -73,7 +73,7 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     orderMock.transactions.last = () => ({
         stateMachineState: {
             translated: {
@@ -124,6 +124,7 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
+            ...props,
         },
     });
 }
@@ -139,6 +140,12 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeEach(() => {
         allowDeprecation('sw-order-detail-details.onShippingChargeEdited() is deprecated');
         allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
+    });
+
+    it('should accept the isSaveSuccessful flag the order detail page passes to its views', async () => {
+        wrapper = await createWrapper({ isSaveSuccessful: true });
+
+        expect(wrapper.props('isSaveSuccessful')).toBe(true);
     });
 
     it('should have a disabled on transaction card', async () => {

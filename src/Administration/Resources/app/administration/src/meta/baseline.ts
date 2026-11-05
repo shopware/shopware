@@ -399,8 +399,6 @@ const missingTests = [
     'src/module/sw-product-stream/page/sw-product-stream-list/index.js',
     'src/module/sw-profile/extension/sw-admin-menu/index.js',
     'src/module/sw-profile/index.js',
-    'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/index.js',
-    'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/index.js',
     'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/index.js',
     'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/index.js',
     'src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/index.js',

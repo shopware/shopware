@@ -155,7 +155,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
 
     it('should be able show product warning alert when number range is global', async () => {
         const wrapper = await createWrapper();
-        const loadSalesChannelsSpy = jest.spyOn(wrapper.vm, 'loadSelectedSalesChannels');
+        const loadSalesChannelsSpy = jest.spyOn(wrapper.vm, 'loadSalesChannels');
         await wrapper.setData({ isLoading: false });
         await flushPromises();
 

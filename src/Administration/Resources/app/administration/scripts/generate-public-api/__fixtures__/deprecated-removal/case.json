@@ -1,0 +1,6 @@
+{
+    "row": "Removal announced with `@deprecated tag:vX`, done in that major",
+    "headVersion": "6.8",
+    "majorFlags": ["v6.8.0.0"],
+    "acceptedBreaks": null
+}

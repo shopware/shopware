@@ -1,0 +1,46 @@
+--- a/app/component/form/sw-custom-field-set-renderer.api.md
++++ b/app/component/form/sw-custom-field-set-renderer.api.md
+@@ -33,6 +33,7 @@
+   save(...args: any[])  [private]
+ 
+ data
++  activeCustomFieldSetTab: any  [private]
+   customFields: any  [private]
+   indirectInheritedCustomFields: any  [private]
+   loadingFields: any  [private]
+@@ -42,9 +43,11 @@
+   translatedInheritanceLoadKey: any  [private]
+ 
+ computed
++  activeCustomFieldSetTabName: any  [private]
+   componentsWithMapInheritanceSupport: any  [private]
+   customFieldSetCriteria: any  [private]
+   customFieldSetRepository: any  [private]
++  customFieldSetTabs: any  [private]
+   globalCustomFieldSets: any  [private]
+   hasExplicitParentEntity: any  [private]
+   hasParent: any  [private]
+@@ -80,6 +83,7 @@
+   onUpdateActiveSelection(value: any): any  [private]
+   resetTabs(): any  [private]
+   resetTranslatedInheritanceState(): any  [private]
++  setActiveCustomFieldSetTab(setId: any): any  [private]
+   sortSets(sets: any): any  [private]
+   supportsMapInheritance(customField: any): any  [private]
+   waitForTabComponent(): any  [private]
+--- a/module/sw-mail-template/page/sw-mail-template-index.api.md
++++ b/module/sw-mail-template/page/sw-mail-template-index.api.md
+@@ -8,11 +8,13 @@
+ 
+ inject
+   acl
++  feature
+ 
+ data
+   term: any  [deprecated tag:v6.8.0]
+ 
+ computed
++  mailTemplateTabs: any
+   searchType: any
+ 
+ methods

@@ -1,0 +1,11 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  service_member_missing  service:cacheApiService/member:indexProducts  current, major
+    The service method is gone, so plugins that call Shopware.Service('cacheApiService').indexProducts() throw at runtime.
+    Fix: keep the method and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    At: src/core/service/api/cache.api.service.js:4
+  store_member_missing  store:exampleSidebar/action:removeSidebar  current, major
+    The store action is gone, so plugins that call Shopware.Store.get('exampleSidebar').removeSidebar() throw at runtime.
+    Fix: keep the action and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/store/example-sidebar.store.ts:24

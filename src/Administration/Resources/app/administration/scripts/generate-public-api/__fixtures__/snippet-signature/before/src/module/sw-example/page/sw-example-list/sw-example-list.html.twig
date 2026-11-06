@@ -1,0 +1,61 @@
+{% block sw_example_list %}
+<sw-page class="sw-example-list">
+    {% block sw_example_list_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('sw-example.general.mainMenuItemGeneral') }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_example_list_content %}
+    <template #content>
+        {% block sw_example_list_selection_info %}
+        <p class="sw-example-list__selection-info">
+            {{ $tc('sw-example.list.textSelectionCount', selectionCount, { count: selectionCount }) }}
+        </p>
+        {% endblock %}
+
+        {% block sw_example_list_grid %}
+        <sw-entity-listing
+            v-if="examples && examples.total > 0"
+            :items="examples"
+            :repository="exampleRepository"
+            :is-loading="isLoading"
+            @selection-change="onSelectionChange"
+        >
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    variant="danger"
+                    @click="onDelete(item)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
+        </sw-entity-listing>
+        <p
+            v-if="examples"
+            class="sw-example-list__summary"
+        >
+            {{ $t('sw-example.list.textResultSummary', { visible: examples.length, total: examples.total }) }}
+        </p>
+        {% endblock %}
+
+        {% block sw_example_list_empty_state %}
+        <sw-empty-state
+            v-if="!isLoading && (!examples || examples.total === 0)"
+            :title="$tc('sw-example.list.textEmptyState')"
+        />
+        {% endblock %}
+
+        {% block sw_example_list_delete_modal %}
+        <sw-confirm-modal
+            v-if="exampleToDelete"
+            :text="$t('sw-example.list.textDeleteConfirm', { name: exampleToDelete.name })"
+            @confirm="onConfirmDelete"
+            @cancel="onCloseDeleteModal"
+            @close="onCloseDeleteModal"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

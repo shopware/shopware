@@ -1,0 +1,3537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public API report</title>
+<style>
+:root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1b1f24;
+    --muted: #57606a;
+    --border: #d0d7de;
+    --panel: #f6f8fa;
+    --mark: #fff1a8;
+    --break: #cf222e;
+    --addition: #1a7f37;
+    --allowed: #0969da;
+    --accepted: #8250df;
+    --private: #6e7781;
+    --info: #9a6700;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --muted: #8d96a0;
+        --border: #30363d;
+        --panel: #161b22;
+        --mark: #5a4a00;
+        --break: #ff7b72;
+        --addition: #3fb950;
+        --allowed: #58a6ff;
+        --accepted: #bc8cff;
+        --private: #8d96a0;
+        --info: #d29922;
+    }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin: 0 0 8px; }
+h2 { font-size: 1.2rem; margin: 32px 0 12px; }
+h3 { font-size: 1rem; margin: 0 0 8px; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.verdict { font-weight: 600; }
+.verdict--failed { color: var(--break); }
+.verdict--passed { color: var(--addition); }
+.meta { color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+.finding { border: 1px solid var(--border); border-left: 4px solid var(--muted); border-radius: 6px; padding: 12px 16px; margin: 0 0 12px; background: var(--panel); }
+.finding--break { border-left-color: var(--break); }
+.finding--addition { border-left-color: var(--addition); }
+.finding--allowed { border-left-color: var(--allowed); }
+.finding--accepted { border-left-color: var(--accepted); }
+.finding--private { border-left-color: var(--private); }
+.finding--info { border-left-color: var(--info); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.tree { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 24px; }
+.tree h4 { margin: 0 0 4px; font-size: 0.9rem; color: var(--muted); }
+.tree > div { min-width: 0; }
+pre { margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); overflow-x: auto; }
+mark { background: var(--mark); color: inherit; }
+@media (max-width: 760px) {
+    .tree { grid-template-columns: 1fr; }
+    dl { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Public API report</h1>
+<p class="verdict verdict--passed">Public API check passed: no breaks.</p>
+<p class="meta">Base <code>f6d0fd1ed493e23e44e282f3d615a01f97590f68</code></p>
+<p class="meta">Head <code>d3216241c1b6b0d35850f73bdc31157f2065b82c</code></p>
+</header>
+<h2>Private (217)</h2>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_fold">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_fold</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:90</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_linked">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_linked</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:48</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu/block:sw_admin_menu_header_shop_name">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_header_shop_name</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:51</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu/block:sw_admin_menu_header_title">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_header_title</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:63</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu/block:sw_admin_menu_header_title_status">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_header_title_status</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:71</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu/block:sw_admin_menu_header_toggle_sidebar">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_header_toggle_sidebar</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:77</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu/block:sw_admin_menu_off_canvas_backdrop">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_off_canvas_backdrop</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:2</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-admin-menu/block:sw_admin_menu_user_actions_version">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_user_actions_version</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:258</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login-login/block:sw_login_login_error">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/block:sw_login_login_error</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:89</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login-login/block:sw_login_login_sso">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/block:sw_login_login_sso</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:27</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login-login/block:sw_login_login_sso_button">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/block:sw_login_login_sso_button</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:32</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login-login/block:sw_login_login_sso_divider">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/block:sw_login_login_sso_divider</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:54</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login/block:sw_login_back_link">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_back_link</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:50</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login/block:sw_login_forgot_password_link">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_forgot_password_link</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:60</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-login/block:sw_login_logo">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_logo</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:9</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-page/block:sw_page_top_bar">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-page/block:sw_page_top_bar</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-page/sw-page.html.twig:11</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-page/block:sw_page_top_bar_app_button">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-page/block:sw_page_top_bar_app_button</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-page/sw-page.html.twig:28</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-sales-channel-menu/block:sw_sales_channel_menu_navigation_add_channel">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/block:sw_sales_channel_menu_navigation_add_channel</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:132</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-search-bar/block:sw_search_bar_field_close">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/block:sw_search_bar_field_close</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new block of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:115</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu-item/block:sw_admin_menu_item_arrow_indicato">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_arrow_indicato</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_item_arrow_indicato %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:43</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:140</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu-item/block:sw_admin_menu_item_arrow_indicator">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_arrow_indicator</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_item_arrow_indicator %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:127</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:200</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu-item/block:sw_admin_menu_item_external_arrow_indicato">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_external_arrow_indicato</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_item_external_arrow_indicato %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:85</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:171</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu-item/block:sw_admin_menu_item_external_icon">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_external_icon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_item_external_icon %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:65</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:171</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu-item/block:sw_admin_menu_item_external_text">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_external_text</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_item_external_text %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:75</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:171</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:75</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar_icon">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar_icon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar_icon %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:81</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar_text">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar_text</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar_text %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:88</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu/block:sw_admin_menu_user_actions">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_user_actions</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_user_actions %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:139</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu/block:sw_admin_menu_user_actions_label">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_user_actions_label</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_user_actions_label %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:147</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-admin-menu/block:sw_admin_menu_user_actions_list">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_user_actions_list</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_admin_menu_user_actions_list %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:156</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login-login/block:sw_login_login_forgot_password">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/block:sw_login_login_forgot_password</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_login_forgot_password %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:69</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:101</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login/block:sw_login_badge">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_badge</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_badge %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:34</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:17</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login/block:sw_login_badge_image">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_badge_image</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_badge_image %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:36</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:17</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login/block:sw_login_headline">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_headline</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_headline %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:16</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:7</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login/block:sw_login_image">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_image</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_image %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:12</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:7</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login/block:sw_login_image_headlines">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_image_headlines</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_image_headlines %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:14</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:7</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-login/block:sw_login_sub_headline">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/block:sw_login_sub_headline</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_login_sub_headline %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:22</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/sw-login.html.twig:7</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-sales-channel-menu/block:sw_sales_channel_menu_context_button_collapsed">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/block:sw_sales_channel_menu_context_button_collapsed</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_sales_channel_menu_context_button_collapsed %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:98</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:80</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-search-bar/block:sw_search_bar_version_display">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/block:sw_search_bar_version_display</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_search_bar_version_display %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:29</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:25</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-version/block:sw_version_name">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-version/block:sw_version_name</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_version_name %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:4</code></dd>
+<dt>Head</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:1</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-version/block:sw_version_name_text">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-version/block:sw_version_name_text</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_version_name_text %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:7</code></dd>
+<dt>Head</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:1</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-version/block:sw_version_status">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-version/block:sw_version_status</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_version_status %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:11</code></dd>
+<dt>Head</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:1</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-version/block:sw_version_status_badge">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-version/block:sw_version_status_badge</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin template overrides of {% block sw_version_status_badge %} render nothing.</dd>
+<dt>Base</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:16</code></dd>
+<dt>Head</dt><dd><code>src/app/component/base/sw-version/sw-version.html.twig:1</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-admin-menu-item/block:sw_admin_menu_item_icon">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_icon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_admin_menu_item_router_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:23</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:26</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-admin-menu-item/block:sw_admin_menu_item_navigation_icon">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_navigation_icon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_admin_menu_item_navigation_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:105</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:68</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-admin-menu-item/block:sw_admin_menu_item_navigation_text">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_navigation_text</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_admin_menu_item_navigation_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:115</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:78</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-admin-menu-item/block:sw_admin_menu_item_text">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/block:sw_admin_menu_item_text</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_admin_menu_item_router_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:33</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-admin-menu/block:sw_admin_menu_user_actions_items">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_user_actions_items</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_admin_menu_user_actions_list to sw_admin_menu_user_actions_toggle, so plugin overrides of sw_admin_menu_user_actions_toggle without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:159</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:245</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-admin-menu/block:sw_admin_menu_user_actions_toggle_icon">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/block:sw_admin_menu_user_actions_toggle_icon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_admin_menu_user_actions_custom_fields to sw_admin_menu_user_actions_toggle, so plugin overrides of sw_admin_menu_user_actions_toggle without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:128</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:221</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-page/block:sw_page_search_bar">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-page/block:sw_page_search_bar</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_page_head_area to sw_page_top_bar, so plugin overrides of sw_page_top_bar without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-page/sw-page.html.twig:11</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-page/sw-page.html.twig:13</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-page/block:sw_page_top_bar_actions">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-page/block:sw_page_top_bar_actions</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_page_search_bar to sw_page_top_bar, so plugin overrides of sw_page_top_bar without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-page/sw-page.html.twig:23</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-page/sw-page.html.twig:26</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-sales-channel-menu/block:sw_sales_channel_menu_headline_action">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/block:sw_sales_channel_menu_headline_action</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_sales_channel_menu_headline to sw_sales_channel_menu_headline_context_button, so plugin overrides of sw_sales_channel_menu_headline_context_button without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:36</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:63</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_moved_parent--component:sw-search-bar/block:sw_search_bar_button_off_canvas_toggle">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/block:sw_search_bar_button_off_canvas_toggle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_search_bar_mobile_controls to sw_search_bar, so plugin overrides of sw_search_bar without {% parent %} now drop it.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:13</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:4</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:aclFilteredEntry">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:aclFilteredEntry</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:117</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:activeRouteNames">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:activeRouteNames</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:113</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:childRouteActive">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:childRouteActive</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:276</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:collapsedAriaLabel">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:collapsedAriaLabel</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:296</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:collapsedFlyoutAria">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:collapsedFlyoutAria</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:280</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:collapsibleLiClass">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:collapsibleLiClass</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:235</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:collapsibleOpen">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:collapsibleOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:227</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:expandIcon">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:expandIcon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:231</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:hasActiveChild">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:hasActiveChild</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:122</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:hasCollapsibleSubtree">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:hasCollapsibleSubtree</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:200</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:isLeafDepth">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:isLeafDepth</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:108</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:leafLiClass">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:leafLiClass</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:248</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:moduleColorStyle">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:moduleColorStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:navigationIconColor">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:navigationIconColor</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:266</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:navigationIconName">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:navigationIconName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:260</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:routeKeepsFolderOpen">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:routeKeepsFolderOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:205</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:routerLinkActiveClass">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:routerLinkActiveClass</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:301</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:routerLinkExactActiveClass">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:routerLinkExactActiveClass</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:305</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:rowActive">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:rowActive</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:126</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:showsCollapsedTooltip">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:showsCollapsedTooltip</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:309</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu-item/computed:submenuVisuallyOpen">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/computed:submenuVisuallyOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:213</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu/computed:isMobileViewport">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/computed:isMobileViewport</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:68</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-admin-menu/computed:userActionsAriaLabel">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/computed:userActionsAriaLabel</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:168</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-login/computed:assetFilter">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/computed:assetFilter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:55</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-login/computed:showBackToLoginLink">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/computed:showBackToLoginLink</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:59</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-login/computed:showForgotPasswordLink">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/computed:showForgotPasswordLink</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:63</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-sales-channel-menu/computed:adminMenuStore">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/computed:adminMenuStore</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:35</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-sales-channel-menu/computed:isSidebarExpanded">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/computed:isSidebarExpanded</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:39</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-sales-channel-menu/computed:showAddChannelMenuItem">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/computed:showAddChannelMenuItem</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:54</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-search-bar/computed:searchTypeColor">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/computed:searchTypeColor</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:211</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_missing--component:sw-admin-menu/computed:currentExpandedMenuEntries">
+<h3><code>computed_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/computed:currentExpandedMenuEntries</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property is gone, so plugin overrides that call $super(&#x27;currentExpandedMenuEntries&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:97</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:59</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_missing--component:sw-admin-menu/computed:sidebarCollapseIcon">
+<h3><code>computed_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/computed:sidebarCollapseIcon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property is gone, so plugin overrides that call $super(&#x27;sidebarCollapseIcon&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:150</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:59</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_missing--component:sw-admin-menu/computed:userActionsToggleIcon">
+<h3><code>computed_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/computed:userActionsToggleIcon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property is gone, so plugin overrides that call $super(&#x27;userActionsToggleIcon&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:154</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:59</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_missing--component:sw-page/computed:smartBarContentStyle">
+<h3><code>computed_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-page/computed:smartBarContentStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property is gone, so plugin overrides that call $super(&#x27;smartBarContentStyle&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-page/index.js:170</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-page/index.js:92</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_missing--component:sw-page/computed:topBarActionStyles">
+<h3><code>computed_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-page/computed:topBarActionStyles</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property is gone, so plugin overrides that call $super(&#x27;topBarActionStyles&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-page/index.js:164</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-page/index.js:92</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu-item/data:manualNestedOpen">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/data:manualNestedOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:103</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu-item/data:suppressRouteKeepsFolderOpen">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/data:suppressRouteKeepsFolderOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:102</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:activeBranchKey">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:activeBranchKey</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:55</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:flyoutCloseTimeoutId">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:flyoutCloseTimeoutId</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:43</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:flyoutReferenceElement">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:flyoutReferenceElement</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:48</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:flyoutTitle">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:flyoutTitle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:42</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:isFlyoutClosing">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:isFlyoutClosing</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:44</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:isFlyoutPinned">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:isFlyoutPinned</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:45</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:isTogglingSidebar">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:isTogglingSidebar</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:51</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:isViewportResizing">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:isViewportResizing</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:53</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:shopName">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:shopName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:50</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:toggleSidebarTimeout">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:toggleSidebarTimeout</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:52</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:viewportResizeTimeout">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:viewportResizeTimeout</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:54</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-admin-menu/data:viewportWidth">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:viewportWidth</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:49</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-login-login/data:loginErrorMessage">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/data:loginErrorMessage</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:48</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-login/data:loginConfig">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/data:loginConfig</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:37</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-sales-channel-menu/data:contextMenuOpen">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/data:contextMenuOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:30</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-sales-channel-menu/data:isMobileViewport">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/data:isMobileViewport</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:29</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-sales-channel-menu/data:salesChannelsLoaded">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/data:salesChannelsLoaded</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:26</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:flyoutColor">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:flyoutColor</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.flyoutColor get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:56</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:flyoutLabel">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:flyoutLabel</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.flyoutLabel get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:57</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:flyoutStyle">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:flyoutStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.flyoutStyle get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:55</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:lastDelayLocation">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:lastDelayLocation</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.lastDelayLocation get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:49</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:lastFlyoutEntries">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:lastFlyoutEntries</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.lastFlyoutEntries get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:54</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:mouseLocations">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:mouseLocations</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.mouseLocations get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:48</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:subMenuOpen">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:subMenuOpen</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.subMenuOpen get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:58</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_missing--component:sw-admin-menu/data:subMenuTimer">
+<h3><code>data_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/data:subMenuTimer</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property is gone, so plugin overrides that read or write this.subMenuTimer get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:47</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-admin-menu-item/emit:branch-toggle">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:branch-toggle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-admin-menu-item/emit:flyout-close-request">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:flyout-close-request</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-admin-menu-item/emit:flyout-focus-request">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:flyout-focus-request</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-admin-menu-item/emit:flyout-navigate">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:flyout-navigate</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-admin-menu-item/emit:menu-item-hover">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:menu-item-hover</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-admin-menu-item/emit:navigation-link-click">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:navigation-link-click</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_added--component:sw-login-login/emit:config-loaded">
+<h3><code>emit_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/emit:config-loaded</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new event of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:34</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_missing--component:sw-admin-menu-item/emit:menu-item-click">
+<h3><code>emit_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:menu-item-click</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The event is gone, so plugin listeners on @menu-item-click never fire.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:18</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_missing--component:sw-admin-menu-item/emit:menu-item-enter">
+<h3><code>emit_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:menu-item-enter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The event is gone, so plugin listeners on @menu-item-enter never fire.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:18</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="emit_missing--component:sw-admin-menu-item/emit:sub-menu-item-enter">
+<h3><code>emit_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/emit:sub-menu-item-enter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The event is gone, so plugin listeners on @sub-menu-item-enter never fire.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:18</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="inject_added--component:sw-admin-menu/inject:acl">
+<h3><code>inject_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/inject:acl</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new inject of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:21</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="inject_added--component:sw-admin-menu/inject:systemConfigApiService">
+<h3><code>inject_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/inject:systemConfigApiService</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new inject of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:21</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:collapsedTooltipTriggerProps">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:collapsedTooltipTriggerProps</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:323</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:forwardFlyoutNavigate">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:forwardFlyoutNavigate</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:402</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:forwardMenuItemHover">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:forwardMenuItemHover</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:445</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:forwardNavigationLinkClick">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:forwardNavigationLinkClick</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:398</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:onCollapsedParentKeydown">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:onCollapsedParentKeydown</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:421</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:onCollapsibleOpenUpdate">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:onCollapsibleOpenUpdate</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:406</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:onNavigationLinkClick">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:onNavigationLinkClick</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:387</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu-item/method:toggleSubmenu">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:toggleSubmenu</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:379</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:activateOffCanvasFocusTrap">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:activateOffCanvasFocusTrap</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:368</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:cancelFlyoutClose">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:cancelFlyoutClose</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:667</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:closeNavigationOverlays">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:closeNavigationOverlays</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:339</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:collapseInactiveBranches">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:collapseInactiveBranches</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:555</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:deactivateFlyoutFocusTrap">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:deactivateFlyoutFocusTrap</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:722</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:deactivateOffCanvasFocusTrap">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:deactivateOffCanvasFocusTrap</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:439</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:dismissOffCanvas">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:dismissOffCanvas</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:358</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:expandAncestorBranchesForCurrentRoute">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:expandAncestorBranchesForCurrentRoute</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:817</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:getEntryLabel">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:getEntryLabel</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:809</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:getNavigationLinks">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:getNavigationLinks</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:734</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:isFlyoutEntryActive">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isFlyoutEntryActive</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:686</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:isNavigationEntryExpanded">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isNavigationEntryExpanded</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:843</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:isSuppressedFlyoutFocusOut">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isSuppressedFlyoutFocusOut</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:635</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:loadShopName">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:loadShopName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:291</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:moveListFocus">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:moveListFocus</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:740</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onFlyoutFocusRequest">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onFlyoutFocusRequest</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:696</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onFlyoutKeydown">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onFlyoutKeydown</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:781</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onFlyoutMouseLeave">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onFlyoutMouseLeave</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:623</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onFlyoutNavigate">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onFlyoutNavigate</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:639</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onMenuBranchToggle">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onMenuBranchToggle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:541</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onMenuItemHover">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onMenuItemHover</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:574</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onNavigationKeydown">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onNavigationKeydown</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:771</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onNavigationLinkClicked">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onNavigationLinkClicked</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:353</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onNavigationListMouseLeave">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onNavigationListMouseLeave</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:611</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:onViewportResize">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onViewportResize</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:317</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:scheduleFlyoutClose">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:scheduleFlyoutClose</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:643</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:startFlyoutCloseAnimation">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:startFlyoutCloseAnimation</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:655</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:startMenuDropdownObserver">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:startMenuDropdownObserver</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:395</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:startSidebarToggleWindow">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:startSidebarToggleWindow</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:500</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:stopMenuDropdownObserver">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:stopMenuDropdownObserver</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:406</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-admin-menu/method:syncMenuDropdownFocusOwner">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:syncMenuDropdownFocusOwner</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:412</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-login-login/method:showLoginErrorFromResponse">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/method:showLoginErrorFromResponse</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:197</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-login/method:setLoginConfig">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/method:setLoginConfig</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:89</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-sales-channel-menu/method:syncMobileViewport">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-sales-channel-menu/method:syncMobileViewport</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:184</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-search-bar/method:closeSearchPanels">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/method:closeSearchPanels</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:358</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-search-bar/method:getTypeIconColor">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/method:getTypeIconColor</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:859</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-search-bar/method:onClickFieldWrapper">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/method:onClickFieldWrapper</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:337</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-search-bar/method:onKeyUpEsc">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/method:onKeyUpEsc</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:364</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-search-bar/method:syncSearchBarCollapse">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/method:syncSearchBarCollapse</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:407</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu-item/method:getCustomKey">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:getCustomKey</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;getCustomKey&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:215</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:322</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu-item/method:getItemName">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:getItemName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;getItemName&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:131</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:322</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu-item/method:isFirstPluginInMenuEntries">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:isFirstPluginInMenuEntries</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;isFirstPluginInMenuEntries&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:204</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:322</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu-item/method:onSubMenuItemEnter">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:onSubMenuItemEnter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onSubMenuItemEnter&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:200</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:322</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu-item/method:subIsActive">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:subIsActive</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;subIsActive&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:135</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:322</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:activateMenuItem">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:activateMenuItem</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;activateMenuItem&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:649</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:adjustMenuForViewport">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:adjustMenuForViewport</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;adjustMenuForViewport&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:329</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:closeUserActions">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:closeUserActions</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;closeUserActions&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:411</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:deactivatePreviousMenuItem">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:deactivatePreviousMenuItem</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;deactivatePreviousMenuItem&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:672</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:getActivationDelay">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:getActivationDelay</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;getActivationDelay&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:742</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:getPolygonFromMenuItem">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:getPolygonFromMenuItem</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;getPolygonFromMenuItem&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:680</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:isActiveItem">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isActiveItem</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;isActiveItem&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:345</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:isFirstPluginInMenuEntries">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isFirstPluginInMenuEntries</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;isFirstPluginInMenuEntries&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:798</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:isMobileViewport">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isMobileViewport</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;isMobileViewport&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:341</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:isPositionInPolygon">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:isPositionInPolygon</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;isPositionInPolygon&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:617</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onClickOutsideOffCanvas">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onClickOutsideOffCanvas</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onClickOutsideOffCanvas&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:516</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onFlyoutEnter">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onFlyoutEnter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onFlyoutEnter&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:777</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onMenuItemClick">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onMenuItemClick</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onMenuItemClick&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:446</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onMenuItemEnter">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onMenuItemEnter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onMenuItemEnter&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:537</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onMenuLeave">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onMenuLeave</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onMenuLeave&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:528</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onMouseMoveDocument">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onMouseMoveDocument</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onMouseMoveDocument&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:434</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onSubMenuItemEnter">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onSubMenuItemEnter</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onSubMenuItemEnter&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:560</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:onToggleUserActions">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:onToggleUserActions</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;onToggleUserActions&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:395</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:openUserActions">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:openUserActions</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;openUserActions&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:403</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:possiblyActivate">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:possiblyActivate</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;possiblyActivate&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:635</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:removeClassesFromElements">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:removeClassesFromElements</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;removeClassesFromElements&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:789</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-admin-menu/method:shouldCloseOffCanvasOnMenuItemClick">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/method:shouldCloseOffCanvasOnMenuItemClick</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;shouldCloseOffCanvasOnMenuItemClick&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:508</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:271</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-login-login/method:createNotificationFromResponse">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/method:createNotificationFromResponse</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;createNotificationFromResponse&#x27;) throw at runtime.</dd>
+<dt>Possible rename</dt><dd><code>showLoginErrorFromResponse</code></dd>
+<dt>Base</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:190</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:65</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_missing--component:sw-search-bar/method:showSearchFieldOnLargerViewports">
+<h3><code>method_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-search-bar/method:showSearchFieldOnLargerViewports</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method is gone, so plugin overrides that call $super(&#x27;showSearchFieldOnLargerViewports&#x27;) throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:387</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:256</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_optional_param_added--component:sw-admin-menu-item/method:getIconName">
+<h3><code>method_optional_param_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:getIconName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method has a new optional parameter isActive that plugins can pass from now on.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:346</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="mixin_missing--component:sw-login-login/mixin:notification">
+<h3><code>mixin_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login-login/mixin:notification</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The component no longer lists the mixin notification, so plugin overrides that call its members, for example this.createNotificationError(), throw at runtime.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:40</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:25</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_added--component:sw-admin-menu-item/prop:flyoutActive">
+<h3><code>prop_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/prop:flyoutActive</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new prop of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:93</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_added--component:sw-admin-menu-item/prop:isExpanded">
+<h3><code>prop_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/prop:isExpanded</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new prop of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:83</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_added--component:sw-admin-menu-item/prop:menuDepth">
+<h3><code>prop_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/prop:menuDepth</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new prop of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:51</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_added--component:sw-admin-menu-item/prop:showActiveState">
+<h3><code>prop_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/prop:showActiveState</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new prop of a private component, so it is not public API and plugins cannot rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:88</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_missing--component:sw-admin-menu-item/prop:borderColor">
+<h3><code>prop_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/prop:borderColor</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The prop is gone, so a value that plugin templates pass as borderColor falls through as an HTML attribute, and plugin overrides that read this.borderColor get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:55</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:45</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_missing--component:sw-admin-menu-item/prop:parentEntries">
+<h3><code>prop_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/prop:parentEntries</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The prop is gone, so a value that plugin templates pass as parentEntries falls through as an HTML attribute, and plugin overrides that read this.parentEntries get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:29</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:45</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_missing--component:sw-admin-menu/prop:mouseLocationsTracked">
+<h3><code>prop_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/prop:mouseLocationsTracked</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The prop is gone, so a value that plugin templates pass as mouseLocationsTracked falls through as an HTML attribute, and plugin overrides that read this.mouseLocationsTracked get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:29</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:18</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="prop_missing--component:sw-admin-menu/prop:subMenuDelay">
+<h3><code>prop_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu/prop:subMenuDelay</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The prop is gone, so a value that plugin templates pass as subMenuDelay falls through as an HTML attribute, and plugin overrides that read this.subMenuDelay get undefined.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:36</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu/index.js:18</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="type_widened--component:sw-login/data:isLoading">
+<h3><code>type_widened</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/data:isLoading</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property changed its type from any to boolean, which is never a break.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/index.ts:27</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:34</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="type_widened--component:sw-login/data:isLoginError">
+<h3><code>type_widened</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/data:isLoginError</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property changed its type from any to boolean, which is never a break.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/index.ts:29</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:36</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="type_widened--component:sw-login/data:isLoginSuccess">
+<h3><code>type_widened</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/data:isLoginSuccess</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property changed its type from any to boolean, which is never a break.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/index.ts:28</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:35</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="type_widened--component:sw-login/data:shouldRenderDOM">
+<h3><code>type_widened</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-login/data:shouldRenderDOM</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The data property changed its type from any to boolean, which is never a break.</dd>
+<dt>Base</dt><dd><code>src/module/sw-login/page/index/index.ts:26</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-login/page/index/index.ts:33</code></dd>
+</dl>
+</section>
+<h2>Code tree</h2>
+<h3><code>app/component/base/sw-version.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-version  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/base/sw-version/index.js  [private]
+  template src/app/component/base/sw-version/sw-version.html.twig  [private]
+  visibility-source export  [private]
+
+computed
+  version: any  [private]
+
+methods
+  getHumanReadableText(text: any): any  [private]
+
+blocks
+  sw_version  [private]
+    sw_version_info  [private]
+      sw_version_info_text  [private]
+<mark>    sw_version_name  [private]</mark>
+<mark>      sw_version_name_text  [private]</mark>
+<mark>      sw_version_status  [private]</mark>
+<mark>        sw_version_status_badge  [private]</mark></pre></div>
+<div><h4>Head</h4><pre>component sw-version  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/base/sw-version/index.js  [private]
+  template src/app/component/base/sw-version/sw-version.html.twig  [private]
+  visibility-source export  [private]
+
+computed
+  version: any  [private]
+
+methods
+  getHumanReadableText(text: any): any  [private]
+
+blocks
+  sw_version  [private]
+    sw_version_info  [private]
+      sw_version_info_text  [private]</pre></div>
+</div>
+<h3><code>app/component/structure/sw-admin-menu-item.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-admin-menu-item  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-admin-menu-item/index.js  [private]
+  template src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  acl  [private]
+  feature  [private]
+
+props
+<mark>  borderColor?: string  default=literal  [private]</mark>
+  collapsibleText?: boolean  default=literal  [private]
+  displayIcon?: boolean  default=literal  [private]
+  entry: object  [private]
+  iconSize?: string  default=literal  [private]
+<mark>  parentEntries?: AdminApi.JsArray  default=factory  [private]</mark>
+  sidebarExpanded?: boolean  default=literal  [private]
+
+emits
+<mark>  menu-item-click(...args: any[])  [private]</mark>
+<mark>  menu-item-enter(...args: any[])  [private]</mark>
+<mark>  sub-menu-item-enter(...args: any[])  [private]</mark>
+
+slots
+  additional-text  {}  block=sw_admin_menu_item_external_link  [private]
+  additional-text  {}  block=sw_admin_menu_item_navigation_link  [private]
+  additional-text  {}  block=sw_admin_menu_item_router_link  [private]
+
+computed
+  children: any  [private]
+  entryPath: any  [private]
+  getEntryLabel: any  [private]
+  getLinkToProp: any  [private]
+  showMenuItem: any  [private]
+
+methods
+<mark>  getCustomKey(path: any): any  [private]</mark>
+  getElementClasses(menuItemName: any): any  [private]
+<mark>  getIconName(name: any): any  [private]</mark>
+<mark>  getItemName(menuItemName: any): any  [private]</mark>
+  hasAccessToRoute(path: any): any  [private]
+<mark>  isFirstPluginInMenuEntries(entry: any, menuEntries: any): any  [private]</mark>
+<mark>  onSubMenuItemEnter(entry: any, $event: any, parentEntries: any): any  [private]</mark>
+<mark>  subIsActive(path: any, entryId: any): any  [private]</mark>
+
+blocks
+  sw_admin_menu_item  [private]
+    sw_admin_menu_item_external_link  [private]
+<mark>      sw_admin_menu_item_external_arrow_indicato  [private]</mark>
+<mark>      sw_admin_menu_item_external_icon  [private]</mark>
+<mark>      sw_admin_menu_item_external_text  [private]</mark>
+    sw_admin_menu_item_navigation_link  [private]
+<mark>      sw_admin_menu_item_arrow_indicator  [private]</mark>
+<mark>      sw_admin_menu_item_navigation_icon  [private]</mark>
+<mark>      sw_admin_menu_item_navigation_text  [private]</mark>
+    sw_admin_menu_item_router_link  [private]
+<mark>      sw_admin_menu_item_arrow_indicato  [private]</mark>
+<mark>      sw_admin_menu_item_icon  [private]</mark>
+<mark>      sw_admin_menu_item_text  [private]</mark>
+    sw_sidebar_sub_items_list  [private]</pre></div>
+<div><h4>Head</h4><pre>component sw-admin-menu-item  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-admin-menu-item/index.js  [private]
+  template src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  acl  [private]
+  feature  [private]
+
+props
+  collapsibleText?: boolean  default=literal  [private]
+  displayIcon?: boolean  default=literal  [private]
+  entry: object  [private]
+<mark>  flyoutActive?: boolean  default=literal  [private]</mark>
+  iconSize?: string  default=literal  [private]
+<mark>  isExpanded?: boolean  default=literal  [private]</mark>
+<mark>  menuDepth?: number  default=literal  [private]</mark>
+<mark>  showActiveState?: boolean  default=literal  [private]</mark>
+  sidebarExpanded?: boolean  default=literal  [private]
+
+emits
+<mark>  branch-toggle(...args: any[])  [private]</mark>
+<mark>  flyout-close-request(...args: any[])  [private]</mark>
+<mark>  flyout-focus-request(...args: any[])  [private]</mark>
+<mark>  flyout-navigate(...args: any[])  [private]</mark>
+<mark>  menu-item-hover(...args: any[])  [private]</mark>
+<mark>  navigation-link-click(...args: any[])  [private]</mark>
+
+slots
+<mark>  additional-text  {}  block=sw_admin_menu_item  [private]</mark>
+  additional-text  {}  block=sw_admin_menu_item_external_link  [private]
+  additional-text  {}  block=sw_admin_menu_item_navigation_link  [private]
+  additional-text  {}  block=sw_admin_menu_item_router_link  [private]
+
+<mark>data</mark>
+<mark>  manualNestedOpen: any  [private]</mark>
+<mark>  suppressRouteKeepsFolderOpen: any  [private]</mark>
+
+computed
+<mark>  aclFilteredEntry: any  [private]</mark>
+<mark>  activeRouteNames: any  [private]</mark>
+<mark>  childRouteActive: any  [private]</mark>
+  children: any  [private]
+<mark>  collapsedAriaLabel: any  [private]</mark>
+<mark>  collapsedFlyoutAria: any  [private]</mark>
+<mark>  collapsibleLiClass: any  [private]</mark>
+<mark>  collapsibleOpen: any  [private]</mark>
+  entryPath: any  [private]
+<mark>  expandIcon: any  [private]</mark>
+  getEntryLabel: any  [private]
+  getLinkToProp: any  [private]
+<mark>  hasActiveChild: any  [private]</mark>
+<mark>  hasCollapsibleSubtree: any  [private]</mark>
+<mark>  isLeafDepth: any  [private]</mark>
+<mark>  leafLiClass: any  [private]</mark>
+<mark>  moduleColorStyle: any  [private]</mark>
+<mark>  navigationIconColor: any  [private]</mark>
+<mark>  navigationIconName: any  [private]</mark>
+<mark>  routeKeepsFolderOpen: any  [private]</mark>
+<mark>  routerLinkActiveClass: any  [private]</mark>
+<mark>  routerLinkExactActiveClass: any  [private]</mark>
+<mark>  rowActive: any  [private]</mark>
+  showMenuItem: any  [private]
+<mark>  showsCollapsedTooltip: any  [private]</mark>
+<mark>  submenuVisuallyOpen: any  [private]</mark>
+
+methods
+<mark>  collapsedTooltipTriggerProps(tooltipProps: any): any  [private]</mark>
+<mark>  forwardFlyoutNavigate(payload: any): any  [private]</mark>
+<mark>  forwardMenuItemHover(entry: any, target: any): any  [private]</mark>
+<mark>  forwardNavigationLinkClick(): any  [private]</mark>
+  getElementClasses(menuItemName: any): any  [private]
+<mark>  getIconName(name: any, isActive?: any): any  [private]</mark>
+  hasAccessToRoute(path: any): any  [private]
+<mark>  onCollapsedParentKeydown(event: any): any  [private]</mark>
+<mark>  onCollapsibleOpenUpdate(open: any): any  [private]</mark>
+<mark>  onNavigationLinkClick(): any  [private]</mark>
+<mark>  toggleSubmenu(): any  [private]</mark>
+
+blocks
+  sw_admin_menu_item  [private]
+<mark>    sw_admin_menu_item_expand_indicator_fold  [private]</mark>
+<mark>    sw_admin_menu_item_expand_indicator_linked  [private]</mark>
+    sw_admin_menu_item_external_link  [private]
+<mark>    sw_admin_menu_item_icon  [private]</mark>
+<mark>    sw_admin_menu_item_navigation_icon  [private]</mark>
+    sw_admin_menu_item_navigation_link  [private]
+<mark>    sw_admin_menu_item_navigation_text  [private]</mark>
+    sw_admin_menu_item_router_link  [private]
+<mark>    sw_admin_menu_item_text  [private]</mark>
+    sw_sidebar_sub_items_list  [private]</pre></div>
+</div>
+<h3><code>app/component/structure/sw-admin-menu.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-admin-menu  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-admin-menu/index.js  [private]
+  template src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig  [private]
+  visibility-source export  [private]
+
+mixins
+  notification  [private]
+
+inject
+  appModulesService  [private]
+  customEntityDefinitionService  [private]
+  feature  [private]
+  loginService  [private]
+  menuService  [private]
+  userService  [private]
+
+<mark>props</mark>
+<mark>  mouseLocationsTracked?: number  default=factory  [private]</mark>
+<mark>  subMenuDelay?: number  default=factory  [private]</mark>
+
+data
+  activeEntry: any  [private]
+<mark>  flyoutColor: any  [private]</mark>
+  flyoutEntries: any  [private]
+<mark>  flyoutLabel: any  [private]</mark>
+<mark>  flyoutStyle: object  [private]</mark>
+  isOffCanvasShown: any  [private]
+  isUserActionsActive: any  [private]
+  isUserLoading: any  [private]
+<mark>  lastDelayLocation: any  [private]</mark>
+<mark>  lastFlyoutEntries: any  [private]</mark>
+<mark>  mouseLocations: any  [private]</mark>
+  scrollbarOffset: any  [private]
+<mark>  subMenuOpen: any  [private]</mark>
+<mark>  subMenuTimer: any  [private]</mark>
+
+computed
+  adminMenuClasses: any  [private]
+  adminMenuStore: any  [private]
+  adminModuleNavigation: any  [private]
+  appModuleNavigation: any  [private]
+  avatarUrl: any  [private]
+<mark>  currentExpandedMenuEntries: any  [private]</mark>
+  currentLocale: any  [private]
+  currentUser: any  [private]
+  extensionMenuItems: any  [private]
+  extensionModuleNavigation: any  [private]
+  firstName: any  [private]
+  isExpanded: any  [private]
+  lastName: any  [private]
+  mainMenuEntries: any  [private]
+  navigationEntries: any  [private]
+  scrollbarOffsetStyle: any  [private]
+<mark>  sidebarCollapseIcon: any  [private]</mark>
+<mark>  userActionsToggleIcon: any  [private]</mark>
+  userName: any  [private]
+  userTitle: any  [private]
+
+methods
+<mark>  activateMenuItem(entry: any, target: any, parentEntries: any): any  [private]</mark>
+  addScrollbarOffset(): any  [private]
+<mark>  adjustMenuForViewport(): any  [private]</mark>
+  beforeUnmountedComponent(): any  [private]
+  closeOffCanvas(): any  [private]
+<mark>  closeUserActions(): any  [private]</mark>
+  collapseAdminMenu(): any  [private]
+  createdComponent(): any  [private]
+<mark>  deactivatePreviousMenuItem(): any  [private]</mark>
+  expandAdminMenu(): any  [private]
+<mark>  getActivationDelay(): any  [private]</mark>
+  getChildren(entry: any): any  [private]
+<mark>  getPolygonFromMenuItem(element: any, entry: any): any  [private]</mark>
+  getUser(): any  [private]
+  initNavigation(): any  [private]
+<mark>  isActiveItem(menuItem: any): any  [private]</mark>
+<mark>  isFirstPluginInMenuEntries(entry: any, menuEntries: any): any  [private]</mark>
+<mark>  isMobileViewport(): any  [private]</mark>
+<mark>  isPositionInPolygon(x: any, y: any, polygon: any): any  [private]</mark>
+  mountedComponent(): any  [private]
+<mark>  onClickOutsideOffCanvas(arg1: any): any  [private]</mark>
+<mark>  onFlyoutEnter(): any  [private]</mark>
+  onFlyoutLeave(): any  [private]
+  onLogoutUser(): Promise&lt;any&gt;  [private]
+<mark>  onMenuItemClick(entry: any, eventTarget: any): any  [private]</mark>
+<mark>  onMenuItemEnter(entry: any, event: any, parentEntries: any): any  [private]</mark>
+<mark>  onMenuLeave(): any  [private]</mark>
+<mark>  onMouseMoveDocument(event: any): any  [private]</mark>
+<mark>  onSubMenuItemEnter(entry: any, event: any): any  [private]</mark>
+  onToggleCanvas(state: any): any  [private]
+  onToggleSidebar(): any  [private]
+<mark>  onToggleUserActions(): any  [private]</mark>
+<mark>  openUserActions(): any  [private]</mark>
+<mark>  possiblyActivate(entry: any, currentTarget: any, parentEntries: any): any  [private]</mark>
+  refreshApps(): any  [private]
+<mark>  removeClassesFromElements(elements: any, classList: any, ignoreElementsList?: any): any  [private]</mark>
+<mark>  shouldCloseOffCanvasOnMenuItemClick(target: any): any  [private]</mark>
+  toggleSidebar(): any  [private]
+
+blocks
+  sw_admin_menu  [private]
+    sw_admin_menu_body_container  [private]
+      sw_admin_menu_body  [private]
+        sw_admin_menu_navigation_main  [private]
+          sw_admin_menu_navigation_main_list  [private]
+            sw_admin_menu_navigation_main_items  [private]
+    sw_admin_menu_flyout_transition  [private]
+    sw_admin_menu_footer  [private]
+<mark>      sw_admin_menu_toggle_sidebar  [private]</mark>
+<mark>        sw_admin_menu_toggle_sidebar_icon  [private]</mark>
+<mark>        sw_admin_menu_toggle_sidebar_text  [private]</mark>
+<mark>      sw_admin_menu_user_actions  [private]</mark>
+<mark>        sw_admin_menu_user_actions_label  [private]</mark>
+<mark>        sw_admin_menu_user_actions_list  [private]</mark>
+<mark>          sw_admin_menu_user_actions_items  [private]</mark>
+<mark>            sw_admin_menu_user_actions_items_logout_user  [private]</mark>
+      sw_admin_menu_user_actions_toggle  [private]
+        sw_admin_menu_user_actions_avatar  [private]
+        sw_admin_menu_user_actions_custom_fields  [private]
+<mark>          sw_admin_menu_user_actions_toggle_icon  [private]</mark>
+    sw_admin_menu_header  [private]
+      sw_admin_menu_header_logo  [private]
+      sw_admin_menu_header_version  [private]</pre></div>
+<div><h4>Head</h4><pre>component sw-admin-menu  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-admin-menu/index.js  [private]
+  template src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig  [private]
+  visibility-source export  [private]
+
+mixins
+  notification  [private]
+
+inject
+<mark>  acl  [private]</mark>
+  appModulesService  [private]
+  customEntityDefinitionService  [private]
+  feature  [private]
+  loginService  [private]
+  menuService  [private]
+<mark>  systemConfigApiService  [private]</mark>
+  userService  [private]
+
+data
+<mark>  activeBranchKey: any  [private]</mark>
+  activeEntry: any  [private]
+<mark>  flyoutCloseTimeoutId: any  [private]</mark>
+  flyoutEntries: any  [private]
+<mark>  flyoutReferenceElement: any  [private]</mark>
+<mark>  flyoutTitle: any  [private]</mark>
+<mark>  isFlyoutClosing: any  [private]</mark>
+<mark>  isFlyoutPinned: any  [private]</mark>
+  isOffCanvasShown: any  [private]
+<mark>  isTogglingSidebar: any  [private]</mark>
+  isUserActionsActive: any  [private]
+  isUserLoading: any  [private]
+<mark>  isViewportResizing: any  [private]</mark>
+  scrollbarOffset: any  [private]
+<mark>  shopName: any  [private]</mark>
+<mark>  toggleSidebarTimeout: any  [private]</mark>
+<mark>  viewportResizeTimeout: any  [private]</mark>
+<mark>  viewportWidth: any  [private]</mark>
+
+computed
+  adminMenuClasses: any  [private]
+  adminMenuStore: any  [private]
+  adminModuleNavigation: any  [private]
+  appModuleNavigation: any  [private]
+  avatarUrl: any  [private]
+  currentLocale: any  [private]
+  currentUser: any  [private]
+  extensionMenuItems: any  [private]
+  extensionModuleNavigation: any  [private]
+  firstName: any  [private]
+  isExpanded: any  [private]
+<mark>  isMobileViewport: any  [private]</mark>
+  lastName: any  [private]
+  mainMenuEntries: any  [private]
+  navigationEntries: any  [private]
+  scrollbarOffsetStyle: any  [private]
+<mark>  userActionsAriaLabel: any  [private]</mark>
+  userName: any  [private]
+  userTitle: any  [private]
+
+methods
+<mark>  activateOffCanvasFocusTrap(): any  [private]</mark>
+  addScrollbarOffset(): any  [private]
+  beforeUnmountedComponent(): any  [private]
+<mark>  cancelFlyoutClose(): any  [private]</mark>
+<mark>  closeNavigationOverlays(): any  [private]</mark>
+  closeOffCanvas(): any  [private]
+  collapseAdminMenu(): any  [private]
+<mark>  collapseInactiveBranches(exceptEntry?: any): any  [private]</mark>
+  createdComponent(): any  [private]
+<mark>  deactivateFlyoutFocusTrap(returnFocus?: any): any  [private]</mark>
+<mark>  deactivateOffCanvasFocusTrap(): any  [private]</mark>
+<mark>  dismissOffCanvas(): any  [private]</mark>
+  expandAdminMenu(): any  [private]
+<mark>  expandAncestorBranchesForCurrentRoute(): any  [private]</mark>
+  getChildren(entry: any): any  [private]
+<mark>  getEntryLabel(entry: any): any  [private]</mark>
+<mark>  getNavigationLinks(container: any): any  [private]</mark>
+  getUser(): any  [private]
+  initNavigation(): any  [private]
+<mark>  isFlyoutEntryActive(entry: any): any  [private]</mark>
+<mark>  isNavigationEntryExpanded(entry: any): any  [private]</mark>
+<mark>  isSuppressedFlyoutFocusOut(event: any): any  [private]</mark>
+<mark>  loadShopName(): any  [private]</mark>
+  mountedComponent(): any  [private]
+<mark>  moveListFocus(links: any, event: any): any  [private]</mark>
+<mark>  onFlyoutFocusRequest(): any  [private]</mark>
+<mark>  onFlyoutKeydown(event: any): any  [private]</mark>
+  onFlyoutLeave(): any  [private]
+<mark>  onFlyoutMouseLeave(event: any): any  [private]</mark>
+<mark>  onFlyoutNavigate(arg1: any): any  [private]</mark>
+  onLogoutUser(): Promise&lt;any&gt;  [private]
+<mark>  onMenuBranchToggle(arg1: any): any  [private]</mark>
+<mark>  onMenuItemHover(entry: any, eventTarget: any): any  [private]</mark>
+<mark>  onNavigationKeydown(event: any): any  [private]</mark>
+<mark>  onNavigationLinkClicked(): any  [private]</mark>
+<mark>  onNavigationListMouseLeave(event: any): any  [private]</mark>
+  onToggleCanvas(state: any): any  [private]
+  onToggleSidebar(): any  [private]
+<mark>  onViewportResize(): any  [private]</mark>
+  refreshApps(): any  [private]
+<mark>  scheduleFlyoutClose(): any  [private]</mark>
+<mark>  startFlyoutCloseAnimation(): any  [private]</mark>
+<mark>  startMenuDropdownObserver(panelElement: any): any  [private]</mark>
+<mark>  startSidebarToggleWindow(): any  [private]</mark>
+<mark>  stopMenuDropdownObserver(): any  [private]</mark>
+<mark>  syncMenuDropdownFocusOwner(): any  [private]</mark>
+  toggleSidebar(): any  [private]
+
+blocks
+  sw_admin_menu  [private]
+    sw_admin_menu_body_container  [private]
+      sw_admin_menu_body  [private]
+        sw_admin_menu_navigation_main  [private]
+          sw_admin_menu_navigation_main_list  [private]
+            sw_admin_menu_navigation_main_items  [private]
+    sw_admin_menu_flyout_transition  [private]
+    sw_admin_menu_footer  [private]
+      sw_admin_menu_user_actions_toggle  [private]
+        sw_admin_menu_user_actions_avatar  [private]
+        sw_admin_menu_user_actions_custom_fields  [private]
+<mark>        sw_admin_menu_user_actions_items  [private]</mark>
+<mark>          sw_admin_menu_user_actions_items_logout_user  [private]</mark>
+<mark>        sw_admin_menu_user_actions_toggle_icon  [private]</mark>
+<mark>        sw_admin_menu_user_actions_version  [private]</mark>
+    sw_admin_menu_header  [private]
+      sw_admin_menu_header_logo  [private]
+<mark>      sw_admin_menu_header_toggle_sidebar  [private]</mark>
+      sw_admin_menu_header_version  [private]
+<mark>        sw_admin_menu_header_shop_name  [private]</mark>
+<mark>        sw_admin_menu_header_title  [private]</mark>
+<mark>          sw_admin_menu_header_title_status  [empty] [private]</mark>
+<mark>    sw_admin_menu_off_canvas_backdrop  [private]</mark></pre></div>
+</div>
+<h3><code>app/component/structure/sw-page.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-page  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-page/index.js  [private]
+  template src/app/component/structure/sw-page/sw-page.html.twig  [private]
+  visibility-source export  [private]
+
+provide
+  removeSwPageSidebarOffset: any  [private]
+  setSwPageSidebarOffset: any  [private]
+
+props
+  headerBorderColor?: string  default=literal  [private]
+  showSearchBar?: boolean  default=literal  [private]
+  showSmartBar?: boolean  default=literal  [private]
+
+slots
+  content  {}  block=sw_page_content  [private]
+  language-switch  {}  block=sw_page_smart_bar_content_language_switch  [private]
+  search-bar  {}  block=sw_page_search_bar  [private]
+  side-content  {}  block=sw_page_content  [private]
+  sidebar  {}  block=sw_page_content_sidebar  [private]
+  smart-bar-actions  {}  block=sw_page_smart_bar_content_actions  [private]
+  smart-bar-back  {}  block=sw_page_smart_bar_back_btn  [private]
+  smart-bar-header  {}  block=sw_page_smart_bar_content_header  [private]
+
+data
+  hasFullWidthHeader: any  [private]
+  languageId: any  [private]
+  module: any  [private]
+  parentRoute: any  [private]
+  previousPath: any  [private]
+  previousRoute: any  [private]
+  scrollbarOffset: any  [private]
+  sidebarOffset: any  [private]
+
+computed
+  hasSideContentSlot: any  [private]
+  hasSidebarSlot: any  [private]
+  headerStyles: any  [deprecated tag:v6.8.0] [private]
+  pageClasses: any  [private]
+  pageColor: any  [private]
+  pageContainerClasses: any  [private]
+  pageContentClasses: any  [private]
+  pageOffset: any  [private]
+  routerBack: any  [private]
+  showHeadArea: any  [private]
+<mark>  smartBarContentStyle: any  [private]</mark>
+<mark>  topBarActionStyles: any  [private]</mark>
+
+methods
+  beforeDestroyComponent(): any  [private]
+  createdComponent(): any  [private]
+  initPage(): any  [private]
+  mountedComponent(): any  [private]
+  readScreenWidth(): any  [private]
+  removeSidebarOffset(): any  [private]
+  setScrollbarOffset(): any  [private]
+  setSidebarOffset(sidebarWidth: any): any  [private]
+  updatedComponent(): any  [private]
+
+blocks
+  sw_page  [private]
+    sw_page_content  [private]
+      sw_page_content_sidebar  [private]
+        sw_page_sidebar_slot  [empty] [private]
+      sw_page_slot_content  [empty] [private]
+      sw_page_slot_side_content  [empty] [private]
+    sw_page_head_area  [private]
+<mark>      sw_page_search_bar  [private]</mark>
+<mark>        sw_page_slot_search_bar  [private]</mark>
+<mark>        sw_page_top_bar_actions  [private]</mark>
+<mark>          sw_page_notification_center  [private]</mark>
+      sw_page_smart_bar  [private]
+        sw_page_smart_bar_back_btn  [private]
+          sw_page_slot_smart_bar_back  [private]
+        sw_page_smart_bar_content  [private]
+          sw_page_smart_bar_content_actions  [private]
+            sw_page_slot_smart_bar_actions  [empty] [private]
+          sw_page_smart_bar_content_app_actions  [private]
+          sw_page_smart_bar_content_header  [private]
+            sw_page_slot_smart_bar_header  [private]
+          sw_page_smart_bar_content_language_switch  [private]
+            sw_page_slot_language_switch  [empty] [private]
+        sw_page_smart_bar_divider  [private]</pre></div>
+<div><h4>Head</h4><pre>component sw-page  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-page/index.js  [private]
+  template src/app/component/structure/sw-page/sw-page.html.twig  [private]
+  visibility-source export  [private]
+
+provide
+  removeSwPageSidebarOffset: any  [private]
+  setSwPageSidebarOffset: any  [private]
+
+props
+  headerBorderColor?: string  default=literal  [private]
+  showSearchBar?: boolean  default=literal  [private]
+  showSmartBar?: boolean  default=literal  [private]
+
+slots
+  content  {}  block=sw_page_content  [private]
+  language-switch  {}  block=sw_page_smart_bar_content_language_switch  [private]
+  search-bar  {}  block=sw_page_search_bar  [private]
+  side-content  {}  block=sw_page_content  [private]
+  sidebar  {}  block=sw_page_content_sidebar  [private]
+  smart-bar-actions  {}  block=sw_page_smart_bar_content_actions  [private]
+  smart-bar-back  {}  block=sw_page_smart_bar_back_btn  [private]
+  smart-bar-header  {}  block=sw_page_smart_bar_content_header  [private]
+
+data
+  hasFullWidthHeader: any  [private]
+  languageId: any  [private]
+  module: any  [private]
+  parentRoute: any  [private]
+  previousPath: any  [private]
+  previousRoute: any  [private]
+  scrollbarOffset: any  [private]
+  sidebarOffset: any  [private]
+
+computed
+  hasSideContentSlot: any  [private]
+  hasSidebarSlot: any  [private]
+  headerStyles: any  [deprecated tag:v6.8.0] [private]
+  pageClasses: any  [private]
+  pageColor: any  [private]
+  pageContainerClasses: any  [private]
+  pageContentClasses: any  [private]
+  pageOffset: any  [private]
+  routerBack: any  [private]
+  showHeadArea: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [private]
+  createdComponent(): any  [private]
+  initPage(): any  [private]
+  mountedComponent(): any  [private]
+  readScreenWidth(): any  [private]
+  removeSidebarOffset(): any  [private]
+  setScrollbarOffset(): any  [private]
+  setSidebarOffset(sidebarWidth: any): any  [private]
+  updatedComponent(): any  [private]
+
+blocks
+  sw_page  [private]
+    sw_page_content  [private]
+      sw_page_content_sidebar  [private]
+        sw_page_sidebar_slot  [empty] [private]
+      sw_page_slot_content  [empty] [private]
+      sw_page_slot_side_content  [empty] [private]
+    sw_page_head_area  [private]
+      sw_page_smart_bar  [private]
+        sw_page_smart_bar_back_btn  [private]
+          sw_page_slot_smart_bar_back  [private]
+        sw_page_smart_bar_content  [private]
+          sw_page_smart_bar_content_actions  [private]
+            sw_page_slot_smart_bar_actions  [empty] [private]
+          sw_page_smart_bar_content_app_actions  [private]
+          sw_page_smart_bar_content_header  [private]
+            sw_page_slot_smart_bar_header  [private]
+          sw_page_smart_bar_content_language_switch  [private]
+            sw_page_slot_language_switch  [empty] [private]
+        sw_page_smart_bar_divider  [private]
+<mark>      sw_page_top_bar  [private]</mark>
+<mark>        sw_page_search_bar  [private]</mark>
+<mark>          sw_page_slot_search_bar  [private]</mark>
+<mark>        sw_page_top_bar_actions  [private]</mark>
+<mark>          sw_page_notification_center  [private]</mark>
+<mark>          sw_page_top_bar_app_button  [private]</mark></pre></div>
+</div>
+<h3><code>app/component/structure/sw-search-bar.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-search-bar  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-search-bar/index.js  [private]
+  template src/app/component/structure/sw-search-bar/sw-search-bar.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  acl  [private]
+  feature  [private]
+  recentlySearchService  [private]
+  repositoryFactory  [private]
+  searchRankingService  [private]
+  searchService  [private]
+  searchTypeService  [private]
+  userActivityApiService  [private]
+
+provide
+  searchBarOnMouseOver: any  [private]
+  searchBarRegisterActiveItemIndexSelectHandler: any  [private]
+  searchBarRegisterKeyupEnterHandler: any  [private]
+  searchBarUnregisterActiveItemIndexSelectHandler: any  [private]
+  searchBarUnregisterKeyupEnterHandler: any  [private]
+
+props
+  entitySearchColor?: string  default=literal  [private]
+  initialSearch?: string  default=literal  [private]
+  initialSearchType?: string  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  typeSearchAlwaysInContainer?: boolean  default=literal  [private]
+
+emits
+  active-item-index-select(...args: any[])  [private]
+  keyup-enter(...args: any[])  [private]
+  search(...args: any[])  [private]
+
+slots
+  search-input  {}  block=sw_search_bar_input  [private]
+
+data
+  activeItemIndexSelectHandler: any  [private]
+  activeResultColumn: any  [private]
+  activeResultIndex: any  [private]
+  activeTypeListIndex: any  [private]
+  currentSearchType: any  [private]
+  isActive: any  [private]
+  isComponentMounted: any  [private]
+  isLoading: any  [private]
+  isOffCanvasShown: any  [private]
+  isSearchBarShown: any  [private]
+  keyupEnterHandler: any  [private]
+  moduleFactory: any  [private]
+  results: any  [private]
+  resultsSearchTrends: any  [private]
+  salesChannelTypes: any  [private]
+  searchLimit: any  [private]
+  searchTerm: any  [private]
+  searchTypes: any  [private]
+  showModuleFiltersContainer: any  [private]
+  showResultsContainer: any  [private]
+  showResultsSearchTrends: any  [private]
+  showSearchPreferencesModal: any  [private]
+  showTypeSelectContainer: any  [private]
+  typeSelectResults: any  [private]
+  userSearchPreference: any  [private]
+
+computed
+  adminEsEnable: any  [private]
+  canCreateSalesChannels: any  [private]
+  criteriaCollection: any  [private]
+  currentUser: any  [private]
+  moduleRegistry: any  [private]
+  placeholderSearchInput: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelRepository: any  [private]
+  searchBarFieldClasses: any  [private]
+  searchableModules: any  [private]
+  showSearchTipForEsSearch: any  [private]
+
+methods
+  checkScrollPosition(): any  [private]
+  clearSearchTerm(): any  [private]
+  closeOnClickOutside(event: any): any  [private]
+  createdComponent(): Promise&lt;any&gt;  [private]
+  destroyedComponent(): any  [private]
+  doGlobalSearch: any  [private]
+  doListSearch: any  [private]
+  doListSearchWithContainer: any  [private]
+  emitActiveResultPosition(): any  [private]
+  filterTypeSelectResults(term: any): any  [private]
+  getDefaultMatchSearchableModules(regex: any, label: any, manifest: any): any  [private]
+  getEntityIcon(entityName: any): any  [private]
+  getEntityIconColor(entityName: any): any  [private]
+  getEntityIconName(entityName: any): any  [private]
+  getFrequentlyUsedModules(checkNonExistentKeys?: any): Promise&lt;any&gt;  [private]
+  getInfoModuleFrequentlyUsed(key: any): any  [private]
+  getLabelSearchType(type: any): any  [private]
+  getModuleEntities(searchTerm: any, limit?: any): any  [private]
+  getRecentlySearch(): any  [private]
+  getSalesChannelTypesBySearchTerm(regex: any): any  [private]
+  getSearchTypeProperty(entityName: any, propertyName: any): any  [private]
+  hideSearchBar(): any  [private]
+  isResultEmpty(): any  [private]
+  loadResults(searchTerm: any): Promise&lt;any&gt;  [private]
+  loadSalesChannelType(): any  [private]
+  loadSearchTrends(): any  [private]
+  loadTypeSearchResults(searchTerm: any): Promise&lt;any&gt;  [private]
+  loadTypeSearchResultsByService(searchTerm: any): any  [private]
+  navigateDownResults(): any  [private]
+  navigateUpResults(): any  [private]
+  onBlur(): any  [private]
+  onClickType(type: any): any  [private]
+  onFocusInput(): any  [private]
+  onKeyUpEnter(): any  [private]
+  onMouseEnterSearchType(index: any): any  [private]
+  onMouseOver(index: any, column: any): any  [private]
+  onOffCanvasToggle(state: any): any  [private]
+  onOpenModuleFiltersDropDown(): any  [private]
+  onSearchTermChange(): any  [private]
+  registerActiveItemIndexSelectHandler(handler: any): any  [private]
+  registerKeyupEnterHandler(handler: any): any  [private]
+  registerListener(): any  [private]
+  resetSearchType(): any  [private]
+  setActiveResultPosition(arg1: any): any  [private]
+  setFocus(): any  [private]
+  setSearchType(type: any): any  [private]
+  showSearchBar(): any  [private]
+<mark>  showSearchFieldOnLargerViewports(): any  [private]</mark>
+  showTypeContainer(): any  [private]
+  toggleOffCanvas(): any  [private]
+  toggleSearchPreferencesModal(): any  [private]
+  unregisterActiveItemIndexSelectHandler(handler: any): any  [private]
+  unregisterKeyupEnterHandler(handler: any): any  [private]
+
+blocks
+  sw_search_bar  [private]
+    sw_search_bar_container  [private]
+      sw_search_bar_field  [private]
+        sw_search_bar_icon  [private]
+        sw_search_bar_input  [private]
+          sw_search_bar_slot_input  [private]
+        sw_search_bar_type  [private]
+      sw_search_bar_mobile_controls  [private]
+<mark>        sw_search_bar_button_off_canvas_toggle  [private]</mark>
+        sw_search_bar_button_search  [private]
+<mark>        sw_search_bar_version_display  [private]</mark>
+      sw_search_bar_results  [private]
+        sw_search_bar_results_content  [private]
+          sw_search_bar_results_empty  [private]
+            sw_search_bar_results_empty_content  [private]
+              sw_search_bar_results_empty_detail  [private]
+              sw_search_bar_results_empty_text  [private]
+          sw_search_bar_results_empty_state  [private]
+          sw_search_bar_results_list  [private]
+            sw_search_bar_results_list_column  [private]
+              sw_search_bar_results_list_bar_item  [private]
+                sw_search_bar_results_list_bar_item_icon  [private]
+                sw_search_bar_results_list_bar_item_more_results  [private]
+              sw_search_bar_results_list_column_header  [private]
+                sw_search_bar_results_list_column_header_title  [private]
+        sw_search_bar_results_footer  [private]
+      sw_search_bar_trends_results  [private]
+        sw_search_bar_trends_results_content  [private]
+          sw_search_bar_trends_results_list  [private]
+            sw_search_bar_trends_results_list_column  [private]
+              sw_search_bar_trends_results_list_column_header  [private]
+                sw_search_bar_trends_results_list_column_header_title  [private]
+        sw_search_bar_trends_results_empty_content  [empty] [private]
+        sw_search_bar_trends_results_footer  [private]
+      sw_search_bar_types_container  [private]
+        sw_search_bar_types_container_empty  [private]
+          sw_search_bar_types_container_empty_text  [private]
+        sw_search_bar_types_container_footer  [private]
+        sw_search_bar_types_container_header  [private]
+      sw_search_bar_types_module_filters_container  [private]
+        sw_search_bar_types_module_filters_container_empty  [private]
+          sw_search_bar_types_module_filters_container_empty_text  [private]
+        sw_search_bar_types_module_filters_container_footer  [private]
+    sw_search_bar_search_preferences_modal  [private]</pre></div>
+<div><h4>Head</h4><pre>component sw-search-bar  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-search-bar/index.js  [private]
+  template src/app/component/structure/sw-search-bar/sw-search-bar.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  acl  [private]
+  feature  [private]
+  recentlySearchService  [private]
+  repositoryFactory  [private]
+  searchRankingService  [private]
+  searchService  [private]
+  searchTypeService  [private]
+  userActivityApiService  [private]
+
+provide
+  searchBarOnMouseOver: any  [private]
+  searchBarRegisterActiveItemIndexSelectHandler: any  [private]
+  searchBarRegisterKeyupEnterHandler: any  [private]
+  searchBarUnregisterActiveItemIndexSelectHandler: any  [private]
+  searchBarUnregisterKeyupEnterHandler: any  [private]
+
+props
+  entitySearchColor?: string  default=literal  [private]
+  initialSearch?: string  default=literal  [private]
+  initialSearchType?: string  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  typeSearchAlwaysInContainer?: boolean  default=literal  [private]
+
+emits
+  active-item-index-select(...args: any[])  [private]
+  keyup-enter(...args: any[])  [private]
+  search(...args: any[])  [private]
+
+slots
+  search-input  {}  block=sw_search_bar_input  [private]
+
+data
+  activeItemIndexSelectHandler: any  [private]
+  activeResultColumn: any  [private]
+  activeResultIndex: any  [private]
+  activeTypeListIndex: any  [private]
+  currentSearchType: any  [private]
+  isActive: any  [private]
+  isComponentMounted: any  [private]
+  isLoading: any  [private]
+  isOffCanvasShown: any  [private]
+  isSearchBarShown: any  [private]
+  keyupEnterHandler: any  [private]
+  moduleFactory: any  [private]
+  results: any  [private]
+  resultsSearchTrends: any  [private]
+  salesChannelTypes: any  [private]
+  searchLimit: any  [private]
+  searchTerm: any  [private]
+  searchTypes: any  [private]
+  showModuleFiltersContainer: any  [private]
+  showResultsContainer: any  [private]
+  showResultsSearchTrends: any  [private]
+  showSearchPreferencesModal: any  [private]
+  showTypeSelectContainer: any  [private]
+  typeSelectResults: any  [private]
+  userSearchPreference: any  [private]
+
+computed
+  adminEsEnable: any  [private]
+  canCreateSalesChannels: any  [private]
+  criteriaCollection: any  [private]
+  currentUser: any  [private]
+  moduleRegistry: any  [private]
+  placeholderSearchInput: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelRepository: any  [private]
+  searchBarFieldClasses: any  [private]
+<mark>  searchTypeColor: any  [private]</mark>
+  searchableModules: any  [private]
+  showSearchTipForEsSearch: any  [private]
+
+methods
+  checkScrollPosition(): any  [private]
+  clearSearchTerm(): any  [private]
+  closeOnClickOutside(event: any): any  [private]
+<mark>  closeSearchPanels(): any  [private]</mark>
+  createdComponent(): Promise&lt;any&gt;  [private]
+  destroyedComponent(): any  [private]
+  doGlobalSearch: any  [private]
+  doListSearch: any  [private]
+  doListSearchWithContainer: any  [private]
+  emitActiveResultPosition(): any  [private]
+  filterTypeSelectResults(term: any): any  [private]
+  getDefaultMatchSearchableModules(regex: any, label: any, manifest: any): any  [private]
+  getEntityIcon(entityName: any): any  [private]
+  getEntityIconColor(entityName: any): any  [private]
+  getEntityIconName(entityName: any): any  [private]
+  getFrequentlyUsedModules(checkNonExistentKeys?: any): Promise&lt;any&gt;  [private]
+  getInfoModuleFrequentlyUsed(key: any): any  [private]
+  getLabelSearchType(type: any): any  [private]
+  getModuleEntities(searchTerm: any, limit?: any): any  [private]
+  getRecentlySearch(): any  [private]
+  getSalesChannelTypesBySearchTerm(regex: any): any  [private]
+  getSearchTypeProperty(entityName: any, propertyName: any): any  [private]
+<mark>  getTypeIconColor(entityName: any): any  [private]</mark>
+  hideSearchBar(): any  [private]
+  isResultEmpty(): any  [private]
+  loadResults(searchTerm: any): Promise&lt;any&gt;  [private]
+  loadSalesChannelType(): any  [private]
+  loadSearchTrends(): any  [private]
+  loadTypeSearchResults(searchTerm: any): Promise&lt;any&gt;  [private]
+  loadTypeSearchResultsByService(searchTerm: any): any  [private]
+  navigateDownResults(): any  [private]
+  navigateUpResults(): any  [private]
+  onBlur(): any  [private]
+<mark>  onClickFieldWrapper(event: any): any  [private]</mark>
+  onClickType(type: any): any  [private]
+  onFocusInput(): any  [private]
+  onKeyUpEnter(): any  [private]
+<mark>  onKeyUpEsc(): any  [private]</mark>
+  onMouseEnterSearchType(index: any): any  [private]
+  onMouseOver(index: any, column: any): any  [private]
+  onOffCanvasToggle(state: any): any  [private]
+  onOpenModuleFiltersDropDown(): any  [private]
+  onSearchTermChange(): any  [private]
+  registerActiveItemIndexSelectHandler(handler: any): any  [private]
+  registerKeyupEnterHandler(handler: any): any  [private]
+  registerListener(): any  [private]
+  resetSearchType(): any  [private]
+  setActiveResultPosition(arg1: any): any  [private]
+  setFocus(): any  [private]
+  setSearchType(type: any): any  [private]
+  showSearchBar(): any  [private]
+  showTypeContainer(): any  [private]
+<mark>  syncSearchBarCollapse(): any  [private]</mark>
+  toggleOffCanvas(): any  [private]
+  toggleSearchPreferencesModal(): any  [private]
+  unregisterActiveItemIndexSelectHandler(handler: any): any  [private]
+  unregisterKeyupEnterHandler(handler: any): any  [private]
+
+blocks
+  sw_search_bar  [private]
+<mark>    sw_search_bar_button_off_canvas_toggle  [private]</mark>
+    sw_search_bar_container  [private]
+      sw_search_bar_field  [private]
+<mark>        sw_search_bar_field_close  [private]</mark>
+        sw_search_bar_icon  [private]
+        sw_search_bar_input  [private]
+          sw_search_bar_slot_input  [private]
+        sw_search_bar_type  [private]
+      sw_search_bar_mobile_controls  [private]
+        sw_search_bar_button_search  [private]
+      sw_search_bar_results  [private]
+        sw_search_bar_results_content  [private]
+          sw_search_bar_results_empty  [private]
+            sw_search_bar_results_empty_content  [private]
+              sw_search_bar_results_empty_detail  [private]
+              sw_search_bar_results_empty_text  [private]
+          sw_search_bar_results_empty_state  [private]
+          sw_search_bar_results_list  [private]
+            sw_search_bar_results_list_column  [private]
+              sw_search_bar_results_list_bar_item  [private]
+                sw_search_bar_results_list_bar_item_icon  [private]
+                sw_search_bar_results_list_bar_item_more_results  [private]
+              sw_search_bar_results_list_column_header  [private]
+                sw_search_bar_results_list_column_header_title  [private]
+        sw_search_bar_results_footer  [private]
+      sw_search_bar_trends_results  [private]
+        sw_search_bar_trends_results_content  [private]
+          sw_search_bar_trends_results_list  [private]
+            sw_search_bar_trends_results_list_column  [private]
+              sw_search_bar_trends_results_list_column_header  [private]
+                sw_search_bar_trends_results_list_column_header_title  [private]
+        sw_search_bar_trends_results_empty_content  [empty] [private]
+        sw_search_bar_trends_results_footer  [private]
+      sw_search_bar_types_container  [private]
+        sw_search_bar_types_container_empty  [private]
+          sw_search_bar_types_container_empty_text  [private]
+        sw_search_bar_types_container_footer  [private]
+        sw_search_bar_types_container_header  [private]
+      sw_search_bar_types_module_filters_container  [private]
+        sw_search_bar_types_module_filters_container_empty  [private]
+          sw_search_bar_types_module_filters_container_empty_text  [private]
+        sw_search_bar_types_module_filters_container_footer  [private]
+    sw_search_bar_search_preferences_modal  [private]</pre></div>
+</div>
+<h3><code>module/sw-login/page/sw-login.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-login  private  ts  [private]
+  registered src/module/sw-login/index.js  [private]
+  source src/module/sw-login/page/index/index.ts  [private]
+  template src/module/sw-login/page/index/sw-login.html.twig  [private]
+  visibility-source export  [private]
+
+props
+  hash?: string  default=literal  [private]
+
+data
+<mark>  isLoading: any  [private]</mark>
+<mark>  isLoginError: any  [private]</mark>
+<mark>  isLoginSuccess: any  [private]</mark>
+<mark>  shouldRenderDOM: any  [private]</mark>
+
+computed
+  title: any  [private]
+
+methods
+  _reloadPage(): any  [private]
+  loginError(): any  [private]
+  loginSuccess(): any  [private]
+  setLoading(val: boolean): any  [private]
+
+blocks
+  sw_login  [private]
+    sw_login_container  [private]
+      sw_login_form  [private]
+<mark>        sw_login_badge  [private]</mark>
+<mark>          sw_login_badge_image  [private]</mark>
+        sw_login_loader  [private]
+        sw_login_view  [private]
+<mark>      sw_login_image  [private]</mark>
+<mark>        sw_login_image_headlines  [private]</mark>
+<mark>          sw_login_headline  [private]</mark>
+<mark>          sw_login_sub_headline  [private]</mark></pre></div>
+<div><h4>Head</h4><pre>component sw-login  private  ts  [private]
+  registered src/module/sw-login/index.js  [private]
+  source src/module/sw-login/page/index/index.ts  [private]
+  template src/module/sw-login/page/index/sw-login.html.twig  [private]
+  visibility-source export  [private]
+
+props
+  hash?: string  default=literal  [private]
+
+data
+<mark>  isLoading: boolean  [private]</mark>
+<mark>  isLoginError: boolean  [private]</mark>
+<mark>  isLoginSuccess: boolean  [private]</mark>
+<mark>  loginConfig: null | LoginConfig  [private]</mark>
+<mark>  shouldRenderDOM: boolean  [private]</mark>
+
+computed
+<mark>  assetFilter: any  [private]</mark>
+<mark>  showBackToLoginLink: any  [private]</mark>
+<mark>  showForgotPasswordLink: any  [private]</mark>
+  title: any  [private]
+
+methods
+  _reloadPage(): any  [private]
+  loginError(): any  [private]
+  loginSuccess(): any  [private]
+  setLoading(val: boolean): any  [private]
+<mark>  setLoginConfig(loginConfig: LoginConfig): any  [private]</mark>
+
+blocks
+  sw_login  [private]
+    sw_login_container  [private]
+<mark>      sw_login_back_link  [private]</mark>
+<mark>      sw_login_forgot_password_link  [private]</mark>
+      sw_login_form  [private]
+        sw_login_loader  [private]
+        sw_login_view  [private]
+<mark>      sw_login_logo  [private]</mark></pre></div>
+</div>
+<h3><code>module/sw-login/view/sw-login-login.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-login-login  private  ts  [private]
+  registered src/module/sw-login/index.js  [private]
+  source src/module/sw-login/view/sw-login-login/index.ts  [private]
+  template src/module/sw-login/view/sw-login-login/sw-login-login.html.twig  [private]
+  visibility-source export  [private]
+
+<mark>mixins</mark>
+<mark>  notification  [private]</mark>
+
+inject
+  licenseViolationService  [private]
+  loginService  [private]
+  userService  [private]
+
+emits
+  is-loading(...args: any[])  [private]
+  is-not-loading(...args: any[])  [private]
+  login-error(...args: any[])  [private]
+  login-success(...args: any[])  [private]
+
+data
+  loginAlertMessage: string  [private]
+  loginConfig: null | LoginConfig  [private]
+  loginConfigLoaded: boolean  [private]
+  password: string  [private]
+  rememberMe: boolean  [private]
+  ssoLoading: boolean  [private]
+  username: string  [private]
+
+computed
+  showLoginAlert: any  [private]
+
+methods
+  _navigateTo(url: string): any  [private]
+  _reloadPage(): any  [private]
+<mark>  createNotificationFromResponse(response: unknown): any  [private]</mark>
+  createdComponent(): Promise&lt;any&gt;  [private]
+  doSsoForwarding(): any  [private]
+  forwardLogin(): Promise&lt;any&gt;  [private]
+  handleLoginError(response: unknown): any  [private]
+  handleLoginSuccess(): any  [private]
+  loginUserWithPassword(): any  [private]
+
+blocks
+  sw_login_login  [private]
+    sw_login_login_alert  [private]
+    sw_login_login_form_headline  [private]
+    sw_login_login_password_field  [private]
+    sw_login_login_submit  [private]
+<mark>      sw_login_login_forgot_password  [private]</mark>
+      sw_login_login_submit_button  [private]
+    sw_login_login_user_field  [private]</pre></div>
+<div><h4>Head</h4><pre>component sw-login-login  private  ts  [private]
+  registered src/module/sw-login/index.js  [private]
+  source src/module/sw-login/view/sw-login-login/index.ts  [private]
+  template src/module/sw-login/view/sw-login-login/sw-login-login.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  licenseViolationService  [private]
+  loginService  [private]
+  userService  [private]
+
+emits
+<mark>  config-loaded(...args: any[])  [private]</mark>
+  is-loading(...args: any[])  [private]
+  is-not-loading(...args: any[])  [private]
+  login-error(...args: any[])  [private]
+  login-success(...args: any[])  [private]
+
+data
+  loginAlertMessage: string  [private]
+  loginConfig: null | LoginConfig  [private]
+  loginConfigLoaded: boolean  [private]
+<mark>  loginErrorMessage: string  [private]</mark>
+  password: string  [private]
+  rememberMe: boolean  [private]
+  ssoLoading: boolean  [private]
+  username: string  [private]
+
+computed
+  showLoginAlert: any  [private]
+
+methods
+  _navigateTo(url: string): any  [private]
+  _reloadPage(): any  [private]
+  createdComponent(): Promise&lt;any&gt;  [private]
+  doSsoForwarding(): any  [private]
+  forwardLogin(): Promise&lt;any&gt;  [private]
+  handleLoginError(response: unknown): any  [private]
+  handleLoginSuccess(): any  [private]
+  loginUserWithPassword(): any  [private]
+<mark>  showLoginErrorFromResponse(response: unknown): any  [private]</mark>
+
+blocks
+  sw_login_login  [private]
+    sw_login_login_alert  [private]
+<mark>    sw_login_login_error  [private]</mark>
+    sw_login_login_form_headline  [private]
+    sw_login_login_password_field  [private]
+<mark>    sw_login_login_sso  [private]</mark>
+<mark>      sw_login_login_sso_button  [private]</mark>
+<mark>      sw_login_login_sso_divider  [private]</mark>
+    sw_login_login_submit  [private]
+      sw_login_login_submit_button  [private]
+    sw_login_login_user_field  [private]</pre></div>
+</div>
+<h3><code>module/sw-sales-channel/component/structure/sw-sales-channel-menu.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-sales-channel-menu  private  js  [private]
+  registered src/module/sw-sales-channel/index.js  [private]
+  source src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js  [private]
+  template src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  acl  [private]
+  domainLinkService  [private]
+  repositoryFactory  [private]
+
+data
+  isLoading: any  [private]
+  salesChannels: any  [private]
+  showModal: any  [private]
+
+computed
+  buildMenuTree: any  [private]
+  canCreateSalesChannels: any  [private]
+  moreItemsEntry: any  [private]
+  moreSalesChannelAvailable: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelFavorites: any  [private]
+  salesChannelFavoritesService: any  [private]
+  salesChannelRepository: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  getDomainLink(salesChannel: any): any  [private]
+  loadEntityData(): any  [private]
+  openSalesChannelModal(): any  [private]
+  openStorefrontLink(storeFrontLink: any): any  [private]
+  registerListener(): any  [private]
+
+blocks
+  sw_sales_channel_menu  [private]
+    sw_sales_channel_menu_headline  [private]
+<mark>      sw_sales_channel_menu_headline_action  [private]</mark>
+      sw_sales_channel_menu_headline_context_button  [private]
+        sw_sales_channel_menu_headline_context_button_item  [private]
+      sw_sales_channel_menu_headline_text  [private]
+    sw_sales_channel_menu_modal  [private]
+    sw_sales_channel_menu_navigation  [private]
+<mark>      sw_sales_channel_menu_context_button_collapsed  [private]</mark>
+      sw_sales_channel_menu_navigation_main_list  [private]
+        sw_sales_channel_menu_navigation_main_items  [private]
+          sw_sales_channel_menu_navigation_item_additional_text  [private]
+        sw_sales_channel_menu_navigation_more_items  [private]</pre></div>
+<div><h4>Head</h4><pre>component sw-sales-channel-menu  private  js  [private]
+  registered src/module/sw-sales-channel/index.js  [private]
+  source src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js  [private]
+  template src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig  [private]
+  visibility-source export  [private]
+
+inject
+  acl  [private]
+  domainLinkService  [private]
+  repositoryFactory  [private]
+
+data
+<mark>  contextMenuOpen: any  [private]</mark>
+  isLoading: any  [private]
+<mark>  isMobileViewport: any  [private]</mark>
+  salesChannels: any  [private]
+<mark>  salesChannelsLoaded: any  [private]</mark>
+  showModal: any  [private]
+
+computed
+<mark>  adminMenuStore: any  [private]</mark>
+  buildMenuTree: any  [private]
+  canCreateSalesChannels: any  [private]
+<mark>  isSidebarExpanded: any  [private]</mark>
+  moreItemsEntry: any  [private]
+  moreSalesChannelAvailable: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelFavorites: any  [private]
+  salesChannelFavoritesService: any  [private]
+  salesChannelRepository: any  [private]
+<mark>  showAddChannelMenuItem: any  [private]</mark>
+
+methods
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  getDomainLink(salesChannel: any): any  [private]
+  loadEntityData(): any  [private]
+  openSalesChannelModal(): any  [private]
+  openStorefrontLink(storeFrontLink: any): any  [private]
+  registerListener(): any  [private]
+<mark>  syncMobileViewport(): any  [private]</mark>
+
+blocks
+  sw_sales_channel_menu  [private]
+    sw_sales_channel_menu_headline  [private]
+      sw_sales_channel_menu_headline_context_button  [private]
+<mark>        sw_sales_channel_menu_headline_action  [private]</mark>
+        sw_sales_channel_menu_headline_context_button_item  [private]
+      sw_sales_channel_menu_headline_text  [private]
+    sw_sales_channel_menu_modal  [private]
+    sw_sales_channel_menu_navigation  [private]
+      sw_sales_channel_menu_navigation_main_list  [private]
+<mark>        sw_sales_channel_menu_navigation_add_channel  [private]</mark>
+        sw_sales_channel_menu_navigation_main_items  [private]
+          sw_sales_channel_menu_navigation_item_additional_text  [private]
+        sw_sales_channel_menu_navigation_more_items  [private]</pre></div>
+</div>
+</main>
+</body>
+</html>

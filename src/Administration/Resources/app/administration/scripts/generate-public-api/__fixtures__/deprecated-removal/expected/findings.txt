@@ -1,0 +1,15 @@
+Public API check passed: no breaks.
+
+Allowed (4)
+  deprecated_removal  component:sw-example-card/block:sw_example_card_subtitle  current, major
+    The block carried @deprecated tag:v6.8.0 at base and the head version is 6.8, so its removal is announced.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:3
+  deprecated_removal  component:sw-example-card/computed:hasSubtitle  current, major
+    The computed property carried @deprecated tag:v6.8.0 at base and the head version is 6.8, so its removal is announced.
+    At: src/app/component/base/sw-example-card/index.js:32
+  deprecated_removal  component:sw-example-card/method:getSubtitleClasses  current, major
+    The method carried @deprecated tag:v6.8.0 at base and the head version is 6.8, so its removal is announced.
+    At: src/app/component/base/sw-example-card/index.js:38
+  deprecated_removal  component:sw-example-card/prop:subtitle  current, major
+    The prop carried @deprecated tag:v6.8.0 at base and the head version is 6.8, so its removal is announced.
+    At: src/app/component/base/sw-example-card/index.js:12

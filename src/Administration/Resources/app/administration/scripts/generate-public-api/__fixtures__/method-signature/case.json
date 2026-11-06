@@ -1,0 +1,6 @@
+{
+    "row": "Method parameters changed in an incompatible way",
+    "headVersion": "6.7",
+    "majorFlags": ["v6.8.0.0"],
+    "acceptedBreaks": null
+}

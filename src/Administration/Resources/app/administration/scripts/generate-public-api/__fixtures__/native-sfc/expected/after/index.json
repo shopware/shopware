@@ -1,0 +1,19 @@
+{
+    "components": {
+        "sw-native-example": {
+            "file": "app/component/base/sw-native-example",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_native_example",
+                "sw_native_example_button_label"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {}
+}

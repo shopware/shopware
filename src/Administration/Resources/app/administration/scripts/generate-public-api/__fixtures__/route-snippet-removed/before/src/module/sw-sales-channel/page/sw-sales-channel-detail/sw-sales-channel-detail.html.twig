@@ -1,0 +1,27 @@
+{% block sw_sales_channel_detail %}
+<sw-page class="sw-sales-channel-detail">
+    {% block sw_sales_channel_detail_header %}
+    <template #smart-bar-header>
+        {% block sw_sales_channel_detail_header_headline %}
+        <h2>{{ salesChannel?.translated?.name }}</h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_content %}
+    <template #content>
+        {% block sw_sales_channel_detail_content_view %}
+        <router-view
+            :key="$route.params.id"
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :sales-channel="salesChannel"
+            />
+        </router-view>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

@@ -1,0 +1,6 @@
+{
+    "row": "an intended break with an acceptance entry (D14)",
+    "headVersion": "6.7",
+    "majorFlags": ["v6.8.0.0"],
+    "acceptedBreaks": "public-api/accepted-breaks.json"
+}

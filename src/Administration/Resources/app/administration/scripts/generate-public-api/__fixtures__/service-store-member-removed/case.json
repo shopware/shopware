@@ -1,0 +1,6 @@
+{
+    "row": "Component, block, method, computed property, service, store member, route or snippet key removed or renamed",
+    "headVersion": "6.7",
+    "majorFlags": ["v6.8.0.0"],
+    "acceptedBreaks": null
+}

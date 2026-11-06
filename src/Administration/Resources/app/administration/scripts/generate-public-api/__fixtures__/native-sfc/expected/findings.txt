@@ -1,0 +1,18 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  block_missing  component:sw-native-example/block:sw_native_example_label  current, major
+    The block is gone, so plugin overrides with <sw-block extends="sw_native_example_label"> or {% block sw_native_example_label %} render nothing.
+    Fix: keep the block, even empty, and mark it <!-- @deprecated tag:v6.8.0 -->, or add an entry to public-api/accepted-breaks.json.
+    Possible rename: sw_native_example_button_label.
+    At: src/app/component/base/sw-native-example/sw-native-example.vue:2
+  setup_missing  component:sw-native-example/setup:increment  current, major
+    The public setup binding is gone, so native overrides that call previousState.increment() and Options API overrides that call $super('increment') throw at runtime, and swDefineOverride({ increment }) no longer replaces anything.
+    Fix: keep the binding in swDefinePublic and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/component/base/sw-native-example/sw-native-example.vue:17
+
+Addition (1)
+  block_added  component:sw-native-example/block:sw_native_example_button_label  current, major
+    A new public block that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/app/component/base/sw-native-example/sw-native-example.vue:4

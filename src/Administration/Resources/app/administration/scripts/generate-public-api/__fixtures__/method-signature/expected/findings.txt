@@ -1,0 +1,16 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  method_signature_changed  component:sw-example-list/method:onDeleteItem  current, major
+    The method has a new required parameter itemIndex, so plugin calls and $super('onDeleteItem', ...) calls that pass the old arguments leave it undefined.
+    Fix: add the new parameter as optional at the end, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/component/base/sw-example-list/index.js:27
+  method_signature_changed  component:sw-example-list/method:validateSelection  current, major
+    The method switched from sync to async, so plugin overrides that use the return value of $super('validateSelection') get a Promise instead.
+    Fix: keep the method sync and add an async method under a new name, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/component/base/sw-example-list/index.js:36
+
+Addition (1)
+  method_optional_param_added  component:sw-example-list/method:onPageChange  current, major
+    The method has a new optional parameter limit that plugins can pass from now on.
+    At: src/app/component/base/sw-example-list/index.js:32

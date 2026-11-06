@@ -1,0 +1,20 @@
+{% block sw_example_detail %}
+<sw-page class="sw-example-detail">
+    {% block sw_example_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_example_detail_sales_channels %}
+            <sw-entity-multi-select
+                :entity-collection="salesChannels"
+                :criteria="salesChannelCriteria"
+                :result-limit="500"
+                :disabled="isLoading"
+                :label="$tc('sw-example.detail.labelSalesChannels')"
+                @update:entity-collection="onChangeSalesChannels"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

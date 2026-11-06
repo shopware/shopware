@@ -1,0 +1,12 @@
+{% block sw_sales_channel_detail_language_switch %}
+<template #language-switch>
+    <sw-language-switch disabled />
+</template>
+{% endblock %}
+
+{% block sw_sales_channel_detail_content_language_info %}
+<sw-language-info
+    :entity-description="salesChannel?.translated?.name ?? $t('sw-sales-channel.detail.textHeadline')"
+    is-new-entity
+/>
+{% endblock %}

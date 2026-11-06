@@ -1,0 +1,44 @@
+{% block sw_example_detail %}
+<sw-page class="sw-example-detail">
+    {% block sw_example_detail_header %}
+    <template #smart-bar-header>
+        <h2>{{ example?.name }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_example_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_example_detail_actions_save %}
+        <mt-button
+            variant="primary"
+            :disabled="isLoading || !acl.can('example.editor')"
+            @click="onSave"
+        >
+            {{ $t('global.default.save') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_example_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_example_detail_content_card %}
+            <mt-card
+                v-if="example"
+                position-identifier="sw-example-detail-card"
+                :title="$t('sw-example.detail.titleCard')"
+                :is-loading="isLoading"
+            >
+                <mt-text-field
+                    v-model="example.name"
+                    :label="$t('sw-example.detail.labelName')"
+                    :disabled="!acl.can('example.editor')"
+                />
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

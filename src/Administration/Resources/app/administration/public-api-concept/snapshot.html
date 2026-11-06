@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generated files · Admin API Snapshot</title>
+<style>
+:root {
+  --bg: #f7f7f5; --surface: #ffffff; --text: #1b1b1f; --muted: #5d5d66; --border: #e3e3e8; --soft: #f1f1f4;
+  --accent: #3b5bdb; --accent-soft: #e8edff;
+  --ok: #157347; --ok-bg: #e3f4ea; --bad: #b42318; --bad-bg: #fde8e7; --warn: #8a5a00; --warn-bg: #fdf0d5;
+  --info: #0b6e99; --info-bg: #e2f2fa; --mute-bg: #ececf0;
+  --code-bg: #f3f3f6; --dark: #14151d; --dark-text: #d8dae6; --dark-border: #262838;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111216; --surface: #181a20; --text: #e9e9ee; --muted: #a0a0ac; --border: #2b2d36; --soft: #1e2028;
+    --accent: #8ea2ff; --accent-soft: #1d2442;
+    --ok: #6fd39b; --ok-bg: #14301f; --bad: #ff9a92; --bad-bg: #3a1a18; --warn: #f0c066; --warn-bg: #362a10;
+    --info: #7cc8ec; --info-bg: #10293a; --mute-bg: #262833;
+    --code-bg: #1f2129; --dark: #0d0e13; --dark-text: #d8dae6; --dark-border: #262838;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111216; --surface: #181a20; --text: #e9e9ee; --muted: #a0a0ac; --border: #2b2d36; --soft: #1e2028;
+  --accent: #8ea2ff; --accent-soft: #1d2442;
+  --ok: #6fd39b; --ok-bg: #14301f; --bad: #ff9a92; --bad-bg: #3a1a18; --warn: #f0c066; --warn-bg: #362a10;
+  --info: #7cc8ec; --info-bg: #10293a; --mute-bg: #262833;
+  --code-bg: #1f2129; --dark: #0d0e13; --dark-text: #d8dae6; --dark-border: #262838;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 72px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.6 system-ui, -apple-system, "Segoe UI", Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4, p, ul, ol, table, pre { margin: 0; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+code { font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* Top bar */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.top .in { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { font-weight: 750; letter-spacing: -.01em; white-space: nowrap; color: var(--text); }
+.brand span { color: var(--muted); font-weight: 500; }
+.pages { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.pages::-webkit-scrollbar { display: none; }
+.pages a { color: var(--muted); font-size: 14px; font-weight: 550; padding: 6px 10px; border-radius: 7px; white-space: nowrap; }
+.pages a:hover { background: var(--soft); text-decoration: none; color: var(--text); }
+.pages a.on { background: var(--accent-soft); color: var(--accent); }
+
+/* Layout */
+.layout { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 0; } .toc { display: none; } }
+.toc { position: sticky; top: 80px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; padding: 32px 0; font-size: 13.5px; }
+.toc .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.toc a { display: block; color: var(--muted); padding: 4px 0 4px 12px; border-left: 2px solid var(--border); }
+.toc a.l3 { padding-left: 24px; font-size: 13px; }
+.toc a:hover { color: var(--text); text-decoration: none; border-left-color: var(--accent); }
+main { padding: 40px 0 96px; min-width: 0; }
+
+/* Typography */
+.eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.15; letter-spacing: -.02em; margin-top: 6px; }
+.lead { font-size: 17.5px; color: var(--muted); margin-top: 12px; max-width: 820px; }
+h2 { font-size: 24px; line-height: 1.25; letter-spacing: -.015em; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border); }
+h3 { font-size: 18px; line-height: 1.3; margin-top: 32px; }
+h4 { font-size: 15px; margin-top: 20px; }
+main p { margin-top: 12px; max-width: 860px; }
+main ul, main ol { margin-top: 12px; padding-left: 22px; max-width: 860px; }
+main li { margin: 5px 0; }
+main li > ul { margin-top: 4px; }
+.muted { color: var(--muted); }
+.small { font-size: 13.5px; }
+
+/* Boxes */
+.note { margin-top: 18px; padding: 14px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); max-width: 900px; }
+.note.warn { border-left-color: var(--warn); }
+.note.bad { border-left-color: var(--bad); }
+.note.ok { border-left-color: var(--ok); }
+.note p:first-child, .note ul:first-child { margin-top: 0; }
+.proposal { margin-top: 18px; padding: 16px 18px; border-radius: 12px; border: 2px dashed var(--warn); background: var(--warn-bg); }
+.proposal > .tag { margin-bottom: 6px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; min-width: 0; }
+.card h4 { margin-top: 0; }
+.card p { margin-top: 6px; font-size: 14.5px; color: var(--muted); }
+a.card { color: inherit; display: block; }
+a.card:hover { border-color: var(--accent); text-decoration: none; }
+
+/* Tables */
+.tw { margin-top: 16px; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--soft); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.id { font-family: ui-monospace, Menlo, monospace; font-weight: 700; white-space: nowrap; color: var(--accent); }
+td pre { margin-top: 0; font-size: 12px; background: var(--code-bg); border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+td .gap { margin-top: 6px; font-size: 13px; color: var(--bad); }
+td .gap::before { content: "Gap: "; font-weight: 700; }
+
+/* Tags */
+.tag { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; margin: 1px 2px 1px 0; background: var(--mute-bg); color: var(--muted); }
+.t-break { background: var(--bad-bg); color: var(--bad); }
+.t-add, .t-allowed, .t-ok { background: var(--ok-bg); color: var(--ok); }
+.t-accepted, .t-warn { background: var(--warn-bg); color: var(--warn); }
+.t-info { background: var(--info-bg); color: var(--info); }
+.t-spec { background: var(--accent-soft); color: var(--accent); }
+.t-snap { background: var(--ok-bg); color: var(--ok); }
+.t-fix { background: var(--info-bg); color: var(--info); }
+.t-hist { background: var(--warn-bg); color: var(--warn); }
+.t-gap { background: var(--bad-bg); color: var(--bad); }
+
+/* Code */
+pre.code { margin-top: 14px; background: var(--dark); color: var(--dark-text); border: 1px solid var(--dark-border); border-radius: 10px; padding: 14px 16px; font-size: 12.5px; line-height: 1.6; overflow-x: auto; }
+.code .c { color: #6f7596; } .code .k { color: #c792ea; } .code .s { color: #a5e3a0; } .code .t { color: #82aaff; }
+.code .sec { color: #a9b7ff; font-weight: 700; } .code .m { color: #f0c066; } .code .a { color: #6fd39b; } .code .d { color: #ff9a92; }
+.code .add { display: block; background: rgba(111,211,155,.10); color: #8fe3b4; }
+.code .del { display: block; background: rgba(255,154,146,.10); color: #ffb3ac; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+.pair > div { min-width: 0; }
+.pair.stack { grid-template-columns: minmax(0, 1fr); }
+.pair.stack pre.code { height: auto; }
+.pair pre.code { margin-top: 6px; height: calc(100% - 26px); }
+@media (max-width: 1100px) { .pair { grid-template-columns: minmax(0, 1fr); } .pair pre.code { height: auto; } }
+.fname { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.fname b { color: var(--text); font-weight: 600; }
+
+/* Legend + flow */
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; font-size: 13.5px; color: var(--muted); align-items: center; }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin-top: 18px; }
+.flow .st { flex: 1 1 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.flow .st b { display: block; font-size: 14.5px; }
+.flow .st span { color: var(--muted); font-size: 13px; }
+.flow .ar { display: flex; align-items: center; color: var(--muted); }
+.flow .st.hl { border-color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 760px) { .flow .ar { display: none; } }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.pager a { font-weight: 600; }
+
+/* v2 additions */
+.code .ln { display: block; min-height: 1.6em; white-space: pre; }
+pre.code.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+td.ck { text-align: center; color: var(--ok); font-weight: 800; width: 1%; white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+th.ck { padding-left: 6px; padding-right: 6px; font-size: 11px; }
+th.ck { text-align: center; }
+tr.has-gap td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+td.id a { color: var(--accent); }
+tr:target td { background: var(--accent-soft); }
+details.dts { margin-top: 8px; }
+details.dts > summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+details.dts > summary:hover { text-decoration: underline; }
+details.box { margin-top: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 16px; }
+details.box > summary { cursor: pointer; font-weight: 650; padding: 14px 0; }
+details.box[open] { padding-bottom: 16px; }
+.tldr { margin-top: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; max-width: 900px; }
+.tldr ul { margin-top: 6px; }
+.howto { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--text); }
+.steps { counter-reset: s; display: grid; gap: 14px; margin-top: 18px; }
+.step { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 16px 58px; min-width: 0; }
+.step::before { counter-increment: s; content: counter(s); position: absolute; left: 16px; top: 15px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+.step h4 { margin-top: 0; }
+.step p { margin-top: 6px; }
+.step pre.code { margin-top: 10px; }
+.src-tag { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+.src-real { background: var(--ok-bg); color: var(--ok); }
+.src-illu { background: var(--warn-bg); color: var(--warn); }
+.cmp th:first-child { width: 22%; }
+.tree { margin-top: 18px; display: grid; gap: 10px; max-width: 760px; }
+.tree .q { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.tree .q .n { width: 26px; height: 26px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--muted); }
+.tree .q .yes { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.tree .no { font-size: 12.5px; color: var(--muted); padding-left: 52px; }
+.matrix td, .matrix th { text-align: center; }
+.matrix td:first-child, .matrix th:first-child { text-align: left; white-space: nowrap; }
+.matrix td.nr { background: var(--bad-bg); color: var(--bad); font-weight: 700; font-size: 12px; }
+.matrix td.na { color: var(--muted); opacity: .45; }
+.matrix th { white-space: normal; min-width: 72px; }
+.matrix a { font-family: ui-monospace, Menlo, monospace; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.pair3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+@media (max-width: 900px) { .pair3 { grid-template-columns: minmax(0, 1fr); } }
+.pair3 > div { min-width: 0; }
+.pair3 .lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+.gloss dt { font-weight: 700; margin-top: 16px; }
+.gloss dd { margin: 4px 0 0; color: var(--muted); max-width: 820px; }
+.flowgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+@media (max-width: 760px) { .flowgrid { grid-template-columns: minmax(0, 1fr); } }
+.flowgrid .st { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.flowgrid .st b { display: block; }
+.flowgrid .st span { color: var(--muted); font-size: 13px; }
+.flowgrid .st.hl { border-color: var(--accent); background: var(--accent-soft); }
+.stamp { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="brand" href="index.html">Admin API Snapshot <span>review</span></a><nav class="pages"><a href="index.html">Overview</a><a href="snapshot.html" class="on">Generated files</a><a href="coverage.html">Coverage</a><a href="open.html">Open questions</a><a href="plugins.html">Plugins</a><a href="generator.html">Generator</a><a href="backtest.html">Backtest</a><a href="decisions.html">Decisions</a><a href="glossary.html">Glossary</a></nav></div></header>
+<div class="layout">
+<aside class="toc"><div class="lbl">On this page</div>
+<a class="" href="#what-a-pr-shows">What a PR shows</a>
+<a class="l3" href="#the-snapshot-diff">The snapshot diff</a>
+<a class="l3" href="#the-check-summary">The check summary</a>
+<a class="l3" href="#annotations">Annotations</a>
+<a class="l3" href="#html-page">HTML page</a>
+<a class="" href="#how-to-read-a-report">How to read a report</a>
+<a class="" href="#folder-layout">Folder layout</a>
+<a class="" href="#one-example-per-unit">One example per unit</a>
+<a class="l3" href="#component">Component</a>
+<a class="l3" href="#extend-child">Extend child</a>
+<a class="l3" href="#native-setup-sfc">Native setup SFC</a>
+<a class="l3" href="#module-and-routes">Module and routes</a>
+<a class="l3" href="#snippets">Snippets</a>
+<a class="l3" href="#shopware-object">Shopware object</a>
+<a class="l3" href="#service-and-store">Service and store</a>
+<a class="l3" href="#mixin">Mixin</a>
+<a class="l3" href="#shopware-modules">shopware:* modules</a>
+<a class="l3" href="#referenced-source-types">Referenced source types</a>
+<a class="l3" href="#intended-breaks">Intended breaks</a>
+<a class="" href="#internal-files">Internal files</a>
+</aside>
+<main>
+<div class="eyebrow">Page 2 of 9 · Must read · about 20 min</div>
+<h1>Generated files</h1>
+<p class="lead">What the generator writes and what a PR shows to reviewers. Start with the PR view, then check whether the reports contain the right things.</p>
+
+<div class="note"><p>Excerpts marked <span class="src-tag src-real">real golden file</span> come from the golden files on the branch, shortened where you see <code>…</code>.
+Excerpts marked <span class="src-tag src-illu">illustrative</span> show the format with an invented case.
+The <code>.d.ts</code> files are collapsed; open them when you want to check the types.</p></div>
+
+<h2 id="what-a-pr-shows">What a PR shows</h2>
+<h3 id="the-snapshot-diff">The snapshot diff <span class="src-tag src-real">real golden file</span></h3>
+<p>The expected diff of PR <a href="https://github.com/shopware/shopware/issues/20959">#20959</a>: a new deprecation, a moved block subtree and a new crossing.
+GitHub collapses these files by default; reviewers open them when the check summary points there.</p>
+<pre class="code"><span class="ln">--- a/module/sw-order/component/sw-order-details-state-card.api.md</span><span class="ln">+++ b/module/sw-order/component/sw-order-details-state-card.api.md</span><span class="ln">   stateName: any</span><span class="ln del">-  stateSelectBackgroundStyle: any</span><span class="ln add">+  stateSelectBackgroundStyle: any  [deprecated tag:v6.8.0]</span><span class="ln">   stateTransitionMethod: any</span><span class="ln">   …</span><span class="ln">   sw_order_detail_state_card</span><span class="ln">     sw_order_detail_state_card_state</span><span class="ln">       sw_order_detail_state_card_state_history_button</span><span class="ln del">-      sw_order_detail_state_card_state_history_text</span><span class="ln del">-        sw_order_detail_state_card_state_history_text_internal_comment</span><span class="ln del">-        sw_order_detail_state_card_state_history_text_label</span><span class="ln">       sw_order_detail_state_card_state_select</span><span class="ln add">+        sw_order_detail_state_card_state_history_text</span><span class="ln add">+          sw_order_detail_state_card_state_history_text_internal_comment</span><span class="ln add">+          sw_order_detail_state_card_state_history_text_label</span><span class="ln"></span><span class="ln">--- a/module/sw-order/page/sw-order-detail.api.md</span><span class="ln">+++ b/module/sw-order/page/sw-order-detail.api.md</span><span class="ln">   …</span><span class="ln add">+crossings</span><span class="ln add">+  &lt;div&gt;  sw_order_detail_header -&gt; sw_order_detail_header_label_manual_order</span></pre>
+<h3 id="the-check-summary">The check summary <span class="src-tag src-real">real golden file</span></h3>
+<p>The same PR, as the break check prints it to the job log and the step summary.</p>
+<pre class="code wrap">Public API check failed: 3 unannounced breaks.
+
+Break (3)
+  block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
+    The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.
+    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28
+  element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order  current, major
+    The &lt;div&gt; element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.
+    Fix: open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8
+  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major
+    The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
+    Fix: keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/index.js:330
+
+Addition (12)
+  …
+Info (5)
+  …</pre>
+<h3 id="annotations">Annotations <span class="src-tag src-illu">illustrative</span></h3>
+<p>One GitHub annotation per finding, on the head source line. Breaks are errors, everything else is a notice. This line follows the annotation rules for the third <a href="https://github.com/shopware/shopware/issues/20959">#20959</a> finding.</p>
+<pre class="code wrap">::error file=src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js,line=330,title=method_signature_changed::The method onDeleteItem lost its parameter itemIndex, so plugin overrides that read the second argument get undefined. Fix: keep the parameter and keep passing it, or accept the break.</pre>
+<h3 id="html-page">HTML page</h3>
+<p>The break check also writes a simple page as a workflow artifact: the verdict, one card per finding, and base and head side by side with the changed lines marked.
+An expected page exists for each historical case, for example <code>__fixtures__/history/20959/expected/report.html</code>.</p>
+
+<h2 id="how-to-read-a-report">How to read a report</h2>
+<div class="tw"><table><thead><tr><th>Marker</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>[current only]</code> <code>[major only]</code></td><td>Exists in one flag state only</td></tr>
+<tr><td><code>[deprecated tag:vX]</code> <code>[experimental]</code></td><td>Tags from the source; the full message is in the <code>.d.ts</code> file</td></tr>
+<tr><td><code>[private]</code></td><td>Not public API; on every line of a private unit</td></tr>
+<tr><td><code>[inherited]</code> <code>[replaced]</code> <code>[keepsParent]</code></td><td>Where a block of an extend child comes from: unchanged from the parent, redeclared without <code>{% parent %}</code>, or redeclared with it</td></tr>
+<tr><td><code>[empty]</code> <code>[repeated]</code></td><td>Block without content, block declared more than once</td></tr>
+</tbody></table></div>
+<p>Under <code>notes</code> a report lists facts that never fail the check: <code>flag-removal-undeprecated</code> (removed in major without a tag), <code>visibility-conflict</code>, <code>duplicate-snippet-key</code> and <code>dynamic-block</code>.
+A report never contains counts or "used by" lists, because those change for reasons outside the unit.</p>
+
+<h2 id="folder-layout">Folder layout</h2>
+<p>The snapshot lives in <code>src/Administration/Resources/app/administration/public-api/</code> and mirrors <code>src/</code>.
+Each unit (a component, module, mixin, snippet file, service or store) has an <code>.api.md</code> report and a <code>.d.ts</code> file at the path of its source.</p>
+<div class="tw"><table><thead><tr><th>Path</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>module/&lt;dir&gt;/&lt;path&gt;/&lt;name&gt;.*</code></td><td>One unit per component of a module</td></tr>
+<tr><td><code>module/&lt;dir&gt;/module.*</code></td><td>The module and all its named routes</td></tr>
+<tr><td><code>module/&lt;dir&gt;/snippet.*</code></td><td>Snippet keys of the module's <code>en.json</code></td></tr>
+<tr><td><code>app/component/&lt;path&gt;/&lt;name&gt;.*</code></td><td>Global components</td></tr>
+<tr><td><code>app/mixin/&lt;name&gt;.*</code>, <code>app/store/&lt;file&gt;.*</code></td><td>Mixins and Pinia stores</td></tr>
+<tr><td><code>core/shopware.*</code>, <code>core/service/&lt;file&gt;.*</code>, <code>core/virtual-modules.*</code></td><td>The Shopware object, services, shopware:* modules</td></tr>
+<tr><td><code>types/&lt;path&gt;.*</code></td><td>Source types that other units reference (<a href="decisions.html#D16">D16</a>)</td></tr>
+<tr><td><code>&lt;name&gt;.major.d.ts</code></td><td>Only when the major state of a unit differs</td></tr>
+<tr><td><code>accepted-breaks.json</code></td><td>Intended breaks, written by hand (<a href="decisions.html#D14">D14</a>)</td></tr>
+<tr><td><code>FORMAT.md</code>, <code>_base/</code>, <code>current.d.ts</code>, <code>major.d.ts</code>, <code>index.json</code></td><td>Spec, base types, entry points and machine index, see "Internal files"</td></tr>
+</tbody></table></div>
+
+<h2 id="one-example-per-unit">One example per unit</h2>
+<h3 id="component">Component <span class="src-tag src-real">real golden file</span></h3>
+<p>The report reads like a declaration outline. Blocks form a tree, indented by nesting.
+In the <code>.d.ts</code> file every block names its parent, so a moved block is one changed line.</p>
+<div style="margin-top:14px"><div class="fname"><b>module/sw-sales-channel/page/sw-sales-channel-detail.api.md</b></div><pre class="code"><span class="ln">component sw-sales-channel-detail  public  js</span><span class="ln">  registered src/module/sw-sales-channel/index.js</span><span class="ln">  source src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js</span><span class="ln">  template src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.html.twig</span><span class="ln"></span><span class="ln"><span class="sec">mixins</span></span><span class="ln">  notification, placeholder</span><span class="ln"></span><span class="ln"><span class="sec">inject</span></span><span class="ln">  acl</span><span class="ln">  customFieldDataProviderService</span><span class="ln">  ...</span><span class="ln"></span><span class="ln"><span class="sec">provide</span></span><span class="ln">  swSalesChannelDetailGetAgenticCommerceExportConfig: any  <span class="m">[deprecated tag:v6.8.0]</span></span><span class="ln"></span><span class="ln"><span class="sec">data</span></span><span class="ln">  isLoading: any</span><span class="ln">  productComparison: object</span><span class="ln">    invalidFileName: any</span><span class="ln">    ...</span><span class="ln">  salesChannel: any</span><span class="ln"></span><span class="ln"><span class="sec">computed</span></span><span class="ln">  allowSaving: any</span><span class="ln">  customFieldRepository: any  <span class="m">[deprecated tag:v6.8.0]</span></span><span class="ln">  ...</span><span class="ln"></span><span class="ln"><span class="sec">methods</span></span><span class="ln">  isRequiredFieldEmpty(value: any): any</span><span class="ln">  loadAgenticCommerceExportConfig(): Promise&lt;any&gt;  <span class="m">[deprecated tag:v6.8.0]</span></span><span class="ln">  onSave(): Promise&lt;any&gt;</span><span class="ln">  ...</span><span class="ln"></span><span class="ln"><span class="sec">blocks</span></span><span class="ln">  sw_sales_channel_detail</span><span class="ln">    sw_sales_channel_detail_actions</span><span class="ln">      sw_sales_channel_detail_actions_save</span><span class="ln">    sw_sales_channel_detail_content</span><span class="ln">      sw_sales_channel_detail_content_tabs</span><span class="ln">        sw_sales_channel_detail_content_mt_tabs  <span class="m">[major only]</span></span><span class="ln">        sw_sales_channel_detail_content_tab_general  <span class="m">[current only]</span></span><span class="ln">        sw_sales_channel_detail_content_tab_theme  <span class="m">[empty]</span> <span class="m">[current only]</span></span><span class="ln">        ...</span><span class="ln">      sw_sales_channel_detail_content_view</span><span class="ln">    sw_sales_channel_detail_sidebar  <span class="m">[empty]</span></span><span class="ln"></span><span class="ln"><span class="sec">position-ids</span></span><span class="ln">  sw-sales-channel-detail  tabs  host=sw-tabs  block=sw_sales_channel_detail_content_tabs  <span class="m">[current only]</span></span><span class="ln">  sw-sales-channel-detail  tabs  host=mt-tabs  block=sw_sales_channel_detail_content_mt_tabs  <span class="m">[major only]</span></span><span class="ln"></span><span class="ln"><span class="sec">data-sets</span></span><span class="ln">  sw-sales-channel-detail__salesChannel  path=salesChannel</span><span class="ln"></span><span class="ln"><span class="sec">notes</span></span><span class="ln">  flag-removal-undeprecated block sw_sales_channel_detail_content_tab_general</span><span class="ln">  ...</span></pre><details class="dts"><summary>Show the .d.ts file (sw-sales-channel-detail.d.ts)</summary><pre class="code"><span class="c">// Generated by `composer admin:generate-public-api`. Do not edit.</span>
+<span class="c">// Flag state: current (v6.8.0.0 off).</span>
+<span class="c">// Source: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js</span>
+<span class="c">// Template: src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.html.twig</span>
+
+<span class="k">declare</span> <span class="k">namespace</span> AdminApi {
+    <span class="k">interface</span> Components {
+        <span class="s">&#x27;sw-sales-channel-detail&#x27;</span>: {
+            $meta: {
+                kind: <span class="s">&#x27;register&#x27;</span>;
+                lang: <span class="s">&#x27;js&#x27;</span>;
+                visibility: <span class="s">&#x27;public&#x27;</span>;
+                visibilitySource: <span class="s">&#x27;<span class="k">default</span>&#x27;</span>;
+                extends: <span class="k">null</span>;
+            };
+            props: {};
+            emits: {};
+            slots: {};
+            mixins: <span class="k">readonly</span> [<span class="s">&#x27;notification&#x27;</span>, <span class="s">&#x27;placeholder&#x27;</span>];
+            inject: {
+                acl: <span class="s">&#x27;acl&#x27;</span>;
+<span class="c">                // ...</span>
+            };
+            provide: {
+<span class="c">                /** @deprecated tag:v6.8.0 - Will be removed */</span>
+                swSalesChannelDetailGetAgenticCommerceExportConfig: AdminApi.Untyped;
+            };
+            data: {
+                isLoading: AdminApi.Untyped;
+                productComparison: {
+                    invalidFileName: AdminApi.Untyped;
+<span class="c">                    // ...</span>
+                };
+            };
+            computed: {
+<span class="c">                /** @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead. */</span>
+                customFieldRepository: AdminApi.Untyped;
+<span class="c">                // ...</span>
+            };
+            methods: {
+                isRequiredFieldEmpty(value: AdminApi.Untyped): AdminApi.Untyped;
+                onSave(): Promise&lt;AdminApi.Untyped&gt;;
+<span class="c">                // ...</span>
+            };
+            blocks: {
+                sw_sales_channel_detail: Block&lt;<span class="k">null</span>&gt;;
+                sw_sales_channel_detail_content_tabs: Block&lt;<span class="s">&#x27;sw_sales_channel_detail_content&#x27;</span>&gt;;
+                sw_sales_channel_detail_content_tab_theme: Block&lt;<span class="s">&#x27;sw_sales_channel_detail_content_tabs&#x27;</span>, <span class="s">&#x27;empty&#x27;</span>&gt;;
+<span class="c">                // ...</span>
+            };
+            crossings: <span class="k">readonly</span> [];
+            positionIdentifiers: {
+                <span class="s">&#x27;sw-sales-channel-detail&#x27;</span>: <span class="k">readonly</span> [
+                    { kind: <span class="s">&#x27;tabs&#x27;</span>; host: <span class="s">&#x27;sw-tabs&#x27;</span>; block: <span class="s">&#x27;sw_sales_channel_detail_content_tabs&#x27;</span> },
+                ];
+            };
+            dynamicPositionIdentifiers: {};
+            dataSets: {
+                <span class="s">&#x27;sw-sales-channel-detail__salesChannel&#x27;</span>: <span class="k">readonly</span> [
+                    { path: <span class="s">&#x27;salesChannel&#x27;</span> },
+                ];
+            };
+        };
+    }
+}</pre></details></div>
+
+<h3 id="extend-child">Extend child <span class="src-tag src-real">real golden file</span></h3>
+<p>The generator resolves the Twig extend and lists the blocks the child really has, with their origin.</p>
+<div style="margin-top:14px"><div class="fname"><b>module/sw-sales-channel/page/sw-sales-channel-create.api.md</b></div><pre class="code"><span class="ln">component sw-sales-channel-create  public  js</span><span class="ln">  extends sw-sales-channel-detail</span><span class="ln">  registered src/module/sw-sales-channel/index.js</span><span class="ln">  source src/module/sw-sales-channel/page/sw-sales-channel-create/index.js</span><span class="ln"></span><span class="ln"><span class="sec">blocks</span></span><span class="ln">  sw_sales_channel_detail  <span class="m">[inherited]</span></span><span class="ln">    sw_sales_channel_detail_actions  <span class="m">[inherited]</span></span><span class="ln">      sw_sales_channel_detail_actions_save  <span class="m">[inherited]</span></span><span class="ln">    …</span></pre></div>
+
+<h3 id="native-setup-sfc">Native setup SFC <span class="src-tag src-real">real golden file</span></h3>
+<p>Core ships no native SFC yet, so this is the fixture <code>native-sfc</code>. Bindings listed in <code>swDefinePublic</code> are public, all others private.</p>
+<div style="margin-top:14px"><div class="fname"><b>app/component/base/sw-native-example.api.md</b></div><pre class="code"><span class="ln">component sw-native-example  public  vue</span><span class="ln">  registered src/app/component/index.ts</span><span class="ln">  source src/app/component/base/sw-native-example/index.ts</span><span class="ln">  sfc src/app/component/base/sw-native-example/sw-native-example.vue</span><span class="ln"></span><span class="ln"><span class="sec">props</span></span><span class="ln">  label?: string  default=literal</span><span class="ln"></span><span class="ln"><span class="sec">emits</span></span><span class="ln">  save(value: number)</span><span class="ln"></span><span class="ln"><span class="sec">public</span></span><span class="ln">  count: Ref&lt;number&gt;  ref</span><span class="ln">  increment(step: number): void  function</span><span class="ln"></span><span class="ln"><span class="sec">private</span></span><span class="ln">  displayedLabel: ComputedRef&lt;string&gt;  computed  <span class="m">[private]</span></span><span class="ln"></span><span class="ln"><span class="sec">blocks</span></span><span class="ln">  sw_native_example</span><span class="ln">    sw_native_example_label</span></pre><details class="dts"><summary>Show the .d.ts file (sw-native-example.d.ts (shortened))</summary><pre class="code"><span class="k">declare</span> <span class="k">namespace</span> AdminApi {
+    <span class="k">interface</span> Components {
+        <span class="s">&#x27;sw-native-example&#x27;</span>: {
+            $meta: { kind: <span class="s">&#x27;register&#x27;</span>; lang: <span class="s">&#x27;vue&#x27;</span>; visibility: <span class="s">&#x27;public&#x27;</span>; ... };
+            props: {
+                label: Prop&lt;string, false, <span class="s">&#x27;literal&#x27;</span>&gt;;
+            };
+            emits: {
+                save: <span class="k">readonly</span> [value: number];
+            };
+            data: {
+                count: number;
+            };
+            methods: {
+                increment(step: number): void;
+            };
+            blocks: {
+                sw_native_example: Block&lt;<span class="k">null</span>&gt;;
+                sw_native_example_label: Block&lt;<span class="s">&#x27;sw_native_example&#x27;</span>&gt;;
+            };
+            setup: {
+                public: {
+                    count: SetupBinding&lt;<span class="s">&#x27;ref&#x27;</span>, <span class="k">import</span>(<span class="s">&#x27;vue&#x27;</span>).Ref&lt;number&gt;&gt;;
+                    increment: SetupBinding&lt;<span class="s">&#x27;<span class="k">function</span>&#x27;</span>, (step: number) =&gt; void&gt;;
+                };
+                private: {
+                    displayedLabel: SetupBinding&lt;<span class="s">&#x27;computed&#x27;</span>, <span class="k">import</span>(<span class="s">&#x27;vue&#x27;</span>).ComputedRef&lt;string&gt;&gt;;
+                };
+            };
+        };
+    }
+}
+
+<span class="k">interface</span> ComponentPublicApiMapping {
+    <span class="s">&#x27;sw-native-example&#x27;</span>: AdminApi.PreviousState&lt;<span class="s">&#x27;sw-native-example&#x27;</span>&gt;;
+}</pre></details></div>
+
+<h3 id="module-and-routes">Module and routes <span class="src-tag src-real">real golden file</span></h3>
+<div style="margin-top:14px"><div class="fname"><b>module/sw-sales-channel/module.api.md</b></div><pre class="code"><span class="ln">module sw-sales-channel  public  core</span><span class="ln">  registered src/module/sw-sales-channel/index.js</span><span class="ln">  entity sales_channel</span><span class="ln">  title sw-sales-channel.general.titleMenuItems</span><span class="ln">  routes sw.sales.channel.* -&gt; /sw/sales/channel/*</span><span class="ln"></span><span class="ln"><span class="sec">routes</span></span><span class="ln">  sw.sales.channel.create  /sw/sales/channel/create/:typeId  -&gt; sw-sales-channel-create  redirect=sw.sales.channel.create.base</span><span class="ln">    sw.sales.channel.create.base  /sw/sales/channel/create/:typeId/base  -&gt; sw-sales-channel-create-base  privilege=sales_channel.creator  parentPath=sw.sales.channel.list</span><span class="ln">  sw.sales.channel.detail  /sw/sales/channel/detail/:id  -&gt; sw-sales-channel-detail  redirect=sw.sales.channel.detail.base  privilege=sales_channel.viewer  parentPath=sw.sales.channel.list</span><span class="ln">    sw.sales.channel.detail.analytics  /sw/sales/channel/detail/:id/analytics  -&gt; sw-sales-channel-detail-analytics  privilege=sales_channel.viewer  parentPath=sw.sales.channel.list</span><span class="ln">    ...</span><span class="ln">  sw.sales.channel.list  /sw/sales/channel/list  -&gt; sw-sales-channel-list  privilege=sales_channel.viewer</span></pre><details class="dts"><summary>Show the .d.ts file (module.d.ts)</summary><pre class="code"><span class="k">declare</span> <span class="k">namespace</span> AdminApi {
+    <span class="k">interface</span> Modules {
+        <span class="s">&#x27;sw-sales-channel&#x27;</span>: {
+            $meta: {
+                visibility: <span class="s">&#x27;public&#x27;</span>;
+                visibilitySource: <span class="s">&#x27;<span class="k">default</span>&#x27;</span>;
+            };
+            type: <span class="s">&#x27;core&#x27;</span>;
+            entity: <span class="s">&#x27;sales_channel&#x27;</span>;
+            title: <span class="s">&#x27;sw-sales-channel.general.titleMenuItems&#x27;</span>;
+            routePrefixName: <span class="s">&#x27;sw.sales.channel&#x27;</span>;
+            routePrefixPath: <span class="s">&#x27;sw/sales/channel&#x27;</span>;
+            navigation: {};
+            settingsItem: <span class="k">null</span>;
+        };
+    }
+
+    <span class="k">interface</span> Routes {
+        <span class="s">&#x27;sw.sales.channel.create.base&#x27;</span>: {
+            module: <span class="s">&#x27;sw-sales-channel&#x27;</span>;
+            path: <span class="s">&#x27;/sw/sales/channel/create/:typeId/base&#x27;</span>;
+            params: { typeId: string };
+            component: <span class="s">&#x27;sw-sales-channel-create-base&#x27;</span>;
+            parent: <span class="s">&#x27;sw.sales.channel.create&#x27;</span>;
+            redirect: <span class="k">null</span>;
+<span class="c">            // ...</span>
+        };
+    }
+}</pre></details></div>
+
+<h3 id="snippets">Snippets <span class="src-tag src-real">real golden file</span></h3>
+<p>Keys with their placeholders and number of plural forms. Texts are never stored, so rewording a text changes nothing.</p>
+<div style="margin-top:14px"><div class="fname"><b>module/sw-sales-channel/snippet.api.md</b></div><pre class="code"><span class="ln">snippets src/module/sw-sales-channel/snippet/en.json</span><span class="ln"></span><span class="ln"><span class="sec">keys</span></span><span class="ln">  sw-sales-channel.detail.activateDisable</span><span class="ln">  sw-sales-channel.detail.foreignKeyDelete  {assignment}</span><span class="ln">  sw-sales-channel.detail.messageActivateWithoutThemeError  {name}</span><span class="ln">  sw-sales-channel.detail.productAssignmentModal.buttonAddProducts  {productCount}  plural/2</span><span class="ln">  sw-sales-channel.detail.products.buttonAddProducts  {productCount}  plural/3</span><span class="ln">  ...</span></pre><details class="dts"><summary>Show the .d.ts file (snippet.d.ts)</summary><pre class="code"><span class="c">// Flag state: both. Snippet files do not depend on feature flags.</span>
+<span class="k">declare</span> <span class="k">namespace</span> AdminApi {
+    <span class="k">interface</span> SnippetKeys {
+        <span class="s">&#x27;sw-sales-channel.detail.activateDisable&#x27;</span>: Snippet;
+        <span class="s">&#x27;sw-sales-channel.detail.foreignKeyDelete&#x27;</span>: Snippet&lt;<span class="s">&#x27;assignment&#x27;</span>&gt;;
+        <span class="s">&#x27;sw-sales-channel.detail.messageActivateWithoutThemeError&#x27;</span>: Snippet&lt;<span class="s">&#x27;name&#x27;</span>&gt;;
+        <span class="s">&#x27;sw-sales-channel.detail.products.buttonAddProducts&#x27;</span>: Snippet&lt;<span class="s">&#x27;productCount&#x27;</span>, 3&gt;;
+<span class="c">        // ...</span>
+    }
+}</pre></details></div>
+
+<h3 id="shopware-object">Shopware object <span class="src-tag src-real">real golden file</span></h3>
+<div style="margin-top:14px"><div class="fname"><b>core/shopware.api.md</b></div><pre class="code"><span class="ln">member Shopware.Component  public</span><span class="ln">  member Shopware.Component.attachOverrides  private  typeof attachOverrides  visibility-source export  <span class="m">[private]</span></span><span class="ln">  member Shopware.Component.extend  public  typeof import(&#x27;src/core/factory/async-component.factory&#x27;).default.extend</span><span class="ln">  member Shopware.Component.markComponentAsSync  public  typeof import(&#x27;src/core/factory/async-component.factory&#x27;).default.markComponentAsSync</span><span class="ln">  member Shopware.Component.override  public  typeof import(&#x27;src/core/factory/async-component.factory&#x27;).default.override</span><span class="ln">  member Shopware.Component.overrideComponentSetup  private  typeof overrideComponentSetup  visibility-source export  <span class="m">[private]</span></span><span class="ln">  member Shopware.Component.register  public  typeof import(&#x27;src/core/factory/async-component.factory&#x27;).default.register</span><span class="ln">  member Shopware.Component.wrapComponentConfig  public  typeof import(&#x27;src/core/factory/async-component.factory&#x27;).default.wrapComponentConfig</span><span class="ln">  ...</span></pre></div>
+
+<h3 id="service-and-store">Service and store <span class="src-tag src-real">real golden file</span></h3>
+<div style="margin-top:14px"><div class="fname"><b>core/service/api/config.api.service.api.md</b></div><pre class="code"><span class="ln">service configService  public  typed  api-service</span><span class="ln">  extends ApiService</span><span class="ln">  registered src/app/init-pre/api-services.init.ts</span><span class="ln">  source src/core/service/api/config.api.service.ts</span><span class="ln"></span><span class="ln"><span class="sec">members</span></span><span class="ln">  getConfig(additionalParams?: any, additionalHeaders?: any): any</span></pre></div>
+<div style="margin-top:14px"><div class="fname"><b>app/store/notification.store.api.md</b></div><pre class="code"><span class="ln">store notification  public  options  typed</span><span class="ln">  registered src/app/store/notification.store.ts</span><span class="ln"></span><span class="ln"><span class="sec">state</span></span><span class="ln">  growlNotifications: Record&lt;string, NotificationType&gt;</span><span class="ln">  notifications: Record&lt;string, NotificationType&gt;</span><span class="ln">  ...</span><span class="ln"></span><span class="ln"><span class="sec">actions</span></span><span class="ln">  createNotification(notification: NotificationType): any</span><span class="ln">  removeNotification(notification: NotificationType &amp; { uuid: string }): any</span><span class="ln">  ...</span></pre></div>
+
+<h3 id="mixin">Mixin <span class="src-tag src-real">real golden file</span></h3>
+<p><code>notification</code> is <code>@private</code> on its export, so every line is marked private.</p>
+<div style="margin-top:14px"><div class="fname"><b>app/mixin/notification.api.md</b></div><pre class="code"><span class="ln">mixin notification  private  <span class="m">[private]</span></span><span class="ln">  registered src/app/mixin/notification.mixin.ts  <span class="m">[private]</span></span><span class="ln">  visibility-source export  <span class="m">[private]</span></span><span class="ln"></span><span class="ln"><span class="sec">methods</span></span><span class="ln">  createNotification(notification: NotificationType): string | null  <span class="m">[private]</span></span><span class="ln">  createNotificationError(config: NotificationType): void  <span class="m">[private]</span></span><span class="ln">  ...</span></pre></div>
+
+<h3 id="shopware-modules">shopware:* modules <span class="src-tag src-real">real golden file</span></h3>
+<div style="margin-top:14px"><div class="fname"><b>core/virtual-modules.api.md</b></div><pre class="code"><span class="ln">module shopware:composables  public  <span class="m">[experimental]</span></span><span class="ln">  source src/app/composables/index.ts</span><span class="ln"></span><span class="ln"><span class="sec">exports</span></span><span class="ln">  default: typeof import(&#x27;src/app/composables/index&#x27;).default</span><span class="ln">  useCmsElement: (typeof members)[&#x27;useCmsElement&#x27;]</span><span class="ln">  useListing: (typeof members)[&#x27;useListing&#x27;]</span><span class="ln">  useNotification: (typeof members)[&#x27;useNotification&#x27;]</span><span class="ln">  ...</span></pre></div>
+
+<h3 id="referenced-source-types">Referenced source types <span class="src-tag src-real">real golden file</span></h3>
+<p>A type from <code>src/</code> that another unit uses gets a copy, so a change to it shows up (<a href="decisions.html#D16">D16</a>).</p>
+<div style="margin-top:14px"><div class="fname"><b>types/app/store/notification.store.api.md</b></div><pre class="code"><span class="ln">types src/app/store/notification.store.ts</span><span class="ln"></span><span class="ln">interface NotificationType  <span class="m">[private]</span></span><span class="ln">  <span class="m">[key: string]</span>: string | boolean | object | number | undefined  <span class="m">[private]</span></span><span class="ln">  ...</span><span class="ln">  autoClose?: boolean  <span class="m">[private]</span></span><span class="ln">  ...</span><span class="ln"></span><span class="ln">type NotificationVariant = &#x27;neutral&#x27; | &#x27;info&#x27; | &#x27;attention&#x27; | &#x27;critical&#x27; | &#x27;positive&#x27;  <span class="m">[private]</span></span></pre></div>
+
+<h3 id="intended-breaks">Intended breaks <span class="src-tag src-real">real golden file</span></h3>
+<p>A break made on purpose gets an entry with a mandatory justification. Code owners approve changes to this file.</p>
+<div style="margin-top:14px"><div class="fname"><b>accepted-breaks.json</b></div><pre class="code">{
+    &quot;accepted&quot;: [
+        {
+            &quot;finding&quot;: &quot;block_missing&quot;,
+            &quot;element&quot;: &quot;component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates&quot;,
+            &quot;states&quot;: [&quot;major&quot;],
+            &quot;justification&quot;: &quot;The legacy sw-tabs branch is replaced by mt-tabs in 6.8, see UPGRADE-6.8.md.&quot;,
+            &quot;issue&quot;: &quot;https://github.com/shopware/shopware/issues/14822&quot;
+        }
+    ]
+}</pre></div>
+
+<h2 id="internal-files">Internal files</h2>
+<p>Needed by tools, not by reviewers.</p>
+<details class="box"><summary>Entry points: current.d.ts and major.d.ts</summary>
+<p>Each references all files of its flag state and ends with checks that <code>tsc</code> evaluates. <code>Conforms</code> fails when an entry does not have the expected shape. <code>CheckReferences</code> fails when an <code>extends</code>, mixin, route component, parent or redirect names something that does not exist.</p>
+<div style="margin-top:14px"><div class="fname"><b>current.d.ts</b></div><pre class="code"><span class="c">// Generated by `composer admin:generate-public-api`. Do not edit.</span>
+<span class="c">// Entry point of the current flag state (v6.8.0.0 off). Every snapshot file, sorted by path.</span>
+
+<span class="c">/// &lt;reference path=&quot;./_base/admin-api.d.ts&quot; /&gt;</span>
+<span class="c">/// &lt;reference path=&quot;./app/mixin/notification.d.ts&quot; /&gt;</span>
+<span class="c">/// &lt;reference path=&quot;./module/sw-sales-channel/page/sw-sales-channel-detail.d.ts&quot; /&gt;</span>
+<span class="c">/// ...</span>
+
+<span class="k">declare</span> <span class="k">namespace</span> AdminApi {
+    type _CheckComponents = Conforms&lt;Components, ComponentShape&gt;;
+    type _CheckNativeComponents = NativeConforms&lt;Components&gt;;
+    type _CheckOverrides = Conforms&lt;ComponentOverrides, ComponentOverrideShape&gt;;
+    type _CheckMixins = Conforms&lt;Mixins, MixinShape&gt;;
+    type _CheckModules = Conforms&lt;Modules, ModuleShape&gt;;
+    type _CheckRoutes = Conforms&lt;Routes, RouteShape&gt;;
+    type _CheckSnippets = Conforms&lt;SnippetKeys, Snippet&lt;string, 1 | 2 | 3 | <span class="s">&#x27;array&#x27;</span>&gt;&gt;;
+    type _CheckReferences = CheckReferences&lt;Components, Routes&gt;;
+}</pre></div></details>
+<details class="box"><summary>Machine index: index.json</summary>
+<p>Replaces <code>blocks-list.json</code>, <code>position-identifiers.json</code>, <code>data-sets.json</code> and <code>shopware-modules.json</code> for Vite, Jest and ESLint (<a href="decisions.html#D15">D15</a>).</p>
+<div style="margin-top:14px"><div class="fname"><b>index.json</b></div><pre class="code">{
+    &quot;components&quot;: {
+        &quot;sw-sales-channel-detail&quot;: {
+            &quot;file&quot;: &quot;module/sw-sales-channel/page/sw-sales-channel-detail&quot;,
+            &quot;visibility&quot;: &quot;public&quot;,
+            &quot;extends&quot;: null,
+            &quot;blocks&quot;: [&quot;sw_sales_channel_detail&quot;, &quot;sw_sales_channel_detail_actions&quot;, &quot;...&quot;]
+        }
+    },
+    &quot;mixins&quot;: { &quot;notification&quot;: { &quot;file&quot;: &quot;app/mixin/notification&quot;, &quot;visibility&quot;: &quot;private&quot; } },
+    &quot;modules&quot;: { &quot;sw-sales-channel&quot;: { &quot;file&quot;: &quot;module/sw-sales-channel/module&quot; } },
+    &quot;positionIdentifiers&quot;: { &quot;sw-sales-channel-detail&quot;: [&quot;sw-sales-channel-detail&quot;] },
+    &quot;dynamicPositionIdentifiers&quot;: {},
+    &quot;dataSets&quot;: { &quot;sw-sales-channel-detail__salesChannel&quot;: [&quot;sw-sales-channel-detail&quot;] },
+    &quot;virtualModules&quot;: { &quot;shopware:mixins&quot;: { &quot;exports&quot;: [], &quot;subpaths&quot;: { &quot;notification&quot;: [&quot;default&quot;] } } }
+}</pre></div></details>
+<details class="box"><summary>Determinism rules</summary>
+<ul>
+  <li>Keys and lines are sorted by codepoint, sections come in a fixed order.</li>
+  <li>Committed files contain no timestamps, versions, absolute paths or line numbers.</li>
+  <li>Two runs on the same commit produce byte-identical output.</li>
+  <li>The generator copies types from the source text and never prints them from the type checker. JS members become <code>AdminApi.Untyped</code>.</li>
+</ul></details>
+
+<div class="pager"><a href="index.html">← Overview</a><a href="coverage.html">Coverage →</a></div>
+<p class="stamp">Pages as of 2026-11-06 · branch 22591-admin-make-public-api-breaks-statically-analyzable · base commit e944b563785 plus the uncommitted golden files</p>
+</main>
+</div>
+</body>
+</html>

@@ -59,7 +59,11 @@ export function evaluateLane(check: string, runs: CheckRun[]): LaneVerdict {
 
     return latest.conclusion === 'success'
         ? { check, state: 'success', message: `${check} passed` }
-        : { check, state: 'failure', message: `${check} concluded ${latest.conclusion}${latest.html_url ? `: ${latest.html_url}` : ''}` };
+        : {
+              check,
+              state: 'failure',
+              message: `${check} concluded ${latest.conclusion}${latest.html_url ? `: ${latest.html_url}` : ''}`,
+          };
 }
 
 type Repo = { owner: string; repo: string };
@@ -82,13 +86,28 @@ type GateClient = {
             }>;
         };
         checks: {
-            listForRef(options: { owner: string; repo: string; ref: string; check_name: string; filter: 'all'; per_page: number }): Promise<{
+            listForRef(options: {
+                owner: string;
+                repo: string;
+                ref: string;
+                check_name: string;
+                filter: 'all';
+                per_page: number;
+            }): Promise<{
                 data: { check_runs: CheckRun[] };
             }>;
         };
         repos: {
-            compareCommitsWithBasehead(options: { owner: string; repo: string; basehead: string }): Promise<{ data: { commits: { sha: string }[] } }>;
-            listPullRequestsAssociatedWithCommit(options: { owner: string; repo: string; commit_sha: string }): Promise<{ data: { number: number }[] }>;
+            compareCommitsWithBasehead(options: {
+                owner: string;
+                repo: string;
+                basehead: string;
+            }): Promise<{ data: { commits: { sha: string }[] } }>;
+            listPullRequestsAssociatedWithCommit(options: {
+                owner: string;
+                repo: string;
+                commit_sha: string;
+            }): Promise<{ data: { number: number }[] }>;
         };
     };
 };
@@ -113,18 +132,31 @@ async function judgePullRequest(github: GateClient, repo: Repo, number: number):
     const { data } = await github.rest.pulls.get({ ...repo, pull_number: number });
     const lanes = requiredLanes(data.labels.map((label) => label.name));
 
-    const verdicts = await Promise.all(lanes.map(async (check) => {
-        const { data: runs } = await github.rest.checks.listForRef({ ...repo, ref: data.head.sha, check_name: check, filter: 'all', per_page: 100 });
+    const verdicts = await Promise.all(
+        lanes.map(async (check) => {
+            const { data: runs } = await github.rest.checks.listForRef({
+                ...repo,
+                ref: data.head.sha,
+                check_name: check,
+                filter: 'all',
+                per_page: 100,
+            });
 
-        return evaluateLane(check, runs.check_runs);
-    }));
+            return evaluateLane(check, runs.check_runs);
+        }),
+    );
 
     return { number, verdicts };
 }
 
 export async function checkMajorLanes(
     { github, core, context }: { github: GateClient; core: Logger; context: GateContext },
-    { pollIntervalMs = 60_000, timeoutMs = 50 * 60_000, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), now = Date.now }: GateOptions = {},
+    {
+        pollIntervalMs = 60_000,
+        timeoutMs = 50 * 60_000,
+        sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+        now = Date.now,
+    }: GateOptions = {},
 ): Promise<void> {
     const mergeGroup = context.payload.merge_group;
     if (!mergeGroup) {
@@ -137,7 +169,9 @@ export async function checkMajorLanes(
 
     for (;;) {
         judged = await Promise.all(numbers.map((number) => judgePullRequest(github, context.repo, number)));
-        const pending = judged.flatMap(({ number, verdicts }) => verdicts.filter((verdict) => verdict.state === 'pending').map((verdict) => `#${number} ${verdict.message}`));
+        const pending = judged.flatMap(({ number, verdicts }) =>
+            verdicts.filter((verdict) => verdict.state === 'pending').map((verdict) => `#${number} ${verdict.message}`),
+        );
 
         if (pending.length === 0 || now() >= deadline) {
             break;
@@ -147,12 +181,21 @@ export async function checkMajorLanes(
         await sleep(pollIntervalMs);
     }
 
-    const lines = judged.map(({ number, verdicts }) => verdicts.length === 0
-        ? `- ➖ #${number} carries no major-test label`
-        : verdicts.map((verdict) => `- ${{ success: '✅', failure: '❌', pending: '⏳' }[verdict.state]} #${number} ${verdict.message}`).join('\n'));
+    const lines = judged.map(({ number, verdicts }) =>
+        verdicts.length === 0
+            ? `- ➖ #${number} carries no major-test label`
+            : verdicts
+                  .map(
+                      (verdict) =>
+                          `- ${{ success: '✅', failure: '❌', pending: '⏳' }[verdict.state]} #${number} ${verdict.message}`,
+                  )
+                  .join('\n'),
+    );
     await core.summary.addRaw(`## Major lanes\n\n${lines.join('\n')}\n`).write();
 
-    const blocking = judged.flatMap(({ number, verdicts }) => verdicts.filter((verdict) => verdict.state !== 'success').map((verdict) => `#${number} ${verdict.message}`));
+    const blocking = judged.flatMap(({ number, verdicts }) =>
+        verdicts.filter((verdict) => verdict.state !== 'success').map((verdict) => `#${number} ${verdict.message}`),
+    );
     if (blocking.length > 0) {
         core.setFailed(`Major lanes not green: ${blocking.join('; ')}`);
 

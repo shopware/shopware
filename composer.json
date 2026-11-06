@@ -301,6 +301,8 @@
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
         "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
+        "lint:github-scripts": "Lints and format-checks the TypeScript/JavaScript scripts under .github with ESLint and Prettier",
+        "lint:github-scripts:fix": "Fixes ESLint findings and applies Prettier formatting to the scripts under .github",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
@@ -479,6 +481,14 @@
         ],
         "lint:actions": ".github/bin/lint-actions.bash",
         "lint:actions:fix": ".github/bin/lint-actions.bash --fix",
+        "lint:github-scripts": [
+            "npm --prefix .github/bin/js run format",
+            "npm --prefix .github/bin/js run lint"
+        ],
+        "lint:github-scripts:fix": [
+            "npm --prefix .github/bin/js run format:fix",
+            "npm --prefix .github/bin/js run lint:fix"
+        ],
         "lint:snippets": "@php bin/shopware translation:validate",
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",

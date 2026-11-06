@@ -12,7 +12,6 @@ import {
     shouldDetect,
 } from './auto-label-major-tests.ts';
 
-
 type TestContext = {
     eventName: string;
     repo: {
@@ -64,7 +63,10 @@ test('quoted major flag in an added line matches', () => {
 });
 
 test('quoted major flag in a removed line matches', () => {
-    const diff = diffFor('src/Core/Framework/Webhook/Service/WebhookManager.php', "-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', fn () => null);");
+    const diff = diffFor(
+        'src/Core/Framework/Webhook/Service/WebhookManager.php',
+        "-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', fn () => null);",
+    );
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
@@ -97,7 +99,10 @@ test('major markers in Storefront source and tests enable the major-js arm', () 
         'src/Storefront/Resources/app/storefront/src/helper/feature.helper.js',
         'src/Storefront/Resources/app/storefront/test/helper/feature.helper.test.js',
     ]) {
-        assert.equal(hasMajorJsMarkers(diffFor(path, "+ window.Feature.isActive('v6.8.0.0');"), parseMajorFlags(REGISTRY)), true);
+        assert.equal(
+            hasMajorJsMarkers(diffFor(path, "+ window.Feature.isActive('v6.8.0.0');"), parseMajorFlags(REGISTRY)),
+            true,
+        );
     }
 });
 
@@ -137,8 +142,17 @@ test('deprecation baseline edits enable the major-js arm', () => {
 
 test('labelsForMajorTestArms adds only missing relevant labels', () => {
     assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: false }), ['major-php', 'major-js']);
-    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: true }, [{ name: 'major-php' }]), ['major-js', 'major-acceptance']);
-    assert.deepEqual(labelsForMajorTestArms({ php: false, js: true, acceptance: true }, [{ name: 'major-js' }, { name: 'major-acceptance' }]), []);
+    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: true }, [{ name: 'major-php' }]), [
+        'major-js',
+        'major-acceptance',
+    ]);
+    assert.deepEqual(
+        labelsForMajorTestArms({ php: false, js: true, acceptance: true }, [
+            { name: 'major-js' },
+            { name: 'major-acceptance' },
+        ]),
+        [],
+    );
     assert.deepEqual(labelsForMajorTestArms({ php: false, js: false, acceptance: true }), ['major-acceptance']);
 });
 
@@ -169,7 +183,10 @@ test('non-major flag usage does not match', () => {
 });
 
 test('unrelated changes do not match', () => {
-    const diff = diffFor('src/Core/Content/Cms/SalesChannel/CmsRoute.php', '+        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->getEntities()->first();');
+    const diff = diffFor(
+        'src/Core/Content/Cms/SalesChannel/CmsRoute.php',
+        '+        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->getEntities()->first();',
+    );
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
@@ -178,22 +195,34 @@ test('empty diff does not match', () => {
 });
 
 test('flag usage in .github tooling does not match', () => {
-    const diff = diffFor('.github/bin/js/auto-label-major-php.test.ts', "+    const diff = \"Feature::isActive('v6.8.0.0')\";");
+    const diff = diffFor(
+        '.github/bin/js/auto-label-major-php.test.ts',
+        '+    const diff = "Feature::isActive(\'v6.8.0.0\')";',
+    );
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 test('registry path mentioned inside a .github file does not match', () => {
-    const diff = diffFor('.github/bin/js/auto-label-major-php.ts', `+export const FEATURE_REGISTRY_PATH = '${FEATURE_REGISTRY_PATH}';`);
+    const diff = diffFor(
+        '.github/bin/js/auto-label-major-php.ts',
+        `+export const FEATURE_REGISTRY_PATH = '${FEATURE_REGISTRY_PATH}';`,
+    );
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 test('mixed diff matches through the non-excluded file only', () => {
-    const diff = diffFor('.github/workflows/php.yml', "+  # v6.8.0.0 gate") + '\n' + diffFor('src/Core/CustomCartProcessor.php', "+        if (Feature::isActive('v6.8.0.0')) {");
+    const diff =
+        diffFor('.github/workflows/php.yml', '+  # v6.8.0.0 gate') +
+        '\n' +
+        diffFor('src/Core/CustomCartProcessor.php', "+        if (Feature::isActive('v6.8.0.0')) {");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('added BC-change attribute usage matches through its version string', () => {
-    const diff = diffFor('src/Core/Framework/Context.php', "+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]");
+    const diff = diffFor(
+        'src/Core/Framework/Context.php',
+        "+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]",
+    );
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
@@ -215,21 +244,35 @@ test('BC-change attribute in .github tooling does not match', () => {
 test('markdown never matches: release headings, upgrade notes and ADRs quote versions and flags', () => {
     const changelog = diffFor('CHANGELOG.md', '+## 6.6.10.21');
     const upgradeNotes = diffFor('UPGRADE-6.8.md', '+Tools return the MCP result format only behind the `v6.8.0.0` flag.');
-    const adr = diffFor('adr/2026-09-24-mcp-tool-result-envelope.md', "+3. **Spec format only (6.8.0).** Behind the 'v6.8.0.0' flag.");
+    const adr = diffFor(
+        'adr/2026-09-24-mcp-tool-result-envelope.md',
+        "+3. **Spec format only (6.8.0).** Behind the 'v6.8.0.0' flag.",
+    );
     const upperCase = diffFor('docs/README.MD', "+Feature::isActive('v6.8.0.0')");
 
-    for (const diff of [changelog, upgradeNotes, adr, upperCase]) {
+    for (const diff of [
+        changelog,
+        upgradeNotes,
+        adr,
+        upperCase,
+    ]) {
         assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
     }
 });
 
 test('markdown next to a code change does not hide the code change', () => {
-    const diff = diffFor('adr/2026-09-24-mcp-tool-result-envelope.md', '+Behind the `v6.8.0.0` flag.') + '\n' + diffFor('src/Core/Framework/Mcp/McpToolResponse.php', "+        if (Feature::isActive('v6.8.0.0')) {");
+    const diff =
+        diffFor('adr/2026-09-24-mcp-tool-result-envelope.md', '+Behind the `v6.8.0.0` flag.') +
+        '\n' +
+        diffFor('src/Core/Framework/Mcp/McpToolResponse.php', "+        if (Feature::isActive('v6.8.0.0')) {");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('markdown inside Administration source does not enable the major-js arm', () => {
-    const diff = diffFor('src/Administration/Resources/app/administration/src/app/component/example/README.md', "+Shopware.Feature.isActive('v6.8.0.0')");
+    const diff = diffFor(
+        'src/Administration/Resources/app/administration/src/app/component/example/README.md',
+        "+Shopware.Feature.isActive('v6.8.0.0')",
+    );
     assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
@@ -302,8 +345,16 @@ test('detection selects only the acceptance arm for a spec change after PHP and 
         core: { info() {} },
         github: {
             rest: {
-                repos: { async getContent() { return { data: REGISTRY }; } },
-                pulls: { async get() { return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') }; } },
+                repos: {
+                    async getContent() {
+                        return { data: REGISTRY };
+                    },
+                },
+                pulls: {
+                    async get() {
+                        return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') };
+                    },
+                },
                 issues: { async addLabels() {} },
             },
         },

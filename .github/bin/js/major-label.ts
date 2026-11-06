@@ -125,12 +125,7 @@ type GitHubRestClient = {
         };
         issues: {
             listEvents(options: ListEventsOptions): Promise<{ data: IssueEvent[] }>;
-            addLabels(options: {
-                owner: string;
-                repo: string;
-                issue_number: number;
-                labels: string[];
-            }): Promise<unknown>;
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
         };
     };
 };
@@ -387,18 +382,11 @@ export function labelNamesFor(targetMajor: string, labels: MajorLabels): string[
     return names;
 }
 
-export function labelsForDiff(options: {
-    diff: string;
-    flags: FeatureFlag[];
-    majorPaths: string[];
-}): string[] {
+export function labelsForDiff(options: { diff: string; flags: FeatureFlag[]; majorPaths: string[] }): string[] {
     const { diff, flags, majorPaths } = options;
 
     return resolveInFlightMajors(flags).flatMap((targetMajor, index) =>
-        labelNamesFor(
-            targetMajor,
-            evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 }),
-        ),
+        labelNamesFor(targetMajor, evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 })),
     );
 }
 
@@ -417,7 +405,12 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
         return false;
     }
 
-    return ['opened', 'reopened', 'synchronize', 'ready_for_review'].includes(context.payload.action);
+    return [
+        'opened',
+        'reopened',
+        'synchronize',
+        'ready_for_review',
+    ].includes(context.payload.action);
 }
 
 export function missingLabels(context: PullRequestContext, wanted: string[]): string[] {
@@ -428,19 +421,19 @@ export function missingLabels(context: PullRequestContext, wanted: string[]): st
 
 /** Labels are only ever added: whoever removed one has overruled the detection for good. */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
-    const removed = new Set(
-        events.filter(({ event }) => event === 'unlabeled').map(({ label }) => label?.name),
-    );
+    const removed = new Set(events.filter(({ event }) => event === 'unlabeled').map(({ label }) => label?.name));
 
     return labels.filter((label) => !removed.has(label));
 }
 
 /** GitHub answers 406 `too_large` once a diff passes 300 files or 20,000 lines. */
 export function isDiffTooLarge(error: unknown): boolean {
-    const requestError = error as {
-        status?: number;
-        response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
-    } | undefined;
+    const requestError = error as
+        | {
+              status?: number;
+              response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
+          }
+        | undefined;
 
     return (
         requestError?.status === 406 &&

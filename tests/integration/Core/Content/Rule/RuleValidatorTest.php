@@ -65,8 +65,8 @@ class RuleValidatorTest extends TestCase
         $criteria = new Criteria([$ruleId]);
         $criteria->addAssociation('conditions');
 
-        /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search($criteria, $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
 
         /** @var RuleConditionCollection $ruleConditions */
         $ruleConditions = $rule->getConditions();
@@ -258,9 +258,9 @@ class RuleValidatorTest extends TestCase
             ],
         ], $this->context);
 
-        /** @var RuleConditionEntity $updatedCondition */
         $updatedCondition = $this->ruleConditionRepository->search(new Criteria([$customerOderCountId]), $this->context)
             ->getEntities()->get($customerOderCountId);
+        static::assertInstanceOf(RuleConditionEntity::class, $updatedCondition);
 
         static::assertSame('customerOrderCount', $updatedCondition->getType());
         static::assertSame($newValue, $updatedCondition->getValue());

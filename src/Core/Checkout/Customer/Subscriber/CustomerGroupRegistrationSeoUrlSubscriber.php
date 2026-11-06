@@ -11,13 +11,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -60,6 +63,7 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
             'customer_group_translation.deleted' => 'deleteCustomerGroup',
             'sales_channel_domain.written' => 'updatedSalesChannelDomain',
             'sales_channel_domain.deleted' => 'updatedSalesChannelDomain',
+            EntityWriteEvent::class => 'requestSalesChannelDomainChangeSet',
         ];
     }
 
@@ -130,21 +134,59 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
     }
 
     /**
+     * Updated and deleted domains only carry their sales channel in the change set
+     */
+    public function requestSalesChannelDomainChangeSet(EntityWriteEvent $event): void
+    {
+        foreach ($event->getCommandsForEntity(SalesChannelDomainDefinition::ENTITY_NAME) as $command) {
+            if ($command instanceof ChangeSetAware) {
+                $command->requestChangeSet();
+            }
+        }
+    }
+
+    /**
      * Domain changes (adding or removing domains, toggling the external storefront flag)
-     * change which rows may exist, so all rows of the route are recomputed and rows that
-     * no longer qualify are removed.
+     * change which rows may exist, so the rows of the route in the sales channels of the
+     * written domains are recomputed and rows that no longer qualify are removed.
      *
      * @param EntityWrittenEvent<array<string, string>> $event
      */
     public function updatedSalesChannelDomain(EntityWrittenEvent $event): void
     {
-        $this->updateSeoUrls(null, $event->getContext());
+        $salesChannelIds = $this->getSalesChannelIdsOfDomains($event);
+
+        if ($salesChannelIds === null) {
+            $this->updateSeoUrls(null, $event->getContext());
+
+            return;
+        }
+
+        if ($salesChannelIds === []) {
+            return;
+        }
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('registrationActive', true))
+            ->addFilter(new EqualsAnyFilter('registrationSalesChannels.id', $salesChannelIds));
+
+        /** @var list<string> $groupIds */
+        $groupIds = $this->customerGroupRepository->searchIds($criteria, $event->getContext())->getIds();
+
+        if ($groupIds === []) {
+            $this->removeObsoleteSeoUrls([], $event->getContext(), $salesChannelIds);
+
+            return;
+        }
+
+        $this->updateSeoUrls($groupIds, $event->getContext(), $salesChannelIds);
     }
 
     /**
      * @param list<string>|null $ids null recomputes all customer groups with an active registration
+     * @param list<string>|null $salesChannelIds only recomputes the rows of these sales channels and removes their obsolete rows
      */
-    private function updateSeoUrls(?array $ids, Context $context): void
+    private function updateSeoUrls(?array $ids, Context $context, ?array $salesChannelIds = null): void
     {
         $criteria = ($ids === null ? new Criteria() : new Criteria($ids))
             ->addFilter(new EqualsFilter('registrationActive', true))
@@ -160,6 +202,10 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
 
             foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
                 if ($registrationSalesChannel->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_API) {
+                    continue;
+                }
+
+                if ($salesChannelIds !== null && !\in_array($registrationSalesChannel->getId(), $salesChannelIds, true)) {
                     continue;
                 }
 
@@ -229,15 +275,50 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
             );
         }
 
-        if ($ids === null) {
-            $this->removeObsoleteSeoUrls($buildUrls, $context);
+        if ($ids === null || $salesChannelIds !== null) {
+            $this->removeObsoleteSeoUrls($buildUrls, $context, $salesChannelIds);
         }
     }
 
     /**
-     * @param array<string, array{languageId: string, urls: list<array<string, mixed>>, salesChannel: SalesChannelEntity}> $buildUrls
+     * @param EntityWrittenEvent<array<string, string>> $event
+     *
+     * @return list<string>|null null if the sales channel of a domain is unknown
      */
-    private function removeObsoleteSeoUrls(array $buildUrls, Context $context): void
+    private function getSalesChannelIdsOfDomains(EntityWrittenEvent $event): ?array
+    {
+        $salesChannelIds = [];
+
+        foreach ($event->getWriteResults() as $writeResult) {
+            $found = false;
+
+            $salesChannelId = $writeResult->getPayload()['salesChannelId'] ?? null;
+            if (\is_string($salesChannelId)) {
+                $salesChannelIds[$salesChannelId] = $salesChannelId;
+                $found = true;
+            }
+
+            // the previous sales channel of updated (moved) and deleted domains
+            $previousSalesChannelId = $writeResult->getChangeSet()?->getBefore('sales_channel_id');
+            if (\is_string($previousSalesChannelId)) {
+                $previousSalesChannelId = bin2hex($previousSalesChannelId);
+                $salesChannelIds[$previousSalesChannelId] = $previousSalesChannelId;
+                $found = true;
+            }
+
+            if (!$found) {
+                return null;
+            }
+        }
+
+        return array_values($salesChannelIds);
+    }
+
+    /**
+     * @param array<string, array{languageId: string, urls: list<array<string, mixed>>, salesChannel: SalesChannelEntity}> $buildUrls
+     * @param list<string>|null $salesChannelIds null checks the rows of all sales channels
+     */
+    private function removeObsoleteSeoUrls(array $buildUrls, Context $context, ?array $salesChannelIds = null): void
     {
         $validKeys = [];
 
@@ -249,6 +330,10 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
+
+        if ($salesChannelIds !== null) {
+            $criteria->addFilter(new EqualsAnyFilter('salesChannelId', $salesChannelIds));
+        }
 
         $obsoleteIds = [];
 

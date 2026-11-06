@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
     title: 'Media Upload',
     description: 'Upload any image or file — including product cover images — to Shopware\'s media library from a URL. url is the only required parameter; productId, fileName, and mediaFolderId are all optional. Call this tool immediately with just the URL whenever the user asks to upload, import, or add an image. Returns the new mediaId.'
 )]
-#[McpToolGroup('media')]
+#[McpToolGroup('media', description: 'Upload images and other files from a URL into the media library, for example a product cover image. Enable it when a task adds or imports a file.')]
 #[McpToolRequires('media:create')]
 #[McpToolRequires('product:update')]
 class MediaUploadTool extends McpToolResponse

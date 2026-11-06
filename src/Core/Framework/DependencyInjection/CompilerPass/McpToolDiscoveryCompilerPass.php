@@ -52,6 +52,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             $container->setParameter($paramPrefix . 'tool_privileges', []);
             $container->setParameter($paramPrefix . 'advertised_tools', []);
             $container->setParameter($paramPrefix . 'tool_groups', []);
+            $container->setParameter($paramPrefix . 'tool_group_descriptions', []);
         }
         $container->setParameter(self::DEMOTED_DISCOVERY_TOOLS_PARAMETER, []);
 

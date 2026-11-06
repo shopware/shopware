@@ -3,6 +3,7 @@
  */
 
 import { DOMWrapper, mount } from '@vue/test-utils';
+import type { DefineComponent } from 'vue';
 import MtDatepicker from '@shopware-ag/meteor-component-library/dist/esm/MtDatepicker';
 
 async function createWrapper(component: string, customerEditMode = true) {
@@ -13,7 +14,11 @@ async function createWrapper(component: string, customerEditMode = true) {
         orderTotalAmount: 0,
         vatIds: [],
     };
-    const wrapper = mount(await wrapTestComponent(component, { sync: true }), {
+    const componentConfig = (await wrapTestComponent(component, { sync: true })) as DefineComponent<{
+        customer: typeof customer;
+        customerEditMode?: boolean;
+    }>;
+    const wrapper = mount(componentConfig, {
         props: {
             customer,
             ...(component === 'sw-customer-base-info' ? { customerEditMode } : {}),
@@ -33,7 +38,7 @@ async function createWrapper(component: string, customerEditMode = true) {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve({ total: 0 }),
+                        searchIds: () => Promise.resolve({ total: 0 }),
                         get: () => Promise.resolve(),
                     }),
                 },
@@ -51,7 +56,7 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
 
     beforeEach(async () => {
         Shopware.Context.app.systemCurrencyISOCode = 'EUR';
-        Shopware.Store.get('session').setCurrentUser({ timeZone });
+        Shopware.Store.get('session').setCurrentUser({ timeZone } as Entity<'user'>);
         await Shopware.Store.get('session').setAdminLocale('de-DE');
     });
 

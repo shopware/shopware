@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const orderMock = {
     orderCustomer: {
@@ -142,10 +143,12 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
-    it('should accept the isSaveSuccessful flag the order detail page passes to its views', async () => {
+    it('should report the deprecated isSaveSuccessful prop the order detail page still passes', async () => {
         wrapper = await createWrapper({ isSaveSuccessful: true });
 
-        expect(wrapper.props('isSaveSuccessful')).toBe(true);
+        expect(deprecations).toHaveTriggered(
+            'The prop "isSaveSuccessful" of the component "sw-order-detail-general" is deprecated',
+        );
     });
 
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {

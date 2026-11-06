@@ -1617,16 +1617,16 @@ These components switched to a shared loader to remove their duplicate custom-fi
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
 
-## Deprecated Administration JavaScript APIs threw instead of warning
+## Deprecated Administration JavaScript APIs throw instead of warning
 
-Deprecated Administration JavaScript APIs called `Shopware.Feature.triggerDeprecationOrThrow()` when they were used.
-In 6.7, a use logged a development warning. With the 6.8 major flag active, the same use threw:
+Deprecated Administration JavaScript APIs call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used.
+In 6.7, a use logs a development warning. With the 6.8 major flag active, the same use throws:
 
-```
+```text
 Error: Tried to access deprecated functionality: sw-select-base.computePath() is deprecated. Use `Element.contains()` instead.
 ```
 
-This covered deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
+This covers deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
 Run your extension's tests with `V6_8_0_0=1` and move every reported use to the named replacement before upgrading.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`

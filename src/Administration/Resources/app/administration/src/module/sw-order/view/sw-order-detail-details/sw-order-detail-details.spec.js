@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { allowDeprecation } from 'test/_helper_/deprecations';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const orderMock = {
     orderCustomer: {
@@ -142,10 +142,12 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
     });
 
-    it('should accept the isSaveSuccessful flag the order detail page passes to its views', async () => {
+    it('should report the deprecated isSaveSuccessful prop the order detail page still passes', async () => {
         wrapper = await createWrapper({ isSaveSuccessful: true });
 
-        expect(wrapper.props('isSaveSuccessful')).toBe(true);
+        expect(deprecations).toHaveTriggered(
+            'The prop "isSaveSuccessful" of the component "sw-order-detail-details" is deprecated',
+        );
     });
 
     it('should have a disabled on transaction card', async () => {

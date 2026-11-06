@@ -558,6 +558,7 @@ Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDepr
 In development builds, a use logs a warning naming the API and its replacement. With the next major flag active, it throws.
 
 To find the uses in your extension before the major, run its Jest suite with the environment variable `V6_8_0_0=1`.
+
 ### Unused runtime packages removed from the Administration
 
 The Administration no longer ships these packages:

@@ -89,6 +89,18 @@
             "major"
         ]
     },
+    "documentService.setListener() is deprecated. Removed with document generation v1; use documentV2ApiService instead.": {
+        "sw-order-document-card": [
+            "default",
+            "major"
+        ]
+    },
+    "orderApiService.toggleAutomaticPromotions() is deprecated. Use `applyAutomaticPromotions` instead.": {
+        "src/module/sw-order/component/sw-order-promotion-field/index.js": [
+            "default",
+            "major"
+        ]
+    },
     "sw-bulk-edit-save-modal-process.createDocument() is deprecated. Removed with document generation v1.": {
         "sw-bulk-edit-save-modal-process": [
             "default"

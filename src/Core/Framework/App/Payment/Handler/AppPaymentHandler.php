@@ -163,7 +163,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('transactionCapture.transaction.order');
         $criteria->addAssociation('transactionCapture.transaction.paymentMethod.appPaymentMethod.app');
-        $criteria->addAssociation('transactionCapture.positions');
+        $criteria->addAssociation('positions');
 
         $refund = $this->refundRepository->search($criteria, $context)->getEntities()->first();
 

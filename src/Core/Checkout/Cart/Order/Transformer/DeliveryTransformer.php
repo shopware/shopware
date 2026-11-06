@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -30,7 +31,8 @@ use Shopware\Core\Framework\Struct\Struct;
  *         orderLineItemId: string,
  *         orderLineItemVersionId: string
  *     }>,
- *     stateId: string
+ *     stateId: string,
+ *     position?: int
  * }
  */
 #[Package('checkout')]
@@ -51,7 +53,9 @@ class DeliveryTransformer
     ): array {
         $output = [];
         foreach ($deliveries as $delivery) {
-            $output[] = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
+            $deliveryData = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
+            $deliveryData['position'] ??= \count($output) + 1;
+            $output[] = $deliveryData;
         }
 
         return $output;
@@ -89,6 +93,8 @@ class DeliveryTransformer
             IdStruct::class
         )?->getId();
 
+        $originalPosition = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, ArrayStruct::class)?->get('position');
+
         $deliveryData = [
             'id' => self::getId($delivery),
             'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -98,6 +104,7 @@ class DeliveryTransformer
             'shippingCosts' => $delivery->getShippingCosts(),
             'positions' => [],
             'stateId' => $stateId,
+            'position' => \is_int($originalPosition) ? $originalPosition : null,
         ];
 
         if ($originalAddressId !== null && $originalAddressVersionId !== null) {

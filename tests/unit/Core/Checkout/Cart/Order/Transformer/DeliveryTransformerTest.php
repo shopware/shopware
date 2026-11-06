@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -58,7 +59,7 @@ class DeliveryTransformerTest extends TestCase
         static::assertCount(1, $result);
         static::assertInstanceOf(Delivery::class, $delivery);
         static::assertSame(
-            DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses),
+            [...DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses), 'position' => 1],
             $result[0]
         );
 
@@ -70,6 +71,7 @@ class DeliveryTransformerTest extends TestCase
                 'stateId' => $stateId,
                 'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'position' => 1,
             ],
             $result[0]
         );
@@ -96,7 +98,7 @@ class DeliveryTransformerTest extends TestCase
 
         static::assertCount(1, $result);
         static::assertSame(
-            DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses),
+            [...DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses), 'position' => 1],
             $result[0]
         );
 
@@ -109,6 +111,7 @@ class DeliveryTransformerTest extends TestCase
                 'stateId' => $stateId,
                 'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'position' => 1,
             ],
             $result[0]
         );
@@ -136,7 +139,7 @@ class DeliveryTransformerTest extends TestCase
 
         static::assertCount(1, $result);
         static::assertSame(
-            DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses),
+            [...DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses), 'position' => 1],
             $result[0]
         );
 
@@ -150,9 +153,41 @@ class DeliveryTransformerTest extends TestCase
                 'shippingOrderAddressVersionId' => 'originalAddressVersionId',
                 'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'position' => 1,
             ],
             $result[0]
         );
+    }
+
+    public function testTransformCollectionNumbersTheDeliveriesInCartOrder(): void
+    {
+        $deliveries = new DeliveryCollection([
+            $this->createDelivery(5),
+            $this->createDelivery(-5),
+            $this->createDelivery(10),
+        ]);
+
+        $result = DeliveryTransformer::transformCollection($deliveries, [], Uuid::randomHex(), Context::createDefaultContext());
+
+        static::assertSame([1, 2, 3], array_column($result, 'position'));
+    }
+
+    public function testTransformCollectionKeepsTheOriginalPositionOfDeliveriesConvertedFromAnOrder(): void
+    {
+        $primary = $this->createDelivery(10);
+        $primary->addExtension(OrderConverter::ORIGINAL_POSITION, new ArrayStruct(['position' => 2]));
+        $first = $this->createDelivery(5);
+        $first->addExtension(OrderConverter::ORIGINAL_POSITION, new ArrayStruct(['position' => 1]));
+        $discount = $this->createDelivery(-5);
+
+        $result = DeliveryTransformer::transformCollection(
+            new DeliveryCollection([$primary, $first, $discount]),
+            [],
+            Uuid::randomHex(),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame([2, 1, 3], array_column($result, 'position'));
     }
 
     public function createCart(): Cart
@@ -213,5 +248,19 @@ class DeliveryTransformerTest extends TestCase
         $salesChannelContextMock->method('getSalesChannel')->willReturn($salesChannelEntity);
 
         return $salesChannelContextMock;
+    }
+
+    private function createDelivery(float $shippingCosts): Delivery
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('1');
+
+        return new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
     }
 }

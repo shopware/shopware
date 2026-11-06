@@ -113,6 +113,24 @@ function getConversionComment(componentName, node, notes) {
 }
 
 /**
+ * Finds broken markup where the parser gave the element no end tag, but an end tag with its name
+ * follows, for example after a start tag that misses its `>`. The Vue compiler pairs that end tag
+ * with the element, so renaming only the start tag would break the template.
+ *
+ * @example
+ * // <sw-text-field :label="x"
+ * // </sw-text-field>
+ * hasUnmatchedEndTag(sourceCode, swTextFieldNode, 'sw-text-field'); // true
+ */
+function hasUnmatchedEndTag(sourceCode, node, name) {
+    if (node.startTag.selfClosing || node.endTag) {
+        return false;
+    }
+
+    return sourceCode.text.slice(node.startTag.range[0]).includes(`</${name}`);
+}
+
+/**
  * This rule reports deprecated components and renames them to their replacement. The run level decides
  * which elements it converts. At `safe` an element is converted together with all of its follow-up
  * fixes. At the other levels it gets a review comment, which `no-deprecated-component-usage` uses to find
@@ -172,12 +190,11 @@ module.exports = withRunLevel({
                 const newName = migration.replacement;
                 const headline = `"${oldName}" is deprecated. Please use "${newName}" instead.`;
 
-                // Broken markup, which the Vue compiler parses differently: renaming would leave a stray end tag
-                if (!node.startTag.selfClosing && !node.endTag) {
+                if (hasUnmatchedEndTag(context.sourceCode, node, oldName)) {
                     context.report({
                         node,
                         message: appendRegistryContext(
-                            [headline, 'It is not converted, because its end tag is missing.'],
+                            [headline, 'It is not converted, because its start and end tags do not pair up.'],
                             migration,
                         ),
                         fixLevel: 'manual',

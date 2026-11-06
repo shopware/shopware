@@ -238,9 +238,7 @@ type ViteServerMapping = {
 /**
  * @private
  */
-export async function exportViteServerMapping(): Promise<void> {
-    const extensions = loadExtensions();
-
+export async function exportViteServerMapping(extensions: ExtensionDefinition[]): Promise<void> {
     const mapping = new Map<string, ViteServerMapping>();
     const ports = await findAvailablePorts(Number(process.env.ADMIN_PORT) || 5173, extensions.length + 1);
     let counter = 1;
@@ -394,6 +392,21 @@ export function createPluginDevJson(extensions: ExtensionDefinition[], useBundle
     });
 
     return pluginDevJson;
+}
+
+/**
+ * @private
+ */
+export function writePluginDevJson(
+    administrationRoot: string,
+    extensions: ExtensionDefinition[],
+    useBundledDev: boolean,
+): void {
+    // Outside of public/administration on purpose: a parallel production build empties that directory
+    fs.writeFileSync(
+        path.resolve(administrationRoot, '../../sw-plugin-dev.json'),
+        JSON.stringify(createPluginDevJson(extensions, useBundledDev)),
+    );
 }
 
 /**

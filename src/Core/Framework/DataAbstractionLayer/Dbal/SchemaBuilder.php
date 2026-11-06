@@ -224,13 +224,29 @@ class SchemaBuilder
             return $field->getType();
         }
 
-        foreach (self::$fieldMapping as $class => $type) {
-            if ($field instanceof $class) {
-                return self::$fieldMapping[$field::class];
+        $type = null;
+        $matchedClass = null;
+
+        foreach (self::$fieldMapping as $class => $mappedType) {
+            if (!$field instanceof $class) {
+                continue;
             }
+
+            // A plugin field is often a subclass of a mapped field and is not registered itself.
+            // Keep the most specific mapped parent so its column type wins over a wider one.
+            if ($matchedClass !== null && !is_subclass_of($class, $matchedClass)) {
+                continue;
+            }
+
+            $matchedClass = $class;
+            $type = $mappedType;
         }
 
-        throw DataAbstractionLayerException::fieldHasNoType($field->getPropertyName());
+        if (!\is_string($type)) {
+            throw DataAbstractionLayerException::fieldHasNoType($field->getPropertyName());
+        }
+
+        return $type;
     }
 
     /**

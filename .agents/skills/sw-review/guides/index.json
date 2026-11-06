@@ -320,6 +320,35 @@
         "@deprecated tag:",
         "triggerDeprecationOrThrow"
       ]
+    },
+    {
+      "guide": "content-system-principles",
+      "personas": [
+        "architecture",
+        "maintainer",
+        "ux"
+      ],
+      "signals_any": [],
+      "paths_any": [
+        "src/Core/Framework/ContentSystem/*",
+        "src/Storefront/ContentSystem/*",
+        "src/Administration/Resources/app/administration/src/module/sw-experience-studio/*",
+        "tests/unit/Core/Framework/ContentSystem/*",
+        "tests/integration/Core/Framework/ContentSystem/*",
+        "tests/unit/Storefront/ContentSystem/*",
+        "tests/integration/Storefront/ContentSystem/*"
+      ],
+      "anchors_any": [
+        "ContentSystemException",
+        "LayoutWriteBoundary",
+        "StoredTreeConstraints",
+        "RenderedElement\\b",
+        "StoredElement\\b",
+        "ContentPipeline",
+        "ContentTreePreparationEvent",
+        "RenderedTreeFinalizationEvent",
+        "CONTENT_SYSTEM_PUBLIC_SURFACE"
+      ]
     }
   ]
 }

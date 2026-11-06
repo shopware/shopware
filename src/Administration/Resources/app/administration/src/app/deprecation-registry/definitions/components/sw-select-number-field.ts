@@ -15,6 +15,12 @@ export default componentMigration({
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-select-field'),
     ],
     onConvert: [
-        renameComponent({ from: 'sw-select-number-field', to: 'mt-select', fix: 'manual' }),
+        renameComponent({
+            from: 'sw-select-number-field',
+            to: 'mt-select',
+            fix: 'unsafe-auto',
+            message:
+                'sw-select-number-field passed the selected value on as a number, mt-select passes the option values on as they are: bind them as numbers, e.g. :value="1".',
+        }),
     ],
 });

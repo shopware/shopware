@@ -7,11 +7,37 @@ const { selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
 const { withRunLevel } = require('./registry/run-level');
+const { componentContext } = require('./registry/component-scope');
 
 function buildMessage(migration, usage) {
-    const replacement = usage.to ? ` Use "${usage.to}" instead.` : ' Remove or move this customization.';
+    let replacement = ' Remove or move this customization.';
 
-    return appendRegistryContext([`The Administration Twig block "${usage.from}" is deprecated.${replacement}`], migration);
+    if (usage.to) {
+        replacement = ` Use "${usage.to}" instead.`;
+    } else if (usage.moveTo) {
+        replacement = ` Move this customization to ${usage.moveTo}.`;
+    }
+
+    return appendRegistryContext(
+        [`The Administration Twig block "${usage.from}" is deprecated.${replacement}`, usage.message ?? ''],
+        migration,
+    );
+}
+
+/**
+ * Picks the step for an overridden block. Several components can deprecate a block of the same name,
+ * so a step of the component the template belongs to wins. A step limited to its components only
+ * matches in their templates, because other core templates define a live block of that name.
+ *
+ * @example
+ * // in sw-product-cross-selling-assignment/sw-product-cross-selling-assignment.html.twig
+ * findBlockUsage(usages, 'sw_entity_single_select_base_results_list_result_label', ['sw-product-cross-selling-assignment']);
+ */
+function findBlockUsage(usages, name, templateComponents) {
+    const candidates = usages.filter(({ usage }) => usage.from === name);
+    const own = candidates.find(({ usage }) => usage.components?.some((component) => templateComponents.includes(component)));
+
+    return own ?? candidates.find(({ usage }) => !usage.onlyInComponents) ?? null;
 }
 
 /**
@@ -145,6 +171,7 @@ module.exports = withRunLevel({
 
     create(context) {
         const usages = selectedUsages(loadRegistry().templateBlockMigrations);
+        const templateComponents = componentContext(context, null);
 
         return {
             Program() {
@@ -154,7 +181,7 @@ module.exports = withRunLevel({
                 const blockMatches = collectBlockMatches(sourceText);
 
                 blockMatches.forEach((blockMatch) => {
-                    const match = usages.find(({ usage }) => usage.from === blockMatch.name);
+                    const match = findBlockUsage(usages, blockMatch.name, templateComponents);
 
                     if (!match || isBackwardCompatibilityWrapper(match, blockMatch, blockMatches)) {
                         return;
@@ -169,6 +196,7 @@ module.exports = withRunLevel({
                             end: sourceCode.getLocFromIndex(blockMatch.end),
                         },
                         message: buildMessage(match.migration, match.usage),
+                        fixLevel: match.usage.fix,
                         fix(fixer) {
                             if (!canAutoFix(context, match.usage) || !match.usage.to || replacementBlockExists) {
                                 return null;

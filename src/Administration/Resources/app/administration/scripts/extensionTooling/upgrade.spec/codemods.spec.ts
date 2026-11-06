@@ -83,6 +83,38 @@ describe('scripts/extensionTooling/upgrade codemods', () => {
         expect(fs.existsSync(path.join(projectRoot, SOURCE, 'component/acme-card/acme-card.vue'))).toBe(false);
     });
 
+    it('writes a review comment once and keeps listing its spot as manual work', async () => {
+        const storeFile = 'src/Resources/app/administration/src/page/acme-list/store.js';
+        const comment = '/* TODO Codemod: The "Shopware.State" API is deprecated. Use Shopware.Store instead. */';
+        const deprecatedApis = (result: Awaited<ReturnType<typeof upgradeExtensions>>) => {
+            return result.extensions[0].codemods.find((report) => report.codemod.id === 'deprecated-apis');
+        };
+
+        writeFile(path.join(projectRoot, SOURCE, 'page/acme-list/store.js'), [
+            "export const count = () => Shopware.State.get('acme').count;",
+        ]);
+        commitAll(path.join(projectRoot, PLUGIN));
+
+        const preview = await upgradeExtensions({ projectRoot, administrationRoot });
+
+        expect(deprecatedApis(preview)).toMatchObject({ changes: 1, files: 1 });
+        expect(deprecatedApis(preview)?.manual).toEqual([expect.objectContaining({ file: storeFile, line: 1 })]);
+
+        const written = await upgradeExtensions({ projectRoot, administrationRoot, write: true });
+        const source = readSource(projectRoot, 'page/acme-list/store.js');
+
+        expect(source).toBe(`${comment}\nexport const count = () => Shopware.State.get('acme').count;\n`);
+        expect(deprecatedApis(written)?.manual).toEqual([expect.objectContaining({ file: storeFile, line: 2 })]);
+
+        commitAll(path.join(projectRoot, PLUGIN));
+
+        const again = await upgradeExtensions({ projectRoot, administrationRoot, write: true });
+
+        expect(deprecatedApis(again)).toMatchObject({ changes: 0, files: 0 });
+        expect(deprecatedApis(again)?.manual).toHaveLength(1);
+        expect(readSource(projectRoot, 'page/acme-list/store.js')).toBe(source);
+    });
+
     it('converts components to SFCs only when the opt-in codemod is requested', async () => {
         await upgradeExtensions({ projectRoot, administrationRoot, write: true, optIns: ['sfc-migration'] });
 

@@ -98,8 +98,11 @@ interface EslintMessage {
     line?: number;
     column?: number;
     message: string;
-    fix?: unknown;
+    fix?: { range: [number, number]; text: string };
 }
+
+/** The marker of the review comments the deprecation rules write, see eslint-rules/deprecation-rules/registry/codemod-comment.js. */
+const REVIEW_MARKER = 'TODO Codemod';
 
 interface EslintFileResult {
     filePath: string;
@@ -280,7 +283,8 @@ function runEslintCodemods(context: CodemodRunContext, codemods: EslintCodemod[]
             for (const message of file.messages) {
                 const tally = tallyOf(message);
 
-                if (tally && !message.fix) {
+                // A fix that only writes a review comment still leaves the work to a person, also in a dry run.
+                if (tally && (!message.fix || message.fix.text.includes(REVIEW_MARKER))) {
                     tally.manual.push({
                         file: relativeFile(file.filePath),
                         line: message.line,

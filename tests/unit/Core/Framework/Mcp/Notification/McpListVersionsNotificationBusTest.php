@@ -148,6 +148,34 @@ class McpListVersionsNotificationBusTest extends TestCase
         static::assertSame([[], 42], $bus->since(42));
     }
 
+    public function testAFailingReadWhenTheStreamOpensAnnouncesEveryListOnceTheReadWorks(): void
+    {
+        $listVersions = static::createStub(McpListVersions::class);
+        $listVersions->method('current')->willReturnCallback(function (): array {
+            // the read for cursor() and the first since() fail, later ones work
+            if (++$this->reads <= 2) {
+                throw new \RuntimeException('database down');
+            }
+
+            return ['tools' => 1, 'resources' => 1, 'prompts' => 1];
+        });
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))->method('warning');
+
+        $bus = new McpListVersionsNotificationBus($listVersions, new ArrayAdapter(), $logger);
+        $cursor = $bus->cursor();
+
+        static::assertSame([[], $cursor], $bus->since($cursor));
+
+        [$notifications, $next] = $bus->since($cursor);
+
+        static::assertSame(
+            [ToolListChangedNotification::class, ResourceListChangedNotification::class, PromptListChangedNotification::class],
+            array_map(static fn (Notification $notification): string => $notification::class, $notifications),
+        );
+        static::assertSame([[], $next], $bus->since($next));
+    }
+
     public function testAnUnreadableCacheEntryCountsAsVersionZero(): void
     {
         $cache = new ArrayAdapter();

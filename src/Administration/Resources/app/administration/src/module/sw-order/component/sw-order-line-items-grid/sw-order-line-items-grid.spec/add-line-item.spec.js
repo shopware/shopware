@@ -140,60 +140,59 @@ describe('module/sw-order/component/sw-order-line-items-grid/add-line-item', () 
      * @regression
      * @see https://github.com/shopware/shopware/issues/20861
      */
-    it('removes a new item from the selection when its inline edit is cancelled', async () => {
-        const wrapper = await createWrapper();
+    describe('selection of new line items', () => {
+        /** @regression */
+        it('removes a new item from the selection when its inline edit is cancelled', async () => {
+            const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn').trigger('click');
-        await flushPromises();
+            await wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn').trigger('click');
+            await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
-        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(true);
+            await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+            expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(true);
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
-        await flushPromises();
+            await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
+            await flushPromises();
 
-        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
-    });
+            expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
+        });
 
-    /**
-     * The bulk action bar stayed after a selected new line item was cancelled or saved.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/20861
-     */
-    it('keeps only the items that are still in the reloaded order selected after a new item is saved', async () => {
-        const wrapper = await createWrapper();
-        const existingItem = {
-            id: 'existing-item',
-            type: 'custom',
-            label: 'Existing item',
-            quantity: 1,
-            isNew: () => false,
-        };
+        /** @regression */
+        it('keeps only the items that are still in the reloaded order selected after a new item is saved', async () => {
+            const wrapper = await createWrapper();
+            const existingItem = {
+                id: 'existing-item',
+                type: 'custom',
+                label: 'Existing item',
+                quantity: 1,
+                isNew: () => false,
+            };
 
-        await wrapper.setProps({ order: { ...wrapper.props().order, lineItems: [existingItem] } });
+            await wrapper.setProps({ order: { ...wrapper.props().order, lineItems: [existingItem] } });
 
-        await wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn').trigger('click');
-        await flushPromises();
+            await wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn').trigger('click');
+            await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
-        await wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').setChecked(true);
-        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('2');
+            await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+            await wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').setChecked(true);
+            expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('2');
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').trigger('click');
-        await flushPromises();
-        expect(wrapper.emitted('item-edit')).toHaveLength(1);
+            await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').trigger('click');
+            await flushPromises();
+            expect(wrapper.emitted('item-edit')).toHaveLength(1);
 
-        const persistedItem = {
-            id: 'persisted-item',
-            type: 'product',
-            label: 'Persisted item',
-            quantity: 1,
-            isNew: () => false,
-        };
-        await wrapper.setProps({ order: { ...wrapper.props().order, lineItems: [persistedItem, existingItem] } });
-        await flushPromises();
+            const persistedItem = {
+                id: 'persisted-item',
+                type: 'product',
+                label: 'Persisted item',
+                quantity: 1,
+                isNew: () => false,
+            };
+            await wrapper.setProps({ order: { ...wrapper.props().order, lineItems: [persistedItem, existingItem] } });
+            await flushPromises();
 
-        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('1');
-        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').element.checked).toBe(true);
+            expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('1');
+            expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').element.checked).toBe(true);
+        });
     });
 });

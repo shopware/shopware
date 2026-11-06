@@ -214,61 +214,56 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
      * @regression
      * @see https://github.com/shopware/shopware/pull/19723
      */
-    it('should keep a plugin entry active on its detail page without a declared parentPath', async () => {
-        const wrapper = await createWrapper({
-            route: pluginDetailRoute,
-            props: {
-                entry: pluginEntry('sw-foo'),
-                menuDepth: 2,
-            },
+    describe('plugin detail routes without a parentPath', () => {
+        /** @regression */
+        it('should keep a plugin entry active on its detail page without a declared parentPath', async () => {
+            const wrapper = await createWrapper({
+                route: pluginDetailRoute,
+                props: {
+                    entry: pluginEntry('sw-foo'),
+                    menuDepth: 2,
+                },
+            });
+
+            await flushPromises();
+
+            expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
         });
 
-        await flushPromises();
+        /** @regression */
+        it('should mark the catalogue branch child-active on a plugin detail page', async () => {
+            const wrapper = await createWrapper({
+                route: pluginDetailRoute,
+                props: {
+                    entry: catalogues,
+                    sidebarExpanded: true,
+                    isExpanded: true,
+                },
+            });
 
-        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
-    });
+            await flushPromises();
 
-    /**
-     * Plugin menu entries lost their active state on detail routes without a parentPath.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/19723
-     */
-    it('should mark the catalogue branch child-active on a plugin detail page', async () => {
-        const wrapper = await createWrapper({
-            route: pluginDetailRoute,
-            props: {
-                entry: catalogues,
-                sidebarExpanded: true,
-                isExpanded: true,
-            },
+            const vm = wrapper.vm as unknown as MenuItemVm;
+
+            expect(vm.collapsibleOpen).toBe(true);
+            expect(vm.rowActive).toBe(false);
+            expect(vm.childRouteActive).toBe(true);
         });
 
-        await flushPromises();
+        /** @regression */
+        it('should mark the catalogue branch active on a plugin detail page when the sidebar is collapsed', async () => {
+            const wrapper = await createWrapper({
+                route: pluginDetailRoute,
+                props: {
+                    entry: catalogues,
+                    sidebarExpanded: false,
+                },
+            });
 
-        const vm = wrapper.vm as unknown as MenuItemVm;
+            await flushPromises();
 
-        expect(vm.collapsibleOpen).toBe(true);
-        expect(vm.rowActive).toBe(false);
-        expect(vm.childRouteActive).toBe(true);
-    });
-
-    /**
-     * Plugin menu entries lost their active state on detail routes without a parentPath.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/19723
-     */
-    it('should mark the catalogue branch active on a plugin detail page when the sidebar is collapsed', async () => {
-        const wrapper = await createWrapper({
-            route: pluginDetailRoute,
-            props: {
-                entry: catalogues,
-                sidebarExpanded: false,
-            },
+            expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
         });
-
-        await flushPromises();
-
-        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
     });
 
     it('should not light a plugin entry from another module detail page', async () => {

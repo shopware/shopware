@@ -397,62 +397,57 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     /**
-     * With SSO enabled, the edit action linked to the non-SSO user detail page.
+     * With SSO enabled, the user edit links pointed to the non-SSO user detail page.
      * @regression
      * @see https://github.com/shopware/shopware/issues/14586
      */
-    it('should use the correct route for the Edit context menu item with SSO', async () => {
-        wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
+    describe('edit routes with SSO', () => {
+        /** @regression */
+        it('should use the correct route for the Edit context menu item with SSO', async () => {
+            wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
 
-        await flushPromises();
+            await flushPromises();
 
-        const contextMenuEdit = wrapper.findComponent('.sw-settings-user-list__user-view-action');
-        expect(contextMenuEdit.exists()).toBe(true);
+            const contextMenuEdit = wrapper.findComponent('.sw-settings-user-list__user-view-action');
+            expect(contextMenuEdit.exists()).toBe(true);
 
-        // Check that the router-link prop uses the correct route name
-        const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
-        expect(routerLinkProp).toBeDefined();
-        expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
-        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
-    });
+            // Check that the router-link prop uses the correct route name
+            const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
+            expect(routerLinkProp).toBeDefined();
+            expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
+            expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+        });
 
-    /**
-     * The user detail links ignored whether SSO was enabled.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/14586
-     */
-    it('should use the correct route for editing on the user name', async () => {
-        wrapper = await createWrapper(['users_and_permissions.editor']);
+        /** @regression */
+        it('should use the correct route for editing on the user name', async () => {
+            wrapper = await createWrapper(['users_and_permissions.editor']);
 
-        await flushPromises();
+            await flushPromises();
 
-        const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
-        expect(routerLink.exists()).toBe(true);
+            const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
+            expect(routerLink.exists()).toBe(true);
 
-        // Check that the router-link prop uses the correct route name
-        const routerLinkProp = routerLink.vm.$props.to;
-        expect(routerLinkProp).toBeDefined();
-        expect(routerLinkProp.name).toBe('sw.users.permissions.user.detail');
-        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
-    });
+            // Check that the router-link prop uses the correct route name
+            const routerLinkProp = routerLink.vm.$props.to;
+            expect(routerLinkProp).toBeDefined();
+            expect(routerLinkProp.name).toBe('sw.users.permissions.user.detail');
+            expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+        });
 
-    /**
-     * With SSO enabled, the user name linked to the non-SSO user detail page.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/14586
-     */
-    it('should use the correct route for editing on the user name with SSO', async () => {
-        wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
+        /** @regression */
+        it('should use the correct route for editing on the user name with SSO', async () => {
+            wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
 
-        await flushPromises();
+            await flushPromises();
 
-        const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
-        expect(routerLink.exists()).toBe(true);
+            const routerLink = wrapper.findComponent('.sw-settings-user-list__columns');
+            expect(routerLink.exists()).toBe(true);
 
-        // Check that the router-link prop uses the correct route name
-        const routerLinkProp = routerLink.vm.$props.to;
-        expect(routerLinkProp).toBeDefined();
-        expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
-        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+            // Check that the router-link prop uses the correct route name
+            const routerLinkProp = routerLink.vm.$props.to;
+            expect(routerLinkProp).toBeDefined();
+            expect(routerLinkProp.name).toBe('sw.users.permissions.user.sso.detail');
+            expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
+        });
     });
 });

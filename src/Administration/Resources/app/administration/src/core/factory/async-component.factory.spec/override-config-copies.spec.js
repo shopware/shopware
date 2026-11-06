@@ -71,79 +71,82 @@ describe('core/factory/async-component.factory.ts - override configs shared betw
     });
 
     /**
-     * Members of inner overrides vanished from components built earlier once later builds ran.
+     * Components built before later builds lost members of inner overrides.
      * @regression
      * @see https://github.com/shopware/shopware/pull/21768
      */
-    it('keeps the methods and props of an inner override in a component built before other builds', async () => {
-        const firstBuild = await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
+    describe('components built before other builds', () => {
+        /**
+         * Members of inner overrides vanished from components built earlier once later builds ran.
+         * @regression
+         */
+        it('keeps the methods and props of an inner override in a component built before other builds', async () => {
+            const firstBuild = await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
 
-        expect(typeof findInExtendsChain(firstBuild, 'methods', 'innerHelper')).toBe('function');
-        expect(findInExtendsChain(firstBuild, 'props', 'innerFlag')).toEqual(expect.objectContaining({ type: Boolean }));
-        expect(findInExtendsChain(firstBuild, 'computed', 'middleValue')).toEqual(expect.any(Function));
-    });
-
-    /**
-     * Methods of earlier built components failed with `is not a function` after later builds.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/21768
-     */
-    it('keeps the super call chain of a component built before other builds working', async () => {
-        const firstBuild = await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
-
-        const instance = {
-            _virtualCallStack: {},
-            innerHelper: findInExtendsChain(firstBuild, 'methods', 'innerHelper'),
-            ...firstBuild.methods,
-        };
-
-        expect(firstBuild.methods.load.call(instance)).toBe('outer inner base');
-    });
-
-    /**
-     * Building a component mutated the shared override configs.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/21768
-     */
-    it('does not change the configs that were registered as overrides', async () => {
-        await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
-
-        expect(Object.keys(innerOverride.methods)).toEqual([
-            'load',
-            'innerHelper',
-        ]);
-        expect(Object.keys(innerOverride.props)).toEqual(['innerFlag']);
-        expect(innerOverride).not.toHaveProperty('extends');
-        expect(middleOverride).not.toHaveProperty('methods');
-        expect(middleOverride).not.toHaveProperty('props');
-        expect(Object.keys(outerOverride.methods)).toEqual(['load']);
-        expect(outerOverride).not.toHaveProperty('props');
-    });
-
-    /**
-     * An extension built before its base lost members of inner overrides when mounted.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/21768
-     */
-    it('mounts an extension built before other builds of its base with the members of every override', async () => {
-        ComponentFactory.extend('test-extension', 'test-component', {
-            template: '{% block content %}<div class="result">{{ load() }} {{ innerFlag }}</div>{% endblock %}',
+            expect(typeof findInExtendsChain(firstBuild, 'methods', 'innerHelper')).toBe('function');
+            expect(findInExtendsChain(firstBuild, 'props', 'innerFlag')).toEqual(expect.objectContaining({ type: Boolean }));
+            expect(findInExtendsChain(firstBuild, 'computed', 'middleValue')).toEqual(expect.any(Function));
         });
 
-        const extension = await ComponentFactory.build('test-extension');
-        await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
-        await ComponentFactory.build('test-component');
+        /**
+         * Methods of earlier built components failed with `is not a function` after later builds.
+         * @regression
+         */
+        it('keeps the super call chain of a component built before other builds working', async () => {
+            const firstBuild = await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
 
-        const wrapper = mount(extension, { props: { innerFlag: true } });
+            const instance = {
+                _virtualCallStack: {},
+                innerHelper: findInExtendsChain(firstBuild, 'methods', 'innerHelper'),
+                ...firstBuild.methods,
+            };
 
-        expect(wrapper.find('.result').text()).toBe('outer inner base true');
+            expect(firstBuild.methods.load.call(instance)).toBe('outer inner base');
+        });
+
+        /**
+         * Building a component mutated the shared override configs.
+         * @regression
+         */
+        it('does not change the configs that were registered as overrides', async () => {
+            await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
+
+            expect(Object.keys(innerOverride.methods)).toEqual([
+                'load',
+                'innerHelper',
+            ]);
+            expect(Object.keys(innerOverride.props)).toEqual(['innerFlag']);
+            expect(innerOverride).not.toHaveProperty('extends');
+            expect(middleOverride).not.toHaveProperty('methods');
+            expect(middleOverride).not.toHaveProperty('props');
+            expect(Object.keys(outerOverride.methods)).toEqual(['load']);
+            expect(outerOverride).not.toHaveProperty('props');
+        });
+
+        /**
+         * An extension built before its base lost members of inner overrides when mounted.
+         * @regression
+         */
+        it('mounts an extension built before other builds of its base with the members of every override', async () => {
+            ComponentFactory.extend('test-extension', 'test-component', {
+                template: '{% block content %}<div class="result">{{ load() }} {{ innerFlag }}</div>{% endblock %}',
+            });
+
+            const extension = await ComponentFactory.build('test-extension');
+            await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
+            await ComponentFactory.build('test-component');
+
+            const wrapper = mount(extension, { props: { innerFlag: true } });
+
+            expect(wrapper.find('.result').text()).toBe('outer inner base true');
+        });
     });
 
     it('keeps class instances, getters and non-enumerable properties of override options', async () => {

@@ -137,53 +137,60 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
     });
 
     /**
-     * A custom code pattern without variables left the generate-codes modal loading forever.
+     * The generate-codes modal kept loading forever.
      * @regression
      * @see https://github.com/shopware/shopware/issues/17884
      */
-    it('should not request a preview for a pattern without variables and show an inline error', async () => {
-        const generatePreview = jest.fn(() => Promise.resolve(mockCode));
-        const wrapper = await createWrapper(
-            {
-                individualCodePattern: 'GTMTEST100',
-            },
-            { generatePreview },
-        );
+    describe('stuck preview loading', () => {
+        /**
+         * A custom code pattern without variables left the generate-codes modal loading forever.
+         * @regression
+         */
+        it('should not request a preview for a pattern without variables and show an inline error', async () => {
+            const generatePreview = jest.fn(() => Promise.resolve(mockCode));
+            const wrapper = await createWrapper(
+                {
+                    individualCodePattern: 'GTMTEST100',
+                },
+                { generatePreview },
+            );
 
-        jest.advanceTimersByTime(1000);
-        await flushPromises();
+            jest.advanceTimersByTime(1000);
+            await flushPromises();
 
-        expect(generatePreview).not.toHaveBeenCalled();
-        expect(wrapper.vm.isGenerating).toBe(false);
+            expect(generatePreview).not.toHaveBeenCalled();
+            expect(wrapper.vm.isGenerating).toBe(false);
 
-        const inputCustomPattern = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__custom-pattern');
-        expect(inputCustomPattern.props('error')).toEqual({
-            detail: 'sw-promotion-v2.detail.base.codes.individual.generateModal.invalidPatternException',
+            const inputCustomPattern = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__custom-pattern');
+            expect(inputCustomPattern.props('error')).toEqual({
+                detail: 'sw-promotion-v2.detail.base.codes.individual.generateModal.invalidPatternException',
+            });
+
+            expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__button-generate').attributes('disabled')).toBe(
+                'true',
+            );
         });
 
-        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__button-generate').attributes('disabled')).toBe('true');
-    });
+        /**
+         * A failed preview request left the generate-codes modal loading forever.
+         * @regression
+         */
+        it('should reset the loading state when the preview request fails', async () => {
+            const generatePreview = jest.fn(() => Promise.reject(new Error('invalid pattern')));
+            const wrapper = await createWrapper(
+                {
+                    individualCodePattern: 'FAIL_%d%d',
+                },
+                { generatePreview },
+            );
 
-    /**
-     * A failed preview request left the generate-codes modal loading forever.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/17884
-     */
-    it('should reset the loading state when the preview request fails', async () => {
-        const generatePreview = jest.fn(() => Promise.reject(new Error('invalid pattern')));
-        const wrapper = await createWrapper(
-            {
-                individualCodePattern: 'FAIL_%d%d',
-            },
-            { generatePreview },
-        );
+            jest.advanceTimersByTime(1000);
+            await flushPromises();
 
-        jest.advanceTimersByTime(1000);
-        await flushPromises();
-
-        expect(generatePreview).toHaveBeenCalled();
-        expect(wrapper.vm.isGenerating).toBe(false);
-        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe('');
+            expect(generatePreview).toHaveBeenCalled();
+            expect(wrapper.vm.isGenerating).toBe(false);
+            expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe('');
+        });
     });
 
     it('should show an error notification when generating fails with an invalid pattern', async () => {

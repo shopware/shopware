@@ -65,28 +65,27 @@ describe('components/sw-select-base', () => {
     });
 
     /**
-     * Disabled selects received keyboard focus and cleared their value on tab out.
+     * Tabbing out of a select cleared its value.
      * @regression
      * @see https://github.com/shopware/shopware/issues/18793
      */
-    it('should remove disabled selects from the tab order', async () => {
-        const wrapper = await createWrapper({ disabled: true });
+    describe('tabbing out of a select', () => {
+        /** @regression */
+        it('should remove disabled selects from the tab order', async () => {
+            const wrapper = await createWrapper({ disabled: true });
 
-        expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
-    });
+            expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
+        });
 
-    /**
-     * Tabbing out of an unopened select cleared its value.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/18793
-     */
-    it('should not emit a collapsed event when not expanded', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.expanded = false;
+        /** @regression */
+        it('should not emit a collapsed event when not expanded', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.expanded = false;
 
-        wrapper.vm.collapse();
+            wrapper.vm.collapse();
 
-        expect(wrapper.emitted('select-collapsed')).toBeUndefined();
+            expect(wrapper.emitted('select-collapsed')).toBeUndefined();
+        });
     });
 
     it('should trigger clear event when user clicks on clearable icon', async () => {

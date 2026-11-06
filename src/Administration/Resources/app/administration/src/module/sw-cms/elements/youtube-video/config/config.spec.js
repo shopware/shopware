@@ -186,38 +186,33 @@ describe('modules/sw-cms/elements/youtube-video/config', () => {
      * @regression
      * @see https://github.com/shopware/shopware/pull/11113
      */
-    it('should return the original input when URL construction fails', async () => {
-        const wrapper = await createWrapper();
-        const invalidInput = 'invalid-url-or-video-id';
-        const result = wrapper.vm.shortenLink(invalidInput);
+    describe('invalid video input', () => {
+        /** @regression */
+        it('should return the original input when URL construction fails', async () => {
+            const wrapper = await createWrapper();
+            const invalidInput = 'invalid-url-or-video-id';
+            const result = wrapper.vm.shortenLink(invalidInput);
 
-        expect(result).toBe(invalidInput);
-    });
+            expect(result).toBe(invalidInput);
+        });
 
-    /**
-     * The YouTube element crashed when the input was not a valid URL.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/11113
-     */
-    it('should handle malformed URLs gracefully', async () => {
-        const wrapper = await createWrapper();
-        const malformedUrl = 'https://malformed url with spaces';
-        const result = wrapper.vm.shortenLink(malformedUrl);
+        /** @regression */
+        it('should handle malformed URLs gracefully', async () => {
+            const wrapper = await createWrapper();
+            const malformedUrl = 'https://malformed url with spaces';
+            const result = wrapper.vm.shortenLink(malformedUrl);
 
-        expect(result).toBe(malformedUrl);
-    });
+            expect(result).toBe(malformedUrl);
+        });
 
-    /**
-     * Entering a bare video ID crashed the YouTube element config.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/11113
-     */
-    it('should return video ID when input is already a video ID', async () => {
-        const wrapper = await createWrapper();
-        const videoId = 'Bey4XXJAqS8';
-        const result = wrapper.vm.shortenLink(videoId);
+        /** @regression */
+        it('should return video ID when input is already a video ID', async () => {
+            const wrapper = await createWrapper();
+            const videoId = 'Bey4XXJAqS8';
+            const result = wrapper.vm.shortenLink(videoId);
 
-        expect(result).toBe(videoId);
+            expect(result).toBe(videoId);
+        });
     });
 
     it('should handle empty or null input', async () => {

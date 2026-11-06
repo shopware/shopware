@@ -1596,6 +1596,11 @@ The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Sear
 
 The unused property was removed.
 
+## `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM` removed
+
+The constant was unused.
+Use `'sha256'` directly if you computed the imitation token hash yourself.
+
 # Administration
 
 ## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`

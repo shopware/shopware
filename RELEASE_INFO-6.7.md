@@ -462,6 +462,10 @@ Answers on the handshake revisions carry no hints and are unchanged.
 
 The core reference resources now return a `Mcp\Schema\Result\ReadResourceResult` instead of an array.
 A plugin resource can set its own hint by returning a `ReadResourceResult` with `ttlMs` and `cacheScope`; only do so on the 2026-07-28 revision, as `RequestContext::getProtocolVersion()->isModern()` tells.
+### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
+
+The constant is unused and will be removed in 6.8.
+The imitation token is signed by the internal `HmacSigner`.
 
 ## API
 

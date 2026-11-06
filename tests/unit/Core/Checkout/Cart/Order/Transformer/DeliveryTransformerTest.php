@@ -66,6 +66,7 @@ class DeliveryTransformerTest extends TestCase
             [
                 'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingCosts' => $delivery->getShippingCosts(),
+                'payload' => [],
                 'positions' => [],
                 'stateId' => $stateId,
                 'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -73,6 +74,17 @@ class DeliveryTransformerTest extends TestCase
             ],
             $result[0]
         );
+    }
+
+    public function testTransformCarriesThePayload(): void
+    {
+        $delivery = $this->createCart()->getDeliveries()->first();
+        static::assertInstanceOf(Delivery::class, $delivery);
+        $delivery->setPayload(['group' => 'warehouse-a', 'locked' => true]);
+
+        $result = DeliveryTransformer::transform($delivery, [], Uuid::randomHex(), Context::createDefaultContext());
+
+        static::assertSame(['group' => 'warehouse-a', 'locked' => true], $result['payload']);
     }
 
     public function testTransformCollectionWithDeliveryExisted(): void
@@ -105,6 +117,7 @@ class DeliveryTransformerTest extends TestCase
                 'id' => 'deliveryId',
                 'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingCosts' => $delivery->getShippingCosts(),
+                'payload' => [],
                 'positions' => [],
                 'stateId' => $stateId,
                 'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -144,6 +157,7 @@ class DeliveryTransformerTest extends TestCase
             [
                 'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingCosts' => $delivery->getShippingCosts(),
+                'payload' => [],
                 'positions' => [],
                 'stateId' => $stateId,
                 'shippingOrderAddressId' => 'originalAddressId',

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *     shippingOrderAddressId?: string,
  *     shippingOrderAddressVersionId?: string,
  *     shippingCosts: CalculatedPrice,
+ *     payload: array<string, mixed>,
  *     positions: list<array{
  *         id: string|null,
  *         price: CalculatedPrice,
@@ -96,6 +97,7 @@ class DeliveryTransformer
             'shippingMethodId' => $delivery->getShippingMethod()->getId(),
             'shippingOrderAddress' => $shippingAddress,
             'shippingCosts' => $delivery->getShippingCosts(),
+            'payload' => $delivery->getPayload(),
             'positions' => [],
             'stateId' => $stateId,
         ];

@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\Mcp\Loader;
 
+use Mcp\Capability\Formatter\PromptResultFormatter;
 use Mcp\Capability\RegistryInterface;
+use Mcp\Exception\RuntimeException;
+use Mcp\Schema\Content\PromptMessage;
 use Mcp\Schema\Prompt;
 use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\App\Feature\AppFeature;
@@ -58,7 +61,7 @@ class AppMcpPromptLoader extends AbstractAppMcpLoader
     }
 
     /**
-     * @return list<mixed>
+     * @return list<PromptMessage>
      */
     private function decodeMessages(string $promptName, string $body): array
     {
@@ -78,6 +81,10 @@ class AppMcpPromptLoader extends AbstractAppMcpLoader
             throw McpException::appPromptResponseNotAMessageList($promptName);
         }
 
-        return $decoded;
+        try {
+            return array_values((new PromptResultFormatter())->format($decoded));
+        } catch (RuntimeException|\TypeError $e) {
+            throw McpException::appPromptMessagesInvalid($promptName, $e->getMessage());
+        }
     }
 }

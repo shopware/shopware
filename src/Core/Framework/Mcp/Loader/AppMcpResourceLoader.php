@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Mcp\Loader;
 
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Content\BlobResourceContents;
-use Mcp\Schema\Content\ResourceContents;
 use Mcp\Schema\Content\TextResourceContents;
 use Mcp\Schema\ResourceDefinition;
 use Mcp\Server\RequestContext;
@@ -61,7 +60,7 @@ class AppMcpResourceLoader extends AbstractAppMcpLoader
 
         $mimeType = $config->mimeType;
 
-        $registry->registerResource($resource, function (RequestContext $context) use ($resourceName, $appName, $url, $uri, $mimeType): ResourceContents {
+        $registry->registerResource($resource, function (RequestContext $context) use ($resourceName, $appName, $url, $uri, $mimeType): TextResourceContents|BlobResourceContents {
             return $this->decodeContents(
                 $resourceName,
                 $uri,
@@ -71,7 +70,7 @@ class AppMcpResourceLoader extends AbstractAppMcpLoader
         });
     }
 
-    private function decodeContents(string $resourceName, string $uri, ?string $mimeType, string $body): ResourceContents
+    private function decodeContents(string $resourceName, string $uri, ?string $mimeType, string $body): TextResourceContents|BlobResourceContents
     {
         try {
             $decoded = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);

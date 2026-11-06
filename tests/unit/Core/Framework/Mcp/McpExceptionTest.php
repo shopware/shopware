@@ -41,6 +41,14 @@ class McpExceptionTest extends TestCase
         static::assertSame('App prompt "my-app-context" failed.', McpException::appPromptFailed('my-app-context', null)->getMessage());
     }
 
+    public function testInvalidAppPromptMessagesNameThePromptAndPreserveTheFormattingError(): void
+    {
+        static::assertEquals(
+            new PromptGetException('App prompt "my-app-context" returned invalid messages: Invalid message format at index 0.'),
+            McpException::appPromptMessagesInvalid('my-app-context', 'Invalid message format at index 0.'),
+        );
+    }
+
     public function testAppResourceFailedPassesTheErrorOfTheAppToTheClient(): void
     {
         static::assertSame('ERP unreachable', McpException::appResourceFailed('my-app-stats', 'ERP unreachable')->getMessage());

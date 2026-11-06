@@ -94,12 +94,14 @@ class AppMcpPromptLoaderTest extends TestCase
         ]));
         $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig())]);
 
-        $messages = (new PromptResultFormatter())->format($this->getPrompt($this->loader));
+        $messages = $this->getPrompt($this->loader);
 
         static::assertEquals([
             new PromptMessage(Role::User, new TextContent('You are working with ERP-synced data.')),
             new PromptMessage(Role::Assistant, new TextContent('Understood.')),
         ], $messages);
+
+        static::assertSame($messages, (new PromptResultFormatter())->format($messages));
     }
 
     #[DataProvider('invalidResponseProvider')]
@@ -126,6 +128,34 @@ class AppMcpPromptLoaderTest extends TestCase
         yield 'not JSON' => ['You are working with ERP data.', 'App prompt "my-app-order-context" returned a response that is not valid JSON.'];
         yield 'object instead of array' => ['{"role":"user","content":"Hi"}', 'App prompt "my-app-order-context" must respond with a JSON array of messages.'];
         yield 'scalar' => ['"Hi"', 'App prompt "my-app-order-context" must respond with a JSON array of messages.'];
+        yield 'unsupported role' => [
+            '[{"role":"system","content":"Hi"}]',
+            'App prompt "my-app-order-context" returned invalid messages: Invalid role \'system\' in prompt message at index 0. Only \'user\' or \'assistant\' are supported.',
+        ];
+        yield 'missing role' => [
+            '[{"content":"Hi"}]',
+            'App prompt "my-app-order-context" returned invalid messages: Invalid message format at index 0. Expected an array with \'role\' and \'content\' keys.',
+        ];
+        yield 'missing content after a valid message' => [
+            '[{"role":"user","content":"Hi"},{"role":"assistant"}]',
+            'App prompt "my-app-order-context" returned invalid messages: Invalid message format at index 1. Expected an array with \'role\' and \'content\' keys.',
+        ];
+        yield 'scalar message' => [
+            '["Hi"]',
+            'App prompt "my-app-order-context" returned invalid messages: Invalid message format at index 0. Expected an array with \'role\' and \'content\' keys.',
+        ];
+        yield 'unsupported content type' => [
+            '[{"role":"user","content":{"type":"unknown"}}]',
+            'App prompt "my-app-order-context" returned invalid messages: Invalid content type \'unknown\' at index 0.',
+        ];
+        yield 'malformed text content' => [
+            '[{"role":"user","content":{"type":"text"}}]',
+            'App prompt "my-app-order-context" returned invalid messages: Invalid \'text\' content at index 0: Missing or invalid "text" in TextContent data.',
+        ];
+        yield 'role with an invalid type' => [
+            '[{"role":[],"content":"Hi"}]',
+            'App prompt "my-app-order-context" returned invalid messages: Mcp\\Schema\\Enum\\Role::tryFrom(): Argument #1 ($value) must be of type string|int, array given',
+        ];
     }
 
     /**

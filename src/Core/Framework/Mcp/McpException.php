@@ -70,6 +70,11 @@ class McpException extends HttpException
         return new PromptGetException(\sprintf('App prompt "%s" must respond with a JSON array of messages.', $promptName));
     }
 
+    public static function appPromptMessagesInvalid(string $promptName, string $error): PromptGetException
+    {
+        return new PromptGetException(\sprintf('App prompt "%s" returned invalid messages: %s', $promptName, $error));
+    }
+
     public static function appPromptFailed(string $promptName, ?string $error): PromptGetException
     {
         return new PromptGetException($error ?: \sprintf('App prompt "%s" failed.', $promptName));

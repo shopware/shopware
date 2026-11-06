@@ -1,5 +1,6 @@
 .sw-product-price-display {
     font-variant-numeric: tabular-nums;
+    width: 100%;
 }
 
 .sw-product-price-display--placeholder {
@@ -7,4 +8,14 @@
     align-items: center;
     gap: var(--spacer-xs);
     color: var(--bs-secondary-color);
+}
+
+.sw-product-price-display__list-price-badge {
+    --bs-badge-border-radius: 3px;
+    --bs-badge-font-size: 1.125rem;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    box-sizing: border-box;
+    vertical-align: 0.25rem;
 }

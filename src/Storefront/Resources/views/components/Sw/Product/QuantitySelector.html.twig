@@ -14,12 +14,14 @@
     base: 'sw-product-quantity-selector',
 }) %}
 
+{% set buyable = product is not null and product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
+
 {% if product is null %}
     <div class="{{ quantitySelectorCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults({}) }}>
         <twig:Sw:Icon name="list-numbered-xs" size="sm" />
         {{ 'component.product.quantitySelect.notAvailable'|trans|sw_sanitize }}
     </div>
-{% else %}
+{% elseif buyable %}
     {% set inputId = "quantity-selector-input-#{product.id}" %}
     {% set inputName = inputName ?? "lineItems[#{product.id}][quantity]" %}
     {% set value = value ?? product.minPurchase %}
@@ -73,6 +75,7 @@
                     type: 'number',
                     name: inputName,
                     class: 'form-control sw-product-quantity-selector__input',
+                    form: "product-buy-form-#{product.id}",
                     min: product.minPurchase,
                     max: product.calculatedMaxPurchase,
                     step: product.purchaseSteps,

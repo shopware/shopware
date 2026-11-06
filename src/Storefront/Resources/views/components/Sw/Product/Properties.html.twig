@@ -1,0 +1,38 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product = null,
+%}
+
+{% set propertiesCVA = cva({
+    base: 'sw-product-properties',
+}) %}
+
+{% set properties = product ? product.sortedProperties : null %}
+
+{% if properties and properties|length > 0 %}
+    <div {{ attributes.defaults({ class: propertiesCVA.apply({}) }) }}>
+        {% block table %}
+            <table {{ attributes.nested('table').defaults({
+                class: 'sw-product-properties__table table table-striped table-borderless',
+            }) }}>
+                <tbody>
+                    {% for group in properties %}
+                        <tr {{ attributes.nested('row').defaults({ class: 'sw-product-properties__row' }) }}>
+                            <th {{ attributes.nested('label').defaults({
+                                class: 'sw-product-properties__label',
+                                scope: 'row',
+                            }) }}>{{ group.translated.name|e }}:</th>
+
+                            <td {{ attributes.nested('value').defaults({ class: 'sw-product-properties__value' }) }}>
+                                {{ group.options|map(option => "#{option.translated.name}")|join(', ') }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endblock %}
+    </div>
+{% endif %}

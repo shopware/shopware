@@ -410,14 +410,20 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $inserted['attributedSpecifications']);
     }
 
-    #[TestDox('seeds the default product mapping on a freshly inserted element while retaining its resolvedBy loader')]
-    public function testInsertElementMirrorsRootContextConsumerOntoCreatedElement(): void
+    /**
+     * Both types declare a bare SalesChannelProductEntity "product" reference: no resolvedBy (so no default
+     * binding fills it) and no self-provided key, and the "product" root source offers that exact FQCN, so
+     * every mirror skip clears and the live resolver, not a hand-built candidate, proves it.
+     */
+    #[TestDox('mirrors a resolved root-ambient reference onto a freshly inserted $type element as a root-scope acceptsContext consumer')]
+    #[DataProvider('productReferenceTypes')]
+    public function testInsertElementMirrorsRootContextConsumerOntoCreatedElement(string $type): void
     {
         // Sw:Product:PriceDisplay declares the product root source as its default mapping and keeps a
         // resolvedBy loader underneath it so unmapping restores the entity selection.
         $body = $this->mutate('insert-element', [
             'layout' => [],
-            'type' => 'Sw:Product:PriceDisplay',
+            'type' => $type,
             'rootSource' => 'product',
         ]);
 
@@ -432,6 +438,15 @@ class LayoutMutationControllerTest extends TestCase
             $inserted['acceptsContext']['product'],
         );
         static::assertArrayHasKey('product', $inserted['dataRequirements'] ?? []);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function productReferenceTypes(): iterable
+    {
+        yield 'price display reads the page product' => ['Sw:Product:PriceDisplay'];
+        yield 'buy button reads the page product' => ['Sw:Product:BuyButton'];
     }
 
     #[TestDox('resolves the bound media reference via CandidateOrigin::Stored once mediaId is filled in on the bound draft')]

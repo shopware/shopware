@@ -72,6 +72,61 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
         static::assertSame(['1', '2'], $idSearchResult->getIds());
     }
 
+    public function testHydratePassesMatchedQueriesThroughInExplainMode(): void
+    {
+        $definition = static::createStub(ProductDefinition::class);
+        $criteria = new Criteria();
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+        $matchedQueries = ['{"field":"name","term":"iron","type":"exact"}' => 12.5];
+        $result = [
+            'hits' => [
+                'hits' => [
+                    [
+                        '_id' => '1',
+                        '_score' => 1.0,
+                        '_source' => ['field' => 'value'],
+                        'matched_queries' => $matchedQueries,
+                    ],
+                    [
+                        '_id' => '2',
+                        '_score' => 2.0,
+                        '_source' => ['field' => 'value'],
+                    ],
+                ],
+            ],
+        ];
+
+        $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+
+        // the per-clause explain scores survive into the hit data, absent hits stay untouched
+        static::assertSame($matchedQueries, $idSearchResult->getDataFieldOfId('1', 'matched_queries'));
+        static::assertNull($idSearchResult->getDataFieldOfId('2', 'matched_queries'));
+    }
+
+    public function testHydrateDropsMatchedQueriesOutsideExplainMode(): void
+    {
+        $definition = static::createStub(ProductDefinition::class);
+        $criteria = new Criteria();
+        $result = [
+            'hits' => [
+                'hits' => [
+                    [
+                        '_id' => '1',
+                        '_score' => 1.0,
+                        '_source' => ['field' => 'value'],
+                        'matched_queries' => ['{"field":"name","term":"iron"}' => 12.5],
+                    ],
+                ],
+            ],
+        ];
+
+        // without explain mode the clause list must not leak into the hit data
+        $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
+
+        static::assertNull($idSearchResult->getDataFieldOfId('1', 'matched_queries'));
+    }
+
     public function testHydrateWithoutTotal(): void
     {
         $definition = static::createStub(ProductDefinition::class);

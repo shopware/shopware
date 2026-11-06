@@ -7,30 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -43,13 +24,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
@@ -57,8 +38,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -81,7 +60,8 @@ class VersionManager
         private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
         private readonly VersionDefinition $versionDefinition,
         private readonly LockFactory $lockFactory,
-        private readonly ClockInterface $clock
+        private readonly ClockInterface $clock,
+        private readonly ClonePayloadBuilder $clonePayloadBuilder,
     ) {
     }
 
@@ -252,12 +232,12 @@ class VersionManager
         CloneBehavior $behavior,
         bool $writeAuditLog = false
     ): array {
-        if ($this->isCloneProtected($definition, $context->getContext())) {
+        if ($this->clonePayloadBuilder->isCloneProtected($definition, $context->getContext())) {
             throw DataAbstractionLayerException::cloneProtected($definition->getEntityName(), $context->getContext()->getScope());
         }
 
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren(), $context->getContext());
+        $this->clonePayloadBuilder->addCloneAssociations($definition, $criteria, $behavior->cloneChildren(), $context->getContext());
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -267,31 +247,7 @@ class VersionManager
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true, 512, \JSON_THROW_ON_ERROR);
 
-        $keepIds = $newId === $id;
-
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
-        $data['id'] = $newId;
-
-        $createdAtField = $definition->getField('createdAt');
-        $updatedAtField = $definition->getField('updatedAt');
-
-        if ($createdAtField instanceof DateTimeField) {
-            $data['createdAt'] = $this->clock->now();
-        }
-
-        if ($updatedAtField instanceof DateTimeField) {
-            if ($updatedAtField->getFlag(Required::class)) {
-                $data['updatedAt'] = $this->clock->now();
-            } else {
-                $data['updatedAt'] = null;
-            }
-        }
-
-        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext());
-
-        $data = Feature::isActive('v6.8.0.0')
-            ? $this->mergeOverwrites($definition, $data, $behavior->getOverwrites())
-            : array_replace_recursive($data, $behavior->getOverwrites());
+        $data = $this->clonePayloadBuilder->build($definition, $data, $id, $newId, $behavior->getOverwrites(), $context->getContext());
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -305,211 +261,6 @@ class VersionManager
         }
 
         return $result;
-    }
-
-    /**
-     * @param array<string, mixed> $overwrites
-     */
-    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context): void
-    {
-        foreach ($overwrites as $propertyName => $value) {
-            $field = $definition->getFields()->get($propertyName);
-            $writeProtection = $field?->getFlag(WriteProtected::class);
-
-            if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
-                continue;
-            }
-
-            $message = 'This field is write-protected.';
-            $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
-
-            if ($allowedScopes !== '') {
-                $message .= ' (Got: "%s" scope and "%s" is required)';
-            }
-
-            throw DataAbstractionLayerException::invalidWriteConstraintViolation(
-                new ConstraintViolationList([
-                    new ConstraintViolation(
-                        \sprintf($message, $context->getScope(), $allowedScopes),
-                        $message,
-                        [$context->getScope(), $allowedScopes],
-                        $value,
-                        $propertyName,
-                        $value
-                    ),
-                ]),
-                '/' . $propertyName
-            );
-        }
-    }
-
-    /**
-     * @param array<string, array<string, mixed|null>|null> $data
-     *
-     * @return array<string, array<string, mixed|null>|string|null>
-     */
-    private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
-    {
-        $extensions = [];
-        $payload = [];
-
-        $fields = $definition->getFields();
-
-        foreach ($fields as $field) {
-            if ($field->is(ResetOnClone::class)) {
-                continue;
-            }
-
-            $writeProtection = $field->getFlag(WriteProtected::class);
-            if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
-                continue;
-            }
-
-            // Autoloaded associations are not added to the clone criteria, but can still be present in the serialized entity.
-            if ($field instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($field), $context)) {
-                continue;
-            }
-
-            // set data and payload cursor to root or extensions to simplify following if conditions
-            $dataCursor = $data;
-
-            $payloadCursor = &$payload;
-
-            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
-                continue;
-            }
-
-            // wasModifiedByUser is derived from the write scope and rejects explicit values;
-            // a clone is a fresh, system-created record, so let the serializer set it to false.
-            if ($field instanceof WasModifiedByUserField) {
-                continue;
-            }
-
-            if ($field->is(Extension::class)) {
-                $dataCursor = $data['extensions'] ?? [];
-                $payloadCursor = &$extensions;
-                if (isset($dataCursor['foreignKeys'])) {
-                    $fields = $definition->getFields();
-                    foreach ($dataCursor['foreignKeys'] as $key => $value) {
-                        \assert(\is_string($key));
-                        // Clone FK extension and add it to payload
-                        if (\is_string($value) && Uuid::isValid($value) && $fields->has($key) && $fields->get($key) instanceof FkField) {
-                            $payload[$key] = $value;
-                        }
-                    }
-                }
-            }
-
-            if (!\array_key_exists($field->getPropertyName(), $dataCursor)) {
-                continue;
-            }
-
-            if (!$keepIds && $field instanceof ParentFkField) {
-                continue;
-            }
-
-            $value = $dataCursor[$field->getPropertyName()];
-
-            // remove reference of cloned entity in all sub entity routes. Appears in a parent-child nested data tree
-            if ($field instanceof FkField && !$keepIds && $value === $cloneId && $cloneDefinition === $field->getReferenceDefinition()) {
-                continue;
-            }
-
-            if ($value === null) {
-                continue;
-            }
-
-            // scalar value? assign directly
-            if (!$field instanceof AssociationField) {
-                $payloadCursor[$field->getPropertyName()] = $value;
-
-                continue;
-            }
-
-            // many to one should be skipped because it is no part of the root entity
-            if ($field instanceof ManyToOneAssociationField) {
-                continue;
-            }
-
-            $flag = $field->getFlag(CascadeDelete::class);
-            if (!$flag || !$flag->isCloneRelevant()) {
-                continue;
-            }
-
-            if ($field instanceof OneToManyAssociationField) {
-                $reference = $field->getReferenceDefinition();
-
-                $nested = [];
-                foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context);
-
-                    if (!$keepIds) {
-                        $nestedItem = $this->removePrimaryKey($field, $nestedItem);
-                    }
-
-                    $nested[] = $nestedItem;
-                }
-
-                $nested = array_filter($nested);
-                if ($nested === []) {
-                    continue;
-                }
-
-                $payloadCursor[$field->getPropertyName()] = $nested;
-
-                continue;
-            }
-
-            if ($field instanceof ManyToManyAssociationField) {
-                $nested = [];
-
-                foreach ($value as $item) {
-                    $nested[] = ['id' => $item['id']];
-                }
-
-                if ($nested === []) {
-                    continue;
-                }
-
-                $payloadCursor[$field->getPropertyName()] = $nested;
-
-                continue;
-            }
-
-            if ($field instanceof OneToOneAssociationField && $value) {
-                $reference = $field->getReferenceDefinition();
-
-                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context);
-
-                if (!$keepIds) {
-                    $nestedItem = $this->removePrimaryKey($field, $nestedItem);
-                }
-
-                $payloadCursor[$field->getPropertyName()] = $nestedItem;
-            }
-        }
-
-        if ($extensions !== []) {
-            $payload['extensions'] = $extensions;
-        }
-
-        return $payload;
-    }
-
-    private function isCloneProtected(EntityDefinition $definition, Context $context): bool
-    {
-        $protection = $definition->getProtections()->get(CloneProtection::class);
-
-        return $protection !== null && !$protection->isAllowed($context->getScope());
-    }
-
-    private function getCloneReferenceDefinition(AssociationField $field): EntityDefinition
-    {
-        if ($field instanceof ManyToManyAssociationField) {
-            return $field->getToManyReferenceDefinition();
-        }
-
-        return $field->getReferenceDefinition();
     }
 
     /**
@@ -637,99 +388,6 @@ class VersionManager
         }
 
         return $payload;
-    }
-
-    /**
-     * @param array<string, array<string, mixed>|string|null> $nestedItem
-     *
-     * @return array<string, array<string, mixed>|string|null>
-     */
-    private function removePrimaryKey(AssociationField $field, array $nestedItem): array
-    {
-        $pkFields = $field->getReferenceDefinition()->getPrimaryKeys();
-
-        foreach ($pkFields as $pkField) {
-            /*
-             * `EntityTranslationDefinition` doesn't have an `id`; they use a composite primary key consisting of the
-             * entity id and the `languageId`. When cloning the entity, we want to copy the `languageId`. The entity id
-             * has to be unset so that it's set by the parent, resulting in a valid primary key.
-             */
-            if (
-                $field instanceof TranslationsAssociationField
-                && $pkField instanceof StorageAware
-                && $pkField->getStorageName() === $field->getLanguageField()
-            ) {
-                continue;
-            }
-
-            if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
-                unset($nestedItem[$pkField->getPropertyName()]);
-            }
-        }
-
-        return $nestedItem;
-    }
-
-    private function addCloneAssociations(
-        EntityDefinition $definition,
-        Criteria $criteria,
-        bool $cloneChildren,
-        Context $context,
-        int $childCounter = 1
-    ): void {
-        // add all cascade delete associations
-        $cascades = $definition->getFields()->filter(static function (Field $field) {
-            $flag = $field->getFlag(CascadeDelete::class);
-
-            return $flag ? $flag->isCloneRelevant() : false;
-        });
-
-        foreach ($cascades as $cascade) {
-            if ($cascade instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($cascade), $context)) {
-                continue;
-            }
-
-            $nested = $criteria->getAssociation($cascade->getPropertyName());
-
-            if ($cascade instanceof ManyToManyAssociationField) {
-                continue;
-            }
-
-            // many to one shouldn't be cascaded
-            if ($cascade instanceof ManyToOneAssociationField) {
-                continue;
-            }
-
-            if (!$cascade instanceof AssociationField) {
-                continue;
-            }
-
-            $reference = $cascade->getReferenceDefinition();
-
-            $childrenAware = $reference->isChildrenAware();
-
-            // first level of parent-child tree?
-            if ($childrenAware && $reference !== $definition) {
-                // where product.children.parentId IS NULL
-                $nested->addFilter(new EqualsFilter($reference->getEntityName() . '.parentId', null));
-            }
-
-            if ($cascade instanceof ChildrenAssociationField) {
-                // break endless loop
-                if ($childCounter >= 30 || !$cloneChildren) {
-                    $criteria->removeAssociation($cascade->getPropertyName());
-
-                    continue;
-                }
-
-                ++$childCounter;
-                $this->addCloneAssociations($reference, $nested, $cloneChildren, $context, $childCounter);
-
-                continue;
-            }
-
-            $this->addCloneAssociations($reference, $nested, $cloneChildren, $context);
-        }
     }
 
     private function translationHasParent(VersionCommitEntity $commit, VersionCommitDataEntity $translationData): bool
@@ -1006,66 +664,5 @@ class VersionManager
         );
 
         return $exists->has($versionId);
-    }
-
-    /**
-     * Merge overwrite data with cloned entity data, properly handling ListField
-     * This method recursively handles nested fields in any field type that has property mappings.
-     *
-     * @param array<string, mixed> $data
-     * @param array<string, mixed> $overwrites
-     * @param list<Field>|null $nestedFields Optional nested field definitions for recursive calls
-     *
-     * @return array<string, mixed>
-     */
-    private function mergeOverwrites(EntityDefinition $definition, array $data, array $overwrites, ?array $nestedFields = null): array
-    {
-        foreach ($overwrites as $key => $value) {
-            $field = $this->getFieldDefinition($key, $definition, $nestedFields);
-
-            // ListField should be completely replaced, not merged
-            if ($field instanceof ListField) {
-                $data[$key] = $value;
-                continue;
-            }
-
-            $isBothArrays = \is_array($value) && \array_key_exists($key, $data) && \is_array($data[$key]);
-
-            // For fields with nested property mappings, recursively handle them
-            if ($isBothArrays && $field && method_exists($field, 'getPropertyMapping')) {
-                $propertyMapping = $field->getPropertyMapping();
-                if ($propertyMapping !== []) {
-                    $data[$key] = $this->mergeOverwrites($definition, $data[$key], $value, $propertyMapping);
-                    continue;
-                }
-            }
-
-            // For other arrays, use array_replace_recursive; otherwise assign directly
-            $data[$key] = $isBothArrays
-                ? array_replace_recursive($data[$key], $value)
-                : $value;
-        }
-
-        return $data;
-    }
-
-    /**
-     * Get field definition from nested fields or entity definition.
-     *
-     * @param list<Field>|null $nestedFields
-     */
-    private function getFieldDefinition(string $key, EntityDefinition $definition, ?array $nestedFields): ?Field
-    {
-        if ($nestedFields !== null) {
-            foreach ($nestedFields as $field) {
-                if ($field->getPropertyName() === $key) {
-                    return $field;
-                }
-            }
-
-            return null;
-        }
-
-        return $definition->getFields()->get($key);
     }
 }

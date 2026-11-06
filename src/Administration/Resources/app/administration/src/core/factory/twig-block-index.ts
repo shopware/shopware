@@ -29,17 +29,6 @@ export {
 } from './transform-legacy-block-conditionals';
 
 /**
- * Re-exports the indexed shim entry shape used by `sw-block`.
- * Use this import path for callers that historically consumed block-index types.
- *
- * @example
- * import type { BlockEntry } from 'src/core/factory/twig-block-index';
- *
- * @private
- */
-export type { BlockEntry } from './transform-legacy-block-conditionals';
-
-/**
  * Represents the subset of TwigJS token data needed to identify block tokens.
  * Use it immediately after parsing a template with TwigJS.
  *

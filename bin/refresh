@@ -8,6 +8,13 @@ export PROJECT_ROOT="${PROJECT_ROOT:-"$(dirname "$CWD")"}"
 
 cd "$PROJECT_ROOT"
 
+LOCK_DIR=var/refresh.lock
+if ! mkdir "$LOCK_DIR" 2> /dev/null; then
+    echo "Another refresh is running. Remove $LOCK_DIR if none is." >&2
+    exit 1
+fi
+trap 'rmdir "$LOCK_DIR"' EXIT
+
 STATE_FILE=var/refresh-state
 ADMIN_APP=src/Administration/Resources/app/administration
 STOREFRONT_APP=src/Storefront/Resources/app/storefront
@@ -34,7 +41,7 @@ current_state() {
 }
 
 changed_files() {
-    local repo head previous prefix
+    local filter="${1:-ACDMRTUXB}" repo head previous prefix
     while read -r repo head; do
         previous=$(awk -v repo="$repo" '$1 == repo { print $2 }' "$STATE_FILE")
         if [[ -z "$previous" ]] || ! git -C "$repo" cat-file -e "${previous}^{commit}" 2>/dev/null; then
@@ -47,14 +54,16 @@ changed_files() {
             prefix="$repo/"
         fi
 
-        git -C "$repo" diff --name-only "$previous" "$head" | sed "s|^|$prefix|"
+        git -C "$repo" diff --name-only --diff-filter="$filter" "$previous" "$head" | sed "s|^|$prefix|"
     done < <(current_state)
 }
 
+REMOVED_MIGRATIONS=""
 if [[ "$FULL" == true || ! -f "$STATE_FILE" ]]; then
     CHANGED="*"
 else
     CHANGED="$(changed_files)"
+    REMOVED_MIGRATIONS="$(changed_files D | grep -E '(^|/)Migration/' | grep -vxF '*' || true)"
 fi
 
 changed() {
@@ -110,12 +119,22 @@ if changed '(^|/)Migration/'; then
     done < <(jq -r 'to_entries[] | select(.value.basePath | startswith("custom/")) | "\(.key) \(.value.basePath)"' var/plugins.json)
 fi
 
+if changed '(^|/)Indexing/|Indexer\.php$'; then
+    step "Refreshing the data indexes"
+    "$CWD"/console dal:refresh:index
+fi
+
+if changed '(^|/)Resources/theme\.json$'; then
+    step "Refreshing themes"
+    "$CWD"/console theme:refresh
+fi
+
 if [[ "$ADMIN_DEPENDENCIES" == true ]] || changed '(^|/)Resources/app/administration/'; then
     step "Building the Administration"
     composer build:js:admin
 fi
 
-if [[ "$STOREFRONT_DEPENDENCIES" == true ]] || changed '(^|/)Resources/app/storefront/'; then
+if [[ "$STOREFRONT_DEPENDENCIES" == true ]] || changed '(^|/)Resources/(app/storefront/|theme\.json$)'; then
     step "Building the Storefront"
     composer build:js:storefront
 fi
@@ -140,3 +159,11 @@ if [[ -n "$CHANGED" ]]; then
 fi
 
 current_state > "$STATE_FILE"
+
+if [[ -n "$REMOVED_MIGRATIONS" ]]; then
+    echo
+    echo "Warning: these migrations are gone from the current code but stay applied in the database:" >&2
+    while read -r migration; do
+        echo "  $migration" >&2
+    done <<< "$REMOVED_MIGRATIONS"
+fi

@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Builds the review pages into var/public-api-review/. Run: python3 _build/build.py"""
+"""Builds the review pages next to _build/. Run: python3 _build/build.py [--zip path/to/file.zip]"""
 import html
 import os
 import re
 import sys
+import zipfile
 
 sys.path.insert(0, os.path.dirname(__file__))
 import pages  # noqa: E402
 from coverage_page import coverage  # noqa: E402
+import game  # noqa: E402
 
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 E = html.escape
@@ -125,22 +127,42 @@ def shell(fname, lead, body):
 """
 
 
+def outputs():
+    """Every generated file with its renderer. Writing and zipping both go through this list."""
+    def page(fname, render):
+        return fname, lambda: shell(fname, *render())
+
+    return [
+        ("play.html", game.render),
+        page("index.html", lambda: pages.overview(PAGES)),
+        page("snapshot.html", pages.snapshot),
+        page("coverage.html", coverage),
+        page("open.html", pages.open_questions),
+        page("plugins.html", pages.plugins),
+        page("generator.html", pages.generator),
+        page("backtest.html", pages.backtest),
+        page("decisions.html", pages.decisions),
+        page("glossary.html", pages.glossary),
+    ]
+
+
 def main():
-    content = {
-        "index.html": pages.overview(PAGES),
-        "snapshot.html": pages.snapshot(),
-        "coverage.html": coverage(),
-        "open.html": pages.open_questions(),
-        "plugins.html": pages.plugins(),
-        "generator.html": pages.generator(),
-        "backtest.html": pages.backtest(),
-        "decisions.html": pages.decisions(),
-        "glossary.html": pages.glossary(),
-    }
-    for fname, (lead, body) in content.items():
+    files = outputs()
+    for fname, render in files:
         with open(os.path.join(OUT, fname), "w") as fh:
-            fh.write(shell(fname, lead, body))
+            fh.write(render())
         print("wrote", fname)
+    if "--zip" in sys.argv:
+        write_zip(sys.argv[sys.argv.index("--zip") + 1], [fname for fname, _ in files])
+
+
+def write_zip(path, fnames):
+    readme = "Open play.html for the 6-minute game, or index.html for the full concept.\nEverything works offline.\n"
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("admin-api-snapshot/README.txt", readme)
+        for fname in fnames:
+            zf.write(os.path.join(OUT, fname), f"admin-api-snapshot/{fname}")
+    print("wrote", path)
 
 
 if __name__ == "__main__":

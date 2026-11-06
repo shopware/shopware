@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Break It or Not · Admin API Snapshot</title>
+<style>
+:root {
+  --bg: #0a0d14; --panel: #111725; --panel2: #0d121d; --line: #1f2a3d; --ink: #e8edf5; --muted: #8b98ad;
+  --green: #7ee787; --red: #ff7b72; --amber: #ffcc66; --cyan: #79c0ff; --violet: #d2a8ff;
+  --mono: ui-monospace, "JetBrains Mono", "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+}
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased;
+  background: radial-gradient(1200px 600px at 50% -10%, #16213a 0%, transparent 60%), var(--bg);
+}
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+}
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+p { margin: 0; }
+code, kbd, pre { font-family: var(--mono); }
+code { font-size: .88em; background: #1a2336; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+kbd { font-size: .72em; border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; opacity: .7; margin: 0 2px; }
+
+/* HUD */
+.hud { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: rgba(10,13,20,.86); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.hud .act { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud .bar { flex: 1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.hud .bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width .4s ease; }
+.hud .score b { color: var(--amber); font-size: 14px; display: inline-block; }
+.hud .score b.pop { animation: pop .5s ease; }
+
+main { max-width: 920px; margin: 0 auto; padding: 32px 16px 80px; }
+.screen { animation: in .35s ease both; }
+.screen > * + * { margin-top: 18px; }
+.kicker { margin: 0; font: 700 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); outline: none; }
+.sub { color: var(--muted); }
+.sub b, .sub code { color: var(--ink); }
+.lbl { font: 700 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+/* Title */
+.title { padding-top: 6vh; }
+.title .eyebrow { font: 600 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+.title h1 { margin: 0; font: 800 clamp(48px, 11vw, 104px)/.95 var(--mono); letter-spacing: -.03em; text-transform: uppercase; outline: none;
+  background: linear-gradient(180deg, #fff 30%, var(--amber)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 40px rgba(255,204,102,.15); }
+.title .intro { font-size: 19px; max-width: 640px; color: #c9d3e3; }
+
+/* Buttons */
+.btn { font: 700 15px/1 var(--mono); color: var(--ink); background: var(--panel); border: 2px solid var(--line); border-radius: 10px; padding: 14px 18px; cursor: pointer; box-shadow: 0 4px 0 #05070c; transition: transform .08s ease, box-shadow .08s ease, border-color .15s; display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { border-color: var(--cyan); text-decoration: none; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #05070c; }
+.btn:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.primary { background: var(--amber); color: #1a1405; border-color: var(--amber); }
+.choice.ok:hover { border-color: var(--green); }
+.choice.bad:hover { border-color: var(--red); }
+.choice.picked { border-color: var(--amber); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 8px; }
+.nav .btn:last-child { margin-left: auto; }
+.deeper { font-size: 14px; }
+
+/* PR card and diff */
+.pr { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.prh { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.prn { font: 700 15px var(--mono); }
+.prt { font-weight: 650; }
+.merged { margin-left: auto; font: 700 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--violet); border: 1px solid var(--violet); border-radius: 99px; padding: 4px 8px; }
+.prs { font: 13px var(--mono); color: var(--muted); margin-top: 4px; }
+.prs .p { color: var(--green); } .prs .m { color: var(--red); }
+.fname { font: 13px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px !important; }
+.tag { font: 600 12px/1 var(--mono); padding: 6px 9px; border-radius: 6px; background: #1a2336; color: #c9d3e3; }
+.diff { margin: 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 0; font-size: 13px; line-height: 1.55; overflow-x: auto; }
+.diff .ln { display: block; padding: 0 14px; white-space: pre; min-height: 1.55em; transition: background .3s, box-shadow .3s; }
+.diff .add { background: rgba(126,231,135,.08); color: #b7f0bc; }
+.diff .del { background: rgba(255,123,114,.08); color: #ffb4ad; }
+.diff .gap { color: var(--muted); text-align: center; }
+.diff .blk { color: var(--violet); }
+.diff .m { color: var(--amber); }
+.diff .sec { color: var(--cyan); }
+.diff.small { font-size: 12px; }
+.answered .diff .hot { background: rgba(255,204,102,.22); box-shadow: inset 4px 0 0 var(--amber); color: #fff; }
+.code-ts .ln { white-space: pre; }
+.code-ts { white-space: pre; padding: 12px 14px; }
+.code-ts .c { color: var(--red); } .code-ts .s { color: var(--green); } .code-ts .k { color: var(--violet); }
+.hint { font-size: 15px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 12px; }
+.hint b { color: var(--cyan); font: 700 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; margin-right: 6px; }
+.ask p { font-weight: 700; font-size: 18px; margin-bottom: 12px; }
+.choices { display: flex; gap: 12px; flex-wrap: wrap; }
+.answered .choices .btn { pointer-events: none; }
+.answered .choices .btn:not(.picked) { opacity: .35; }
+
+/* Reveal */
+.reveal { border-top: 1px dashed var(--line); padding-top: 22px; }
+.reveal > * + * { margin-top: 16px; }
+.result { font-size: 16px; color: #c9d3e3; }
+.result .win, .result .lose { display: none; font: 800 28px/1 var(--mono); text-transform: uppercase; margin-right: 10px; vertical-align: -3px; }
+.right .result .win { display: inline; color: var(--green); animation: pop .5s ease; }
+.wrong .result .lose { display: inline; color: var(--red); }
+.wrong .reveal { animation: shake .4s ease; }
+.why-wrong { display: none; }
+.wrong .why-wrong { display: inline; }
+.verdict { font-size: 18px; }
+.cols { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; }
+.col { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.col p + p, .col .term + .extra { margin-top: 10px; }
+.extra { font-size: 14px; color: #c9d3e3; }
+.lesson { font: 700 17px/1.4 var(--mono); color: var(--amber); padding: 12px 16px; border: 2px solid rgba(255,204,102,.35); border-radius: 10px; background: rgba(255,204,102,.05); }
+.lesson::before { content: "▸ "; }
+
+/* Terminal output */
+.term { background: #05070c; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: 12px/1.5 var(--mono); }
+.term .headline { font-weight: 700; }
+.term .headline.fail { color: var(--red); } .term .headline.pass { color: var(--green); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.chip { font: 700 11px/1 var(--mono); padding: 4px 7px; border-radius: 4px; background: #1a2336; }
+.chip.g-break { background: rgba(255,123,114,.18); color: var(--red); }
+.chip.g-addition { background: rgba(126,231,135,.15); color: var(--green); }
+.chip.g-info { background: rgba(121,192,255,.15); color: var(--cyan); }
+.chip.g-private { background: rgba(139,152,173,.2); color: #c9d3e3; }
+.finding { border-left: 3px solid var(--line); padding: 4px 0 4px 10px; margin-top: 8px; }
+.finding.g-break { border-color: var(--red); }
+.finding .fh { display: flex; gap: 10px; flex-wrap: wrap; }
+.finding .fh b { color: var(--ink); }
+.finding .st { color: var(--muted); }
+.finding .fd span { display: block; color: #c9d3e3; overflow-wrap: anywhere; }
+
+/* Act 2 */
+.rule { font: 800 clamp(24px, 4.6vw, 38px)/1.15 var(--mono); }
+.rule code { font-size: 1em; background: none; color: var(--amber); padding: 0; }
+.pipe { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; counter-reset: s; }
+.pipe li { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--muted); opacity: 0; animation: in .4s ease both; }
+.pipe li:nth-child(2) { animation-delay: .25s; } .pipe li:nth-child(3) { animation-delay: .5s; } .pipe li:nth-child(4) { animation-delay: .75s; } .pipe li:nth-child(5) { animation-delay: 1s; }
+.pipe li b { display: block; color: var(--ink); font: 700 14px var(--mono); margin-bottom: 4px; }
+.pipe li span { overflow-wrap: anywhere; }
+.pipe li.hl { border-color: var(--amber); box-shadow: 0 0 24px rgba(255,204,102,.15); }
+.pipe li.hl b { color: var(--amber); }
+.vs { display: flex; align-items: center; gap: 16px; }
+.vsc { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; color: var(--muted); font-size: 14px; }
+.vsc.hl { border-color: var(--green); }
+.vsc .big { font: 800 52px/1 var(--mono); color: var(--red); margin-bottom: 6px; }
+.vsc.hl .big { color: var(--green); }
+.vsa { font: 800 28px var(--mono); color: var(--muted); }
+.flag { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.toggle .on, .toggle[aria-pressed="true"] .off { display: none; }
+.toggle[aria-pressed="true"] .on { display: inline; color: var(--green); }
+.toggle .off { color: var(--red); }
+.flist { list-style: none; margin: 0; padding: 14px 16px; flex: 1; min-width: 260px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; font: 13px/1.9 var(--mono); }
+.fl { padding-left: calc(var(--d) * 22px); transition: opacity .4s, color .4s, max-height .4s; overflow-wrap: anywhere; max-height: 3em; }
+.fl.s-major { opacity: 0; max-height: 0; overflow: hidden; }
+.flipped .fl.s-current { color: var(--red); text-decoration: line-through; opacity: .55; }
+.flipped .fl.s-major { opacity: 1; max-height: 3em; color: var(--green); }
+
+/* Act 3 */
+.roles { display: grid; gap: 12px; }
+.role { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 0; overflow: hidden; }
+.role[open] { border-color: var(--cyan); }
+.role summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 16px; flex-wrap: wrap; }
+.role summary::-webkit-details-marker { display: none; }
+.role summary:focus-visible { outline: 3px solid var(--cyan); outline-offset: -3px; }
+.role summary b { font: 700 16px var(--mono); }
+.role summary span:last-child { color: var(--muted); font-size: 14px; }
+.role summary::after { content: "+"; margin-left: auto; font: 700 20px var(--mono); color: var(--muted); }
+.role[open] summary::after { content: "✓"; color: var(--green); }
+.ri { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: #1a2336; color: var(--amber); font-size: 18px; }
+.role > :not(summary) { margin: 0 16px 16px; }
+.annot { background: rgba(255,204,102,.07); border: 1px solid rgba(255,204,102,.4); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.annot .ah { font: 700 13px var(--mono); color: var(--amber); overflow-wrap: anywhere; }
+.annot .ah span { color: var(--muted); font-weight: 400; margin-left: 6px; }
+.annot p { margin-top: 6px; }
+.annot .fix { color: var(--green); }
+.gate { font: 700 13px var(--mono); color: var(--muted); text-align: right; }
+
+/* End */
+.final { font: 800 clamp(72px, 16vw, 140px)/1 var(--mono); color: var(--amber); }
+.final .fs { color: #fff; }
+.rank { font: 700 20px var(--mono); }
+.lunch { border: 2px solid var(--green); border-radius: 12px; padding: 16px 18px; background: rgba(126,231,135,.05); }
+.lunch p { font: 700 19px/1.45 var(--mono); }
+.status { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.status li { padding: 3px 0 3px 24px; position: relative; }
+.status li::before { position: absolute; left: 0; font-family: var(--mono); }
+.status .done::before { content: "✓"; color: var(--green); }
+.status .todo::before { content: "○"; color: var(--muted); }
+.status .todo { color: var(--muted); }
+.ask-big { font: 800 20px var(--mono); color: var(--amber); }
+.end .col p + p { margin-top: 10px; }
+.foot { text-align: center; color: var(--muted); font-size: 13px; padding: 0 16px 32px; }
+
+@keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+@media (max-width: 720px) {
+  .cols { grid-template-columns: 1fr; }
+  .pipe { grid-template-columns: 1fr; }
+  .vs { flex-direction: column; align-items: stretch; }
+  .vsa { transform: rotate(90deg); text-align: center; }
+  .hud .act { max-width: 40vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .pipe li { opacity: 1; }
+}
+
+</style>
+</head>
+<body>
+<header class="hud">
+  <span class="act"></span>
+  <div class="bar"><span></span></div>
+  <span class="score">Score <b>0</b></span>
+</header>
+<main>
+
+<section class="screen title" data-act="" hidden>
+  <p class="eyebrow">Admin API snapshot · about 6 minutes</p>
+  <h1 tabindex="-1">Break it<br>or not?</h1>
+  <p class="intro">Plugins hook into the Administration by name: blocks, methods called via <code>$super</code>, props, slots. Rename or move one, and no build or test fails. The plugin just stops working.</p>
+  <p class="intro">Here are 3 real PRs. All were reviewed and merged. Your turn to review them.</p>
+  <div class="nav"><a class="deeper" href="index.html">Skip the game, read the concept ↗</a><button class="btn primary next">Start <kbd>Enter</kbd></button></div>
+</section>
+<section class="screen round" data-answer="block" data-act="Act 1 · Spot the break" hidden>
+  <h2 class="kicker" tabindex="-1">Round 1 of 3</h2>
+  <div class="pr">
+    <div class="prh"><span class="prn"><a href="https://github.com/shopware/shopware/issues/20959" target="_blank" rel="noopener">#20959</a></span><span class="prt">feat: polish order detail page</span><span class="merged">merged</span></div>
+    <div class="prs">23 files · <span class="p">+290</span> <span class="m">−258</span></div>
+  </div>
+  <div class="fname">src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig</div>
+  <div class="tags"><span class="tag">public component</span><span class="tag">1 of 23 files</span></div>
+  <pre class="diff"><span class="ln">     <span class="blk">{% block sw_order_detail_header %}</span></span><span class="ln">     &lt;template #smart-bar-header&gt;</span><span class="ln del">-</span><span class="ln del">-        <span class="blk">{% block sw_order_detail_header_title %}</span></span><span class="ln del">-        &lt;h2 v-if=&quot;orderIdentifier&quot;&gt;</span><span class="ln del">-            {{ $t(&#x27;sw-order.detail.textHeadline&#x27;) }} {{ orderIdentifier }}</span><span class="ln add hot">+        &lt;div</span><span class="ln add">+            v-if=&quot;orderIdentifier&quot;</span><span class="ln add">+            class=&quot;sw-order-detail__header&quot;</span><span class="ln add">+        &gt;</span><span class="ln add">+            <span class="blk">{% block sw_order_detail_header_title %}</span></span><span class="ln add">+            &lt;h2&gt;</span><span class="ln add">+                {{ $t(&#x27;sw-order.detail.textHeadline&#x27;) }} {{ orderIdentifier }}</span><span class="ln add">+            &lt;/h2&gt;</span><span class="ln"></span><span class="ln">             <span class="blk">{% block sw_order_detail_header_label_manual_order %}</span></span><span class="ln del">-            &lt;sw-label</span><span class="ln add">+            &lt;mt-badge</span><span class="ln">                 v-if=&quot;order.createdById&quot;</span><span class="ln del">-                appearance=&quot;pill&quot;</span><span class="ln del">-                size=&quot;small&quot;</span><span class="ln">                 class=&quot;sw-order-detail__manual-order-label&quot;</span><span class="ln">             &gt;</span><span class="ln">                 {{ $t(&#x27;sw-order.detail.labelManualOrder&#x27;) }}</span><span class="ln del">-            &lt;/sw-label&gt;</span><span class="ln del">-            <span class="blk">{% endblock %}</span></span><span class="ln del">-        &lt;/h2&gt;</span><span class="ln add">+            &lt;/mt-badge&gt;</span><span class="ln add hot">+        &lt;/div&gt;</span><span class="ln add">+        <span class="blk">{% endblock %}</span></span><span class="ln">         <span class="blk">{% endblock %}</span></span></pre>
+  <p class="hint"><b>Hint</b> Plugins override Twig blocks by name. An override replaces everything between <code>{% block %}</code> and <code>{% endblock %}</code>, unless it calls <code>{% parent %}</code>.</p>
+  <div class="ask">
+    <p>Your call, reviewer: does this PR break a plugin?</p>
+    <div class="choices">
+      <button class="btn choice ok" data-choice="merge"><kbd>M</kbd> Merge it</button>
+      <button class="btn choice bad" data-choice="block"><kbd>B</kbd> Block it, plugins break</button>
+    </div>
+  </div>
+  <div class="reveal" hidden>
+    <div class="result"><span class="win">Correct</span><span class="lose">Not quite</span> <span class="why-wrong">The markup still renders, so the build and the tests stay green. The break only shows up once a plugin overrides one of the two blocks.</span></div>
+    <p class="verdict">The <code>&lt;div&gt;</code> opens in <code>sw_order_detail_header</code> and closes inside <code>sw_order_detail_header_label_manual_order</code>. A plugin that replaces the inner block also deletes the closing tag.</p>
+    <div class="cols">
+      <div class="col"><div class="lbl">What really happened</div><p>Merged after review. Plugins that replace the inner block broke the order page: issue <a href="https://github.com/shopware/shopware/issues/21108" target="_blank" rel="noopener">#21108</a>, fixed in <a href="https://github.com/shopware/shopware/issues/21189" target="_blank" rel="noopener">#21189</a>.</p></div>
+      <div class="col"><div class="lbl">What the snapshot check would print</div>
+        <div class="term"><div class="headline fail">Public API check failed: 8 unannounced breaks.</div><div class="chips"><span class="chip g-break">Break 8</span><span class="chip g-addition">Addition 12</span><span class="chip g-info">Info 6</span></div><div class="finding g-break"><div class="fh"><b>element_crosses_block</b><span class="st">current, major</span></div><div class="fd"><span>The &lt;div&gt; element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.</span></div></div></div>
+        <p class="extra">The same PR also moved a block and dropped <code>itemIndex</code> from a slot and from <code>onDeleteItem</code>: 7 more breaks, spread over 548 changed lines.</p>
+      </div>
+    </div>
+    <p class="lesson">Plugins depend on block boundaries, not only block names.</p>
+    <div class="nav"><a class="deeper" href="backtest.html#20959-expected-breaks">Go deeper: All 8 expected breaks of #20959 ↗</a><button class="btn next">Next <kbd>→</kbd></button></div>
+  </div>
+</section>
+<section class="screen round" data-answer="block" data-act="Act 1 · Spot the break" hidden>
+  <h2 class="kicker" tabindex="-1">Round 2 of 3</h2>
+  <div class="pr">
+    <div class="prh"><span class="prn"><a href="https://github.com/shopware/shopware/issues/17339" target="_blank" rel="noopener">#17339</a></span><span class="prt">feat: migrate sw-tabs to mt-tabs behind a feature flag</span><span class="merged">merged</span></div>
+    <div class="prs">4 files · <span class="p">+169</span> <span class="m">−57</span></div>
+  </div>
+  <div class="fname">src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig</div>
+  <div class="tags"><span class="tag">@private component</span><span class="tag">new markup only with flag v6.8.0.0 on</span><span class="tag">old markup kept in v-else</span></div>
+  <pre class="diff"><span class="ln del">-            <span class="blk">{% block sw_custom_field_set_renderer_card_tabs %}</span></span><span class="ln gap">⋯</span><span class="ln add">+        &lt;template v-if=&quot;variant === &#x27;tabs&#x27;&quot;&gt;</span><span class="ln add">+            &lt;template v-if=&quot;feature.isActive(&#x27;v6.8.0.0&#x27;)&quot;&gt;</span><span class="ln add">+                <span class="blk">{% block sw_custom_field_set_renderer_card_mt_tabs %}</span></span><span class="ln add">+                &lt;mt-tabs</span><span class="ln gap">⋯</span><span class="ln add">+                <span class="blk">{% block sw_custom_field_set_renderer_card_mt_tabs_content %}</span></span><span class="ln">                 &lt;template</span><span class="ln">                     v-for=&quot;set in visibleCustomFieldSets&quot;</span><span class="ln gap">⋯</span><span class="ln">                     &lt;div</span><span class="ln del">-                        v-show=&quot;active === set.id&quot;</span><span class="ln add">+                        v-show=&quot;activeCustomFieldSetTabName === set.id&quot;</span><span class="ln">                         :class=&quot;&#x27;sw-custom-field-set-renderer-tab-content__&#x27; + set.name&quot;</span><span class="ln">                     &gt;</span><span class="ln del hot">-                        <span class="blk">{% block sw_custom_field_set_renderer_card_form_renderer %}</span></span><span class="ln add hot">+                        <span class="blk">{% block sw_custom_field_set_renderer_card_mt_tabs_form_renderer %}</span></span><span class="ln gap">⋯</span><span class="ln add">+            &lt;template v-else&gt;</span><span class="ln add">+                &lt;sw-tabs</span><span class="ln add">+                    v-if=&quot;variant === &#x27;tabs&#x27;&quot;</span></pre>
+  <p class="hint"><b>Hint</b> <code>sw-bulk-edit-custom-fields</code> extends this component and overrides some of its blocks.</p>
+  <div class="ask">
+    <p>Your call, reviewer: does this PR break a plugin?</p>
+    <div class="choices">
+      <button class="btn choice ok" data-choice="merge"><kbd>M</kbd> Merge it</button>
+      <button class="btn choice bad" data-choice="block"><kbd>B</kbd> Block it, plugins break</button>
+    </div>
+  </div>
+  <div class="reveal" hidden>
+    <div class="result"><span class="win">Correct</span><span class="lose">Not quite</span> <span class="why-wrong">Two good reasons to merge, and both are wrong: the component is private, but a public one extends it, and the flag only delays the break to 6.8.</span></div>
+    <p class="verdict">The block is renamed in the major branch. <code>sw-bulk-edit-custom-fields</code>, a public component, overrides the old name, so with the flag on its override has nothing to attach to and its own blocks are gone.</p>
+    <div class="cols">
+      <div class="col"><div class="lbl">What really happened</div><p>Merged after review. With the major flag on, the bulk edit lost all custom field checkboxes, and nobody noticed for four weeks (issue <a href="https://github.com/shopware/shopware/issues/19601" target="_blank" rel="noopener">#19601</a>).</p></div>
+      <div class="col"><div class="lbl">What the snapshot check would print</div>
+        <div class="term"><div class="headline fail">Public API check failed: 4 unannounced breaks.</div><div class="chips"><span class="chip g-break">Break 4</span><span class="chip g-addition">Addition 3</span><span class="chip g-private">Private 10</span></div><div class="finding g-break"><div class="fh"><b>block_missing</b><span class="st">major</span></div><div class="fd"><span>The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_change_field %} render nothing.</span></div></div></div>
+        <p class="extra">All 4 breaks exist only in the <b>major</b> state. A snapshot of today's state alone would be clean.</p>
+      </div>
+    </div>
+    <p class="lesson">A private parent does not protect public children, and a feature flag does not hide a break.</p>
+    <div class="nav"><a class="deeper" href="index.html#two-flag-states">Go deeper: How the two flag states work ↗</a><button class="btn next">Next <kbd>→</kbd></button></div>
+  </div>
+</section>
+<section class="screen round" data-answer="merge" data-act="Act 1 · Spot the break" hidden>
+  <h2 class="kicker" tabindex="-1">Round 3 of 3</h2>
+  <div class="pr">
+    <div class="prh"><span class="prn"><a href="https://github.com/shopware/shopware/issues/15271" target="_blank" rel="noopener">#15271</a></span><span class="prt">feat: admin ui shell rework</span><span class="merged">merged</span></div>
+    <div class="prs">16 files · <span class="p">+1729</span> <span class="m">−1152</span></div>
+  </div>
+  <div class="fname">src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig</div>
+  <div class="tags"><span class="tag">@private component</span><span class="tag">1 of 16 files</span></div>
+  <pre class="diff"><span class="ln del">-        <span class="blk">{% block sw_admin_menu_toggle_sidebar %}</span></span><span class="ln del">-        &lt;button</span><span class="ln del">-            class=&quot;sw-admin-menu__toggle&quot;</span><span class="ln del">-            @click=&quot;onToggleSidebar&quot;</span><span class="ln del">-        &gt;</span><span class="ln del">-</span><span class="ln del">-            <span class="blk">{% block sw_admin_menu_toggle_sidebar_icon %}</span></span><span class="ln del">-            &lt;mt-icon</span><span class="ln del">-                :name=&quot;sidebarCollapseIcon&quot;</span><span class="ln del">-                size=&quot;16px&quot;</span><span class="ln del">-            /&gt;</span><span class="ln del">-            <span class="blk">{% endblock %}</span></span><span class="ln del">-</span><span class="ln del">-            <span class="blk">{% block sw_admin_menu_toggle_sidebar_text %}</span></span><span class="ln del">-            &lt;span class=&quot;collapsible-text&quot;&gt;{{ $t(&#x27;global.sw-admin-menu.linkMinimizeMenu&#x27;) }}&lt;/span&gt;</span><span class="ln del">-            <span class="blk">{% endblock %}</span></span><span class="ln del">-</span><span class="ln del">-        &lt;/button&gt;</span><span class="ln del">-        <span class="blk">{% endblock %}</span></span></pre>
+  <p class="hint"><b>Hint</b> This is the UI shell rework. Blocks are deleted in plain sight.</p>
+  <div class="ask">
+    <p>Your call, reviewer: does this PR break a plugin?</p>
+    <div class="choices">
+      <button class="btn choice ok" data-choice="merge"><kbd>M</kbd> Merge it</button>
+      <button class="btn choice bad" data-choice="block"><kbd>B</kbd> Block it, plugins break</button>
+    </div>
+  </div>
+  <div class="reveal" hidden>
+    <div class="result"><span class="win">Correct</span><span class="lose">Not quite</span> <span class="why-wrong">Plugins that used these blocks did lose them. But <code>@private</code> means plugins may not rely on them, so blocking the PR would be noise.</span></div>
+    <p class="verdict"><code>sw-admin-menu</code> is <code>@private</code>, so its blocks were never a promise to plugins. The check passes and lists every deletion in the private group, so nobody has to hunt for them.</p>
+    <div class="cols">
+      <div class="col"><div class="lbl">What really happened</div><p>Merged. Today a guard test lists the blocks in <code>blocks-list.json</code>. The PR regenerated that list, and the test turned green again without anyone looking at the deletion.</p></div>
+      <div class="col"><div class="lbl">What the snapshot check would print</div>
+        <div class="term"><div class="headline pass">Public API check passed: no breaks.</div><div class="chips"><span class="chip g-private">Private 219</span></div><div class="finding g-private"><div class="fh"><b>block_missing</b><span class="st">current, major</span></div><div class="fd"><span>The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar %} render nothing.</span></div></div></div>
+        
+      </div>
+    </div>
+    <p class="lesson">Private changes show up in the diff, but they never fail the check.</p>
+    <div class="nav"><a class="deeper" href="backtest.html#15271-expected-result">Go deeper: The expected result for #15271 ↗</a><button class="btn next">Next <kbd>→</kbd></button></div>
+  </div>
+</section>
+<section class="screen" data-act="Act 2 · The fix" hidden>
+  <h2 class="kicker" tabindex="-1">The fix</h2>
+  <p class="rule">Everything without <code>@private</code> is public.</p>
+  <p class="sub">The rule is already documented. The snapshot makes it checkable.</p>
+  <ol class="pipe">
+    <li><b>Source</b><span>components, Twig, modules, en.json</span></li>
+    <li><b>Generator</b><span>composer admin:generate-public-api</span></li>
+    <li class="hl"><b>public-api/</b><span>committed .api.md and .d.ts files</span></li>
+    <li><b>CI</b><span>compares base and head, fails on breaks nobody announced</span></li>
+    <li><b>Plugins</b><span>types and a compatibility check</span></li>
+  </ol>
+  <div class="vs">
+    <div class="vsc"><div class="big" data-count="548">548</div><div>changed source lines in #20959</div></div>
+    <div class="vsa">→</div>
+    <div class="vsc hl"><div class="big" data-count="46">46</div><div>changed lines in its <code>.api.md</code> report</div></div>
+  </div>
+  <p class="sub">The report holds names and signatures: components, blocks, methods, props, slots. A change inside a method body leaves it untouched. The bug fix #17081 produces an identical snapshot and no noise. Another break from round 1's PR, a block that moved to a new parent, looks like this to a reviewer:</p>
+  <pre class="diff small"><span class="ln">--- a/module/sw-order/component/sw-order-details-state-card.api.md</span><span class="ln">+++ b/module/sw-order/component/sw-order-details-state-card.api.md</span><span class="ln">   stateName: any</span><span class="ln del">-  stateSelectBackgroundStyle: any</span><span class="ln add">+  stateSelectBackgroundStyle: any  [deprecated tag:v6.8.0]</span><span class="ln">   stateTransitionMethod: any</span><span class="ln">   …</span><span class="ln">   sw_order_detail_state_card</span><span class="ln">     sw_order_detail_state_card_state</span><span class="ln">       sw_order_detail_state_card_state_history_button</span><span class="ln del">-      sw_order_detail_state_card_state_history_text</span><span class="ln del">-        sw_order_detail_state_card_state_history_text_internal_comment</span><span class="ln del">-        sw_order_detail_state_card_state_history_text_label</span><span class="ln">       sw_order_detail_state_card_state_select</span><span class="ln add">+        sw_order_detail_state_card_state_history_text</span><span class="ln add">+          sw_order_detail_state_card_state_history_text_internal_comment</span><span class="ln add">+          sw_order_detail_state_card_state_history_text_label</span></pre>
+  <div class="nav"><a class="deeper" href="index.html#how-it-works">Go deeper: how it works ↗</a><button class="btn next">Next <kbd>→</kbd></button></div>
+</section>
+
+<section class="screen" data-act="Act 2 · The fix" hidden>
+  <h2 class="kicker" tabindex="-1">Two flag states</h2>
+  <p class="sub">Round 2 hid behind the major flag. So the snapshot is generated twice: <b>current</b> (flag <code>v6.8.0.0</code> off, today's releases) and <b>major</b> (flag on, the next major). Flip it on <code>sw-sales-channel-detail</code>, on trunk today:</p>
+  <div class="flag">
+    <button class="btn toggle" aria-pressed="false"><kbd>F</kbd> v6.8.0.0 <span class="off">OFF</span><span class="on">ON</span></button>
+    <ul class="flist"><li class="fl s-both" style="--d:0">sw_sales_channel_detail_content_tabs</li><li class="fl s-major" style="--d:1">sw_sales_channel_detail_content_mt_tabs</li><li class="fl s-current" style="--d:1">sw_sales_channel_detail_content_tab_general</li><li class="fl s-current" style="--d:1">sw_sales_channel_detail_content_tab_products</li><li class="fl s-current" style="--d:1">sw_sales_channel_detail_content_tab_theme</li></ul>
+  </div>
+  <div class="after-flip" hidden>
+    <p class="verdict">Three tab blocks vanish in 6.8, and none of them is <code>@deprecated</code>. The example snapshot found this on trunk and lists it as a <code>flag-removal-undeprecated</code> note. A new PR that does the same gets a break in the major state, like round 2.</p>
+    <p class="sub">The report shows both states in one tree and marks the difference by version:</p>
+    <pre class="diff small"><span class="ln">sw_sales_channel_detail_content_tabs</span><span class="ln">  sw_sales_channel_detail_content_mt_tabs  <span class="m">[from v6.8.0]</span></span><span class="ln">  sw_sales_channel_detail_content_tab_general  <span class="m">[until v6.8.0]</span></span><span class="ln">  sw_sales_channel_detail_content_tab_products  <span class="m">[after v-if]</span> <span class="m">[until v6.8.0]</span></span><span class="ln">  sw_sales_channel_detail_content_tab_theme  <span class="m">[empty]</span> <span class="m">[after v-if]</span> <span class="m">[until v6.8.0]</span></span></pre>
+  </div>
+  <div class="nav"><a class="deeper" href="index.html#two-flag-states">Go deeper: two flag states ↗</a><button class="btn next">Next <kbd>→</kbd></button></div>
+</section>
+<section class="screen" data-act="Act 3 · Who gets what" hidden>
+  <h2 class="kicker" tabindex="-1">Who gets what</h2>
+  <p class="sub">What each person gets from the check. Open all three.</p>
+  <div class="roles">
+    <details class="role"><summary><span class="ri">✎</span><b>PR author</b><span>before the review even starts</span></summary>
+      <div class="annot"><div class="ah">⚠ method_signature_changed <span>src/module/sw-order/component/sw-order-line-items-grid/index.js:330</span></div><p>The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).</p><p class="fix">Fix: keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.</p></div>
+      <p class="sub">From #20959: an annotation on the source line, with the reason and a fix. Today the author learns about it from a plugin bug report.</p>
+    </details>
+    <details class="role"><summary><span class="ri">◎</span><b>Reviewer</b><span>reads a summary, not 548 lines</span></summary>
+      <div class="term"><div class="headline fail">Public API check failed: 8 unannounced breaks.</div><div class="chips"><span class="chip g-break">Break 8</span><span class="chip g-addition">Addition 12</span><span class="chip g-info">Info 6</span></div></div>
+      <pre class="diff small"><span class="ln">--- a/module/sw-order/component/sw-order-line-items-grid.api.md</span><span class="ln">+++ b/module/sw-order/component/sw-order-line-items-grid.api.md</span><span class="ln">   …</span><span class="ln">         sw_order_line_items_grid_grid_actions</span><span class="ln del">-          sw_order_line_items_grid_grid_actions_delete  [scope: item, itemIndex]</span><span class="ln del">-            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]</span><span class="ln add">+          sw_order_line_items_grid_grid_actions_delete  [scope: item]</span><span class="ln add">+            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]</span><span class="ln">   …</span></pre>
+      <p class="sub">From #20959: the check summary (Break 8 · Addition 12 · Info 6) and an <code>.api.md</code> diff that only shows API changes.</p>
+    </details>
+    <details class="role"><summary><span class="ri">⧉</span><b>Plugin developer</b><span>gets a type error, not a bug report</span></summary>
+      <pre class="diff small code-ts">Shopware.Component.override(<span class="s">&#x27;sw-sales-channel-detail&#x27;</span>, {
+    methods: {
+        getLoadSalesChannelCriteria() {
+            <span class="k">const</span> criteria = <span class="k">this</span>.$super(<span class="s">&#x27;getLoadSalesChannelCriteria&#x27;</span>);
+<span class="c">            //                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="c">            // error: &#x27;getLoadSalesChannelCriteria&#x27; is not a method of sw-sales-channel-detail</span>
+            <span class="k">return</span> criteria;
+        },
+    },
+});</pre>
+      <p class="sub">Illustrative example from <code>FORMAT.md</code>: a method was renamed. The snapshot ships as types, so <code>$super</code> only accepts names that exist. This needs a small core change first (D20, not started). JS plugins get the same finding from <code>admin:check-extensions</code>.</p>
+    </details>
+  </div>
+  <p class="gate"><span class="opened">0</span>/3 opened</p>
+  <div class="nav"><a class="deeper" href="index.html#one-change-end-to-end">Go deeper: one change, end to end ↗</a><button class="btn next" disabled>Next <kbd>→</kbd></button></div>
+</section>
+<section class="screen end" data-act="Game over" hidden>
+  <h2 class="kicker" tabindex="-1">Final score</h2>
+  <div class="final"><span class="fs">0</span>/3</div>
+  <p class="rank"></p>
+  <p class="sub">The original reviews merged all three PRs: 1/3. The snapshot check would have reported all 12 breaks in them before the merge.</p>
+  <div class="lunch"><div class="lbl">If you remember one sentence</div><p>Everything without @private is public. A generator commits it, and CI fails when a PR breaks it without saying so.</p></div>
+  <div class="cols">
+    <div class="col"><div class="lbl">Where it stands</div>
+      <ul class="status">
+        <li class="done">Format spec, decisions D1–D30</li>
+        <li class="done">Hand-written example snapshot that compiles</li>
+        <li class="done">22 test fixtures and 4 real PRs as backtest</li>
+        <li class="todo">Generator and CI check: next, after this review</li>
+        <li class="todo">Core change for typed overrides (D20)</li>
+      </ul>
+    </div>
+    <div class="col"><div class="lbl">Your move</div>
+      <p class="ask-big">Do you back this approach?</p>
+      <p>Reply in the thread where you got this link: <b>“I back it”</b>, or the one thing that would stop you.</p>
+      <p>Hooked? Read the <a href="index.html">Overview</a> (10 min), then the must-read pages (<a href="index.html#how-to-review">about 70 min</a>). Disagree with a detail? Check the <a href="decisions.html">decisions</a> and the <a href="open.html">open questions</a>.</p>
+    </div>
+  </div>
+  <div class="nav"><button class="btn again">Play again</button><a class="btn primary" href="index.html">Open the full concept →</a></div>
+</section>
+</main>
+<footer class="foot"><a href="index.html">Full concept</a> · <kbd>←</kbd> <kbd>→</kbd> to move</footer>
+<script>
+(() => {
+    const screens = [...document.querySelectorAll('.screen')];
+    const rounds = screens.filter((s) => s.classList.contains('round'));
+    const hudAct = document.querySelector('.hud .act');
+    const hudBar = document.querySelector('.hud .bar span');
+    const hudScore = document.querySelector('.hud .score b');
+    const ranks = {
+        none: 'None this time. Without a tool, that is the normal outcome.',
+        some: 'Some right, some wrong: about what the original reviews managed.',
+        close: 'Close. One wrong call means a plugin bug report or a PR blocked for nothing.',
+        all: 'Perfect. Now imagine doing that on every agent-written PR, or let the check do it.',
+    };
+
+    function rank() {
+        if (score === rounds.length) {
+            return ranks.all;
+        }
+        if (score === rounds.length - 1) {
+            return ranks.close;
+        }
+        return score === 0 ? ranks.none : ranks.some;
+    }
+    let current = 0;
+    let score = 0;
+
+    function setScore(value) {
+        score = value;
+        hudScore.textContent = String(score);
+        hudScore.classList.remove('pop');
+        void hudScore.offsetWidth;
+        hudScore.classList.add('pop');
+    }
+
+    function show(index) {
+        current = Math.max(0, Math.min(index, screens.length - 1));
+        screens.forEach((s, i) => { s.hidden = i !== current; });
+        const screen = screens[current];
+        hudAct.textContent = screen.dataset.act;
+        hudBar.style.width = `${(current / (screens.length - 1)) * 100}%`;
+        if (screen.classList.contains('end')) {
+            screen.querySelector('.fs').textContent = String(score);
+            screen.querySelector('.rank').textContent = rank();
+        }
+        window.scrollTo(0, 0);
+        screen.querySelector('[tabindex="-1"]')?.focus({ preventScroll: true });
+    }
+
+    function canLeave(screen) {
+        if (screen.classList.contains('round')) {
+            return screen.classList.contains('answered');
+        }
+        const next = screen.querySelector('.btn.next');
+        return !next || !next.disabled;
+    }
+
+    function answer(screen, choice) {
+        if (screen.classList.contains('answered')) {
+            return;
+        }
+        const right = choice === screen.dataset.answer;
+        screen.classList.add('answered', right ? 'right' : 'wrong');
+        screen.querySelector(`[data-choice="${choice}"]`).classList.add('picked');
+        const reveal = screen.querySelector('.reveal');
+        reveal.hidden = false;
+        if (right) {
+            setScore(score + 1);
+        }
+        reveal.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        reveal.querySelector('.btn.next').focus({ preventScroll: true });
+    }
+
+    function flip(screen) {
+        const toggle = screen.querySelector('.toggle');
+        const on = toggle.getAttribute('aria-pressed') !== 'true';
+        toggle.setAttribute('aria-pressed', String(on));
+        screen.querySelector('.flag').classList.toggle('flipped', on);
+        screen.querySelector('.after-flip').hidden = false;
+    }
+
+    function reset() {
+        rounds.forEach((s) => {
+            s.classList.remove('answered', 'right', 'wrong');
+            s.querySelectorAll('.picked').forEach((b) => b.classList.remove('picked'));
+            s.querySelector('.reveal').hidden = true;
+        });
+        score = 0;
+        hudScore.textContent = '0';
+        show(1);
+    }
+
+    document.addEventListener('click', (event) => {
+        const target = event.target.closest('button');
+        if (!target) {
+            return;
+        }
+        const screen = target.closest('.screen');
+        if (target.matches('.choice')) {
+            answer(screen, target.dataset.choice);
+        } else if (target.matches('.next')) {
+            show(current + 1);
+        } else if (target.matches('.toggle')) {
+            flip(screen);
+        } else if (target.matches('.again')) {
+            reset();
+        }
+    });
+
+    document.querySelectorAll('.roles').forEach((roles) => {
+        const screen = roles.closest('.screen');
+        const all = roles.querySelectorAll('.role');
+        all.forEach((role) => {
+            role.addEventListener('toggle', () => {
+                if (role.open) {
+                    role.classList.add('seen');
+                }
+                const opened = roles.querySelectorAll('.role.seen').length;
+                screen.querySelector('.opened').textContent = String(opened);
+                screen.querySelector('.btn.next').disabled = opened < all.length;
+            });
+        });
+    });
+
+    const keyActions = {
+        m: (screen) => screen.classList.contains('round') && answer(screen, 'merge'),
+        b: (screen) => screen.classList.contains('round') && answer(screen, 'block'),
+        f: (screen) => screen.querySelector('.toggle') && flip(screen),
+        arrowright: (screen) => canLeave(screen) && show(current + 1),
+        enter: (screen, target) => target.matches('body, [tabindex="-1"]') && canLeave(screen) && show(current + 1),
+        arrowleft: () => show(current - 1),
+    };
+
+    document.addEventListener('keydown', (event) => {
+        const target = event.target instanceof Element ? event.target : document.body;
+        const action = keyActions[event.key.toLowerCase()];
+        if (!action || event.metaKey || event.ctrlKey || event.altKey || target.matches('input, textarea')) {
+            return;
+        }
+        action(screens[current], target);
+    });
+
+    show(0);
+})();
+
+</script>
+</body>
+</html>

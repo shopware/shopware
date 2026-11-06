@@ -6,7 +6,10 @@ from examples import (ACCEPT_JSON, COMP_MD, COMP_TS, ENTRY_TS, INDEX_JSON, MIXIN
 import os
 import re
 
+from fixtures import load_case
 from render import code, single, src, unit
+
+PRIVATE_15271 = load_case("15271-ui-shell")["groups"]["Private"]
 
 GOLDEN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "public-api")
 
@@ -132,6 +135,7 @@ def overview(page_list):
         for f, label, mode, minutes in page_list
     )
     body = f"""
+<p class="note"><b>Short on time?</b> <a href="play.html">Play the 6-minute version first</a>: three real PRs, you decide whether they break plugins.</p>
 <div class="tldr">
   <b>In short</b>
   <ul>
@@ -161,7 +165,7 @@ Today the only way to see what is public is to read the code and know the conven
   <li><b>#17339</b> renamed blocks only with the major feature flag on. The bulk edit lost all custom field checkboxes, and nobody noticed for four weeks (issue #19601).</li>
   <li><b>#15271</b> deleted blocks of <code>sw-admin-menu</code> during the UI shell rework and regenerated <code>blocks-list.json</code>, so the guard test turned green again without anyone looking at the deletion.
     With the snapshot, every deleted block shows up in the PR diff.
-    The check does not fail, because the shell components are <code>@private</code>; it lists the 217 changes in the private group.</li>
+    The check does not fail, because the shell components are <code>@private</code>; it lists the {PRIVATE_15271} changes in the private group.</li>
 </ul>
 
 <h2>Today and with the snapshot</h2>
@@ -231,7 +235,7 @@ The report shows both in one tree and marks what exists in only one of them, by 
 
 # --------------------------------------------------------------------------- Generated files
 
-DIFF_20959 = """--- a/module/sw-order/component/sw-order-details-state-card.api.md
+DIFF_20959_MOVED = """--- a/module/sw-order/component/sw-order-details-state-card.api.md
 +++ b/module/sw-order/component/sw-order-details-state-card.api.md
    stateName: any
 -  stateSelectBackgroundStyle: any
@@ -247,9 +251,9 @@ DIFF_20959 = """--- a/module/sw-order/component/sw-order-details-state-card.api.
        sw_order_detail_state_card_state_select
 +        sw_order_detail_state_card_state_history_text
 +          sw_order_detail_state_card_state_history_text_internal_comment
-+          sw_order_detail_state_card_state_history_text_label
++          sw_order_detail_state_card_state_history_text_label"""
 
---- a/module/sw-order/component/sw-order-line-items-grid.api.md
+DIFF_20959_SCOPE = """--- a/module/sw-order/component/sw-order-line-items-grid.api.md
 +++ b/module/sw-order/component/sw-order-line-items-grid.api.md
    …
          sw_order_line_items_grid_grid_actions
@@ -257,9 +261,9 @@ DIFF_20959 = """--- a/module/sw-order/component/sw-order-details-state-card.api.
 -            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]
 +          sw_order_line_items_grid_grid_actions_delete  [scope: item]
 +            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]
-   …
+   …"""
 
---- a/module/sw-order/page/sw-order-detail.api.md
+DIFF_20959_CROSSING = """--- a/module/sw-order/page/sw-order-detail.api.md
 +++ b/module/sw-order/page/sw-order-detail.api.md
    …
        sw_order_detail_header_title_new  [after v-if]
@@ -268,6 +272,8 @@ DIFF_20959 = """--- a/module/sw-order/component/sw-order-details-state-card.api.
  crossings
 -  v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
 +  <div>  sw_order_detail_header -> sw_order_detail_header_label_manual_order"""
+
+DIFF_20959 = "\n\n".join([DIFF_20959_MOVED, DIFF_20959_SCOPE, DIFF_20959_CROSSING])
 
 SUMMARY_20959 = """Public API check failed: 8 unannounced breaks.
 
@@ -655,9 +661,9 @@ F17339 = """Break (4)
     Possible rename: sw_mail_template_list_mt_tabs.
   block_missing  component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates  major"""
 
-F15271 = """Public API check passed: no breaks.
+F15271 = f"""Public API check passed: no breaks.
 
-Private (217)
+Private ({PRIVATE_15271})
   block_added  component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_fold  current, major
     A new block of a private component, so it is not public API and plugins cannot rely on it.
   …"""
@@ -676,10 +682,10 @@ def backtest():
 
 <h2>Historical cases</h2>
 <div class="tw"><table><thead><tr><th>PR</th><th>What happened</th><th>Expected result</th></tr></thead><tbody>
-<tr><td><b>#20959</b></td><td>Order detail polish. Plugins broke after the merge, fixed in #21189.</td><td>{chips(Break=8, Addition=12, Info=6)}<span class="small muted">five of the breaks come from the block context rules: the actions slot lost <code>itemIndex</code></span></td></tr>
-<tr><td><b>#17339</b></td><td>sw-tabs replaced by mt-tabs behind the major flag. The bulk edit lost its custom field checkboxes, and nobody noticed for four weeks.</td><td>{chips(Break=4, Addition=3, Private=10)}<span class="small muted">all breaks in the major state only</span></td></tr>
-<tr><td><b>#15271</b></td><td>UI shell rework, blocks of the admin menu deleted.</td><td>{chips(Private=219)}<span class="small muted">the shell components are @private</span></td></tr>
-<tr><td><b>#17081</b></td><td>Small bug fix in the number range detail. Negative control.</td><td>{chips()}<span class="small muted">identical snapshot</span></td></tr>
+<tr><td><b>#20959</b></td><td>Order detail polish. Plugins broke after the merge, fixed in #21189.</td><td>{chips(**load_case("20959")["groups"])}<span class="small muted">five of the breaks come from the block context rules: the actions slot lost <code>itemIndex</code></span></td></tr>
+<tr><td><b>#17339</b></td><td>sw-tabs replaced by mt-tabs behind the major flag. The bulk edit lost its custom field checkboxes, and nobody noticed for four weeks.</td><td>{chips(**load_case("17339")["groups"])}<span class="small muted">all breaks in the major state only</span></td></tr>
+<tr><td><b>#15271</b></td><td>UI shell rework, blocks of the admin menu deleted.</td><td>{chips(**load_case("15271-ui-shell")["groups"])}<span class="small muted">the shell components are @private</span></td></tr>
+<tr><td><b>#17081</b></td><td>Small bug fix in the number range detail. Negative control.</td><td>{chips(**load_case("17081")["groups"])}<span class="small muted">identical snapshot</span></td></tr>
 </tbody></table></div>
 <p>Each case folder below <code>scripts/generate-public-api/__fixtures__/history/</code> has the commits in <code>case.json</code>, the expected report diffs, <code>findings.txt</code> and the HTML page.</p>
 

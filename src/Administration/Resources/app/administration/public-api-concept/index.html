@@ -212,6 +212,7 @@ details.box[open] { padding-bottom: 16px; }
 <h1>Overview</h1>
 <p class="lead">A generated, committed list of everything plugins can use in the Administration, so a PR that breaks it shows up in the diff and fails CI.</p>
 
+<p class="note"><b>Short on time?</b> <a href="play.html">Play the 6-minute version first</a>: three real PRs, you decide whether they break plugins.</p>
 <div class="tldr">
   <b>In short</b>
   <ul>
@@ -241,7 +242,7 @@ Today the only way to see what is public is to read the code and know the conven
   <li><b><a href="https://github.com/shopware/shopware/issues/17339">#17339</a></b> renamed blocks only with the major feature flag on. The bulk edit lost all custom field checkboxes, and nobody noticed for four weeks (issue <a href="https://github.com/shopware/shopware/issues/19601">#19601</a>).</li>
   <li><b><a href="https://github.com/shopware/shopware/issues/15271">#15271</a></b> deleted blocks of <code>sw-admin-menu</code> during the UI shell rework and regenerated <code>blocks-list.json</code>, so the guard test turned green again without anyone looking at the deletion.
     With the snapshot, every deleted block shows up in the PR diff.
-    The check does not fail, because the shell components are <code>@private</code>; it lists the 217 changes in the private group.</li>
+    The check does not fail, because the shell components are <code>@private</code>; it lists the 219 changes in the private group.</li>
 </ul>
 
 <h2 id="today-and-with-the-snapshot">Today and with the snapshot</h2>

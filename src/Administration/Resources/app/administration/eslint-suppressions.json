@@ -263,14 +263,9 @@
       "count": 1
     }
   },
-  "src/app/component/base/sw-chart/locales.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
   "src/app/component/base/sw-chart/sw-chart.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 19
+      "count": 15
     }
   },
   "src/app/component/base/sw-circle-icon/index.js": {

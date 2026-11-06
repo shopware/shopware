@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Mcp;
 
+use Mcp\Exception\PromptGetException;
 use Mcp\Exception\ResourceNotFoundException;
+use Mcp\Exception\ResourceReadException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,5 +58,35 @@ class McpException extends HttpException
     public static function toolResultNotFound(string $id): ResourceNotFoundException
     {
         return new ResourceNotFoundException(\sprintf('Tool result "%s" not found. It may have expired or been stored by another caller.', $id));
+    }
+
+    public static function appPromptResponseNotJson(string $promptName): PromptGetException
+    {
+        return new PromptGetException(\sprintf('App prompt "%s" returned a response that is not valid JSON.', $promptName));
+    }
+
+    public static function appPromptResponseNotAMessageList(string $promptName): PromptGetException
+    {
+        return new PromptGetException(\sprintf('App prompt "%s" must respond with a JSON array of messages.', $promptName));
+    }
+
+    public static function appPromptFailed(string $promptName, ?string $error): PromptGetException
+    {
+        return new PromptGetException($error ?: \sprintf('App prompt "%s" failed.', $promptName));
+    }
+
+    public static function appResourceResponseNotJson(string $resourceName): ResourceReadException
+    {
+        return new ResourceReadException(\sprintf('App resource "%s" returned a response that is not valid JSON.', $resourceName));
+    }
+
+    public static function appResourceResponseInvalid(string $resourceName): ResourceReadException
+    {
+        return new ResourceReadException(\sprintf('App resource "%s" must respond with a JSON object holding a "text" or "blob" string.', $resourceName));
+    }
+
+    public static function appResourceFailed(string $resourceName, ?string $error): ResourceReadException
+    {
+        return new ResourceReadException($error ?: \sprintf('App resource "%s" failed.', $resourceName));
     }
 }

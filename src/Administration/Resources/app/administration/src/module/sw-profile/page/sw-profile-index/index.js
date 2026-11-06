@@ -281,7 +281,12 @@ export default {
 
                 if (isValid) {
                     const passwordCheck = this.checkPassword();
-                    if (passwordCheck === null || passwordCheck === true) {
+                    if (passwordCheck === null) {
+                        this.saveUser();
+
+                        return;
+                    }
+                    if (passwordCheck === true) {
                         this.confirmPasswordModal = true;
                     }
 

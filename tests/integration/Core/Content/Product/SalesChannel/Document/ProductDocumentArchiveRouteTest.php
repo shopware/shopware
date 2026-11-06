@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Document;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiver;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -28,16 +29,18 @@ class ProductDocumentArchiveRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    public function testAVariantGetsTheDocumentsOfItsParentRebuiltAfterAChange(): void
+    public function testAVariantGetsTheDocumentsOfItsParentRebuiltAfterChanges(): void
     {
         $ids = new IdsCollection();
         $browser = $this->createCustomSalesChannelBrowser(['id' => $ids->create('sales-channel')]);
         static::getContainer()->get(RateLimiter::class)->reset(RateLimiter::PRODUCT_DOCUMENTS_ARCHIVE, '127.0.0.1');
 
         $context = Context::createDefaultContext();
+        $manual = 'manual-' . Uuid::randomHex();
+        $sheet = 'data-sheet-' . Uuid::randomHex();
         $mediaService = static::getContainer()->get(MediaService::class);
-        $manualId = $mediaService->saveFile('manual content', 'pdf', 'application/pdf', 'manual-' . Uuid::randomHex(), $context, private: false);
-        $sheetId = $mediaService->saveFile('sheet content', 'pdf', 'application/pdf', 'data-sheet-' . Uuid::randomHex(), $context, private: false);
+        $manualId = $mediaService->saveFile('manual content', 'pdf', 'application/pdf', $manual, $context, private: false);
+        $sheetId = $mediaService->saveFile('sheet content', 'pdf', 'application/pdf', $sheet, $context, private: false);
 
         $drill = (new ProductBuilder($ids, 'drill'))
             ->price(10)
@@ -45,13 +48,13 @@ class ProductDocumentArchiveRouteTest extends TestCase
             ->variant((new ProductBuilder($ids, 'drill-red'))->build())
             ->build();
         $drill['documents'] = [
-            ['id' => $ids->create('manual'), 'title' => 'Manual', 'mediaId' => $manualId, 'position' => 1],
-            ['title' => 'Data sheet', 'mediaId' => $sheetId, 'position' => 2],
+            ['title' => 'Manual', 'mediaId' => $manualId, 'position' => 1],
+            ['id' => $ids->create('sheet'), 'title' => 'Data sheet', 'mediaId' => $sheetId, 'position' => 2],
         ];
         static::getContainer()->get('product.repository')->create([$drill], $context);
 
         static::assertSame(
-            ['Manual.pdf' => 'manual content', 'Data sheet.pdf' => 'sheet content'],
+            [$manual . '.pdf' => 'manual content', $sheet . '.pdf' => 'sheet content'],
             $this->download($browser, $ids->get('drill-red'))
         );
 
@@ -60,11 +63,22 @@ class ProductDocumentArchiveRouteTest extends TestCase
         $folder = ProductDocumentArchiver::DIRECTORY . '/' . $ids->get('drill');
         static::assertCount(1, $archives->listContents($folder)->toArray());
 
-        static::getContainer()->get('product_document.repository')->update([['id' => $ids->get('manual'), 'title' => 'Handbook']], $context);
+        $handbook = 'handbook-' . Uuid::randomHex();
+        static::getContainer()->get(FileSaver::class)->renameMedia($manualId, $handbook, $context);
 
         static::assertSame([], $archives->listContents($folder)->toArray());
         static::assertSame(
-            ['Handbook.pdf' => 'manual content', 'Data sheet.pdf' => 'sheet content'],
+            [$handbook . '.pdf' => 'manual content', $sheet . '.pdf' => 'sheet content'],
+            $this->download($browser, $ids->get('drill-red'))
+        );
+
+        $newSheet = 'data-sheet-' . Uuid::randomHex();
+        $newSheetId = $mediaService->saveFile('new sheet content', 'pdf', 'application/pdf', $newSheet, $context, private: false);
+        static::getContainer()->get('product_document.repository')->update([['id' => $ids->get('sheet'), 'mediaId' => $newSheetId]], $context);
+
+        static::assertSame([], $archives->listContents($folder)->toArray());
+        static::assertSame(
+            [$handbook . '.pdf' => 'manual content', $newSheet . '.pdf' => 'new sheet content'],
             $this->download($browser, $ids->get('drill-red'))
         );
 

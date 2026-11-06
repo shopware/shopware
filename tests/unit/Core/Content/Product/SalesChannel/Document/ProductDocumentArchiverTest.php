@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Document;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -53,7 +54,7 @@ class ProductDocumentArchiverTest extends TestCase
         $manual = $this->file('manual', $manualContent);
         $sheet = $this->file('data-sheet', 'sheet content');
 
-        $archive = $this->archiver([$this->document('Manual', $manual), $this->document('Data sheet', $sheet)], [$manual, $sheet])
+        $archive = $this->archiver([$this->document($manual), $this->document($sheet)], [$manual, $sheet])
             ->archive($this->product('Cordless drill'), $this->context);
 
         static::assertNotNull($archive);
@@ -61,8 +62,8 @@ class ProductDocumentArchiverTest extends TestCase
         static::assertStringStartsWith(ProductDocumentArchiver::DIRECTORY . '/' . $this->productId . '/', $archive->path);
         static::assertSame($this->privateFilesystem->fileSize($archive->path), $archive->size);
         static::assertSame([
-            ['name' => 'Manual.pdf', 'content' => $manualContent, 'stored' => true],
-            ['name' => 'Data sheet.pdf', 'content' => 'sheet content', 'stored' => true],
+            ['name' => 'manual.pdf', 'content' => $manualContent, 'stored' => true],
+            ['name' => 'data-sheet.pdf', 'content' => 'sheet content', 'stored' => true],
         ], $this->entries($archive));
     }
 
@@ -76,7 +77,7 @@ class ProductDocumentArchiverTest extends TestCase
                     static::assertEquals([new EqualsFilter('product.id', $this->productId)], $criteria->getFilters());
                     static::assertEquals([new FieldSorting('position')], $criteria->getSorting());
 
-                    return new ProductDocumentCollection([$this->document('Manual', $manual)]);
+                    return new ProductDocumentCollection([$this->document($manual)]);
                 },
             ]),
             new StaticEntityRepository([
@@ -95,36 +96,68 @@ class ProductDocumentArchiverTest extends TestCase
         static::assertNull($archiver->archive($this->product('Cordless drill'), $this->context));
     }
 
-    public function testNamesTheFilesAfterTheDocumentTitles(): void
+    public function testNamesTheEntriesAfterTheirFiles(): void
     {
         $manual = $this->file('manual', 'manual content');
-        $translation = $this->file('manual-de', 'translated manual');
-        $notes = $this->file('safety-notes', 'safety content');
-        $warranty = $this->file('warranty', 'warranty content');
+        $translation = $this->file('MANUAL', 'translated manual');
 
-        $archive = $this->archiver([
-            $this->document('Manual', $manual),
-            $this->document('manual', $translation),
-            $this->document('Safety: A/B', $notes),
-            $this->document('', $warranty),
-        ], [$manual, $translation, $notes, $warranty])->archive($this->product('Cordless drill'), $this->context);
+        $unnamed = new MediaEntity();
+        $unnamed->setId(Uuid::randomHex());
+        $unnamed->setFileExtension('pdf');
+        $unnamed->setPath('media/unnamed.pdf');
+        $this->publicFilesystem->write($unnamed->getPath(), 'unnamed content');
+
+        $archive = $this->archiver(
+            [$this->document($manual), $this->document($translation), $this->document($unnamed)],
+            [$manual, $translation, $unnamed],
+        )->archive($this->product('Cordless drill'), $this->context);
 
         static::assertNotNull($archive);
         static::assertSame(
-            ['Manual.pdf', 'manual (2).pdf', 'Safety- A-B.pdf', 'warranty.pdf'],
+            ['manual.pdf', 'MANUAL (2).pdf', $unnamed->getId() . '.pdf'],
             array_column($this->entries($archive), 'name')
         );
     }
 
-    public function testReusesTheStoredArchiveUntilTheDocumentsChange(): void
+    public function testAddsAFileOnceWhenSeveralDocumentsUseIt(): void
     {
         $manual = $this->file('manual', 'manual content');
-        $media = new MediaCollection([$manual]);
+
+        $archive = $this->archiver([$this->document($manual), $this->document($manual)], [$manual])
+            ->archive($this->product('Cordless drill'), $this->context);
+
+        static::assertNotNull($archive);
+        static::assertSame(['manual.pdf'], array_column($this->entries($archive), 'name'));
+    }
+
+    #[DataProvider('productNames')]
+    public function testNamesTheArchiveAfterTheProduct(string $productName, string $fileName): void
+    {
+        $manual = $this->file('manual', 'manual content');
+
+        $archive = $this->archiver([$this->document($manual)], [$manual])
+            ->archive($this->product($productName), $this->context);
+
+        static::assertNotNull($archive);
+        static::assertSame($fileName, $archive->fileName);
+    }
+
+    public static function productNames(): \Generator
+    {
+        yield 'slashes, which a download name cannot contain, are replaced' => ['Drill 18V/2Ah \\ red', 'Drill 18V-2Ah - red.zip'];
+        yield 'invisible characters are removed' => ["Cordless\u{200B} drill\u{202E}", 'Cordless drill.zip'];
+        yield 'a product without a name is named after its product number' => ['', 'SW-1000.zip'];
+    }
+
+    public function testReusesTheStoredArchiveUntilTheFilesChange(): void
+    {
+        $manual = $this->file('manual', 'manual content');
+        $handbook = $this->file('handbook', 'manual content');
         $archiver = $this->archiver(
-            [$this->document('Manual', $manual), $this->document('Manual', $manual), $this->document('Handbook', $manual)],
-            [$manual],
-            [[0], [1], [2]],
-            [$media, $media, $media],
+            [$this->document($manual), $this->document($handbook)],
+            [$manual, $handbook],
+            [[0], [0], [1]],
+            [new MediaCollection([$manual]), new MediaCollection([$manual]), new MediaCollection([$handbook])],
         );
 
         $first = $archiver->archive($this->product('Cordless drill'), $this->context);
@@ -136,12 +169,11 @@ class ProductDocumentArchiverTest extends TestCase
         static::assertNotNull($second);
         static::assertSame($first->path, $second->path);
 
-        $this->publicFilesystem->write($manual->getPath(), 'manual content');
-        $renamed = $archiver->archive($this->product('Cordless drill'), $this->context);
+        $replaced = $archiver->archive($this->product('Cordless drill'), $this->context);
 
-        static::assertNotNull($renamed);
-        static::assertNotSame($first->path, $renamed->path);
-        static::assertSame(['Handbook.pdf'], array_column($this->entries($renamed), 'name'));
+        static::assertNotNull($replaced);
+        static::assertNotSame($first->path, $replaced->path);
+        static::assertSame(['handbook.pdf'], array_column($this->entries($replaced), 'name'));
     }
 
     public function testStoresTheArchiveWithTheProductTheDocumentsBelongTo(): void
@@ -149,7 +181,7 @@ class ProductDocumentArchiverTest extends TestCase
         $manual = $this->file('manual', 'manual content');
         $parentId = Uuid::randomHex();
 
-        $archive = $this->archiver([$this->document('Manual', $manual, $parentId)], [$manual])
+        $archive = $this->archiver([$this->document($manual, $parentId)], [$manual])
             ->archive($this->product('Cordless drill'), $this->context);
 
         static::assertNotNull($archive);
@@ -196,12 +228,12 @@ class ProductDocumentArchiverTest extends TestCase
         return $product;
     }
 
-    private function document(string $title, MediaEntity $file, ?string $productId = null): ProductDocumentEntity
+    private function document(MediaEntity $file, ?string $productId = null): ProductDocumentEntity
     {
         $document = new ProductDocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setProductId($productId ?? $this->productId);
-        $document->setTranslated(['title' => $title, 'mediaId' => $file->getId()]);
+        $document->setTranslated(['mediaId' => $file->getId()]);
 
         return $document;
     }

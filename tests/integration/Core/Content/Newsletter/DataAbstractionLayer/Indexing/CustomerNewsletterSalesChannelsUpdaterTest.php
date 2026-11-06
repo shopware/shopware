@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
@@ -231,6 +234,67 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         static::assertSame('someone-else@example.com', $recipient->getEmail());
         static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $recipient->getStatus());
         static::assertNull($recipient->getConfirmedAt());
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testEmailChangeOfABoundCustomerKeepsTheNewsletterRecipientOfAnotherSalesChannel(bool $withLinkOfOlderVersions): void
+    {
+        $context = Context::createDefaultContext();
+        $email = Uuid::randomHex() . '@example.com';
+        $otherSalesChannelId = $this->createSalesChannel([
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://localhost.test/bound-' . Uuid::randomHex(),
+            ]],
+        ])['id'];
+
+        static::getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+        $customerId = $this->createCustomer($email, false, ['boundSalesChannelId' => TestDefaults::SALES_CHANNEL]);
+        $this->createCustomer($email, false, [
+            'salesChannelId' => $otherSalesChannelId,
+            'boundSalesChannelId' => $otherSalesChannelId,
+            'firstName' => 'Erika',
+        ]);
+
+        $ownRecipientId = $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL, NewsletterSubscribeRoute::STATUS_OPT_IN, '2025-01-01 10:00:00');
+        $otherRecipientId = $this->createNewsletterRecipient($context, $email, $otherSalesChannelId, NewsletterSubscribeRoute::STATUS_OPT_IN, '2025-01-01 10:00:00');
+
+        /** @var EntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = static::getContainer()->get('customer.repository');
+        $customer = $customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
+        static::assertNotNull($customer);
+        static::assertSame([$ownRecipientId => TestDefaults::SALES_CHANNEL], $customer->getNewsletterSalesChannelIds());
+
+        if ($withLinkOfOlderVersions) {
+            // older versions linked the customer to the recipients of every sales channel, until the customer is indexed again
+            static::getContainer()->get(Connection::class)->executeStatement(
+                'UPDATE customer SET newsletter_sales_channel_ids = :ids WHERE id = :id',
+                [
+                    'ids' => json_encode([$ownRecipientId => TestDefaults::SALES_CHANNEL, $otherRecipientId => $otherSalesChannelId], \JSON_THROW_ON_ERROR),
+                    'id' => Uuid::fromHexToBytes($customerId),
+                ]
+            );
+        }
+
+        $customerRepository->upsert([['id' => $customerId, 'email' => 'someone-else@example.com']], $context);
+
+        /** @var EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository */
+        $newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
+        $recipients = $newsletterRecipientRepository->search(new Criteria([$ownRecipientId, $otherRecipientId]), $context)->getEntities();
+
+        $ownRecipient = $recipients->get($ownRecipientId);
+        static::assertNotNull($ownRecipient);
+        static::assertSame('someone-else@example.com', $ownRecipient->getEmail());
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $ownRecipient->getStatus());
+
+        $otherRecipient = $recipients->get($otherRecipientId);
+        static::assertNotNull($otherRecipient);
+        static::assertSame($email, $otherRecipient->getEmail());
+        static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $otherRecipient->getStatus());
+        static::assertNotNull($otherRecipient->getConfirmedAt());
     }
 
     public function testEmailChangeKeepsNewsletterStatusWithoutDoubleOptIn(): void

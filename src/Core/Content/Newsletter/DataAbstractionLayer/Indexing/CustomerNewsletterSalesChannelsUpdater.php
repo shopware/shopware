@@ -46,6 +46,7 @@ UPDATE `customer`, `newsletter_recipient` SET `customer`.`newsletter_sales_chann
     FROM `newsletter_recipient`
     WHERE `newsletter_recipient`.`email` = `customer`.`email`
     AND `newsletter_recipient`.`status` IN (:states)
+    AND (`customer`.`bound_sales_channel_id` IS NULL OR `newsletter_recipient`.`sales_channel_id` = `customer`.`bound_sales_channel_id`)
 )
 WHERE `newsletter_recipient`.`email` = `customer`.`email`
 AND #table#.`id` IN (:ids)
@@ -139,7 +140,7 @@ SQL;
         $ids = array_unique($ids);
 
         $customers = $this->connection->fetchAllAssociative(
-            'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
+            'SELECT newsletter_sales_channel_ids, email, first_name, last_name, bound_sales_channel_id FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
@@ -159,6 +160,7 @@ SQL;
                 'email' => $customer['email'],
                 'first_name' => $customer['first_name'],
                 'last_name' => $customer['last_name'],
+                'bound_sales_channel_id' => $customer['bound_sales_channel_id'],
             ];
         }
 
@@ -166,27 +168,33 @@ SQL;
             return;
         }
 
+        // a customer bound to a sales channel only owns the recipients of that sales channel,
+        // other customers with the same email address may own the recipients of other sales channels
+        $ownRecipient = '(:boundSalesChannelId IS NULL OR sales_channel_id = :boundSalesChannelId)';
+
         foreach ($parameters as $parameter) {
-            RetryableQuery::retryable($this->connection, function () use ($parameter): void {
+            RetryableQuery::retryable($this->connection, function () use ($parameter, $ownRecipient): void {
                 // a confirmed double opt-in was given for the old address, it must not carry over to the new one
                 $this->connection->executeStatement(
-                    'UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn',
+                    'UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn AND ' . $ownRecipient,
                     [
                         'ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']),
                         'email' => $parameter['email'],
                         'notSet' => NewsletterSubscribeRoute::STATUS_NOT_SET,
                         'optIn' => NewsletterSubscribeRoute::STATUS_OPT_IN,
+                        'boundSalesChannelId' => $parameter['bound_sales_channel_id'],
                     ],
                     ['ids' => ArrayParameterType::BINARY],
                 );
 
                 $this->connection->executeStatement(
-                    'UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)',
+                    'UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids) AND ' . $ownRecipient,
                     [
                         'ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']),
                         'email' => $parameter['email'],
                         'firstName' => $parameter['first_name'],
                         'lastName' => $parameter['last_name'],
+                        'boundSalesChannelId' => $parameter['bound_sales_channel_id'],
                     ],
                     ['ids' => ArrayParameterType::BINARY],
                 );

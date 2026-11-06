@@ -34,6 +34,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                 'last_name' => 'Tran',
                 'first_name' => 'Y',
                 'newsletter_sales_channel_ids' => null,
+                'bound_sales_channel_id' => null,
             ],
         ]);
 
@@ -53,6 +54,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                 'last_name' => 'Tran',
                 'first_name' => 'Y',
                 'newsletter_sales_channel_ids' => $newsletterIds,
+                'bound_sales_channel_id' => null,
             ],
         ]);
 
@@ -63,25 +65,27 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             if (!$consentReset) {
                 $consentReset = true;
 
-                static::assertSame('UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn', $sql);
+                static::assertSame('UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn AND (:boundSalesChannelId IS NULL OR sales_channel_id = :boundSalesChannelId)', $sql);
 
                 static::assertSame([
                     'ids' => Uuid::fromHexToBytesList($ids),
                     'email' => 'y.tran@shopware.com',
                     'notSet' => NewsletterSubscribeRoute::STATUS_NOT_SET,
                     'optIn' => NewsletterSubscribeRoute::STATUS_OPT_IN,
+                    'boundSalesChannelId' => null,
                 ], $params);
 
                 return 1;
             }
 
-            static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
+            static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids) AND (:boundSalesChannelId IS NULL OR sales_channel_id = :boundSalesChannelId)', $sql);
 
             static::assertSame([
                 'ids' => Uuid::fromHexToBytesList($ids),
                 'email' => 'y.tran@shopware.com',
                 'firstName' => 'Y',
                 'lastName' => 'Tran',
+                'boundSalesChannelId' => null,
             ], $params);
 
             return 1;
@@ -101,6 +105,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                 'last_name' => 'Tran',
                 'first_name' => 'Y',
                 'newsletter_sales_channel_ids' => $newsletterIds,
+                'bound_sales_channel_id' => null,
             ],
         ]);
 
@@ -110,25 +115,27 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             if (!$consentReset) {
                 $consentReset = true;
 
-                static::assertSame('UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn', $sql);
+                static::assertSame('UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn AND (:boundSalesChannelId IS NULL OR sales_channel_id = :boundSalesChannelId)', $sql);
 
                 static::assertSame([
                     'ids' => Uuid::fromHexToBytesList($ids),
                     'email' => 'y.tran@shopware.com',
                     'notSet' => NewsletterSubscribeRoute::STATUS_NOT_SET,
                     'optIn' => NewsletterSubscribeRoute::STATUS_OPT_IN,
+                    'boundSalesChannelId' => null,
                 ], $params);
 
                 return 1;
             }
 
-            static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
+            static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids) AND (:boundSalesChannelId IS NULL OR sales_channel_id = :boundSalesChannelId)', $sql);
 
             static::assertSame([
                 'ids' => Uuid::fromHexToBytesList($ids),
                 'email' => 'y.tran@shopware.com',
                 'firstName' => 'Y',
                 'lastName' => 'Tran',
+                'boundSalesChannelId' => null,
             ], $params);
 
             return 1;

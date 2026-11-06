@@ -321,7 +321,7 @@ class AuthController extends StorefrontController
     )]
     public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
     {
-        $hash = $request->query->get('hash');
+        $hash = $request->attributes->get('hash') ?? $request->query->get('hash');
 
         if (!$hash || !\is_string($hash)) {
             $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));

@@ -9,6 +9,16 @@ const responses = global.repositoryFactoryMock.responses;
 
 responses.addResponse({
     method: 'Post',
+    url: '/search-ids/custom-field-set',
+    status: 200,
+    response: {
+        total: 1,
+        data: ['custom_field_set_id1'],
+    },
+});
+
+responses.addResponse({
+    method: 'Post',
     url: '/search/custom-field-set',
     status: 200,
     response: {

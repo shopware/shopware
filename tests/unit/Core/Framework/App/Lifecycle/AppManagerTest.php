@@ -33,6 +33,7 @@ use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -126,6 +127,41 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testStrictValidationTurnsAnAdvisoryErrorIntoARefusal(): void
+    {
+        $manifestValidator = static::createStub(ManifestValidator::class);
+        $manifestValidator->method('validate')->willReturn(Result::failed([new NotHookableError(['hook: future.event'])]));
+        $this->manifestValidator = $manifestValidator;
+
+        $this->expectNoLifecycleCollaboratorCalls();
+
+        $this->expectExceptionObject(AppException::validationFailedFromError(new NotHookableError(['hook: future.event'])));
+
+        $this->createAppManager(AppFixture::createAppRepository())->install(
+            ManifestFixture::empty(),
+            new AppInstallParameters(strictValidation: true),
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testStrictValidationTurnsAnAdvisoryErrorIntoARefusalOnUpdate(): void
+    {
+        $manifestValidator = static::createStub(ManifestValidator::class);
+        $manifestValidator->method('validate')->willReturn(Result::failed([new NotHookableError(['hook: future.event'])]));
+        $this->manifestValidator = $manifestValidator;
+
+        $this->expectNoLifecycleCollaboratorCalls();
+
+        $this->expectExceptionObject(AppException::validationFailedFromError(new NotHookableError(['hook: future.event'])));
+
+        $this->createAppManager(AppFixture::createAppRepository())->update(
+            ManifestFixture::empty(),
+            new AppUpdateParameters(strictValidation: true),
+            AppFixture::createAppEntity(active: false),
+            Context::createDefaultContext()
+        );
     }
 
     public function testUpdateIsRefusedWhenARequiredValidatorReportsAnError(): void

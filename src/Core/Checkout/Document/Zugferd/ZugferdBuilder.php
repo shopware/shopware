@@ -80,7 +80,7 @@ class ZugferdBuilder
     {
         match ($lineItem->getType()) {
             LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
-            LineItem::PROMOTION_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),
+            LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::DISCOUNT_LINE_ITEM => $document->withDiscountItem($lineItem),
             LineItem::CREDIT_LINE_ITEM_TYPE => $this->handleCreditLineItem($document, $lineItem, $parentPosition),
             default => null,
         };

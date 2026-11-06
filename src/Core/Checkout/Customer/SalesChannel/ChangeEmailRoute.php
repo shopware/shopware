@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -108,6 +109,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         $validation
             ->add(
                 'email',
+                new NotBlank(),
                 new Email(),
                 new EqualTo(propertyPath: 'emailConfirmation'),
                 new CustomerEmailUnique(salesChannelContext: $context)

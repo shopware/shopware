@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -57,6 +58,8 @@ class CountryEntity extends Entity
     protected ?OrderAddressCollection $orderAddresses = null;
 
     protected ?CustomerAddressCollection $customerAddresses = null;
+
+    protected ?CustomerCollection $vatIdCustomers = null;
 
     protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
@@ -221,6 +224,16 @@ class CountryEntity extends Entity
     public function setCustomerAddresses(CustomerAddressCollection $customerAddresses): void
     {
         $this->customerAddresses = $customerAddresses;
+    }
+
+    public function getVatIdCustomers(): ?CustomerCollection
+    {
+        return $this->vatIdCustomers;
+    }
+
+    public function setVatIdCustomers(CustomerCollection $vatIdCustomers): void
+    {
+        $this->vatIdCustomers = $vatIdCustomers;
     }
 
     public function getSalesChannelDefaultAssignments(): ?SalesChannelCollection

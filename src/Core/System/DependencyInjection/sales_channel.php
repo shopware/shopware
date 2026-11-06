@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
@@ -270,6 +271,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service('currency_country_rounding.repository'),
             service(BaseSalesChannelContextFactory::class),
+            service(IntraCommunityTaxResolver::class),
+            service('country.repository'),
         ]);
 
     $services->set(BaseSalesChannelContextFactory::class)

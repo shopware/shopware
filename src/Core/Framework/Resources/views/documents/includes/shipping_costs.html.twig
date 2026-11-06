@@ -36,7 +36,7 @@ All blocks of this template are available in the template which renders this tem
 
                 {% if config.displayPrices %}
                     {% block document_line_item_table_shipping_tax %}
-                        <td class="align-right">{% for tax in order.deliveries.first.shippingCosts.calculatedTaxes %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+                        <td class="align-right">{% for tax in order.deliveries.first.shippingCosts.calculatedTaxes %}{{ tax.taxRate }} % {% if not loop.last %}<br>{% endif %}{% else %}0 %{% endfor %}</td>
                     {% endblock %}
 
                     {% block document_line_item_table_unit_price %}

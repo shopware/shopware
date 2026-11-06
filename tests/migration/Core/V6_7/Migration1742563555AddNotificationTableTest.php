@@ -27,6 +27,12 @@ class Migration1742563555AddNotificationTableTest extends TestCase
         $this->connection->executeStatement('DROP TABLE IF EXISTS `notification`;');
     }
 
+    protected function tearDown(): void
+    {
+        // Other tests rely on the table, and the random test order may run them after this one
+        (new Migration1742563555AddNotificationTable())->update($this->connection);
+    }
+
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(1742563555, (new Migration1742563555AddNotificationTable())->getCreationTimestamp());

@@ -10,15 +10,18 @@
     {% endblock %}
 
     {% block component_line_item_tax_price_inner %}
+        {% set isoCode = page.order.currency.isoCode ?? context.currency.isoCode %}
+
         {% for calculatedTax in lineItem.price.calculatedTaxes %}
             {% set calculatedTaxValue = calculatedTax.tax ?? 0 %}
             {% if calculatedTaxValue < 0 %}
                 &minus;
             {% endif %}
 
-            {% set isoCode = page.order.currency.isoCode ?? context.currency.isoCode %}
             {{ calculatedTaxValue|abs|currency(isoCode) }}
             <br>
+        {% else %}
+            {{ 0|currency(isoCode) }}
         {% endfor %}
     {% endblock %}
 {% endblock %}

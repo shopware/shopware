@@ -11,10 +11,11 @@ const customer = {
     vatIds: ['9f8f091c-db81-4ef3-862c-9c554a34cdc4'],
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
         props: {
             customer,
+            ...props,
         },
         global: {
             stubs: {
@@ -28,6 +29,10 @@ async function createWrapper() {
             },
         },
     });
+}
+
+function findVatIdField(wrapper) {
+    return wrapper.findAllComponents({ name: 'MtTextField' }).find((field) => field.props('name') === 'vatId');
 }
 
 describe('module/sw-customer/page/sw-customer-base-form', () => {
@@ -86,5 +91,35 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
         const criteria = wrapper.vm.languageCriteria;
 
         expect(criteria.filters).toHaveLength(0);
+    });
+
+    it.each([
+        { isVatIdRequired: true, expected: true },
+        { isVatIdRequired: false, expected: false },
+    ])('should mark the VAT ID as required: $isVatIdRequired', async ({ isVatIdRequired, expected }) => {
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business' },
+            isVatIdRequired,
+        });
+
+        expect(findVatIdField(wrapper).props('required')).toBe(expected);
+    });
+
+    it('should remove the VAT ID error once the VAT ID changes', async () => {
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business', vatIds: [], getEntityName: () => 'customer' },
+        });
+
+        Shopware.Store.get('error').addApiError({
+            expression: `customer.${customer.id}.vatIds`,
+            error: new Shopware.Classes.ShopwareError({ code: '463d3548-1caf-11eb-adc1-0242ac120002' }),
+        });
+        await flushPromises();
+        expect(findVatIdField(wrapper).props('error')).not.toBeNull();
+
+        await findVatIdField(wrapper).vm.$emit('update:modelValue', 'ATU12345678');
+        await flushPromises();
+
+        expect(findVatIdField(wrapper).props('error')).toBeNull();
     });
 });

@@ -54,7 +54,8 @@ class ProductDocumentArchiverTest extends TestCase
         $manual = $this->file('manual', $manualContent);
         $sheet = $this->file('data-sheet', 'sheet content');
 
-        $archive = $this->archiver([$this->document($manual), $this->document($sheet)], [$manual, $sheet])
+        // the media search returns the files in its own order
+        $archive = $this->archiver([$this->document($manual), $this->document($sheet)], [$sheet, $manual])
             ->archive($this->product('Cordless drill'), $this->context);
 
         static::assertNotNull($archive);
@@ -117,6 +118,19 @@ class ProductDocumentArchiverTest extends TestCase
             ['manual.pdf', 'MANUAL (2).pdf', $unnamed->getId() . '.pdf'],
             array_column($this->entries($archive), 'name')
         );
+    }
+
+    public function testLeavesOutMediaWithoutAFile(): void
+    {
+        $manual = $this->file('manual', 'manual content');
+        $empty = new MediaEntity();
+        $empty->setId(Uuid::randomHex());
+
+        $archive = $this->archiver([$this->document($empty), $this->document($manual)], [$empty, $manual])
+            ->archive($this->product('Cordless drill'), $this->context);
+
+        static::assertNotNull($archive);
+        static::assertSame(['manual.pdf'], array_column($this->entries($archive), 'name'));
     }
 
     public function testAddsAFileOnceWhenSeveralDocumentsUseIt(): void

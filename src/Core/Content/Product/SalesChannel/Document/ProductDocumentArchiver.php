@@ -69,7 +69,7 @@ class ProductDocumentArchiver
         $files = $this->collectFiles($documents, $context);
 
         $owner = $documents->first();
-        if ($files === [] || $owner === null) {
+        if ($files->count() === 0 || $owner === null) {
             return null;
         }
 
@@ -102,10 +102,7 @@ class ProductDocumentArchiver
         return $this->productDocumentRepository->search($criteria, $context->getContext())->getEntities();
     }
 
-    /**
-     * @return list<array{name: string, media: MediaEntity}>
-     */
-    private function collectFiles(ProductDocumentCollection $documents, SalesChannelContext $context): array
+    private function collectFiles(ProductDocumentCollection $documents, SalesChannelContext $context): MediaCollection
     {
         $mediaIds = [];
         foreach ($documents as $document) {
@@ -115,31 +112,18 @@ class ProductDocumentArchiver
             }
         }
 
-        // a file that several documents use is added once
-        $mediaIds = array_values(array_unique($mediaIds));
         if ($mediaIds === []) {
-            return [];
+            return new MediaCollection();
         }
 
-        $criteria = new Criteria($mediaIds);
+        $criteria = new Criteria(array_values(array_unique($mediaIds)));
         $criteria->setTitle('product-document-archiver::media');
         $criteria->addFilter(new EqualsFilter('private', false));
-        $media = $this->mediaRepository->search($criteria, $context->getContext())->getEntities();
+        $files = $this->mediaRepository->search($criteria, $context->getContext())->getEntities();
+        // in the order of the documents, with a file that several documents use once
+        $files->sortByIdArray($mediaIds);
 
-        $files = [];
-        $names = [];
-        foreach ($mediaIds as $mediaId) {
-            $file = $media->get($mediaId);
-            if ($file === null || !$file->hasFile()) {
-                continue;
-            }
-
-            $name = $this->entryName($file, $names);
-            $names[mb_strtolower($name)] = true;
-            $files[] = ['name' => $name, 'media' => $file];
-        }
-
-        return $files;
+        return $files->filter(static fn (MediaEntity $file): bool => $file->hasFile());
     }
 
     /**
@@ -170,18 +154,16 @@ class ProductDocumentArchiver
         return trim(str_replace(['/', '\\'], '-', PathHelper::stripControlAndFormatChars($name)));
     }
 
-    /**
-     * @param list<array{name: string, media: MediaEntity}> $files
-     */
-    private function fingerprint(array $files): string
+    private function fingerprint(MediaCollection $files): string
     {
-        return Hasher::hash(array_map(static fn (array $file): array => [
-            $file['name'],
-            $file['media']->getId(),
-            $file['media']->getPath(),
-            $file['media']->getFileSize(),
-            $file['media']->getUploadedAt()?->format(\DATE_ATOM),
-        ], $files));
+        return Hasher::hash($files->map(static fn (MediaEntity $file): array => [
+            $file->getId(),
+            $file->getFileName(),
+            $file->getFileExtension(),
+            $file->getPath(),
+            $file->getFileSize(),
+            $file->getUploadedAt()?->format(\DATE_ATOM),
+        ]));
     }
 
     private function fileName(SalesChannelProductEntity $product): string
@@ -192,10 +174,7 @@ class ProductDocumentArchiver
         return ($name !== '' ? $name : $this->clean($product->getProductNumber())) . '.zip';
     }
 
-    /**
-     * @param list<array{name: string, media: MediaEntity}> $files
-     */
-    private function build(string $path, array $files): void
+    private function build(string $path, MediaCollection $files): void
     {
         $temporaryFiles = [];
 
@@ -207,13 +186,17 @@ class ProductDocumentArchiver
                 throw ProductException::documentArchiveFailed('the ZIP file could not be created');
             }
 
+            $names = [];
             foreach ($files as $file) {
+                $name = $this->entryName($file, $names);
+                $names[mb_strtolower($name)] = true;
+
                 $copy = $temporaryFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-document-');
-                $this->filesystem->dumpFile($copy, $this->publicFilesystem->readStream($file['media']->getPath()));
+                $this->filesystem->dumpFile($copy, $this->publicFilesystem->readStream($file->getPath()));
 
                 // documents are compressed formats already, so they are stored as they are
-                if (!$zip->addFile($copy, $file['name']) || !$zip->setCompressionName($file['name'], \ZipArchive::CM_STORE)) {
-                    throw ProductException::documentArchiveFailed(\sprintf('"%s" could not be added', $file['name']));
+                if (!$zip->addFile($copy, $name) || !$zip->setCompressionName($name, \ZipArchive::CM_STORE)) {
+                    throw ProductException::documentArchiveFailed(\sprintf('"%s" could not be added', $name));
                 }
             }
 

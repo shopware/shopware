@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Resource\McpResourceCacheHint;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -176,6 +177,91 @@ class McpDualEraConformanceTest extends TestCase
 
         static::assertContains($tool, $tools);
         static::assertContains('shopware-tool-search', $tools);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function listRequestProvider(): iterable
+    {
+        yield 'Admin API endpoint' => [self::ADMIN, ''];
+        yield 'Admin API endpoint with ?toolsets=' => [self::ADMIN, '?toolsets=entity'];
+        yield 'Store API endpoint' => [self::STORE, ''];
+        yield 'Store API endpoint with ?toolsets=' => [self::STORE, '?toolsets=store-api'];
+    }
+
+    #[DataProvider('listRequestProvider')]
+    #[TestDox('The tool list of the $_dataName carries no cache hints on the handshake era')]
+    public function testHandshakeListsCarryNoCacheHints(string $endpoint, string $query): void
+    {
+        $result = $this->client($endpoint, McpEra::Handshake, $query)->result('tools/list');
+
+        static::assertArrayNotHasKey('ttlMs', $result);
+        static::assertArrayNotHasKey('cacheScope', $result);
+    }
+
+    /**
+     * A list differs per principal and per `?toolsets=`, so it is `private`, with a short TTL as the fallback
+     * for clients that do not follow list changes.
+     */
+    #[DataProvider('listRequestProvider')]
+    #[TestDox('The tool list of the $_dataName carries a private cache hint on the stateless era')]
+    public function testStatelessListsCarryPrivateCacheHints(string $endpoint, string $query): void
+    {
+        $result = $this->client($endpoint, McpEra::Stateless, $query)->result('tools/list');
+
+        static::assertSame(60_000, $result['ttlMs'] ?? null);
+        static::assertSame('private', $result['cacheScope'] ?? null);
+    }
+
+    #[DataProvider('endpointProvider')]
+    #[TestDox('server/discover of the $_dataName carries a private cache hint on the stateless era')]
+    public function testStatelessServerDiscoverCarriesPrivateCacheHints(string $endpoint): void
+    {
+        $discover = $this->client($endpoint, McpEra::Stateless)->result('server/discover');
+
+        static::assertSame(60_000, $discover['ttlMs'] ?? null);
+        static::assertSame('private', $discover['cacheScope'] ?? null);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function referenceResourceProvider(): iterable
+    {
+        yield 'shopware://entities' => ['shopware://entities', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://currencies' => ['shopware://currencies', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function referenceResourceUriProvider(): iterable
+    {
+        yield 'shopware://entities' => ['shopware://entities'];
+        yield 'shopware://currencies' => ['shopware://currencies'];
+    }
+
+    #[DataProvider('referenceResourceUriProvider')]
+    #[TestDox('The reference resource $_dataName carries no cache hints on the handshake era')]
+    public function testHandshakeReferenceResourcesCarryNoCacheHints(string $uri): void
+    {
+        $read = $this->client(self::ADMIN, McpEra::Handshake)->result('resources/read', ['uri' => $uri]);
+
+        static::assertSame($uri, $read['contents'][0]['uri'] ?? null, (string) json_encode($read));
+        static::assertArrayNotHasKey('ttlMs', $read);
+        static::assertArrayNotHasKey('cacheScope', $read);
+    }
+
+    #[DataProvider('referenceResourceProvider')]
+    #[TestDox('The reference resource $_dataName names its own TTL on the stateless era, because it rarely changes')]
+    public function testStatelessReferenceResourcesCarryTheirOwnTtl(string $uri, int $ttlMs): void
+    {
+        $read = $this->client(self::ADMIN, McpEra::Stateless)->result('resources/read', ['uri' => $uri]);
+
+        static::assertSame($uri, $read['contents'][0]['uri'] ?? null, (string) json_encode($read));
+        static::assertSame($ttlMs, $read['ttlMs'] ?? null);
+        static::assertSame('private', $read['cacheScope'] ?? null);
     }
 
     #[DataProvider('endpointProvider')]

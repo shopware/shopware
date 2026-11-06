@@ -33,6 +33,25 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
         $adminRegistry[] = 'Shopware\\Storefront\\Mcp\\';
     }
 
+    // Cache hints (SEP-2549) on the answers of the stateless 2026-07-28 revision; the handshake
+    // revisions carry none. Every answer is `private`, because both servers answer per caller: the
+    // allowlist of the integration or user and `?toolsets=` shape the lists. A shared cache must never
+    // hand them to another caller. Nothing is fresh by default. `server/discover` and the lists stay fresh for a
+    // minute, a fallback for clients that do not follow `subscriptions/listen`, so an allowlist change reaches
+    // every client within that minute. The reference resources name their own TTL, see McpResourceCacheHint.
+    $listTtlMs = 60_000;
+    $cache = [
+        'ttl_ms' => 0,
+        'scope' => 'private',
+        'methods' => [
+            'server/discover' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'tools/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'prompts/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'resources/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'resources/templates/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+        ],
+    ];
+
     $container->extension('mcp', [
         'servers' => [
             'admin' => [
@@ -45,6 +64,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
                 // capability allowlist. The bundle's controller and route loader stay switched off.
                 'transports' => ['http' => false, 'stdio' => false],
                 'registry' => $adminRegistry,
+                'cache' => $cache,
             ],
             'store_api' => [
                 'name' => 'Shopware Store API',
@@ -56,6 +76,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
                     'tools' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\'],
                     'resource_templates' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\Resource\\'],
                 ],
+                'cache' => $cache,
             ],
         ],
     ]);

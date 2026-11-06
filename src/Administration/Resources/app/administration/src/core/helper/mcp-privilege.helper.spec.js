@@ -28,6 +28,11 @@ describe('colonToDot', () => {
         expect(colonToDot('<entity>:read')).toBeNull();
     });
 
+    /**
+     * A nullish privilege crashed the MCP allowlist with a TypeError.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17920
+     */
     it('returns null for nullish input instead of throwing', () => {
         expect(colonToDot(undefined)).toBeNull();
         expect(colonToDot(null)).toBeNull();
@@ -55,6 +60,11 @@ describe('isPrivilegeGranted', () => {
         expect(isPrivilegeGranted('<entity>:read', [])).toBe(false);
     });
 
+    /**
+     * A nullish privilege chip threw inside the uncovered-tools computed and crashed the allowlist.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17920
+     */
     it('returns false for nullish chips instead of throwing', () => {
         expect(isPrivilegeGranted(undefined, ['product.viewer'])).toBe(false);
         expect(isPrivilegeGranted(null, ['product.viewer'])).toBe(false);
@@ -67,6 +77,11 @@ describe('computePrivilegeChips', () => {
         expect(computePrivilegeChips(undefined)).toStrictEqual([]);
     });
 
+    /**
+     * Nullish static privilege entries crashed the MCP allowlist.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17920
+     */
     it('drops nullish static privilege entries', () => {
         expect(
             computePrivilegeChips({

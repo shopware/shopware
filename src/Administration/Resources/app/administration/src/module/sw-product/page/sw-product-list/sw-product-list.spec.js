@@ -741,6 +741,11 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(products[0].productNumber).toBe('SW10001');
     });
 
+    /**
+     * Variants inheriting the manufacturer were not found by number with a manufacturer filter.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6184
+     */
     it('should promote inherited manufacturer variants when searching by product number with a manufacturer filter', async () => {
         const manufacturerId = 'manufacturer-a';
         const parentId = 'parent-product-id';

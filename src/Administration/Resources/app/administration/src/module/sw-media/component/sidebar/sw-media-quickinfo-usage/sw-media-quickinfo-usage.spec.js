@@ -209,6 +209,11 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         expect(usages.some((usage) => usage.name === 'CMS Page Media Test')).toBeTruthy();
     });
 
+    /**
+     * Replacing media used in a product slot config failed with getEntityName is not a function.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16895
+     */
     it('must not mutate the media entity productMedia / categories collections when loading slot-config usages', async () => {
         await wrapper.unmount();
 

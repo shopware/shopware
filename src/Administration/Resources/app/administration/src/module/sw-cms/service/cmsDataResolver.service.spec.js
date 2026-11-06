@@ -446,6 +446,11 @@ describe('module/sw-cms/service/cmsDataResolver.service.js', () => {
         });
     });
 
+    /**
+     * Cleared CMS block margins were refilled with the default 20px after saving.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8029
+     */
     it('should keep cleared block margins while filling other missing block defaults', async () => {
         const pageMock = createPageMock();
         const block = Object.assign(pageMock.sections[0].blocks[0], { type: 'text-on-image', backgroundMedia: null });

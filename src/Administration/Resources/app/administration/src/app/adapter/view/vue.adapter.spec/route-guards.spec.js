@@ -17,6 +17,11 @@ describe('ASYNC app/adapter/view/vue.adapter.js - route guards', () => {
         resetVueAdapterTestState();
     });
 
+    /**
+     * In-component route guards were not called for route-loaded components.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14876
+     */
     it('should compose route guards from extends, mixins and component config for route-loaded components', async () => {
         const guardOrder = {
             enter: [],

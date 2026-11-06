@@ -66,6 +66,11 @@ async function mountWithOverride({
 }
 
 describe('src/app/component/structure/sw-block-override/sw-block: override slot reactivity', () => {
+    /**
+     * sw-block kept rendering stale content when only the slot scope changed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19546
+     */
     it.each([
         [
             'the default block is declared first',

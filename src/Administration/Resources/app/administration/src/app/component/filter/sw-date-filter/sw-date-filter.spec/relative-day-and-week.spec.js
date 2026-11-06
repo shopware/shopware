@@ -52,6 +52,11 @@ describe('src/app/component/filter/sw-date-filter - relative day and week', () =
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
+        /**
+         * Relative date ranges used browser timezone day edges instead of the user's.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/16927
+         */
         it('should compute today from the user timezone when the browser timezone is ahead of UTC', async () => {
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
 

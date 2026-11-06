@@ -94,6 +94,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value/sw-prod
         wrapper?.unmount();
     });
 
+    /**
+     * Product stream entity custom fields ignored the configured labelProperty and showed name.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9757
+     */
     it('uses the configured labelProperty', async () => {
         wrapper = await createWrapper({ labelProperty: 'description' });
         await flushPromises();
@@ -115,6 +120,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value/sw-prod
         expect(wrapper.text()).toContain('Manufacturer');
     });
 
+    /**
+     * Product stream entity custom fields searched by name instead of the configured labelProperty.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9757
+     */
     it('creates a query for each configured label property', async () => {
         wrapper = await createWrapper({
             entity: 'customer',

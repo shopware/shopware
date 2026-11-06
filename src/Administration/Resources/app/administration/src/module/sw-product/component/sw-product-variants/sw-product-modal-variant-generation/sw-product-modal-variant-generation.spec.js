@@ -1211,6 +1211,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.variantGenerationQueue.createQueue[0].downloads).toContainEqual(file);
     });
 
+    /**
+     * Saving the whole product after generation cascaded deletes of configurator settings and failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14660
+     */
     it('should not call productRepository.save after generating variants', async () => {
         const wrapper = await createWrapper();
 

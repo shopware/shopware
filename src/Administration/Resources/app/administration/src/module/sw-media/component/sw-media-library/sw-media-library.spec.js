@@ -425,6 +425,11 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 
+    /**
+     * Reverting a media title or alt text change sent no update until the page was reloaded.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10507
+     */
     it('should refresh media item in items and selectedItems arrays', async () => {
         const wrapper = await createWrapper();
 

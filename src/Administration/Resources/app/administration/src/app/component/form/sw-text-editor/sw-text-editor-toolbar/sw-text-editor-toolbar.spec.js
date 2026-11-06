@@ -99,6 +99,11 @@ describe('src/app/component/form/sw-text-editor/sw-text-editor-toolbar', () => {
         document.getSelection().removeAllRanges();
     });
 
+    /**
+     * Typing a long URL into the link menu closed it and discarded the link.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6412
+     */
     it('keeps the link menu open when the url field scrolls', async () => {
         wrapper = await createWrapper();
         await selectEditorContent(wrapper);

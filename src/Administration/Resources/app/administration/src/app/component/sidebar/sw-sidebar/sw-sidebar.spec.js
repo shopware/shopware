@@ -100,6 +100,11 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         expect(firstSidebarItemContent.exists()).toBe(false);
     });
 
+    /**
+     * The sidebar lost its active tab indicator after the viewport was enlarged.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15304
+     */
     it('should keep the active navigation item after resizing', async () => {
         const firstSidebarNavigationItem = await wrapper.find(
             'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',

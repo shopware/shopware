@@ -260,6 +260,10 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         expect(nameColumn.naturalSorting).toBe(true);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9943
+     */
     it('should reset selection state after deleting selected options', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

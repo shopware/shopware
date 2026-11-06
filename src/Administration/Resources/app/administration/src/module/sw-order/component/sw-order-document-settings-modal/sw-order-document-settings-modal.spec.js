@@ -210,11 +210,21 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
     });
 
+    /**
+     * The create-and-download button always said PDF, even for ZUGFeRD XML.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14838
+     */
     it('should show download label on the download button', async () => {
         const downloadButton = wrapper.find('.sw-order-document-settings-modal__download-button');
         expect(downloadButton.text()).toBe('sw-order.documentModal.labelCreateDownload');
     });
 
+    /**
+     * Document numbers with a prefix or suffix were forced into a number and could not be entered.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10873
+     */
     it('should allow any text input in the document number field', async () => {
         const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
         expect(documentNumberFieldInput.exists()).toBeTruthy();
@@ -259,6 +269,11 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('false');
     });
 
+    /**
+     * Documents could be created with an empty document date despite the required field.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12550
+     */
     it('should enable/disable create & preview buttons by documentDate value', async () => {
         const documentConfig = {
             documentNumber: '1000',

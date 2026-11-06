@@ -187,6 +187,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         ]);
     });
 
+    /**
+     * Bulk status edit only awaited the last selected status field, losing earlier failures.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19985
+     */
     it('waits for an earlier status field and reports its failure before completing', async () => {
         const handler = createHandler();
         let failFirst: (error: Error) => void = () => {};

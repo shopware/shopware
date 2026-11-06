@@ -131,6 +131,11 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         expect(relatedCustomFields).toHaveProperty('custom_field_1');
     });
 
+    /**
+     * New product streams omitted displayAsGroup, so the backend default could differ from the toggle.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/18590
+     */
     it('should default displayAsGroup to true when creating a new product stream', async () => {
         const wrapper = await createWrapper();
 
@@ -139,6 +144,11 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         expect(wrapper.vm.productStream.displayAsGroup).toBe(true);
     });
 
+    /**
+     * The save button kept spinning after creating a product stream.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/18590
+     */
     it('should stop the save button spinner after successfully creating a new product stream', async () => {
         const wrapper = await createWrapper();
 

@@ -291,6 +291,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(new DOMWrapper(document.body).findAll('.sw-select-result')).toHaveLength(1);
     });
 
+    /**
+     * A newly created inline address was not emitted as the order address, so saving failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16802
+     */
     it('should select a newly created address after saving it', async () => {
         wrapper = await createWrapper({
             type: 'shipping',
@@ -325,6 +330,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         ]);
     });
 
+    /**
+     * Address selections kept separate customers, so edited addresses did not sync until reload.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20211
+     */
     it('should read the customer from the order detail store so all address selections stay in sync', async () => {
         await flushPromises();
 
@@ -354,6 +364,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(Object.keys(associations.addresses.associations)).toEqual(['country']);
     });
 
+    /**
+     * A saved order address did not show up in the other address selections until page reload.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20211
+     */
     it('should reload the shared customer after saving an address, so it is selectable in the other selections', async () => {
         await flushPromises();
 
@@ -378,6 +393,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         );
     });
 
+    /**
+     * Inline-created addresses lost their id, so saving the order address mapping failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16802
+     */
     it('should keep id on options for addresses where id is not enumerable via spread', async () => {
         await flushPromises();
 
@@ -471,6 +491,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
+    /**
+     * Required-field errors of an address were never cleared, leaving a stale banner on the order page.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should report and clear required field errors when validating an address', async () => {
         await flushPromises();
 
@@ -524,6 +549,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(errorStore.getApiError(address, 'lastName')).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Required-field warnings stayed on the order page after closing the address modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should not leave any warnings on the order page when the address modal is closed', async () => {
         await flushPromises();
 
@@ -564,6 +594,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(errorStore.getApiError(address, 'additionalAddressLine1')).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Required-field warnings stayed on the order page after closing the address modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should clear pending required field errors when the component is torn down', async () => {
         await flushPromises();
 

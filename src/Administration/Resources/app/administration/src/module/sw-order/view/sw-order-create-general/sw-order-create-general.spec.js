@@ -96,6 +96,11 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
         wrapper.vm.createNotificationError.mockRestore();
     });
 
+    /**
+     * Cart errors in the Administration were always shown in English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19736
+     */
     it('should prefer the server translated cart error message', async () => {
         const wrapper = await createWrapper();
 

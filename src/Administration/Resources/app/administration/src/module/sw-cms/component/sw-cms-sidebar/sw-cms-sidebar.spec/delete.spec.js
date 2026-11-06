@@ -44,6 +44,11 @@ describe('module/sw-cms/component/sw-cms-sidebar/delete', () => {
         jest.restoreAllMocks();
     });
 
+    /**
+     * Removing a block in the CMS editor was persisted immediately without clicking Save.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18674
+     */
     it('does not save when removing a block from the editor', async () => {
         const methods = await getMethods();
         const { block, page, section } = createPage();
@@ -72,6 +77,11 @@ describe('module/sw-cms/component/sw-cms-sidebar/delete', () => {
         expect($emit).toHaveBeenCalledWith('page-save', true);
     });
 
+    /**
+     * Removing a section in the CMS editor was persisted immediately without clicking Save.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18674
+     */
     it('does not save when removing a section from the editor', async () => {
         const methods = await getMethods();
         const { page, section } = createPage();

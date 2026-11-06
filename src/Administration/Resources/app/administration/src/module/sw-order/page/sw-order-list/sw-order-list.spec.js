@@ -667,6 +667,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
      * @deprecated tag:v6.8.0 - test will be removed when the 6.7 fallback is dropped
      */
     if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        /**
+         * Orders written via DAL without a primary delivery showed no delivery address in the list.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16517
+         */
         it('should fall back to deliveries[0] address when primaryOrderDelivery is null (DAL writes without primaryOrderDeliveryId)', async () => {
             global.activeAclRoles = [];
             wrapper = await createWrapper();
@@ -700,6 +705,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             expect(html).toContain('54321');
         });
 
+        /**
+         * Orders written via DAL without a primary delivery showed no delivery address in the list.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16517
+         */
         it('should fall back to the first delivery when multiple deliveries exist without primaryOrderDelivery', async () => {
             global.activeAclRoles = [];
             wrapper = await createWrapper();
@@ -743,6 +753,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             expect(html).not.toContain('Second Fallback Street');
         });
 
+        /**
+         * Orders written via DAL without a primary delivery showed no delivery state in the list.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16517
+         */
         it('should fall back to deliveries[0] state when primaryOrderDelivery is null', async () => {
             global.activeAclRoles = [];
             wrapper = await createWrapper();
@@ -771,6 +786,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             expect(stateTexts).toContain('Fallback Shipped');
         });
 
+        /**
+         * Orders written via DAL without a primary transaction showed no payment state in the list.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16517
+         */
         it('should fall back to transactions[0] state when primaryOrderTransaction is null', async () => {
             global.activeAclRoles = [];
             wrapper = await createWrapper();
@@ -798,6 +818,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             expect(stateTexts).toContain('Fallback Paid');
         });
 
+        /**
+         * Orders written via DAL without a primary transaction showed no payment state in the list.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16517
+         */
         it('should fall back to the first transaction that is not cancelled or failed', async () => {
             global.activeAclRoles = [];
             wrapper = await createWrapper();
@@ -838,6 +863,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             expect(stateTexts).not.toContain('Fallback Cancelled');
         });
 
+        /**
+         * Orders written via DAL without a primary transaction showed no payment state in the list.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16517
+         */
         it('should fall back to the last transaction when all transactions are cancelled or failed', async () => {
             global.activeAclRoles = [];
             wrapper = await createWrapper();

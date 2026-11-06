@@ -22,6 +22,11 @@ describe('src/core/consent/events.ts', () => {
         expect(consentEvent.timestamp).toBeInstanceOf(Date);
     });
 
+    /**
+     * Consent events reached Amplitude out of order because they shared timestamps.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15587
+     */
     it('creates consent events with strictly increasing timestamps', () => {
         jest.setSystemTime(new Date('2026-01-01T10:00:00.000Z'));
 

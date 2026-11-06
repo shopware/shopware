@@ -442,6 +442,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isProductExportChannel).toBe(false);
     });
 
+    /**
+     * Changing the default language while removing the old one failed in one save.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6247
+     */
     it('should create the sales channel repository with sync enabled', async () => {
         await createWrapper();
         await flushPromises();
@@ -449,6 +454,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockCreateRepository).toHaveBeenCalledWith('sales_channel', null, { useSync: true });
     });
 
+    /**
+     * Saving on language switch reloaded the entity twice and showed data of the wrong language.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14283
+     */
     it('should save without reloading entity data when saveOnLanguageChange is called', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -491,6 +501,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).not.toHaveBeenCalled();
     });
 
+    /**
+     * Saving with missing required fields blocked inputs until reload instead of showing field errors.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12964
+     */
     it('should reject saveOnLanguageChange without saving when a required sales channel field is missing', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -526,6 +541,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).not.toHaveBeenCalled();
     });
 
+    /**
+     * Saving with missing required fields blocked inputs until reload instead of showing field errors.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12964
+     */
     it('should show validation errors without saving when a required sales channel field is missing', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -588,6 +608,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
     });
 
+    /**
+     * The product comparison template select stayed blank after the template was saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9132
+     */
     it('should detect current template on load when product export bodyTemplate matches', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

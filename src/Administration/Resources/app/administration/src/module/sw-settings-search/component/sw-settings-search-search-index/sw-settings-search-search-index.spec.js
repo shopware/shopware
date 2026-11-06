@@ -172,6 +172,11 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(wrapper.vm.progressBarValue).toBe(0);
     });
 
+    /**
+     * The live search settings page broke when no products existed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10682
+     */
     it('should return early and not set latestIndex when result.total === 0', async () => {
         const wrapper = await createWrapper();
 

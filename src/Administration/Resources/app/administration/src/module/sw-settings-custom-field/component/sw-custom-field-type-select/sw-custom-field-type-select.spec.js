@@ -177,6 +177,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
         expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-single-select');
     });
 
+    /**
+     * The custom field multi-select switch was never saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12855
+     */
     it('should toggle multi-switch on switch', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

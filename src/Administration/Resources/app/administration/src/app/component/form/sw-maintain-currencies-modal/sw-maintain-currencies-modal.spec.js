@@ -65,6 +65,11 @@ async function createWrapper(propOverrides = {}) {
 }
 
 describe('src/app/component/form/sw-maintain-currencies-modal', () => {
+    /**
+     * Only the first 25 currencies were loaded, silently hiding the rest.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16628
+     */
     it('should load all currencies when none are passed in', async () => {
         const search = jest.fn(() => Promise.resolve([]));
         const createSpy = jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation(() => ({ search }));

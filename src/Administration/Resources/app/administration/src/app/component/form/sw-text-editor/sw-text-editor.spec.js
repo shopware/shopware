@@ -957,6 +957,11 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
     });
 
+    /**
+     * Undo skipped pasted content in the text editor.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21776
+     */
     it('should insert pasted content via execCommand so it is part of the native undo history', async () => {
         wrapper = await createWrapper();
 
@@ -1129,6 +1134,11 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.hasDirectMinorElements()).toBe(false);
     });
 
+    /**
+     * The text toolbar color picker closed immediately when clicked.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14870
+     */
     it('should preserve selection when clicking inside popover elements', async () => {
         wrapper = await createWrapper();
         await flushPromises();

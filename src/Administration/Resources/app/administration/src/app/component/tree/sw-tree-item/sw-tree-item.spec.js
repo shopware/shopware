@@ -275,6 +275,11 @@ describe('src/app/component/tree/sw-tree-item', () => {
             delete window.HTMLElement.prototype.scrollIntoView;
         });
 
+        /**
+         * The naming field of a new tree item never received the focus.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/18788
+         */
         it('should focus the naming field', async () => {
             const wrapper = await createMountedItemInNamingMode();
 

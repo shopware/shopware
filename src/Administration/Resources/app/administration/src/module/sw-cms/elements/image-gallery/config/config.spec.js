@@ -258,6 +258,11 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(mappingPreview.exists()).toBeFalsy();
     });
 
+    /**
+     * Image gallery uploads stalled at 0% because the upload never ran.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14506
+     */
     it('should have upload listener with auto-upload', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -337,6 +342,11 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(items.at(3).text()).toBe('3');
     });
 
+    /**
+     * Uploaded images never reached the image gallery config.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14506
+     */
     it('should resolve media upload payloads via repository', async () => {
         const wrapper = await createWrapper({ activeTab: 'content' });
         await flushPromises();

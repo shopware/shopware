@@ -451,6 +451,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * Removing an extension with a cancelled subscription still asked to cancel the subscription.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20370
+     */
     it('should not offer to cancel the subscription when it is already cancelled', async () => {
         const wrapper = await createWrapper({
             ...defaultExtension,
@@ -669,6 +674,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe('Current subscription billing text');
     });
 
+    /**
+     * Deactivating a rented extension via its card toggle skipped the fee confirmation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19024
+     */
     it('should ask for confirmation before deactivating a rented extension', async () => {
         const deactivateExtension = jest
             .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')

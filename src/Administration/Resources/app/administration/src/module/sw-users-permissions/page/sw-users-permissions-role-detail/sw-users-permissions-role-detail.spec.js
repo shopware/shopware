@@ -319,6 +319,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         ]);
     });
 
+    /**
+     * New roles were saved without the default privileges integrations need.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20845
+     */
     it('should preselect the default user privileges for a new role', async () => {
         let savedPrivileges = null;
         const saveFunction = jest.fn((role) => {
@@ -353,6 +358,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         ]);
     });
 
+    /**
+     * Saving a role dropped its stored default privileges, breaking integrations.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20845
+     */
     it('should keep stored default user privileges when saving', async () => {
         wrapper = await createWrapper({
             privileges: [

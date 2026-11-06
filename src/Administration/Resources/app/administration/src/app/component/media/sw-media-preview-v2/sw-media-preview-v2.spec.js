@@ -366,6 +366,11 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         expect(wrapper.vm.videoCoverMedia).toEqual(coverMedia);
     });
 
+    /**
+     * The sidebar video preview kept showing the first selected video.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14257
+     */
     it('reloads the media element when the preview url changes for video', async () => {
         const wrapper = await createWrapper({
             props: {

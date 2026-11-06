@@ -73,6 +73,11 @@ describe('module/sw-import-export/component/profile-wizard/sw-import-export-new-
         expect(fileInput.props('allowedFileExtensions')).toEqual(['csv']);
     });
 
+    /**
+     * Profile CSV uploads were rejected when the browser reported a different MIME type.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15661
+     */
     it('should import the mapping when the uploaded file has csv extension', async () => {
         const importExport = {
             getMappingFromTemplate: jest.fn().mockResolvedValue([

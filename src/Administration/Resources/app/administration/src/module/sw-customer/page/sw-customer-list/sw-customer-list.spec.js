@@ -307,6 +307,11 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         expect(wrapper.vm.filterCriteria).toContainEqual(filter);
     });
 
+    /**
+     * Sorting the customer listing by customer group returned an API error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16050
+     */
     it('should sort the customer group column by its name field', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

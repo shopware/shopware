@@ -423,6 +423,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
+    /**
+     * Assigning a layout to landing pages required system_config permissions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/22130
+     */
     it.deprecated('v6.8.0.0')('should not disable landing pages tab with missing system config permission', async () => {
         const wrapper = await createWrapper('landingpage');
 
@@ -1368,6 +1373,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.page.categories).toBe(initialCategories);
     });
 
+    /**
+     * Removing a category assignment beyond the paging boundary was not saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18388
+     */
     it('should preserve paginated category assignments when removing a loaded category', async () => {
         const wrapper = await createWrapper();
         const extraCategories = Array.from({ length: 50 }, (_, index) => {
@@ -1397,6 +1407,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.hasDeletedCategories).toBe(true);
     });
 
+    /**
+     * Loading another page of categories re-added a removed category assignment.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18388
+     */
     it('should not re-add a removed category when loading another category page', async () => {
         const wrapper = await createWrapper();
         const removedCategory = {

@@ -112,6 +112,10 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: transactio
         expect(lastTransactionEntry).toBeDefined();
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19867
+     */
     it('should date the initial state of a later transaction by its creation time, not its first transition', async () => {
         const orderWithSecondTransaction = {
             ...orderProp,

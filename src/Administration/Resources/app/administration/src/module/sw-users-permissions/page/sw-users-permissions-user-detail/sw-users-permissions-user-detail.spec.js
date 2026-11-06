@@ -218,6 +218,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Store.get('session').removeCurrentUser();
     });
 
+    /**
+     * Non-admin editors could toggle the admin flag, making the whole user save fail with 403.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20285
+     */
     it.each([
         [true, false],
         [false, true],
@@ -680,6 +685,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         });
     });
 
+    /**
+     * Changing the own password showed a save error and logged the user out.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7606
+     */
     it('should update the auth token if user password is changed', async () => {
         Shopware.Application.$container.resetProviders();
         Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
@@ -701,6 +711,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
     });
 
+    /**
+     * Saving another user re-authenticated with that user's password and failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12040
+     */
     it('should not update the auth token if user a different user then the currently logged in user is changed', async () => {
         Shopware.Application.$container.resetProviders();
         Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
@@ -713,6 +728,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
     });
 
+    /**
+     * The user detail page kept loading forever after a duplicate email.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17062
+     */
     it('should stop loading when the email is already used', async () => {
         const saveSpy = jest.spyOn(wrapper.vm.userRepository, 'save');
         jest.spyOn(wrapper.vm, 'checkEmail').mockResolvedValue(false);

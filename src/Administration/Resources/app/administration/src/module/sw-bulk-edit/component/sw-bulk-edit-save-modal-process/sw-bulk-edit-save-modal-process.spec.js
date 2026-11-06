@@ -262,6 +262,11 @@ describe('sw-bulk-edit-save-modal-process', () => {
         wrapper.vm.orderDocumentApiService.generate.mockRestore();
     });
 
+    /**
+     * Errors returned with a 200 response from bulk document generation were ignored.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15791
+     */
     it('should count document generation errors from response data', async () => {
         wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
             Promise.resolve({

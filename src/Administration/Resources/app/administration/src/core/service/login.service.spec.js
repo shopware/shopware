@@ -611,6 +611,11 @@ describe('core/service/login.service.js', () => {
             jest.useRealTimers();
         });
 
+        /**
+         * A failed token refresh stopped the refresh loop for good, logging the user out.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13130
+         */
         it('should retry with interval when refresh fails once', async () => {
             jest.useFakeTimers();
 
@@ -984,6 +989,11 @@ describe('core/service/login.service.js', () => {
             expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
         });
 
+        /**
+         * Two tabs refreshing at once revoked each other's refresh token and logged users out.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13130
+         */
         it('should share refreshed token when two tabs refresh concurrently', async () => {
             jest.useFakeTimers();
 

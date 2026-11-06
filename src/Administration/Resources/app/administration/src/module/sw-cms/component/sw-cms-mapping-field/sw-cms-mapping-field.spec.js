@@ -61,6 +61,11 @@ describe('src/module/sw-cms/component/sw-cms-mapping-field', () => {
         });
     });
 
+    /**
+     * Media custom fields could not be used as a mapped source for media elements.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14648
+     */
     it('resolves mapped media ids to media entities for entity previews', async () => {
         const wrapper = await createWrapper();
 

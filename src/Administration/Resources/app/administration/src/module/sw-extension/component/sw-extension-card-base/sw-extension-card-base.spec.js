@@ -207,6 +207,11 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(state).toHaveLength(1);
     });
 
+    /**
+     * Open extension did nothing for configurable extensions without an own route.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17131
+     */
     it('should use the extension config route as fallback open link', async () => {
         const wrapper = await createWrapper({
             extension: {

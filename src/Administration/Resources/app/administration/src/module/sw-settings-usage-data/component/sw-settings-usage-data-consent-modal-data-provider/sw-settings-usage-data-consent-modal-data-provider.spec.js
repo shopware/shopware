@@ -136,6 +136,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
         });
 
+        /**
+         * The consent modal appeared again after reload though consent was already saved.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/15355
+         */
         it('does not show modal if product analytics consent was already given', async () => {
             const consentStore = useConsentStore();
             consentStore.consents = {

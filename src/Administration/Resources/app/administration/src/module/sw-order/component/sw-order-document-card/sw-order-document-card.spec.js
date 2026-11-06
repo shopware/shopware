@@ -404,6 +404,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
+    /**
+     * The documents card kept a broken state after the last document was deleted.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20920
+     */
     it('should offer creating a document once the last document of the order was deleted', async () => {
         global.activeAclRoles = [
             'order.editor',
@@ -430,6 +435,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('.sw-order-document-card__empty-state .mt-button').exists()).toBe(true);
     });
 
+    /**
+     * The documents card kept a broken state after the last document was deleted.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20920
+     */
     it('should show the empty state right after the listing deleted the last document', async () => {
         global.activeAclRoles = [
             'order.editor',
@@ -1379,6 +1389,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         ]);
     });
 
+    /**
+     * The documents card kept showing the previous order's documents after switching orders.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21619
+     */
     it('should load the documents of the new order when the order changes', async () => {
         wrapper = await createWrapper();
 
@@ -1399,6 +1414,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.documents.first().id).toBe('other-order-document');
     });
 
+    /**
+     * The documents card kept showing the previous order's documents after switching orders.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21619
+     */
     it('should ignore documents of the previous order that arrive after the order changed', async () => {
         wrapper = await createWrapper();
 
@@ -1439,6 +1459,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(documentSearchMock).not.toHaveBeenCalled();
     });
 
+    /**
+     * Document type names were empty when the content language lacked a translation.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20936
+     */
     it('should label a document with the translated document type when the current language has no name', async () => {
         const wrapper = await createWrapper();
 

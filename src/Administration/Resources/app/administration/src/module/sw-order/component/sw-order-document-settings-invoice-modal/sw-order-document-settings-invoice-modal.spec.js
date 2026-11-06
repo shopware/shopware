@@ -76,6 +76,11 @@ describe('src/module/sw-order/component/sw-order-document-settings-invoice-modal
         await flushPromises();
     });
 
+    /**
+     * Document numbers with a prefix or suffix were forced into a number and could not be entered.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10873
+     */
     it('should allow any text input in the document number field', async () => {
         const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
         expect(documentNumberFieldInput.exists()).toBeTruthy();

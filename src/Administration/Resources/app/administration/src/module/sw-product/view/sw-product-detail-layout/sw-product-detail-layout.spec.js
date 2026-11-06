@@ -202,6 +202,11 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(wrapper.vm.currentPage.id).toBe('cmsPageId');
     });
 
+    /**
+     * Changing the layout kept stale slot config overrides in other languages.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15984
+     */
     it('should reset translated slotConfig overrides when changing the layout', async () => {
         const wrapper = await createWrapper();
         Store.get('swProductDetail').product = {

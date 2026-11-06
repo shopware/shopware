@@ -344,6 +344,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(addUserButton.find('span').text()).toBe('sw-users-permissions.sso.inviteButtonLabel');
     });
 
+    /**
+     * Deleting a user asked for a password instead of using the verification modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17565
+     */
     it('should open the verification modal before deleting a user', async () => {
         const deleteFunction = jest.fn().mockResolvedValue(undefined);
         wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: false }, deleteFunction);
@@ -371,6 +376,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(deleteFunction).toHaveBeenCalledWith(user.id, Shopware.Context.api);
     });
 
+    /**
+     * The user listing edit action skipped the password prompt and saving failed with 403.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13888
+     */
     it('should use the correct route for the Edit context menu item', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor']);
 
@@ -386,6 +396,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
     });
 
+    /**
+     * With SSO enabled, the edit action linked to the non-SSO user detail page.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14586
+     */
     it('should use the correct route for the Edit context menu item with SSO', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
 
@@ -401,6 +416,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
     });
 
+    /**
+     * The user detail links ignored whether SSO was enabled.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14586
+     */
     it('should use the correct route for editing on the user name', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor']);
 
@@ -416,6 +436,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1edabc');
     });
 
+    /**
+     * With SSO enabled, the user name linked to the non-SSO user detail page.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14586
+     */
     it('should use the correct route for editing on the user name with SSO', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor'], { isSso: true });
 

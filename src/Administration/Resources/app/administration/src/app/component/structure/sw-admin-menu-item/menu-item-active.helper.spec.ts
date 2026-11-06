@@ -63,6 +63,11 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             expect(names.has('sw.settings.index')).toBe(true);
         });
 
+        /**
+         * Module routes without a declared parentPath matched no menu entry.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/19723
+         */
         it('bridges a module route to its own menu entry when no parentPath is declared', () => {
             // A plugin detail route sits next to the nav target instead of below it, so `matched` cannot reach it
             const route = {
@@ -240,6 +245,11 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             expect(isEntryOnActiveRoute(entryB, route)).toBe(false);
         });
 
+        /**
+         * Plugin menu entries lost their active state on detail routes without a parentPath.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/19723
+         */
         it('lights a plugin leaf and its path-less group through the module navigation entry', () => {
             const route = {
                 name: 'sw.foo.detail',

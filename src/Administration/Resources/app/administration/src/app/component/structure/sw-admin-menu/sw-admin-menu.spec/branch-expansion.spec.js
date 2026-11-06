@@ -63,6 +63,11 @@ describe('src/app/component/structure/sw-admin-menu: branch expansion', () => {
         return branch;
     }
 
+    /**
+     * Branches of extension modules without a parentPath collapsed instead of staying open.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19723
+     */
     it('should keep the branch open when a module route reaches its entry through the module manifest', async () => {
         const branch = openBranchOnItsOwnRoute();
         const menuPath = branch.children[0].path;
@@ -77,6 +82,11 @@ describe('src/app/component/structure/sw-admin-menu: branch expansion', () => {
         expect(wrapper.vm.activeBranchKey).toBe(branch.id ?? branch.path);
     });
 
+    /**
+     * Every expanded menu branch collapsed on routes no menu entry owns.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19723
+     */
     it('should leave the tree untouched on a route the menu does not list', async () => {
         const branch = openBranchOnItsOwnRoute();
         const branchKey = wrapper.vm.activeBranchKey;

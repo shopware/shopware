@@ -485,6 +485,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.$route.path).toBe('/index/null/0/save/confirm');
     });
 
+    /**
+     * Bulk-deactivating root products stored active as NULL instead of false.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16341
+     */
     it('should set active to false when root products are bulk deactivated', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -805,6 +810,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
+    /**
+     * Bulk editing locked prices calculated net or gross with the default tax rate.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14308
+     */
     it('should add default taxId when price is changed without selecting tax change', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
@@ -882,6 +892,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0]).toHaveProperty('listPrice');
     });
 
+    /**
+     * List price could not be bulk edited without also changing the base price.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14157
+     */
     it('should send listPrice in request when only listPrice is changed without price', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
@@ -908,6 +923,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0].net).toBeNull();
     });
 
+    /**
+     * Cheapest price could not be bulk edited without also changing the base price.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14157
+     */
     it('should send regulationPrice in request when only regulationPrice is changed without price', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
@@ -1143,6 +1163,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0].ruleId).toBe('ruleId');
     });
 
+    /**
+     * Rules picked for removing advanced prices in bulk edit were not shown in the selection.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13857
+     */
     it('should sync selectedPriceRules and product prices when rules are added or removed for the remove-pricing-rule action', async () => {
         const { EntityCollection } = Shopware.Data;
 
@@ -1491,6 +1516,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.weightUnit).toBe('kg');
     });
 
+    /**
+     * Removing a sales channel via variant bulk edit silently did nothing for inheriting variants.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10655
+     */
     it('should flag the selected sales channel as removed for a variant', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
@@ -1530,6 +1560,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         ]);
     });
 
+    /**
+     * Removing sales channels via variant bulk edit silently did nothing for inheriting variants.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10655
+     */
     it('should flag every selected sales channel as removed for a variant', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
@@ -1568,6 +1603,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         ]);
     });
 
+    /**
+     * Removing sales channels via variant bulk edit silently did nothing for inheriting variants.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10655
+     */
     it('should flag the removed sales channels via onProcessData', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
@@ -1660,6 +1700,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(change.inheritedVisibilities).toEqual([{ salesChannelId: 'scn_1', visibility: 30 }]);
     });
 
+    /**
+     * Adding a sales channel via variant bulk edit dropped the rest of the inherited visibilities.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/16324
+     */
     it('should flag the selected sales channels as added for a variant', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
@@ -1696,6 +1741,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         ]);
     });
 
+    /**
+     * Adding a sales channel via variant bulk edit dropped the rest of the inherited visibilities.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/16324
+     */
     it('should flag added sales channels via onProcessData', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',

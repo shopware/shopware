@@ -131,6 +131,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
+    /**
+     * Selecting a price rule in the shipping price matrix loaded forever because the filter excluded it.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7428
+     */
     it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
         const wrapper = await createWrapper(
             {},
@@ -146,6 +151,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
     });
 
+    /**
+     * Selecting a price rule in the shipping price matrix loaded forever because the filter excluded it.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7428
+     */
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         const wrapper = await createWrapper(
             {},
@@ -181,6 +191,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             wrapper = await createWrapper();
         });
 
+        /**
+         * Deleting the first rule-based shipping price threw a TypeError.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/22132
+         */
         it.each([
             [false, 0],
             [true, 0],
@@ -238,6 +253,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     describe('linked gross/net prices', () => {
+        /**
+         * The shipping price matrix never calculated the linked net price, leaving it at 0.00.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/19521
+         */
         it('should expose the fixed tax rate so linked prices can be calculated', async () => {
             const wrapper = await createWrapper();
             const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
@@ -329,6 +349,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             ]);
         });
 
+        /**
+         * The shipping price matrix never calculated the linked net price, leaving it at 0.00.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/19521
+         */
         it('should render a linkable price field per currency wired to the tax rate', async () => {
             const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
             shippingMethod.taxType = 'fixed';

@@ -53,6 +53,10 @@ describe('src/app/service/file-helper.service.ts', () => {
             expect(checkByExtension({ ...fileMock, name: 'test' }, fileAcceptString)).toBe(false);
         });
 
+        /**
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/3452
+         */
         it('should return true when filename contains dots', () => {
             expect(checkByExtension({ ...fileMock, name: 'test.dummy.pdf' }, fileAcceptString)).toBe(true);
         });

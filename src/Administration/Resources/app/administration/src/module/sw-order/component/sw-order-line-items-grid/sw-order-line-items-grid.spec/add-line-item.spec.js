@@ -135,6 +135,11 @@ describe('module/sw-order/component/sw-order-line-items-grid/add-line-item', () 
         expect(wrapper.find('.sw-data-grid__row--1').classes()).toContain('is--inline-edit');
     });
 
+    /**
+     * The bulk action bar stayed after a selected new line item was cancelled or saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20861
+     */
     it('removes a new item from the selection when its inline edit is cancelled', async () => {
         const wrapper = await createWrapper();
 
@@ -150,6 +155,11 @@ describe('module/sw-order/component/sw-order-line-items-grid/add-line-item', () 
         expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
     });
 
+    /**
+     * The bulk action bar stayed after a selected new line item was cancelled or saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20861
+     */
     it('keeps only the items that are still in the reloaded order selected after a new item is saved', async () => {
         const wrapper = await createWrapper();
         const existingItem = {

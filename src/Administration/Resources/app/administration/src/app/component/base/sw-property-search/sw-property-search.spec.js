@@ -168,6 +168,11 @@ describe('components/base/sw-property-search', () => {
         expect(paginationElement.exists()).toBe(true);
     });
 
+    /**
+     * The property search pagination showed only one page of groups.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/971
+     */
     it('should have pagination with two buttons inside group grid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -180,6 +185,10 @@ describe('components/base/sw-property-search', () => {
         expect(amountOfPages).toBe(2);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/971
+     */
     it('should change group page when paginating', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -228,6 +237,11 @@ describe('components/base/sw-property-search', () => {
         expect(paginationElement.exists()).toBe(true);
     });
 
+    /**
+     * The property search pagination showed only one page of options.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/971
+     */
     it('should have multiple pages for option grid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -247,6 +261,10 @@ describe('components/base/sw-property-search', () => {
         expect(amountOfOptionPages).toBe(2);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/971
+     */
     it('should change the option page when clicking pagination', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

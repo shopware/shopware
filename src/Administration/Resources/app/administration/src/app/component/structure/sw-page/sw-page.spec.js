@@ -122,6 +122,11 @@ describe('src/app/component/structure/sw-page', () => {
         expect(wrapper.find('.sw-page__smart-bar').exists()).toBe(true);
     });
 
+    /**
+     * The back arrow dropped the listing filters after visiting another page like bulk edit.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17746
+     */
     it('should navigate back to the last visited parent listing with its query after a detour', async () => {
         jest.restoreAllMocks();
         router.addRoute({

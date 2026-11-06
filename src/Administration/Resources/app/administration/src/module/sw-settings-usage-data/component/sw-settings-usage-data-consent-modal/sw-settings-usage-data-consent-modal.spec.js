@@ -51,6 +51,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.share-all-data');
         });
 
+        /**
+         * Users without both permissions were offered consent choices that could not be saved.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16567
+         */
         it.each([
             ['store data consent was given before', ['system.system_config', 'user.update_profile'], true],
             ['store data consent is hidden by permissions', ['user.update_profile'], false],
@@ -171,6 +176,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             Shopware.Utils.EventBus.off('consent', eventHandler);
         });
 
+        /**
+         * Users without profile permission saw a product analytics consent that could not be saved.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16567
+         */
         it('hides user data consent if user can not update their profile', async () => {
             global.activeAclRoles = ['system.system_config'];
             const eventHandler = jest.fn();
@@ -402,6 +412,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
         });
 
+        /**
+         * Users without profile permission could not persist their consent choice.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16567
+         */
         it.each([
             ['gives', 1, 'accept'],
             ['declines', 0, 'revoke'],

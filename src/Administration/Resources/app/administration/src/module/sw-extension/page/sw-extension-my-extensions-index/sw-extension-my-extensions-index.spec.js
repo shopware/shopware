@@ -84,6 +84,11 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(true);
     });
 
+    /**
+     * The extension upload button showed even with runtime extension management disabled.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15439
+     */
     it('upload button should be not there when disabling runtime extension management', async () => {
         global.activeAclRoles = ['system.plugin_upload'];
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;

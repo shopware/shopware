@@ -706,6 +706,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     describe('getRouterLink and hasRoute', () => {
+        /**
+         * Column-level routerLink settings in rule assignments were ignored when rendering links.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/12853
+         */
         it.each([
             {
                 name: 'with manufacturerId',

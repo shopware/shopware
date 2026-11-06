@@ -57,6 +57,11 @@ describe('sw-app-action-button', () => {
         expect(icon.attributes('src')).toBe(`data:image/png;base64, ${baseAction.icon}`);
     });
 
+    /**
+     * App logos in action buttons rendered oversized in context menus.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16166
+     */
     it('should constrain the extension icon in context menu action buttons', async () => {
         wrapper = await createWrapper(baseAction);
         await flushPromises();

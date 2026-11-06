@@ -64,12 +64,22 @@ describe('components/sw-select-base', () => {
         expect(clearableIcon.exists()).toBe(false);
     });
 
+    /**
+     * Disabled selects received keyboard focus and cleared their value on tab out.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18793
+     */
     it('should remove disabled selects from the tab order', async () => {
         const wrapper = await createWrapper({ disabled: true });
 
         expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
     });
 
+    /**
+     * Tabbing out of an unopened select cleared its value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18793
+     */
     it('should not emit a collapsed event when not expanded', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.expanded = false;
@@ -94,6 +104,11 @@ describe('components/sw-select-base', () => {
         expect(wrapper.emitted('clear')).toHaveLength(1);
     });
 
+    /**
+     * Clicks near the select border were treated as outside clicks and closed the dropdown.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16542
+     */
     it('should not collapse when the event target is outside but the click position is inside the select', async () => {
         const wrapper = await createWrapper();
         const selection = wrapper.find('.sw-select__selection').element;

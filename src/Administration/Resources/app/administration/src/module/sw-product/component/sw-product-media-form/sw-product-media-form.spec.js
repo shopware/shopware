@@ -318,6 +318,11 @@ describe('module/sw-product/component/sw-product-media-form', () => {
             Shopware.Store.get('swProductDetail').product = loadedProduct;
         });
 
+        /**
+         * The product detail view rendered before the product loaded and crashed in the media form.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/18943
+         */
         it('should render without a media association', async () => {
             global.activeAclRoles = ['product.editor'];
             const wrapper = await createWrapper();

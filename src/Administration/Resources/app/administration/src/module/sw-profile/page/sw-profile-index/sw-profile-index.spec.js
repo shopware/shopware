@@ -570,6 +570,11 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
     });
 
+    /**
+     * Saving the profile after a password change failed because the old token was still used.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14842
+     */
     it('should re-login before updateCurrentUser when password changes (user:editor path)', async () => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };
@@ -633,6 +638,11 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
+    /**
+     * Saving the profile after a password change failed because the old token was still used.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14842
+     */
     it('should re-login before updateCurrentUser when password changes (non-user:editor path)', async () => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };
@@ -698,6 +708,11 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
+    /**
+     * Saving only the theme failed for users without the user editor privilege.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21201
+     */
     it('should skip updateUser but still save theme when the user has no changes (non-user:editor path)', async () => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };

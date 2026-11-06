@@ -45,6 +45,11 @@ async function createWrapper(props = {}) {
 }
 
 describe('module/sw-customer/component/sw-customer-address-form-options', () => {
+    /**
+     * Address custom fields and options stayed editable for read-only users.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10061
+     */
     it('should disable address options and custom fields', async () => {
         const wrapper = await createWrapper({
             disabled: true,
@@ -74,6 +79,11 @@ describe('module/sw-customer/component/sw-customer-address-form-options', () => 
         expect(wrapper.vm.isDefaultBillingAddressId).toBe(false);
     });
 
+    /**
+     * Default address checkboxes stayed unchecked for order addresses copied from a default address.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18695
+     */
     it('should check the boxes for an order address snapshot matching the default by content hash', async () => {
         const wrapper = await createWrapper({
             customer: {

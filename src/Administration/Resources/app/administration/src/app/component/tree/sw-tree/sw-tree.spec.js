@@ -617,6 +617,11 @@ describe('src/app/component/tree/sw-tree', () => {
         expect(treeItem.element.checked).toBe(true);
     });
 
+    /**
+     * Confirming a new category name moved focus away and discarded the category.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8387
+     */
     it('should keep the focus on the confirm button while naming a new element', async () => {
         const homeItem = getTreeItems().find((item) => item.name === 'Home');
         const shoesId = homeItem.children.find((item) => item.name === 'Shoes').id;
@@ -686,6 +691,11 @@ describe('src/app/component/tree/sw-tree', () => {
             return wrapper;
         }
 
+        /**
+         * Clicking a tree item scrolled the tree away under the cursor so the click was lost.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/18791
+         */
         it('should not scroll when the focus comes from a mouse interaction', async () => {
             const wrapper = await createActiveWrapper();
             const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
@@ -709,6 +719,11 @@ describe('src/app/component/tree/sw-tree', () => {
             expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
         });
 
+        /**
+         * The focus ring stayed on the previously opened tree item instead of the clicked one.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/18791
+         */
         it('should keep the focus on the tree item that was clicked', async () => {
             const wrapper = await createActiveWrapper();
             const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');

@@ -209,6 +209,11 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
     });
 
+    /**
+     * Plugin menu entries lost their active state on detail routes without a parentPath.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19723
+     */
     it('should keep a plugin entry active on its detail page without a declared parentPath', async () => {
         const wrapper = await createWrapper({
             route: pluginDetailRoute,
@@ -223,6 +228,11 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
     });
 
+    /**
+     * Plugin menu entries lost their active state on detail routes without a parentPath.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19723
+     */
     it('should mark the catalogue branch child-active on a plugin detail page', async () => {
         const wrapper = await createWrapper({
             route: pluginDetailRoute,
@@ -242,6 +252,11 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         expect(vm.childRouteActive).toBe(true);
     });
 
+    /**
+     * Plugin menu entries lost their active state on detail routes without a parentPath.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19723
+     */
     it('should mark the catalogue branch active on a plugin detail page when the sidebar is collapsed', async () => {
         const wrapper = await createWrapper({
             route: pluginDetailRoute,

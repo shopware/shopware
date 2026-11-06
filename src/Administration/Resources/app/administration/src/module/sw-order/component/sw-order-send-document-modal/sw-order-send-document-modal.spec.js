@@ -260,6 +260,11 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
 }
 
 describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
+    /**
+     * Document type names were empty when the content language lacked a translation.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20936
+     */
     it('should show the translated document type when the current language has no name', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
@@ -571,12 +576,22 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     });
 
     describe('auto select mail template by document type', () => {
+        /**
+         * No mail template was preselected for ZUGFeRD invoice document types.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16019
+         */
         it('should have a mapping entry for every DOCUMENT_TYPES value', () => {
             Object.values(DOCUMENT_TYPES).forEach((docType) => {
                 expect(DOCUMENT_MAIL_TEMPLATE_MAPPING).toHaveProperty(docType);
             });
         });
 
+        /**
+         * ZUGFeRD document types had no mail template mapping, so none was preselected when sending.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16019
+         */
         it.each([
             ['invoice', 'invoice_mail'],
             ['delivery_note', 'delivery_mail'],
@@ -592,6 +607,10 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             expect(DOCUMENT_MAIL_TEMPLATE_MAPPING[docType]).toBe(mailTemplateType);
         });
 
+        /**
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16019
+         */
         it.each([
             ['zugferd_invoice', 'invoice_mail'],
             ['zugferd_embedded_invoice', 'invoice_mail'],

@@ -153,6 +153,11 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();
     });
 
+    /**
+     * Switching the location id reloaded the whole admin or ran the iframe twice.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15925
+     */
     it('should rerender the iframe renderer when location id changes', async () => {
         const store = Shopware.Store.get('extensionSdkModules');
         const moduleId = await store.addModule(mockModule);

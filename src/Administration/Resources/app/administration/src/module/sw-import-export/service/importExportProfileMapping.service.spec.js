@@ -288,6 +288,11 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     );
 
     // @deprecated tag:v6.8.0 - The test will be removed with the optional product type mapping.
+    /**
+     * A field mapped twice was silently omitted from the export.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15680
+     */
     it.deprecated('v6.8.0.0')('should detect duplicate mapping keys', () => {
         const mapping = [
             ...mappings.productProfileOnlyRequired,

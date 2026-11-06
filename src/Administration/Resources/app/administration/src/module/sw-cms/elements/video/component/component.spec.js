@@ -155,6 +155,11 @@ describe('src/module/sw-cms/elements/video/component', () => {
         expect(video.attributes('src')).toContain('http://shopware.com/demo-video.mp4');
     });
 
+    /**
+     * Media custom fields could not be used as a mapped source for media elements.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14648
+     */
     it('should resolve mapped media ids from custom fields', async () => {
         Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             customFields: {

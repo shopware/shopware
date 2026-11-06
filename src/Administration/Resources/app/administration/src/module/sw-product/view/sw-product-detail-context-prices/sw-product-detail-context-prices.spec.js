@@ -204,6 +204,11 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
 
+    /**
+     * The inherit switch could be toggled while the variant still inherited.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20273
+     */
     it('should only allow toggling the inherit switch when the inheritance is removed', async () => {
         global.activeAclRoles = ['product.editor'];
 
@@ -380,6 +385,11 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         expect(secondPriceFieldGross.element.value).toBe('0');
     });
 
+    /**
+     * The advanced price "To" field overwrote the entered quantity.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11688
+     */
     it('should accept the value entered in the “To” field without changing it automatically for valid inputs on non-last rules', async () => {
         const entities = [
             {

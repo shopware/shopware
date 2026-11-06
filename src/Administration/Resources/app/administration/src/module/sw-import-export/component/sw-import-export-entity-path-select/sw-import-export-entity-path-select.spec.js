@@ -1196,6 +1196,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(possibleSelectionResult).not.toContain('user');
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14069
+     */
     it('should not filter out read-only properties', async () => {
         const wrapper = await createWrapper('customer');
         await flushPromises();

@@ -527,6 +527,10 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14969
+     */
     it('should reload the sales channels instead of showing the modal when a sales channel was deleted', async () => {
         const wrapper = await createWrapper([headlessSalesChannel]);
         await flushPromises();
@@ -693,6 +697,11 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             getModuleByEntityName.mockRestore();
         });
 
+        /**
+         * With module colors enabled, active sales channel rows still used the brand blue.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/20247
+         */
         it('should give the sales channel rows the color of the sales channel module', async () => {
             const wrapper = await createWrapper([headlessSalesChannel, storeFrontWithStandardDomain]);
             await flushPromises();

@@ -249,6 +249,11 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         expect(wrapper.find('.sw-condition-operator-select').exists()).toBe(false);
     });
 
+    /**
+     * Checkbox and switch custom field conditions rendered a broken checkbox instead of a yes/no select.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11696
+     */
     it.each([
         { name: 'checkboxes', customField: defaultCustomFieldMock[0], label: 'checkbox' },
         { name: 'switches', customField: defaultCustomFieldMock[1], label: 'switch' },
@@ -292,6 +297,11 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         expect(options.at(1).find('sw-highlight-text-stub').attributes('text')).toBe('global.default.no');
     });
 
+    /**
+     * Text editor custom fields rendered a broken form in the line item custom field condition.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/11784
+     */
     it('should transform custom field config & operators for text editors', async () => {
         const wrapper = await createWrapper(defaultProps, [defaultCustomFieldMock[2]]);
         await flushPromises();

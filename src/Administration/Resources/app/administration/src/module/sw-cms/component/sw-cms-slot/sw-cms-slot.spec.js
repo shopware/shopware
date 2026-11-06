@@ -474,6 +474,11 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
+    /**
+     * Keyboard activation of CMS slot actions triggered the wrong handler and threw errors.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20858
+     */
     it.each([
         [
             'settings',
@@ -551,6 +556,11 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(mockHandleUpdateContent).not.toHaveBeenCalled();
     });
 
+    /**
+     * Closing the CMS text settings in code mode skipped HTML validation for invalid code.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15290
+     */
     it('should not close the settings modal if handleUpdateContent returns false', async () => {
         const mockPreventClose = jest.fn(() => Promise.resolve(false));
         const wrapper = mount(await wrapTestComponent('sw-cms-slot', { sync: true }), {
@@ -589,6 +599,11 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(wrapper.vm.showElementSettings).toBe(true);
     });
 
+    /**
+     * Reopening the CMS element config modal broke the text editor with errors.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15289
+     */
     it('should keep the settings modal mounted after first close and allow reopening', async () => {
         const wrapper = await createWrapper();
 

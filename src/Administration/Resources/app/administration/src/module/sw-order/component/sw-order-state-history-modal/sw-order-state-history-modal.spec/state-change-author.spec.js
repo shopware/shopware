@@ -5,6 +5,11 @@ import { createWrapper, orderProp } from './fixtures';
  */
 
 describe('src/module/sw-order/component/sw-order-state-history-modal: state change author', () => {
+    /**
+     * The order status history modal showed no user name when the username was unset.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10036
+     */
     it('should display username or fallback to email in user column', async () => {
         const stateHistoryWithEmailFallback = [
             {

@@ -253,6 +253,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
             });
         });
 
+        /**
+         * Saving the product changed the listing configuration though the tab was never opened.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/21036
+         */
         it('should keep the configuration when the product listings tab was not opened', async () => {
             const savedProduct = await saveVariantListingConfig({
                 variantListingConfig: {

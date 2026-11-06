@@ -51,6 +51,11 @@ describe('src/core/service/utils/object.utils', () => {
             ],
         ];
 
+        /**
+         * Removed array items and object properties were not detected, so cleared CMS values were not saved.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/18483
+         */
         it.each(cases)('%s', (_description, currentValue, nextValue, expectedDiff) => {
             expect(getObjectDiff(currentValue, nextValue)).toEqual(expectedDiff);
         });

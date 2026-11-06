@@ -307,6 +307,11 @@ describe('src/app/service/entity-validation.service.js', () => {
     );
 
     // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.
+    /**
+     * Clearing a translated product name failed validation instead of falling back to the parent language.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9909
+     */
     it.deprecated('v6.8.0.0')('should validate a complete product with ignore fields and report no errors', () => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);

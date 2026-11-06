@@ -127,6 +127,11 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(mock).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * The clear button of the indexer select did not clear the selection.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20133
+     */
     it('should clear the selected indexers with the clear button', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

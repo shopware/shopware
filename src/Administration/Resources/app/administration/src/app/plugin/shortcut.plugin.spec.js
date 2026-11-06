@@ -510,6 +510,11 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(testString).toBe('foobar');
     });
 
+    /**
+     * Saving via shortcut inside a number field saved the old value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17240
+     */
     it('Number field component: should be blurred on save shortcut to react to content changes', async () => {
         const onSaveMock = jest.fn();
         let savedPosition = 1;
@@ -582,6 +587,11 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onEscMock).toHaveBeenCalledWith();
     });
 
+    /**
+     * Pressing Escape in a modal also navigated the detail page back to the listing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10518
+     */
     it('should NOT call the onEsc method when Escape key is pressed inside a modal', async () => {
         const onEscMock = jest.fn();
 
@@ -615,6 +625,11 @@ describe('app/plugins/shortcut.plugin', () => {
         document.body.removeChild(modal);
     });
 
+    /**
+     * Unmounting one component removed the global listener, disabling shortcuts like clear cache.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10788
+     */
     it('should still trigger shortcuts after a component was unmounted', async () => {
         const onSaveMock = jest.fn();
         const onOtherSaveMock = jest.fn();

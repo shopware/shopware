@@ -42,6 +42,11 @@ describe('components/media/sw-media-modal-replace', () => {
         };
     });
 
+    /**
+     * Replacing media with a file name that already existed did nothing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17227
+     */
     it('uploads via mediaService and renames back to the original filename', async () => {
         jest.spyOn(Shopware.Utils, 'createId').mockReturnValue('random-conflict-free-id');
         const wrapper = await createWrapper();

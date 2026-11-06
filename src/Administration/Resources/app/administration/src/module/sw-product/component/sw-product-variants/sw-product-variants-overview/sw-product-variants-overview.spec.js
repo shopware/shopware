@@ -318,6 +318,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(deleteVariantsButton.exists()).toBeFalsy();
     });
 
+    /**
+     * Double clicking another variant row silently discarded the unsaved inline edit.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5258
+     */
     it('should keep the current inline edit row when another variant is double clicked before saving', async () => {
         global.activeAclRoles = ['product.editor'];
 
@@ -523,6 +528,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries[2].score).toBe(5000);
     });
 
+    /**
+     * Leading or repeated whitespace produced empty contains filters and a 400 error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16838
+     */
     it('buildSearchQuery ignores empty terms from leading or repeated whitespace', async () => {
         const criteria = new Criteria();
         const wrapper = await createWrapper();
@@ -544,6 +554,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries[2].query.value).toBe('red');
     });
 
+    /**
+     * A whitespace-only search term produced an empty contains filter and a 400 error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16838
+     */
     it('buildSearchQuery returns an unmodified criteria for a whitespace-only term', async () => {
         const criteria = new Criteria();
         const wrapper = await createWrapper();
@@ -698,6 +713,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         );
     });
 
+    /**
+     * Removing variant media inheritance created product media without its media.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8790
+     */
     it('should correctly create a new product_media entity when media inheritance is removed', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

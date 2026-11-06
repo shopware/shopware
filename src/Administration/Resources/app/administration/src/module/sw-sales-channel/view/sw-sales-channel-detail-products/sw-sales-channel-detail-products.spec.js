@@ -464,6 +464,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         wrapper.vm.getProducts.mockRestore();
     });
 
+    /**
+     * Product group selections were resolved client side, so only 500 products got assigned.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16724
+     */
     it('should pass categories and product groups of the selection to the assignment action', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();

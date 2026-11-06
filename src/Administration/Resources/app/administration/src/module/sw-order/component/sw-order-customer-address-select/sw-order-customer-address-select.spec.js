@@ -192,6 +192,11 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1', '2']);
     });
 
+    /**
+     * The order address select only offered the first 25 customer addresses.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15405
+     */
     it('should find customer addresses beyond the first 25 entries', async () => {
         jest.useFakeTimers();
 
@@ -299,6 +304,11 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         expect(selectionLabel.text()).toBe('Street 30, 10029, City 30, California, USA');
     });
 
+    /**
+     * The order create address select kept the previous customer's addresses.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7759
+     */
     it('should reload addresses on customer change', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

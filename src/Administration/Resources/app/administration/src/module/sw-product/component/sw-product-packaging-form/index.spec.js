@@ -98,6 +98,11 @@ async function createWrapper({ allowEdit = true, showSettingPackaging = true, pr
 }
 
 describe('src/module/sw-product/component/sw-product-packaging-form', () => {
+    /**
+     * The base unit field of a variant lost its inheritance switch, so it could not be overridden.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15873
+     */
     it('renders inherited parent values for all packaging fields', async () => {
         const wrapper = await createWrapper();
 

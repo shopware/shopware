@@ -39,6 +39,11 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
         expect(singleSelect.attributes().disabled).toBe('true');
     });
 
+    /**
+     * Switching a saved rule condition to 'Is empty' kept the amount and failed validation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8357
+     */
     it('emits only operator when changed to empty operator', async () => {
         const wrapper = await createWrapper({
             condition: {

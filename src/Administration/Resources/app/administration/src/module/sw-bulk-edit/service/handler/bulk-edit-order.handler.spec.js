@@ -97,6 +97,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         ]);
     });
 
+    /**
+     * Bulk edit transitioned the first loaded, often failed, transaction instead of the current one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21849
+     */
     it('should transition the primary order transaction', async () => {
         const handler = getBulkEditOrderHandler([
             createOrderWithTransactions('primary-transaction', {

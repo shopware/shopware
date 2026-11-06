@@ -291,6 +291,11 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         );
     });
 
+    /**
+     * The Administration reserved a document number before generation, consuming it even on failure.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20960
+     */
     it.each(['1000', 'manual-number'])('submits document number %s without reserving it', async (documentNumber) => {
         const numberRangeReserveMock = jest.fn().mockResolvedValue({ number: '1000' });
         const wrapper = await createWrapper({ numberRangeReserveMock });

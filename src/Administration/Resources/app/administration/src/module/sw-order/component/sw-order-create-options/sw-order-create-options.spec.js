@@ -346,6 +346,11 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         expect(shippingCostField.text()).toBe('$');
     });
 
+    /**
+     * Order creation sent no-op context updates that failed with 403.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13945
+     */
     it('should not update cart context while hydrating existing sales channel values', async () => {
         const wrapper = await createWrapper();
         const updateOrderContextSpy = jest.spyOn(Shopware.Store.get('swOrder'), 'updateOrderContext');

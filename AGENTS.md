@@ -89,6 +89,12 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - CI workflows, composite actions, and automation scripts: local rules in `.github/AGENTS.md`, rationale and examples in `coding-guidelines/core/ci-workflows.md`.
 - More specific nested `AGENTS.md` files add local rules for their subtree.
 
+## After Switching Branches
+
+Run `composer refresh` after a checkout, pull or merge, before you use or test the running instance.
+It updates dependencies, migrations, builds, and search indexes, but only for what changed since the last run.
+Use `composer refresh -- --full` when the instance is in an unknown state.
+
 ## Coding Guidelines
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.

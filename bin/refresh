@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+
+CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
+set -euo pipefail
+
+export PROJECT_ROOT="${PROJECT_ROOT:-"$(dirname "$CWD")"}"
+
+cd "$PROJECT_ROOT"
+
+STATE_FILE=var/refresh-state
+ADMIN_APP=src/Administration/Resources/app/administration
+STOREFRONT_APP=src/Storefront/Resources/app/storefront
+
+FULL=false
+if [[ "${1:-}" == "--full" ]]; then
+    FULL=true
+fi
+
+repositories() {
+    echo .
+    for dir in custom/plugins/*/; do
+        if [[ -e "${dir}.git" ]] && git -C "$dir" rev-parse --verify --quiet HEAD > /dev/null 2>&1; then
+            echo "${dir%/}"
+        fi
+    done
+}
+
+current_state() {
+    local repo
+    while read -r repo; do
+        echo "$repo $(git -C "$repo" rev-parse HEAD)"
+    done < <(repositories)
+}
+
+changed_files() {
+    local repo head previous prefix
+    while read -r repo head; do
+        previous=$(awk -v repo="$repo" '$1 == repo { print $2 }' "$STATE_FILE")
+        if [[ -z "$previous" ]] || ! git -C "$repo" cat-file -e "${previous}^{commit}" 2>/dev/null; then
+            echo "*"
+            continue
+        fi
+
+        prefix=""
+        if [[ "$repo" != "." ]]; then
+            prefix="$repo/"
+        fi
+
+        git -C "$repo" diff --name-only "$previous" "$head" | sed "s|^|$prefix|"
+    done < <(current_state)
+}
+
+if [[ "$FULL" == true || ! -f "$STATE_FILE" ]]; then
+    CHANGED="*"
+else
+    CHANGED="$(changed_files)"
+fi
+
+changed() {
+    grep -qxF "*" <<< "$CHANGED" || grep -qE "$1" <<< "$CHANGED"
+}
+
+step() {
+    echo
+    echo "# $1"
+}
+
+npm_outdated() {
+    ! (cd "$1" && npm ls --depth=0 > /dev/null 2>&1)
+}
+
+if [[ -z "$CHANGED" ]]; then
+    echo "Nothing changed since the last refresh."
+fi
+
+if changed '^composer\.json$'; then
+    step "Updating composer dependencies"
+    composer update
+fi
+
+ADMIN_DEPENDENCIES=false
+if changed "^$ADMIN_APP/package(-lock)?\.json$" || npm_outdated "$ADMIN_APP"; then
+    step "Installing Administration npm dependencies"
+    composer npm:admin clean-install --no-audit --prefer-offline
+    ADMIN_DEPENDENCIES=true
+fi
+
+STOREFRONT_DEPENDENCIES=false
+if changed "^$STOREFRONT_APP/package(-lock)?\.json$" || npm_outdated "$STOREFRONT_APP"; then
+    step "Installing Storefront npm dependencies"
+    composer npm:storefront clean-install --no-audit --prefer-offline
+    STOREFRONT_DEPENDENCIES=true
+fi
+
+if changed '^custom/plugins/[^/]+/.*package(-lock)?\.json$'; then
+    step "Installing extension npm dependencies"
+    "$CWD"/install-extension-npm
+fi
+
+if changed '(^|/)Migration/'; then
+    step "Running migrations"
+    "$CWD"/console database:migrate --all
+
+    "$CWD"/console bundle:dump > /dev/null
+    while read -r bundle path; do
+        if changed "^${path}.*Migration/"; then
+            "$CWD"/console database:migrate "$bundle" --all
+        fi
+    done < <(jq -r 'to_entries[] | select(.value.basePath | startswith("custom/")) | "\(.key) \(.value.basePath)"' var/plugins.json)
+fi
+
+if [[ "$ADMIN_DEPENDENCIES" == true ]] || changed '(^|/)Resources/app/administration/'; then
+    step "Building the Administration"
+    composer build:js:admin
+fi
+
+if [[ "$STOREFRONT_DEPENDENCIES" == true ]] || changed '(^|/)Resources/app/storefront/'; then
+    step "Building the Storefront"
+    composer build:js:storefront
+fi
+
+if changed '(^|/)(Elasticsearch|Migration)/|Definition\.php$'; then
+    step "Rebuilding the search indexes"
+    ES_OUTPUT="$(mktemp)"
+    if ! "$CWD"/console es:index --no-queue 2>&1 | tee "$ES_OUTPUT"; then
+        if ! grep -q 'indexing is disabled' "$ES_OUTPUT"; then
+            rm -f "$ES_OUTPUT"
+            exit 1
+        fi
+        echo "Skipped: Elasticsearch indexing is disabled."
+    fi
+    rm -f "$ES_OUTPUT"
+    "$CWD"/console es:admin:index --no-queue
+fi
+
+if [[ -n "$CHANGED" ]]; then
+    step "Clearing the cache"
+    "$CWD"/console cache:clear
+fi
+
+current_state > "$STATE_FILE"

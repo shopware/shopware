@@ -324,6 +324,7 @@
         "post-install-cmd": " ",
         "post-update-cmd": " ",
         "rector": " ",
+        "refresh": "Updates dependencies, database, builds and search indexes after a branch switch, only for what changed since the last run (--full for everything)",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
         "static-analyze": "Launches the PHP Stan static analysis tool",
@@ -537,6 +538,10 @@
             "@composer bin all update --ansi",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
             "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
+        ],
+        "refresh": [
+            "Composer\\Config::disableProcessTimeout",
+            "bin/refresh"
         ],
         "reset": [
             "@init:db",

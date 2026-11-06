@@ -8,7 +8,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleShares;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 
@@ -53,7 +55,7 @@ class GrossPriceCalculator
             $definition->getQuantity(),
             $reference,
             $this->calculateListPrice($unitPrice, $definition, $config),
-            $this->calculateRegulationPrice($definition, $config)
+            $this->calculateRegulationPrice($unitPrice, $definition, $config)
         );
     }
 
@@ -64,10 +66,7 @@ class GrossPriceCalculator
             return $this->priceRounding->cashRound($definition->getPrice(), $config);
         }
 
-        $price = $this->taxCalculator->calculateGross(
-            $definition->getPrice(),
-            $definition->getTaxRules()
-        );
+        $price = $this->grossUp($definition->getPrice(), $definition->getTaxRules());
 
         return $this->priceRounding->cashRound($price, $config);
     }
@@ -80,10 +79,7 @@ class GrossPriceCalculator
         }
 
         if (!$definition->isCalculated()) {
-            $price = $this->taxCalculator->calculateGross(
-                $price,
-                $definition->getTaxRules()
-            );
+            $price = $this->grossUp($price, $definition->getTaxRules());
         }
 
         $listPrice = $this->priceRounding->cashRound($price, $config);
@@ -95,7 +91,7 @@ class GrossPriceCalculator
         return ListPrice::createFromUnitPrice($unitPrice, $listPrice);
     }
 
-    private function calculateRegulationPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
+    private function calculateRegulationPrice(float $unitPrice, QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
     {
         $price = $definition->getRegulationPrice();
         if (!$price) {
@@ -103,15 +99,21 @@ class GrossPriceCalculator
         }
 
         if (!$definition->isCalculated()) {
-            $price = $this->taxCalculator->calculateGross(
-                $price,
-                $definition->getTaxRules()
-            );
+            $price = $this->grossUp($price, $definition->getTaxRules());
         }
 
         $regulationPrice = $this->priceRounding->cashRound($price, $config);
 
-        return new RegulationPrice($regulationPrice);
+        if ($regulationPrice <= 0) {
+            return null;
+        }
+
+        return RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice);
+    }
+
+    private function grossUp(float $net, TaxRuleCollection $rules): float
+    {
+        return $this->taxCalculator->calculateGross($net, TaxRuleShares::ofNet($rules));
     }
 
     private function calculateReferencePrice(float $price, ?ReferencePriceDefinition $definition, CashRoundingConfig $config): ?ReferencePrice

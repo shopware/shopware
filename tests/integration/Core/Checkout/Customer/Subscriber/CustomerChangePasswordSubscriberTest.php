@@ -129,7 +129,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     private function createCustomerWithLegacyPassword(string $email, string $password): string

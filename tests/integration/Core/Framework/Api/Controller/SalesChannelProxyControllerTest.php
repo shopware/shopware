@@ -34,6 +34,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -685,7 +686,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->storeAPIRemoveLineItems($browser, [$firstProductId, $secondProductId], $salesChannelContext->getToken());
 
         $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
-        static::assertEmpty($cart['deliveries']);
+        static::assertSame([], $cart['deliveries']);
 
         // adding a new product item to cart.
         $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
@@ -914,19 +915,19 @@ class SalesChannelProxyControllerTest extends TestCase
         $creditLineItems = array_filter($cart['lineItems'], static fn ($lineItem) => $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE);
 
         // assert there is credit item in cart
-        static::assertNotEmpty($creditLineItems);
+        static::assertNotCount(0, $creditLineItems);
         $creditLineItem = array_values($creditLineItems)[0];
 
         // assert there is calculated taxes for product and custom items in cart
         static::assertCount(2, $calculatedTaxes = $creditLineItem['price']['calculatedTaxes']);
         $calculatedTaxForCustomItem = array_filter($calculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
-        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertNotCount(0, $calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
         $calculatedTaxForProductItem = array_filter($calculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
-        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertNotCount(0, $calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
     }
 
@@ -1585,7 +1586,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private static function assertImplicitContextTokenHeader(Response $response, string $contextToken): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             return;
@@ -1607,15 +1608,9 @@ class SalesChannelProxyControllerTest extends TestCase
             ->fetchAllKeyValue('SELECT LOWER(HEX(id)), technical_name FROM mail_template_type');
 
         $listener = new MailEventListener($mapping);
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $listener);
 
-        $dispatcher->addListener(FlowSendMailActionEvent::class, $listener);
-
-        try {
-            return $closure($listener);
-        } finally {
-            $dispatcher->removeListener(FlowSendMailActionEvent::class, $listener);
-        }
+        return $closure($listener);
     }
 
     private function createShippingMethod(): string

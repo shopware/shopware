@@ -50,7 +50,8 @@ class AppSnippetFileLoaderTest extends TestCase
             static::getContainer()->get(TranslationConfig::class),
             static::getContainer()->get(TranslationLoader::class),
             $flySystem,
-            new StorefrontSnippetStorage($flySystem, static::getContainer()->get(SourceResolver::class), new NullLogger(), $this->mirrorDirectory)
+            new StorefrontSnippetStorage($flySystem, static::getContainer()->get(SourceResolver::class), new NullLogger(), $this->mirrorDirectory),
+            $flySystem,
         );
     }
 

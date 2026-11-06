@@ -84,7 +84,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testCreateIndicesWithElasticsearchEnabled(): void
     {
-        static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
+        static::assertNotCount(0, $this->indexDetector->getAllUsedIndices());
     }
 
     public function testProductSortingWithCustomFieldCreatesMappingWhenEnabled(): void

@@ -67,9 +67,13 @@ class StreamConditionPropertyMappingTest extends TestCase
             return !\in_array($property, $mappedProperties, true);
         });
 
-        static::assertEmpty($unmappedProperties, \sprintf(
-            'The following product fields available for filters in product streams are not mapped for elasticsearch: %s',
-            implode(', ', $unmappedProperties)
-        ));
+        static::assertCount(
+            0,
+            $unmappedProperties,
+            \sprintf(
+                'The following product fields available for filters in product streams are not mapped for elasticsearch: %s',
+                implode(', ', $unmappedProperties)
+            )
+        );
     }
 }

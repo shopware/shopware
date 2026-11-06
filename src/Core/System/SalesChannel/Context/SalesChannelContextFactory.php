@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -83,7 +84,12 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $criteria->setTitle('context-factory::customer-group');
             $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $base->getCurrentCustomerGroup();
         } else {
-            $shippingLocation = $base->getShippingLocation();
+            // e.g. the order of a deleted customer still uses its own address instead of the sales channel country
+            $injectedAddress = $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
+                ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS);
+            $shippingLocation = $injectedAddress !== null
+                ? ShippingLocation::createFromAddress($injectedAddress)
+                : $base->getShippingLocation();
             $customerGroup = $base->getCurrentCustomerGroup();
         }
 
@@ -261,12 +267,17 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $addresses = $this->addressRepository->search($criteria, $context)->getEntities();
 
         // a default address id can point to a deleted row, and the setters are not nullable yet
-        $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
+        // an existing requested address wins over an injected one, e.g. the order's address during recalculation
+        $activeBillingAddress = $addresses->get($options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? '')
+            ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS)
+            ?? $addresses->get($customer->getDefaultBillingAddressId());
         if ($activeBillingAddress !== null) {
             $customer->setActiveBillingAddress($activeBillingAddress);
         }
 
-        $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
+        $activeShippingAddress = $addresses->get($options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? '')
+            ?? $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
+            ?? $addresses->get($customer->getDefaultShippingAddressId());
         if ($activeShippingAddress !== null) {
             $customer->setActiveShippingAddress($activeShippingAddress);
         }
@@ -282,6 +293,16 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         return $customer;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function getInjectedAddress(array $options, string $option): ?CustomerAddressEntity
+    {
+        $address = $options[$option] ?? null;
+
+        return $address instanceof CustomerAddressEntity ? $address : null;
     }
 
     /**

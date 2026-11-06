@@ -12,10 +12,16 @@ below).
 | File | Purpose |
 | --- | --- |
 | `tsconfig.base.json` | Strict TypeScript preset for extension code (ESNext, Bundler resolution, `noEmit`). Resolves `vue`, `@vue/*`, and `src/*` into the installed Administration. |
-| `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, and `html-shim.d.ts`. Injected into every extension program via `files`. |
+| `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, `html-shim.d.ts`, and `shopware-virtual-modules.d.ts`. Injected into every extension program via `files`. |
 | `eslint.mjs` | Parameterized flat-config factory `shopwareAdminExtension(options)`. All plugins resolve from the Administration's `node_modules`. |
 | `legacy-twig.mjs` | Lint preset for legacy `.html.twig` component templates (Twig-Vue processor). |
 | `host-modules.json` | Declares the bare modules the Administration host provides to extensions at runtime. v1: `vue` only — the Vite externals plugin replaces exactly the bare `vue` import. If a module is added there, it must be added here and to `tsconfig.base.json` `paths` in the same change. |
+
+The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:composables`, `shopware:mixins`,
+`shopware:stores`) are not host modules. A Vite plugin generates them from the global `Shopware` object, and
+`admin-types.d.ts` provides their declarations. Run `composer admin:generate-shopware-modules` after a
+source contract changes. Do not add these modules to this table. See
+[`shopware:*` Modules](../technical-docs/05-global-object/04-virtual-modules.md).
 
 ## How extensions use it
 
@@ -123,6 +129,14 @@ the two native-setup guards (`sw-core-rules/valid-shopware-setup`,
 carries the macro declarations so they type-check. Both flow through the same
 package resolution as the rest of the preset, so a dependency bump can never leave
 a stale hand-copied path behind.
+
+## Code-quality rules
+
+The generated ESLint config reports redundant code with `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.
+TypeScript and Vue files also get `@typescript-eslint/no-unnecessary-boolean-literal-compare`, `@typescript-eslint/no-unnecessary-template-expression` and `@typescript-eslint/no-unnecessary-type-conversion`.
+The Administration lints its own sources with the same rules.
+All of them have an autofix, so `--fix` resolves the findings.
+To turn one off, set it to `'off'` in your own `eslint.config.mjs` after the `...shopware` spread.
 
 ## Own path aliases (`tsconfig.aliases.json`)
 

@@ -81,7 +81,7 @@
                     <mt-switch
                         v-model="isInherited"
                         class="sw-product-detail-cross-selling__inherit-switch"
-                        :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+                        :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
                     />
 
                     <sw-inheritance-switch

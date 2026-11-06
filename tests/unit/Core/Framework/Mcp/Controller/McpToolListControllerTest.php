@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
  */
 #[Package('framework')]
 #[CoversClass(McpToolListController::class)]
-#[CoversClass(McpCapabilityCatalog::class)]
 class McpToolListControllerTest extends TestCase
 {
     public function testListReturnsEmptyArrayWhenNoToolsRegistered(): void

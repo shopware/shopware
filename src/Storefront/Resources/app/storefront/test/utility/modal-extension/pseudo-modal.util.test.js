@@ -90,6 +90,34 @@ describe('pseudo-modal.util tests', () => {
         expect(document.querySelector('.modal.fade.show')).toBeFalsy();
     });
 
+    test('it moves the focus into the modal when another focus-trap pulled it out while opening', () => {
+        const offcanvasButton = document.createElement('button');
+        document.body.appendChild(offcanvasButton);
+
+        // Simulates the focus-trap of an open offcanvas
+        document.addEventListener('focusin', () => offcanvasButton.focus(), { once: true });
+
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        expect(document.activeElement).toBe(pseudoModal.getModal());
+    });
+
+    test('it makes a wrapper left over from an earlier modal interactive again', () => {
+        const leftOverWrapper = document.createElement('div');
+        leftOverWrapper.classList.add('js-pseudo-modal');
+        leftOverWrapper.inert = true;
+        leftOverWrapper.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(leftOverWrapper);
+
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        expect(pseudoModal.getModal().parentElement).toBe(leftOverWrapper);
+        expect(leftOverWrapper.inert).toBe(false);
+        expect(leftOverWrapper.hasAttribute('aria-hidden')).toBe(false);
+    });
+
     test('it has title template placeholder in modal header', () => {
         const templateTitle = document.querySelector(selector.templateTitle);
 

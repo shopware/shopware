@@ -1,0 +1,14 @@
+{
+  "$comment": "Guide fixture bc-admin/catch: a required prop added to a public Admin component and a slot removed.",
+  "signals": [
+    "admin_ui"
+  ],
+  "not_signals": [
+    "php_src",
+    "storefront_ui"
+  ],
+  "guides": [
+    "bc-admin",
+    "admin-bc-and-flags"
+  ]
+}

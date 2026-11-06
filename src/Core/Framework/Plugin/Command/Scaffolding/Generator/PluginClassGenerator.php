@@ -7,7 +7,8 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
@@ -20,6 +21,11 @@ class PluginClassGenerator implements ScaffoldingGenerator
         return false;
     }
 
+    public function getCommandOption(): ?InputOption
+    {
+        return null;
+    }
+
     public function getCommandOptionName(): string
     {
         return '';
@@ -30,10 +36,20 @@ class PluginClassGenerator implements ScaffoldingGenerator
         return '';
     }
 
+    public function getCommandOptionTitle(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionDescriptionLong(): string
+    {
+        return '';
+    }
+
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
         InputInterface $input,
-        SymfonyStyle $io
+        OutputInterface $output
     ): void {
     }
 

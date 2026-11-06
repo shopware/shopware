@@ -98,7 +98,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
         $handler = $this->createHandler();
         $handler->run();
 
-        static::assertEmpty($this->mediaRepository->deletes);
+        static::assertCount(0, $this->mediaRepository->deletes);
     }
 
     private function createHandler(): CleanupCorruptedMediaHandler

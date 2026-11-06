@@ -231,11 +231,14 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
+        $pluginId = $plugin->getId();
+
         if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
+            $this->removeCustomEntities($pluginId);
+            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
-        $pluginId = $plugin->getId();
         $this->updatePluginData(
             [
                 'id' => $pluginId,
@@ -246,11 +249,6 @@ class PluginLifecycleService
         );
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
-
-        if (!$uninstallContext->keepUserData()) {
-            $this->removeCustomEntities($plugin->getId());
-            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
-        }
 
         if ($pluginBaseClass->executeComposerCommands()) {
             $this->executeComposerRemoveCommand($plugin, $shopwareContext);
@@ -474,7 +472,9 @@ class PluginLifecycleService
             $pluginBaseClass->deactivate($deactivateContext);
 
             if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-                $this->assetInstaller->removeAssetsOfBundle($plugin->getName());
+                // Retain the files until uninstall. A delayed remote delete could otherwise
+                // remove assets uploaded by a subsequent activation under the same keys.
+                $this->assetInstaller->removeAssetsOfBundle($plugin->getName(), false);
             }
 
             $plugin->setActive(false);

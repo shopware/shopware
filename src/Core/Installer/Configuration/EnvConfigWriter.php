@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer\Configuration;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
@@ -16,6 +15,8 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 #[Package('framework')]
 class EnvConfigWriter
 {
+    private const INSTANCE_ID_LENGTH = 32;
+
     private const FLEX_DOTENV = <<<'EOT'
 ###> symfony/lock ###
 # Choose one of the stores below
@@ -63,8 +64,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 EOT;
 
     public function __construct(
-        private readonly string $projectDir,
-        private readonly UniqueIdGenerator $idGenerator
+        private readonly string $projectDir
     ) {
     }
 
@@ -73,7 +73,7 @@ EOT;
      */
     public function writeConfig(DatabaseConnectionInformation $info, array $shop): void
     {
-        $uniqueId = $this->idGenerator->getUniqueId();
+        $instanceId = Random::getAlphanumericString(self::INSTANCE_ID_LENGTH);
         $secret = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
 
         // Copy flex default .env if missing
@@ -85,7 +85,7 @@ EOT;
                 ],
                 [
                     $secret,
-                    $uniqueId,
+                    $instanceId,
                 ],
                 self::FLEX_DOTENV
             );
@@ -115,7 +115,7 @@ EOT;
         }
 
         $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
-        $newEnv[] = 'INSTANCE_ID=' . $uniqueId;
+        $newEnv[] = 'INSTANCE_ID=' . $instanceId;
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
         $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
         $newEnv[] = 'ADMIN_OPENSEARCH_URL=http://localhost:9200';

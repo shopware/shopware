@@ -82,6 +82,21 @@ class UnusedMediaSubscriberTest extends TestCase
         static::assertSame([$mediaId4, $mediaId5], $event->getUnusedIds());
     }
 
+    public function testNothingIsQueriedWhenTheBatchIsEmpty(): void
+    {
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, []);
+
+        $themeService = $this->createMock(ThemeService::class);
+        $themeService->expects($this->never())->method('getPlainThemeConfiguration');
+        $themeService->expects($this->never())->method('getThemeConfiguration');
+
+        $event = new UnusedMediaSearchEvent([], Context::createDefaultContext());
+
+        (new UnusedMediaSubscriber($themeRepository, $themeService))->removeUsedMedia($event);
+
+        static::assertSame([], $event->getUnusedIds());
+    }
+
     public function testNoMediaRemovedWhenNoThemesExist(): void
     {
         $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [

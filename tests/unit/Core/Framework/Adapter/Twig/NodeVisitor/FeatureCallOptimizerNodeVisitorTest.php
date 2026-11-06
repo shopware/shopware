@@ -19,7 +19,6 @@ use Twig\Loader\ArrayLoader;
  */
 #[Package('framework')]
 #[CoversClass(FeatureCallOptimizerNodeVisitor::class)]
-#[CoversClass(FeatureFlagExtension::class)]
 class FeatureCallOptimizerNodeVisitorTest extends TestCase
 {
     private const OPTIMIZATION_FLAG = 'TWIG_COMPILE_TIME_OPTIMIZATION';
@@ -56,21 +55,6 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
     {
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($this->featureConfigBackup);
-    }
-
-    public function testFeatureFlagExtensionDoesNotRegisterVisitorWhenOptimizationIsInactive(): void
-    {
-        static::assertSame([], (new FeatureFlagExtension())->getNodeVisitors());
-    }
-
-    public function testFeatureFlagExtensionRegistersVisitorWhenOptimizationIsActive(): void
-    {
-        $this->setFeature(self::OPTIMIZATION_FLAG, true);
-
-        $nodeVisitors = (new FeatureFlagExtension())->getNodeVisitors();
-
-        static::assertCount(1, $nodeVisitors);
-        static::assertInstanceOf(FeatureCallOptimizerNodeVisitor::class, $nodeVisitors[0]);
     }
 
     public function testStaticFeatureCallStaysRuntimeCheckWhenOptimizationIsInactive(): void
@@ -180,7 +164,6 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
 
             return true;
         }, \E_USER_WARNING);
-        $template = null;
 
         try {
             $template = $this->createTwig('{% if feature("UNREGISTERED_FEATURE_FLAG") %}active{% else %}inactive{% endif %}')

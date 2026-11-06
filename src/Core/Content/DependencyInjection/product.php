@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
@@ -78,6 +79,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber;
+use Shopware\Core\Content\Product\Garan\GaranLabelOrderSubscriber;
 use Shopware\Core\Content\Product\Garan\GaranLabelProductValidator;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
@@ -152,6 +154,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecode
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -319,6 +322,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(GaranLabelMailSubscriber::class)
         ->args([
             service(GaranLabelInlineImage::class),
+            service('product.repository'),
+            service(GaranLabelResolver::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(GaranLabelOrderSubscriber::class)
+        ->args([
+            service('product.repository'),
+            service(GaranLabelResolver::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -339,7 +351,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractKeyValueStorage::class),
             service('logger'),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ProductSubscriber::class)
         ->args([
@@ -483,6 +496,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('unit.repository'),
             service(QuantityPriceCalculator::class),
             service(ExtensionDispatcher::class),
+            service(PriceSelector::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
@@ -560,7 +574,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductLineItemCommandValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -572,12 +586,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ResolvedCriteriaProductSuggestRoute::class . '.inner'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSuggestRoute::class)
         ->public()
         ->args([
             service(ProductListingLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSearchRoute::class)
@@ -585,6 +601,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ProductSearchBuilderInterface::class),
             service(ProductListingLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolvedCriteriaProductSearchRoute::class)
@@ -594,6 +611,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ResolvedCriteriaProductSearchRoute::class . '.inner'),
             service('event_dispatcher'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolveCriteriaProductListingRoute::class)
@@ -612,6 +630,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(SystemConfigService::class),
             service(ProductCloseoutFilterFactory::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     // decorated by cached route
@@ -623,6 +642,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductStreamBuilder::class),
             service(CacheTagCollector::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductIndexer::class)
@@ -670,7 +690,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('event_dispatcher'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(VariantListingUpdater::class)
         ->args([
@@ -743,6 +764,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductCloseoutFilterFactory::class),
             service('event_dispatcher'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductPurchaseLimitRoute::class)
@@ -750,6 +772,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service(AbstractProductMaxPurchaseCalculator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductReviewLoader::class)
@@ -765,6 +788,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('product_review.repository'),
             service(SystemConfigService::class),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
+            param('shopware.api.store.max_limit'),
+            service(CompressedCriteriaDecoder::class),
         ]);
 
     $services->set(ProductConfiguratorLoader::class)
@@ -792,6 +818,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductCloseoutFilterFactory::class),
             service(CacheTagCollector::class),
             service(Connection::class),
+            service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)
@@ -802,12 +830,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('event_dispatcher'),
             service(ProductProvider::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductListRoute::class)
         ->public()
         ->args([
             service('sales_channel.product.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(GaranLabelRoute::class)
@@ -815,6 +845,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service(GaranLabelResolver::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->alias(AbstractGaranLabelRoute::class, GaranLabelRoute::class);

@@ -17,7 +17,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayInterface;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
+use Shopware\Core\Checkout\Gateway\Extension\CheckoutGatewayRouteExtension;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -30,11 +32,13 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -50,6 +54,7 @@ class CheckoutGatewayRouteTest extends TestCase
             static::createStub(AbstractPaymentMethodRoute::class),
             static::createStub(AbstractShippingMethodRoute::class),
             static::createStub(CheckoutGatewayInterface::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -124,7 +129,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
-        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway);
+        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway, new ExtensionDispatcher(new EventDispatcher()));
         $result = $route->load($request, $cart, $context);
 
         static::assertSame($paymentMethods->getPaymentMethods(), $result->getPaymentMethods());
@@ -213,6 +218,7 @@ class CheckoutGatewayRouteTest extends TestCase
             $paymentMethodRoute,
             $shippingMethodRoute,
             $checkoutGateway,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $result = $route->load($request, $cart, $context);
@@ -262,8 +268,34 @@ class CheckoutGatewayRouteTest extends TestCase
             $paymentMethodRoute,
             $shippingMethodRoute,
             $checkoutGateway,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->load(new Request(), new Cart('hatoken'), $context);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext();
+        $response = static::createStub(CheckoutGatewayRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('checkout-gateway-route.load.pre', static function (CheckoutGatewayRouteExtension $extension) use ($request, $cart, $context, $response): void {
+            static::assertSame(['request' => $request, 'cart' => $cart, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CheckoutGatewayRoute(
+            static::createStub(AbstractPaymentMethodRoute::class),
+            static::createStub(AbstractShippingMethodRoute::class),
+            static::createStub(CheckoutGatewayInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $cart, $context));
     }
 }

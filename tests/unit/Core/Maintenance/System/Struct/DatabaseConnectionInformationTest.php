@@ -51,6 +51,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                Mysql::ATTR_MULTI_STATEMENTS => true,
             ],
             'dbname' => 'shopware',
             'user' => 'root',
@@ -64,6 +65,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                Mysql::ATTR_MULTI_STATEMENTS => true,
             ],
             'user' => 'root',
             'password' => 'root',
@@ -107,6 +109,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                Mysql::ATTR_MULTI_STATEMENTS => true,
                 Mysql::ATTR_SSL_CA => '/ca-path',
                 Mysql::ATTR_SSL_CERT => '/cert-path',
                 Mysql::ATTR_SSL_KEY => '/cert-key-path',
@@ -151,6 +154,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                Mysql::ATTR_MULTI_STATEMENTS => true,
             ] + self::sslVerifyServerCertOption(),
             'dbname' => 'shopware',
             'user' => 'root',
@@ -164,6 +168,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                Mysql::ATTR_MULTI_STATEMENTS => true,
             ] + self::sslVerifyServerCertOption(),
             'user' => 'root',
             'password' => 'root',

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -76,15 +77,19 @@ class ThemeService implements ResetInterface
      * Only compiles a single theme/saleschannel combination.
      * Use `compileThemeById` to compile all dependend saleschannels
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'notifyOnAsyncCompletion', parameterType: 'bool', defaultValue: true, description: 'Whether the user is notified once the asynchronous compilation is completed. Callers compiling several themes or sales channels at once pass true only for the last one, so the user is notified once.')]
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-        bool $withAssets = true
+        bool $withAssets = true/* , bool $notifyOnAsyncCompletion = true */
     ): void {
         if ($this->isAsyncCompilation($context)) {
-            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context);
+            /** @deprecated tag:v6.8.0 - Remove next line as $notifyOnAsyncCompletion will become a part of method signature */
+            $notifyOnAsyncCompletion = (bool) (\func_get_args()[5] ?? true);
+
+            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context, notifyOnCompletion: $notifyOnAsyncCompletion);
 
             return;
         }
@@ -167,14 +172,17 @@ class ThemeService implements ResetInterface
         bool $withAssets = true
     ): array {
         $mappings = $this->getThemeDependencyMapping($themeId);
+        $lastMapping = $mappings->last();
         $compiledThemeIds = [];
         foreach ($mappings as $mapping) {
+            // like the start, the completion of an async compilation is notified only once
             $this->compileTheme(
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),
                 $context,
                 $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
-                $withAssets
+                $withAssets,
+                $mapping === $lastMapping
             );
 
             $compiledThemeIds[] = $mapping->getThemeId();
@@ -242,12 +250,9 @@ class ThemeService implements ResetInterface
 
         $this->themeRepository->update([$data], $context);
 
-        if ($theme->getSalesChannels() === null) {
-            // refresh runtime config here as theme will not be compiled later
-            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
-
-            return;
-        }
+        // Administration resets inherited values before saving. Replace that intermediate
+        // runtime configuration even for unassigned themes and descendants compiled asynchronously.
+        $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
 
         $this->compileThemeById($themeId, $context, null, false);
     }
@@ -440,24 +445,22 @@ class ThemeService implements ResetInterface
     {
         $mappings = new ThemeSalesChannelCollection();
         $themeData = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId,
-            LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
-            LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId
-            FROM theme
-            LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id
-            LEFT JOIN theme_sales_channel as tsc ON theme.id = tsc.theme_id
-            LEFT JOIN theme_sales_channel as dtsc ON childTheme.id = dtsc.theme_id
-            WHERE theme.id = :id',
+            'WITH RECURSIVE dependent_themes AS (
+                SELECT id FROM theme WHERE id = :id
+                UNION DISTINCT
+                SELECT child.id
+                FROM theme AS child
+                INNER JOIN dependent_themes AS parent ON child.parent_theme_id = parent.id
+            )
+            SELECT LOWER(HEX(dependent_themes.id)) AS id,
+                   LOWER(HEX(tsc.sales_channel_id)) AS saleschannelId
+            FROM dependent_themes
+            INNER JOIN theme_sales_channel AS tsc ON tsc.theme_id = dependent_themes.id',
             ['id' => Uuid::fromHexToBytes($themeId)]
         );
 
         foreach ($themeData as $data) {
-            if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId) {
-                $mappings->add(new ThemeSalesChannel($data['id'], $data['saleschannelId']));
-            }
-            if (isset($data['dependentId']) && isset($data['dsaleschannelId'])) {
-                $mappings->add(new ThemeSalesChannel($data['dependentId'], $data['dsaleschannelId']));
-            }
+            $mappings->add(new ThemeSalesChannel($data['id'], $data['saleschannelId']));
         }
 
         return $mappings;
@@ -473,7 +476,8 @@ class ThemeService implements ResetInterface
         string $themeId,
         bool $withAssets,
         Context $context,
-        bool $assign = false
+        bool $assign = false,
+        bool $notifyOnCompletion = true
     ): void {
         $this->messageBus->dispatch(
             new CompileThemeMessage(
@@ -481,7 +485,8 @@ class ThemeService implements ResetInterface
                 $themeId,
                 $withAssets,
                 $context,
-                $assign
+                $assign,
+                $notifyOnCompletion
             )
         );
 

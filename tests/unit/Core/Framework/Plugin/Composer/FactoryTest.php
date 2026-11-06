@@ -17,9 +17,7 @@ class FactoryTest extends TestCase
 {
     public function testCreateComposer(): void
     {
-        if (isset($_SERVER['COMPOSER_ROOT_VERSION'])) {
-            static::markTestSkipped('This test is not compatible with the COMPOSER_ROOT_VERSION environment variable');
-        }
+        TestEnvironment::set(['COMPOSER_ROOT_VERSION' => null]);
 
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
 

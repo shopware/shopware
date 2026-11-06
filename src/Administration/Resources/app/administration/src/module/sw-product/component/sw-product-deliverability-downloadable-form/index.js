@@ -23,7 +23,9 @@ export default {
 
     data() {
         return {
-            persistedStock: null,
+            enteredStock: null,
+            enteredOrderQuantity: null,
+            showOrderQuantitySetting: false,
         };
     },
 
@@ -48,11 +50,21 @@ export default {
             return this.parentProduct.isCloseout;
         },
 
+        isLimitedToOneUnit() {
+            return (
+                (this.getInheritedValue('minPurchase') ?? 1) === 1 &&
+                (this.getInheritedValue('purchaseSteps') ?? 1) === 1 &&
+                this.getInheritedValue('maxPurchase') === 1
+            );
+        },
+
         ...mapPropertyErrors('product', [
             'stock',
             'deliveryTimeId',
             'isCloseout',
             'maxPurchase',
+            'purchaseSteps',
+            'minPurchase',
         ]),
     },
 
@@ -66,13 +78,53 @@ export default {
                 this.product.stock = 0;
             }
 
-            this.persistedStock = this.product.stock;
+            this.showOrderQuantitySetting = !this.isLimitedToOneUnit;
         },
 
-        onSwitchInput(event) {
-            if (event === false) {
-                this.product.stock = this.persistedStock;
+        onSwitchInput(enabled) {
+            if (enabled === false) {
+                this.enteredStock = this.product.stock;
+                this.product.stock = this.product.getOrigin().stock ?? 0;
+
+                return;
             }
+
+            if (this.enteredStock !== null) {
+                this.product.stock = this.enteredStock;
+            }
+        },
+
+        onOrderQuantitySwitchInput(enabled) {
+            this.showOrderQuantitySetting = enabled;
+
+            if (enabled === false) {
+                this.enteredOrderQuantity = this.getOrderQuantity();
+                this.setOrderQuantity({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
+
+                return;
+            }
+
+            if (this.enteredOrderQuantity) {
+                this.setOrderQuantity(this.enteredOrderQuantity);
+            }
+        },
+
+        getOrderQuantity() {
+            return Shopware.Utils.object.pick(this.product, ['minPurchase', 'purchaseSteps', 'maxPurchase']);
+        },
+
+        setOrderQuantity({ minPurchase, purchaseSteps, maxPurchase }) {
+            this.product.minPurchase = minPurchase;
+            this.product.purchaseSteps = purchaseSteps;
+            this.product.maxPurchase = maxPurchase;
+        },
+
+        getInheritedValue(field) {
+            if (!this.parentProduct?.id) {
+                return this.product[field];
+            }
+
+            return this.product[field] ?? this.parentProduct[field];
         },
     },
 };

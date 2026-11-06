@@ -33,6 +33,16 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(SsoController::class)]
 class SsoControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Request::setTrustedHosts(['example.com']);
+    }
+
+    protected function tearDown(): void
+    {
+        Request::setTrustedHosts([]);
+    }
+
     public function testSsoAuthWithLoginPrompt(): void
     {
         $loginConfigService = $this->createMock(LoginConfigService::class);
@@ -86,6 +96,24 @@ class SsoControllerTest extends TestCase
         $request->setSession(new Session(new MockArraySessionStorage()));
 
         TestEnvironment::set(['APP_URL' => 'https://example.com']);
+
+        $response = $this->createController(static::createStub(LoginConfigService::class), $router)->ssoAuth($request);
+
+        static::assertSame('https://example.com/admin', $response->getTargetUrl());
+    }
+
+    public function testSsoAuthRedirectsToAppUrlWhenNoTrustedHostsAreConfigured(): void
+    {
+        Request::setTrustedHosts([]);
+        TestEnvironment::set(['APP_URL' => 'https://example.com', 'SHOPWARE_ADMINISTRATION_PATH_NAME' => null]);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->never())->method('generate');
+
+        $request = new Request();
+        $request->headers->set('host', 'other.example');
+        $request->headers->set('referer', 'https://other.example/page');
+        $request->setSession(new Session(new MockArraySessionStorage()));
 
         $response = $this->createController(static::createStub(LoginConfigService::class), $router)->ssoAuth($request);
 

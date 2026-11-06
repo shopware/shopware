@@ -70,6 +70,121 @@ class RequestTransformerTest extends TestCase
         $requestTransformer->transform($originalRequest);
     }
 
+    /**
+     * @param array<string, string> $serverVars
+     */
+    #[DataProvider('apiContextRouteBelowVirtualBaseUrlProvider')]
+    public function testApiContextRouteBelowVirtualBaseUrlIsNotTransformed(string $requestUri, string $domainUrl, array $serverVars): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturnCallback(static fn (SeoUrlRequestContext $context) => new ResolvedSeoUrl(
+            pathInfo: '/' . ltrim($context->pathInfo, '/'),
+            isCanonical: false,
+        ));
+
+        $requestTransformer = new RequestTransformer(
+            $decorated,
+            $resolver,
+            ['admin', ApiRouteScope::ID, 'store-api'],
+            $this->createDomainLoader($domainUrl),
+            ['admin', ApiRouteScope::ID],
+        );
+
+        $originalRequest = Request::create($requestUri, 'GET', [], [], [], $serverVars);
+        $transformedRequest = $requestTransformer->transform($originalRequest);
+
+        static::assertSame($originalRequest, $transformedRequest);
+        static::assertFalse($transformedRequest->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
+        static::assertFalse($transformedRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+    }
+
+    /**
+     * @return iterable<string, array{requestUri: string, domainUrl: string, serverVars: array<string, string>}>
+     */
+    public static function apiContextRouteBelowVirtualBaseUrlProvider(): iterable
+    {
+        yield 'administration below a language path' => [
+            'requestUri' => 'http://shopware.com/de/admin',
+            'domainUrl' => 'http://shopware.com/de/',
+            'serverVars' => [],
+        ];
+
+        yield 'administration below a language path with trailing slash' => [
+            'requestUri' => 'http://shopware.com/de/admin/',
+            'domainUrl' => 'http://shopware.com/de/',
+            'serverVars' => [],
+        ];
+
+        yield 'admin api below a language path' => [
+            'requestUri' => 'http://shopware.com/de/api/_info/version',
+            'domainUrl' => 'http://shopware.com/de/',
+            'serverVars' => [],
+        ];
+
+        yield 'administration below a language path of an installation in a subdirectory' => [
+            'requestUri' => 'http://shopware.com/public/de/admin',
+            'domainUrl' => 'http://shopware.com/public/de/',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/public/index.php',
+                'PHP_SELF' => '/public/index.php',
+            ],
+        ];
+    }
+
+    public function testSeoUrlNamedLikeAnApiContextRouteBelowVirtualBaseUrlIsStillResolved(): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $categoryId = Uuid::randomHex();
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturnCallback(static fn (SeoUrlRequestContext $context) => ltrim($context->pathInfo, '/') === 'admin'
+            ? new ResolvedSeoUrl(pathInfo: '/navigation/' . $categoryId, isCanonical: true, id: Uuid::randomHex())
+            : new ResolvedSeoUrl(pathInfo: '/' . ltrim($context->pathInfo, '/'), isCanonical: false));
+
+        $requestTransformer = new RequestTransformer(
+            $decorated,
+            $resolver,
+            ['admin', ApiRouteScope::ID, 'store-api'],
+            $this->createDomainLoader('http://shopware.com/de/'),
+            ['admin', ApiRouteScope::ID],
+        );
+
+        $transformedRequest = $requestTransformer->transform(Request::create('http://shopware.com/de/admin'));
+
+        static::assertTrue($transformedRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
+        static::assertSame('/navigation/' . $categoryId, $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
+    }
+
+    public function testStoreApiBelowVirtualBaseUrlIsStillTransformed(): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturnCallback(static fn (SeoUrlRequestContext $context) => new ResolvedSeoUrl(
+            pathInfo: '/' . ltrim($context->pathInfo, '/'),
+            isCanonical: false,
+        ));
+
+        $requestTransformer = new RequestTransformer(
+            $decorated,
+            $resolver,
+            ['admin', ApiRouteScope::ID, 'store-api'],
+            $this->createDomainLoader('http://shopware.com/de/'),
+            ['admin', ApiRouteScope::ID],
+        );
+
+        $transformedRequest = $requestTransformer->transform(Request::create('http://shopware.com/de/store-api/context'));
+
+        static::assertTrue($transformedRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
+        static::assertSame('/store-api/context', $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
+    }
+
     public function testResolverReceivesQueryStringForExactMatching(): void
     {
         $decorated = static::createStub(RequestTransformerInterface::class);
@@ -501,6 +616,73 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $expectedQuery
+     */
+    #[DataProvider('resolvedQueryProvider')]
+    public function testTransformMergesTheQueryOfTheResolvedPathInfo(
+        string $requestUri,
+        string $resolvedPathInfo,
+        array $expectedQuery,
+    ): void {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturn(new ResolvedSeoUrl(pathInfo: $resolvedPathInfo, isCanonical: true));
+
+        $domains = new DomainCollection();
+        $domains->set('http://shopware.com/', DomainStruct::fromArray([
+            'url' => 'http://shopware.com',
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => Uuid::randomHex(),
+            'typeId' => Uuid::randomHex(),
+            'snippetSetId' => Uuid::randomHex(),
+            'currencyId' => Uuid::randomHex(),
+            'languageId' => Uuid::randomHex(),
+            'themeId' => Uuid::randomHex(),
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = static::createStub(AbstractDomainLoader::class);
+        $domainLoader->method('loadDomains')->willReturn($domains);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [], $domainLoader);
+
+        $transformedRequest = $requestTransformer->transform(Request::create('http://shopware.com' . $requestUri));
+
+        static::assertSame($expectedQuery, $transformedRequest->query->all());
+        static::assertSame(parse_url($resolvedPathInfo, \PHP_URL_PATH), $transformedRequest->getPathInfo());
+    }
+
+    /**
+     * @return iterable<string, array{requestUri: string, resolvedPathInfo: string, expectedQuery: array<string, string>}>
+     */
+    public static function resolvedQueryProvider(): iterable
+    {
+        yield 'parameters of the resolved path info reach the query bag' => [
+            'requestUri' => '/my-render-page',
+            'resolvedPathInfo' => '/storefront/script/render?product-id=p1',
+            'expectedQuery' => ['product-id' => 'p1'],
+        ];
+
+        yield 'resolved parameters win over browser parameters of the same name' => [
+            'requestUri' => '/my-render-page?product-id=from-browser&keep=me',
+            'resolvedPathInfo' => '/storefront/script/render?product-id=p1',
+            'expectedQuery' => ['product-id' => 'p1', 'keep' => 'me'],
+        ];
+
+        yield 'browser parameters survive a resolved path info without a query' => [
+            'requestUri' => '/awesome-product?test=123',
+            'resolvedPathInfo' => '/detail/1234',
+            'expectedQuery' => ['test' => '123'],
+        ];
+    }
+
+    /**
      * @return iterable<string, array{registeredApiPrefixes: list<string>, requestUri: string}>
      */
     public static function notRequiredSalesChannelProvider(): iterable
@@ -560,5 +742,30 @@ class RequestTransformerTest extends TestCase
             'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/_fragment/',
         ];
+    }
+
+    private function createDomainLoader(string $domainUrl): AbstractDomainLoader
+    {
+        $domains = new DomainCollection();
+        $domains->set($domainUrl, DomainStruct::fromArray([
+            'url' => $domainUrl,
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => Uuid::randomHex(),
+            'typeId' => 'storefront',
+            'snippetSetId' => Uuid::randomHex(),
+            'currencyId' => Uuid::randomHex(),
+            'languageId' => Uuid::randomHex(),
+            'themeId' => Uuid::randomHex(),
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'de-DE',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = static::createStub(AbstractDomainLoader::class);
+        $domainLoader->method('loadDomains')->willReturn($domains);
+
+        return $domainLoader;
     }
 }

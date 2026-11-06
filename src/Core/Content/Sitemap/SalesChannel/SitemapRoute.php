@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\Extension\SitemapRouteExtension;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -28,6 +30,7 @@ class SitemapRoute extends AbstractSitemapRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly SitemapExporterInterface $sitemapExporter,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -42,6 +45,20 @@ class SitemapRoute extends AbstractSitemapRoute
      */
     #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
+    {
+        return $this->extensions->publish(
+            name: SitemapRouteExtension::NAME,
+            extension: new SitemapRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    public function getDecorated(): AbstractSitemapRoute
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()));
 
@@ -65,11 +82,6 @@ class SitemapRoute extends AbstractSitemapRoute
         $sitemaps = $this->sitemapLister->getSitemaps($context);
 
         return new SitemapRouteResponse(new SitemapCollection($sitemaps));
-    }
-
-    public function getDecorated(): AbstractSitemapRoute
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     private function generateSitemap(SalesChannelContext $salesChannelContext, bool $force, ?string $lastProvider = null, ?int $offset = null): void

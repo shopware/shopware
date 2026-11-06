@@ -46,18 +46,19 @@ const customFields = [
         ],
     },
 ];
+const getCustomFieldSets = jest.fn(() => Promise.resolve(customFields));
+const customFieldSetRepository = {};
+const createRepository = jest.fn(() => customFieldSetRepository);
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-customer-detail-base', { sync: true }), {
         global: {
             provide: {
                 repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(customFields),
-                            get: () => Promise.resolve({ id: '' }),
-                        };
-                    },
+                    create: createRepository,
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets,
                 },
             },
 
@@ -100,7 +101,22 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
     let wrapper;
 
     beforeEach(async () => {
+        getCustomFieldSets.mockClear();
+        createRepository.mockClear();
         wrapper = await createWrapper();
+    });
+
+    afterEach(() => {
+        wrapper.unmount();
+    });
+
+    it('keeps the repository available through the deprecated computed property', () => {
+        expect(wrapper.vm.customFieldSetRepository).toBe(customFieldSetRepository);
+        expect(createRepository).toHaveBeenCalledWith('custom_field_set');
+    });
+
+    it('loads custom field sets through the shared provider', () => {
+        expect(getCustomFieldSets).toHaveBeenCalledWith('customer');
     });
 
     it('should sort custom fields by their position', async () => {

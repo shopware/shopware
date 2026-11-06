@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\ExtensionRemovalValidatorInterface;
@@ -112,11 +113,17 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('uninstall')
             ->with('TestApp', ['id' => 'app-id'], $context);
 
+        $manifest = static::createStub(Manifest::class);
+
         $appLoader = $this->createMock(AppLoader::class);
         $appLoader
             ->expects($this->once())
+            ->method('load')
+            ->willReturn(['TestApp' => $manifest]);
+        $appLoader
+            ->expects($this->once())
             ->method('deleteApp')
-            ->with('TestApp');
+            ->with($manifest);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
             $storeClient,
@@ -249,5 +256,93 @@ class StoreAppLifecycleServiceTest extends TestCase
         $this->expectExceptionObject(StoreException::extensionThemeStillInUse('app-id'));
 
         $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'app-id', false, $context);
+    }
+
+    public function testRemovingAppWithoutLocalFilesUninstallsIt(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn(AppFixture::createAppEntity('TestApp', 'app-id'));
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle
+            ->expects($this->once())
+            ->method('uninstall')
+            ->with('TestApp', ['id' => 'app-id'], $context, true);
+
+        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader->method('load')->willReturn([]);
+        $appLoader->expects($this->never())->method('deleteApp');
+
+        $storeAppLifecycleService = new StoreAppLifecycleService(
+            static::createStub(StoreClient::class),
+            $appLoader,
+            $appLifecycle,
+            $appStorage,
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
+        );
+
+        $storeAppLifecycleService->deleteExtension('TestApp', true, $context);
+    }
+
+    public function testRemovingComposerManagedAppKeepsItInstalled(): void
+    {
+        $manifest = static::createStub(Manifest::class);
+        $manifest->method('isManagedByComposer')->willReturn(true);
+
+        $appLoader = static::createStub(AppLoader::class);
+        $appLoader->method('load')->willReturn(['TestApp' => $manifest]);
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn(AppFixture::createAppEntity('TestApp', 'app-id'));
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->never())->method('uninstall');
+
+        $storeAppLifecycleService = new StoreAppLifecycleService(
+            static::createStub(StoreClient::class),
+            $appLoader,
+            $appLifecycle,
+            $appStorage,
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
+        );
+
+        $this->expectExceptionObject(StoreException::cannotDeleteManaged('TestApp'));
+
+        $storeAppLifecycleService->deleteExtension('TestApp', false, Context::createDefaultContext());
+    }
+
+    public function testRemovingComposerManagedAppKeepsTheSubscription(): void
+    {
+        $manifest = static::createStub(Manifest::class);
+        $manifest->method('isManagedByComposer')->willReturn(true);
+
+        $appLoader = static::createStub(AppLoader::class);
+        $appLoader->method('load')->willReturn(['TestApp' => $manifest]);
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findById')->willReturn(AppFixture::createAppEntity('TestApp', 'app-id'));
+
+        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient->expects($this->never())->method('cancelSubscription');
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->never())->method('uninstall');
+
+        $storeAppLifecycleService = new StoreAppLifecycleService(
+            $storeClient,
+            $appLoader,
+            $appLifecycle,
+            $appStorage,
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
+        );
+
+        $this->expectExceptionObject(StoreException::cannotDeleteManaged('TestApp'));
+
+        $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'app-id', false, Context::createDefaultContext());
     }
 }

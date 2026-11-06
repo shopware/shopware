@@ -93,7 +93,7 @@
                                         "type": "string"
                                     },
                                     "storefrontUrl": {
-                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email.",
+                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email. The value has to match one of the domains configured for the sales channel, otherwise the request is rejected. When the `core.newsletter.doubleOptInDomain` setting is filled, the sent value is replaced by that domain and not validated.",
                                         "type": "string"
                                     },
                                     "salutationId": {

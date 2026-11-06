@@ -242,7 +242,7 @@ class AdminSearcher
             BoolQuery::SHOULD
         );
 
-        if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
+        if (preg_match('/^[\p{L}0-9]+$/Du', $lastPart)) {
             $search->addQuery(
                 new PrefixQuery('completion', $prefixTerm, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
                 BoolQuery::SHOULD
@@ -280,10 +280,13 @@ class AdminSearcher
     {
         $term = mb_substr(trim($rawTerm), 0, $this->termMaxLength);
 
-        $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
-        $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
+        // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
+        $term = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $term) ?? $term;
 
-        return (string) mb_eregi_replace('\s(not)\s', ' -', $term);
+        $term = preg_replace('/\s(or)\s/iu', '|', $term) ?? $term;
+        $term = preg_replace('/\s(and)\s/iu', ' + ', $term) ?? $term;
+
+        return preg_replace('/\s(not)\s/iu', ' -', $term) ?? $term;
     }
 
     /**

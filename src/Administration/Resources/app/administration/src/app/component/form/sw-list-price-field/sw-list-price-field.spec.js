@@ -6,12 +6,6 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-list-price-field';
 
 // mock data
-const purchasePrices = {
-    currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
-    net: 20,
-    gross: 25,
-    linked: false,
-};
 const dollarPrice = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 250,
@@ -48,11 +42,11 @@ const defaultPrice = {
     linked: true,
 };
 
-// initial component setup
+let wrapper;
+
 const setup = async (propOverride) => {
     const props = {
-        price: [dollarPrice, euroPrice],
-        purchasePrices: [purchasePrices],
+        price: [structuredClone(dollarPrice), structuredClone(euroPrice)],
         taxRate,
         currency,
         defaultPrice,
@@ -60,41 +54,54 @@ const setup = async (propOverride) => {
         ...propOverride,
     };
 
-    return mount(await wrapTestComponent('sw-list-price-field', { sync: true }), {
+    wrapper = mount(await wrapTestComponent('sw-list-price-field', { sync: true }), {
         global: {
-            stubs: ['sw-price-field'],
+            stubs: {
+                'sw-price-field': {
+                    props: ['value', 'inherited'],
+                    template: '<div class="sw-price-field-stub" />',
+                },
+            },
         },
         props,
     });
+
+    return wrapper;
 };
 
 describe('components/form/sw-list-price-field', () => {
+    afterEach(() => {
+        wrapper?.unmount();
+    });
+
     it('should set listPrice null when the gross value is NaN', async () => {
-        const wrapper = await setup();
+        const price = structuredClone(dollarPrice);
+        const wrapper = await setup({ price: [price] });
         const listPrice = {
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
             gross: parseFloat(''),
             linked: true,
             net: 1,
         };
-        await wrapper.vm.listPriceChanged(listPrice);
-        expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
+        await wrapper.findComponent('.sw-list-price-field__list-price-field').vm.$emit('change', listPrice);
+        expect(price.listPrice).toBeNull();
     });
 
     it('should set listPrice null when the net value is NaN', async () => {
-        const wrapper = await setup();
+        const price = structuredClone(dollarPrice);
+        const wrapper = await setup({ price: [price] });
         const listPrice = {
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
             gross: 1,
             linked: true,
             net: parseFloat(''),
         };
-        await wrapper.vm.listPriceChanged(listPrice);
-        expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
+        await wrapper.findComponent('.sw-list-price-field__list-price-field').vm.$emit('change', listPrice);
+        expect(price.listPrice).toBeNull();
     });
 
-    it('should set purchasePrice to default value when the input purchasePrices is empty', async () => {
-        const wrapper = await setup({ hidePurchasePrices: true });
+    it('should not render purchase prices', async () => {
+        const wrapper = await setup();
         await flushPromises();
 
         expect(wrapper.find('.sw-list-price-field__purchase-price').exists()).toBeFalsy();
@@ -106,7 +113,7 @@ describe('components/form/sw-list-price-field', () => {
             price: [euroPrice],
         });
 
-        expect(wrapper.vm.isInherited).toBeTruthy();
+        expect(wrapper.findComponent('.sw-list-price-field__list-price-field').props('inherited')).toBe(true);
     });
 
     it('should set the correct inherited state when not inherited', async () => {
@@ -116,14 +123,14 @@ describe('components/form/sw-list-price-field', () => {
             price: [dollarPrice],
         });
 
-        expect(wrapper.vm.isInherited).toBeFalsy();
+        expect(wrapper.findComponent('.sw-list-price-field__list-price-field').props('inherited')).toBe(false);
     });
 
     it('should not display gross help text when not in vertical mode', async () => {
         const wrapper = await setup();
 
         expect(
-            wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text'],
+            wrapper.find('.sw-list-price-field__list-price .sw-price-field-stub').attributes()['gross-help-text'],
         ).toBeUndefined();
     });
 
@@ -132,7 +139,7 @@ describe('components/form/sw-list-price-field', () => {
             vertical: true,
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text']).toBe(
+        expect(wrapper.find('.sw-list-price-field__list-price .sw-price-field-stub').attributes()['gross-help-text']).toBe(
             'global.sw-list-price-field.helpTextListPriceGross',
         );
     });
@@ -144,21 +151,18 @@ describe('components/form/sw-list-price-field', () => {
         });
 
         expect(
-            wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text'],
+            wrapper.find('.sw-list-price-field__list-price .sw-price-field-stub').attributes()['gross-help-text'],
         ).toBeUndefined();
 
         expect(
-            wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub').attributes()['gross-help-text'],
+            wrapper.find('.sw-list-price-field__regulation-price .sw-price-field-stub').attributes()['gross-help-text'],
         ).toBeUndefined();
     });
 
     it('should returns default regulationPrice when it does not exist', async () => {
         const wrapper = await setup();
-        await wrapper.setData({
-            priceForCurrency: {},
-        });
 
-        expect(wrapper.vm.regulationPrice).toEqual([
+        expect(wrapper.findComponent('.sw-list-price-field__regulation-price-field').props('value')).toEqual([
             {
                 gross: null,
                 currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -169,7 +173,8 @@ describe('components/form/sw-list-price-field', () => {
     });
 
     it('should sets regulationPrice correctly', async () => {
-        const wrapper = await setup();
+        const price = structuredClone(dollarPrice);
+        const wrapper = await setup({ price: [price] });
         const newRegulationPrice = {
             gross: 200,
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -177,8 +182,8 @@ describe('components/form/sw-list-price-field', () => {
             net: 186.92,
         };
 
-        wrapper.vm.regulationPrice = newRegulationPrice;
+        await wrapper.findComponent('.sw-list-price-field__regulation-price-field').vm.$emit('change', newRegulationPrice);
 
-        expect(wrapper.vm.priceForCurrency.regulationPrice).toEqual(newRegulationPrice);
+        expect(price.regulationPrice).toEqual(newRegulationPrice);
     });
 });

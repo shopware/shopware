@@ -51,7 +51,7 @@ async function createWrapper(propOverrides = {}) {
         },
         props: {
             currencies: currencies,
-            prices: prices,
+            prices: structuredClone(prices),
             defaultPrice: {
                 gross: 0,
                 linked: true,
@@ -101,7 +101,12 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
     });
 
     it('should be able to restore inheritance', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({
+            prices: [
+                ...prices,
+                { currencyId: '124' },
+            ],
+        });
         await flushPromises();
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
@@ -117,5 +122,13 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
         await icon.trigger('click');
         await flushPromises();
         expect(wrapper.emitted('update-prices')).toBeTruthy();
+    });
+
+    it('should disable the inheritance switch', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+        await flushPromises();
+
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+        expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--disabled');
     });
 });

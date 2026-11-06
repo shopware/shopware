@@ -115,12 +115,14 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup();
 
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeFalsy();
+        expect(wrapper.get('.sw-price-field__lock').attributes('disabled')).toBeUndefined();
     });
 
     it('should be an disabled field', async () => {
         const wrapper = await setup({ value: [euroPrice] });
 
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
+        expect(wrapper.get('.sw-price-field__lock').attributes('disabled')).toBeDefined();
     });
 
     it('should calculate price based on default price', async () => {
@@ -211,6 +213,36 @@ describe('components/form/sw-price-field', () => {
         // New help-text has teleported to document.body
         expect(document.body.innerHTML).toContain('help for gross price');
         expect(document.body.innerHTML).toContain('help for net price');
+    });
+
+    it('should clear linked net when gross is cleared', async () => {
+        const price = { ...dollarPrice, linked: true };
+        const wrapper = await setup({ allowEmpty: true, value: [price] });
+
+        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', null);
+
+        expect(price.gross).toBeNull();
+        expect(price.net).toBeNull();
+    });
+
+    it('should clear linked gross when net is cleared', async () => {
+        const price = { ...dollarPrice, linked: true };
+        const wrapper = await setup({ allowEmpty: true, value: [price] });
+
+        await wrapper.findComponent('.sw-price-field__net').vm.$emit('input-change', null);
+
+        expect(price.gross).toBeNull();
+        expect(price.net).toBeNull();
+    });
+
+    it('should keep unlinked net when gross is cleared', async () => {
+        const price = { ...dollarPrice, linked: false };
+        const wrapper = await setup({ allowEmpty: true, value: [price] });
+
+        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', null);
+
+        expect(price.gross).toBeNull();
+        expect(price.net).toBe(dollarPrice.net);
     });
 
     it('should set gross value when the net value is updated', async () => {

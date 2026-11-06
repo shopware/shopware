@@ -38,3 +38,19 @@ def load_case(case):
 def report_change_lines(case):
     with open(os.path.join(HISTORY, case, "expected", "current.diff")) as fh:
         return sum(1 for line in fh if re.match(r"^[-+](?![-+]{2} )", line))
+
+
+def report_excerpt(case, state, path, first, last):
+    """Lines of one .api.md file's diff, from the line containing first to the line containing last."""
+    with open(os.path.join(HISTORY, case, "expected", f"{state}.diff")) as fh:
+        lines = fh.read().split("\n")
+    start = lines.index(f"--- a/{path}")
+    section = []
+    for line in lines[start + 2:]:
+        if line.startswith("--- a/"):
+            break
+        if not line.startswith("@@"):
+            section.append(line)
+    begin = next(i for i, line in enumerate(section) if first in line)
+    end = next(i for i, line in enumerate(section) if i >= begin and last in line)
+    return "\n".join(section[begin:end + 1])

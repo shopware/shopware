@@ -3,17 +3,16 @@
 Facts come from the backtest fixtures and from pages.py, so the game cannot drift from the concept.
 check_game.py verifies the hand-copied diff excerpts against git.
 """
-import html
 import os
 import re
 
 import pages
 from fixtures import fixture_count, history_count, load_case, report_change_lines
-from render import md, ts
+from game_act3 import AUTHOR, PLUGIN, act3_screens
+from game_ui import MINUTES, E, clock, diff_view, finding_view, link_numbers, merge_block_quiz, nav, pr_card, splash, summary_view
+from render import md
 
-E = html.escape
 HERE = os.path.dirname(os.path.abspath(__file__))
-GITHUB = "https://github.com/shopware/shopware/issues/"
 
 LUNCH_SENTENCE = "Everything without @private is public. A generator commits it, and CI fails when a PR breaks it without saying so."
 
@@ -143,77 +142,38 @@ ROUNDS = [
 ]
 
 
-def gh(num):
-    return f'<a href="{GITHUB}{num}" target="_blank" rel="noopener">#{num}</a>'
-
-
-def link_numbers(text):
-    return re.sub(r"(?<![\w&/])#(\d{5})\b", lambda m: gh(m.group(1)), text)
-
-
-def diff_view(excerpt, hot):
-    out = []
-    for line in excerpt.split("\n"):
-        if line == "…":
-            out.append('<span class="ln gap">⋯</span>')
-            continue
-        cls = "ln add" if line.startswith("+") else "ln del" if line.startswith("-") else "ln"
-        if line in hot:
-            cls += " hot"
-        body = re.sub(r"(\{% (?:end)?block[^%]*%\})", r'<span class="blk">\1</span>', E(line))
-        out.append(f'<span class="{cls}">{body}</span>')
-    return f'<pre class="diff">{"".join(out)}</pre>'
-
-
-def finding_view(f):
-    return f'<div class="finding g-{f["group"].lower()}"><div class="fh"><b>{E(f["kind"])}</b><span class="st">{E(f["states"])}</span></div><div class="fd"><span>{E(f["details"][0])}</span></div></div>'
-
-
-def chips(groups):
-    return "".join(f'<span class="chip g-{g.lower()}">{E(g)} {n}</span>' for g, n in groups.items())
-
-
 def round_screen(i, r):
     data = load_case(r["case"])
     pr = data["meta"]["pr"]
-    files, plus, minus = r["stat"]
-    shown = [f for f in data["findings"] if f["element"] == r["show"]]
-    total = len(ROUNDS)
+    _, plus, minus = r["stat"]
+    shown = [finding_view(f) for f in data["findings"] if f["element"] == r["show"]]
     breaks = data["groups"].get("Break", 0)
     facts = {"pr": pr, "breaks": breaks, "other_breaks": breaks - 1, "changed": plus + minus}
     tags = "".join(f'<span class="tag">{E(t)}</span>' for t in r["tags"])
     extra = f'<p class="extra">{r["extra"].format(**facts)}</p>' if r["extra"] else ""
+    controls, result = merge_block_quiz("Your call, reviewer: does this PR break a plugin?", r["answer"], r["wrong"])
     deeper_href, deeper_label = r["deeper"]
     return f"""
-<section class="screen round" data-answer="{r['answer']}" data-act="Act 1 · Spot the break" hidden>
-  <h2 class="kicker" tabindex="-1">Round {i + 1} of {total}</h2>
-  <div class="pr">
-    <div class="prh"><span class="prn">{gh(pr)}</span><span class="prt">{E(data['meta']['title'])}</span><span class="merged">merged</span></div>
-    <div class="prs">{files} files · <span class="p">+{plus}</span> <span class="m">−{minus}</span></div>
-  </div>
+<section class="screen quiz" data-group="act1" data-round="{i}" data-act="Act 1 · Spot the break" hidden>
+  <h2 class="kicker" tabindex="-1">Round {i + 1} of {len(ROUNDS)} {clock()}</h2>
+  {pr_card(data['meta'], r['stat'])}
   <div class="fname">{E(r['file'])}</div>
   <div class="tags">{tags}</div>
   {diff_view(r['excerpt'], r['hot'])}
   <p class="hint"><b>Hint</b> {r['hint']}</p>
-  <div class="ask">
-    <p>Your call, reviewer: does this PR break a plugin?</p>
-    <div class="choices">
-      <button class="btn choice ok" data-choice="merge"><kbd>M</kbd> Merge it</button>
-      <button class="btn choice bad" data-choice="block"><kbd>B</kbd> Block it, plugins break</button>
-    </div>
-  </div>
+  {controls}
   <div class="reveal" hidden>
-    <div class="result"><span class="win">Correct</span><span class="lose">Not quite</span> <span class="why-wrong">{r['wrong']}</span></div>
+    {result}
     <p class="verdict">{r['verdict']}</p>
     <div class="cols">
       <div class="col"><div class="lbl">What really happened</div><p>{link_numbers(r['happened'])}</p></div>
       <div class="col"><div class="lbl">What the snapshot check would print</div>
-        <div class="term"><div class="headline {'fail' if data['groups'].get('Break') else 'pass'}">{E(data['headline'])}</div><div class="chips">{chips(data['groups'])}</div>{''.join(finding_view(f) for f in shown)}</div>
+        {summary_view(data, shown)}
         {extra}
       </div>
     </div>
     <p class="lesson">{r['lesson']}</p>
-    <div class="nav"><a class="deeper" href="{deeper_href}">Go deeper: {E(deeper_label.format(**facts))} ↗</a><button class="btn next">Next <kbd>→</kbd></button></div>
+    {nav((deeper_href, deeper_label.format(**facts)))}
   </div>
 </section>"""
 
@@ -231,9 +191,10 @@ def flag_lines():
 def act2_screens():
     report_lines = report_change_lines("20959")
     plus, minus = ROUNDS[0]["stat"][1:]
-    return f"""
+    start = splash("Act 2 · The fix", "Act 2", "⚙", "The fix", "One rule, a generated snapshot of the public API, and a check in CI. Two short screens.")
+    return start + f"""
 <section class="screen" data-act="Act 2 · The fix" hidden>
-  <h2 class="kicker" tabindex="-1">The fix</h2>
+  <h2 class="kicker" tabindex="-1">One rule</h2>
   <p class="rule">Everything without <code>@private</code> is public.</p>
   <p class="sub">The rule is already documented. The snapshot makes it checkable.</p>
   <ol class="pipe">
@@ -269,36 +230,8 @@ def act2_screens():
 </section>"""
 
 
-def act3_screen():
-    data = load_case("20959")
-    sig = next(f for f in data["findings"] if f["kind"] == "method_signature_changed")
-    at = next(d for d in sig["details"] if d.startswith("At: "))[4:]
-    reason = " ".join(d for d in sig["details"] if not d.startswith(("At: ", "Fix: ")))
-    fix = next(d for d in sig["details"] if d.startswith("Fix: "))
-    groups = " · ".join(f"{g} {n}" for g, n in data["groups"].items())
-    plus, minus = ROUNDS[0]["stat"][1:]
-    return f"""
-<section class="screen" data-act="Act 3 · Who gets what" hidden>
-  <h2 class="kicker" tabindex="-1">Who gets what</h2>
-  <p class="sub">What each person gets from the check. Open all three.</p>
-  <div class="roles">
-    <details class="role"><summary><span class="ri">✎</span><b>PR author</b><span>before the review even starts</span></summary>
-      <div class="annot"><div class="ah">⚠ method_signature_changed <span>{E(at)}</span></div><p>{E(reason)}</p><p class="fix">{E(fix)}</p></div>
-      <p class="sub">From #20959: an annotation on the source line, with the reason and a fix. Today the author learns about it from a plugin bug report.</p>
-    </details>
-    <details class="role"><summary><span class="ri">◎</span><b>Reviewer</b><span>reads a summary, not {plus + minus} lines</span></summary>
-      <div class="term"><div class="headline fail">{E(data['headline'])}</div><div class="chips">{chips(data['groups'])}</div></div>
-      <pre class="diff small">{md(pages.DIFF_20959_SCOPE)}</pre>
-      <p class="sub">From #20959: the check summary ({E(groups)}) and an <code>.api.md</code> diff that only shows API changes.</p>
-    </details>
-    <details class="role"><summary><span class="ri">⧉</span><b>Plugin developer</b><span>gets a type error, not a bug report</span></summary>
-      <pre class="diff small code-ts">{ts(pages.RENAME_PLUGIN_TS)}</pre>
-      <p class="sub">Illustrative example from <code>FORMAT.md</code>: a method was renamed. The snapshot ships as types, so <code>$super</code> only accepts names that exist. This needs a small core change first (D20, not started). JS plugins get the same finding from <code>admin:check-extensions</code>.</p>
-    </details>
-  </div>
-  <p class="gate"><span class="opened">0</span>/3 opened</p>
-  <div class="nav"><a class="deeper" href="index.html#one-change-end-to-end">Go deeper: one change, end to end ↗</a><button class="btn next" disabled>Next <kbd>→</kbd></button></div>
-</section>"""
+def score(group, maximum):
+    return f'<b data-score="{group}" data-max="{maximum}">0</b>/{maximum}'
 
 
 def end_screen():
@@ -306,8 +239,13 @@ def end_screen():
     return f"""
 <section class="screen end" data-act="Game over" hidden>
   <h2 class="kicker" tabindex="-1">Final score</h2>
-  <div class="final"><span class="fs">0</span>/{len(ROUNDS)}</div>
+  <div class="vs final-vs">
+    <div class="vsc"><div class="lbl">Act 1 · without the snapshot</div><div class="big">{score("act1", len(ROUNDS))}</div><div><b data-avg="act1">–</b> per PR</div></div>
+    <div class="vsa">→</div>
+    <div class="vsc hl"><div class="lbl">Act 3 · with the snapshot</div><div class="big">{score("replay", len(ROUNDS))}</div><div><b data-avg="replay">–</b> per PR</div></div>
+  </div>
   <p class="rank"></p>
+  <p class="sub">PR author: {score("author", len(AUTHOR))} best fixes. Plugin developer: {score("plugin", len(PLUGIN))} fixed on the first try.</p>
   <p class="sub">The original reviews merged all three PRs: 1/{len(ROUNDS)}. The snapshot check would have reported all {breaks} breaks in them before the merge.</p>
   <div class="lunch"><div class="lbl">If you remember one sentence</div><p>{E(LUNCH_SENTENCE)}</p></div>
   <div class="cols">
@@ -333,10 +271,10 @@ def end_screen():
 def title_screen():
     return f"""
 <section class="screen title" data-act="" hidden>
-  <p class="eyebrow">Admin API snapshot · about 6 minutes</p>
+  <p class="eyebrow">Admin API snapshot · about {MINUTES} minutes</p>
   <h1 tabindex="-1">Break it<br>or not?</h1>
   <p class="intro">Plugins hook into the Administration by name: blocks, methods called via <code>$super</code>, props, slots. Rename or move one, and no build or test fails. The plugin just stops working.</p>
-  <p class="intro">Here are {len(ROUNDS)} real PRs. All were reviewed and merged. Your turn to review them.</p>
+  <p class="intro">Here are {len(ROUNDS)} real PRs. All were reviewed and merged. Your turn to review them, first the way it works today, then with the snapshot.</p>
   <div class="nav"><a class="deeper" href="index.html">Skip the game, read the concept ↗</a><button class="btn primary next">Start <kbd>Enter</kbd></button></div>
 </section>"""
 
@@ -346,7 +284,7 @@ def render():
         css = fh.read()
     with open(os.path.join(HERE, "game.js")) as fh:
         js = fh.read()
-    screens = title_screen() + "".join(round_screen(i, r) for i, r in enumerate(ROUNDS)) + act2_screens() + act3_screen() + end_screen()
+    screens = title_screen() + "".join(round_screen(i, r) for i, r in enumerate(ROUNDS)) + act2_screens() + act3_screens(ROUNDS) + end_screen()
     return f"""<!doctype html>
 <html lang="en">
 <head>

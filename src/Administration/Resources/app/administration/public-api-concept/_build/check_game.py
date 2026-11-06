@@ -14,6 +14,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 import game  # noqa: E402
+import game_act3  # noqa: E402
 from fixtures import load_case  # noqa: E402
 
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -88,6 +89,8 @@ def check_findings(play, errors):
             errors.append(f"{r['case']}: no finding for {r['show']}")
         if data["headline"] not in text:
             errors.append(f"{r['case']}: headline missing in play.html")
+        if r["case"] not in game_act3.REPLAY:
+            errors.append(f"{r['case']}: no replay excerpt in game_act3.REPLAY")
 
 
 def main():

@@ -7,6 +7,7 @@ import os
 import re
 
 from fixtures import load_case
+from game_ui import MINUTES
 from render import code, single, src, unit
 
 PRIVATE_15271 = load_case("15271-ui-shell")["groups"]["Private"]
@@ -135,7 +136,7 @@ def overview(page_list):
         for f, label, mode, minutes in page_list
     )
     body = f"""
-<p class="note"><b>Short on time?</b> <a href="play.html">Play the 6-minute version first</a>: three real PRs, you decide whether they break plugins.</p>
+<p class="note"><b>Short on time?</b> <a href="play.html">Play the {MINUTES}-minute version first</a>: three real PRs, you decide whether they break plugins.</p>
 <div class="tldr">
   <b>In short</b>
   <ul>

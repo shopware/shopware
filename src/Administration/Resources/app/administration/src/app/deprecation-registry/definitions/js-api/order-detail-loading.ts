@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, injectKey, jsApiMigration, upgradeGuide } from '../helpers';
+import { componentMembers, injectKey, jsApiMigration, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.order-detail-loading',
@@ -23,64 +23,24 @@ export default jsApiMigration({
             from: 'swOrderDetailOnCreatedByIdChange',
             to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-order-detail'],
-            member: 'isEditing',
+            members: [
+                'isEditing',
+                'isLoading',
+                'createdById',
+                'updateCreatedById',
+                'onChangeLanguage',
+                'onStartEditing',
+                'onSaveAndReload',
+                'onUpdateLoading',
+                'onUpdateEditing',
+            ],
             to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
         }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'isLoading',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'createdById',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'updateCreatedById',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'onChangeLanguage',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'onStartEditing',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'onSaveAndReload',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'onUpdateLoading',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail'],
-            member: 'onUpdateEditing',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-order-detail-general', 'sw-order-detail-details'],
-            member: 'isLoading',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail-general', 'sw-order-detail-details'],
-            member: 'isSaveSuccessful',
-            to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
-        }),
-        componentMember({
-            components: ['sw-order-detail-general', 'sw-order-detail-details'],
-            member: 'updateLoading',
+            members: ['isLoading', 'isSaveSuccessful', 'updateLoading'],
             to: "the swOrderDetail store (loading.order, setLoading(['order', value]), editing, savedSuccessful)",
         }),
     ],

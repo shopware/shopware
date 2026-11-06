@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, componentReference, jsApiMigration, upgradeGuide } from '../helpers';
+import { componentMembers, componentReference, jsApiMigration, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.unused-order-components',
@@ -19,6 +19,6 @@ export default jsApiMigration({
         componentReference({ component: 'sw-order-state-history-card' }),
         componentReference({ component: 'sw-order-state-history-card-entry' }),
         componentReference({ component: 'sw-order-user-card' }),
-        componentMember({ components: ['sw-order-state-history-modal'], member: 'total', to: 'dataSource.length' }),
+        ...componentMembers({ components: ['sw-order-state-history-modal'], members: ['total'], to: 'dataSource.length' }),
     ],
 });

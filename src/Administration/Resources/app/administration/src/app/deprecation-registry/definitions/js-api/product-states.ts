@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, jsApiMigration, memberUsage, storeMember, stringValue, upgradeGuide } from '../helpers';
+import { componentMembers, jsApiMigration, memberUsage, storeMember, stringValue, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.product-states',
@@ -11,24 +11,24 @@ export default jsApiMigration({
     description: 'Product states are replaced by the product type and the creation type.',
     references: [upgradeGuide('UPGRADE-6.8.md#product-states-replaced-by-the-product-type-in-the-administration')],
     usage: [
-        componentMember({
+        ...componentMembers({
             components: [
                 'sw-product-detail',
                 'sw-product-detail-base',
                 'sw-product-detail-specifications',
                 'sw-product-variants-overview',
             ],
-            member: 'productStates',
+            members: ['productStates'],
             to: 'productType',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-product-detail-variants'],
-            member: 'currentProductStates',
+            members: ['currentProductStates'],
             to: 'currentProductType',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-product-stream-value'],
-            member: 'productStateOptions',
+            members: ['productStateOptions'],
             to: 'productTypeOptions',
         }),
         storeMember({ store: 'swProductDetail', member: 'productStates', to: 'productType' }),

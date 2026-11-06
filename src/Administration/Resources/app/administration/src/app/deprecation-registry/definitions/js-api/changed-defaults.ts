@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, jsApiMigration, memberUsage, serviceMethod, upgradeGuide } from '../helpers';
+import { componentMembers, jsApiMigration, memberUsage, serviceMethod, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.changed-defaults',
@@ -11,14 +11,14 @@ export default jsApiMigration({
     description: 'These Administration defaults changed, check code that relies on the old ones.',
     references: [upgradeGuide('UPGRADE-6.8.md#changed-administration-defaults')],
     usage: [
-        componentMember({
+        ...componentMembers({
             components: ['sw-media-library'],
-            member: 'sorting',
+            members: ['sorting'],
             message: 'The media library sorts by createdAt descending by default.',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-media-preview-v2'],
-            member: 'buildSourceSet',
+            members: ['buildSourceSet'],
             message: 'Media and thumbnail URLs come percent-encoded from the server.',
         }),
         serviceMethod({

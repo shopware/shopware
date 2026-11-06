@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, jsApiMigration, upgradeGuide } from '../helpers';
+import { componentMembers, jsApiMigration, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.custom-field-set-loaders',
@@ -11,7 +11,7 @@ export default jsApiMigration({
     description: 'The custom field set loaders of these components are removed.',
     references: [upgradeGuide('UPGRADE-6.8.md#custom-field-set-loader-computed-properties-removed')],
     usage: [
-        componentMember({
+        ...componentMembers({
             components: [
                 'sw-category-detail',
                 'sw-customer-detail-base',
@@ -22,36 +22,22 @@ export default jsApiMigration({
                 'sw-bulk-edit-order',
                 'sw-bulk-edit-product',
             ],
-            member: 'customFieldSetRepository',
+            members: ['customFieldSetRepository', 'customFieldSetCriteria'],
             to: "Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)",
         }),
-        componentMember({
-            components: [
-                'sw-category-detail',
-                'sw-customer-detail-base',
-                'sw-manufacturer-detail',
-                'sw-order-detail-details',
-                'sw-settings-units-detail',
-                'sw-bulk-edit-customer',
-                'sw-bulk-edit-order',
-                'sw-bulk-edit-product',
-            ],
-            member: 'customFieldSetCriteria',
-            to: "Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)",
-        }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-category-detail'],
-            member: 'customFieldSetLandingPageCriteria',
+            members: ['customFieldSetLandingPageCriteria'],
             to: "Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)",
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-customer-detail-addresses'],
-            member: 'customFieldSetRepository',
+            members: ['customFieldSetRepository'],
             to: "Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)",
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-sales-channel-detail'],
-            member: 'customFieldRepository',
+            members: ['customFieldRepository'],
             to: "Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)",
         }),
     ],

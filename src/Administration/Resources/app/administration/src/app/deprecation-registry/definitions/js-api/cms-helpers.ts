@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, jsApiMigration, upgradeGuide } from '../helpers';
+import { componentMembers, jsApiMigration, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.cms-helpers',
@@ -11,24 +11,30 @@ export default jsApiMigration({
     description: 'These CMS helpers are removed.',
     references: [upgradeGuide('UPGRADE-6.8.md#removed-cms-helpers')],
     usage: [
-        componentMember({ components: ['sw-category-detail', 'sw-product-detail'], member: 'extractSlotOverrides' }),
-        componentMember({ components: ['sw-category-detail', 'sw-product-detail'], member: 'getCmsPageOverrides' }),
-        componentMember({ components: ['sw-category-detail', 'sw-product-detail'], member: 'deleteSpecifcKeys' }),
-        componentMember({
+        ...componentMembers({
+            components: ['sw-category-detail', 'sw-product-detail'],
+            members: ['extractSlotOverrides', 'getCmsPageOverrides', 'deleteSpecifcKeys'],
+        }),
+        ...componentMembers({
             components: ['sw-cms-detail', 'sw-cms-create'],
-            member: 'resetCmsPageState',
+            members: ['resetCmsPageState'],
             to: 'resetRelatedStores()',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-cms-inherit-wrapper'],
-            member: 'isSystemDefaultLanguage',
+            members: ['isSystemDefaultLanguage'],
             to: "Shopware.Store.get('context').isSystemDefaultLanguage",
         }),
-        componentMember({ components: ['sw-cms-section'], member: 'pageSlotconfigError' }),
-        componentMember({ components: ['sw-cms-el-product-slider'], member: 'navArrowsClasses' }),
-        componentMember({ components: ['sw-cms-list'], member: 'associatedCategoryBuckets' }),
-        componentMember({ components: ['sw-cms-list'], member: 'associatedProductBuckets' }),
-        componentMember({ components: ['sw-cms-layout-modal'], member: 'gridPreSelection', to: 'selectItem(page)' }),
-        componentMember({ components: ['sw-cms-layout-modal'], member: 'selectInGrid', to: 'selectItem(page)' }),
+        ...componentMembers({ components: ['sw-cms-section'], members: ['pageSlotconfigError'] }),
+        ...componentMembers({ components: ['sw-cms-el-product-slider'], members: ['navArrowsClasses'] }),
+        ...componentMembers({
+            components: ['sw-cms-list'],
+            members: ['associatedCategoryBuckets', 'associatedProductBuckets'],
+        }),
+        ...componentMembers({
+            components: ['sw-cms-layout-modal'],
+            members: ['gridPreSelection', 'selectInGrid'],
+            to: 'selectItem(page)',
+        }),
     ],
 });

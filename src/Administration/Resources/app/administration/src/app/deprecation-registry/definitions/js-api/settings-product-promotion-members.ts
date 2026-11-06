@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMember, componentReference, jsApiMigration, upgradeGuide } from '../helpers';
+import { componentMembers, componentReference, jsApiMigration, upgradeGuide } from '../helpers';
 
 export default jsApiMigration({
     id: 'js-api.settings-product-promotion-members',
@@ -11,88 +11,93 @@ export default jsApiMigration({
     description: 'These members of settings, product and promotion components are removed.',
     references: [upgradeGuide('UPGRADE-6.8.md#removed-settings-product-and-promotion-members')],
     usage: [
-        componentMember({ components: ['sw-settings-index'], member: 'hideSettingRenameBanner' }),
-        componentMember({ components: ['sw-settings-index'], member: 'getUserConfig' }),
-        componentMember({ components: ['sw-settings-index'], member: 'onCloseSettingRenameBanner' }),
-        componentMember({ components: ['sw-settings-customer-group-detail'], member: 'seoUrlRepository' }),
-        componentMember({ components: ['sw-settings-customer-group-detail'], member: 'seoUrlCriteria' }),
-        componentMember({ components: ['sw-settings-customer-group-detail'], member: 'loadSeoUrls' }),
-        componentMember({ components: ['sw-settings-customer-group-detail'], member: 'getSeoUrl' }),
-        componentMember({
+        ...componentMembers({
+            components: ['sw-settings-index'],
+            members: ['hideSettingRenameBanner', 'getUserConfig', 'onCloseSettingRenameBanner'],
+        }),
+        ...componentMembers({
+            components: ['sw-settings-customer-group-detail'],
+            members: [
+                'seoUrlRepository',
+                'seoUrlCriteria',
+                'loadSeoUrls',
+                'getSeoUrl',
+            ],
+        }),
+        ...componentMembers({
             components: ['sw-settings-number-range-detail'],
-            member: 'selectedNumberRangeSalesChannels',
+            members: ['selectedNumberRangeSalesChannels'],
             to: 'selectedSalesChannelsCollection',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-settings-number-range-detail'],
-            member: 'loadSalesChannels',
+            members: ['loadSalesChannels'],
             to: 'buildSelectedSalesChannelsCollection()',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-settings-shipping-price-matrix'],
-            member: 'shippingRuleFilterCriteria',
+            members: ['shippingRuleFilterCriteria'],
             to: 'ruleFilterCriteria',
         }),
-        componentMember({ components: ['sw-settings-listing-option-base'], member: 'productSortingEntityCriteria' }),
-        componentMember({ components: ['sw-settings-language-list'], member: 'filterSidebarItem' }),
-        componentMember({ components: ['sw-settings-language-list'], member: 'registerFilterSidebarItem' }),
-        componentMember({ components: ['sw-settings-language-list'], member: 'openFilterSidebar' }),
-        componentMember({ components: ['sw-settings-snippet-set-list'], member: 'onClone' }),
-        componentMember({ components: ['sw-settings-snippet-set-list'], member: 'closeCloneModal' }),
-        componentMember({ components: ['sw-settings-snippet-set-list'], member: 'getNoPermissionsTooltip' }),
-        componentMember({ components: ['sw-settings-snippet-list'], member: 'inlineSaveSuccessMessage' }),
-        componentMember({ components: ['sw-settings-snippet-list'], member: 'createSuccessMessage' }),
-        componentMember({ components: ['sw-settings-cache-index'], member: 'processSuccess' }),
-        componentMember({ components: ['sw-settings-cache-index'], member: 'resetButtons' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'selectedType' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'isSaveSuccessful' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'isShowCountriesSelect' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'countryRepository' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'documentTypeRepository' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'documentBaseConfigSalesChannelRepository' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'loadAvailableSalesChannel' }),
-        componentMember({ components: ['sw-settings-document-detail'], member: 'showOption' }),
-        componentMember({ components: ['sw-settings-document-list'], member: 'sortBy' }),
-        componentMember({ components: ['sw-settings-document-list'], member: 'expandButtonClass' }),
-        componentMember({ components: ['sw-settings-document-list'], member: 'collapseButtonClass' }),
-        componentMember({ components: ['sw-product-cross-selling-form'], member: 'productCrossSellingRepository' }),
-        componentMember({ components: ['sw-product-cross-selling-form'], member: 'crossSellingAssigmentRepository' }),
-        componentMember({ components: ['sw-product-cross-selling-form'], member: 'disablePositioning' }),
-        componentMember({
+        ...componentMembers({ components: ['sw-settings-listing-option-base'], members: ['productSortingEntityCriteria'] }),
+        ...componentMembers({
+            components: ['sw-settings-language-list'],
+            members: ['filterSidebarItem', 'registerFilterSidebarItem', 'openFilterSidebar'],
+        }),
+        ...componentMembers({
+            components: ['sw-settings-snippet-set-list'],
+            members: ['onClone', 'closeCloneModal', 'getNoPermissionsTooltip'],
+        }),
+        ...componentMembers({
+            components: ['sw-settings-snippet-list'],
+            members: ['inlineSaveSuccessMessage', 'createSuccessMessage'],
+        }),
+        ...componentMembers({ components: ['sw-settings-cache-index'], members: ['processSuccess', 'resetButtons'] }),
+        ...componentMembers({
+            components: ['sw-settings-document-detail'],
+            members: [
+                'selectedType',
+                'isSaveSuccessful',
+                'isShowCountriesSelect',
+                'countryRepository',
+                'documentTypeRepository',
+                'documentBaseConfigSalesChannelRepository',
+                'loadAvailableSalesChannel',
+                'showOption',
+            ],
+        }),
+        ...componentMembers({
+            components: ['sw-settings-document-list'],
+            members: ['sortBy', 'expandButtonClass', 'collapseButtonClass'],
+        }),
+        ...componentMembers({
+            components: ['sw-product-cross-selling-form'],
+            members: ['productCrossSellingRepository', 'crossSellingAssigmentRepository', 'disablePositioning'],
+        }),
+        ...componentMembers({
             components: ['sw-product-clone-modal', 'sw-product-modal-variant-generation'],
-            member: 'progressInPercentage',
+            members: ['progressInPercentage'],
         }),
-        componentMember({ components: ['sw-product-packaging-form'], member: 'isLoading' }),
-        componentMember({ components: ['sw-product-list'], member: 'productTypeOptions' }),
-        componentMember({ components: ['sw-product-detail-variants'], member: 'loadConfigSettingGroups' }),
-        componentMember({
+        ...componentMembers({ components: ['sw-product-packaging-form'], members: ['isLoading'] }),
+        ...componentMembers({ components: ['sw-product-list'], members: ['productTypeOptions'] }),
+        ...componentMembers({ components: ['sw-product-detail-variants'], members: ['loadConfigSettingGroups'] }),
+        ...componentMembers({
             components: ['sw-promotion-v2-cart-condition-form', 'sw-promotion-discount-component'],
-            member: 'ruleFilter',
+            members: ['ruleFilter'],
             to: 'the default filter of sw-select-rule-create',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-promotion-v2-settings-rule-selection', 'sw-promotion-v2-settings-trigger'],
-            member: 'ruleCriteria',
+            members: ['ruleCriteria'],
             to: 'the default filter of sw-select-rule-create',
         }),
-        componentMember({
+        ...componentMembers({
             components: ['sw-promotion-v2-conditions'],
-            member: 'personaRuleFilter',
+            members: ['personaRuleFilter', 'cartConditionsRuleFilter', 'orderConditionsFilter'],
             to: 'the default filter of sw-select-rule-create',
         }),
-        componentMember({
-            components: ['sw-promotion-v2-conditions'],
-            member: 'cartConditionsRuleFilter',
-            to: 'the default filter of sw-select-rule-create',
-        }),
-        componentMember({
-            components: ['sw-promotion-v2-conditions'],
-            member: 'orderConditionsFilter',
-            to: 'the default filter of sw-select-rule-create',
-        }),
-        componentMember({ components: ['sw-promotion-discount-component'], member: 'maxValueAdvancedPricesTooltip' }),
-        componentMember({ components: ['sw-promotion-detail-discounts'], member: 'deleteDiscountId' }),
-        componentMember({ components: ['sw-promotion-detail-discounts'], member: 'repository' }),
+        ...componentMembers({ components: ['sw-promotion-discount-component'], members: ['maxValueAdvancedPricesTooltip'] }),
+        ...componentMembers({ components: ['sw-promotion-detail-discounts'], members: ['deleteDiscountId', 'repository'] }),
         componentReference({ component: 'sw-settings-services-dashboard-banner' }),
         componentReference({ component: 'sw-promotion-v2-empty-state-hero' }),
     ],

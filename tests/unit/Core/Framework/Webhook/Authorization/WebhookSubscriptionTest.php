@@ -45,6 +45,17 @@ class WebhookSubscriptionTest extends TestCase
         static::assertFalse($subscription->isOwnedBy(new AdminApiSource($integrationId)));
     }
 
+    public function testAWebhookOfAnAppsIntegrationIsOwnedOnlyByThatAppsIntegration(): void
+    {
+        $integrationId = Uuid::randomHex();
+        $subscription = new WebhookSubscription(Uuid::randomHex(), IdentityType::AppIntegration, $integrationId, 'product.written', null);
+        $appsIntegration = new AdminApiSource(null, $integrationId);
+        $appsIntegration->setAppId(Uuid::randomHex());
+
+        static::assertTrue($subscription->isOwnedBy($appsIntegration));
+        static::assertFalse($subscription->isOwnedBy(new AdminApiSource(null, $integrationId)));
+    }
+
     public function testAnAppsWebhookIsOwnedByNoApiCaller(): void
     {
         $appId = Uuid::randomHex();
@@ -61,7 +72,7 @@ class WebhookSubscriptionTest extends TestCase
 
         static::assertEquals(
             new WebhookSubscription($webhookId, IdentityType::User, $userId, 'product.written', ['role']),
-            WebhookSubscription::fromRow($this->row($webhookId, ownerUserId: $userId, aclRoleIds: '["role"]'))
+            WebhookSubscription::fromRow($this->row($webhookId, ownerType: IdentityType::User, ownerUserId: $userId, aclRoleIds: '["role"]'))
         );
     }
 
@@ -72,7 +83,7 @@ class WebhookSubscriptionTest extends TestCase
 
         static::assertEquals(
             new WebhookSubscription($webhookId, IdentityType::App, $appId, 'product.written', null),
-            WebhookSubscription::fromRow($this->row($webhookId, appId: $appId, ownerIntegrationId: Uuid::randomHex(), ownerUserId: Uuid::randomHex()))
+            WebhookSubscription::fromRow($this->row($webhookId, ownerType: IdentityType::App, appId: $appId, ownerIntegrationId: Uuid::randomHex(), ownerUserId: Uuid::randomHex()))
         );
     }
 
@@ -83,7 +94,18 @@ class WebhookSubscriptionTest extends TestCase
 
         static::assertEquals(
             new WebhookSubscription($webhookId, IdentityType::Integration, $integrationId, 'product.written', null),
-            WebhookSubscription::fromRow($this->row($webhookId, ownerIntegrationId: $integrationId, ownerUserId: Uuid::randomHex()))
+            WebhookSubscription::fromRow($this->row($webhookId, ownerType: IdentityType::Integration, ownerIntegrationId: $integrationId, ownerUserId: Uuid::randomHex()))
+        );
+    }
+
+    public function testAWebhookOfAnAppsIntegrationIsReadFromItsRow(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        static::assertEquals(
+            new WebhookSubscription($webhookId, IdentityType::AppIntegration, $integrationId, 'product.written', null),
+            WebhookSubscription::fromRow($this->row($webhookId, ownerType: IdentityType::AppIntegration, ownerIntegrationId: $integrationId))
         );
     }
 
@@ -95,13 +117,14 @@ class WebhookSubscriptionTest extends TestCase
     /**
      * @return array<string, string|null>
      */
-    private function row(string $webhookId, ?string $appId = null, ?string $ownerIntegrationId = null, ?string $ownerUserId = null, ?string $aclRoleIds = null): array
+    private function row(string $webhookId, ?IdentityType $ownerType = null, ?string $appId = null, ?string $ownerIntegrationId = null, ?string $ownerUserId = null, ?string $aclRoleIds = null): array
     {
         return [
             'id' => Uuid::fromHexToBytes($webhookId),
             'app_id' => $appId === null ? null : Uuid::fromHexToBytes($appId),
             'owner_integration_id' => $ownerIntegrationId === null ? null : Uuid::fromHexToBytes($ownerIntegrationId),
             'owner_user_id' => $ownerUserId === null ? null : Uuid::fromHexToBytes($ownerUserId),
+            'owner_type' => $ownerType?->value,
             'event_name' => 'product.written',
             'acl_role_ids' => $aclRoleIds,
         ];

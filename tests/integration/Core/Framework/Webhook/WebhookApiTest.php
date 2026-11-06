@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -90,6 +91,7 @@ class WebhookApiTest extends TestCase
         $webhook = $this->loadWebhook($webhookId);
         static::assertSame($user->getUserId(), $webhook->getOwnerUserId());
         static::assertNull($webhook->getOwnerIntegrationId());
+        static::assertSame(IdentityType::User, $webhook->getOwnerType());
     }
 
     public function testTheIntegrationCreatingAWebhookOwnsIt(): void
@@ -111,6 +113,30 @@ class WebhookApiTest extends TestCase
         $webhook = $this->loadWebhook($webhookId);
         static::assertSame($integrationId, $webhook->getOwnerIntegrationId());
         static::assertNull($webhook->getOwnerUserId());
+        static::assertSame(IdentityType::Integration, $webhook->getOwnerType());
+    }
+
+    public function testAnAppCreatingAWebhookOwnsItThroughItsIntegration(): void
+    {
+        $app = (new AppFixture(static::getContainer()->get('app.repository')))->createAppFromData([
+            'aclRole' => ['name' => 'app-role', 'privileges' => ['webhook:create', 'product:read']],
+        ]);
+        $this->authorizeBrowserWithIntegration($this->getBrowser(), $app->getIntegrationId());
+
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        $webhook = $this->loadWebhook($webhookId);
+        static::assertSame($app->getIntegrationId(), $webhook->getOwnerIntegrationId());
+        static::assertSame(IdentityType::AppIntegration, $webhook->getOwnerType());
     }
 
     /**
@@ -576,6 +602,7 @@ class WebhookApiTest extends TestCase
                 'name' => 'App webhook',
                 'eventName' => 'product.written',
                 'url' => 'https://app.example',
+                'ownerType' => 'app',
             ]],
         ]);
 

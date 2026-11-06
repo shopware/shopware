@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -83,6 +85,7 @@ class WebhookDefinition extends EntityDefinition
             (new ManyToOneAssociationField('ownerUser', 'owner_user_id', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new FkField('owner_integration_id', 'ownerIntegrationId', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('The integration that created the webhook through the API. It is set automatically and cannot be changed.'),
             (new ManyToOneAssociationField('ownerIntegration', 'owner_integration_id', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new EnumField('owner_type', 'ownerType', IdentityType::User))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Who the webhook belongs to: `user`, `integration`, `app` for a webhook from an app\'s manifest, or `app_integration` for a webhook an app created through the API. It is set automatically and cannot be changed.'),
             (new ListField('acl_role_ids', 'aclRoleIds', IdField::class))->setDescription('IDs of ACL roles the webhook is limited to. It only receives events whose required permissions are covered by these roles. Each role must be one its owner has. Leave it out to use all of the owner\'s roles. An empty list is not allowed.'),
         ]);
 

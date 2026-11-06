@@ -277,6 +277,12 @@ Check import files that relied on `0` being ignored.
 
 The property is unused and will be removed in 6.8.
 
+### "Assign status" flow action picks the delivery of the flow
+
+The delivery status of the Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery the flow carries as `orderDelivery` data, if that delivery belongs to the order.
+Otherwise it changes the primary delivery of the order (`primaryOrderDeliveryId`), and only for orders without one the delivery with the highest shipping costs, as before.
+Orders placed through the checkout behave as before, because their primary delivery is the one with the highest shipping costs.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

@@ -100,6 +100,7 @@ export const string = {
     isUrl: stringUtils.isUrl,
     isValidIp: stringUtils.isValidIp,
     isValidCidr: stringUtils.isValidCidr,
+    avatarName: stringUtils.avatarName,
 };
 
 /**

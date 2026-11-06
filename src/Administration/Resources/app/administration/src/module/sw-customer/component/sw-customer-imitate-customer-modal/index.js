@@ -37,6 +37,7 @@ export default {
     computed: {
         modalTitle() {
             return this.$t('sw-customer.imitateCustomerModal.modalTitle', {
+                name: this.customer.displayName,
                 firstname: this.customer.firstName,
                 lastname: this.customer.lastName,
             });
@@ -44,6 +45,7 @@ export default {
 
         modalDescription() {
             return this.$t('sw-customer.imitateCustomerModal.modalDescription', {
+                name: this.customer.displayName,
                 firstname: this.customer.firstName,
                 lastname: this.customer.lastName,
             });

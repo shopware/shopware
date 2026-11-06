@@ -13,13 +13,11 @@
                     class="sw-order-general-info__summary-main-header-link"
                     :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }"
                 >
-                    <span>{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}</span>
-                    <span v-if="order.orderCustomer.company"> - {{ order.orderCustomer.company }}</span>
+                    <span>{{ buyerName }}</span>
                 </mt-link>
 
                 <template v-else>
-                    <span>{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}</span>
-                    <span v-if="order.orderCustomer.company"> - {{ order.orderCustomer.company }}</span>
+                    <span>{{ buyerName }}</span>
                 </template>
 
                 <span>({{ emailIdnFilter(order.orderCustomer.email) }})</span>

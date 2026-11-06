@@ -18,6 +18,7 @@ const mockOrder = {
         email: 'test@shopware.com',
         firstName: 'Test',
         lastName: 'Tester',
+        displayName: 'Test Tester',
     },
     salesChannelId: uuid.get('salesChannelId0'),
 };

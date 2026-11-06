@@ -68,7 +68,7 @@
                         v-if="!customerUnavailable(item)"
                         :to="{ name: 'sw.customer.detail', params: { id: item.id } }"
                     >
-                        {{ item.firstName }} {{ item.lastName }}
+                        {{ item.displayName }}
                     </router-link>
 
                     <div
@@ -78,7 +78,7 @@
                             disabled: !customerUnavailable(item),
                         }"
                     >
-                        {{ item.firstName }} {{ item.lastName }}
+                        {{ item.displayName }}
                     </div>
                 </template>
                 {% endblock %}

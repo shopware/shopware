@@ -1,0 +1,237 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\SalesChannel\Document;
+
+use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Filesystem\Filesystem;
+
+/**
+ * Keeps one ZIP file per set of documents in the private filesystem and reuses it until the documents change.
+ *
+ * @internal
+ */
+#[Package('inventory')]
+class ProductDocumentArchiver
+{
+    public const DIRECTORY = 'product-documents/archives';
+
+    private const TAG_PREFIX = 'product-document-archive-';
+
+    /**
+     * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
+    public function __construct(
+        private readonly EntityRepository $productDocumentRepository,
+        private readonly EntityRepository $mediaRepository,
+        private readonly FilesystemOperator $publicFilesystem,
+        private readonly FilesystemOperator $privateFilesystem,
+        private readonly Filesystem $filesystem,
+    ) {
+    }
+
+    public static function buildTag(string $productId): string
+    {
+        return self::TAG_PREFIX . $productId;
+    }
+
+    public static function productIdOfTag(string $tag): ?string
+    {
+        if (!str_starts_with($tag, self::TAG_PREFIX)) {
+            return null;
+        }
+
+        $productId = substr($tag, \strlen(self::TAG_PREFIX));
+
+        return Uuid::isValid($productId) ? $productId : null;
+    }
+
+    /**
+     * Returns the stored archive of the documents the product shows, and builds it first when it is missing.
+     */
+    public function archive(SalesChannelProductEntity $product, SalesChannelContext $context): ?ProductDocumentArchive
+    {
+        $documents = $this->loadDocuments($product->getId(), $context);
+        $files = $this->collectFiles($documents, $context);
+
+        $owner = $documents->first();
+        if ($files === [] || $owner === null) {
+            return null;
+        }
+
+        // the documents belong to the product itself, or to its parent when a variant has none of its own
+        $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $owner->getProductId(), $this->fingerprint($files));
+
+        if (!$this->privateFilesystem->fileExists($path)) {
+            $this->build($path, $files);
+        }
+
+        return new ProductDocumentArchive($path, $this->fileName($product), $this->privateFilesystem->fileSize($path));
+    }
+
+    /**
+     * @return resource
+     */
+    public function readStream(ProductDocumentArchive $archive)
+    {
+        return $this->privateFilesystem->readStream($archive->path);
+    }
+
+    private function loadDocuments(string $productId, SalesChannelContext $context): ProductDocumentCollection
+    {
+        $criteria = new Criteria();
+        $criteria->setTitle('product-document-archiver::documents');
+        // `product.id` follows the inheritance of the documents, so a variant without documents of its own gets those of its parent
+        $criteria->addFilter(new EqualsFilter('product.id', $productId));
+        $criteria->addSorting(new FieldSorting('position'));
+
+        return $this->productDocumentRepository->search($criteria, $context->getContext())->getEntities();
+    }
+
+    /**
+     * @return list<array{name: string, media: MediaEntity}>
+     */
+    private function collectFiles(ProductDocumentCollection $documents, SalesChannelContext $context): array
+    {
+        $mediaIds = [];
+        foreach ($documents as $document) {
+            $mediaId = $document->getTranslation('mediaId');
+            if (\is_string($mediaId)) {
+                $mediaIds[$document->getId()] = $mediaId;
+            }
+        }
+
+        if ($mediaIds === []) {
+            return [];
+        }
+
+        $criteria = new Criteria(array_values(array_unique($mediaIds)));
+        $criteria->setTitle('product-document-archiver::media');
+        $criteria->addFilter(new EqualsFilter('private', false));
+        $media = $this->mediaRepository->search($criteria, $context->getContext())->getEntities();
+
+        $files = [];
+        $names = [];
+        foreach ($documents as $document) {
+            $file = $media->get($mediaIds[$document->getId()] ?? '');
+            if ($file === null || !$file->hasFile()) {
+                continue;
+            }
+
+            $title = $document->getTranslation('title');
+            $name = $this->entryName(\is_string($title) ? $title : '', $file, $names);
+            $names[mb_strtolower($name)] = true;
+            $files[] = ['name' => $name, 'media' => $file];
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param array<string, true> $names the entry names already taken, in lower case
+     */
+    private function entryName(string $title, MediaEntity $media, array $names): string
+    {
+        $base = $this->clean($title);
+        if ($base === '') {
+            $base = $this->clean((string) $media->getFileName());
+        }
+        if ($base === '') {
+            $base = $media->getId();
+        }
+
+        $extension = (string) $media->getFileExtension();
+        $extension = $extension !== '' ? '.' . $extension : '';
+        $name = $base . $extension;
+
+        for ($number = 2; isset($names[mb_strtolower($name)]); ++$number) {
+            $name = \sprintf('%s (%d)%s', $base, $number, $extension);
+        }
+
+        return $name;
+    }
+
+    private function clean(string $name): string
+    {
+        return trim((string) preg_replace('/[\x00-\x1F\x7F\/\\\\:*?"<>|]+/u', '-', $name), " .-\t");
+    }
+
+    /**
+     * @param list<array{name: string, media: MediaEntity}> $files
+     */
+    private function fingerprint(array $files): string
+    {
+        return Hasher::hash(array_map(static fn (array $file): array => [
+            $file['name'],
+            $file['media']->getId(),
+            $file['media']->getPath(),
+            $file['media']->getFileSize(),
+            $file['media']->getUploadedAt()?->format(\DATE_ATOM),
+        ], $files));
+    }
+
+    private function fileName(SalesChannelProductEntity $product): string
+    {
+        $name = $product->getTranslation('name');
+        $name = $this->clean(\is_string($name) ? $name : '');
+
+        return ($name !== '' ? $name : $this->clean($product->getProductNumber())) . '.zip';
+    }
+
+    /**
+     * @param list<array{name: string, media: MediaEntity}> $files
+     */
+    private function build(string $path, array $files): void
+    {
+        $temporaryFiles = [];
+
+        try {
+            $archivePath = $temporaryFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-documents-', '.zip');
+
+            $zip = new \ZipArchive();
+            if ($zip->open($archivePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+                throw ProductException::documentArchiveFailed('the ZIP file could not be created');
+            }
+
+            foreach ($files as $file) {
+                $copy = $temporaryFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-document-');
+                $this->filesystem->dumpFile($copy, $this->publicFilesystem->readStream($file['media']->getPath()));
+
+                // documents are compressed formats already, so they are stored as they are
+                if (!$zip->addFile($copy, $file['name']) || !$zip->setCompressionName($file['name'], \ZipArchive::CM_STORE)) {
+                    throw ProductException::documentArchiveFailed(\sprintf('"%s" could not be added', $file['name']));
+                }
+            }
+
+            if (!$zip->close()) {
+                throw ProductException::documentArchiveFailed('the ZIP file could not be written');
+            }
+
+            $stream = fopen($archivePath, 'r');
+            if ($stream === false) {
+                throw ProductException::documentArchiveFailed('the ZIP file could not be read');
+            }
+
+            try {
+                $this->privateFilesystem->writeStream($path, $stream);
+            } finally {
+                fclose($stream);
+            }
+        } finally {
+            $this->filesystem->remove($temporaryFiles);
+        }
+    }
+}

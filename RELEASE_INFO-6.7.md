@@ -277,6 +277,16 @@ Check import files that relied on `0` being ignored.
 
 The property is unused and will be removed in 6.8.
 
+### Blocked shipping and payment method errors reference their delivery and transaction
+
+`ShippingMethodBlockedError` now carries the position of the cart delivery it was raised for, `PaymentMethodBlockedError` the position of the cart transaction.
+Read it with `getDeliveryIndex()` and `getTransactionIndex()`, or as `deliveryIndex` and `transactionIndex` in the error parameters of the Store API cart.
+The position matches `Cart::getDeliveries()->getAt()` and `Cart::getTransactions()->getAt()`, and the `deliveries` and `transactions` lists of the Store API cart, and is only valid for the calculation that raised the error.
+It is `null` when the error is not tied to one delivery or transaction.
+Payment errors from `PaymentMethodValidator` carry `null` during the cart calculation, because the validator runs before the transactions are built; the checkout gateway sets it.
+Pass `deliveryIndex` or `transactionIndex` when your extension raises these errors for a single delivery or transaction.
+The error id stays per method, so two deliveries blocked for the same shipping method still share one error.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

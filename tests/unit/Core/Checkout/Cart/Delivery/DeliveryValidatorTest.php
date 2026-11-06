@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -41,6 +42,30 @@ class DeliveryValidatorTest extends TestCase
         $validator->validate($cart, $errors, $context);
 
         static::assertCount(0, $errors, 'A delivery without a valid availability rule id should be valid but an error is thrown.');
+    }
+
+    public function testBlockedErrorsReferenceTheirDelivery(): void
+    {
+        $firstBlockedDelivery = $this->generateDeliveryDummy('');
+        $firstBlockedDelivery->getShippingMethod()->setId('first-blocked-shipping-method-id');
+        $firstBlockedDelivery->getShippingMethod()->setTranslated(['name' => 'First blocked']);
+        $lastBlockedDelivery = $this->generateDeliveryDummy('');
+        $lastBlockedDelivery->getShippingMethod()->setId('last-blocked-shipping-method-id');
+        $lastBlockedDelivery->getShippingMethod()->setTranslated(['name' => 'Last blocked']);
+
+        $cart = new Cart('test');
+        $cart->setDeliveries(new DeliveryCollection([$firstBlockedDelivery, $this->generateDeliveryDummy(null), $lastBlockedDelivery]));
+
+        $errors = new ErrorCollection();
+        (new DeliveryValidator())->validate($cart, $errors, static::createStub(SalesChannelContext::class));
+
+        $deliveryIndexes = [];
+        foreach ($errors as $error) {
+            static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
+        }
+
+        static::assertSame(['First blocked' => 0, 'Last blocked' => 2], $deliveryIndexes);
     }
 
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void

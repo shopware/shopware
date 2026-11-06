@@ -19,6 +19,7 @@ class PaymentMethodBlockedError extends Error
         protected readonly string $name,
         protected readonly ?string $reason = null,
         protected readonly ?string $id = null,
+        protected readonly ?int $transactionIndex = null,
     ) {
         if ($id === null || $reason === null) {
             Feature::triggerDeprecationOrThrow(
@@ -42,6 +43,7 @@ class PaymentMethodBlockedError extends Error
             'id' => $this->id,
             'name' => $this->name,
             'reason' => $this->reason,
+            'transactionIndex' => $this->transactionIndex,
         ];
     }
 
@@ -60,6 +62,11 @@ class PaymentMethodBlockedError extends Error
     public function getReason(): ?string
     {
         return $this->reason;
+    }
+
+    public function getTransactionIndex(): ?int
+    {
+        return $this->transactionIndex;
     }
 
     public function getId(): string

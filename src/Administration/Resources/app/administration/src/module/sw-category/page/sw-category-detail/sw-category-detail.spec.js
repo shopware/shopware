@@ -2,9 +2,11 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 describe('src/module/sw-category/page/sw-category-detail', () => {
     const saveMock = jest.fn(() => Promise.resolve());
+    const updateCanonicalUrlMock = jest.fn(() => Promise.resolve());
     async function createWrapper() {
         return mount(await wrapTestComponent('sw-category-detail', { sync: true }), {
             global: {
@@ -65,7 +67,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                                 }),
                         }),
                     },
-                    seoUrlService: {},
+                    seoUrlService: { updateCanonicalUrl: updateCanonicalUrlMock },
                     systemConfigApiService: {
                         getValues: () =>
                             Promise.resolve({
@@ -274,5 +276,58 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         expect(wrapper.vm.landingPageCriteria.associations.some(({ association }) => association === 'translations')).toBe(
             true,
         );
+    });
+
+    describe('saving SEO URLs', () => {
+        async function saveWithSeoUrl(seoPathInfo, originalIsModified) {
+            global.activeAclRoles = ['category.editor'];
+            const wrapper = await createWrapper();
+
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: '',
+                navigationSalesChannels: [],
+                footerSalesChannels: [],
+                serviceSalesChannels: [],
+            };
+            await wrapper.setData({ isLoading: false });
+
+            const original = {
+                id: 'sc',
+                salesChannelId: 'sc',
+                languageId: 'lang',
+                seoPathInfo: 'Custom/Path',
+                isModified: originalIsModified,
+            };
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [original];
+            seoStore.seoUrlCollection = [{ ...original, seoPathInfo }];
+
+            await wrapper.get('.sw-category-detail__save-action').trigger('click');
+            await flushPromises();
+        }
+
+        beforeEach(() => {
+            updateCanonicalUrlMock.mockClear();
+        });
+
+        it('should send a cleared SEO URL as unmodified so it is regenerated from the template', async () => {
+            await saveWithSeoUrl('', true);
+
+            expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+            expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                expect.objectContaining({ id: 'sc', seoPathInfo: '', isModified: false }),
+                'lang',
+            );
+        });
+
+        it('should save an edited SEO URL as modified', async () => {
+            await saveWithSeoUrl('New/Path', false);
+
+            expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+            expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                expect.objectContaining({ id: 'sc', seoPathInfo: 'New/Path', isModified: true }),
+                'lang',
+            );
+        });
     });
 });

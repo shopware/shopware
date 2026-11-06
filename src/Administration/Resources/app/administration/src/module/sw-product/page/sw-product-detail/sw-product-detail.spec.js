@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
     value: {
@@ -57,6 +58,8 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
+    const updateCanonicalUrlMock = jest.fn(() => Promise.resolve());
+
     async function createWrapper(
         searchFunction = () => Promise.resolve([]),
         getFunction = () => {
@@ -85,7 +88,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
-                    seoUrlService: {},
+                    seoUrlService: { updateCanonicalUrl: updateCanonicalUrlMock },
                     mediaService: {},
                     repositoryFactory: {
                         create: (entity) => ({
@@ -875,6 +878,36 @@ describe('module/sw-product/page/sw-product-detail', () => {
         // Previous units should not be updated on error
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    it.each([
+        { state: 'cleared', seoPathInfo: '', isModified: false },
+        { state: 'edited', seoPathInfo: 'New/Path', isModified: true },
+    ])('should send a $state SEO URL with isModified=$isModified on save', async ({ seoPathInfo, isModified }) => {
+        updateCanonicalUrlMock.mockClear();
+
+        const original = {
+            id: 'sc',
+            salesChannelId: 'sc',
+            languageId: 'lang',
+            seoPathInfo: 'Custom/Path',
+            isModified: true,
+        };
+        const seoStore = Shopware.Store.get('swSeoUrl');
+        seoStore.originalSeoUrls = [original];
+        seoStore.seoUrlCollection = [{ ...original, seoPathInfo }];
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- the save button sits inside the stubbed sw-button-group
+        await wrapper.vm.saveProduct();
+
+        expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+        expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'sc', seoPathInfo, isModified }),
+            'lang',
+        );
+
+        seoStore.originalSeoUrls = [];
+        seoStore.seoUrlCollection = null;
     });
 
     it('should set isSaveSuccessful to true when no SEO promises exist', () => {

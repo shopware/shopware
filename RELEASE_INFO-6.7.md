@@ -328,6 +328,13 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Reset a SEO URL to its template
+
+`PATCH /api/_action/seo-url/canonical` accepts an empty or missing `seoPathInfo`.
+It removes the write protection (`isModified`) of the canonical SEO URL for that entity, sales channel and language, and generates the URL again from the SEO URL template.
+Before, the request was rejected with `400`.
+In the Administration, clearing the SEO URL field of a product or category and saving does this.
+
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.

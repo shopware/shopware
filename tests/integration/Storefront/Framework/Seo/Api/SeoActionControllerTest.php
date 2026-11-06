@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\Api;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -536,6 +537,51 @@ class SeoActionControllerTest extends TestCase
             (int) $canonicals[0]['is_modified'],
             'Write-protection flag must be cleared even when the path did not change'
         );
+    }
+
+    /**
+     * @param array<string, mixed> $clearedFields
+     */
+    #[DataProvider('clearedSeoPathInfoProvider')]
+    public function testClearingWriteProtectedCanonicalRegeneratesItFromTemplate(array $clearedFields): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestProduct($salesChannelId);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        $templatePath = $seoUrls[0]['attributes']['seoPathInfo'];
+
+        $payload = $seoUrls[0]['attributes'];
+        $payload['seoPathInfo'] = 'manual-path';
+        $payload['isModified'] = true;
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $payload);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $payload = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes'];
+        static::assertTrue($payload['isModified']);
+        unset($payload['seoPathInfo']);
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, ...$clearedFields]);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertSame($templatePath, $seoUrls[0]['attributes']['seoPathInfo']);
+        static::assertFalse($seoUrls[0]['attributes']['isModified']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function clearedSeoPathInfoProvider(): iterable
+    {
+        yield 'empty seoPathInfo' => [['seoPathInfo' => '', 'isModified' => false]];
+        yield 'missing seoPathInfo' => [['isModified' => false]];
+        yield 'blank seoPathInfo' => [['seoPathInfo' => '  ']];
     }
 
     public function testUpdateCanonicalWithCustomSalesChannel(): void

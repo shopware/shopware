@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo\Api;
 use Shopware\Core\Content\Seo\ConfiguredEntitySeoUrlRoute;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
 use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Defaults;
@@ -60,6 +62,7 @@ class SeoActionController extends AbstractController
         private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly EntityRouteResolver $entityRouteResolver,
+        private readonly SeoUrlUpdater $seoUrlUpdater,
     ) {
     }
 
@@ -167,6 +170,11 @@ class SeoActionController extends AbstractController
         $validation = $this->seoUrlValidator->buildValidation($context, $seoUrlRoute->getConfig());
 
         $seoUrlData = $seoUrl->all();
+        $resetToTemplate = trim((string) ($seoUrlData['seoPathInfo'] ?? '')) === '';
+        if ($resetToTemplate) {
+            $validation->set('seoPathInfo');
+        }
+
         $this->validator->validate($seoUrlData, $validation);
         $seoUrlData['isModified'] ??= true;
 
@@ -193,6 +201,12 @@ class SeoActionController extends AbstractController
                 $salesChannel->getTypeId()
             ),
         ];
+
+        if ($resetToTemplate) {
+            $this->resetSeoUrlToTemplate($seoUrlData['routeName'], $seoUrlData['foreignKey'], $salesChannelId, $context);
+
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
 
         $this->seoUrlPersister->forceUpdateSeoUrls(
             $context,
@@ -278,6 +292,31 @@ class SeoActionController extends AbstractController
         }
 
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
+    }
+
+    private function resetSeoUrlToTemplate(string $routeName, string $foreignKey, string $salesChannelId, Context $context): void
+    {
+        $repository = $this->definitionInstanceRegistry->getRepository(SeoUrlDefinition::ENTITY_NAME);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('foreignKey', $foreignKey),
+            new EqualsFilter('routeName', $routeName),
+            new EqualsFilter('salesChannelId', $salesChannelId),
+            new EqualsFilter('languageId', $context->getLanguageId()),
+            new EqualsFilter('isCanonical', true),
+            new EqualsFilter('isModified', true),
+        );
+
+        $ids = $repository->searchIds($criteria, $context)->getIds();
+        if ($ids !== []) {
+            $repository->update(
+                array_map(static fn (string $id): array => ['id' => $id, 'isModified' => false], array_values($ids)),
+                $context,
+            );
+        }
+
+        $this->seoUrlUpdater->update($routeName, [$foreignKey]);
     }
 
     private function getEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface

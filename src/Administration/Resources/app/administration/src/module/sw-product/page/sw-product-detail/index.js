@@ -1239,16 +1239,10 @@ export default {
 
             if (Shopware.Store.list().includes('swSeoUrl')) {
                 const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
-                const defaultSeoUrl = Shopware.Store.get('swSeoUrl').defaultSeoUrl;
 
                 if (seoUrls) {
                     seoUrls.forEach((seoUrl) => {
-                        if (!seoUrl.seoPathInfo) {
-                            seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
-                            seoUrl.isModified = false;
-                        } else {
-                            seoUrl.isModified = true;
-                        }
+                        seoUrl.isModified = !!seoUrl.seoPathInfo;
 
                         this.updateSeoPromises.push(
                             this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {

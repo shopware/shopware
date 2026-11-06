@@ -39,7 +39,9 @@ type GitHub = {
             }>;
         };
         actions: {
-            createWorkflowDispatch(params: Repo & { workflow_id: string; ref: string; inputs: Record<string, string> }): Promise<unknown>;
+            createWorkflowDispatch(
+                params: Repo & { workflow_id: string; ref: string; inputs: Record<string, string> },
+            ): Promise<unknown>;
         };
         pulls: {
             get(params: Repo & { pull_number: number; mediaType?: { format: string } }): Promise<{ data: unknown }>;
@@ -145,7 +147,12 @@ export async function pushedCommits({ github, context }: { github: GitHub; conte
 
     const commits: Commit[] = [];
     for (let page = 1; ; page++) {
-        const { data } = await github.rest.repos.compareCommitsWithBasehead({ ...context.repo, basehead: `${before}...${after}`, per_page: 100, page });
+        const { data } = await github.rest.repos.compareCommitsWithBasehead({
+            ...context.repo,
+            basehead: `${before}...${after}`,
+            per_page: 100,
+            page,
+        });
         commits.push(...data.commits.map(({ sha, commit }) => ({ sha, message: commit.message })));
         if (data.commits.length < 100) {
             return commits;
@@ -153,7 +160,15 @@ export async function pushedCommits({ github, context }: { github: GitHub; conte
     }
 }
 
-export async function mergedPullRequests({ github, context, core }: { github: GitHub; context: Context; core: Core }): Promise<number[]> {
+export async function mergedPullRequests({
+    github,
+    context,
+    core,
+}: {
+    github: GitHub;
+    context: Context;
+    core: Core;
+}): Promise<number[]> {
     const numbers = new Set<number>();
     for (const commit of await pushedCommits({ github, context })) {
         if (!shouldCheck(commit.message)) {
@@ -161,7 +176,10 @@ export async function mergedPullRequests({ github, context, core }: { github: Gi
             continue;
         }
 
-        const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({ ...context.repo, commit_sha: commit.sha });
+        const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+            ...context.repo,
+            commit_sha: commit.sha,
+        });
         for (const pr of data) {
             if (pr.merged_at !== null) {
                 numbers.add(pr.number);
@@ -178,7 +196,12 @@ export async function dispatchDocsChecks(
 ): Promise<void> {
     const numbers = await mergedPullRequests({ github, context, core });
     if (numbers.length > MAX_DISPATCHED_PULL_REQUESTS) {
-        core.warning(`Not checking ${numbers.slice(MAX_DISPATCHED_PULL_REQUESTS).map((n) => `#${n}`).join(', ')}: at most ${MAX_DISPATCHED_PULL_REQUESTS} pull requests per push`);
+        core.warning(
+            `Not checking ${numbers
+                .slice(MAX_DISPATCHED_PULL_REQUESTS)
+                .map((n) => `#${n}`)
+                .join(', ')}: at most ${MAX_DISPATCHED_PULL_REQUESTS} pull requests per push`,
+        );
     }
 
     const dispatched = numbers.slice(0, MAX_DISPATCHED_PULL_REQUESTS);
@@ -229,7 +252,10 @@ export function summarisePullRequest(pr: PullRequest) {
     };
 }
 
-export async function collectAgentInput({ github, context, core }: { github: GitHub; context: Context; core: Core }, dir: string): Promise<void> {
+export async function collectAgentInput(
+    { github, context, core }: { github: GitHub; context: Context; core: Core },
+    dir: string,
+): Promise<void> {
     const number = requestedPullRequestNumber(context);
     const params = { ...context.repo, pull_number: number };
     const { data } = await github.rest.pulls.get(params);
@@ -270,10 +296,13 @@ export function redactSecrets(text: string, raw: string | undefined): string {
         return text;
     }
 
-    const values = [raw, ...raw.split(',').flatMap((pair) => {
-        const value = pair.slice(pair.indexOf('=') + 1).trim();
-        return [value, value.replace(/^Bearer\s+/i, '')];
-    })];
+    const values = [
+        raw,
+        ...raw.split(',').flatMap((pair) => {
+            const value = pair.slice(pair.indexOf('=') + 1).trim();
+            return [value, value.replace(/^Bearer\s+/i, '')];
+        }),
+    ];
 
     return [...new Set(values)]
         .filter((value) => value.length >= MIN_SECRET_LENGTH)
@@ -281,7 +310,7 @@ export function redactSecrets(text: string, raw: string | undefined): string {
         .reduce((redacted, value) => redacted.split(value).join('[redacted]'), text);
 }
 
-const DOCS_LINK =/\[([^\]]+)\]\((https:\/\/(?:docs|developer)\.shopware\.com\/[^\s)]*)\)/g;
+const DOCS_LINK = /\[([^\]]+)\]\((https:\/\/(?:docs|developer)\.shopware\.com\/[^\s)]*)\)/g;
 
 export async function isDeadLink(url: string): Promise<boolean> {
     try {
@@ -296,7 +325,9 @@ export async function isDeadLink(url: string): Promise<boolean> {
 
 export async function unlinkDeadDocsLinks(summary: string, isDead: (url: string) => Promise<boolean>): Promise<string> {
     const urls = [...new Set([...summary.matchAll(DOCS_LINK)].map((match) => match[2]))];
-    const dead = new Set((await Promise.all(urls.map(async (url) => ((await isDead(url)) ? url : null)))).filter((url) => url !== null));
+    const dead = new Set(
+        (await Promise.all(urls.map(async (url) => ((await isDead(url)) ? url : null)))).filter((url) => url !== null),
+    );
 
     return summary.replace(DOCS_LINK, (link, text: string, url: string) => (dead.has(url) ? text : link));
 }
@@ -330,12 +361,17 @@ export async function postComment(
         return;
     }
 
-    const comments = await github.paginate<{ id: number; body?: string; user?: { login: string } | null }>(github.rest.issues.listComments, {
-        ...context.repo,
-        issue_number: number,
-        per_page: 100,
-    });
-    const existing = comments.find((comment) => comment.user?.login === BOT_LOGIN && comment.body?.startsWith(COMMENT_MARKER));
+    const comments = await github.paginate<{ id: number; body?: string; user?: { login: string } | null }>(
+        github.rest.issues.listComments,
+        {
+            ...context.repo,
+            issue_number: number,
+            per_page: 100,
+        },
+    );
+    const existing = comments.find(
+        (comment) => comment.user?.login === BOT_LOGIN && comment.body?.startsWith(COMMENT_MARKER),
+    );
 
     if (existing) {
         await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
@@ -345,7 +381,11 @@ export async function postComment(
         core.info(`Posted documentation-impact comment on #${number}`);
     }
 
-    await github.rest.issues.addLabels({ ...context.repo, issue_number: number, labels: audiences.map((audience) => DOCS_CANDIDATE_LABELS[audience]) });
+    await github.rest.issues.addLabels({
+        ...context.repo,
+        issue_number: number,
+        labels: audiences.map((audience) => DOCS_CANDIDATE_LABELS[audience]),
+    });
 }
 
 export const END_USER_DOCS_SECTIONS: Record<string, string> = {
@@ -355,7 +395,9 @@ export const END_USER_DOCS_SECTIONS: Record<string, string> = {
 };
 
 function endUserUrl(page: string): string {
-    const prefix = Object.keys(END_USER_DOCS_SECTIONS).find((section) => page === section || page.startsWith(`${section}/`)) as string;
+    const prefix = Object.keys(END_USER_DOCS_SECTIONS).find(
+        (section) => page === section || page.startsWith(`${section}/`),
+    ) as string;
 
     return END_USER_DOCS_SECTIONS[prefix] + page.slice(prefix.length);
 }
@@ -396,7 +438,10 @@ export function latestEndUserPages(files: string[]): EndUserPage[] {
 
         const page = [section, ...rest].join('/');
         const current = latest.get(page);
-        if (!current || (version !== null && (current.version === null || compareArticleVersions(version, current.version) > 0))) {
+        if (
+            !current ||
+            (version !== null && (current.version === null || compareArticleVersions(version, current.version) > 0))
+        ) {
             latest.set(page, { file, version });
         }
     }
@@ -410,7 +455,9 @@ export function buildEndUserDocs(contentDir: string, outDir: string): number {
     const files = (readdirSync(contentDir, { recursive: true }) as string[]).filter((file) => file.endsWith('.md'));
     const pages = latestEndUserPages(files);
     if (pages.length < MIN_END_USER_PAGES) {
-        throw new Error(`Only ${pages.length} end-user pages found in ${contentDir}; expected at least ${MIN_END_USER_PAGES}`);
+        throw new Error(
+            `Only ${pages.length} end-user pages found in ${contentDir}; expected at least ${MIN_END_USER_PAGES}`,
+        );
     }
 
     for (const page of pages) {
@@ -427,7 +474,8 @@ export async function warnIfEndUserDocsMissing(core: Core, dir: string): Promise
         return;
     }
 
-    const message = 'End-user documentation is unavailable, so this run cannot link docs.shopware.com pages. Check the octo-sts token and the index steps above.';
+    const message =
+        'End-user documentation is unavailable, so this run cannot link docs.shopware.com pages. Check the octo-sts token and the index steps above.';
     core.warning(message);
     await core.summary?.addRaw(`> [!WARNING]\n> ${message}`, true).write();
 }

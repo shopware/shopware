@@ -31,9 +31,7 @@ interface AuditVulnerability {
     via: Array<AuditVia | string>;
     isDirect: boolean;
     effects: string[];
-    fixAvailable:
-        | boolean
-        | FixAvailable;
+    fixAvailable: boolean | FixAvailable;
 }
 
 interface AuditResult {
@@ -48,9 +46,7 @@ interface RootAdvisory {
     packageName: string;
     range: string;
     affectedPackages: string[];
-    fixAvailable:
-        | false
-        | FixAvailable;
+    fixAvailable: false | FixAvailable;
 }
 
 interface AuditExecutionResult {
@@ -132,9 +128,7 @@ export function fetchAuditReportWithRetry(
         }
     }
 
-    throw new Error(
-        `npm audit did not return a usable report after ${delaysMs.length + 1} attempts: ${lastReason}`,
-    );
+    throw new Error(`npm audit did not return a usable report after ${delaysMs.length + 1} attempts: ${lastReason}`);
 }
 
 function runNpmAuditCommand(): string {
@@ -274,11 +268,7 @@ export function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ign
     }
 }
 
-function collectAffectedPackages(
-    pkgName: string,
-    audit: AuditResult,
-    visited: Set<string>,
-): void {
+function collectAffectedPackages(pkgName: string, audit: AuditResult, visited: Set<string>): void {
     if (visited.has(pkgName)) return;
     visited.add(pkgName);
 
@@ -347,7 +337,9 @@ function printAdvisories(advisories: RootAdvisory[], totalPackages: number): voi
             console.error(`  URL: ${adv.url}`);
         }
         if (adv.fixAvailable) {
-            console.error(`  Fix: update ${adv.fixAvailable.name} to ${adv.fixAvailable.version}${adv.fixAvailable.isSemVerMajor ? ' (semver major)' : ''}`);
+            console.error(
+                `  Fix: update ${adv.fixAvailable.name} to ${adv.fixAvailable.version}${adv.fixAvailable.isSemVerMajor ? ' (semver major)' : ''}`,
+            );
         }
         if (adv.affectedPackages.length > 0) {
             console.error(`  Affected: ${adv.affectedPackages.join(', ')} (${adv.affectedPackages.length} transitive)`);
@@ -370,7 +362,9 @@ function printSuggestions(advisories: RootAdvisory[]): void {
             if (seen.has(key)) continue;
             seen.add(key);
             const fix = adv.fixAvailable as { name: string; version: string; isSemVerMajor: boolean };
-            console.error(`  "overrides": { "${fix.name}": "${fix.version}" }${fix.isSemVerMajor ? '  // semver major — test thoroughly' : ''}`);
+            console.error(
+                `  "overrides": { "${fix.name}": "${fix.version}" }${fix.isSemVerMajor ? '  // semver major — test thoroughly' : ''}`,
+            );
         }
         console.error('');
     }
@@ -418,9 +412,7 @@ function writeAuditResult(result: AuditExecutionResult): void {
  * Exits with code 1 when unignored vulnerabilities remain.
  */
 export function runNpmAudit(options: NpmAuditOptions = {}): void {
-    const ignoredGHSAs = new Set(
-        (options.ignoredGHSAs ?? []).map((entry) => extractGHSA(entry) ?? entry),
-    );
+    const ignoredGHSAs = new Set((options.ignoredGHSAs ?? []).map((entry) => extractGHSA(entry) ?? entry));
     const ignoredCVEs = new Set(options.ignoredCVEs ?? []);
     const totalIgnored = ignoredGHSAs.size + ignoredCVEs.size;
     const packageName = getAuditPackageName();
@@ -432,9 +424,7 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
         filterIgnored(audit, ignoredGHSAs, ignoredCVEs);
         printUnusedIgnores(presentIdentifiers, ignoredGHSAs, ignoredCVEs);
 
-        const remaining = Object.values(audit.vulnerabilities).filter(
-            (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,
-        );
+        const remaining = Object.values(audit.vulnerabilities).filter((pkg) => Array.isArray(pkg.via) && pkg.via.length > 0);
 
         // Only remaining vulnerabilities block the pipeline. Advisories are
         // printed for visibility but intentionally do not cause a failure, so

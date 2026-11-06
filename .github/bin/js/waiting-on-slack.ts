@@ -42,7 +42,12 @@ export function parseChannels(json: string | undefined): Channels {
     }
 
     const parsed: unknown = JSON.parse(json);
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed) || !Object.values(parsed).every((value) => typeof value === 'string')) {
+    if (
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        Array.isArray(parsed) ||
+        !Object.values(parsed).every((value) => typeof value === 'string')
+    ) {
         throw new Error('WAITING_ON_SLACK_CHANNELS must be a JSON object from a label to a Slack channel id.');
     }
 
@@ -77,7 +82,10 @@ export function planReminders(rows: Row[], channels: Channels, now: Date): Remin
 
     for (const [teamLabel, channel] of channels) {
         const due = rows
-            .filter((row) => row.waitingOn === 'shopware' && row.labels.includes(EXTERNAL_LABEL) && row.labels.includes(teamLabel))
+            .filter(
+                (row) =>
+                    row.waitingOn === 'shopware' && row.labels.includes(EXTERNAL_LABEL) && row.labels.includes(teamLabel),
+            )
             .map((row) => ({ ...row, waitingDays: calendarDaysSince(row.since, now) }))
             .filter((row) => isReminderDue(row.waitingDays))
             .sort((left, right) => right.waitingDays - left.waitingDays);
@@ -104,7 +112,10 @@ export function renderNewPullRequest(pullRequest: { number: number; title: strin
 export function renderReminder(reminder: Reminder, boardUrl?: string): string {
     const lines = [
         `:hourglass_flowing_sand: ${reminder.rows.length} external pull request(s) have been waiting on us for ${REMINDER_AFTER_DAYS} days or more:`,
-        ...reminder.rows.map((row) => `• ${link(row.url, `#${row.number} ${row.title}`)} by ${escapeSlack(row.author)}: ${row.waitingDays} days, \`${row.reason}\``),
+        ...reminder.rows.map(
+            (row) =>
+                `• ${link(row.url, `#${row.number} ${row.title}`)} by ${escapeSlack(row.author)}: ${row.waitingDays} days, \`${row.reason}\``,
+        ),
     ];
 
     if (boardUrl !== undefined) {
@@ -143,23 +154,44 @@ export async function postSlackMessage(slack: Slack, core: Logger, channel: stri
 type Context = {
     payload: {
         label?: { name: string };
-        pull_request?: { number: number; title: string; html_url: string; user: { login: string }; labels: { name: string }[] };
+        pull_request?: {
+            number: number;
+            title: string;
+            html_url: string;
+            user: { login: string };
+            labels: { name: string }[];
+        };
     };
 };
 
-export async function notifyNewExternalPullRequest({ core, context }: { core: Logger; context: Context }, slack: Slack, channelsJson: string | undefined): Promise<void> {
+export async function notifyNewExternalPullRequest(
+    { core, context }: { core: Logger; context: Context },
+    slack: Slack,
+    channelsJson: string | undefined,
+): Promise<void> {
     const { label, pull_request: pullRequest } = context.payload;
     if (label === undefined || pullRequest === undefined) {
         throw new Error('Expected a pull_request labeled event.');
     }
 
-    const channels = newPullRequestChannels(pullRequest.labels.map((candidate) => candidate.name), label.name, parseChannels(channelsJson));
+    const channels = newPullRequestChannels(
+        pullRequest.labels.map((candidate) => candidate.name),
+        label.name,
+        parseChannels(channelsJson),
+    );
     if (channels.length === 0) {
-        core.info(`#${pullRequest.number}: \`${label.name}\` does not complete an external pull request for any team with a channel.`);
+        core.info(
+            `#${pullRequest.number}: \`${label.name}\` does not complete an external pull request for any team with a channel.`,
+        );
         return;
     }
 
-    const text = renderNewPullRequest({ number: pullRequest.number, title: pullRequest.title, url: pullRequest.html_url, author: pullRequest.user.login });
+    const text = renderNewPullRequest({
+        number: pullRequest.number,
+        title: pullRequest.title,
+        url: pullRequest.html_url,
+        author: pullRequest.user.login,
+    });
     for (const channel of channels) {
         await postSlackMessage(slack, core, channel, text);
     }

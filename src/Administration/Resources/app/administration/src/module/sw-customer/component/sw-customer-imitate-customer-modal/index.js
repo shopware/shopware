@@ -112,6 +112,12 @@ export default {
             );
         },
 
+        onModalRootChange(isOpen) {
+            if (!isOpen) {
+                this.onCancel();
+            }
+        },
+
         onCancel() {
             this.$emit('modal-close');
         },

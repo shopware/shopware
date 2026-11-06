@@ -96,8 +96,8 @@ class PromotionExtensionCodesTest extends TestCase
         // add promotion to cart
         $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
-        /** @var CartExtension $extension */
         $extension = $cart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $extension);
 
         static::assertTrue($extension->hasCode($promotionCode));
     }
@@ -136,8 +136,8 @@ class PromotionExtensionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
-        /** @var CartExtension $extension */
         $extension = $cart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $extension);
 
         static::assertCount(0, $extension->getCodes());
     }
@@ -171,8 +171,8 @@ class PromotionExtensionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
-        /** @var CartExtension $extension */
         $extension = $cart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $extension);
 
         static::assertTrue($extension->isPromotionBlocked($promotionId));
     }
@@ -230,8 +230,8 @@ class PromotionExtensionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
-        /** @var CartExtension $extension */
         $extension = $cart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $extension);
 
         static::assertCount(0, $extension->getCodes());
 
@@ -387,8 +387,8 @@ class PromotionExtensionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
-        /** @var CartExtension $extension */
         $extension = $cart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $extension);
 
         static::assertCount(0, $extension->getCodes());
     }

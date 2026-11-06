@@ -44,6 +44,7 @@ function withAuthorLocation(error: unknown, source: string, filename: string, bl
     }
 
     const diagnostic = resolveErrorSource(source, filename, error.index ?? block?.contentStart ?? 0, error.endIndex);
+    error.id = filename;
     error.loc = diagnostic.loc;
     // Vite may catch this in the importer; supply the frame so it cannot highlight that file instead.
     error.frame = diagnostic.frame;

@@ -380,31 +380,33 @@ export default {
             customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'));
 
             const loadingPromises = [];
-            return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
-                const singleCriteria = new Criteria(1, null);
-                singleCriteria.addAssociation('customFields').addAssociation('relations');
+            return this.customFieldSetRepository
+                .searchIds(customFieldsCriteria, Context.api)
+                .then(({ data: customFieldSetIds }) => {
+                    const singleCriteria = new Criteria(1, null);
+                    singleCriteria.addAssociation('customFields').addAssociation('relations');
 
-                customFieldSets.forEach((customFieldSet) => {
-                    loadingPromises.push(
-                        this.customFieldSetRepository.get(customFieldSet.id, Context.api, singleCriteria).then((set) => {
-                            const customFields = set.customFields.reduce((acc, customField) => {
-                                acc[customField.name] = this.mapCustomFieldType({
-                                    type: customField.type,
-                                    value: `customFields.${customField.name}`,
-                                    label: this.getCustomFieldLabel(customField),
-                                    config: customField.config,
-                                });
-                                return acc;
-                            }, {});
-                            Object.assign(this.productCustomFields, customFields);
-                        }),
-                    );
-                });
+                    customFieldSetIds.forEach((customFieldSetId) => {
+                        loadingPromises.push(
+                            this.customFieldSetRepository.get(customFieldSetId, Context.api, singleCriteria).then((set) => {
+                                const customFields = set.customFields.reduce((acc, customField) => {
+                                    acc[customField.name] = this.mapCustomFieldType({
+                                        type: customField.type,
+                                        value: `customFields.${customField.name}`,
+                                        label: this.getCustomFieldLabel(customField),
+                                        config: customField.config,
+                                    });
+                                    return acc;
+                                }, {});
+                                Object.assign(this.productCustomFields, customFields);
+                            }),
+                        );
+                    });
 
-                Promise.all(loadingPromises).then(() => {
-                    this.customFieldsLoading = false;
+                    Promise.all(loadingPromises).then(() => {
+                        this.customFieldsLoading = false;
+                    });
                 });
-            });
         },
 
         getCustomFieldLabel(customField) {

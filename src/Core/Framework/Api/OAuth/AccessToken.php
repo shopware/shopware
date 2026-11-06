@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
+use Lcobucci\JWT\Token;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -10,6 +11,7 @@ use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\RefreshTokenTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * OAuth integrations should rely on {@see AccessTokenEntityInterface} instead of this concrete Shopware class.
@@ -21,6 +23,8 @@ class AccessToken implements AccessTokenEntityInterface
     use AccessTokenTrait;
     use EntityTrait;
     use RefreshTokenTrait;
+
+    private ?string $resource = null;
 
     /**
      * @internal
@@ -82,6 +86,24 @@ class AccessToken implements AccessTokenEntityInterface
         $this->scopes[] = $scope;
     }
 
+    /**
+     * @internal
+     */
+    public function getResource(): ?string
+    {
+        return $this->resource;
+    }
+
+    /**
+     * Binds the token to an RFC 8707 resource, see {@see OAuthResource}.
+     *
+     * @internal
+     */
+    public function setResource(?string $resource): void
+    {
+        $this->resource = $resource;
+    }
+
     public function initJwtConfiguration(): void
     {
         if (!$this->privateKey instanceof FakeCryptKey) {
@@ -90,5 +112,31 @@ class AccessToken implements AccessTokenEntityInterface
         }
 
         $this->jwtConfiguration = $this->privateKey->configuration;
+    }
+
+    /**
+     * Same claims as {@see AccessTokenTrait::convertToJWT()}; a bound resource is added as a further audience
+     * after the client id, so readers taking the first `aud` entry as client id keep working.
+     */
+    private function convertToJWT(): Token
+    {
+        $this->initJwtConfiguration();
+
+        $audiences = [$this->getClient()->getIdentifier()];
+        if ($this->resource !== null) {
+            $audiences[] = $this->resource;
+        }
+
+        $now = Clock::get()->now();
+
+        return $this->jwtConfiguration->builder()
+            ->permittedFor(...$audiences)
+            ->identifiedBy($this->getIdentifier())
+            ->issuedAt($now)
+            ->canOnlyBeUsedAfter($now)
+            ->expiresAt($this->getExpiryDateTime())
+            ->relatedTo($this->getUserIdentifier() ?? $this->getClient()->getIdentifier())
+            ->withClaim('scopes', $this->getScopes())
+            ->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
     }
 }

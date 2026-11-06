@@ -38,7 +38,9 @@ class Migration1788947575AddOAuthAuthCodeTableTest extends TestCase
         $migration->update($this->connection);
 
         $table = TableHelper::getTable($this->connection, 'oauth_auth_code');
-        static::assertSame(['id', 'code_id', 'user_id', 'client_id', 'issued_at', 'expires_at'], array_column($table->columns, 'name'));
+        // Later migrations add columns to this table, so only the columns of this migration are checked.
+        $expectedColumns = ['id', 'code_id', 'user_id', 'client_id', 'issued_at', 'expires_at'];
+        static::assertSame($expectedColumns, array_values(array_intersect(array_column($table->columns, 'name'), $expectedColumns)));
 
         $uniqueIndexes = array_column(
             array_filter(

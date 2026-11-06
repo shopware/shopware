@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -97,6 +98,11 @@ class AppException extends HttpException
             'App {{ name }} is managed by Composer and cannot be deleted',
             ['name' => $pluginName]
         );
+    }
+
+    public static function notCompatible(string $pluginName): self
+    {
+        return self::validationFailedFromError(new IncompatibleAppError($pluginName));
     }
 
     /**

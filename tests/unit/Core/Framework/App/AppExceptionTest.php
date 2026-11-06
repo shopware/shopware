@@ -44,6 +44,16 @@ class AppExceptionTest extends TestCase
         static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
     }
 
+    public function testNotCompatibleReportsLikeAnIncompatibleAppError(): void
+    {
+        $e = AppException::notCompatible('IncompatibleApp');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('App IncompatibleApp is not compatible with this Shopware version', $e->getMessage());
+        static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
+    }
+
     public function testNotFound(): void
     {
         $e = AppException::notFound('NonExistingApp');

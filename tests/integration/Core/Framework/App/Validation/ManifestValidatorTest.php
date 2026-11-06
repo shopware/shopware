@@ -52,13 +52,13 @@ class ManifestValidatorTest extends TestCase
         static::assertNotNull($result->errors);
         static::assertSame(
             [
-                [MissingTranslationError::class, AppException::VALIDATION_FAILED],
-                [AppNameError::class, AppException::VALIDATION_FAILED],
-                [ConfigurationError::class, AppException::INVALID_CONFIGURATION],
-                [NotHookableError::class, AppException::VALIDATION_FAILED],
-                [MissingPermissionError::class, AppException::VALIDATION_FAILED],
+                [MissingTranslationError::class, AppException::VALIDATION_FAILED, false],
+                [AppNameError::class, AppException::VALIDATION_FAILED, true],
+                [ConfigurationError::class, AppException::INVALID_CONFIGURATION, true],
+                [NotHookableError::class, AppException::VALIDATION_FAILED, false],
+                [MissingPermissionError::class, AppException::VALIDATION_FAILED, true],
             ],
-            array_map(static fn (Error $error): array => [$error::class, $error->getErrorCode()], $result->errors)
+            array_map(static fn (Error $error): array => [$error::class, $error->getErrorCode(), $error->isBlocking()], $result->errors)
         );
     }
 }

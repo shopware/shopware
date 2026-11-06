@@ -40,4 +40,9 @@ class ConfigurationError implements Error
     {
         return ['appName' => $this->appName, 'error' => $this->message];
     }
+
+    public function isBlocking(): bool
+    {
+        return true;
+    }
 }

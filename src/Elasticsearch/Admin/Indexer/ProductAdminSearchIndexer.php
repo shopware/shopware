@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -80,22 +81,23 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'categoryId',
         ]) : [];
 
-        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
-            'salesChannelId',
-        ]) : [];
-
-        $media = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductMediaDefinition::ENTITY_NAME, [
-            'mediaId',
-        ]) : [];
-
         $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
-        foreach (array_merge($translations, $tags, $visibilities, $categories, $media) as $pks) {
+        foreach (array_merge($translations, $tags, $categories) as $pks) {
             if (isset($pks['productId'])) {
                 $productIds[] = $pks['productId'];
             }
+        }
+
+        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            // visibilities and media have their own primary key, the product id is only in the payload
+            $productIds = [
+                ...$productIds,
+                ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
+                ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
+            ];
         }
 
         return array_values(array_unique(array_filter($productIds, '\is_string')));
@@ -681,5 +683,34 @@ SQL,
         }
 
         return $result !== [] ? $result : null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getWrittenProductIds(EntityWrittenContainerEvent $event, string $entity, string $property): array
+    {
+        $productIds = [];
+
+        foreach ($event->getResults($entity) as $result) {
+            if ($result->getOperation() !== EntityWriteResult::OPERATION_DELETE && !\array_key_exists($property, $result->getPayload())) {
+                continue;
+            }
+
+            $productId = $result->getPayload()['productId'] ?? null;
+            if (\is_string($productId)) {
+                $productIds[] = $productId;
+
+                continue;
+            }
+
+            // deletes and updates without the product id, ProductAdminSearchChangeSetSubscriber requested the change set
+            $productId = $result->getChangeSet()?->getBefore('product_id');
+            if (\is_string($productId)) {
+                $productIds[] = Uuid::fromBytesToHex($productId);
+            }
+        }
+
+        return $productIds;
     }
 }

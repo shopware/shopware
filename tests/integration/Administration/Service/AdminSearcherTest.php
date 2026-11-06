@@ -79,8 +79,8 @@ class AdminSearcherTest extends TestCase
 
         static::assertArrayHasKey('product', $result);
 
-        /** @var ProductCollection $products */
         $products = $result['product']['data'];
+        static::assertInstanceOf(ProductCollection::class, $products);
         $first = $products->first();
         $last = $products->last();
 

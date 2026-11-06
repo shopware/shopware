@@ -7789,6 +7789,8 @@
  "sw_text_editor_toolbar_button",
  "sw_text_editor_toolbar_button_child",
  "sw_text_editor_toolbar_button_child_item",
+ "sw_text_editor_toolbar_button_child_search",
+ "sw_text_editor_toolbar_button_child_search_empty",
  "sw_text_editor_toolbar_button_color",
  "sw_text_editor_toolbar_button_icon",
  "sw_text_editor_toolbar_button_link_menu",

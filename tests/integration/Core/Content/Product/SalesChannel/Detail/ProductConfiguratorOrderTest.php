@@ -277,7 +277,6 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->context, $tax);
 
         $criteria = new Criteria([$variantId]);
-        /** @var SalesChannelProductEntity $salesChannelProduct */
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
@@ -404,8 +403,8 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->context, $data[0]['tax']);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
-        /** @var SalesChannelProductEntity $salesChannelProduct */
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);

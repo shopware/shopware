@@ -208,7 +208,7 @@ Builds a ShimContent component definition using the reconstructed template strin
 
 ```ts
 import { h, type Slot } from 'vue';
-import type { BlockEntry } from 'src/core/factory/twig-block-index';
+import type { BlockEntry } from 'src/core/factory/transform-legacy-block-conditionals';
 import swBlockParent from '../sw-block-parent/index';
 
 const warnedBlocks = new Set<string>();

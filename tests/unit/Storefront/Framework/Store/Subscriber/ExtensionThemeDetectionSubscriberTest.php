@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
@@ -105,12 +106,10 @@ class ExtensionThemeDetectionSubscriberTest extends TestCase
     #[TestDox('Installed theme names are cached across calls and re-fetched after reset()')]
     public function testInstalledThemeNameLookupIsCachedAndResettable(): void
     {
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->expects($this->exactly(2))
-            ->method('aggregate')
-            ->willReturn(
-                $this->buildAggregationResult(['MyTheme'])
-            );
+        $repository = StaticEntityRepository::of(ThemeCollection::class, [
+            $this->buildAggregationResult(['MyTheme']),
+            $this->buildAggregationResult(['MyTheme']),
+        ]);
 
         $subscriber = new ExtensionThemeDetectionSubscriber($repository);
         $context = Context::createDefaultContext();
@@ -129,6 +128,7 @@ class ExtensionThemeDetectionSubscriberTest extends TestCase
         $subscriber->detectTheme(new ExtensionLoadedEvent($this->buildApp('MyTheme'), $third, $context));
 
         static::assertTrue($third->isTheme());
+        static::assertCount(2, $repository->searchedCriteria);
     }
 
     /**
@@ -138,8 +138,7 @@ class ExtensionThemeDetectionSubscriberTest extends TestCase
      */
     private function buildThemeRepositoryReturning(array $themeNames): EntityRepository
     {
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('aggregate')->willReturn($this->buildAggregationResult($themeNames));
+        $repository = StaticEntityRepository::of(ThemeCollection::class, [$this->buildAggregationResult($themeNames)]);
 
         return $repository;
     }

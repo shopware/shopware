@@ -24,9 +24,6 @@ import {
 } from './data-scope-helper';
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
 
-/** @private */
-export { getScriptSetupDataScope } from './data-scope-helper';
-
 /**
  * @private
  * @sw-package framework

@@ -15,6 +15,7 @@ below).
 | `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, `html-shim.d.ts`, and `shopware-virtual-modules.d.ts`. Injected into every extension program via `files`. |
 | `eslint.mjs` | Parameterized flat-config factory `shopwareAdminExtension(options)`. All plugins resolve from the Administration's `node_modules`. |
 | `legacy-twig.mjs` | Lint preset for legacy `.html.twig` component templates (Twig-Vue processor). |
+| `codemods.mjs` | Flat-config factory `shopwareAdminCodemods(rules)` used by `administration:upgrade-extensions`. Enables only the given codemod rules. |
 | `host-modules.json` | Declares the bare modules the Administration host provides to extensions at runtime. v1: `vue` only — the Vite externals plugin replaces exactly the bare `vue` import. If a module is added there, it must be added here and to `tsconfig.base.json` `paths` in the same change. |
 
 The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:composables`, `shopware:mixins`,
@@ -118,6 +119,45 @@ generated configs.
   self-perpetuating.
 - A bridge that cannot be written (a read-only vendor directory, say) degrades to
   a warning — those sources stay covered by the root `tsconfig.json`.
+
+## Upgrading to a new Shopware major
+
+`administration:upgrade-extensions` runs the codemods that prepare your Administration code for a Shopware major.
+
+```bash
+bin/console administration:upgrade-extensions -- --only=MyPlugin                # preview, writes nothing
+bin/console administration:upgrade-extensions -- --only=MyPlugin --write        # apply
+bin/console administration:check-extensions -- --only=MyPlugin                  # check the result
+```
+
+In a platform checkout use `composer admin:upgrade-extensions -- …`.
+With shopware-cli use `shopware-cli project console administration:upgrade-extensions -- …`.
+
+- `--target=<major>` picks the Shopware major to prepare for.
+  It defaults to the newest major the installed Administration ships codemods for.
+  A run applies the codemods of that major and of every earlier one, so you can skip a major.
+- `--list` prints the codemods per major.
+- `--with=sfc-migration` also converts Options API components into native setup SFCs.
+  It writes a `.vue` draft next to each component and keeps the original files registered.
+  Switch the registration to the draft once you have reviewed it.
+  It only converts components whose `index.js`/`index.ts` exports the options with `export default`.
+- `--write` refuses an extension that has uncommitted or untracked changes.
+  Run `git checkout . && git clean -f` in the extension folder to undo a run.
+  `--skip-git-check` writes anyway, and then `git clean -f` can also delete files that existed before the run.
+- Without an interactive terminal, for example in CI or with `docker compose exec -T`, `--write` needs `--only` or `--all`.
+  A dry run without either previews every writable extension.
+- Vendor-installed extensions are only rewritten when you name them via `--only`.
+- The command finds extensions through `var/plugins.json`, which lists active plugins only.
+  An `--only` name that is not listed there is looked up as a folder in `custom/plugins`,
+  so you can upgrade a plugin before it is installed or activated.
+  `administration:check-extensions` has no such fallback, so activate the plugin and run `bin/console bundle:dump` before you check it.
+- Spec files are not rewritten.
+
+The report lists every spot a codemod found but could not rewrite safely.
+Fix those by hand, then run `administration:check-extensions`.
+The ESLint codemods run with their own config that enables only the codemod rules.
+Your extension's ESLint config does not change what gets rewritten.
+In `.html.twig` templates, `{{ … }}` is Twig syntax, so the `$tc` codemod only rewrites bindings like `:label="$tc(…)"` there.
 
 ## Native-setup components
 

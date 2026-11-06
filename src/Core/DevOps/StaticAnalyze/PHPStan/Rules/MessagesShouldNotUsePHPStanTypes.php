@@ -5,14 +5,6 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
-use PHPStan\PhpDocParser\Lexer\Lexer;
-use PHPStan\PhpDocParser\Parser\ConstExprParser;
-use PHPStan\PhpDocParser\Parser\PhpDocParser;
-use PHPStan\PhpDocParser\Parser\TokenIterator;
-use PHPStan\PhpDocParser\Parser\TypeParser;
-use PHPStan\PhpDocParser\ParserConfig;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -34,8 +26,6 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 #[Package('framework')]
 class MessagesShouldNotUsePHPStanTypes implements Rule
 {
-    use InTestClassTrait;
-
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -49,7 +39,6 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $ref = $scope->getClassReflection();
-
         if ($ref === null) {
             return [];
         }
@@ -64,42 +53,20 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
             return [];
         }
 
-        $phpDocNode = $this->parsePhpDoc($classDocComment->getText());
-
         $errors = [];
-        foreach ($phpDocNode->getTags() as $line => $tag) {
-            if (!$tag instanceof PhpDocTagNode) {
-                continue;
-            }
+        foreach (explode("\n", $classDocComment->getText()) as $line => $text) {
+            foreach (['@phpstan-type', '@phpstan-import-type'] as $annotation) {
+                if (!str_contains($text, $annotation)) {
+                    continue;
+                }
 
-            if ($tag->name === '@phpstan-type') {
-                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-type annotations')
+                $errors[] = RuleErrorBuilder::message(\sprintf('Messages should not use %s annotations', $annotation))
                     ->identifier('shopware.messagePHPStanAnnotation')
-                    ->line($classDocComment->getStartLine() + $line + 1)
-                    ->build();
-            }
-
-            if ($tag->name === '@phpstan-import-type') {
-                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-import-type annotations')
-                    ->identifier('shopware.messagePHPStanAnnotation')
-                    ->line($classDocComment->getStartLine() + $line + 1)
+                    ->line($classDocComment->getStartLine() + $line)
                     ->build();
             }
         }
 
         return $errors;
-    }
-
-    private function parsePhpDoc(string $tokens): PhpDocNode
-    {
-        $parserConfig = new ParserConfig([]);
-        $lexer = new Lexer($parserConfig);
-        $constExprParser = new ConstExprParser($parserConfig);
-        $typeParser = new TypeParser($parserConfig, $constExprParser);
-        $phpDocParser = new PhpDocParser($parserConfig, $typeParser, $constExprParser);
-
-        $tokenIterator = new TokenIterator($lexer->tokenize($tokens));
-
-        return $phpDocParser->parse($tokenIterator);
     }
 }

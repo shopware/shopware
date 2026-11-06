@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLongestAndGirthRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule;
@@ -163,6 +164,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(LineItemDimensionWidthRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionHeightRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionLengthRule::class)->tag('shopware.rule.definition');
+    $services->set(LineItemDimensionLongestAndGirthRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionWeightRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionVolumeRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemListPriceRule::class)->tag('shopware.rule.definition');

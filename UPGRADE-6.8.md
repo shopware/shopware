@@ -47,7 +47,7 @@ Check the Administration code of your plugin or app for these changes:
 
   If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer first. Older versions ignore negated patterns in arrays and exclude nothing. A `^0.0.x` range does not pick up 0.0.6 automatically.
 
-  `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them for you.
+  `bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write` rewrites them for you.
 
   With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
 
@@ -1592,7 +1592,16 @@ $redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal(
 
 The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
+## Removed `PluginZipImportCommand::$cacheClearer`
+
+The unused property was removed.
+
 # Administration
+
+## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
+
+The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method were removed without replacement.
 
 ## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
 
@@ -1627,6 +1636,22 @@ The deprecated custom-field set loader computed properties were removed from the
 These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
+
+## Media default folder lookup computed properties removed
+
+The deprecated computed properties that loaded the media default folder were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
+
+## `customFieldSetRepository` computed property removed from `sw-product-stream-detail`
+
+The deprecated computed property `customFieldSetRepository` was removed from `sw-product-stream-detail`.
+The component loads the product custom fields with the new `customFieldRepository` computed property instead.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
@@ -2670,6 +2695,19 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `composer run admin:code-mods`
+
+The `admin:code-mods` Composer script, the `code-mods` npm script and `code-mods.js` of the Administration have been removed.
+Use `administration:upgrade-extensions` instead:
+
+```bash
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write  # apply
+```
+
+The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `-r`/`--shopware-root` becomes `--project-root`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
+`-s`/`--src` has no replacement, because the command finds the Administration source folders of an extension itself.
+
 ## Removed `sw-cms-layout-modal` grid selection methods
 
 The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
@@ -2925,13 +2963,6 @@ The following variables were removed:
 
 The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
 Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
-
-## Refactor of providing cookies
-
-The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
-Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
-The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
-Use `name` and `description` instead.
 
 ## Deprecated theme.json translations
 

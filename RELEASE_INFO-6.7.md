@@ -380,6 +380,11 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Deprecated the media default folder lookups of `sw-product-detail-base` and `sw-bulk-edit-product-media`
+
+The `mediaDefaultFolderRepository` and `mediaDefaultFolderCriteria` computed properties of `sw-product-detail-base` and `sw-bulk-edit-product-media` are deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
+
 ### Native setup stays experimental until 6.9
 
 The experimental phase of native setup and the Composition API extension system now ends with 6.9 instead of 6.8, like the composables in `shopware:composables`.

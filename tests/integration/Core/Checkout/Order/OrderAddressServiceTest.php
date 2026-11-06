@@ -120,6 +120,61 @@ class OrderAddressServiceTest extends TestCase
         static::assertEquals(2, $order->getAddresses()?->count());
     }
 
+    public function testUpdatedAddressDoesNotKeepFieldsTheCustomerAddressLeavesEmpty(): void
+    {
+        $defaultContext = Context::createDefaultContext();
+
+        // Create order with a business billing address
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $defaultContext);
+        $orderData[0]['addresses'][0]['company'] = 'ACME Corp';
+        $orderData[0]['addresses'][0]['department'] = 'Purchasing';
+        $orderData[0]['addresses'][0]['title'] = 'Dr.';
+        $orderData[0]['addresses'][0]['phoneNumber'] = '0123456789';
+        $orderData[0]['addresses'][0]['additionalAddressLine1'] = 'Building 2';
+        $orderData[0]['addresses'][0]['additionalAddressLine2'] = 'Floor 3';
+        $orderData[0]['addresses'][0]['countryStateId'] = $orderData[0]['orderCustomer']['customer']['addresses'][0]['countryStateId'];
+        $orderData[0]['addresses'][0]['customFields'] = ['erpAddressId' => 'A-1'];
+
+        $this->orderRepository->create($orderData, $defaultContext);
+
+        // Create private customer address
+        $customerAddressId = Uuid::randomHex();
+        $this->customerAddressRepository->create([
+            [
+                'id' => $customerAddressId,
+                'customerId' => $orderData[0]['orderCustomer']['customer']['id'],
+                'countryId' => $this->getValidCountryId(),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'city' => 'Musterstadt',
+                'street' => 'Musterstraße 1',
+            ],
+        ], $defaultContext);
+
+        $this->orderAddressService->updateOrderAddresses(
+            $orderId,
+            [['customerAddressId' => $customerAddressId, 'type' => 'billing']],
+            $defaultContext
+        );
+
+        $billingAddress = $this->fetchOrder($orderId, $defaultContext)->getBillingAddress();
+
+        static::assertNotNull($billingAddress);
+        static::assertSame($orderData[0]['billingAddressId'], $billingAddress->getId());
+        static::assertSame('Musterstraße 1', $billingAddress->getStreet());
+        static::assertNull($billingAddress->getCompany());
+        static::assertNull($billingAddress->getDepartment());
+        static::assertNull($billingAddress->getTitle());
+        static::assertNull($billingAddress->getPhoneNumber());
+        static::assertNull($billingAddress->getAdditionalAddressLine1());
+        static::assertNull($billingAddress->getAdditionalAddressLine2());
+        static::assertNull($billingAddress->getCountryStateId());
+        static::assertNull($billingAddress->getZipcode());
+        static::assertSame(['erpAddressId' => 'A-1'], $billingAddress->getCustomFields());
+    }
+
     public function testHandleShippingAddress(): void
     {
         $defaultContext = Context::createDefaultContext();

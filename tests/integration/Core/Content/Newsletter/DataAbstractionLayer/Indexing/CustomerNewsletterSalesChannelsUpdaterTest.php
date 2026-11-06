@@ -297,6 +297,61 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         static::assertNotNull($otherRecipient->getConfirmedAt());
     }
 
+    public function testProfileChangeOfAGuestKeepsTheNewsletterRecipientOfARegisteredCustomerWithTheSameEmail(): void
+    {
+        $context = Context::createDefaultContext();
+        $email = Uuid::randomHex() . '@example.com';
+
+        $this->createCustomer($email, false, ['firstName' => 'Registered']);
+        $guestId = $this->createCustomer($email, true, ['firstName' => 'Guest']);
+        $recipientId = $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL, NewsletterSubscribeRoute::STATUS_OPT_IN, '2025-01-01 10:00:00');
+
+        static::getContainer()->get('customer.repository')->update(
+            [['id' => $guestId, 'email' => 'guest-new@example.com', 'firstName' => 'GuestRenamed']],
+            $context
+        );
+
+        /** @var EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository */
+        $newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
+        $recipient = $newsletterRecipientRepository->search(new Criteria([$recipientId]), $context)->getEntities()->first();
+        static::assertNotNull($recipient);
+        static::assertSame($email, $recipient->getEmail());
+        static::assertNull($recipient->getFirstName());
+        static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $recipient->getStatus());
+        static::assertNotNull($recipient->getConfirmedAt());
+    }
+
+    public function testProfileChangeOfAGuestUpdatesTheNewsletterRecipientNoRegisteredCustomerOwns(): void
+    {
+        $context = Context::createDefaultContext();
+        $email = Uuid::randomHex() . '@example.com';
+        $otherSalesChannelId = $this->createSalesChannel([
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://localhost.test/guest-' . Uuid::randomHex(),
+            ]],
+        ])['id'];
+
+        // the registered customer is bound to another sales channel, so the recipient of the default sales channel is not theirs
+        $this->createCustomer($email, false, ['salesChannelId' => $otherSalesChannelId, 'boundSalesChannelId' => $otherSalesChannelId]);
+        $guestId = $this->createCustomer($email, true, ['firstName' => 'Guest']);
+        $recipientId = $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL, NewsletterSubscribeRoute::STATUS_DIRECT);
+
+        static::getContainer()->get('customer.repository')->update(
+            [['id' => $guestId, 'email' => 'guest-new@example.com', 'firstName' => 'GuestRenamed']],
+            $context
+        );
+
+        /** @var EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository */
+        $newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
+        $recipient = $newsletterRecipientRepository->search(new Criteria([$recipientId]), $context)->getEntities()->first();
+        static::assertNotNull($recipient);
+        static::assertSame('guest-new@example.com', $recipient->getEmail());
+        static::assertSame('GuestRenamed', $recipient->getFirstName());
+    }
+
     public function testEmailChangeKeepsNewsletterStatusWithoutDoubleOptIn(): void
     {
         $context = Context::createDefaultContext();

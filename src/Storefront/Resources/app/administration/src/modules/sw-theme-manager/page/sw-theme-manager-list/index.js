@@ -80,7 +80,8 @@ export default {
 
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
-            criteria.addAssociation('salesChannels');
+            // only the number of sales channels using a theme is shown
+            criteria.addAssociation('salesChannels').addIncludes({ sales_channel: ['id'] });
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.addFilter(Criteria.equals('active', true));
 

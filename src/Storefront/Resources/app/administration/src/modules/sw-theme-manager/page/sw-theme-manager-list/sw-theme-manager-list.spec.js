@@ -20,7 +20,7 @@ describe('sw-theme-manager-list', () => {
         });
     });
 
-    async function createWrapper({ aclCan = true, searchResult = null } = {}) {
+    async function createWrapper({ aclCan = true, searchResult = null, onSearch = () => {} } = {}) {
         const component = await Shopware.Component.build('sw-theme-manager-list');
         const themes =
             searchResult ||
@@ -31,7 +31,11 @@ describe('sw-theme-manager-list', () => {
             })();
 
         const themeRepository = {
-            search: jest.fn(() => Promise.resolve(themes)),
+            search: jest.fn((criteria) => {
+                onSearch(criteria);
+
+                return Promise.resolve(themes);
+            }),
             save: jest.fn(() => Promise.resolve()),
         };
 
@@ -89,6 +93,18 @@ describe('sw-theme-manager-list', () => {
         expect(wrapper.vm.total).toBe(1);
         expect(wrapper.vm.themes).toHaveLength(1);
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('loads only the ids of the sales channels of each theme', async () => {
+        const searchedCriteria = [];
+        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
+        await flushPromises();
+
+        expect(searchedCriteria.length).toBeGreaterThan(0);
+        searchedCriteria.forEach((criteria) => {
+            expect(criteria.associations).toHaveProperty('salesChannels');
+            expect(criteria.includes).toEqual({ sales_channel: ['id'] });
+        });
     });
 
     it('clears loading state when list fetch fails', async () => {

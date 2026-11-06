@@ -7,7 +7,7 @@ import swThemeModal from './index';
 Shopware.Component.register('sw-theme-modal', swThemeModal);
 
 describe('sw-theme-modal', () => {
-    async function createWrapper({ repositorySearch = null, selectedThemeId = null } = {}) {
+    async function createWrapper({ repositorySearch = null, selectedThemeId = null, routeQuery = {} } = {}) {
         const component = await Shopware.Component.build('sw-theme-modal');
         const themeRepository = {
             search: repositorySearch || jest.fn(() => Promise.resolve({ total: 0, length: 0 })),
@@ -39,7 +39,7 @@ describe('sw-theme-modal', () => {
                 },
                 mocks: {
                     $t: (key) => key,
-                    $route: { name: 'sw.theme.manager.index', query: {} },
+                    $route: { name: 'sw.theme.manager.index', query: routeQuery },
                 },
             },
         });
@@ -62,6 +62,25 @@ describe('sw-theme-modal', () => {
         expect(wrapper.vm.total).toBe(2);
         expect(wrapper.vm.themes).toEqual({ total: 2, length: 2 });
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('loads only the ids of the sales channels of each theme', async () => {
+        const searchedCriteria = [];
+        await createWrapper({
+            repositorySearch: jest.fn((criteria) => {
+                searchedCriteria.push(criteria.parse());
+
+                return Promise.resolve({ total: 0, length: 0 });
+            }),
+            routeQuery: { page: 1, limit: 9 },
+        });
+        await flushPromises();
+
+        expect(searchedCriteria.length).toBeGreaterThan(0);
+        searchedCriteria.forEach((criteria) => {
+            expect(criteria.associations).toHaveProperty('salesChannels');
+            expect(criteria.includes).toEqual({ sales_channel: ['id'] });
+        });
     });
 
     it('clears loading state when list fetch fails', async () => {

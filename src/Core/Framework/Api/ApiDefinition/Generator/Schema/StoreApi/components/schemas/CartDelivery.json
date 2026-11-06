@@ -50,6 +50,9 @@
                     },
                     "shippingMethod": {
                         "$ref": "#/components/schemas/ShippingMethod"
+                    },
+                    "payload": {
+                        "$ref": "#/components/schemas/OrderDelivery/properties/payload"
                     }
                 }
             }

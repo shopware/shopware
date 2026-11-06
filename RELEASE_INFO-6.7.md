@@ -9,6 +9,13 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Cart deliveries and transactions carry a payload into the order
+
+Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Unlike a line item payload, it does not survive the next cart calculation.
+Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
+At checkout, a transaction payload can only be set on the converted order data in the `CartConvertedEvent`.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
@@ -278,6 +285,11 @@ Check import files that relied on `0` being ignored.
 The property is unused and will be removed in 6.8.
 
 ## API
+
+### Order deliveries and order transactions have a `payload` field
+
+Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
+It is an object, or an empty array when nothing is set.
 
 ### Plain JSON becomes the default Admin API response format in 6.8
 

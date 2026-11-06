@@ -2773,7 +2773,7 @@
   },
   "src/app/init-pre/state.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
@@ -4012,7 +4012,7 @@
   },
   "src/core/factory/state.factory.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 4

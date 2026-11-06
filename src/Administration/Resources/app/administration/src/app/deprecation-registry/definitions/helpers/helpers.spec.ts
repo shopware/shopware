@@ -5,6 +5,7 @@ import {
     addPropWhenMissing,
     booleanPropToPropValue,
     childElementsToArrayProp,
+    componentMembers,
     componentMigration,
     firstFoundOf,
     flagSlotForManualMove,
@@ -21,6 +22,7 @@ import {
     removeSlot,
     removeSnippetKey,
     removeTemplateBlock,
+    removeTemplateBlocks,
     renameCall,
     renameComponent,
     renameEvent,
@@ -28,6 +30,7 @@ import {
     renameArrayPropKeys,
     renameProp,
     renameTemplateBlock,
+    renameTemplateBlocks,
     renameVModelArgument,
     replaceExtension,
     replaceObjectOption,
@@ -140,5 +143,46 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
 
     it('links an upgrade guide heading', () => {
         expect(upgradeGuide('UPGRADE-6.9.md#x')).toEqual({ type: 'upgrade', target: 'UPGRADE-6.9.md#x' });
+    });
+
+    it('builds one rename step per block, limited to shared names and reviewing the active slot', () => {
+        expect(
+            renameTemplateBlocks({
+                components: ['sw-a', 'sw-a-create'],
+                sharedNames: ['shared_block'],
+                activeSlot: ['tab_block'],
+                blocks: { shared_block: 'sw_a_block', tab_block: 'sw_a_mt_tab_block' },
+            }),
+        ).toEqual([
+            renameTemplateBlock({
+                from: 'shared_block',
+                to: 'sw_a_block',
+                components: ['sw-a', 'sw-a-create'],
+                onlyInComponents: true,
+            }),
+            renameTemplateBlock({
+                from: 'tab_block',
+                to: 'sw_a_mt_tab_block',
+                components: ['sw-a', 'sw-a-create'],
+                fix: 'unsafe-auto',
+                message: 'The block no longer receives the active slot variable of sw-tabs, use activeTab instead.',
+            }),
+        ]);
+    });
+
+    it('builds one remove step per block, with the block to move to when there is one', () => {
+        expect(
+            removeTemplateBlocks({ components: ['sw-a'], blocks: { sw_a_title: 'sw_a_header', sw_a_banner: null } }),
+        ).toEqual([
+            removeTemplateBlock({ from: 'sw_a_title', moveTo: 'sw_a_header', components: ['sw-a'] }),
+            removeTemplateBlock({ from: 'sw_a_banner', components: ['sw-a'] }),
+        ]);
+    });
+
+    it('builds one component member step per member', () => {
+        expect(componentMembers({ components: ['sw-a'], members: ['isLoading', 'config'], to: 'schema' })).toEqual([
+            { kind: 'component-member', fix: 'manual', components: ['sw-a'], member: 'isLoading', to: 'schema' },
+            { kind: 'component-member', fix: 'manual', components: ['sw-a'], member: 'config', to: 'schema' },
+        ]);
     });
 });

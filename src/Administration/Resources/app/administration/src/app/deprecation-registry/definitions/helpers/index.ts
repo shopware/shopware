@@ -20,3 +20,4 @@ export { propFromSource } from './steps/prop-from-source';
 export { fromSlot, fromProp, firstFoundOf, fromText, fromAttribute } from './steps/sources';
 export { renameEvent, removeEvent } from './steps/events';
 export { renameVModelArgument } from './steps/rename-v-model-argument';
+export { renameTemplateBlocks, removeTemplateBlocks, componentMembers } from './steps/step-lists';

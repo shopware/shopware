@@ -8,6 +8,10 @@ const { appendRegistryContext } = require('./registry/format-migration-message')
 const { withRunLevel } = require('./registry/run-level');
 
 function buildMessage(migration, usage, snippetKey) {
+    if (usage.kind === 'rename-snippet-key') {
+        return appendRegistryContext([`The Administration snippet key "${snippetKey}" is renamed to "${usage.to}".`], migration);
+    }
+
     return appendRegistryContext(
         [`The Administration snippet key "${snippetKey}" uses removed key "${usage.from}".`],
         migration,
@@ -37,8 +41,15 @@ function findMustacheStringLiterals(text) {
     const mustachePattern = /\{\{([\s\S]*?)}}/g;
     const stringLiteralPattern = /(['"`])((?:\\.|(?!\1).)*)\1/g;
 
-    return [...text.matchAll(mustachePattern)].flatMap(([, expression]) => {
-        return [...expression.matchAll(stringLiteralPattern)].map(([, , value]) => value);
+    return [...text.matchAll(mustachePattern)].flatMap((mustache) => {
+        const expressionStart = mustache.index + 2;
+
+        return [...mustache[1].matchAll(stringLiteralPattern)].map((literal) => ({
+            value: literal[2],
+            quote: literal[1],
+            // Offsets of the literal, quotes included, relative to the text
+            range: [expressionStart + literal.index, expressionStart + literal.index + literal[0].length],
+        }));
     });
 }
 
@@ -51,7 +62,8 @@ function findMustacheStringLiterals(text) {
 function findDeprecatedSnippet(value, usages) {
     return (
         usages.find(({ usage }) => {
-            return value === usage.from || value.startsWith(`${usage.from}.`);
+            // A renamed key only covers itself, a removed key also its children
+            return value === usage.from || (usage.kind === 'remove-snippet-key' && value.startsWith(`${usage.from}.`));
         }) ?? null
     );
 }
@@ -68,6 +80,7 @@ module.exports = withRunLevel({
             description: 'No usage of removed Administration snippet keys',
             recommended: true,
         },
+        fixable: 'code',
         schema: [],
     },
 
@@ -87,23 +100,39 @@ module.exports = withRunLevel({
                 return;
             }
 
+            const isRename = match.usage.kind === 'rename-snippet-key';
+
             context.report({
                 node,
                 message: buildMessage(match.migration, match.usage, value),
+                fix: isRename && node.type === 'Literal'
+                    ? (fixer) => {
+                        const quote = context.sourceCode.getText(node)[0];
+
+                        return fixer.replaceText(node, `${quote}${match.usage.to}${quote}`);
+                    }
+                    : null,
             });
         }
 
         function checkTemplateText(node) {
-            findMustacheStringLiterals(node.value).forEach((value) => {
+            // The raw text, because the parsed value decodes HTML entities and shifts the offsets
+            const raw = context.sourceCode.text.slice(node.range[0], node.range[1]);
+
+            findMustacheStringLiterals(raw).forEach(({ value, quote, range }) => {
                 const match = findDeprecatedSnippet(value, usages);
 
                 if (!match) {
                     return;
                 }
 
+                const isRename = match.usage.kind === 'rename-snippet-key';
+                const absolute = [node.range[0] + range[0], node.range[0] + range[1]];
+
                 context.report({
                     node,
                     message: buildMessage(match.migration, match.usage, value),
+                    fix: isRename ? (fixer) => fixer.replaceTextRange(absolute, `${quote}${match.usage.to}${quote}`) : null,
                 });
             });
         }

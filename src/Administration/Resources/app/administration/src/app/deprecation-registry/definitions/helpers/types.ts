@@ -190,6 +190,8 @@ export type RemovePropStep = ComponentUsageStepBase & {
     reviewWhenTrue?: string;
     /** The old component behaved as if the prop was true when it was not set; such elements get the review note too. */
     trueByDefault?: boolean;
+    /** Review note for a boolean prop whose "false" behaviour the new component lost, unless it is a static `true`. */
+    reviewUnlessTrue?: string;
 };
 
 export type ReplacePropStep = ComponentUsageStepBase & {
@@ -364,8 +366,102 @@ export type ReplaceObjectOptionStep = UsageStepBase & { kind: 'replace-object-op
 export type MemberCallStep = UsageStepBase & { kind: 'member-call'; from: string; to?: string };
 export type ReplaceExtensionStep = UsageStepBase & { kind: 'replace-extension'; from: string[]; to: string };
 export type RemoveAssetStep = UsageStepBase & { kind: 'remove-asset' };
-export type RemoveTemplateBlockStep = UsageStepBase & { kind: 'remove-template-block'; from: string };
-export type RenameTemplateBlockStep = UsageStepBase & { kind: 'rename-template-block'; from: string; to: string };
+
+/** Limits a template block step to templates of these components, see `componentScope`. */
+type TemplateBlockScope = {
+    /** The component whose template defines the block, and the components that inherit its template. */
+    components?: string[];
+    /**
+     * Another core template defines a block of the same name, so only a template that belongs to one
+     * of `components` overrides this one.
+     */
+    onlyInComponents?: boolean;
+};
+
+export type RemoveTemplateBlockStep = UsageStepBase &
+    TemplateBlockScope & {
+        kind: 'remove-template-block';
+        from: string;
+        /** The block, or other place, an override moves to; named in the report and the review comment. */
+        moveTo?: string;
+    };
+export type RenameTemplateBlockStep = UsageStepBase &
+    TemplateBlockScope & { kind: 'rename-template-block'; from: string; to: string };
+
+/**
+ * A member of a JavaScript API, matched where it is read, called or destructured. `from` is a dotted
+ * path such as `Shopware.State` or `this.$store`, or `*.name` for the member on any object.
+ */
+export type MemberUsageStep = UsageStepBase & { kind: 'member-usage'; from: string; to?: string };
+
+/** A method of an injected service: `this.<service>.<method>`, `<service>.<method>` or `Shopware.Service('<service>').<method>`. */
+export type ServiceMethodStep = UsageStepBase & {
+    kind: 'service-method';
+    service: string;
+    method: string;
+    to?: string;
+    /** Only reports calls that leave out this argument (zero-based), or pass `null` or `undefined` for it. */
+    missingArgument?: number;
+};
+
+/** A member of a Pinia store: `Shopware.Store.get('<store>').<member>`. */
+export type StoreMemberStep = UsageStepBase & { kind: 'store-member'; store: string; member: string; to?: string };
+
+/**
+ * A member a core component loses, used by its overrides and extensions: read through `this`,
+ * through `this.$super()` or destructuring, defined in the override's options, or used in its template.
+ * An override is a `Component.override/extend()` of one of the components, or a file in a folder or
+ * with a name of one of them, like `sw-order-list/index.js` or `sw-order-list.html.twig`.
+ */
+export type ComponentMemberStep = UsageStepBase & {
+    kind: 'component-member';
+    components: string[];
+    member: string;
+    to?: string;
+    /** An expression that replaces a script read of the member, the fix of an `auto` step. Templates stay manual. */
+    replaceInScript?: string;
+};
+
+/** An injected key: `inject: ['<key>']`, `inject: { local: '<key>' }` or `inject('<key>')`. */
+export type InjectKeyStep = UsageStepBase & { kind: 'inject-key'; from: string; to?: string };
+
+/** A removed component: its `Component.override/extend()` calls, its tags and string literals naming it. */
+export type ComponentReferenceStep = UsageStepBase & {
+    kind: 'component-reference';
+    component: string;
+    to?: string;
+    /** False when a component migration already reports the tags; defaults to true. */
+    templates?: boolean;
+};
+
+/** A string literal with exactly this value, e.g. a removed option value. */
+export type StringValueStep = UsageStepBase & { kind: 'string-value'; from: string; to?: string };
+
+/** A key of an object literal, e.g. a request option. */
+export type ObjectKeyStep = UsageStepBase & { kind: 'object-key'; from: string; to?: string };
+
+/** An import or `require()` of a module path, optionally only of some named specifiers. */
+export type ImportSourceStep = UsageStepBase & {
+    kind: 'import-source';
+    from: string;
+    specifiers?: string[];
+    to?: string;
+};
+
+/** A file with a name matching `pattern`, e.g. a build config of the extension. */
+export type ConfigFileStep = UsageStepBase & { kind: 'config-file'; pattern: string; to?: string };
+
+export type ApiUsageStep =
+    | MemberUsageStep
+    | ServiceMethodStep
+    | StoreMemberStep
+    | ComponentMemberStep
+    | InjectKeyStep
+    | ComponentReferenceStep
+    | StringValueStep
+    | ObjectKeyStep
+    | ImportSourceStep
+    | ConfigFileStep;
 export type RenameTemplateEventStep = UsageStepBase & {
     kind: 'rename-template-event';
     /** The component that emits the event. */
@@ -374,6 +470,7 @@ export type RenameTemplateEventStep = UsageStepBase & {
     to: string;
 };
 export type RemoveSnippetKeyStep = UsageStepBase & { kind: 'remove-snippet-key'; from: string };
+export type RenameSnippetKeyStep = UsageStepBase & { kind: 'rename-snippet-key'; from: string; to: string };
 export type RenamePackageStep = UsageStepBase & { kind: 'rename-package'; from: string; to: string };
 
 type DeprecationUsage =
@@ -387,7 +484,9 @@ type DeprecationUsage =
     | RenameTemplateBlockStep
     | RenameTemplateEventStep
     | RemoveSnippetKeyStep
-    | RenamePackageStep;
+    | RenameSnippetKeyStep
+    | RenamePackageStep
+    | ApiUsageStep;
 
 type MigrationBase<Step extends DeprecationUsage> = {
     /** Unique across the registry; `deprecation:migrate --id` selects migrations by it. */
@@ -426,7 +525,7 @@ export type GlobalApiMigration = MigrationBase<RenameCallStep> & {
     api: string;
 };
 
-export type JsApiMigration = MigrationBase<ReplaceObjectOptionStep | MemberCallStep>;
+export type JsApiMigration = MigrationBase<ReplaceObjectOptionStep | MemberCallStep | ApiUsageStep>;
 
 export type AssetMigration = MigrationBase<ReplaceExtensionStep | RemoveAssetStep> & {
     /** The deprecated files, relative to the Administration root and starting with `/`. */
@@ -435,7 +534,7 @@ export type AssetMigration = MigrationBase<ReplaceExtensionStep | RemoveAssetSte
 
 export type TemplateBlockMigration = MigrationBase<RemoveTemplateBlockStep | RenameTemplateBlockStep>;
 export type TemplateEventMigration = MigrationBase<RenameTemplateEventStep>;
-export type SnippetKeyMigration = MigrationBase<RemoveSnippetKeyStep>;
+export type SnippetKeyMigration = MigrationBase<RemoveSnippetKeyStep | RenameSnippetKeyStep>;
 export type PackageMigration = MigrationBase<RenamePackageStep>;
 
 export type DeprecationMigration =

@@ -31,7 +31,10 @@ export interface SfcMigrationCodemod extends BaseCodemod {
 
 export type Codemod = EslintCodemod | SfcMigrationCodemod;
 
-/** The components `code-mods.js` migrated: the ones whose `mt-*` replacement is a drop-in for extensions. */
+/**
+ * The components `code-mods.js` migrated, plus the ones 6.8 removes. The deprecation registry
+ * converts each of them and comments what needs a person.
+ */
 const MT_COMPONENTS = [
     'sw-button',
     'sw-alert',
@@ -48,7 +51,23 @@ const MT_COMPONENTS = [
     'sw-checkbox-field',
     'sw-number-field',
     'sw-password-field',
+    'sw-loader',
+    'sw-skeleton-bar',
+    'sw-progress-bar',
+    'sw-tabs',
+    'sw-select-number-field',
+    'sw-entity-many-to-many-select',
 ];
+
+const eslint68 = (id: string, title: string, rule: string, scope: CodemodScope): EslintCodemod => ({
+    id,
+    title,
+    target: '6.8',
+    optIn: false,
+    kind: 'eslint',
+    rule: `sw-deprecation-rules/${rule}`,
+    scope,
+});
 
 export const CODEMODS: Codemod[] = [
     {
@@ -124,6 +143,15 @@ export const CODEMODS: Codemod[] = [
         rule: 'sw-core-rules/no-tc-translation',
         scope: 'both',
     },
+    // The registry rules: the migrations live in src/app/deprecation-registry/definitions.
+    eslint68('deprecated-apis', 'Deprecated Administration APIs', 'no-deprecated-api-usage', 'both'),
+    eslint68('deprecated-twig-blocks', 'Renamed and removed Twig blocks', 'no-deprecated-template-blocks', 'template'),
+    eslint68('deprecated-snippet-keys', 'Renamed and removed snippet keys', 'no-deprecated-snippet-keys', 'both'),
+    eslint68('deprecated-asset-paths', 'Removed .png and .jpg images', 'no-deprecated-asset-paths', 'both'),
+    // Rewrites the registry steps cannot describe.
+    eslint68('module-snippets', 'Module.register() snippets', 'no-module-snippets', 'script'),
+    eslint68('order-list-helpers', 'sw-order-list delivery helpers', 'no-order-list-delivery-helpers', 'both'),
+    eslint68('service-methods', 'Removed service methods', 'no-removed-service-methods', 'both'),
     {
         id: 'sfc-migration',
         title: 'Options API → SFC',

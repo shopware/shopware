@@ -15,6 +15,8 @@ import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
  *   comment wherever the prop was or could be true; bound to `false` → removed without one
  * - `trueByDefault`, for a prop the old component treated as true when unset → the review comment
  *   also on converted elements that did not set it
+ * - `reviewUnlessTrue`, for a boolean prop whose "false" behaviour the new component lost → review
+ *   comment unless the prop is set to a static `true`, also on converted elements that did not set it
  *
  * @example
  * removeProp({ prop: 'is-invalid' });
@@ -35,6 +37,18 @@ export function removeProp({ fix = 'auto', ...config }: StepConfig<RemovePropSte
                 apiName: step.prop,
                 headline: `The "${step.prop}" prop is not set.`,
                 reviewReason: step.reviewWhenTrue,
+                conversionNote: true,
+            });
+
+            return;
+        }
+
+        if (!isSet && step.reviewUnlessTrue && isOldElement) {
+            reportUsage(api, {
+                node: api.node,
+                apiName: step.prop,
+                headline: `The "${step.prop}" prop is not set.`,
+                reviewReason: step.reviewUnlessTrue,
                 conversionNote: true,
             });
 
@@ -86,13 +100,18 @@ function planRemoval(
         };
     }
 
-    const isFalse = api.ast.getAttributeValueSource(attribute) === 'false' && api.ast.getDirectiveName(attribute) === 'bind';
+    const value = api.ast.getAttributeValueSource(attribute);
+    const isBound = api.ast.getDirectiveName(attribute) === 'bind';
+    const isFalse = value === 'false' && isBound;
+    // A valueless attribute or `="true"` sets a boolean prop to true as well
+    const isTrue = isBound ? value === 'true' : [null, '', 'true'].includes(value);
+    const reviewReason =
+        (step.reviewWhenTrue && !isFalse ? step.reviewWhenTrue : null) ??
+        (step.reviewUnlessTrue && !isTrue ? step.reviewUnlessTrue : null);
 
     return {
         fix: (fixer) => api.removeAttribute(fixer, attribute),
-        ...(step.reviewWhenTrue && !isFalse
-            ? { headline: `The "${step.prop}" prop is removed.`, reviewReason: step.reviewWhenTrue }
-            : {}),
+        ...(reviewReason ? { headline: `The "${step.prop}" prop is removed.`, reviewReason } : {}),
     };
 }
 

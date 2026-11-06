@@ -3,6 +3,7 @@
  */
 
 import {
+    addPropWhenMissing,
     componentMigration,
     renameComponent,
     renameEvent,
@@ -23,6 +24,7 @@ export default componentMigration({
     ],
     onConvert: [
         renameComponent({ from: 'sw-progress-bar', to: 'mt-progress-bar' }),
+        addPropWhenMissing({ prop: 'max-value', value: '100', bind: true }),
     ],
     onEveryUsage: [
         renameProp({

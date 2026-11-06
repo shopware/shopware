@@ -25,7 +25,6 @@ export default [
             '/static/img/cms/preview_page_default.png',
             '/static/img/cms/preview_page_sidebar.png',
             '/static/img/cms/preview_glasses_small.jpg',
-            '/static/img/cms/preview_youtube.jpg',
             '/static/img/cms/preview_plant_large.jpg',
             '/static/img/cms/preview_custom_entity_detail_default.png',
             '/static/img/cms/preview_mountain_large.jpg',
@@ -44,7 +43,6 @@ export default [
             '/static/img/cms/preview_camera_small.jpg',
             '/static/img/cms/preview_custom_entity_list_sidebar.png',
             '/static/img/cms/preview_camera_large.jpg',
-            '/static/img/cms/preview_vimeo.jpg',
             '/static/img/cms/preview_custom_entity_list_default.png',
             '/static/img/theme/default_theme_preview.jpg',
             '/static/fixtures/sw-login-background.png',
@@ -60,6 +58,23 @@ export default [
                 ],
                 to: '.webp',
             }),
+        ],
+    }),
+    assetMigration({
+        id: 'asset.cms-video-previews',
+        deprecatedIn: '6.7.0',
+        removedIn: '6.8.0',
+        description:
+            'The YouTube and Vimeo preview images were removed without a WebP version. Core uses /static/img/cms/preview_mountain_small.webp instead.',
+        references: [
+            upgradeGuide('UPGRADE-6.8.md#removed-png-and-jpg-images'),
+        ],
+        files: [
+            '/static/img/cms/preview_youtube.jpg',
+            '/static/img/cms/preview_vimeo.jpg',
+        ],
+        usage: [
+            removeAsset(),
         ],
     }),
     assetMigration({

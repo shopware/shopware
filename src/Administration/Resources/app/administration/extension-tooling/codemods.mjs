@@ -54,6 +54,11 @@ export function shopwareAdminCodemods({ scriptRules = [], templateRules = [] } =
             ],
         },
         {
+            name: 'shopware/admin-codemods/settings',
+            // The registry rules apply every fix and put a review comment above each spot a person has to finish.
+            settings: { 'sw-deprecation-rules': { level: 'partial' } },
+        },
+        {
             name: 'shopware/admin-codemods/linter-options',
             // An upgrade must not touch the extension's own disable comments for rules it does not run.
             linterOptions: { reportUnusedDisableDirectives: 'off' },

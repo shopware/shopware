@@ -34,7 +34,7 @@ describe('src/app/deprecation-registry/definitions/components', () => {
             expect(componentSteps.length).toBeLessThanOrEqual(1);
             componentSteps.forEach((usage) => {
                 expect(usage.from).toBe(migration.component);
-                expect(usage.to).toMatch(/^mt-[a-z0-9-]+$/);
+                expect(usage.to).toMatch(/^(mt|sw)-[a-z0-9-]+$/);
             });
         },
     );

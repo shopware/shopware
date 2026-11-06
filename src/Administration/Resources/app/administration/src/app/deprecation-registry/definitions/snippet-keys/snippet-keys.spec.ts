@@ -14,7 +14,7 @@ describe('src/app/deprecation-registry/definitions/snippet-keys', () => {
             expect(migration.usage.length).toBeGreaterThan(0);
 
             migration.usage.forEach((usage) => {
-                expect(['remove-snippet-key']).toContain(usage.kind);
+                expect(['remove-snippet-key', 'rename-snippet-key']).toContain(usage.kind);
                 expect(usage.from).toMatch(/\S/);
             });
         });

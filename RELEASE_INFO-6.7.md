@@ -432,6 +432,8 @@ bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --
 `--write` refuses extensions that are not committed to git, and outside an interactive terminal it needs `--only` or `--all`.
 `--only` also finds plugins in `custom/plugins` that are not installed or activated.
 `--with=sfc-migration` additionally converts Options API components into native setup SFCs.
+For 6.8 the codemods cover most Administration changes listed in `UPGRADE-6.8.md`.
+Where a change cannot be rewritten safely, `--write` adds a `TODO Codemod:` comment with the replacement above the affected spot, and the report lists it.
 
 `composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
 It now prints a deprecation warning.

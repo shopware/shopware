@@ -35,8 +35,34 @@ tester.run('no-deprecated-template-blocks', rule, {
             filename: 'sw-condition-date-range.html.twig',
             code: '<template>{%- block sw_condition_date_range_field_to_date -%}{%- block sw_condiiton_date_range_field_to_date -%}<div />{%- endblock -%}{%- endblock -%}</template>',
         },
+        {
+            name: 'allows a block name another core template defines in a template of another component',
+            filename: '/plugin/src/component/acme-select/acme-select.html.twig',
+            code: '<template>{% block sw_entity_single_select_base_results_list_result_label %}<div />{% endblock %}</template>',
+        },
     ],
     invalid: [
+        {
+            name: 'renames a block name another core template defines in a template of its component',
+            filename: '/plugin/src/extension/sw-product-cross-selling-assignment/sw-product-cross-selling-assignment.html.twig',
+            code: '<template>{% block sw_entity_single_select_base_results_list_result_label %}<div />{% endblock %}</template>',
+            output: '<template>{% block sw_product_cross_selling_assignment_select_result_item_inner %}<div />{% endblock %}</template>',
+            errors: 1,
+        },
+        {
+            name: 'names the block to move a removed block override to',
+            filename: '/plugin/src/extension/acme/acme.html.twig',
+            code: '<template>{% block sw_settings_snippet_set_list_card_title %}<div />{% endblock %}</template>',
+            errors: [{ message: /Move this customization to sw_settings_snippet_set_list_card_list\./ }],
+        },
+        {
+            name: 'renames a legacy tab block and asks for a review of the active slot variable',
+            filename: '/plugin/src/extension/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig',
+            code: '<template>\n{% block sw_media_modal_folder_settings_tab_content_settings %}<div />{% endblock %}\n</template>',
+            output: '<template>\n<!-- TODO Codemod: The Administration Twig block "sw_media_modal_folder_settings_tab_content_settings" is deprecated. Use "sw_media_modal_folder_settings_mt_tab_content_settings" instead. -->\n{% block sw_media_modal_folder_settings_mt_tab_content_settings %}<div />{% endblock %}\n</template>',
+            settings: { 'sw-deprecation-rules': { level: 'review' } },
+            errors: 1,
+        },
         {
             name: 'renames deprecated Twig block',
             filename: 'test.html.twig',

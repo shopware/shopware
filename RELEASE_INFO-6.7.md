@@ -262,6 +262,13 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Capture and refund state triggers are dispatched
+
+The `state_enter` and `state_leave` triggers of the `order_transaction_capture.state` and `order_transaction_capture_refund.state` state machines are now dispatched, so flows and app webhooks on them run.
+Before, they were offered as triggers but never fired.
+Like the other order state triggers, they carry the order.
+Flows and mails with an order, and the webhooks of all order state triggers, now get the order's captures and refunds (`transactions.captures.refunds`).
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

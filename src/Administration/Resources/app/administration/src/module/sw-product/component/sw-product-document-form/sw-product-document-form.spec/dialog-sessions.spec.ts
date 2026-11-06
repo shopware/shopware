@@ -45,6 +45,29 @@ describe('sw-product-document-form dialog sessions', () => {
         expect(notification).not.toHaveBeenCalled();
     });
 
+    it('keeps a pending add upload when an unrelated editor is opened and cancelled', async () => {
+        const repository = repositoryFactory.create('media');
+        const media = createMedia('new-file');
+        let resolveMedia!: (value: Entity<'media'>) => void;
+        jest.spyOn(repository, 'get').mockImplementationOnce(
+            () =>
+                new Promise((resolve) => {
+                    resolveMedia = resolve;
+                }),
+        );
+        const wrapper = await createWrapper(repository);
+        await addMedia(wrapper, [createMedia()]);
+        wrapper
+            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
+            .vm.$emit('media-upload-finish', { targetId: media.id });
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        await clickButton(wrapper, 'global.default.cancel');
+        resolveMedia(media);
+        await flushPromises();
+        expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(['manual', 'new-file']);
+        wrapper.unmount();
+    });
+
     describe.each(['edit', 'remove'])('%s dialog', (action) => {
         it('discards a pending variant lookup after leaving the tab', async () => {
             const repository = repositoryFactory.create('product');

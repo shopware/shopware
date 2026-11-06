@@ -212,8 +212,8 @@ export default Shopware.Component.wrapComponentConfig({
             const isCurrentUpload = () =>
                 product === this.product &&
                 languageId === Shopware.Context.api.languageId &&
-                editSession === this.documentEditSession &&
-                (!editingDocument || editingDocument === this.editingDocument);
+                this.canChangeDocuments() &&
+                (!editingDocument || (editSession === this.documentEditSession && editingDocument === this.editingDocument));
 
             try {
                 const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);

@@ -330,13 +330,13 @@
       ],
       "signals_any": [],
       "paths_any": [
-        "src/Core/Framework/ContentSystem/*",
-        "src/Storefront/ContentSystem/*",
-        "src/Administration/Resources/app/administration/src/module/sw-experience-studio/*",
-        "tests/unit/Core/Framework/ContentSystem/*",
-        "tests/integration/Core/Framework/ContentSystem/*",
-        "tests/unit/Storefront/ContentSystem/*",
-        "tests/integration/Storefront/ContentSystem/*"
+        "src/*ContentSystem*",
+        "src/*content-system*",
+        "src/*experience-studio*",
+        "src/Storefront/Resources/views/components/Slot.html.twig",
+        "tests/*ContentSystem*",
+        "tests/*content-system*",
+        "tests/*experience-studio*"
       ],
       "anchors_any": [
         "ContentSystemException",

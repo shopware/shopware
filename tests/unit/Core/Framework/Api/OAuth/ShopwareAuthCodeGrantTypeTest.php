@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\ShopwareAuthCodeGrantType;
 use Shopware\Core\Framework\Log\Package;
 
@@ -31,6 +32,7 @@ class ShopwareAuthCodeGrantTypeTest extends TestCase
             static::createStub(AuthCodeRepositoryInterface::class),
             static::createStub(RefreshTokenRepositoryInterface::class),
             new \DateInterval('PT5M'),
+            new PublicClientRegistry([], 'prod'),
         );
     }
 
@@ -116,6 +118,49 @@ class ShopwareAuthCodeGrantTypeTest extends TestCase
         static::assertSame('http://127.0.0.1:54321/callback', $authorization->getRedirectUri());
     }
 
+    public function testRegisteredPlainHttpRedirectOnAPublicHostIsRejected(): void
+    {
+        $this->useClientWithRedirect('http://my-app.example/callback');
+        $request = $this->createAuthorizationRequest('http://my-app.example/callback');
+
+        $this->expectExceptionObject(ApiException::insecureOAuthRedirectUri());
+
+        $this->grant->validateAuthorizationRequest($request);
+    }
+
+    public function testRegisteredPlainHttpRedirectIsAcceptedInTheDevEnvironment(): void
+    {
+        $this->grant = new ShopwareAuthCodeGrantType(
+            static::createStub(AuthCodeRepositoryInterface::class),
+            static::createStub(RefreshTokenRepositoryInterface::class),
+            new \DateInterval('PT5M'),
+            new PublicClientRegistry([], 'dev'),
+        );
+        $this->useClientWithRedirect('http://shop.test/callback');
+
+        $authorization = $this->grant->validateAuthorizationRequest($this->createAuthorizationRequest('http://shop.test/callback'));
+
+        static::assertSame('http://shop.test/callback', $authorization->getRedirectUri());
+    }
+
+    public function testRegisteredLocalhostRedirectIsAccepted(): void
+    {
+        $this->useClientWithRedirect('http://localhost:8080/callback');
+
+        $authorization = $this->grant->validateAuthorizationRequest($this->createAuthorizationRequest('http://localhost:8080/callback'));
+
+        static::assertSame('http://localhost:8080/callback', $authorization->getRedirectUri());
+    }
+
+    public function testRegisteredHttpsRedirectIsAccepted(): void
+    {
+        $this->useClientWithRedirect('https://my-app.example/callback');
+
+        $authorization = $this->grant->validateAuthorizationRequest($this->createAuthorizationRequest('https://my-app.example/callback'));
+
+        static::assertSame('https://my-app.example/callback', $authorization->getRedirectUri());
+    }
+
     /**
      * @return iterable<string, array{?string}>
      */
@@ -125,5 +170,30 @@ class ShopwareAuthCodeGrantTypeTest extends TestCase
         yield 'missing method would default to plain' => [null];
         yield 'unknown method' => ['MD5'];
         yield 'lower case s256 is not the registered method' => ['s256'];
+    }
+
+    private function useClientWithRedirect(string $redirectUri): void
+    {
+        $clients = static::createStub(ClientRepositoryInterface::class);
+        $clients->method('getClientEntity')->willReturn(new ApiClient(
+            'my-app',
+            writeAccess: true,
+            confidential: false,
+            redirectUris: [$redirectUri],
+        ));
+        $this->grant->setClientRepository($clients);
+        $this->grant->setScopeRepository(static::createStub(ScopeRepositoryInterface::class));
+        $this->grant->setDefaultScope('');
+    }
+
+    private function createAuthorizationRequest(string $redirectUri): ServerRequest
+    {
+        return (new ServerRequest('GET', '/api/oauth/authorize'))->withQueryParams([
+            'response_type' => 'code',
+            'client_id' => 'my-app',
+            'redirect_uri' => $redirectUri,
+            'code_challenge' => str_repeat('a', 43),
+            'code_challenge_method' => 'S256',
+        ]);
     }
 }

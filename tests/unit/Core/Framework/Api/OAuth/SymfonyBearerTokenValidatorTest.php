@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,6 +82,34 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         static::assertSame(self::OAUTH_USER_ID, $request->attributes->get('oauth_access_token_id'));
         static::assertSame('test', $request->attributes->get('oauth_client_id'));
         static::assertSame([], $request->attributes->get('oauth_scopes'));
+        static::assertFalse($request->attributes->has(OAuthResource::REQUEST_ATTRIBUTE));
+    }
+
+    public function testResourceBoundTokenYieldsTheClientIdAndTheResourceWhenTheCallerAcceptsIt(): void
+    {
+        $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . $this->createResourceBoundToken()]);
+
+        $this->createValidator()->validateAuthorization($request, acceptResourceBoundToken: true);
+
+        static::assertSame('shopware-cli', $request->attributes->get('oauth_client_id'));
+        static::assertSame('https://shop.example/api/_mcp', $request->attributes->get(OAuthResource::REQUEST_ATTRIBUTE));
+    }
+
+    public function testResourceBoundTokenIsRejectedByDefault(): void
+    {
+        $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . $this->createResourceBoundToken()]);
+
+        try {
+            $this->createValidator()->validateAuthorization($request);
+            static::fail('A resource bound token was accepted without opt-in.');
+        } catch (OAuthServerException $exception) {
+            static::assertSame('invalid_token', $exception->getErrorType());
+            static::assertSame(401, $exception->getHttpStatusCode());
+        }
+
+        static::assertFalse($request->attributes->has('oauth_client_id'));
+        static::assertFalse($request->attributes->has('oauth_access_token_id'));
+        static::assertFalse($request->attributes->has(OAuthResource::REQUEST_ATTRIBUTE));
     }
 
     public function testUserDeleted(): void
@@ -148,6 +177,31 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         yield 'valid token, but not signed by us' => [
             new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c']),
         ];
+    }
+
+    private function createValidator(): SymfonyBearerTokenValidator
+    {
+        return new SymfonyBearerTokenValidator(
+            static::createStub(AccessTokenRepositoryInterface::class),
+            static::createStub(Connection::class),
+            $this->getJwtConfiguration()
+        );
+    }
+
+    private function createResourceBoundToken(): string
+    {
+        $config = $this->getJwtConfiguration();
+        $now = new \DateTimeImmutable();
+
+        return $config->builder()
+            ->permittedFor('shopware-cli', 'https://shop.example/api/_mcp')
+            ->identifiedBy('token-id')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+10 minutes'))
+            ->relatedTo('shopware-cli')
+            ->withClaim('scopes', ['write'])
+            ->getToken($config->signer(), $config->signingKey())
+            ->toString();
     }
 
     private function getJwtConfiguration(): Configuration

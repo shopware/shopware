@@ -22,7 +22,7 @@ async function createWrapper(props = {}) {
                     },
                 },
                 stubs: {
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-meteor-page': {
                         template: '<div class="sw-meteor-page-stub"><slot></slot></div>',
                     },

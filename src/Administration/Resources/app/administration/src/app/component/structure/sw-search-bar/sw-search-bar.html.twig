@@ -147,7 +147,10 @@
             {% block sw_search_bar_results_content %}
             <div class="sw-search-bar__results-wrapper-content">
                 {% block sw_search_bar_results_empty_state %}
-                <sw-loader v-if="isLoading" />
+                <mt-loader
+                    v-if="isLoading"
+                    :backdrop="false"
+                />
                 {% endblock %}
 
                 <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->

@@ -77,7 +77,10 @@
         {% endblock %}
 
         {% block sw_extension_sdk_module_content_loader %}
-        <sw-loader v-else-if="!timedOut" />
+        <mt-loader
+            v-else-if="!timedOut"
+            :backdrop="false"
+        />
         {% endblock %}
 
         {% block sw_extension_sdk_module_content_error_state %}

@@ -69,10 +69,11 @@
     v-bind="filteredAttributes"
 >
     {% block sw_button_button_content %}
-    <sw-loader
+    <mt-loader
         v-if="isLoading"
         class="sw-button_loader"
         size="20px"
+        :backdrop="false"
     />
     <span
         class="sw-button__content"

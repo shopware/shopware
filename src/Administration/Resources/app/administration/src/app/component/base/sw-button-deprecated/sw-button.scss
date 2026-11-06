@@ -64,7 +64,7 @@
         color: var(--color-icon-primary-default);
     }
 
-    .sw-loader .sw-loader-element div {
+    .mt-loader .mt-loader__element div {
         border-color: var(--color-icon-primary-default) transparent transparent transparent;
     }
 
@@ -78,7 +78,7 @@
             color: var(--color-static-white);
         }
 
-        .sw-loader .sw-loader-element div {
+        .mt-loader .mt-loader__element div {
             border-color: var(--color-static-white) transparent transparent transparent;
         }
 
@@ -118,7 +118,7 @@
             color: $color-darkgray-200;
         }
 
-        .sw-loader .sw-loader-element div {
+        .mt-loader .mt-loader__element div {
             border-color: $color-darkgray-200 transparent transparent transparent;
         }
 
@@ -159,7 +159,7 @@
             color: var(--color-static-white);
         }
 
-        .sw-loader .sw-loader-element div {
+        .mt-loader .mt-loader__element div {
             border-color: var(--color-static-white) transparent transparent transparent;
         }
 
@@ -198,7 +198,7 @@
             color: var(--color-icon-brand-default);
         }
 
-        .sw-loader .sw-loader-element div {
+        .mt-loader .mt-loader__element div {
             border-color: var(--color-icon-brand-default) transparent transparent transparent;
         }
 
@@ -256,7 +256,7 @@
             color: var(--color-icon-primary-default);
         }
 
-        .sw-loader .sw-loader-element div {
+        .mt-loader .mt-loader__element div {
             border-color: var(--color-icon-primary-default) transparent transparent transparent;
         }
 

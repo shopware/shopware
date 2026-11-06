@@ -56,8 +56,8 @@ async function createWrapper(customProps = {}) {
         },
         global: {
             stubs: {
-                'sw-loader': {
-                    template: '<div class="sw-loader"></div>',
+                'mt-loader': {
+                    template: '<div class="mt-loader"></div>',
                 },
             },
         },
@@ -74,9 +74,9 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
             expect(wrapper.vm.conditionTree).toBeNull();
 
-            const swLoader = wrapper.find('.sw-loader');
+            const loader = wrapper.find('.mt-loader');
 
-            expect(swLoader.exists()).toBe(true);
+            expect(loader.exists()).toBe(true);
         });
 
         it('should have enabled condition tree node', async () => {

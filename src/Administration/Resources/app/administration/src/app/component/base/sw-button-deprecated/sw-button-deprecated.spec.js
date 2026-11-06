@@ -16,7 +16,7 @@ describe('components/base/sw-button-deprecated', () => {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'router-link': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         });
@@ -33,7 +33,7 @@ describe('components/base/sw-button-deprecated', () => {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'router-link': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         });
@@ -55,7 +55,7 @@ describe('components/base/sw-button-deprecated', () => {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'router-link': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         });
@@ -77,7 +77,7 @@ describe('components/base/sw-button-deprecated', () => {
                     'router-link': {
                         template: '<a><slot></slot></a>',
                     },
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         });
@@ -95,7 +95,7 @@ describe('components/base/sw-button-deprecated', () => {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'router-link': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         });
@@ -117,7 +117,7 @@ describe('components/base/sw-button-deprecated', () => {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'router-link': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
             },
         });
@@ -150,7 +150,7 @@ describe('components/base/sw-button-deprecated', () => {
                     stubs: {
                         'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                         'router-link': true,
-                        'sw-loader': true,
+                        'mt-loader': true,
                     },
                 },
             },
@@ -197,7 +197,7 @@ describe('components/base/sw-button-deprecated', () => {
                     stubs: {
                         'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                         'router-link': true,
-                        'sw-loader': true,
+                        'mt-loader': true,
                     },
                     plugins: [router],
                     mocks: {
@@ -236,7 +236,7 @@ describe('components/base/sw-button-deprecated', () => {
                     stubs: {
                         'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                         'router-link': RouterLinkStub,
-                        'sw-loader': true,
+                        'mt-loader': true,
                     },
                     plugins: router ? [router] : [],
                 },

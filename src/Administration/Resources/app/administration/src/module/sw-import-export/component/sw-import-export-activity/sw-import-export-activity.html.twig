@@ -159,7 +159,10 @@
     {% endblock %}
 
     {% block sw_import_export_activity_spinner %}
-    <sw-loader v-else-if="showSpinner" />
+    <mt-loader
+        v-else-if="showSpinner"
+        :backdrop="false"
+    />
     {% endblock %}
 
     {% block sw_import_export_activity_empty_state %}

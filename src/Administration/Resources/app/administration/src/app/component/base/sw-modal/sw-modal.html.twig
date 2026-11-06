@@ -77,7 +77,10 @@
                 >
                     {% block sw_modal_loader %}
                     <slot name="modal-loader">
-                        <sw-loader v-if="isLoading" />
+                        <mt-loader
+                            v-if="isLoading"
+                            :backdrop="false"
+                        />
                     </slot>
                     {% endblock %}
                     <slot>

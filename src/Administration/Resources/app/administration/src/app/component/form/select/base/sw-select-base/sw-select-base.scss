@@ -33,13 +33,13 @@
         z-index: 1;
     }
 
-    .sw-select__selection-indicators .sw-loader {
+    .sw-select__selection-indicators .mt-loader {
         position: static;
         width: var(--scale-size-16);
         height: var(--scale-size-16);
         margin: 0;
 
-        .sw-loader__container {
+        .mt-loader__container {
             transform: none;
             left: 0;
             top: 0;

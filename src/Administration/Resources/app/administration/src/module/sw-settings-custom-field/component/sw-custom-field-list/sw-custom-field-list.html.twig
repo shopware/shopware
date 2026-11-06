@@ -263,7 +263,10 @@
     {% endblock %}
 
     {% block sw_custom_field_list_loader %}
-    <sw-loader v-if="isLoading" />
+    <mt-loader
+        v-if="isLoading"
+        :backdrop="false"
+    />
     {% endblock %}
 </mt-card>
 {% endblock %}

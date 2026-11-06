@@ -568,6 +568,14 @@ Line items of other types that carry a `code` in their payload, for example from
 `mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
 The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
 
+### Core components render the Meteor loaders
+
+The components of the Administration render `mt-loader` and `mt-skeleton-bar` instead of the deprecated `sw-loader` and `sw-skeleton-bar`.
+Their loaders carry the classes `.mt-loader`, `.mt-loader__container` and `.mt-loader__element` instead of `.sw-loader`, `.sw-loader__container` and `.sw-loader-element`, and the skeleton bar carries `.mt-skeleton-bar` instead of `.sw-skeleton-bar`.
+Extensions that style or select the old classes inside core components have to use the new ones.
+Acceptance tests that wait for `.sw-loader` inside core components return immediately and have to locate `.mt-loader` instead.
+Jest specs that mount core components and stub or look for `sw-loader` have to use `mt-loader` instead.
+
 ### Bulk order status handler results
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.

@@ -20,7 +20,7 @@ async function createSingleSelect(customOptions) {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'sw-loader': true,
+                'mt-loader': true,
             },
         },
         props: {

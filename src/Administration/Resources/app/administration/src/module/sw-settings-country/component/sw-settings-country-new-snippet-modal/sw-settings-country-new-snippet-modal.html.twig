@@ -22,10 +22,11 @@
                 @input="debouncedSearch"
             >
 
-            <sw-loader
+            <mt-loader
                 v-if="isLoading"
                 class="sw-settings-country-new-snippet-modal__loader"
                 size="16px"
+                :backdrop="false"
             />
 
             <mt-icon

@@ -815,7 +815,7 @@ const createWrapper = async (options = {}) => {
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
                 'sw-help-text': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-extension-component-section': true,
                 'sw-label': true,
                 'sw-bulk-edit-modal': true,

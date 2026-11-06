@@ -18,7 +18,7 @@ test(
             await AdminThemesDetail.sidebarButton.click();
 
             const sidebarMediaItems = AdminThemesDetail.page.locator('.sw-sidebar-media-item .sw-media-media-item');
-            await ShopAdmin.expects(AdminThemesDetail.page.locator('.sw-sidebar-media-item .sw-loader')).toHaveCount(0);
+            await ShopAdmin.expects(AdminThemesDetail.page.locator('.sw-sidebar-media-item .mt-loader')).toHaveCount(0);
             await ShopAdmin.expects(sidebarMediaItems.first()).toBeVisible();
 
             await setViewport(AdminThemesDetail.page, {

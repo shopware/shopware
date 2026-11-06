@@ -72,7 +72,7 @@ async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures
         {
             global: {
                 stubs: {
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-label': true,
                 },
                 provide: {

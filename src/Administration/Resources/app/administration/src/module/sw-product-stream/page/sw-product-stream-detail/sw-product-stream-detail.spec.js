@@ -9,16 +9,6 @@ const responses = global.repositoryFactoryMock.responses;
 
 responses.addResponse({
     method: 'Post',
-    url: '/search-ids/custom-field-set',
-    status: 200,
-    response: {
-        total: 1,
-        data: ['custom_field_set_id1'],
-    },
-});
-
-responses.addResponse({
-    method: 'Post',
     url: '/search/custom-field-set',
     status: 200,
     response: {
@@ -48,6 +38,31 @@ responses.addResponse({
                     },
                 },
             },
+            {
+                id: 'custom_field_set_id2',
+                type: 'custom_field_set',
+                attributes: {
+                    name: 'custom_field_set_2',
+                    config: { label: { 'en-GB': 'Field Set 2' } },
+                    active: true,
+                    global: false,
+                    position: 2,
+                    appId: null,
+                },
+                relationships: {
+                    customFields: {
+                        data: [
+                            {
+                                type: 'custom_field',
+                                id: 'custom_field_id2',
+                            },
+                        ],
+                        links: {
+                            related: 'http://host/api/custom-field-set/custom_field_set_id2/custom-fields',
+                        },
+                    },
+                },
+            },
         ],
         included: [
             {
@@ -67,6 +82,28 @@ responses.addResponse({
                     },
                     active: true,
                     customFieldSetId: 'custom_field_set_id1',
+                },
+                relationships: {
+                    customFieldSet: {},
+                },
+            },
+            {
+                id: 'custom_field_id2',
+                type: 'custom_field',
+                attributes: {
+                    name: 'custom_field_2',
+                    type: 'int',
+                    config: {
+                        type: 'number',
+                        label: { 'en-GB': 'Second custom field number' },
+                        numberType: 'int',
+                        placeholder: { 'en-GB': 'Type a number...' },
+                        componentName: 'sw-field',
+                        customFieldType: 'number',
+                        customFieldPosition: 1,
+                    },
+                    active: true,
+                    customFieldSetId: 'custom_field_set_id2',
                 },
                 relationships: {
                     customFieldSet: {},
@@ -139,6 +176,25 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const relatedCustomFields = wrapper.vm.productCustomFields;
         expect(relatedCustomFields).toHaveProperty('custom_field_1');
+    });
+
+    it('should fetch the custom fields of every set with a single request', async () => {
+        const { clientMock } = global.repositoryFactoryMock;
+        clientMock.resetHistory();
+
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        const customFieldSetRequests = clientMock.history.post.filter(
+            (request) => request.url === '/search/custom-field-set',
+        );
+
+        expect(customFieldSetRequests).toHaveLength(1);
+        expect(Object.keys(wrapper.vm.productCustomFields)).toEqual([
+            'custom_field_1',
+            'custom_field_2',
+        ]);
     });
 
     it('should default displayAsGroup to true when creating a new product stream', async () => {

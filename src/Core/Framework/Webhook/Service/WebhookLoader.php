@@ -30,6 +30,8 @@ class WebhookLoader
      */
     public function getWebhooks(): array
     {
+        // app_integration is the app whose integration created the webhook through the API.
+        // Two joins instead of one with OR, so that both can use an index.
         $sql = <<<'SQL'
             SELECT
                 LOWER(HEX(w.id)) as webhookId,
@@ -37,21 +39,20 @@ class WebhookLoader
                 w.event_name as eventName,
                 w.url as webhookUrl,
                 w.only_live_version as onlyLiveVersion,
-                LOWER(HEX(a.id)) AS appId,
-                a.name AS appName,
-                a.active AS appActive,
-                a.source_type AS appSourceType,
-                a.version AS appVersion,
-                a.app_secret AS appSecret,
+                LOWER(HEX(COALESCE(app.id, app_integration.id))) AS appId,
+                COALESCE(app.name, app_integration.name) AS appName,
+                COALESCE(app.active, app_integration.active) AS appActive,
+                COALESCE(app.source_type, app_integration.source_type) AS appSourceType,
+                COALESCE(app.version, app_integration.version) AS appVersion,
+                COALESCE(app.app_secret, app_integration.app_secret) AS appSecret,
                 LOWER(HEX(w.owner_user_id)) as ownerUserId,
-                LOWER(HEX(COALESCE(a.integration_id, w.owner_integration_id))) as ownerIntegrationId,
+                LOWER(HEX(COALESCE(app.integration_id, w.owner_integration_id))) as ownerIntegrationId,
                 w.acl_role_ids as aclRoleIds
             FROM webhook w
-            LEFT JOIN app a ON (a.id = w.app_id)
-            LEFT JOIN app owner_app ON (owner_app.integration_id = w.owner_integration_id)
+            LEFT JOIN app ON (app.id = w.app_id)
+            LEFT JOIN app app_integration ON (w.app_id IS NULL AND app_integration.integration_id = w.owner_integration_id)
             WHERE w.active = 1
-              AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
-              AND (owner_app.id IS NULL OR owner_app.active = 1)
+              AND COALESCE(app.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
         SQL;
 
         $rows = $this->connection->fetchAllAssociative($sql);

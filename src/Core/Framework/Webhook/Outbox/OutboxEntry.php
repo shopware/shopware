@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class OutboxEntry
 {
     public function __construct(
+        public ?string $webhookId,
         public string $webhookEventId,
         public int $sequence,
         public int $executionCount,

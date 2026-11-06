@@ -1,0 +1,7 @@
+type: integer
+range:
+  min: 0
+  max: 8
+adminUI:
+  component: "number"
+  label: "Brand Gap"

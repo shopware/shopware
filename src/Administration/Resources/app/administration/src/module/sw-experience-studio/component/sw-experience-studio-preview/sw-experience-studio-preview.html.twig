@@ -1,0 +1,61 @@
+{% block sw_experience_studio_preview %}
+<div class="sw-experience-studio-preview">
+    <div class="sw-experience-studio-preview__frame-wrapper">
+        <div
+            class="sw-experience-studio-preview__frame"
+            :class="viewportClass"
+        >
+            <mt-loader
+                v-if="showInitialLoader"
+                class="sw-experience-studio-preview__loader"
+            />
+
+            <mt-empty-state
+                v-else-if="!layout"
+                icon="regular-eye"
+                :description="$t('sw-experience-studio.detail.preview.placeholder')"
+            />
+
+            <mt-empty-state
+                v-else-if="!salesChannelId"
+                icon="regular-storefront"
+                :description="$t('sw-experience-studio.detail.preview.missingSalesChannel')"
+            />
+
+            <mt-empty-state
+                v-else-if="!hasPreviewContext"
+                icon="regular-info-circle"
+                :description="$t('sw-experience-studio.detail.preview.missingEntityContext')"
+            />
+
+            <mt-empty-state
+                v-else-if="previewLoadError && !hasAnyPreviewFrame"
+                icon="regular-x-circle"
+                :description="previewLoadError"
+            />
+
+            <div
+                v-else
+                class="sw-experience-studio-preview__iframe-stack"
+            >
+                <iframe
+                    v-if="getFrameUrl('a')"
+                    ref="iframeA"
+                    :class="getFrameClass('a')"
+                    :src="getFrameUrl('a')"
+                    :title="$t('sw-experience-studio.detail.preview.title')"
+                    @load="onPreviewFrameLoad('a')"
+                ></iframe>
+                <iframe
+                    v-if="getFrameUrl('b')"
+                    ref="iframeB"
+                    :class="getFrameClass('b')"
+                    :src="getFrameUrl('b')"
+                    :title="$t('sw-experience-studio.detail.preview.title')"
+                    @load="onPreviewFrameLoad('b')"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

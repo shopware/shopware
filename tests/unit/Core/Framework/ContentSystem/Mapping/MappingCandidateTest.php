@@ -1,0 +1,145 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(MappingCandidate::class)]
+class MappingCandidateTest extends TestCase
+{
+    public function testSchemaCarriesEveryFieldTheAdministrationNeedsToOfferTheCandidate(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'category.media',
+            label: 'sw-experience-studio.mapping.category.media.label',
+            description: 'sw-experience-studio.mapping.category.media.description',
+            group: 'media',
+            valueType: MediaEntity::class,
+            contextType: ContextType::Single,
+        );
+
+        $schema = $candidate->toSchema();
+        $labelTranslations = $schema['labelTranslations'];
+        $descriptionTranslations = $schema['descriptionTranslations'];
+        unset($schema['labelTranslations'], $schema['descriptionTranslations']);
+
+        static::assertSame([
+            'path' => 'category.media',
+            'source' => ['type' => 'root', 'id' => 'category', 'path' => 'media'],
+            'label' => 'sw-experience-studio.mapping.category.media.label',
+            'description' => 'sw-experience-studio.mapping.category.media.description',
+            'group' => 'media',
+            'valueType' => MediaEntity::class,
+            'compatibleTypes' => [
+                MediaEntity::class,
+                ...array_values(class_parents(MediaEntity::class) ?: []),
+                ...array_values(class_implements(MediaEntity::class) ?: []),
+                'object',
+            ],
+            'inlineMappable' => false,
+            'contextType' => 'single',
+        ], $schema);
+        static::assertContains(Entity::class, $schema['compatibleTypes']);
+        static::assertContains(Struct::class, $schema['compatibleTypes']);
+        static::assertIsObject($labelTranslations);
+        static::assertIsObject($descriptionTranslations);
+        static::assertSame([], get_object_vars($labelTranslations));
+        static::assertSame([], get_object_vars($descriptionTranslations));
+    }
+
+    public function testPrimitiveCandidateOnlyAcceptsItsOwnDeclaredTypeAndCanBeInterpolatedAsText(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'category.name',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+        );
+
+        $schema = $candidate->toSchema();
+
+        static::assertSame(['string'], $schema['compatibleTypes']);
+        static::assertTrue($schema['inlineMappable']);
+    }
+
+    public function testPathlessTypedSourceRemainsFieldMappableButIsNotInlineMappable(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'context:example',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+            source: new MappingSourceReference('context', 'example'),
+        );
+
+        $schema = $candidate->toSchema();
+
+        static::assertSame(['string'], $schema['compatibleTypes']);
+        static::assertFalse($schema['inlineMappable']);
+    }
+
+    public function testAnInterfaceValuedCandidateIncludesItsParentInterfaces(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'category.iterable',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: \IteratorAggregate::class,
+        );
+
+        static::assertSame([
+            \IteratorAggregate::class,
+            \Traversable::class,
+            'object',
+        ], $candidate->toSchema()['compatibleTypes']);
+    }
+
+    /**
+     * Without an explicit typed source, the constructor requires a dotted root-member path from which to infer it.
+     */
+    public function testRefusesAnUndottedPathWithoutAnExplicitSource(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidMappingCandidatePath('productListing'));
+
+        new MappingCandidate(
+            path: 'productListing',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+        );
+    }
+
+    public function testRequiresPathToMatchTheSourceDisplayName(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::mappingCandidatePathMismatch(
+            'category.title',
+            'category.name'
+        ));
+
+        new MappingCandidate(
+            path: 'category.title',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+            source: MappingSourceReference::root('category', 'name'),
+        );
+    }
+}

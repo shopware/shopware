@@ -1,0 +1,10 @@
+.sw-product-price-display {
+    font-variant-numeric: tabular-nums;
+}
+
+.sw-product-price-display--placeholder {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacer-xs);
+    color: var(--bs-secondary-color);
+}

@@ -53,7 +53,7 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     }
 
     /**
-     * @return array<SalesChannelDefinitionInterface>
+     * @return array<EntityDefinition&SalesChannelDefinitionInterface>
      */
     public function getSalesChannelDefinitions(): array
     {

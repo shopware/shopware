@@ -1,0 +1,18 @@
+{
+    "title": "Sw/Rating/Stars",
+    "parameters": {
+        "server": {
+            "id": "Sw:Rating:Stars"
+        },
+        "template": "<twig:Sw:Rating:Stars stars=\"4\" maxStars=\"5\" />"
+    },
+    "stories": [
+        {
+            "name": "Stars",
+            "args": {
+                "stars": 4,
+                "maxStars": 5
+            }
+        }
+    ]
+}

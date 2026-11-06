@@ -1,0 +1,60 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name = 'option',
+    displayName = '',
+    options = [],
+    displayType = 'checkbox'
+%}
+
+{% set defaultAttributes = {
+    class: 'sw-multi-select-filter sw-filter',
+    'data-component': 'Sw:Filter:Type:MultiSelectFilter',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <input
+        type="search"
+        class="sw-multi-select-filter__search form-control"
+        name="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
+        placeholder="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
+        aria-label="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
+    >
+
+    <ul class="sw-multi-select-filter__list p-0 m-0">
+        {% for filterOption in options %}
+            {% set optionId = filterOption.id ? filterOption.id : 'filter-option-' ~ name ~ '-' ~ random() %}
+            {% set optionName = filterOption.translated.name %}
+            {% set optionColor = filterOption.colorHexCode %}
+            {% set optionMedia = filterOption.media.url %}
+
+            {% set style = null %}
+            {% if displayType == 'color' and optionColor %}
+                {% set style = 'background: ' ~ optionColor %}
+            {% elseif displayType == 'media' and optionMedia %}
+                {% set style = 'background-image: url(' ~ optionMedia ~ ')' %}
+            {% endif %}
+
+            <li class="sw-multi-select-filter__list-item">
+                <input class="sw-multi-select-filter__list-item-checkbox form-check-input display-type--{{ displayType }}"
+                    {% if style %}style="{{ style }}"{% endif %}
+                    type="checkbox"
+                    data-display-type="{{ displayType }}"
+                    {% if optionColor %}data-color="{{ optionColor }}"{% endif %}
+                    {% if optionMedia %}data-media="{{ optionMedia }}"{% endif %}
+                    name="{{ name }}"
+                    value="{{ optionId }}"
+                    id="{{ optionId }}">
+
+                {% if displayType == 'color' or displayType == 'media' %}
+                    <span class="sw-multi-select-filter__list-item-checkmark" aria-hidden="true">
+                        <twig:Sw:Icon name="checkmark" size="xs" />
+                    </span>
+                {% endif %}
+                <label class="sw-multi-select-filter__list-item-label form-check-label" for="{{ optionId }}">{{ optionName }}</label>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

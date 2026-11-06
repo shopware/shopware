@@ -11,11 +11,15 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
@@ -29,10 +33,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -652,6 +658,290 @@ class InfoControllerTest extends TestCase
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
+    }
+
+    public function testContentSystemEntityTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-entity-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('entityTypes', $data);
+        static::assertIsArray($data['entityTypes']);
+        static::assertContains('product', $data['entityTypes']);
+        static::assertContains('category', $data['entityTypes']);
+        static::assertContains('landing_page', $data['entityTypes']);
+    }
+
+    /**
+     * Proves the category provider really reaches the endpoint through the DI tag, which is the half of the
+     * data-mapping catalogue a unit test with a stubbed registry cannot see.
+     */
+    public function testContentSystemMappingCandidates(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertIsArray($data['mappingCandidates'] ?? null);
+        static::assertIsArray($data['mappingCandidates']['category'] ?? null);
+
+        $paths = array_column($data['mappingCandidates']['category'], 'path');
+
+        static::assertContains('category.name', $paths);
+        static::assertContains('category.media', $paths);
+
+        $candidatesByPath = array_column($data['mappingCandidates']['category'], null, 'path');
+        $nameCandidate = $candidatesByPath['category.name'] ?? null;
+        static::assertIsArray($nameCandidate);
+        static::assertSame('{{map:category.name}}', $nameCandidate['canonicalToken']);
+
+        foreach ($paths as $path) {
+            static::assertStringStartsWith('category.', (string) $path);
+        }
+
+        foreach (['header', 'footer', 'none'] as $rootSource) {
+            static::assertSame([], $data['mappingCandidates'][$rootSource]);
+        }
+    }
+
+    public function testContentSystemMappingCandidatesWithOnlyContentLayoutReadPermission(): void
+    {
+        $browser = $this->getBrowser();
+        $publicName = 'mapping_public_' . Uuid::randomHex();
+        $privateName = 'mapping_private_' . Uuid::randomHex();
+        static::getContainer()->get('custom_field_set.repository')->create([[
+            'id' => Uuid::randomHex(),
+            'name' => 'mapping_catalogue_' . Uuid::randomHex(),
+            'active' => true,
+            'relations' => [['entityName' => 'product']],
+            'customFields' => [[
+                'name' => $publicName,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => true,
+                'config' => [
+                    'label' => ['en-GB' => 'Material'],
+                    'helpText' => ['en-GB' => 'The product material'],
+                ],
+            ], [
+                'name' => $privateName,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => false,
+            ]],
+        ]], Context::createDefaultContext());
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['content_layout:read'],
+        )->authorizeBrowser($browser);
+
+        $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $productCandidates = array_column($data['mappingCandidates']['product'], null, 'path');
+        static::assertArrayHasKey('product.name', $productCandidates);
+        $publicCandidate = $productCandidates['product.customFields.' . $publicName];
+        static::assertSame(['en-GB' => 'Material'], $publicCandidate['labelTranslations']);
+        static::assertSame(['en-GB' => 'The product material'], $publicCandidate['descriptionTranslations']);
+        static::assertArrayNotHasKey('product.customFields.' . $privateName, $productCandidates);
+    }
+
+    public function testContentSystemMappingCandidatesRequiresContentLayoutReadPermission(): void
+    {
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['custom_field:read'],
+        )->authorizeBrowser($browser);
+
+        $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testContentSystemRootSources(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-root-sources.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('rootSources', $data);
+        static::assertIsArray($data['rootSources']);
+
+        $registry = static::getContainer()->get(RootSourceRegistry::class);
+        static::assertInstanceOf(RootSourceRegistry::class, $registry);
+
+        static::assertSame(
+            $registry->knownRootSources(),
+            array_column($data['rootSources'], 'id'),
+        );
+
+        $byId = array_column($data['rootSources'], null, 'id');
+
+        static::assertArrayHasKey('product', $byId);
+        static::assertSame('entity', $byId['product']['kind']);
+        static::assertSame([
+            [
+                'contextKey' => 'product',
+                'fqcn' => SalesChannelProductEntity::class,
+                'contextType' => 'single',
+                'distribution' => 'broadcast',
+            ],
+            [
+                'contextKey' => 'configuratorSettings',
+                'fqcn' => PropertyGroupCollection::class,
+                'contextType' => 'single',
+                'distribution' => 'broadcast',
+            ],
+            [
+                'contextKey' => 'reviews',
+                'fqcn' => ProductReviewResult::class,
+                'contextType' => 'single',
+                'distribution' => 'broadcast',
+            ],
+        ], $byId['product']['providedContext']);
+
+        static::assertArrayHasKey('header', $byId);
+        static::assertSame('section', $byId['header']['kind']);
+        static::assertSame([], $byId['header']['providedContext']);
+
+        static::assertArrayHasKey('none', $byId);
+        static::assertSame('none', $byId['none']['kind']);
+        static::assertSame([], $byId['none']['providedContext']);
+    }
+
+    public function testContentSystemElementTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertArrayHasKey('bindingSpecifications', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        // The Image type declares its `media` reference property with `resolvedBy: mediaId`, so the binding
+        // loader synthesizes this type's own default specification: its id is the type name itself, its label
+        // falls back to the type's `meta.label`, and it wires the `media` reference from the entity loader
+        // against the undeclared `mediaId` storage key. A synthesized default carries no inputs.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertSame(
+            [
+                'id' => 'Sw:Media:Image',
+                'type' => 'Sw:Media:Image',
+                'label' => 'Image',
+                // 'Sw:Media:Image' === 'Sw:Media:Image', so this synthesized specification is the type's default.
+                'default' => true,
+                'resolves' => [
+                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'inputs' => [],
+            ],
+            $typesByName['Sw:Media:Image']['bindingSpecifications']['core:Sw:Media:Image'],
+        );
+
+        // A type with no registered specification carries an empty map, encoded as {} on the wire.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        static::assertSame([], $typesByName['Sw:Content:Text']['bindingSpecifications']);
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
+    }
+
+    public function testContentSystemElementTypesStorageSchema(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertArrayHasKey('storageSchema', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
+        // property tier publishes it as a non-required string carrying its default. The default itself is a
+        // long editorial paragraph, so only its presence and type are pinned.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
+        static::assertSame('property', $text['kind']);
+        static::assertSame('string', $text['type']);
+        static::assertFalse($text['required']);
+        static::assertArrayHasKey('default', $text);
+        static::assertIsString($text['default']);
+
+        // media/image.yaml declares `media` with `resolvedBy: mediaId`, so the storage key is derived from the
+        // synthesized `core:Sw:Media:Image` specification's `resolves.media.config.property`, and its type is
+        // the entity loader's `referencedType` for that config key.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertSame(
+            ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true],
+            $typesByName['Sw:Media:Image']['storageSchema']['mediaId'],
+        );
+
+        // The declared FQCN property is filled by the pipeline, never stored, so it contributes no entry.
+        static::assertArrayNotHasKey('media', $typesByName['Sw:Media:Image']['storageSchema']);
+
+        // The quantity selector retains `resolvedBy: productId` alongside its default product mapping,
+        // so manual product selection remains available after unmapping.
+        static::assertArrayHasKey('Sw:Product:QuantitySelector', $typesByName);
+        static::assertSame(
+            ['productId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true]],
+            $typesByName['Sw:Product:QuantitySelector']['storageSchema'],
+        );
+
+        // The property-free test type has no storage keys. Its empty schema must be encoded as {} rather
+        // than [], independently of changes to shipped element definitions.
+        static::assertArrayHasKey(TestElementTypeLoader::RESOLVABLE, $typesByName);
+        static::assertSame([], $typesByName[TestElementTypeLoader::RESOLVABLE]['storageSchema']);
+        static::assertStringContainsString('"storageSchema":{}', $content);
     }
 
     public function testFetchMessageStats(): void

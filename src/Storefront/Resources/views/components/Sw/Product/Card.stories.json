@@ -1,0 +1,158 @@
+{
+    "title": "Sw/Product/Card",
+    "parameters": {
+        "server": {
+            "id": "Sw:Product:Card"
+        },
+        "slots": [
+            {
+                "name": "header-top",
+                "description": "Slot at the top of the product card, typically used for badges, labels, or promotional content."
+            },
+            {
+                "name": "media",
+                "description": "Main product image slot, can be overridden to show custom media content."
+            },
+            {
+                "name": "badges",
+                "description": "Slot for displaying product badges."
+            },
+            {
+                "name": "header-bottom",
+                "description": "Slot at the bottom of the product card, typically used for additional product information or links."
+            },
+            {
+                "name": "body-top",
+                "description": "Slot at the top of the product card body, typically used for additional product information or links."
+            },
+            {
+                "name": "title",
+                "description": "Main content area containing the product name."
+            },
+            {
+                "name": "rating",
+                "description": "Slot for displaying product ratings."
+            },
+            {
+                "name": "variants",
+                "description": "Slot for displaying product variants."
+            },
+            {
+                "name": "body-bottom",
+                "description": "Slot at the bottom of the product card body, typically used for additional product information or links."
+            },
+            {
+                "name": "footer-top",
+                "description": "Slot at the top of the product card footer, typically used for additional product information or links."
+            },
+            {
+                "name": "price",
+                "description": "Slot for displaying the product price."
+            },
+            {
+                "name": "actions",
+                "description": "Action buttons area, typically contains add to cart, wishlist, or quick view buttons."
+            },
+            {
+                "name": "footer",
+                "description": "Footer area of the card, often used for additional product information or links."
+            },
+            {
+                "name": "footer-bottom",
+                "description": "Slot at the bottom of the product card footer, typically used for additional product information or links."
+            }
+        ],
+        "template": "<twig:Sw:Product:Card :product=\"product\" mediaHeight=\"240\"></twig:Sw:Product:Card>"
+    },
+    "argTypes": {
+        "product": {
+            "control": "object",
+            "description": "The full sales channel product entity.",
+            "required": true,
+            "type": "ProductEntity",
+            "table": {
+                "readonly": true
+            }
+        },
+        "mediaHeight": {
+            "control": "text",
+            "description": "Height of the product media (thumbnail).",
+            "table": {
+                "defaultValue": {
+                    "summary": "auto"
+                }
+            }
+        },
+        "mediaObjectFit": {
+            "control": "select",
+            "options": ["cover", "contain"],
+            "description": "Object fit of the product media (thumbnail).",
+            "table": {
+                "defaultValue": {
+                    "summary": "contain"
+                }
+            }
+        },
+        "mediaSizes": {
+            "control": "text",
+            "description": "Sizes of the product media (thumbnail).",
+            "table": {
+                "defaultValue": {
+                    "summary": "(max-width: 400px) 96vw, 400px"
+                }
+            }
+        },
+        "border": {
+            "control": "boolean",
+            "description": "Whether the card should have a border.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "rounded": {
+            "control": "boolean",
+            "description": "Whether the card should have rounded corners.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "layout": {
+            "control": "select",
+            "options": ["default", "horizontal"],
+            "description": "Layout of the card.",
+            "table": {
+                "defaultValue": {
+                    "summary": "default"
+                }
+            }
+        },
+        "showTaxInfo": {
+            "control": "boolean",
+            "description": "Whether the card should show the tax info.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        }
+    },
+    "stories": [
+        {
+            "name": "Card",
+            "args": {
+                "product": {},
+                "mediaHeight": "auto",
+                "mediaObjectFit": "contain",
+                "mediaSizes": "(max-width: 400px) 96vw, 400px",
+                "layout": "default",
+                "showTaxInfo": false,
+                "border": false,
+                "rounded": false
+            }
+        }
+    ]
+}

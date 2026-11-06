@@ -1,0 +1,127 @@
+{
+    "title": "Sw/Form/Textarea",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Textarea"
+        },
+        "template": "<twig:Sw:Form:Textarea name=\"content\" label=\"Your review\" validationRules=\"required,minLength\" minlength=\"40\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute of the textarea. Required.",
+            "required": true
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the textarea. Generated with a random suffix when omitted, so the same field can render twice on one page.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name + random suffix"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Visible label of the field. Without it no label element is rendered."
+        },
+        "aria-label": {
+            "control": "text",
+            "description": "Accessible name for fields that have no visible label. Forwarded to the control."
+        },
+        "value": {
+            "control": "text",
+            "description": "Initial content of the textarea. Can also be passed as the default content of the component."
+        },
+        "placeholder": {
+            "control": "text",
+            "description": "Placeholder attribute of the textarea. Forwarded to the control."
+        },
+        "description": {
+            "control": "text",
+            "description": "Hint below the field. Linked to the textarea via aria-describedby."
+        },
+        "autocomplete": {
+            "control": "text",
+            "description": "Autocomplete attribute of the textarea. Forwarded to the control."
+        },
+        "rows": {
+            "control": "number",
+            "description": "Rows attribute of the textarea. Forwarded to the control."
+        },
+        "minlength": {
+            "control": "number",
+            "description": "Minlength attribute of the textarea. Forwarded to the control."
+        },
+        "maxlength": {
+            "control": "number",
+            "description": "Maxlength attribute of the textarea. Forwarded to the control."
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the textarea. Forwarded to the control."
+        },
+        "readonly": {
+            "control": "boolean",
+            "description": "Readonly attribute of the textarea. Forwarded to the control."
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of this field are stored under."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker and aria-required.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        }
+    },
+    "stories": [
+        {
+            "name": "Textarea",
+            "args": {
+                "name": "content",
+                "label": "Your review",
+                "validationRules": "required,minLength",
+                "minlength": 40,
+                "rows": 8
+            }
+        },
+        {
+            "name": "Compact",
+            "args": {
+                "name": "comment",
+                "label": "Comment",
+                "description": "Optional message for the delivery.",
+                "rows": 3
+            }
+        }
+    ]
+}

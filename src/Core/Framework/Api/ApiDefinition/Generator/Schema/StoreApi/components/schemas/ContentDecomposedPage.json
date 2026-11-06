@@ -1,0 +1,69 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentDecomposedPage": {
+                "type": "object",
+                "description": "Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings. A client that caches this response as the skeleton and later fetches only a data response for the same layout compares the layout `id` and `version` of the two responses, and refetches this skeleton on a mismatch.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": ["string", "null"]
+                    },
+                    "skeletons": {
+                        "type": "array",
+                        "description": "The structure of the page with no property values; every value is served once through `data` and located through `assignments`.",
+                        "items": { "$ref": "#/components/schemas/ContentDecomposedElement" }
+                    },
+                    "data": {
+                        "description": "Every value the page serves, held once: a response-local reference id mapped to the value it holds. A value may be any JSON type, including an encoded entity payload. The reference ids are minted while walking this one response and carry no meaning outside it — nothing may store one or assume a particular literal. An empty map is serialized as `[]` rather than `{}` (consistent with Shopware's JSON-map fields).",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty data map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        ]
+                    },
+                    "assignments": {
+                        "description": "Which element property points at which value: element id mapped to property key mapped to the reference id naming that value in `data`. Every reference id here resolves in `data`; a dangling one is an internal fault, not a state a client has to handle. An empty map is serialized as `[]` rather than `{}` (consistent with Shopware's JSON-map fields).",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty assignments map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "additionalProperties": { "type": "string" }
+                                }
+                            }
+                        ],
+                        "example": {
+                            "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": { "media": "r16", "loading": "r15" }
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_decomposed_page"]
+                    }
+                },
+                "required": ["apiAlias", "id", "name", "version", "skeletons", "data", "assignments"]
+            }
+        }
+    }
+}

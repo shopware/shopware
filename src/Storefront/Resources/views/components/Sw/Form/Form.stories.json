@@ -1,0 +1,102 @@
+{
+    "title": "Sw/Form",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form"
+        },
+        "template": "<twig:Sw:Form action=\"/account/login\" method=\"post\"><twig:Sw:Form:Input type=\"email\" name=\"email\" label=\"Email address\" validationRules=\"required,email\" /><twig:Sw:Form:Input type=\"password\" name=\"password\" label=\"Password\" validationRules=\"required\" /><twig:Sw:Button variant=\"primary\" type=\"submit\">Submit</twig:Sw:Button></twig:Sw:Form>",
+        "slots": [
+            {
+                "name": "content",
+                "description": "Default content of the form. Holds the form fields, hidden inputs and buttons."
+            }
+        ]
+    },
+    "argTypes": {
+        "action": {
+            "control": "text",
+            "description": "URL the form is submitted to. Falls back to the current URL when omitted."
+        },
+        "method": {
+            "control": "select",
+            "options": [
+                "post",
+                "get"
+            ],
+            "description": "HTTP method of the submission.",
+            "table": {
+                "defaultValue": {
+                    "summary": "post"
+                }
+            }
+        },
+        "ajax": {
+            "control": "boolean",
+            "description": "Submits the form in the background instead of navigating away.",
+            "table": {
+                "defaultValue": {
+                    "summary": "false"
+                }
+            }
+        },
+        "replaceSelectors": {
+            "control": "object",
+            "description": "Selectors whose content is replaced with the matching fragments of an AJAX response. A single selector may be passed as a string.",
+            "table": {
+                "defaultValue": {
+                    "summary": "[]"
+                }
+            }
+        },
+        "submitOnChange": {
+            "control": "boolean",
+            "description": "Submits the form whenever a field changes. Pass a list of selectors to restrict it to specific fields.",
+            "table": {
+                "defaultValue": {
+                    "summary": "false"
+                }
+            }
+        },
+        "validate": {
+            "control": "boolean",
+            "description": "Validates the fields accessibly on input and before submitting, in place of the native browser validation.",
+            "table": {
+                "defaultValue": {
+                    "summary": "true"
+                }
+            }
+        }
+    },
+    "stories": [
+        {
+            "name": "Form",
+            "args": {
+                "action": "/account/login",
+                "method": "post"
+            }
+        },
+        {
+            "name": "Ajax with fragment replacement",
+            "args": {
+                "action": "/product/review",
+                "method": "post",
+                "ajax": true,
+                "replaceSelectors": [
+                    ".js-review-container"
+                ]
+            }
+        },
+        {
+            "name": "Submit on change",
+            "args": {
+                "action": "/product/reviews",
+                "method": "post",
+                "ajax": true,
+                "submitOnChange": true,
+                "replaceSelectors": [
+                    ".js-review-container"
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    page = null
+%}
+
+{% set attributeDefaults = {
+    'data-page-id': page.id
+} %}
+
+<div class="sw-content-page" {{ attributes.defaults(attributeDefaults) }}>
+    <twig:Slot :elements="page.elements" />
+</div>

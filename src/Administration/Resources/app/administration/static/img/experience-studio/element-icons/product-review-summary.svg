@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(-1.110 -2.144) scale(1.0335)">
+      <path d="M40.92 57.12L30.48 57.12L30.48 53.59L39.61 39.17L45.22 39.17L45.22 53.51L47.94 53.51L47.94 57.12L45.22 57.12L45.22 61L40.92 61L40.92 57.12ZM34.99 53.51L41.01 53.51L41.01 44.10L40.84 44.10L34.99 53.34L34.99 53.51ZM53.29 61.28L53.29 61.28Q52.22 61.28 51.49 60.55Q50.75 59.83 50.75 58.76L50.75 58.76Q50.75 57.69 51.49 56.97Q52.22 56.25 53.29 56.25L53.29 56.25Q54.36 56.25 55.09 56.97Q55.82 57.69 55.82 58.76L55.82 58.76Q55.82 59.83 55.09 60.55Q54.36 61.28 53.29 61.28ZM67.20 61.29L67.20 61.29Q64.76 61.29 62.87 60.49Q60.98 59.68 59.90 58.29Q58.82 56.90 58.82 55.14L58.82 55.14Q58.82 53.78 59.45 52.63Q60.07 51.48 61.13 50.71Q62.19 49.94 63.53 49.72L63.53 49.72L63.53 49.59Q61.78 49.22 60.70 47.88Q59.62 46.53 59.62 44.74L59.62 44.74Q59.62 43.06 60.60 41.73Q61.58 40.40 63.29 39.64Q65.01 38.88 67.20 38.88L67.20 38.88Q69.39 38.88 71.11 39.64Q72.83 40.40 73.82 41.73Q74.81 43.06 74.81 44.74L74.81 44.74Q74.81 46.53 73.71 47.88Q72.61 49.22 70.91 49.59L70.91 49.59L70.91 49.72Q72.21 49.94 73.27 50.71Q74.34 51.48 74.97 52.63Q75.60 53.78 75.60 55.14L75.60 55.14Q75.60 56.90 74.52 58.29Q73.44 59.68 71.55 60.49Q69.65 61.29 67.20 61.29ZM67.20 57.98L67.20 57.98Q68.33 57.98 69.17 57.58Q70.00 57.18 70.47 56.45Q70.94 55.73 70.94 54.79L70.94 54.79Q70.94 53.82 70.46 53.08Q69.97 52.34 69.13 51.91Q68.29 51.48 67.20 51.48L67.20 51.48Q66.12 51.48 65.28 51.90Q64.43 52.33 63.95 53.07Q63.47 53.81 63.47 54.79L63.47 54.79Q63.47 55.73 63.93 56.44Q64.39 57.16 65.24 57.57Q66.09 57.98 67.20 57.98ZM67.20 48.20L67.20 48.20Q68.14 48.20 68.87 47.82Q69.59 47.44 70.01 46.76Q70.43 46.09 70.43 45.22L70.43 45.22Q70.43 44.34 70.02 43.69Q69.61 43.03 68.88 42.66Q68.16 42.29 67.20 42.29L67.20 42.29Q66.25 42.29 65.53 42.66Q64.80 43.03 64.39 43.69Q63.98 44.34 63.98 45.22L63.98 45.22Q63.98 46.09 64.39 46.76Q64.80 47.44 65.53 47.82Q66.27 48.20 67.20 48.20Z" fill="#17265c" stroke="none" />
+      <g transform="translate(28 72) scale(0.4166666666666667)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(41 72) scale(0.4166666666666667)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(54 72) scale(0.4166666666666667)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(67 72) scale(0.4166666666666667)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(80 72) scale(0.4166666666666667)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <path d="M99 38h66" stroke="#e2ecf7" stroke-width="5" />
+      <path d="M99 38h56" stroke="#1895ff" stroke-width="5" />
+      <path d="M99 51h66" stroke="#e2ecf7" stroke-width="5" />
+      <path d="M99 51h42" stroke="#1895ff" stroke-width="5" />
+      <path d="M99 64h66" stroke="#e2ecf7" stroke-width="5" />
+      <path d="M99 64h22" stroke="#9fceff" stroke-width="5" />
+      <path d="M99 77h66" stroke="#e2ecf7" stroke-width="5" />
+      <path d="M99 77h10" stroke="#9fceff" stroke-width="5" />
+      <path d="M99 90h66" stroke="#e2ecf7" stroke-width="5" />
+      <path d="M99 90h4" stroke="#9fceff" stroke-width="5" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,34 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentPage": {
+                "type": "object",
+                "description": "Layout metadata with fully hydrated element trees.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": ["string", "null"]
+                    },
+                    "elements": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ContentElement" }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_page"]
+                    }
+                },
+                "required": ["apiAlias", "id", "name", "version", "elements"]
+            }
+        }
+    }
+}

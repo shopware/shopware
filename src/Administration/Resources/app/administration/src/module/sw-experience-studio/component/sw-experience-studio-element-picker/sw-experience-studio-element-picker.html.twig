@@ -1,0 +1,127 @@
+{% block sw_experience_studio_element_picker %}
+<mt-floating-ui
+    class="sw-experience-studio-element-picker"
+    :is-opened="open"
+    :anchor-element="anchorElement"
+    :floating-ui-options="floatingUiOptions"
+    :offset="8"
+    detached
+    @close="$emit('close')"
+>
+    <div class="sw-experience-studio-element-picker__panel">
+        <div class="sw-experience-studio-element-picker__header">
+            <span>{{ title }}</span>
+
+            <button
+                class="sw-experience-studio-element-picker__close"
+                type="button"
+                @click="$emit('close')"
+            >
+                <mt-icon
+                    name="regular-times-xs"
+                    size="12px"
+                />
+            </button>
+        </div>
+
+        <div
+            class="sw-experience-studio-element-picker__tabs"
+            role="tablist"
+            tabindex="-1"
+            :aria-label="title"
+            @keydown="onTabKeydown"
+        >
+            <button
+                v-for="tab in tabItems"
+                :id="`${tabId}-${tab.name}`"
+                :key="tab.name"
+                class="sw-experience-studio-element-picker__tab"
+                :class="{ 'sw-experience-studio-element-picker__tab--active': activeTab === tab.name }"
+                type="button"
+                role="tab"
+                :data-tab-name="tab.name"
+                :aria-selected="activeTab === tab.name"
+                :aria-controls="`${tabId}-panel`"
+                :tabindex="activeTab === tab.name ? 0 : -1"
+                @click="onTabChange(tab.name)"
+            >
+                {{ tab.label }}
+            </button>
+        </div>
+
+        <div class="sw-experience-studio-element-picker__search">
+            <sw-simple-search-field
+                v-model:value="searchTerm"
+                class="sw-experience-studio-element-picker__search-field"
+                variant="form"
+                size="small"
+                :placeholder="$t(searchPlaceholderSnippetKey)"
+                :label="$t(searchPlaceholderSnippetKey)"
+            />
+        </div>
+
+        <div
+            :id="`${tabId}-panel`"
+            class="sw-experience-studio-element-picker__content"
+            role="tabpanel"
+            :aria-labelledby="`${tabId}-${activeTab}`"
+            tabindex="0"
+        >
+            <mt-empty-state
+                v-if="visibleElements.length === 0"
+                icon="regular-puzzle-piece"
+                :description="$t(emptyStateSnippetKey)"
+            />
+
+            <div
+                v-else
+                class="sw-experience-studio-element-picker__sections"
+            >
+                <div
+                    v-for="group in groupedElements"
+                    :key="group.key"
+                    class="sw-experience-studio-element-picker__section"
+                >
+                    <div class="sw-experience-studio-element-picker__section-title">
+                        <span>{{ $t(group.headlineSnippetKey) }}</span>
+                    </div>
+
+                    <div class="sw-experience-studio-element-picker__grid">
+                        <button
+                            v-for="element in group.elements"
+                            :key="element.name"
+                            v-tooltip="itemTooltip(element)"
+                            class="sw-experience-studio-element-picker__item"
+                            type="button"
+                            :aria-label="element.label"
+                            @click="onSelect(element)"
+                        >
+                            <div class="sw-experience-studio-element-picker__icon-square">
+                                <img
+                                    v-if="illustrationSource(element.illustration)"
+                                    class="sw-experience-studio-element-picker__illustration"
+                                    :src="illustrationSource(element.illustration)"
+                                    alt=""
+                                    aria-hidden="true"
+                                    width="200"
+                                    height="128"
+                                    @error="onIllustrationError(element.illustration)"
+                                >
+                                <mt-icon
+                                    v-else
+                                    :name="element.icon || 'regular-square'"
+                                    size="32px"
+                                />
+                            </div>
+
+                            <span class="sw-experience-studio-element-picker__label">
+                                {{ element.label }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</mt-floating-ui>
+{% endblock %}

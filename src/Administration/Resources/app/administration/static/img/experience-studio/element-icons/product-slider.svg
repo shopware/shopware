@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(24.409 9.991) scale(0.7559)">
+      <path d="m14 57-8 8 8 8m172-16 8 8-8 8" fill="none" stroke="#17265c" stroke-width="2.5" />
+      <rect x="23" y="37" width="48" height="56" rx="5" fill="white" stroke="#96b6df" />
+      <g transform="translate(34 49) scale(0.65)">
+        <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="#c1e1ff" stroke="#1895ff" />
+      </g>
+      <rect x="129" y="37" width="48" height="56" rx="5" fill="white" stroke="#96b6df" />
+      <g transform="translate(140 49) scale(0.65)">
+        <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="#c1e1ff" stroke="#1895ff" />
+      </g>
+      <rect x="67" y="24" width="66" height="78" rx="6" fill="url(#wash)" stroke="#1895ff" />
+      <g transform="translate(79 38) scale(1.1)">
+        <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="url(#blue)" stroke="#1895ff" />
+      </g>
+      <circle cx="88" cy="116" r="3.5" fill="#bbd0e8" stroke="none" />
+      <circle cx="100" cy="116" r="3.5" fill="#1895ff" stroke="none" />
+      <circle cx="112" cy="116" r="3.5" fill="#bbd0e8" stroke="none" />
+    </g>
+  </g>
+</svg>

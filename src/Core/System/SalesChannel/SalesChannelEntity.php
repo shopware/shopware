@@ -13,12 +13,15 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutCollection;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
@@ -221,6 +224,12 @@ class SalesChannelEntity extends Entity
     protected MeasurementUnits $measurementUnits;
 
     protected ?string $businessTimeZone = null;
+
+    protected ?ProductContentLayoutCollection $productContentLayouts = null;
+
+    protected ?CategoryContentLayoutCollection $categoryContentLayouts = null;
+
+    protected ?LandingPageContentLayoutCollection $landingPageContentLayouts = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -1035,5 +1044,35 @@ class SalesChannelEntity extends Entity
     public function setBusinessTimeZone(?string $businessTimeZone): void
     {
         $this->businessTimeZone = $businessTimeZone;
+    }
+
+    public function getProductContentLayouts(): ?ProductContentLayoutCollection
+    {
+        return $this->productContentLayouts;
+    }
+
+    public function setProductContentLayouts(ProductContentLayoutCollection $productContentLayouts): void
+    {
+        $this->productContentLayouts = $productContentLayouts;
+    }
+
+    public function getCategoryContentLayouts(): ?CategoryContentLayoutCollection
+    {
+        return $this->categoryContentLayouts;
+    }
+
+    public function setCategoryContentLayouts(CategoryContentLayoutCollection $categoryContentLayouts): void
+    {
+        $this->categoryContentLayouts = $categoryContentLayouts;
+    }
+
+    public function getLandingPageContentLayouts(): ?LandingPageContentLayoutCollection
+    {
+        return $this->landingPageContentLayouts;
+    }
+
+    public function setLandingPageContentLayouts(LandingPageContentLayoutCollection $landingPageContentLayouts): void
+    {
+        $this->landingPageContentLayouts = $landingPageContentLayouts;
     }
 }

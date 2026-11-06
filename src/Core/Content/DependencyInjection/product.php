@@ -20,6 +20,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefin
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
@@ -62,6 +65,19 @@ use Shopware\Core\Content\Product\Cms\ProductNameCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\ProductVariantSelectionSubscriber;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
@@ -92,6 +108,7 @@ use Shopware\Core\Content\Product\ProductVariationBuilder;
 use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\PartialProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
@@ -146,6 +163,8 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
+use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
@@ -899,4 +918,92 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('shopware.sync.fk_resolver');
+
+    // Content System
+    $services->set(ProductContentLayoutDefinition::class)
+        ->args([
+            service(ContentLayoutMetadataDeriver::class),
+        ])
+        ->tag('shopware.entity.definition');
+
+    $services->set(ProductListingDataLoader::class)
+        ->args([
+            service(ProductListingRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(ProductListingLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductConfiguratorDataLoader::class)
+        ->args([
+            service(PartialProductConfiguratorLoader::class),
+            service('sales_channel.product.repository'),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(PartialProductConfiguratorLoader::class)
+        ->args([
+            service(ProductConfiguratorLoader::class),
+        ]);
+
+    $services->set(ProductVariantSelectionSubscriber::class)
+        ->args([
+            service(PartialProductConfiguratorLoader::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductConfiguratorLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(CrossSellingDataLoader::class)
+        ->args([
+            service(ProductCrossSellingRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(CrossSellingLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductReviewDataLoader::class)
+        ->args([
+            service(ProductReviewLoader::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(ProductReviewLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductSearchDataLoader::class)
+        ->args([
+            service(ProductSearchRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(ProductSearchLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductSuggestDataLoader::class)
+        ->args([
+            service(ProductSuggestRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(ProductSuggestLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductSpecificationSource::class)
+        ->args([
+            service('product_content_layout.repository'),
+            service(ProductContentLayoutDefinition::class),
+            service(EntityLayoutContextFactory::class),
+            service('sales_channel.product.repository'),
+        ])
+        ->tag('content_system.entity_specification_source', ['priority' => 100]);
+
+    $services->set(ProductMappingCandidateProvider::class)
+        ->args([
+            service(ProductContentLayoutDefinition::class),
+        ])
+        ->tag('content_system.mapping_candidate_provider', ['priority' => 100]);
 };

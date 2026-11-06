@@ -29,6 +29,7 @@ class ProductException extends HttpException
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
     final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
     public const MISSING_REQUEST_PARAMETER_CODE = 'PRODUCT__MISSING_REQUEST_PARAMETER_CODE';
+    final public const INVALID_FIELD_VALUE_TYPE = 'PRODUCT__INVALID_FIELD_VALUE_TYPE';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -166,6 +167,16 @@ class ProductException extends HttpException
             self::MISSING_REQUEST_PARAMETER_CODE,
             'Parameter "{{ parameterName }}" is missing.',
             ['parameterName' => $name]
+        );
+    }
+
+    public static function invalidFieldValueType(string $fieldName, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_TYPE,
+            'Field {{ fieldName }} expected {{ expectedType }}, got {{ actualType }}',
+            ['fieldName' => $fieldName, 'expectedType' => $expectedType, 'actualType' => $actualType]
         );
     }
 }

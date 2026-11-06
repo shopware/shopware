@@ -11,15 +11,20 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "confirm": "Confirm",
-      "noteRequiredFields": "Fields marked with asterisks (*) are required."
+      "noteRequiredFields": "Fields marked with asterisks (*) are required.",
+      "loading": "Loading..."
     }
   },
   "general": {
     "homeLink": "Home",
     "menuLink": "Menu",
+    "breadcrumbPlaceholder": "Breadcrumb not available",
+    "breadcrumbLabel": "Breadcrumb",
     "star": "*",
     "grossTaxInformation": "Prices incl. VAT plus shipping costs",
+    "grossTaxInformationShort": "incl. VAT plus shipping costs",
     "netTaxInformation": "Prices excl. VAT plus shipping costs",
+    "netTaxInformationShort": "excl. VAT plus shipping costs",
     "deliveryShippingFree": "Free shipping",
     "deliveryNotAvailable": "These options are currently not available.",
     "deliveryShipping": "This product will be released on",
@@ -39,6 +44,7 @@
     "collapse": "Collapse",
     "categories": "Categories",
     "showCategory": "Show %category%",
+    "toggleSubcategories": "Show or hide the subcategories of %category%",
     "required": "*",
     "privacyTitle": "Privacy",
     "privacyNoticeText": "I have acknowledged the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a> and have read and agree to the <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
@@ -527,8 +533,12 @@
     "createAccountButton": "Create account"
   },
   "listing": {
+    "filterTitle": "Filter",
     "filterTitleText": "Filter products",
     "showResults": "Show results",
+    "resultCount": "{1} %count% Item|[0,Inf[ %count% Items",
+    "layoutSwitchList": "List view",
+    "layoutSwitchGrid": "Grid view",
     "boxUnitLabel": "Content:",
     "boxLabelTopseller": "Tip",
     "boxLabelNew": "New",
@@ -568,6 +578,9 @@
     "filterByManufacturerAriaLabel": "Filter by manufacturer",
     "filterByPriceAriaLabel": "Filter by price",
     "filterByRatingAriaLabel": "Filter by minimum rating",
+    "filterButtonMore": "More filters",
+    "filterButtonLess": "Less filters",
+    "filterSearchPlaceholder": "Search %displayName%",
     "filterClose": "Close filters",
     "defaultProductSortingLabel": "Name, ascending",
     "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters.",
@@ -577,7 +590,10 @@
     "regularPriceLabel": "Regular price:",
     "listPriceLabel": "Sale price:",
     "addToWishlist": "Add to wishlist",
-    "removeFromWishlist": "Remove from wishlist"
+    "removeFromWishlist": "Remove from wishlist",
+    "productSliderAriaLabel": "Product slider with %total% products",
+    "productSliderScrollBackward": "Previous products",
+    "productSliderScrollForward": "Next products"
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",
@@ -638,6 +654,8 @@
     "tabsPreviewMore": "More",
     "descriptionTitle": "Product information",
     "priceUnitName": "Content:",
+    "priceUnavailable": "Price not available",
+    "manufacturerUnavailable": "Manufacturer not available",
     "priceDataInfoUntil": "To",
     "priceDataInfoFrom": "From",
     "listPricePercentage": "(%price%% saved)",
@@ -843,11 +861,13 @@
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
         "decreaseOfProduct": "Decrease quantity of %product%",
+        "notAvailable": "Quantity selector not available.",
         "stockAdjusted": "Your quantity has been updated to %quantity%.",
         "outOfStock": "The product is no longer available."
       },
       "configurator": {
-        "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"
+        "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%",
+        "unavailable": "Variant selection unavailable"
       }
     },
     "cms": {
@@ -869,6 +889,21 @@
         "zoomIn": "Zoom in",
         "zoomOut": "Zoom out",
         "zoomReset": "Reset zoom"
+      },
+      "mediaGallery": {
+        "ariaLabel": "Media gallery containing %total% items",
+        "lightboxTitle": "Fullscreen media gallery",
+        "openLightboxAriaLabel": "Open media %index% in fullscreen gallery",
+        "counterDeviderLabel": "of",
+        "counterLabel": "Showing",
+        "thumbnailNavAriaLabel": "Media gallery thumbnail navigation",
+        "thumbnailNavScrollDown": "Scroll down",
+        "thumbnailNavScrollUp": "Scroll up",
+        "thumbnailNavScrollLeft": "Scroll left",
+        "thumbnailNavScrollRight": "Scroll right",
+        "thumbnailNavButtonAriaLabel": "Media %index% of %total%",
+        "previousMedia": "Previous media",
+        "nextMedia": "Next media"
       },
       "productGallery": {
         "ariaLabel": "Product gallery containing %total% items",

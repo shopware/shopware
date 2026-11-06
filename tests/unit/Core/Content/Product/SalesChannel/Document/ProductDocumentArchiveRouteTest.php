@@ -102,7 +102,8 @@ class ProductDocumentArchiveRouteTest extends TestCase
     public static function fileNames(): \Generator
     {
         yield 'an ASCII name is sent as it is' => ['Cordless drill.zip', 'attachment; filename="Cordless drill.zip"'];
-        yield 'other characters get an ASCII fallback' => ['Bohrer für Holz.zip', 'attachment; filename="Bohrer f_r Holz.zip"; filename*=utf-8\'\'Bohrer%20f%C3%BCr%20Holz.zip'];
+        yield 'other characters get an ASCII fallback' => ['Bohrer für Holz.zip', 'attachment; filename="Bohrer f__r Holz.zip"; filename*=utf-8\'\'Bohrer%20f%C3%BCr%20Holz.zip'];
+        yield 'a percent sign, which the fallback cannot contain, is replaced there' => ['50% sale.zip', 'attachment; filename="50_ sale.zip"; filename*=utf-8\'\'50%25%20sale.zip'];
     }
 
     #[DataProvider('closeoutSettings')]

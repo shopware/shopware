@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Document;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Extension\ProductDocumentArchiveRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -94,7 +95,8 @@ class ProductDocumentArchiveRoute
         $response->headers->set('Content-Disposition', HeaderUtils::makeDisposition(
             HeaderUtils::DISPOSITION_ATTACHMENT,
             $archive->fileName,
-            (string) preg_replace('/[^\x20-\x7E]|[%"\/\\\\]/u', '_', $archive->fileName),
+            // the fallback can't contain `%`
+            str_replace('%', '_', PathHelper::stripNonAsciiAndControlChars($archive->fileName, '_')),
         ));
 
         return $response;

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Document;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -110,29 +111,30 @@ class ProductDocumentArchiver
         foreach ($documents as $document) {
             $mediaId = $document->getTranslation('mediaId');
             if (\is_string($mediaId)) {
-                $mediaIds[$document->getId()] = $mediaId;
+                $mediaIds[] = $mediaId;
             }
         }
 
+        // a file that several documents use is added once
+        $mediaIds = array_values(array_unique($mediaIds));
         if ($mediaIds === []) {
             return [];
         }
 
-        $criteria = new Criteria(array_values(array_unique($mediaIds)));
+        $criteria = new Criteria($mediaIds);
         $criteria->setTitle('product-document-archiver::media');
         $criteria->addFilter(new EqualsFilter('private', false));
         $media = $this->mediaRepository->search($criteria, $context->getContext())->getEntities();
 
         $files = [];
         $names = [];
-        foreach ($documents as $document) {
-            $file = $media->get($mediaIds[$document->getId()] ?? '');
+        foreach ($mediaIds as $mediaId) {
+            $file = $media->get($mediaId);
             if ($file === null || !$file->hasFile()) {
                 continue;
             }
 
-            $title = $document->getTranslation('title');
-            $name = $this->entryName(\is_string($title) ? $title : '', $file, $names);
+            $name = $this->entryName($file, $names);
             $names[mb_strtolower($name)] = true;
             $files[] = ['name' => $name, 'media' => $file];
         }
@@ -143,12 +145,10 @@ class ProductDocumentArchiver
     /**
      * @param array<string, true> $names the entry names already taken, in lower case
      */
-    private function entryName(string $title, MediaEntity $media, array $names): string
+    private function entryName(MediaEntity $media, array $names): string
     {
-        $base = $this->clean($title);
-        if ($base === '') {
-            $base = $this->clean((string) $media->getFileName());
-        }
+        // file names are validated on upload, so they are safe entry names
+        $base = (string) $media->getFileName();
         if ($base === '') {
             $base = $media->getId();
         }
@@ -166,7 +166,8 @@ class ProductDocumentArchiver
 
     private function clean(string $name): string
     {
-        return trim((string) preg_replace('/[\x00-\x1F\x7F\/\\\\:*?"<>|]+/u', '-', $name), " .-\t");
+        // a download name can't contain `/` or `\`
+        return trim(str_replace(['/', '\\'], '-', PathHelper::stripControlAndFormatChars($name)));
     }
 
     /**

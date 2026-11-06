@@ -40,6 +40,8 @@ class StorybookTwigEnvironmentStub extends Environment
     {
         parent::__construct(new ArrayLoader([
             'storybook-component' => '{% block content %}{% endblock %}{% block title %}{% endblock %}',
+            'storybook-inherited-parent' => '{% block header %}Parent header{% endblock %}{% block body %}Parent body{% endblock %}',
+            'storybook-inherited-component' => '{% extends "storybook-inherited-parent" %}{% block body %}Child body{% endblock %}',
         ]));
     }
 

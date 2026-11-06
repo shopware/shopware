@@ -48,6 +48,10 @@ class StorybookControllerTest extends TestCase
         foreach (['my-button', 'Sw:Button', 'Sw:Content:Modal', 'Sw:Alert'] as $componentName) {
             $componentConfig[$componentName] = ['key' => $componentName, 'template' => 'storybook-component'];
         }
+        $componentConfig['Sw:Inheriting:Component'] = [
+            'key' => 'Sw:Inheriting:Component',
+            'template' => 'storybook-inherited-component',
+        ];
         $this->componentFactory = new ComponentFactory(
             static::createStub(ComponentTemplateFinderInterface::class),
             new ServiceLocator([]),
@@ -134,6 +138,25 @@ class StorybookControllerTest extends TestCase
 
         static::assertSame(400, $response->getStatusCode());
         static::assertSame('Unknown block name(s) for component "Sw:Button": typo.', $response->getContent());
+    }
+
+    public function testStorybookAcceptsBlockInheritedByComponentTemplate(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $this->storybookService->method('createSalesChannelContext')->willReturn($salesChannelContext);
+        $this->storybookService->method('getThemeId')->willReturn('theme-id-123');
+        $this->storybookService->method('resolveComponentProps')->willReturn([]);
+
+        $request = $this->createStorybookRequest();
+        $request->initialize(content: '{"props":{},"blocks":{"header":"<strong>Storybook header</strong>"}}');
+        $request->setMethod(Request::METHOD_POST);
+        $request->headers->set('Content-Type', 'application/json');
+
+        $response = $this->createController()->storybook('Sw:Inheriting:Component', $request);
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(['header' => '<strong>Storybook header</strong>'], $this->twig->renderContext['blockContent']);
+        static::assertStringContainsString('<twig:block name="header">', $this->twig->createdTemplate);
     }
 
     public function testStorybookSanitizesOnlyBlockContentBeforeRendering(): void

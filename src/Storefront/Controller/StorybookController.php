@@ -113,7 +113,7 @@ class StorybookController extends AbstractController
 
             if ($storybookBlocks !== []) {
                 $componentTemplate = $this->componentFactory->metadataFor($component)->getTemplate();
-                $declaredBlocks = array_keys($this->twig->load($componentTemplate)->unwrap($this->twig)->getBlocks());
+                $declaredBlocks = $this->twig->load($componentTemplate)->getBlockNames();
                 $unknownBlocks = array_diff(array_keys($storybookBlocks), $declaredBlocks);
 
                 if ($unknownBlocks !== []) {

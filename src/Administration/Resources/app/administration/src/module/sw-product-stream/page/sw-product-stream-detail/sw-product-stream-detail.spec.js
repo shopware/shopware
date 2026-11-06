@@ -9,37 +9,10 @@ const responses = global.repositoryFactoryMock.responses;
 
 responses.addResponse({
     method: 'Post',
-    url: '/search/custom-field-set',
+    url: '/search/custom-field',
     status: 200,
     response: {
         data: [
-            {
-                id: 'custom_field_set_id1',
-                type: 'custom_field_set',
-                attributes: {
-                    name: 'custom_field_set_1',
-                    config: { label: { 'en-GB': 'Field Set 1' } },
-                    active: true,
-                    global: false,
-                    position: 1,
-                    appId: null,
-                },
-                relationships: {
-                    customFields: {
-                        data: [
-                            {
-                                type: 'custom_field',
-                                id: 'custom_field_id1',
-                            },
-                        ],
-                        links: {
-                            related: 'http://host/api/custom-field-set/custom_field_set_id1/custom-fields',
-                        },
-                    },
-                },
-            },
-        ],
-        included: [
             {
                 id: 'custom_field_id1',
                 type: 'custom_field',
@@ -57,17 +30,6 @@ responses.addResponse({
                     },
                     active: true,
                     customFieldSetId: 'custom_field_set_id1',
-                },
-                relationships: {
-                    customFieldSet: {},
-                },
-            },
-            {
-                id: 'custom_field_set_relation_id1',
-                type: 'custom_field_set_relation',
-                attributes: {
-                    customFieldSetId: 'custom_field_set_id1',
-                    entityName: 'customer',
                 },
                 relationships: {
                     customFieldSet: {},

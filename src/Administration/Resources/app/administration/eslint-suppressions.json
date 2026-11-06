@@ -1500,7 +1500,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 50
+      "count": 46
     }
   },
   "src/app/component/media/sw-media-url-form/index.js": {
@@ -3610,11 +3610,6 @@
       "count": 1
     }
   },
-  "src/app/store/main-module.store.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/store/marketing.store.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -4823,11 +4818,6 @@
   },
   "src/index.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/meta/baseline.ts": {
-    "max-lines": {
       "count": 1
     }
   },
@@ -9408,11 +9398,6 @@
       "count": 12
     }
   },
-  "src/module/sw-product-stream/component/sw-product-stream-filter/type-provider.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
   "src/module/sw-product-stream/component/sw-product-stream-modal-preview/index.js": {
     "filename-rules/not-match": {
       "count": 1
@@ -9453,9 +9438,6 @@
   },
   "src/module/sw-product-stream/page/sw-product-stream-detail/index.js": {
     "filename-rules/not-match": {
-      "count": 1
-    },
-    "max-nested-callbacks": {
       "count": 1
     }
   },
@@ -11583,7 +11565,7 @@
   },
   "src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid/sw-settings-listing-option-criteria-grid.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 24
+      "count": 17
     }
   },
   "src/module/sw-settings-listing/component/sw-settings-listing-option-general-info/index.js": {

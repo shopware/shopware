@@ -5,8 +5,9 @@ import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-category/page/sw-category-detail', () => {
     const saveMock = jest.fn(() => Promise.resolve());
-    async function createWrapper() {
+    async function createWrapper({ props = {}, onGet = () => {} } = {}) {
         return mount(await wrapTestComponent('sw-category-detail', { sync: true }), {
+            props,
             global: {
                 stubs: {
                     'sw-page': {
@@ -56,13 +57,16 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                                     get: () => ({ sections: [] }),
                                 }),
                             save: saveMock,
-                            get: () =>
-                                Promise.resolve({
+                            get: (id, context, criteria) => {
+                                onGet(criteria);
+
+                                return Promise.resolve({
                                     slotConfig: '',
                                     navigationSalesChannels: [],
                                     footerSalesChannels: [],
                                     serviceSalesChannels: [],
-                                }),
+                                });
+                            },
                         }),
                     },
                     seoUrlService: {},
@@ -266,6 +270,40 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const result = wrapper.vm.extractSlotOverrides(origin, changes);
 
         expect(result).toEqual(expectedSlotOverrides);
+    });
+
+    it('loads only the sales channel fields the entry point card and its modals use', async () => {
+        const categoryCriteria = [];
+        await createWrapper({
+            props: { categoryId: 'category-id' },
+            onGet: (criteria) => categoryCriteria.push(criteria.parse()),
+        });
+        await flushPromises();
+
+        expect(categoryCriteria.length).toBeGreaterThan(0);
+        const criteria = categoryCriteria[0];
+        expect(criteria.associations.navigationSalesChannels.associations.homeCmsPage.associations).toHaveProperty(
+            'previewMedia',
+        );
+        expect(criteria.associations).toHaveProperty('footerSalesChannels');
+        expect(criteria.associations).toHaveProperty('serviceSalesChannels');
+        expect(criteria.includes).toEqual({
+            sales_channel: [
+                'id',
+                'name',
+                'translated',
+                'navigationCategoryId',
+                'footerCategoryId',
+                'serviceCategoryId',
+                'homeEnabled',
+                'homeName',
+                'homeMetaTitle',
+                'homeMetaDescription',
+                'homeKeywords',
+                'homeCmsPageId',
+                'homeCmsPage',
+            ],
+        });
     });
 
     it('should load landing page translations for CMS inheritance handling', async () => {

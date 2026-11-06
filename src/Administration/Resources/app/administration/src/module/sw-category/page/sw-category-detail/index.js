@@ -220,6 +220,26 @@ export default {
                 .addAssociation('footerSalesChannels')
                 .addAssociation('translations');
 
+            // a category can be the entry point of many sales channels: load only the fields
+            // the entry point card, its home configuration modal and the overwrite check use
+            criteria.addIncludes({
+                sales_channel: [
+                    'id',
+                    'name',
+                    'translated',
+                    'navigationCategoryId',
+                    'footerCategoryId',
+                    'serviceCategoryId',
+                    'homeEnabled',
+                    'homeName',
+                    'homeMetaTitle',
+                    'homeMetaDescription',
+                    'homeKeywords',
+                    'homeCmsPageId',
+                    'homeCmsPage',
+                ],
+            });
+
             return criteria;
         },
 

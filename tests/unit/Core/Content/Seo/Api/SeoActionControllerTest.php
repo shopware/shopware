@@ -31,6 +31,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -101,8 +102,8 @@ class SeoActionControllerTest extends TestCase
             ->willReturn(true);
         $validator = $this->createMock(DataValidator::class);
         $validator->expects($this->once())->method('validate')->with(
-            static::anything(),
-            static::callback(static fn (DataValidationDefinition $definition): bool => $definition->getProperty('seoPathInfo') === []),
+            static::callback(static fn (array $data): bool => $data['seoPathInfo'] === null),
+            static::callback(static fn (DataValidationDefinition $definition): bool => self::hasOnly($definition, Blank::class)),
         );
 
         $response = $this->createController($persister, $updater, $validator)
@@ -144,7 +145,7 @@ class SeoActionControllerTest extends TestCase
         $validator->expects($this->once())->method('validate')
             ->with(
                 static::anything(),
-                static::callback(static fn (DataValidationDefinition $definition): bool => $definition->getProperty('seoPathInfo') !== []),
+                static::callback(static fn (DataValidationDefinition $definition): bool => self::hasOnly($definition, NotBlank::class)),
             )
             ->willThrowException(new \RuntimeException('seoPathInfo is invalid'));
 
@@ -180,6 +181,16 @@ class SeoActionControllerTest extends TestCase
             ->updateCanonicalUrl(new RequestDataBag([...$this->seoUrlPayload(), 'seoPathInfo' => 'custom-path']), Context::createDefaultContext());
 
         static::assertSame(204, $response->getStatusCode());
+    }
+
+    /**
+     * @param class-string $constraintClass
+     */
+    private static function hasOnly(DataValidationDefinition $definition, string $constraintClass): bool
+    {
+        $constraints = $definition->getProperty('seoPathInfo');
+
+        return \count($constraints) === 1 && $constraints[0] instanceof $constraintClass;
     }
 
     /**

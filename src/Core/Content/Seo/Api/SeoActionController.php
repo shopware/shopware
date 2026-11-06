@@ -40,6 +40,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Blank;
 
 #[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -173,7 +174,8 @@ class SeoActionController extends AbstractController
         $resetToTemplate = ($seoUrlData['isModified'] ?? null) !== true
             && ($seoPathInfo === null || (\is_string($seoPathInfo) && trim($seoPathInfo) === ''));
         if ($resetToTemplate) {
-            $validation->set('seoPathInfo');
+            $seoUrlData['seoPathInfo'] = null;
+            $validation->set('seoPathInfo', new Blank());
         }
 
         $this->validator->validate($seoUrlData, $validation);

@@ -112,6 +112,13 @@ export default {
             return this.repositoryFactory.create('custom_field');
         },
 
+        productCustomFieldsCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
+
+            return criteria;
+        },
+
         tooltipSave() {
             if (!this.acl.can('product_stream.editor')) {
                 return {
@@ -196,7 +203,7 @@ export default {
             const promises = [this.loadCustomFieldSets(), this.loadProductTypes()];
 
             if (this.productStreamId) {
-                promises.push(this.getProductCustomFields());
+                promises.push(this.loadProductCustomFields());
             }
 
             Promise.all(promises).then(() => {
@@ -217,7 +224,7 @@ export default {
         },
 
         createProductStream() {
-            this.getProductCustomFields().then(() => {
+            this.loadProductCustomFields().then(() => {
                 Context.api.languageId = Context.api.systemLanguageId;
                 this.productStream = this.productStreamRepository.create(Context.api);
                 this.productStream.displayAsGroup = true;
@@ -380,11 +387,13 @@ export default {
         },
 
         getProductCustomFields() {
-            this.customFieldsLoading = true;
-            const customFieldsCriteria = new Criteria(1, null);
-            customFieldsCriteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
+            return this.customFieldRepository.search(this.productCustomFieldsCriteria, Context.api);
+        },
 
-            return this.customFieldRepository.search(customFieldsCriteria, Context.api).then((customFields) => {
+        loadProductCustomFields() {
+            this.customFieldsLoading = true;
+
+            return this.getProductCustomFields().then((customFields) => {
                 customFields.forEach((customField) => {
                     this.productCustomFields[customField.name] = this.mapCustomFieldType({
                         type: customField.type,

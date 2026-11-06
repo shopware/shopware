@@ -272,7 +272,8 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         expect(result).toEqual(expectedSlotOverrides);
     });
 
-    it('loads only the sales channel fields the entry point card and its modals use', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed when the entry point sales channels are always limited.
+    it.deprecated('v6.8.0.0')('loads all sales channel fields of the entry point sales channels before 6.8', async () => {
         const categoryCriteria = [];
         await createWrapper({
             props: { categoryId: 'category-id' },
@@ -281,30 +282,46 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         await flushPromises();
 
         expect(categoryCriteria.length).toBeGreaterThan(0);
-        const criteria = categoryCriteria[0];
-        expect(criteria.associations.navigationSalesChannels.associations.homeCmsPage.associations).toHaveProperty(
-            'previewMedia',
-        );
-        expect(criteria.associations).toHaveProperty('footerSalesChannels');
-        expect(criteria.associations).toHaveProperty('serviceSalesChannels');
-        expect(criteria.includes).toEqual({
-            sales_channel: [
-                'id',
-                'name',
-                'translated',
-                'navigationCategoryId',
-                'footerCategoryId',
-                'serviceCategoryId',
-                'homeEnabled',
-                'homeName',
-                'homeMetaTitle',
-                'homeMetaDescription',
-                'homeKeywords',
-                'homeCmsPageId',
-                'homeCmsPage',
-            ],
-        });
+        expect(categoryCriteria[0].associations).toHaveProperty('navigationSalesChannels');
+        expect(categoryCriteria[0].includes).toBeUndefined();
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'loads only the sales channel fields the entry point card and its modals use',
+        async () => {
+            const categoryCriteria = [];
+            await createWrapper({
+                props: { categoryId: 'category-id' },
+                onGet: (criteria) => categoryCriteria.push(criteria.parse()),
+            });
+            await flushPromises();
+
+            expect(categoryCriteria.length).toBeGreaterThan(0);
+            const criteria = categoryCriteria[0];
+            expect(criteria.associations.navigationSalesChannels.associations.homeCmsPage.associations).toHaveProperty(
+                'previewMedia',
+            );
+            expect(criteria.associations).toHaveProperty('footerSalesChannels');
+            expect(criteria.associations).toHaveProperty('serviceSalesChannels');
+            expect(criteria.includes).toEqual({
+                sales_channel: [
+                    'id',
+                    'name',
+                    'translated',
+                    'navigationCategoryId',
+                    'footerCategoryId',
+                    'serviceCategoryId',
+                    'homeEnabled',
+                    'homeName',
+                    'homeMetaTitle',
+                    'homeMetaDescription',
+                    'homeKeywords',
+                    'homeCmsPageId',
+                    'homeCmsPage',
+                ],
+            });
+        },
+    );
 
     it('should load landing page translations for CMS inheritance handling', async () => {
         const wrapper = await createWrapper();

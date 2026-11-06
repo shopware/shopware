@@ -220,6 +220,14 @@ export default {
                 .addAssociation('footerSalesChannels')
                 .addAssociation('translations');
 
+            /**
+             * @deprecated tag:v6.8.0 - The entry point sales channels of the category will only contain
+             * the fields below, so extensions reading other sales channel fields need their own request.
+             */
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return criteria;
+            }
+
             // a category can be the entry point of many sales channels: load only the fields
             // the entry point card, its home configuration modal and the overwrite check use
             criteria.addIncludes({

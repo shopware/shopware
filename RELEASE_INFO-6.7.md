@@ -395,6 +395,11 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Deprecated the full entry point sales channels in `sw-category-detail`
+
+With 6.8 the category detail loads only the sales channel fields its entry point card uses, because a category can be the entry point of hundreds of sales channels.
+Extensions that read other fields of `category.navigationSalesChannels`, `footerSalesChannels` or `serviceSalesChannels` in the category detail should load them with their own `sales_channel` request; see `UPGRADE-6.8.md`.
+
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
 The `customFieldSetRepository` computed property of `sw-product-stream-detail` is deprecated and will be removed.

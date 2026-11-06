@@ -29,6 +29,12 @@ const fetchStoryHtml = async (
         body: JSON.stringify({ props, blocks }),
     });
 
+    if (!response.ok) {
+      const decodeHtml = document.createElement('textarea');
+      decodeHtml.innerHTML = await response.text();
+      throw new Error(decodeHtml.value);
+    }
+
     return response.text();
 };
 

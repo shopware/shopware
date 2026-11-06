@@ -18,7 +18,6 @@ use PHPStan\Reflection\ParametersAcceptorSelector;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\Type\UnionType as PhpStanUnionType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -27,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  * details.
  *
  * The tool method is `__invoke()` for a `#[McpTool]` on the class, or the method that carries the attribute.
- * It is reported when its native return type is `string`, `?string` or a union containing `string`.
+ * It is reported when its native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
  * An `__invoke()` the class-level tool inherits from a parent class or a trait is resolved through reflection
  * and reported on the tool class, since the MCP runtime calls it on the tool.
  *
@@ -67,7 +66,7 @@ class McpToolLegacyStringResultRule implements Rule
             $declaresInvoke = $declaresInvoke || $isInvoke;
             $isToolMethod = self::hasMcpToolAttribute($method->attrGroups) || ($classIsTool && $isInvoke);
 
-            if (!$isToolMethod || !self::returnsString($method)) {
+            if (!$isToolMethod || !self::mayReturnString($method)) {
                 continue;
             }
 
@@ -107,14 +106,8 @@ class McpToolLegacyStringResultRule implements Rule
             $classReflection->getNativeMethod('__invoke')->getVariants(),
         )->getNativeReturnType();
 
-        $members = $returnType instanceof PhpStanUnionType ? $returnType->getTypes() : [$returnType];
-        foreach ($members as $member) {
-            if ($member->isString()->yes()) {
-                return true;
-            }
-        }
-
-        return false;
+        // A missing or `mixed` return type is MixedType, whose isString() is "maybe".
+        return !$returnType->isString()->no();
     }
 
     /**
@@ -133,9 +126,16 @@ class McpToolLegacyStringResultRule implements Rule
         return false;
     }
 
-    private static function returnsString(ClassMethod $method): bool
+    /**
+     * A missing or `mixed` return type is reported as well, since such a method can still return the string.
+     */
+    private static function mayReturnString(ClassMethod $method): bool
     {
         $type = $method->returnType;
+
+        if ($type === null) {
+            return true;
+        }
 
         if ($type instanceof NullableType) {
             $type = $type->type;
@@ -151,11 +151,11 @@ class McpToolLegacyStringResultRule implements Rule
             return false;
         }
 
-        return $type !== null && self::isString($type);
+        return self::isString($type);
     }
 
     private static function isString(Identifier|Name|ComplexType $type): bool
     {
-        return $type instanceof Identifier && $type->toLowerString() === 'string';
+        return $type instanceof Identifier && \in_array($type->toLowerString(), ['string', 'mixed'], true);
     }
 }

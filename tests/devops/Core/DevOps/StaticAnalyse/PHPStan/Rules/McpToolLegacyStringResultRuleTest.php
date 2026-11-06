@@ -6,10 +6,13 @@ use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\MethodLevelToolReturningMixed;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\MethodLevelToolReturningUnion;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolInheritingStringInvoke;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolInheritingUntypedInvoke;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolReturningNullableString;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolReturningString;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolWithoutReturnType;
 
 /**
  * @internal
@@ -49,6 +52,27 @@ class McpToolLegacyStringResultRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/MethodLevelToolReturningUnion.php'], [
             [self::message(MethodLevelToolReturningUnion::class, 'search'), 16, self::TIP],
+        ]);
+    }
+
+    public function testToolWithoutReturnTypeIsReported(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/ToolWithoutReturnType.php'], [
+            [self::message(ToolWithoutReturnType::class, '__invoke'), 11, self::TIP],
+        ]);
+    }
+
+    public function testMethodReturningMixedIsReported(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/MethodLevelToolReturningMixed.php'], [
+            [self::message(MethodLevelToolReturningMixed::class, 'search'), 10, self::TIP],
+        ]);
+    }
+
+    public function testUntypedInvokeInheritedFromAParentClassIsReportedOnTheTool(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/ToolInheritingUntypedInvoke.php'], [
+            [self::message(ToolInheritingUntypedInvoke::class, '__invoke'), 7, self::TIP],
         ]);
     }
 

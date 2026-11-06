@@ -1,0 +1,132 @@
+.sw-admin-nps-card {
+    position: absolute;
+    bottom: var(--scale-size-24);
+    left: var(--scale-size-16);
+    right: var(--scale-size-16);
+    max-width: 31.25rem;
+    z-index: 500;
+    padding: var(--scale-size-16);
+    background: var(--color-elevation-surface-raised);
+    border: 1px solid var(--color-border-secondary-default);
+    border-radius: var(--border-radius-card);
+    color: var(--color-text-primary-default);
+    box-shadow: 0 6px 12px -8px var(--color-elevation-shadow-default);
+
+    // The scale below queries the card width, not the viewport, because the card sits inside the content area.
+    // Inline-size containment is safe here: the width comes from `left`/`right`/`max-width`, never from content.
+    container-type: inline-size;
+    container-name: sw-admin-nps-card;
+
+    .sw-admin-nps-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--scale-size-8);
+        margin-bottom: var(--scale-size-12);
+    }
+
+    .sw-admin-nps-card__title {
+        margin: 0;
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-s);
+    }
+
+    .sw-admin-nps-card__close {
+        flex-shrink: 0;
+        margin: calc(-1 * var(--scale-size-4)) calc(-1 * var(--scale-size-4)) 0 0;
+    }
+
+    .sw-admin-nps-card__scale {
+        display: grid;
+        grid-template-columns: repeat(11, 1fr);
+        gap: var(--scale-size-6);
+        margin-bottom: var(--scale-size-4);
+    }
+
+    .sw-admin-nps-card__score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+        padding: var(--scale-size-10) var(--scale-size-8);
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-s);
+        background: transparent;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-elevation-surface-hover);
+            border-color: var(--color-border-brand-default);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: 1px;
+        }
+
+        &.is--selected {
+            background: var(--color-elevation-surface-selected);
+            border-color: var(--color-border-brand-selected);
+            color: var(--color-text-brand-default);
+        }
+    }
+
+    .sw-admin-nps-card__scale-labels {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--scale-size-8);
+        margin-bottom: var(--scale-size-12);
+    }
+
+    .sw-admin-nps-card__scale-label {
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs);
+        color: var(--color-text-secondary-default);
+    }
+
+    .sw-admin-nps-card__scale-label--end {
+        text-align: right;
+    }
+
+    .sw-admin-nps-card__error {
+        margin: 0 0 var(--scale-size-12);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-critical-default);
+    }
+
+    .sw-admin-nps-card__follow-up {
+        margin-bottom: var(--scale-size-12);
+    }
+
+    .sw-admin-nps-card__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--scale-size-8);
+    }
+
+    // Narrow card: 11 default buttons need ~445px, so shrink the buttons and gaps first.
+    @container sw-admin-nps-card (max-width: 28rem) {
+        .sw-admin-nps-card__scale {
+            gap: var(--scale-size-4);
+        }
+
+        .sw-admin-nps-card__score {
+            padding: var(--scale-size-8) var(--scale-size-2);
+            font-size: var(--font-size-2xs);
+        }
+    }
+
+    // Very narrow card: even shrunk buttons need ~260px in one row, so wrap the scale into rows of 6.
+    @container sw-admin-nps-card (max-width: 17rem) {
+        .sw-admin-nps-card__scale {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+}

@@ -1,0 +1,110 @@
+<div
+    v-if="visible"
+    class="sw-admin-nps-card"
+    role="region"
+    :aria-labelledby="titleId"
+>
+    <div class="sw-admin-nps-card__header">
+        <h3
+            :id="titleId"
+            class="sw-admin-nps-card__title"
+        >
+            <template v-if="showReasonStep">
+                {{ $t('global.sw-admin-nps-card.followUpQuestion') }}
+            </template>
+            <template v-else>
+                {{ $t('global.sw-admin-nps-card.title') }}
+            </template>
+        </h3>
+
+        <mt-button
+            class="sw-admin-nps-card__close"
+            variant="tertiary"
+            size="small"
+            square
+            :aria-label="$t('global.default.close')"
+            @click="onClose"
+        >
+            <template #iconFront>
+                <mt-icon
+                    name="regular-times"
+                    size="12px"
+                />
+            </template>
+        </mt-button>
+    </div>
+
+    <template v-if="!showReasonStep">
+        <div
+            class="sw-admin-nps-card__scale"
+            role="group"
+            :aria-label="$t('global.sw-admin-nps-card.title')"
+            :aria-describedby="showScoreError ? scoreErrorId : undefined"
+        >
+            <button
+                v-for="scoreValue in scores"
+                :key="scoreValue"
+                type="button"
+                class="sw-admin-nps-card__score"
+                :class="{ 'is--selected': scoreValue === selectedScore }"
+                :aria-pressed="scoreValue === selectedScore ? 'true' : 'false'"
+                :aria-label="getScoreAriaLabel(scoreValue)"
+                @click="onSelectScore(scoreValue)"
+            >
+                {{ scoreValue }}
+            </button>
+        </div>
+
+        <div
+            class="sw-admin-nps-card__scale-labels"
+            aria-hidden="true"
+        >
+            <span class="sw-admin-nps-card__scale-label sw-admin-nps-card__scale-label--start">
+                {{ $t('global.sw-admin-nps-card.scoreLabelNotLikely') }}
+            </span>
+            <span class="sw-admin-nps-card__scale-label sw-admin-nps-card__scale-label--end">
+                {{ $t('global.sw-admin-nps-card.scoreLabelExtremelyLikely') }}
+            </span>
+        </div>
+
+        <p
+            v-if="showScoreError"
+            :id="scoreErrorId"
+            class="sw-admin-nps-card__error"
+            role="alert"
+        >
+            {{ $t('global.sw-admin-nps-card.errorNoScore') }}
+        </p>
+    </template>
+
+    <div
+        v-if="showReasonStep"
+        ref="followUpElement"
+        class="sw-admin-nps-card__follow-up"
+    >
+        <mt-textarea
+            v-model="reasonText"
+            :label="$t('global.sw-admin-nps-card.reasonLabel')"
+        />
+    </div>
+
+    <div class="sw-admin-nps-card__actions">
+        <mt-button
+            class="sw-admin-nps-card__not-now"
+            variant="secondary"
+            size="small"
+            @click="onNotNow"
+        >
+            {{ $t('global.sw-admin-nps-card.buttonNotNow') }}
+        </mt-button>
+
+        <mt-button
+            class="sw-admin-nps-card__submit"
+            variant="primary"
+            size="small"
+            @click="onSubmit"
+        >
+            {{ $t('global.default.submit') }}
+        </mt-button>
+    </div>
+</div>

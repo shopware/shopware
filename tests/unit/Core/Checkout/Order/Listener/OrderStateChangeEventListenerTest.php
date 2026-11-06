@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Listener\OrderStateChangeEventListener;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -51,7 +53,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         static::assertSame($expected, OrderStateChangeEventListener::getSubscribedEvents());
     }
 
-    public function testOnOrderDeliveryStateChange(): void
+    #[DataProvider('orderDeliveryStateChangeProvider')]
+    public function testOnOrderDeliveryStateChange(bool $orderHoldsDelivery): void
     {
         $stateMachine = new StateMachineEntity();
         $stateMachine->setTechnicalName('order_delivery');
@@ -86,6 +89,10 @@ class OrderStateChangeEventListenerTest extends TestCase
         $delivery->setOrderId('order_id');
         $delivery->setOrder($order);
 
+        $deliveryOfOrder = new OrderDeliveryEntity();
+        $deliveryOfOrder->setId('order_delivery_id');
+        $order->setDeliveries(new OrderDeliveryCollection($orderHoldsDelivery ? [$deliveryOfOrder] : []));
+
         $result = new EntitySearchResult(
             'order_delivery',
             1,
@@ -108,19 +115,16 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->method('search')
             ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
 
-        $expectedEvent = new OrderStateMachineStateChangeEvent('enter.order_delivery.next_state', $order, $context);
-
+        $dispatched = [];
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
             ->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(static::callback(static function ($event) use ($expectedEvent): bool {
-                if ($event instanceof OrderStateMachineStateChangeEvent) {
-                    static::assertSame($expectedEvent->getOrder(), $event->getOrder());
-                }
+            ->willReturnCallback(static function (object $event, ?string $name) use (&$dispatched): object {
+                $dispatched[$name ?? $event::class] = $event;
 
-                return true;
-            }));
+                return $event;
+            });
 
         $listener = new OrderStateChangeEventListener(
             $orderRepo,
@@ -132,6 +136,22 @@ class OrderStateChangeEventListenerTest extends TestCase
         );
 
         $listener->onOrderDeliveryStateChange($event);
+
+        $stateEvent = $dispatched[$event->getStateEventName()] ?? null;
+        static::assertInstanceOf(OrderDeliveryStateMachineStateChangeEvent::class, $stateEvent);
+        static::assertSame($order, $stateEvent->getOrder());
+        static::assertSame($orderHoldsDelivery ? $deliveryOfOrder : $delivery, $stateEvent->getOrderDelivery());
+        static::assertSame('order_delivery_id', $stateEvent->getOrderDeliveryId());
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function orderDeliveryStateChangeProvider(): iterable
+    {
+        yield 'the delivery is taken from the order loaded for the flow' => [true];
+
+        yield 'the delivery loaded by id is used when the order criteria leaves it out' => [false];
     }
 
     public function testOnOrderDeliveryStateChangeNotFound(): void
@@ -287,6 +307,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->with(static::callback(static function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
                     static::assertSame($expectedEvent->getOrder(), $event->getOrder());
+                    static::assertNotInstanceOf(OrderDeliveryAware::class, $event);
                 }
 
                 return true;
@@ -493,6 +514,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->with(static::callback(static function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
                     static::assertSame($expectedEvent->getOrder(), $event->getOrder());
+                    static::assertNotInstanceOf(OrderDeliveryAware::class, $event);
                 }
 
                 return true;
@@ -528,10 +550,10 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     /**
      * @param array<string, string|null> $states technical name of the state, mapped to the technical name of its state machine or null when it has none
-     * @param list<string> $expectedEventNames
+     * @param array<string, class-string> $expectedEvents event class per collected event name
      */
     #[DataProvider('addStateEventsProvider')]
-    public function testOnAddStateEvents(array $states, array $expectedEventNames): void
+    public function testOnAddStateEvents(array $states, array $expectedEvents): void
     {
         $context = Context::createDefaultContext();
 
@@ -576,9 +598,8 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $collector = $this->createMock(BusinessEventCollector::class);
         $collector
-            ->expects($this->exactly(\count($expectedEventNames)))
+            ->expects($this->exactly(\count($expectedEvents)))
             ->method('define')
-            ->with(OrderStateMachineStateChangeEvent::class, static::anything())
             ->willReturnCallback(static fn (string $class, string $name): BusinessEventDefinition => new BusinessEventDefinition($name, $class, []));
 
         $listener = new OrderStateChangeEventListener(
@@ -592,22 +613,39 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $listener->onAddStateEvents($event);
 
-        static::assertSame($expectedEventNames, array_keys($event->getCollection()->getElements()));
+        static::assertSame(
+            $expectedEvents,
+            array_map(static fn (BusinessEventDefinition $definition): string => $definition->getClass(), $event->getCollection()->getElements())
+        );
     }
 
     /**
-     * @return iterable<string, array{0: array<string, string|null>, 1: list<string>}>
+     * @return iterable<string, array{0: array<string, string|null>, 1: array<string, class-string>}>
      */
     public static function addStateEventsProvider(): iterable
     {
         yield 'a state collects an event for the enter and the leave side' => [
             ['paid' => 'order'],
-            ['state_enter.order.paid', 'state_leave.order.paid'],
+            [
+                'state_enter.order.paid' => OrderStateMachineStateChangeEvent::class,
+                'state_leave.order.paid' => OrderStateMachineStateChangeEvent::class,
+            ],
         ];
 
         yield 'a state without a state machine is skipped, the states after it are still collected' => [
             ['open' => null, 'paid' => 'order'],
-            ['state_enter.order.paid', 'state_leave.order.paid'],
+            [
+                'state_enter.order.paid' => OrderStateMachineStateChangeEvent::class,
+                'state_leave.order.paid' => OrderStateMachineStateChangeEvent::class,
+            ],
+        ];
+
+        yield 'a delivery state collects the event that carries the delivery' => [
+            ['shipped' => 'order_delivery.state'],
+            [
+                'state_enter.order_delivery.state.shipped' => OrderDeliveryStateMachineStateChangeEvent::class,
+                'state_leave.order_delivery.state.shipped' => OrderDeliveryStateMachineStateChangeEvent::class,
+            ],
         ];
     }
 }

@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Order\Listener;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -73,7 +75,15 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $context = $this->getContext($orderDelivery->getOrderId(), $event->getContext());
         $order = $this->getOrder($orderDelivery->getOrderId(), $context);
 
-        $this->dispatchEvent($event->getStateEventName(), $order, $context);
+        $this->eventDispatcher->dispatch(
+            new OrderDeliveryStateMachineStateChangeEvent(
+                $event->getStateEventName(),
+                $order,
+                $order->getDeliveries()?->get($orderDeliveryId) ?? $orderDelivery,
+                $context
+            ),
+            $event->getStateEventName()
+        );
     }
 
     /**
@@ -133,6 +143,10 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 continue;
             }
 
+            $eventClass = $machine->getTechnicalName() === OrderDeliveryStates::STATE_MACHINE
+                ? OrderDeliveryStateMachineStateChangeEvent::class
+                : OrderStateMachineStateChangeEvent::class;
+
             foreach ($sides as $side) {
                 $name = implode('.', [
                     $side,
@@ -140,7 +154,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                     $state->getTechnicalName(),
                 ]);
 
-                $definition = $this->businessEventCollector->define(OrderStateMachineStateChangeEvent::class, $name);
+                $definition = $this->businessEventCollector->define($eventClass, $name);
 
                 if (!$definition) {
                     continue;

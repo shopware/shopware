@@ -116,6 +116,18 @@ Remove the webhook from your manifest. The events remain available in Flow Build
 
 Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
 
+## Delivery state webhooks need `order_delivery:read`
+
+The payload of the `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` webhooks contains the delivery whose state changed as `orderDelivery`.
+Subscribing to these webhooks requires `order_delivery:read` in addition to `order:read`, and a manifest without it is rejected with a `MissingPermissionError`.
+Add the permission to your app's `manifest.xml`:
+
+```xml
+<permissions>
+    <read>order_delivery</read>
+</permissions>
+```
+
 ## `EventDataCollection` is final
 
 `\Shopware\Core\Framework\Event\EventData\EventDataCollection` is now `final` and `add()` takes `array $options = []` as third parameter.

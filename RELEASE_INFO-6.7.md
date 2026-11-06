@@ -365,10 +365,7 @@ On the stateless revision there is no MCP session:
 * Each open `subscriptions/listen` stream holds one PHP-FPM worker for up to 25 seconds, then the server ends it and the client reconnects.
   A client that keeps listening therefore occupies one worker almost all the time.
   Account for it in `pm.max_children`, and keep `max_execution_time` and the timeouts of proxies in front of PHP above 25 seconds.
-* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
-  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
-* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
-  Account for it in `pm.max_children`.
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

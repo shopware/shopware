@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -45,6 +47,23 @@ class StaticEntityRepositoryTest extends TestCase
         $criteria->setOffset(50);
 
         static::assertSame(0, $repository->searchedCriteria[0]->getOffset());
+    }
+
+    #[TestDox('answers an id search with the ids of a queued collection or entity list')]
+    public function testSearchIdsReturnsTheIdsOfQueuedEntities(): void
+    {
+        $product = new ProductEntity();
+        $product->setId(Uuid::randomHex());
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
+            new ProductCollection([$product]),
+            [$product],
+            static fn () => [$product],
+        ]);
+        $context = Context::createDefaultContext();
+
+        static::assertSame([$product->getId()], $repository->searchIds(new Criteria(), $context)->getIds());
+        static::assertSame([$product->getId()], $repository->searchIds(new Criteria(), $context)->getIds());
+        static::assertSame([$product->getId()], $repository->searchIds(new Criteria(), $context)->getIds());
     }
 
     #[TestDox('answers aggregate() from the queued searches and records its criteria')]

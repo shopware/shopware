@@ -80,6 +80,32 @@ class DocumentGeneratorTest extends TestCase
         parent::tearDown();
     }
 
+    public function testDeliveryNoteListsOnlyTheLineItemsOfTheRequestedDelivery(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19, 7]));
+        $this->enrichOrderForRendering($orderId);
+        $this->seedDemoBaseConfig(DocumentType::DELIVERY_NOTE->value);
+        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p1' => 1]);
+
+        $deliveryNote = $this->documentGenerator->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::DELIVERY_NOTE,
+                [DocumentFormat::HTML],
+                self::DOCUMENT_NUMBER,
+                documentDate: self::DOCUMENT_DATE,
+                deliveryDate: self::DOCUMENT_DATE,
+                orderDeliveryId: $orderDeliveryId,
+            ),
+            $this->context,
+        );
+
+        $html = $this->loadDocumentContent($deliveryNote);
+        static::assertSame(['p1' => '1'], $this->renderedQuantities($html));
+        static::assertStringContainsString('Second Street 2', $html);
+        static::assertStringContainsString('test shipping method', $html);
+    }
+
     public function testCancellationInvoiceRendersTheOrderSnapshotOfTheReferencedInvoice(): void
     {
         $orderId = $this->createDemoOrder();

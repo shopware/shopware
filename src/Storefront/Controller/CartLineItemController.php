@@ -5,12 +5,12 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
@@ -43,7 +43,6 @@ class CartLineItemController extends StorefrontController
      */
     public function __construct(
         private readonly CartService $cartService,
-        private readonly PromotionItemBuilder $promotionItemBuilder,
         private readonly LineItemFactoryInterface $productLineItemFactory,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly AbstractProductListRoute $productListRoute,
@@ -139,11 +138,16 @@ class CartLineItemController extends StorefrontController
                     return $this->createActionResponse($request);
                 }
 
-                $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
+                $lineItem = $this->lineItemFactoryRegistry->create([
+                    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+                    'referencedId' => $code,
+                ], $context);
 
                 $cart = $this->cartService->add($cart, $lineItem, $context);
 
                 $this->traceErrors($cart);
+            } catch (RateLimitExceededException $exception) {
+                $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]));
             } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }

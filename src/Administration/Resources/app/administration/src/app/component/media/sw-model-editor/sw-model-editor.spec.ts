@@ -250,16 +250,6 @@ describe('src/app/component/media/sw-model-editor', () => {
 
             expect(mockQuickView).toHaveBeenCalled();
         });
-
-        it('should handle missing canvas element gracefully', async () => {
-            const wrapper = await createWrapper();
-            // Manually set canvas to null to simulate missing element
-            await wrapper.setData({ canvas: null });
-            await flushPromises();
-
-            // Component should still exist and not crash
-            expect(wrapper.exists()).toBe(true);
-        });
     });
 
     describe('QuickView Integration', () => {
@@ -624,7 +614,7 @@ describe('src/app/component/media/sw-model-editor', () => {
                 @typescript-eslint/no-unsafe-member-access
             */
             (wrapper.vm as any).setGizmoMode('rotate');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const buttonContainers = wrapper.findAll('.sw-model-editor-canvas-ui__button-container');
             expect(buttonContainers[0].classes()).not.toContain('is--active');

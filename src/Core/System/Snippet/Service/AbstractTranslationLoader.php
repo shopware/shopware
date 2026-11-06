@@ -32,7 +32,7 @@ abstract class AbstractTranslationLoader
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Override `pluginTranslationExistsForLocale()` instead for
+     * @deprecated tag:v6.8.0 - Override `pluginTranslationExistsForLocale()` instead for
      * locale-aware behaviour. This method will be removed.
      */
     abstract public function pluginTranslationExists(Plugin $plugin): bool;

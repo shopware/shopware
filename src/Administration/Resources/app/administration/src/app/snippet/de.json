@@ -16,6 +16,8 @@
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
+      "USER__USERNAME_WHITESPACE": "Der Benutzername darf keine führenden oder nachfolgenden Leerzeichen enthalten.",
+      "USER__USERNAME_NOT_UNIQUE": "Dieser Benutzername wird bereits verwendet.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
@@ -877,6 +879,7 @@
         "lineItemDimensionWidthRule": "Position mit Breite",
         "lineItemDimensionHeightRule": "Position mit Höhe",
         "lineItemDimensionLengthRule": "Position mit Länge",
+        "lineItemDimensionLongestAndGirthRule": "Position mit längster Seite und Gurtmaß",
         "lineItemDimensionWeightRule": "Position mit Gewicht",
         "lineItemDimensionVolumeRule": "Position mit Volumen",
         "lineItemListPriceRule": "Position mit Streichpreis",
@@ -1117,6 +1120,7 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landingpage | Landingpages",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
@@ -1308,6 +1312,11 @@
       "placeholderProduct": "Produkt auswählen ...",
       "placeholderCategory": "Kategorie auswählen ..."
     },
+    "childSearch": {
+      "label": "Einträge durchsuchen",
+      "placeholder": "Suchen ...",
+      "noResults": "Keine Ergebnisse gefunden."
+    },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",
       "cols": "Spalten",
@@ -1381,6 +1390,10 @@
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
+  "sw-not-found": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
+  },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",
     "selected": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
@@ -1411,6 +1424,7 @@
     "reload": "Neu laden",
     "alertText": "Für mindestens eine der Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche ein Abonnement für die Erweiterung nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden.\nNutzt Du die Erweiterung nicht mehr? Dann lösche sie vollständig. Falls Du keinen dieser Schritte vollziehst, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
     "deletePlugin": "Erweiterung vollständig entfernen",
+    "removeExternally": "Entferne die Erweiterung außerhalb der Administration, zum Beispiel mit Composer.",
     "messageDeleteConfirm": "Möchtest Du die Erweiterung \"{pluginName}\" vollständig löschen?",
     "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",
     "closeModal": "Warnung schließen",
@@ -1633,10 +1647,16 @@
         "detectedChanges": "Die folgenden Änderungen wurden festgestellt:",
         "success": "Shop-ID erfolgreich aktualisiert.",
         "error": "Aktualisierung der Shop-ID fehlgeschlagen.",
+        "noStrategySelected": "Wähle zuerst eine Option aus.",
         "oldValue": "Alter Wert",
         "newValue": "Neuer Wert",
         "remindMeLater": "Später erinnern",
         "selectAnOption": "Lies die verfügbaren Optionen sorgfältig durch und wähle diejenige, die am besten zu Deinem Szenario passt:",
+        "moveShopPermanently": {
+          "title": "Shop-ID beibehalten?",
+          "text": "Tu das nur, wenn Du Deinen Live-Shop dauerhaft auf diese Installation umgezogen hast. Die Apps ziehen hierher um und funktionieren in der vorherigen Installation nicht mehr, auch wenn sie noch läuft. Wenn das eine Staging- oder Testkopie ist, brich ab und wähle stattdessen \"Neue Shop-ID generieren\".",
+          "confirm": "Shop-ID beibehalten"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL Umgebungsvariable",
@@ -1652,7 +1672,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor. Das bedeuted, dass die neue Instanz die App-Daten der alten Installation überschreibt.",
+            "description": "Das ist nur die richtige Option, wenn Du Deinen Live-Shop dauerhaft auf einen neuen Server oder in eine neue Umgebung umgezogen hast. Shopware registriert die Apps mit derselben Shop-ID neu, sodass sie ihre Daten behalten. In der vorherigen Installation funktionieren die Apps danach nicht mehr, auch wenn sie noch läuft.",
             "name": "Shop-ID beibehalten"
           },
           "reinstall-apps": {
@@ -1666,10 +1686,15 @@
         }
       },
       "sw-app-wrong-app-url-modal": {
-        "title": "Fehlerhaft konfigurierte APP_URL",
-        "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
-        "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
-        "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
+        "title": "Verifizierung der APP_URL fehlgeschlagen",
+        "explanation": "Shopware konnte nicht bestätigen, dass die APP_URL diesen Shop erreicht. Apps funktionieren daher möglicherweise nicht.",
+        "labelReason": "Grund",
+        "reasonStatusCode": "Die APP_URL hat die Verifizierungsanfrage mit HTTP {statusCode} beantwortet.",
+        "reasonUnknown": "Führe den Befehl unten aus, um Details zu sehen.",
+        "checkIntro": "Prüfe, ob:",
+        "checkPointsToShop": "die APP_URL auf diesen Shop zeigt",
+        "checkNotBlocked": "Anfragen an /api/app-system/shop/verify nicht blockiert werden (Firewall, HTTP-Authentifizierung, IP-Allowlist)",
+        "checkAgain": "Wenn du das Problem behebst, ohne die APP_URL zu ändern, führe diesen Befehl aus, um diese Warnung zu entfernen:",
         "labelLearnMoreButton": "Erfahre mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
       }
@@ -1827,16 +1852,17 @@
     "nextButton": "Weiter",
     "finishButton": "Fertig",
     "seenSaveError": "Deine Auswahl konnte nicht gespeichert werden. Dieser Dialog wird Dir möglicherweise erneut angezeigt.",
+    "profileSettingsLink": "Deinen Profileinstellungen",
     "pages": {
       "adminNavigation": {
         "headline": "Eine klarere, übersichtlichere Navigation",
-        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur."
+        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur.",
+        "moduleColorsHint": "Lieber farbige Modul-Icons? Du kannst \"Modul-Farben\" jederzeit in {profileSettingsLink} wieder auf \"Farbig\" stellen."
       },
       "darkMode": {
         "headline": "Dunkles Erscheinungsbild",
         "badge": "Experimentell",
         "description": "Die Administration bietet jetzt ein dunkles Erscheinungsbild der Benutzeroberfläche, für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
-        "profileSettingsLink": "Deinen Profileinstellungen",
         "themeSelectLabel": "Erscheinungsbild",
         "themeSelectHint": "Diese Einstellung kannst Du jederzeit in {profileSettingsLink} ändern.",
         "themeSaveError": "Das Erscheinungsbild konnte nicht gespeichert werden."

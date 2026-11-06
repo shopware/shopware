@@ -549,7 +549,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     it('should not show Custom Fields card when custom fields length is smaller than 1', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const customFieldsLength = wrapper.vm.customFieldSets.length;
         expect(customFieldsLength).toBe(0);
@@ -568,7 +568,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             states: ['is-physical'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-specification__selling-packaging');
         const cardStyles = cardElement.attributes('style');
@@ -585,7 +585,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             states: ['is-download'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-specification__selling-packaging');
 
@@ -600,7 +600,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             states: ['is-download'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-specification__measurement');
 

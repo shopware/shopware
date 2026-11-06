@@ -5,7 +5,9 @@ namespace Shopware\Storefront\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
@@ -109,6 +111,7 @@ use Shopware\Storefront\Framework\Store\ThemeExtensionRemovalValidator;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
@@ -750,19 +753,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    // @deprecated tag:v6.8.0 Will be removed
     $services->set(CookieProviderInterface::class, CookieProvider::class)
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->args([
+            param('session.storage.options'),
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
-    // @deprecated tag:v6.8.0 Will be removed
     $services->set(AppCookieProvider::class)
         ->decorate(CookieProviderInterface::class)
         ->args([
             service('.inner'),
         ])
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(ResponseHeaderListener::class)
         ->tag('kernel.event_subscriber');
@@ -830,6 +832,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(KernelInterface::class),
             service('logger'),
             service(ClockInterface::class),
+            service('services_resetter'),
         ]);
 
     $services->set(SalesChannelsReadinessCheck::class)
@@ -842,8 +845,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDetailReadinessCheck::class)
         ->args([
             service(SalesChannelDomainUtil::class),
-            service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.product.repository'),
+            service(SalesChannelDomainContextFactory::class),
+            service(ProductCloseoutFilterFactory::class),
+            service(SystemConfigService::class),
         ])
         ->tag('shopware.system_check');
 
@@ -852,12 +858,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelDomainUtil::class),
             service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.category.repository'),
+            service(SalesChannelDomainContextFactory::class),
         ])
         ->tag('shopware.system_check');
 
     $services->set(SalesChannelDomainProvider::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(SalesChannelDomainContextFactory::class)
+        ->args([
+            service(SalesChannelContextFactory::class),
+            service(CartRuleLoader::class),
+            service(CartFactory::class),
         ]);
 
     $services->set(RobotsDirectiveParser::class)

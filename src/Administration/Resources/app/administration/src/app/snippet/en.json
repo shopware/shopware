@@ -16,6 +16,8 @@
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "The URL {path} conflicts with the existing route {blockedSegment} and cannot be used.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
       "DUPLICATED_NAME": "This name is already in use.",
+      "USER__USERNAME_WHITESPACE": "The username must not contain leading or trailing whitespace.",
+      "USER__USERNAME_NOT_UNIQUE": "This username is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
@@ -877,6 +879,7 @@
         "lineItemDimensionWidthRule": "Item with width",
         "lineItemDimensionHeightRule": "Item with height",
         "lineItemDimensionLengthRule": "Item with length",
+        "lineItemDimensionLongestAndGirthRule": "Item with longest side and girth",
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",
@@ -1117,6 +1120,7 @@
       "theme": "Theme | Themes",
       "unit": "Unit | Units",
       "user": "User | Users",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landing page | Landing pages",
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/export profile | Import/export profiles",
@@ -1273,6 +1277,11 @@
       "placeholderProduct": "Select a product...",
       "placeholderCategory": "Select a category..."
     },
+    "childSearch": {
+      "label": "Search entries",
+      "placeholder": "Search...",
+      "noResults": "No results found."
+    },
     "table": {
       "addHeading": "Add table heading",
       "cols": "Columns",
@@ -1381,6 +1390,10 @@
       "messagePlaceholder": "Oops, something went terribly wrong."
     }
   },
+  "sw-not-found": {
+    "title": "Page not found",
+    "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
+  },
   "sw-property-search": {
     "placeholderSearch": "Search values...",
     "selected": "{count} value selected | {count} values selected",
@@ -1409,8 +1422,9 @@
   "sw-license-violation": {
     "title": "Extension warning",
     "reload": "Reload",
-    "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then delete it via the \"Delete extension permanently\" button or via My Extensions. If none of these measures are taken, shopware AG reserves the right to charge penalty fees for any license violation.",
+    "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then remove it from your installation. If none of these measures are taken, shopware AG reserves the right to charge penalty fees for any license violation.",
     "deletePlugin": "Delete extension permanently",
+    "removeExternally": "Remove outside Administration, for example with Composer.",
     "messageDeleteConfirm": "Do you want to delete the extension \"{pluginName}\" completely?",
     "checkboxMessage": "I have taken notice of this message and eventually accruing consequences.",
     "closeModal": "Close notification",
@@ -1633,10 +1647,16 @@
         "detectedChanges": "The following changes were detected:",
         "success": "Shop identifier updated successfully.",
         "error": "Shop identifier update failed.",
+        "noStrategySelected": "Select an option first.",
         "oldValue": "Old value",
         "newValue": "New value",
         "remindMeLater": "Remind me later",
         "selectAnOption": "Read the available options carefully and select the one that best suits your scenario:",
+        "moveShopPermanently": {
+          "title": "Keep the shop identifier?",
+          "text": "Only do this if you permanently moved your live shop to this installation. The apps move here and stop working in the previous installation, even if it is still running. If this is a staging or test copy, cancel and choose \"Generate a new shop identifier\" instead.",
+          "confirm": "Keep the shop identifier"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL environment variable",
@@ -1652,7 +1672,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
+            "description": "This is only the right option if you have permanently moved your live shop to a new server or environment. Shopware re-registers the apps with the same shop identifier, so they keep their data. The apps stop working in the previous installation, even if it is still running.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {
@@ -1666,10 +1686,15 @@
         }
       },
       "sw-app-wrong-app-url-modal": {
-        "title": "Wrongly configured APP_URL",
-        "explanationHeader": "Error with the connection to your extensions.",
-        "explanation": "Extensions are not able to establish a connection to your shop, due to a wrong configuration in your system.",
-        "textDetails": "Technical details: Wrong APP_URL configuration.",
+        "title": "APP_URL verification failed",
+        "explanation": "Shopware could not confirm that APP_URL reaches this shop, so apps may not work.",
+        "labelReason": "Reason",
+        "reasonStatusCode": "APP_URL answered the verification request with HTTP {statusCode}.",
+        "reasonUnknown": "Run the command below for details.",
+        "checkIntro": "Check that:",
+        "checkPointsToShop": "APP_URL points to this shop",
+        "checkNotBlocked": "requests to /api/app-system/shop/verify are not blocked (firewall, HTTP authentication, IP allowlist)",
+        "checkAgain": "If you fix the problem without changing APP_URL, run this command to remove this warning:",
         "labelLearnMoreButton": "Learn more",
         "linkToDocsArticle": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/notes-to-the-APP-URL"
       }
@@ -1827,16 +1852,17 @@
     "nextButton": "Next",
     "finishButton": "Got it",
     "seenSaveError": "Your preference could not be saved. This dialog may appear again.",
+    "profileSettingsLink": "profile settings",
     "pages": {
       "adminNavigation": {
         "headline": "A clearer, more streamlined navigation",
-        "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility."
+        "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility.",
+        "moduleColorsHint": "Prefer coloured module icons? You can switch \"Module colours\" back to \"Coloured\" at any time in your {profileSettingsLink}."
       },
       "darkMode": {
         "headline": "Dark appearance",
         "badge": "Experimental",
         "description": "The Administration now offers a dark appearance for the user interface, for better accessibility and to match your personal preferences.",
-        "profileSettingsLink": "profile settings",
         "themeSelectLabel": "Appearance",
         "themeSelectHint": "You can change this setting at any time in your {profileSettingsLink}.",
         "themeSaveError": "The appearance could not be saved."

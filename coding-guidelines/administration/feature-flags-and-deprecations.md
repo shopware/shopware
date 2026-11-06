@@ -17,7 +17,9 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 - Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards).
 - Document the migration path when deprecating public Administration extension points.
 - Do not introduce new internal callers of deprecated APIs; move core/Admin code to the replacement.
-- When removing a flag, remove the legacy branch, flag configuration, obsolete tests, and stale documentation in the same change.
+- At the major, remove the flag checks, the legacy branch, obsolete tests, and stale documentation in the same change.
+  The major flag itself stays registered in `feature.yaml` (default on, not toggleable), because plugins use it as a version switch.
+  Every other flag is removed from `feature.yaml` once it is enabled.
 
 ### Runtime guards
 
@@ -46,3 +48,17 @@ Component.register('sw-example', {
 Pass a registered major flag and a version like `v6.8.0.0`. Anything else could never throw, so it logs a console error instead.
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+
+### Deprecation baseline
+
+Jest lets known usages of deprecated APIs pass when they are listed in the deprecation baseline.
+In the running Administration, a deprecation whose message is listed in the baseline logs a console error instead of throwing once the major flag is active.
+To update it, run both commands:
+
+```bash
+DEPRECATION_BASELINE=update composer admin:unit
+```
+
+```bash
+DEPRECATION_BASELINE=update composer admin:unit:major
+```

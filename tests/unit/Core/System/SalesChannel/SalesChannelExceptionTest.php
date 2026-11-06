@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
@@ -56,6 +57,13 @@ class SalesChannelExceptionTest extends TestCase
             'statusCode' => Response::HTTP_NOT_FOUND,
             'errorCode' => SalesChannelException::SALES_CHANNEL_DOES_NOT_EXISTS_EXCEPTION,
             'message' => 'Sales channel with id "myCustomScn" not found or not valid!.',
+        ];
+
+        yield MissingPrivilegeException::MISSING_PRIVILEGE_ERROR => [
+            'exception' => SalesChannelException::missingPrivileges(['product_stream:read', 'category:read']),
+            'statusCode' => Response::HTTP_FORBIDDEN,
+            'errorCode' => MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            'message' => '{"message":"Missing privilege","missingPrivileges":["product_stream:read","category:read"]}',
         ];
 
         yield SalesChannelException::LANGUAGE_INVALID_EXCEPTION => [
@@ -113,5 +121,14 @@ class SalesChannelExceptionTest extends TestCase
             'errorCode' => SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE,
             'message' => 'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         ];
+    }
+
+    public function testWrongTypeInTheRequestIsAClientError(): void
+    {
+        $exception = SalesChannelException::invalidType('The includes must be of the type array, string given');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SalesChannelException::INVALID_TYPE, $exception->getErrorCode());
+        static::assertSame('The includes must be of the type array, string given', $exception->getMessage());
     }
 }

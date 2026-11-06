@@ -1,0 +1,31 @@
+diff --git a/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/index.js b/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/index.js
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/index.js
++++ b/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/index.js
+@@ -54,6 +54,11 @@
+             required: false,
+             default: '*/*',
+         },
++
++        entityName: {
++            type: String,
++            required: true,
++        },
+     },
+ 
+     data() {
+diff --git a/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/sw-media-field.html.twig b/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/sw-media-field.html.twig
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/sw-media-field.html.twig
++++ b/src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/sw-media-field.html.twig
+@@ -6,9 +6,7 @@
+         v-if="showLabel()"
+         class="sw-media-field__label"
+     >
+-        <slot name="label">
+-            {{ label }}
+-        </slot>
++        {{ label }}
+     </label>
+     {% endblock %}
+ 

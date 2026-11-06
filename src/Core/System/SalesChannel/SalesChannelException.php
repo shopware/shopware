@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
@@ -195,7 +196,7 @@ class SalesChannelException extends HttpException
     public static function invalidType(string $message): self
     {
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_BAD_REQUEST,
             self::INVALID_TYPE,
             $message
         );
@@ -371,6 +372,14 @@ class SalesChannelException extends HttpException
             'Could not find sales channel file "{{ fileFamily }}/{{ fileName }}".',
             ['fileFamily' => $fileFamily, 'fileName' => $fileName]
         );
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    public static function missingPrivileges(array $permissions): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($permissions);
     }
 
     public static function unexpectedCombinedPrimaryKey(string $entityName): self

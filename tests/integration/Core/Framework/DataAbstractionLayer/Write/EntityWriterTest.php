@@ -797,7 +797,6 @@ class EntityWriterTest extends TestCase
         $this->connection->commit();
         $container = static::getContainer();
         $context = Context::createDefaultContext();
-        /** @var DefinitionInstanceRegistry $definitionInstanceRegistry */
         $definitionInstanceRegistry = $container->get(DefinitionInstanceRegistry::class);
 
         // Prepare test entity 1 that has a non-uuid primary key
@@ -885,10 +884,7 @@ class EntityWriterTest extends TestCase
         static::assertCount(0, $fetchTwoDeleted->getEntities());
 
         // Clean up
-        $this->connection->executeStatement(
-            'DROP TABLE IF EXISTS `test_entity_two`;
-            DROP TABLE IF EXISTS `test_entity_one`;',
-        );
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `test_entity_two`, `test_entity_one`');
         $this->connection->beginTransaction();
     }
 

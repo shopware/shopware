@@ -209,7 +209,7 @@ export function loadExtensions(): ExtensionDefinition[] {
 /**
  * @private
  */
-export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
+async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
     const ports = [];
     let currentPort = startPort;
     const maxPort = 65535;
@@ -302,7 +302,8 @@ export function getMainViteServerConfig(): {
 
     for (const [key, value] of Object.entries(parsedData.extensions)) {
         proxyConfig[value.basePath] = {
-            target: `http://localhost:${value.port}`,
+            // Extension servers bind to IPv4. localhost can resolve to the main server on IPv6 and proxy back to itself.
+            target: `http://127.0.0.1:${value.port}`,
             changeOrigin: true,
             ws: true,
             rewriteWsOrigin: true,

@@ -61,7 +61,7 @@
       "labelVatIdRequired": "VAT Reg.No. required",
       "labelIsEu": "Member state of the European Union",
       "helpTextIsEu": "Switch on to enable the display of the \"intra-community\" delivery.",
-      "helpTextLabelVatIdRequired": "Please keep in mind the global switch in \"Settings > Login/registration\".",
+      "helpTextLabelVatIdRequired": "Commercial customers must provide a VAT Reg.No. when this country is selected. Requires the account type selection in \"Settings > Log-in & sign-up\".",
       "titleOptions": "Options",
       "currencyDependentValues": "Currency dependent values",
       "labelPostalCodeRequired": "Postal code required",

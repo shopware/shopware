@@ -21,13 +21,17 @@ the checklist for adding a new skill), see
 │   ├── sw-nightly.md        # gh aw SOURCE (edit this)
 │   ├── sw-nightly.lock.yml  # compiled — `gh aw compile` regenerates it
 │   ├── sw-review.md         # gh aw SOURCE (edit this)
-│   └── sw-review.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-review.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-docs-impact.md    # gh aw SOURCE (edit this)
+│   ├── sw-docs-impact.lock.yml # compiled — `gh aw compile` regenerates it
+│   └── sw-docs-impact-dispatch.yml # plain workflow: one sw-docs-impact run per merged PR of a trunk push
 └── aw/
     ├── README.md            # this file
     ├── sw-bugfixer-policy.md   # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-nightly-policy.md    # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-review-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-docs-impact-policy.md # gh-aw-mode policy, runtime-imported by the workflow
     ├── shared/
     │   ├── sw-bugfixer-policy.md # shared rubric, runtime-imported by the gh-aw fragment
     │   ├── sw-triage-policy.md   # AND referenced by the interactive skill (single source)
@@ -45,6 +49,7 @@ the checklist for adding a new skill), see
 | `sw-triage` | `workflow_dispatch` (input: `issue_number`), `/sw-triage` issue comment, `qi/sw-triage` issue label | `claude` / Sonnet tier | `triage-output.json` via `upload-artifact` |
 | `sw-nightly` | `workflow_dispatch` (input: `issue_number`), `/sw-nightly` issue comment, `qi/sw-nightly` issue label | `claude` / Sonnet tier | `nightly-triage-output.json` via `upload-artifact` |
 | `sw-review` | `qi/sw-review` label on same-repository PRs, `/sw-review` conversation comment by a member on any PR (the only trigger that works for fork PRs), `workflow_dispatch` (input: `pr_number`) | `claude` / Sonnet tier (security & architecture personas → Opus tier) | inline findings via `create-pull-request-review-comment` + summary via `submit-pull-request-review` |
+| `sw-docs-impact` | `workflow_dispatch` (inputs: `pr_number`, `dry_run` — on by default, writes the comment to the run summary instead of posting it). On a push to `trunk`, the plain workflow `sw-docs-impact-dispatch.yml` starts one run per merged pull request in the push (paths-ignore skips test/tooling/config-only pushes; commits typed `test`, `ci`, `chore`, `docs` or `refactor` are skipped; at most 20 per push), with `dry_run` on until the repository variable `SW_DOCS_IMPACT_POST` is `true` | `claude` / Sonnet tier | one neutral "docs candidate" comment and a `docs-candidate/end-user` or `docs-candidate/developer` label per audience on the merged PR, without mentions, via the `docs-candidate` safe-output job (`.github/bin/js/docs-impact.ts`); the agent checks a `shopware/docs` checkout and, through an octo-sts read token, a `shopware/enduser-docs-sbp-sync` checkout to decide add, adjust or remove |
 
 The concrete model version for each workflow lives in its own `engine.model` frontmatter (`.github/workflows/<name>.md`) — the single source of truth. This table and the notes below intentionally name tiers, not versioned IDs, so they don't drift when a model is bumped.
 
@@ -52,7 +57,9 @@ The triage agent job is read-only — it cannot label, comment, or close. Comman
 
 The Bugfixer agent also runs without direct write credentials. Branch creation, commits, pull request creation, pull request branch updates, and comments are mediated through gh aw safe outputs. Public comments and PR bodies intentionally omit token and cost analytics; use the Actions step summary, `gh aw audit`, or `gh aw logs` for usage data.
 
-The Review agent is read-only and never approves. It orchestrates one **inline sub-agent per persona** (the `## agent:` blocks in `sw-review.md`; `security` and `architecture` escalate to the Opus tier), merges the per-persona findings, and publishes `blocking`/`major` findings as inline PR review comments; `minor`/`nit` findings ride as a compact list in the single summary review (`COMMENT` or `REQUEST_CHANGES`), so the diff only carries the important ones. The rubric and personas are shared with the interactive `sw-review` skill via `.github/aw/shared/sw-review-policy.md` and `.agents/skills/sw-review/{personas,references}/`. Persona dispatch was verified end-to-end via the registration trick (see below): all five personas run as `Task` sub-agents, `security`/`architecture` on Opus, and workers cannot publish — their `tools:` frontmatter withholds the safe-output tools, so the orchestrator's single `submit-pull-request-review` is the only publish path.
+The Review agent is read-only and never approves. A workflow step first runs `.agents/skills/sw-review/scripts/classify.ts` on the diff, from a trusted commit rather than the PR head (deterministic: path classes, impact signals, and the topic guides under `.agents/skills/sw-review/guides/` that apply; never the PR text), then orchestrates one **inline sub-agent per persona** (`security`, `architecture`, `code-style`, `ux`, `maintainer`; the `## agent:` blocks in `sw-review.md`; `security` and `architecture` escalate to the Opus tier), hands each worker its slice and guides, merges the per-persona findings, and publishes `blocking`/`major` findings as inline PR review comments; `minor`/`nit` findings ride as a compact list in the single summary review (`COMMENT` or `REQUEST_CHANGES`), so the diff only carries the important ones. Findings that rest on a guide rule carry `<!-- sw-review:rule=ID -->` in the comment body. The rubric, personas and guides are shared with the interactive `sw-review` skill via `.github/aw/shared/sw-review-policy.md` and `.agents/skills/sw-review/{personas,guides,references}/`; the routing is covered by `tests/routing/routing.test.ts` and `scripts/classify.test.ts` (`node --test`), which the `Agentic Workflow Consistency` workflow runs on every change to the skill.
+
+A `workflow_dispatch` run of `sw-review` exercises the engine and the personas but ends with a failed `safe_outputs` job: there is no pull-request context, so `submit_pull_request_review` is rejected. Use it to test the toolchain or a model bump; the `agent` job is the signal. Persona dispatch was verified end-to-end via the registration trick (see below): all five personas run as `Task` sub-agents, `security`/`architecture` on Opus, and workers cannot publish — their `tools:` frontmatter withholds the safe-output tools, so the orchestrator's single `submit-pull-request-review` is the only publish path.
 
 **Reviewing a fork PR:** the `pull_request` event of a fork carries no repository secrets, so the `qi/sw-review` label is restricted to same-repository PRs (it is skipped on forks instead of failing on the missing API key). To review an external contribution, a member comments `/sw-review` on the PR; `issue_comment` events run in the base repository with secrets, and gh aw only accepts the command from OWNER, MEMBER and COLLABORATOR authors.
 

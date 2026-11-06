@@ -19,8 +19,19 @@ test(
         const uniqueId = IdProvider.getIdPair().uuid;
         const flowName = 'Test flow - ' + uniqueId;
 
+        // Wait for the template listing to load, so the search bar belongs to the flow module and not the dashboard.
+        const waitForTemplateListing = () =>
+            AdminFlowBuilderTemplates.page.waitForResponse(
+                (response) =>
+                    response.url().includes('/api/search/flow-template') &&
+                    response.request().method() === 'POST' &&
+                    response.ok(),
+            );
+
         await test.step('Go to flow template detail page and retrieve template UUID', async () => {
+            const templateListingLoaded = waitForTemplateListing();
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
+            await templateListingLoaded;
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
             const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(
                 flowTemplateSearchTerm,
@@ -36,7 +47,9 @@ test(
         await test.step('Create flow from template and compare it with template', async () => {
             const flowTemplateUrl = AdminFlowBuilderDetail.page.url().split('/');
             const flowTemplateId = flowTemplateUrl[flowTemplateUrl.length - 2];
+            const templateListingLoaded = waitForTemplateListing();
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
+            await templateListingLoaded;
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
             const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(
                 flowTemplateSearchTerm,

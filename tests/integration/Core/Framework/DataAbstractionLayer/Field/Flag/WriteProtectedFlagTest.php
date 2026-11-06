@@ -48,12 +48,20 @@ CREATE TABLE `_test_relation` (
   PRIMARY KEY `id` (`id`)
 );
 
+EOF;
+        $this->connection->executeStatement($nullableTable);
+
+        $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable_reference` (
   `wp_id` binary(16) NOT NULL,
   `relation_id` binary(16) NOT NULL,
   PRIMARY KEY `pk` (`wp_id`, `relation_id`)
 );
 
+EOF;
+        $this->connection->executeStatement($nullableTable);
+
+        $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable_translation` (
   `_test_nullable_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
@@ -62,6 +70,10 @@ CREATE TABLE `_test_nullable_translation` (
   PRIMARY KEY `pk` (`_test_nullable_id`, `language_id`)
 );
 
+EOF;
+        $this->connection->executeStatement($nullableTable);
+
+        $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable` (
   `id` binary(16) NOT NULL,
   `relation_id` binary(16) NULL,

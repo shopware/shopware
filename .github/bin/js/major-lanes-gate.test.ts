@@ -4,6 +4,7 @@ import { type CheckRun, checkMajorLanes, evaluateLane, requiredLanes } from './m
 
 const INTEGRATION = 'integration-major-check';
 const ACCEPTANCE = 'acceptance-major / acceptance-major-check';
+const DOWNSTREAM = 'downstream-major-check';
 
 const run = (name: string, conclusion: string | null, startedAt: string, status = 'completed'): CheckRun =>
     ({ name, status, conclusion, started_at: startedAt });
@@ -14,7 +15,7 @@ test('requiredLanes maps each major-test label to its lane', () => {
     assert.deepEqual(requiredLanes(['major-php']), [INTEGRATION]);
     assert.deepEqual(requiredLanes(['major-js']), [INTEGRATION]);
     assert.deepEqual(requiredLanes(['major-acceptance']), [ACCEPTANCE]);
-    assert.deepEqual(requiredLanes(['major-tests']), [INTEGRATION, ACCEPTANCE]);
+    assert.deepEqual(requiredLanes(['major-tests']), [INTEGRATION, ACCEPTANCE, DOWNSTREAM]);
 });
 
 test('evaluateLane fails a lane that never ran instead of passing it', () => {
@@ -43,6 +44,13 @@ test('evaluateLane judges the most recent run, so a fixed re-run turns it green'
         run(INTEGRATION, 'failure', '2026-10-15T07:00:00Z'),
     ];
     assert.equal(evaluateLane(INTEGRATION, broken).state, 'failure');
+});
+
+test('evaluateLane preserves a downstream failure after an unrelated label skips the lane', () => {
+    assert.equal(evaluateLane(DOWNSTREAM, [
+        run(DOWNSTREAM, 'failure', '2026-10-15T06:00:00Z'),
+        run(DOWNSTREAM, 'skipped', '2026-10-15T07:00:00Z'),
+    ]).state, 'failure');
 });
 
 test('evaluateLane reports a running lane as pending', () => {
@@ -128,6 +136,23 @@ test('checkMajorLanes waits for a running lane and passes once it is green', asy
     });
     await checkMajorLanes(kit, instant);
     assert.deepEqual(failures, []);
+});
+
+test('checkMajorLanes blocks a major-tests PR when only Commercial failed', async () => {
+    const { toolkit: kit, failures } = toolkit({
+        labels: { 20934: ['major-tests'] },
+        runs: {
+            [`sha-20934 ${INTEGRATION}`]: [[run(INTEGRATION, 'success', '2026-10-15T06:00:00Z')]],
+            [`sha-20934 ${ACCEPTANCE}`]: [[run(ACCEPTANCE, 'success', '2026-10-15T06:00:00Z')]],
+            [`sha-20934 ${DOWNSTREAM}`]: [[
+                run(DOWNSTREAM, 'failure', '2026-10-15T06:00:00Z'),
+                run(DOWNSTREAM, 'skipped', '2026-10-15T07:00:00Z'),
+            ]],
+        },
+    });
+    await checkMajorLanes(kit, instant);
+    assert.equal(failures.length, 1);
+    assert.match(failures[0], /downstream-major-check concluded failure/);
 });
 
 test('checkMajorLanes fails a lane still running at the deadline', async () => {

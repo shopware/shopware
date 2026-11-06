@@ -1,0 +1,155 @@
+diff --git a/src/Core/Content/Product/SalesChannel/DeliveryEstimate/AbstractProductDeliveryEstimateRoute.php b/src/Core/Content/Product/SalesChannel/DeliveryEstimate/AbstractProductDeliveryEstimateRoute.php
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/src/Core/Content/Product/SalesChannel/DeliveryEstimate/AbstractProductDeliveryEstimateRoute.php
+@@ -0,0 +1,14 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Content\Product\SalesChannel\DeliveryEstimate;
++
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\System\SalesChannel\SalesChannelContext;
++
++#[Package('inventory')]
++abstract class AbstractProductDeliveryEstimateRoute
++{
++    abstract public function getDecorated(): AbstractProductDeliveryEstimateRoute;
++
++    abstract public function load(string $productId, SalesChannelContext $context): ProductDeliveryEstimateRouteResponse;
++}
+diff --git a/src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRoute.php b/src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRoute.php
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRoute.php
+@@ -0,0 +1,63 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Content\Product\SalesChannel\DeliveryEstimate;
++
++use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
++use Shopware\Core\Content\Product\ProductCollection;
++use Shopware\Core\Content\Product\ProductException;
++use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
++use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
++use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
++use Shopware\Core\Framework\Routing\StoreApiRouteScope;
++use Shopware\Core\PlatformRequest;
++use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
++use Shopware\Core\System\SalesChannel\SalesChannelContext;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\Routing\Attribute\Route;
++
++#[Package('inventory')]
++#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
++class ProductDeliveryEstimateRoute extends AbstractProductDeliveryEstimateRoute
++{
++    /**
++     * @internal
++     *
++     * @param SalesChannelRepository<ProductCollection> $productRepository
++     */
++    public function __construct(
++        private readonly SalesChannelRepository $productRepository,
++    ) {
++    }
++
++    public function getDecorated(): AbstractProductDeliveryEstimateRoute
++    {
++        throw new DecorationPatternException(self::class);
++    }
++
++    #[Route(
++        path: '/store-api/product/{productId}/delivery-estimate',
++        name: 'store-api.product.delivery-estimate',
++        methods: [Request::METHOD_GET]
++    )]
++    public function load(string $productId, SalesChannelContext $context): ProductDeliveryEstimateRouteResponse
++    {
++        $criteria = new Criteria([$productId]);
++        $criteria->setTitle('product-delivery-estimate-route');
++        $criteria->addAssociation('deliveryTime');
++        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_LINK));
++
++        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
++
++        if (!$product instanceof SalesChannelProductEntity) {
++            throw ProductException::productNotFound($productId);
++        }
++
++        return new ProductDeliveryEstimateRouteResponse(
++            $product->getDeliveryTime()?->getMin(),
++            $product->getDeliveryTime()?->getMax(),
++            $product->getDeliveryTime()?->getUnit(),
++        );
++    }
++}
+diff --git a/src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRouteResponse.php b/src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRouteResponse.php
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRouteResponse.php
+@@ -0,0 +1,19 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Content\Product\SalesChannel\DeliveryEstimate;
++
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Struct\ArrayStruct;
++use Shopware\Core\System\SalesChannel\StoreApiResponse;
++
++/**
++ * @extends StoreApiResponse<ArrayStruct<string, int|string|null>>
++ */
++#[Package('inventory')]
++class ProductDeliveryEstimateRouteResponse extends StoreApiResponse
++{
++    public function __construct(?int $min, ?int $max, ?string $unit)
++    {
++        parent::__construct(new ArrayStruct(['min' => $min, 'max' => $max, 'unit' => $unit], 'product_delivery_estimate'));
++    }
++}
+diff --git a/src/Core/Content/DependencyInjection/product.php b/src/Core/Content/DependencyInjection/product.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Content/DependencyInjection/product.php
++++ b/src/Core/Content/DependencyInjection/product.php
+@@ -89,6 +89,8 @@
+ use Shopware\Core\Content\Product\ProductVariationBuilder;
+ use Shopware\Core\Content\Product\PropertyGroupSorter;
+ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
++use Shopware\Core\Content\Product\SalesChannel\DeliveryEstimate\AbstractProductDeliveryEstimateRoute;
++use Shopware\Core\Content\Product\SalesChannel\DeliveryEstimate\ProductDeliveryEstimateRoute;
+ use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
+ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+@@ -834,7 +836,15 @@
+         ]);
+ 
+     $services->alias(AbstractGaranLabelRoute::class, GaranLabelRoute::class);
++
++    $services->set(ProductDeliveryEstimateRoute::class)
++        ->public()
++        ->args([
++            service('sales_channel.product.repository'),
++        ]);
+ 
++    $services->alias(AbstractProductDeliveryEstimateRoute::class, ProductDeliveryEstimateRoute::class);
++
+     $services->set(BuyBoxCmsElementResolver::class)
+         ->args([
+             service(ProductConfiguratorLoader::class),
+diff --git a/src/Core/DevOps/StaticAnalyze/PHPStan/store-api-route-extensions.neon b/src/Core/DevOps/StaticAnalyze/PHPStan/store-api-route-extensions.neon
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/DevOps/StaticAnalyze/PHPStan/store-api-route-extensions.neon
++++ b/src/Core/DevOps/StaticAnalyze/PHPStan/store-api-route-extensions.neon
+@@ -2,6 +2,7 @@
+     shopwareLegacyStoreApiRouteMethods:
+         # Endpoints that publish no extension event on purpose: infrastructure and test routes.
+         # New store-api routes must follow the ADR, do not add them here.
++        - Shopware\Core\Content\Product\SalesChannel\DeliveryEstimate\ProductDeliveryEstimateRoute::load
+         - Shopware\Core\Content\ProductExport\SalesChannel\ExportController::index
+         - Shopware\Core\Content\Test\TestNavigationSeoUrlRoute::route
+         - Shopware\Core\Content\Test\TestProductSeoUrlRoute::route

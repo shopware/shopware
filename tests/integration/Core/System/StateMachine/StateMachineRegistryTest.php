@@ -72,8 +72,9 @@ class StateMachineRegistryTest extends TestCase
         $this->inProgressId = Uuid::randomHex();
         $this->closedId = Uuid::randomHex();
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS _test_nullable');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `state` varchar(255) NULL,

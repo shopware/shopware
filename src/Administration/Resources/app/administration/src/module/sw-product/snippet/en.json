@@ -425,7 +425,7 @@
         "uploadCardExternalManagementDescription": "Digital variants can be saved without uploaded files because \"File not required or provided externally\" is enabled.",
         "uploadCardSearchPlaceholder": "Search variants...",
         "uploadInfoBoxHeader": "Actions performed according to current configuration:",
-        "uploadInfoBoxCount": "{count} variants | {count} variant | {count} variants",
+        "uploadInfoBoxCount": "{count} variant | {count} variants",
         "uploadInfoBoxCreateLabel": "will be added,",
         "uploadInfoBoxDeleteLabel": "will be deleted.",
         "selectOptions": "Value selection",

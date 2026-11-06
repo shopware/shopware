@@ -24,7 +24,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -239,6 +242,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductDocumentTranslationDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentConfig::class)
+        ->args([
+            param('shopware.product_documents.allowed_extensions'),
+            param('shopware.product_documents.max_per_language'),
+            param('shopware.product_documents.max_file_size'),
+        ]);
+
+    $services->set(ProductDocumentReader::class)
+        ->args([service(Connection::class)]);
+
+    $services->set(ProductDocumentValidator::class)
+        ->args([
+            service(WriteOutcome::class),
+            service(ProductDocumentReader::class),
+            service(ProductDocumentConfig::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(ProductTranslationDefinition::class)
         ->tag('shopware.entity.definition');

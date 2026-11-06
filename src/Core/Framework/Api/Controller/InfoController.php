@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -63,6 +64,7 @@ class InfoController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
+        private readonly ProductDocumentConfig $productDocumentConfig,
     ) {
     }
 
@@ -199,6 +201,7 @@ class InfoController extends AbstractController
         $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
 
         $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
+        $presignedUploadSupported = $this->presignedMediaUploadService !== null && $this->presignedMediaUploadService->isAvailable();
 
         $config = [
             'version' => $this->getShopwareVersion(),
@@ -209,8 +212,7 @@ class InfoController extends AbstractController
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
-                'presignedUploadSupported' => $this->presignedMediaUploadService !== null
-                    && $this->presignedMediaUploadService->isAvailable(),
+                'presignedUploadSupported' => $presignedUploadSupported,
                 'appUrlReachable' => $appUrlReachable,
                 'appUrlStatusCode' => $appUrlReachable ? null : $this->appUrlVerifier->getCurrentState()?->statusCode,
                 'appsRequireAppUrl' => $this->activeAppsLoader->hasRegisteredApps(),
@@ -222,6 +224,13 @@ class InfoController extends AbstractController
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
+                'productDocuments' => [
+                    'allowedExtensions' => $this->productDocumentConfig->allowedExtensions,
+                    'allowedMimeTypesByExtension' => $this->productDocumentConfig->getMimeTypesByExtension(),
+                    'maxPerLanguage' => $this->productDocumentConfig->maxPerLanguage,
+                    // the upload limit, which is what the Administration checks
+                    'maxFileSize' => $this->productDocumentConfig->getMaxUploadFileSize($presignedUploadSupported),
+                ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
         ];

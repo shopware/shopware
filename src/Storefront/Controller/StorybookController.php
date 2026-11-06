@@ -4,10 +4,9 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Storybook\StorybookHtmlSanitizer;
-use Shopware\Storefront\Storybook\StorybookHtmlSanitizerException;
 use Shopware\Storefront\Storybook\StorybookService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +38,7 @@ class StorybookController extends AbstractController
         private readonly Environment $twig,
         private readonly ComponentFactory $componentFactory,
         private readonly StorybookService $storybookService,
-        private readonly StorybookHtmlSanitizer $storybookHtmlSanitizer,
+        private readonly HtmlSanitizer $htmlSanitizer,
     ) {
     }
 
@@ -147,10 +146,7 @@ class StorybookController extends AbstractController
                 $blockOverrides = '';
                 foreach ($storybookBlocks as $blockName => $blockContent) {
                     $blockOverrides .= '<twig:block name="' . $blockName . '">{{ blockContent.' . $blockName . '|raw }}</twig:block>';
-                    $renderContext['blockContent'][$blockName] = $this->storybookHtmlSanitizer->sanitize(
-                        $blockContent,
-                        $request->getSchemeAndHttpHost(),
-                    );
+                    $renderContext['blockContent'][$blockName] = $this->htmlSanitizer->sanitize($blockContent, field: 'storybook');
                 }
 
                 $template = self::THEME_STYLESHEETS_TEMPLATE . "\n<twig:" . $component . $propAttributes . '>' . $blockOverrides . '</twig:' . $component . '>';
@@ -161,12 +157,6 @@ class StorybookController extends AbstractController
         } catch (RuntimeError|SyntaxError $e) {
             $response = new Response(
                 'Template error: ' . htmlspecialchars($e->getMessage()),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                ['Content-Type' => 'text/plain; charset=UTF-8'],
-            );
-        } catch (StorybookHtmlSanitizerException $exception) {
-            $response = new Response(
-                $exception->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 ['Content-Type' => 'text/plain; charset=UTF-8'],
             );

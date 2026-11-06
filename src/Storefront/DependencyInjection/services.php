@@ -165,7 +165,6 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
-use Shopware\Storefront\Storybook\StorybookHtmlSanitizer;
 use Shopware\Storefront\Storybook\StorybookService;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Mail\MailThemeConfigSubscriber;
@@ -914,8 +913,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DatabaseSalesChannelThemeLoader::class),
             service(ThemeRuntimeConfigStorage::class),
         ]);
-
-    $services->set(StorybookHtmlSanitizer::class);
 
     $services->set(StorybookRouteScopeAllowList::class)
         ->tag('shopware.route_scope_whitelist');

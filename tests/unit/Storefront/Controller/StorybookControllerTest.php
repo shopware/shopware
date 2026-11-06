@@ -7,10 +7,9 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
-use Shopware\Storefront\Storybook\StorybookHtmlSanitizer;
-use Shopware\Storefront\Storybook\StorybookHtmlSanitizerException;
 use Shopware\Storefront\Storybook\StorybookService;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\StorybookTwigEnvironmentStub;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -40,7 +39,7 @@ class StorybookControllerTest extends TestCase
 
     private ComponentFactory $componentFactory;
 
-    private StorybookHtmlSanitizer&Stub $storybookHtmlSanitizer;
+    private HtmlSanitizer&Stub $htmlSanitizer;
 
     protected function setUp(): void
     {
@@ -59,8 +58,8 @@ class StorybookControllerTest extends TestCase
             $this->twig,
         );
         $this->storybookService = static::createStub(StorybookService::class);
-        $this->storybookHtmlSanitizer = static::createStub(StorybookHtmlSanitizer::class);
-        $this->storybookHtmlSanitizer->method('sanitize')->willReturnCallback(static fn (string $html): string => $html);
+        $this->htmlSanitizer = static::createStub(HtmlSanitizer::class);
+        $this->htmlSanitizer->method('sanitize')->willReturnCallback(static fn (string $html): string => $html);
     }
 
     public function testStorybookRendersComponentSuccessfully(): void
@@ -150,20 +149,20 @@ class StorybookControllerTest extends TestCase
         $request->headers->set('Origin', self::STORYBOOK_ORIGIN);
         $request->headers->set('Host', 'localhost');
 
-        $sanitizer = static::createStub(StorybookHtmlSanitizer::class);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
         $sanitizedInput = [];
         $sanitizer->method('sanitize')
-            ->willReturnCallback(static function (string $html, string $origin) use (&$sanitizedInput): string {
-                $sanitizedInput = [$html, $origin];
+            ->willReturnCallback(static function (string $html, ?array $options = [], bool $override = false, ?string $field = null) use (&$sanitizedInput): string {
+                $sanitizedInput = [$html, $options, $override, $field];
 
                 return '<strong>Block</strong>';
             });
 
-        $response = $this->createController(storybookHtmlSanitizer: $sanitizer)
+        $response = $this->createController(htmlSanitizer: $sanitizer)
             ->storybook('Sw:Content:Modal', $request);
 
         static::assertSame('<svg><path d="M0 0"/></svg><link rel="stylesheet" href="/theme.css">', $response->getContent());
-        static::assertSame(['<strong>Block</strong><script>unsafe</script>', 'http://localhost'], $sanitizedInput);
+        static::assertSame(['<strong>Block</strong><script>unsafe</script>', [], false, 'storybook'], $sanitizedInput);
         static::assertSame(['content' => '<strong>Block</strong>'], $this->twig->renderContext['blockContent']);
         static::assertSame('<script>Prop value</script>', $this->twig->renderContext['componentProps']['title']);
     }
@@ -175,17 +174,17 @@ class StorybookControllerTest extends TestCase
         $this->storybookService->method('resolveComponentProps')->willReturn(['title' => '<span>Title</span>']);
         $this->twig->renderOutput = '<svg><path d="M0 0"/></svg>';
 
-        $sanitizer = static::createStub(StorybookHtmlSanitizer::class);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
         $sanitizer->method('sanitize')->willThrowException(new \RuntimeException('Unexpected sanitization'));
 
-        $response = $this->createController(storybookHtmlSanitizer: $sanitizer)
+        $response = $this->createController(htmlSanitizer: $sanitizer)
             ->storybook('Sw:Content:Modal', $this->createStorybookRequest());
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame('<svg><path d="M0 0"/></svg>', $response->getContent());
     }
 
-    public function testStorybookDoesNotReturnPreviewMarkupWhenSanitizationFails(): void
+    public function testStorybookPropagatesSanitizerFailure(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $this->storybookService->method('createSalesChannelContext')->willReturn($salesChannelContext);
@@ -198,16 +197,16 @@ class StorybookControllerTest extends TestCase
         $request->setMethod(Request::METHOD_POST);
         $request->headers->set('Origin', self::STORYBOOK_ORIGIN);
 
-        $sanitizer = static::createStub(StorybookHtmlSanitizer::class);
-        $sanitizer->method('sanitize')->willThrowException(StorybookHtmlSanitizerException::unableToSanitize());
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $failure = new \RuntimeException('HTMLPurifier failed');
+        $sanitizer->method('sanitize')->willThrowException($failure);
 
-        $response = $this->createController(storybookHtmlSanitizer: $sanitizer)
-            ->storybook('my-button', $request);
-
-        static::assertSame(500, $response->getStatusCode());
-        static::assertStringNotContainsString('unsafe preview', (string) $response->getContent());
-        static::assertSame('Storybook HTML could not be sanitized.', $response->getContent());
-        static::assertSame('text/plain; charset=UTF-8', $response->headers->get('Content-Type'));
+        try {
+            $this->createController(htmlSanitizer: $sanitizer)->storybook('my-button', $request);
+            static::fail('Expected sanitization to fail.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame($failure, $exception);
+        }
     }
 
     public function testStorybookRejectsNonStringBlockContent(): void
@@ -419,13 +418,13 @@ class StorybookControllerTest extends TestCase
 
     private function createController(
         ?StorybookService $storybookService = null,
-        ?StorybookHtmlSanitizer $storybookHtmlSanitizer = null,
+        ?HtmlSanitizer $htmlSanitizer = null,
     ): StorybookController {
         return new StorybookController(
             $this->twig,
             $this->componentFactory,
             $storybookService ?? $this->storybookService,
-            $storybookHtmlSanitizer ?? $this->storybookHtmlSanitizer,
+            $htmlSanitizer ?? $this->htmlSanitizer,
         );
     }
 }

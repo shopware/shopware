@@ -194,16 +194,16 @@ class SeoActionControllerTest extends TestCase
         $routeRegistry = new SeoUrlRouteRegistry([new ProductPageSeoUrlRoute(new ProductDefinition())]);
 
         return new SeoActionController(
-            $this->createMock(SeoUrlGenerator::class),
+            static::createStub(SeoUrlGenerator::class),
             $persister,
             $definitionRegistry,
             $routeRegistry,
             $validationFactory,
             $validator,
             new StaticEntityRepository([new SalesChannelCollection([$salesChannel])]),
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $definitionRegistry,
-            new EntityRouteResolver($routeRegistry, $this->createMock(SeoUrlPlaceholderHandlerInterface::class), $this->createMock(RouterInterface::class)),
+            new EntityRouteResolver($routeRegistry, static::createStub(SeoUrlPlaceholderHandlerInterface::class), static::createStub(RouterInterface::class)),
             $updater,
         );
     }

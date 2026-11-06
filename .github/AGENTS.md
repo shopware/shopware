@@ -18,7 +18,8 @@ nightlies and the release gate. Change one and you change all three contexts.
 
 | Workflow | Covers |
 |---|---|
-| `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
+| `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit`, `migration` and `devops` suites on PHPUnit 13, license-check, composer-audit, composer-prefer-lowest |
+| `php-phpunit-11.yml` | the `unit` and `migration` suites on PHP 8.2 and PHPUnit 11, nightly only |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
 | `integration-major.yml` | the same, plus Jest, with the upcoming major flag enabled (`V6_8_0_0=1`) |
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration, and its build with Vite 8 (`ADMIN_VITE_8`) |
@@ -29,7 +30,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 Composition, rather than duplication, is how the arms are built:
 
 - `nightly.yml` calls `admin`, `integration`, `acceptance`, `visual-tests`,
-  `php`, `storefront`, `zugferd-compliance`, `downstream` and `05-prepare-release`
+  `php`, `php-phpunit-11`, `storefront`, `zugferd-compliance`, `downstream` and `05-prepare-release`
   with `profile: nightly`.
 - `nightly-major.yml` calls `acceptance` and `integration-major`; its cron is
   deliberately offset from `nightly.yml` so the two do not overlap.

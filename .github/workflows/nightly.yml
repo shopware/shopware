@@ -101,6 +101,12 @@ jobs:
       pull-requests: read
     uses: ./.github/workflows/php.yml
     secrets: inherit
+  phpunit-11:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/php-phpunit-11.yml
+    secrets: inherit
   storefront:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/storefront.yml
@@ -133,17 +139,18 @@ jobs:
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
 
-  # turn red PHPUnit arms (redis, integration.yml, php.yml) into one domain-grouped tracking issue,
+  # turn red PHPUnit arms (redis, integration.yml, php.yml, php-phpunit-11.yml) into one domain-grouped tracking issue,
   # aggregated from the junit-phpunit-* artifacts those jobs upload on scheduled failures
   report-phpunit-failures:
     # maintenance-branch nightlies arrive as bot workflow_dispatch (schedule only fires on the default
     # branch), so do not gate on the event; the aggregation script skips branches that are neither
     # trunk nor maintenance-shaped, keeping manual test dispatches out of the tracking issues
-    if: always() && github.ref_type != 'tag' && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure')
+    if: always() && github.ref_type != 'tag' && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure' || needs.phpunit-11.result == 'failure')
     needs:
       - redis
       - integration
       - php
+      - phpunit-11
     uses: ./.github/workflows/report-phpunit-failures.yml
     permissions:
       contents: read

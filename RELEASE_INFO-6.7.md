@@ -273,6 +273,11 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### PHPUnit 13 allowed
+
+The platform's development dependency on PHPUnit now allows version 13 next to version 11.
+A fresh `composer install` on PHP 8.4.1 or newer resolves PHPUnit 13, older PHP versions keep PHPUnit 11.
+If your extension's test pipeline runs the platform's `vendor/bin/phpunit`, make the tests pass on both versions, or require the PHPUnit version you expect in your extension and use that installation.
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

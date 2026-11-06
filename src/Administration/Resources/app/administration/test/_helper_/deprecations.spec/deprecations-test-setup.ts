@@ -92,3 +92,15 @@ export function ignoreBaselineUpdateRun(): void {
 export function useBaselineUpdateRun(): void {
     jest.replaceProperty(process, 'env', { ...process.env, DEPRECATION_BASELINE: 'update' });
 }
+
+/**
+ * Makes the current test look like a spec at `testPath`, for the cases that depend on where the spec lives, see
+ * `isPlatformDeprecationRun()`. Jest restores the real path before the next test.
+ *
+ * @private
+ * @example
+ * useSpecPath('/var/www/html/custom/plugins/SwagExample/src/Resources/app/administration/src/example.spec.ts');
+ */
+export function useSpecPath(testPath: string | undefined): void {
+    jest.replaceProperty(expect.getState(), 'testPath', testPath);
+}

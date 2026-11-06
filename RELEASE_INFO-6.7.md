@@ -236,9 +236,11 @@ shopware:
 
 The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
 A rejected origin is logged as a warning in the `mcp` channel.
+
 ### MCP tools can stream progress and elicitation again
 
 MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
+
 ### MCP tool results follow the negotiated protocol revision
 
 Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the protocol revision the client negotiated, not from the `v6.8.0.0` feature flag.
@@ -268,6 +270,7 @@ The linked response keeps the tool's summary, its own links, and its metadata up
 For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
 Its metadata, such as `total`, comes with the link in the tool result.
 Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
+
 ### ZUGFeRD e-invoices send the real unit code
 
 Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.

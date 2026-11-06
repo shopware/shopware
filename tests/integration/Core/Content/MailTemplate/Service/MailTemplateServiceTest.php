@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
@@ -17,12 +18,14 @@ use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -93,6 +96,27 @@ class MailTemplateServiceTest extends TestCase
 
         static::assertInstanceOf(MailTemplateRenderResult::class, $rendered['contentHtml']);
         static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType());
+        static::assertNotSame('', $rendered['contentHtml']->getContent());
+    }
+
+    public function testSimulateRendersAssociationsAddedThroughTheMailFlowCriteriaEvent(): void
+    {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'mail-flow.data.order.criteria.event',
+            static function (MailFlowDataCriteriaEvent $event): void {
+                $event->criteria->addAssociation('deliveries.positions.orderLineItem');
+            }
+        );
+
+        $rendered = $this->mailTemplateService->simulate(
+            new SimulateRequest(
+                templateParts: ['contentHtml' => '{{ order.deliveries.first.positions.first.orderLineItem.label }}'],
+                eventName: CheckoutOrderPlacedEvent::EVENT_NAME,
+            ),
+            $this->context
+        );
+
+        static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType(), $rendered['contentHtml']->getContent());
         static::assertNotSame('', $rendered['contentHtml']->getContent());
     }
 

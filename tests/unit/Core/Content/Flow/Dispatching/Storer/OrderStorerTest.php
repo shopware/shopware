@@ -7,14 +7,21 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -106,6 +113,51 @@ class OrderStorerTest extends TestCase
         $customerGroup = $storable->getData('order');
 
         static::assertNull($customerGroup);
+    }
+
+    public function testLazyLoadedOrderHasAssociationsAddedThroughTheMailFlowCriteriaEvent(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
+        $storer = $this->createStorerWithDeliveryPositionsSubscriber($orderRepository);
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), [OrderAware::ORDER_ID => $order->getId()]);
+        $storer->restore($storable);
+
+        static::assertSame($order, $storable->getData(OrderAware::ORDER));
+        static::assertTrue($orderRepository->searchedCriteria[0]->getAssociation('deliveries.positions')->hasAssociation('orderLineItem'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyLazyLoadedOrderHasAssociationsAddedThroughTheMailFlowCriteriaEvent(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
+        $storer = $this->createStorerWithDeliveryPositionsSubscriber($orderRepository);
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), [OrderAware::ORDER_ID => $order->getId()]);
+        $storer->restore($storable);
+
+        static::assertSame($order, $storable->getData(OrderAware::ORDER));
+        static::assertTrue($orderRepository->searchedCriteria[0]->getAssociation('deliveries.positions')->hasAssociation('orderLineItem'));
+    }
+
+    /**
+     * @param StaticEntityRepository<OrderCollection> $orderRepository
+     */
+    private function createStorerWithDeliveryPositionsSubscriber(StaticEntityRepository $orderRepository): OrderStorer
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('mail-flow.data.order.criteria.event', static function (MailFlowDataCriteriaEvent $event): void {
+            $event->criteria->addAssociation('deliveries.positions.orderLineItem');
+        });
+
+        $container = new Container();
+        $container->set('order.repository', $orderRepository);
+
+        return new OrderStorer($orderRepository, $dispatcher, new OrderProvider($dispatcher, $container));
     }
 
     private function createStorer(OrderProvider $orderProvider): OrderStorer

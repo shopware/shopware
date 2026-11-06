@@ -21,6 +21,12 @@ export default {
     mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     props: {
+        companyNamesRequired: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         customer: {
             type: Object,
             required: true,
@@ -105,6 +111,10 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        contactPersonRequired() {
+            return !this.isBusinessAccountType || this.companyNamesRequired;
         },
 
         canUseCustomerImitation() {

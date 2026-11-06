@@ -173,9 +173,30 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?UserEntity $updatedBy = null;
 
+    protected string $displayName = '';
+
     public function __toString(): string
     {
+        if ($this->displayName !== '') {
+            return $this->displayName;
+        }
+
         return $this->getFirstName() . ' ' . $this->getLastName();
+    }
+
+    public function isBusinessAccount(): bool
+    {
+        return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(string $displayName): void
+    {
+        $this->displayName = $displayName;
     }
 
     public function getGroupId(): string

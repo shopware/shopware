@@ -32,6 +32,8 @@ final class ShopLoginRegistrationSettings extends Struct
         public readonly bool $showBirthdayField,
         public readonly bool $birthdayFieldRequired,
         public readonly bool $showAccountTypeSelection,
+        public readonly bool $showNameFieldsForCompanyAccounts,
+        public readonly bool $nameFieldsRequiredForCompanyAccounts,
         public readonly bool $showAdditionalAddressField1,
         public readonly bool $additionalAddressField1Required,
         public readonly bool $showAdditionalAddressField2,
@@ -49,6 +51,9 @@ final class ShopLoginRegistrationSettings extends Struct
      */
     public static function fromConfig(array $config): self
     {
+        $showNameFields = (bool) ($config['showNameFieldsForCompanyAccounts'] ?? true);
+        $nameFieldsRequired = (bool) ($config['nameFieldsRequiredForCompanyAccounts'] ?? true);
+
         return new self(
             passwordMinLength: self::intValue($config, 'passwordMinLength'),
             createCustomerAccountDefault: self::boolValue($config, 'createCustomerAccountDefault'),
@@ -63,6 +68,8 @@ final class ShopLoginRegistrationSettings extends Struct
             showBirthdayField: self::boolValue($config, 'showBirthdayField'),
             birthdayFieldRequired: self::boolValue($config, 'birthdayFieldRequired'),
             showAccountTypeSelection: self::boolValue($config, 'showAccountTypeSelection'),
+            showNameFieldsForCompanyAccounts: $showNameFields,
+            nameFieldsRequiredForCompanyAccounts: $showNameFields && $nameFieldsRequired,
             showAdditionalAddressField1: self::boolValue($config, 'showAdditionalAddressField1'),
             additionalAddressField1Required: self::boolValue($config, 'additionalAddressField1Required'),
             showAdditionalAddressField2: self::boolValue($config, 'showAdditionalAddressField2'),

@@ -205,6 +205,8 @@ class ShopwareClass implements CustomShopwareProperties {
      * @deprecated tag:v6.8.0 - Will be removed, use Store instead.
      */
     public set State(state: ShopwareClass['_state']) {
+        this.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'Shopware.State is deprecated. Use Shopware.Store instead.');
+
         this._state = state;
     }
 

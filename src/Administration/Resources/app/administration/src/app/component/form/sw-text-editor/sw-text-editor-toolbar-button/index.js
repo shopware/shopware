@@ -40,10 +40,31 @@ Component.register('sw-text-editor-toolbar-button', {
     data() {
         return {
             flyoutClasses: [],
+            childSearchTerm: '',
         };
     },
 
     computed: {
+        filteredChildren() {
+            const children = this.buttonConfig.children ?? [];
+            const term = this.childSearchTerm.trim().toLowerCase();
+
+            if (!this.buttonConfig.searchable || !term) {
+                return children;
+            }
+
+            return children.filter((child) =>
+                [
+                    child.name,
+                    child.title,
+                ].some((value) => `${value ?? ''}`.toLowerCase().includes(term)),
+            );
+        },
+
+        showChildSearchEmptyState() {
+            return !!this.buttonConfig.searchable && this.filteredChildren.length === 0;
+        },
+
         classes() {
             return {
                 'is--active': !!this.buttonConfig.active || this.buttonConfig.expanded,
@@ -53,6 +74,14 @@ Component.register('sw-text-editor-toolbar-button', {
 
         tooltipAppearance() {
             return this.isInlineEdit ? 'light' : 'dark';
+        },
+    },
+
+    watch: {
+        'buttonConfig.expanded'(expanded) {
+            if (!expanded) {
+                this.childSearchTerm = '';
+            }
         },
     },
 
@@ -89,6 +118,10 @@ Component.register('sw-text-editor-toolbar-button', {
 
             this.$emit('button-click', button, parent);
             this.$emit('menu-toggle', null, button);
+        },
+
+        handleChildClick(child) {
+            this.handleButtonClick(child, this.buttonConfig.searchable ? this.buttonConfig : null);
         },
 
         onToggleMenu(event, button) {

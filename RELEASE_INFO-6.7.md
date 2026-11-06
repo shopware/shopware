@@ -397,6 +397,7 @@ On the stateless revision there is no MCP session:
   The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
 * Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
   Account for it in `pm.max_children`.
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

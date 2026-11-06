@@ -157,6 +157,12 @@ safe-outputs:
               await postComment({ github, context, core }, agentOutput)
   threat-detection:
     enabled: true
+    engine:
+      id: claude
+      version: 2.1.303
+      model: claude-haiku-5-5
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY }}
 ---
 
 # Shopware Docs Impact

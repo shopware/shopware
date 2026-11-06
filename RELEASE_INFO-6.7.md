@@ -287,8 +287,10 @@ The additional migrations get later timestamps, so they run after the tables the
 bin/console dal:migration:create --plugin=SwagExample --auto-translation --auto-mapping swag_example
 ```
 
-A field class from an extension that extends a registered DAL field uses that parent column type.
-Migration generation no longer stops on those fields.
+### Extension field classes in migration generation
+
+`dal:migration:create` stops with an error for a field class from an extension that extends a registered DAL field, such as `JsonField`, and is not registered itself.
+Such fields now use the column type of their closest registered parent, so the command generates the migration.
 
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 

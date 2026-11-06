@@ -232,8 +232,7 @@ class SchemaBuilder
                 continue;
             }
 
-            // A plugin field is often a subclass of a mapped field and is not registered itself.
-            // Keep the most specific mapped parent so its column type wins over a wider one.
+            // Unregistered field classes use the type of their closest mapped parent.
             if ($matchedClass !== null && !is_subclass_of($class, $matchedClass)) {
                 continue;
             }

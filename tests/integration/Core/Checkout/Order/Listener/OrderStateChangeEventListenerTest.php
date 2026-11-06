@@ -11,11 +11,17 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -106,6 +112,47 @@ class OrderStateChangeEventListenerTest extends TestCase
                 ),
                 Context::createDefaultContext()
             );
+    }
+
+    public function testFlowOfADeliveryStateChangeReadsTheChangedDelivery(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+
+        $flows = [];
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            FlowSendMailActionEvent::class,
+            static function (FlowSendMailActionEvent $event) use (&$flows): void {
+                $flows[$event->getStorableFlow()->getName()] = $event->getStorableFlow();
+            }
+        );
+
+        static::getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderDeliveryDefinition::ENTITY_NAME,
+                    $ids->get('delivery'),
+                    StateMachineTransitionActions::ACTION_SHIP,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+        $flow = $flows['state_enter.order_delivery.state.shipped'] ?? null;
+        static::assertInstanceOf(StorableFlow::class, $flow, 'The default flow for shipped deliveries did not send its mail');
+        static::assertSame($ids->get('delivery'), $flow->getStore(OrderDeliveryAware::ORDER_DELIVERY_ID));
+
+        $delivery = $flow->data()[OrderDeliveryAware::ORDER_DELIVERY] ?? null;
+        static::assertInstanceOf(OrderDeliveryEntity::class, $delivery);
+        static::assertSame($ids->get('delivery'), $delivery->getId());
+        static::assertSame(OrderDeliveryStates::STATE_SHIPPED, $delivery->getStateMachineState()?->getTechnicalName());
+        static::assertSame($ids->get('line-item'), $delivery->getPositions()?->first()?->getOrderLineItem()?->getId());
+        static::assertNotNull($delivery->getShippingMethod());
+        static::assertNotNull($delivery->getShippingOrderAddress()?->getCountry());
     }
 
     private function assertEvent(string $event): void

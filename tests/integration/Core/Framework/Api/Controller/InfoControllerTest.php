@@ -7,8 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Defaults;
@@ -461,15 +463,23 @@ class InfoControllerTest extends TestCase
             [
                 'extensions' => [],
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
-                'class' => OrderStateMachineStateChangeEvent::class,
+                'class' => OrderDeliveryStateMachineStateChangeEvent::class,
                 'data' => [
                     'order' => [
                         'type' => 'entity',
                         'entityClass' => OrderDefinition::class,
                         'entityName' => 'order',
                     ],
+                    'orderDelivery' => [
+                        'type' => 'entity',
+                        'entityClass' => OrderDeliveryDefinition::class,
+                        'entityName' => 'order_delivery',
+                        ...(Feature::isActive('v6.8.0.0') ? [] : ['hiddenFromWebhook' => true]),
+                    ],
                 ],
                 'aware' => [
+                    OrderDeliveryAware::class,
+                    lcfirst((new \ReflectionClass(OrderDeliveryAware::class))->getShortName()),
                     MailAware::class,
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,

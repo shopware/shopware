@@ -9,6 +9,10 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Rule Builder: new "Item with longest side and girth" condition
+
+A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
+
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
@@ -142,6 +146,13 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### ZUGFeRD documents include `discount` line items
+
+ZUGFeRD and XRechnung documents now contain line items of type `discount` (`LineItem::DISCOUNT_LINE_ITEM`), as added by app scripts via `services.cart.discount()` / `services.cart.surcharge()` or by extensions.
+Negative amounts are written as document level allowances, positive amounts as document level charges, split per tax rate.
+Before, these line items were missing from the document, so its totals did not add up and the e-invoice failed validation.
+Extensions that add these allowances or charges themselves, for example in a `zugferd-item-added.discount` event listener, must remove that workaround, otherwise the amount is contained twice.
 
 ### Deleting a tree reports every level as deleted
 
@@ -354,6 +365,13 @@ On the stateless revision there is no MCP session:
 * Each open `subscriptions/listen` stream holds one PHP-FPM worker for up to 25 seconds, then the server ends it and the client reconnects.
   A client that keeps listening therefore occupies one worker almost all the time.
   Account for it in `pm.max_children`, and keep `max_execution_time` and the timeouts of proxies in front of PHP above 25 seconds.
+* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
+  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
+* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
+  Account for it in `pm.max_children`.
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
 
 ## API
 
@@ -473,6 +491,38 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
+
+The `customFieldSetRepository` computed property of `sw-product-stream-detail` is deprecated and will be removed.
+Use the new `customFieldRepository` computed property instead.
+
+### Deprecated the media default folder lookups of `sw-product-detail-base` and `sw-bulk-edit-product-media`
+
+The `mediaDefaultFolderRepository` and `mediaDefaultFolderCriteria` computed properties of `sw-product-detail-base` and `sw-bulk-edit-product-media` are deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
+
+### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
+
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
+
+### Codemods for extensions in the extension tooling
+
+The new `administration:upgrade-extensions` command runs the codemods that prepare the Administration code of an extension for a Shopware major.
+Use it instead of `composer run admin:code-mods`: it also works in a Composer installation and through `shopware-cli project console`.
+
+```bash
+bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --write  # apply
+```
+
+`--target` defaults to the newest major the installed Administration ships codemods for, and `--list` shows them.
+`--write` refuses extensions that are not committed to git, and outside an interactive terminal it needs `--only` or `--all`.
+`--only` also finds plugins in `custom/plugins` that are not installed or activated.
+`--with=sfc-migration` additionally converts Options API components into native setup SFCs.
+
+`composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
+It now prints a deprecation warning.
+
 ### Native setup stays experimental until 6.9
 
 The experimental phase of native setup and the Composition API extension system now ends with 6.9 instead of 6.8, like the composables in `shopware:composables`.
@@ -494,6 +544,14 @@ ui.mediaModal.open({
 // In the location "my-app-primitives-tab"
 ui.mediaModal.select({ selection: [{ id: 'cube' }] });
 ```
+
+### Text editor variables list all custom fields and are searchable
+
+The "Insert variable" dropdown of `sw-text-editor` lists all active custom fields of the type `text`, `html` and `datetime` of the mapped entity, sorted by name.
+Before, it listed only the first 50.
+The dropdown has a search field now.
+Extensions that add a toolbar button with `children` can show the same search field with `searchable: true` in the button config.
+The new Twig blocks `sw_text_editor_toolbar_button_child_search` and `sw_text_editor_toolbar_button_child_search_empty` of `sw-text-editor-toolbar-button` render the search field and its empty state.
 
 ### CMS layout overview places the page type navigation in a grid
 
@@ -653,13 +711,19 @@ Changes to plugin files reload the page instead of using HMR.
 
 Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
 Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
-`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
 Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
 If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Cookie provider removal postponed to 6.9
+
+The deprecated cookie-provider API and the `snippet_name` and `snippet_description` cookie template fields remain available throughout 6.8.
+Their removal was postponed to 6.9.
+Extension and theme developers should migrate to `CookieGroupCollectEvent` and the `name` and `description` fields before 6.9; see [the migration guidance](UPGRADE-6.9.md#refactor-of-providing-cookies).
 
 ### `app.request` is the current request
 

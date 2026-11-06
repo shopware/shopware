@@ -1,6 +1,8 @@
 name: "Buy box"
 description: "Price, rating, delivery information, variant selection, quantity selector and buy button for a product, stacked in a grid container."
 icon: "regular-shopping-cart"
+illustration: "preset-buy-box"
+category: "commerce"
 layout:
   - component: Sw:Grid:Container
     properties:

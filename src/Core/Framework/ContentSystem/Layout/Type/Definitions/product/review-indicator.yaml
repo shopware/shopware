@@ -2,7 +2,8 @@ meta:
   label: "Product Review Indicator"
   description: "Compact rating stars with a link showing the number of reviews. Clicking the link opens and scrolls to the product reviews on the page."
   icon: "regular-star"
-  category: "content"
+  illustration: "product-review-indicator"
+  category: "commerce"
   copilot:
     summary: "Compact product rating with a link to the reviews."
     hints:

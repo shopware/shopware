@@ -2,6 +2,7 @@ meta:
   label: "Delivery information"
   description: "Displays free shipping and the available delivery time for the current product."
   icon: "regular-truck"
+  illustration: "product-delivery"
   category: "commerce"
   copilot:
     summary: "Free shipping and delivery time for the current product."

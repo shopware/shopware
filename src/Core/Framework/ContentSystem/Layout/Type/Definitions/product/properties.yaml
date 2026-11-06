@@ -2,6 +2,7 @@ meta:
   label: "Product Properties"
   description: "Displays the current product's property groups and their selected options."
   icon: "regular-list"
+  illustration: "product-properties"
   category: "commerce"
   copilot:
     summary: "Product property groups and option values."

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
  * the store-api listChanged notifier, so enabling a toolset only refreshes store-api sessions.
  */
 #[Package('framework')]
-#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.')]
+#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false), description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.')]
 #[McpToolGroup('discovery')]
 class StoreApiToolsetEnableTool extends ToolsetEnableTool
 {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 #[McpTool(
     name: 'shopware-system-config-read',
     title: 'System Config Read',
+    annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Read Shopware application configuration values in the core.* namespace. Pass a domain prefix (e.g. "core.listing") to get all keys, or a full dotted key to read a single value. For theme appearance settings (colors, logos, fonts), use shopware-theme-config instead. Optionally scope to a sales channel.'
 )]
 #[McpToolGroup('system-config')]

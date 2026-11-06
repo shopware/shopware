@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[McpTool(
     name: 'shopware-entity-search',
     title: 'Entity Search',
+    annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Search, list and filter Shopware entities of any type — orders, products, customers, categories and the rest. Use this to LIST or page through records ("the last 10 orders", "all customers in Berlin"), and to look one up by productNumber or any other exact field value, including as the first step in Storefront cart/checkout workflows. Sort with criteria.sort, e.g. [{"field":"orderDateTime","order":"DESC"}]. For count/sum/average reporting, use shopware-entity-aggregate instead (the _meta.total here is pagination metadata, not a reporting count). Accepts Admin API criteria JSON. Returns {success, data: [...], _meta: {total, page, limit}}. If you don\'t already know the field names, shopware-entity-schema will tell you.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]

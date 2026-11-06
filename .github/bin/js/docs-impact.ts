@@ -292,169 +292,28 @@ export function redactSecrets(text: string, raw: string | undefined): string {
 
 const DOCS_LINK =/\[([^\]]+)\]\((https:\/\/(?:docs|developer)\.shopware\.com\/[^\s)]*)\)/g;
 
-export type DocsPage = { dead: boolean; text: string | null };
-
-export type PageLoader = (url: string) => Promise<DocsPage>;
-
-const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
-
-function decodeEntities(text: string): string {
-    return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
-        if (code[0] === '#') {
-            return String.fromCodePoint(code[1].toLowerCase() === 'x' ? parseInt(code.slice(2), 16) : Number(code.slice(1)));
-        }
-
-        return ENTITIES[code.toLowerCase()] ?? entity;
-    });
-}
-
-export function normaliseText(text: string): string {
-    return decodeEntities(text)
-        .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
-        .replace(/[*_`]/g, '')
-        .replace(/\s+/g, ' ')
-        .replace(/ ([,.;:!?)])/g, '$1')
-        .trim();
-}
-
-const BLOCK_TAG = /^<\/?(?:p|div|li|ul|ol|h[1-6]|br|tr|td|th|table|section|article|header|footer|nav|blockquote|pre|dt|dd)\b/i;
-
-export function pageText(html: string): string {
-    let text = '';
-    let index = 0;
-    while (index < html.length) {
-        const start = html.indexOf('<', index);
-        const end = start === -1 ? -1 : html.indexOf('>', start);
-        if (end === -1) {
-            text += html.slice(index);
-            break;
-        }
-
-        text += html.slice(index, start) + (BLOCK_TAG.test(html.slice(start, end)) ? ' ' : '');
-        index = end + 1;
-    }
-
-    return normaliseText(text.replace(/[<>]/g, ' '));
-}
-
-export async function loadDocsPage(url: string): Promise<DocsPage> {
+export async function isDeadLink(url: string): Promise<boolean> {
     try {
         const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(10000) });
-        if (!response.ok) {
-            await response.body?.cancel();
+        await response.body?.cancel();
 
-            return { dead: response.status === 404 || response.status === 410, text: null };
-        }
-
-        return { dead: false, text: pageText(await response.text()) };
+        return response.status === 404 || response.status === 410;
     } catch {
-        return { dead: false, text: null };
+        return false;
     }
 }
 
-export async function loadLinkedPages(summary: string, load: PageLoader): Promise<Map<string, DocsPage>> {
+export async function unlinkDeadDocsLinks(summary: string, isDead: (url: string) => Promise<boolean>): Promise<string> {
     const urls = [...new Set([...summary.matchAll(DOCS_LINK)].map((match) => match[2]))];
+    const dead = new Set((await Promise.all(urls.map(async (url) => ((await isDead(url)) ? url : null)))).filter((url) => url !== null));
 
-    return new Map(await Promise.all(urls.map(async (url) => [url, await load(url)] as const)));
-}
-
-export function unlinkDeadDocsLinks(summary: string, pages: Map<string, DocsPage>): string {
-    return summary.replace(DOCS_LINK, (link, text: string, url: string) => (pages.get(url)?.dead ? text : link));
-}
-
-const EVIDENCE_LINE = /^[ \t]+(Docs|PR) quote:[ \t]*(.*?)[ \t]*$/;
-
-const MAX_QUOTES_PER_KIND = 3;
-
-const MAX_QUOTE_LENGTH = 300;
-
-const MIN_QUOTE_LENGTH = 12;
-
-function diffLines(diff: string): string[] {
-    return diff.split('\n').filter((line) => /^[+\- ]/.test(line) && !/^(\+\+\+|---) /.test(line));
-}
-
-function renderEvidence(docs: string[], code: string[]): string[] {
-    const lines = ['  <details><summary>Evidence</summary>', ''];
-    if (docs.length > 0) {
-        lines.push('  The docs say:', '', ...docs.map((quote) => `  > ${quote}`), '');
-    }
-    if (code.length > 0) {
-        lines.push('  The pull request changes:', '', '  ```diff', ...code.map((line) => `  ${line}`), '  ```', '');
-    }
-    lines.push('  </details>');
-
-    return lines;
-}
-
-export function attachEvidence(summary: string, pages: Map<string, DocsPage>, diff: string | null): string {
-    const changed = diff === null ? [] : diffLines(diff).map((line) => ({ line, text: normaliseText(line.slice(1)) }));
-    const output: string[] = [];
-    let page: string | null = null;
-    let docs: string[] = [];
-    let code: string[] = [];
-
-    const flush = () => {
-        if (docs.length > 0 || code.length > 0) {
-            output.push(...renderEvidence(docs, code));
-        }
-        docs = [];
-        code = [];
-    };
-
-    for (const line of summary.split('\n')) {
-        const evidence = line.match(EVIDENCE_LINE);
-        if (!evidence) {
-            flush();
-            output.push(line);
-            if (/^\s*- /.test(line)) {
-                const url = [...line.matchAll(DOCS_LINK)][0]?.[2];
-                page = url ? (pages.get(url)?.text ?? null) : null;
-            } else if (line.trim() !== '') {
-                page = null;
-            }
-            continue;
-        }
-
-        const [, kind, quote] = evidence;
-        const wanted = normaliseText(kind === 'PR' ? quote.replace(/^[+-]/, '') : quote);
-        if (wanted.length < MIN_QUOTE_LENGTH || quote.length > MAX_QUOTE_LENGTH || quote.includes('```')) {
-            continue;
-        }
-        if (kind === 'Docs' && page?.includes(wanted) && docs.length < MAX_QUOTES_PER_KIND) {
-            docs.push(quote);
-        }
-        const match = kind === 'PR' ? changed.find(({ text }) => text.includes(wanted)) : undefined;
-        if (match && code.length < MAX_QUOTES_PER_KIND && !code.includes(match.line)) {
-            code.push(match.line);
-        }
-    }
-    flush();
-
-    return output.join('\n');
-}
-
-async function pullRequestDiff({ github, context }: { github: GitHub; context: Context }, number: number): Promise<string> {
-    const params = { ...context.repo, pull_number: number };
-    try {
-        const { data } = await github.rest.pulls.get({ ...params, mediaType: { format: 'diff' } });
-
-        return String(data);
-    } catch (error) {
-        if ((error as { status?: number }).status !== 406) {
-            throw error;
-        }
-    }
-
-    const files = await github.paginate<PullRequestFile>(github.rest.pulls.listFiles, { ...params, per_page: 100 });
-
-    return files.map((file) => file.patch ?? '').join('\n');
+    return summary.replace(DOCS_LINK, (link, text: string, url: string) => (dead.has(url) ? text : link));
 }
 
 export async function postComment(
     { github, context, core }: { github: GitHub; context: Context; core: Core },
     agentOutput: { items?: AgentOutputItem[] },
-    load: PageLoader = loadDocsPage,
+    isDead: (url: string) => Promise<boolean> = isDeadLink,
 ): Promise<void> {
     const items = candidateItems(agentOutput);
     if (items.length === 0) {
@@ -473,9 +332,7 @@ export async function postComment(
     const number = requestedPullRequestNumber(context);
     const audiences = parseAudiences(item.audiences ?? '');
     const summary = redactSecrets(item.summary, process.env.SW_DOCS_IMPACT_REDACT);
-    const pages = await loadLinkedPages(summary, load);
-    const withEvidence = attachEvidence(summary, pages, await pullRequestDiff({ github, context }, number));
-    const body = buildComment(unlinkDeadDocsLinks(withEvidence, pages));
+    const body = buildComment(await unlinkDeadDocsLinks(summary, isDead));
     if (isDryRun(context)) {
         core.info(`Dry run: not commenting on #${number}`);
         await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();

@@ -176,6 +176,7 @@ The linked response keeps the tool's summary, its own links, and its metadata up
 For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
 Its metadata, such as `total`, comes with the link in the tool result.
 Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
+
 ### ZUGFeRD documents include `discount` line items
 
 ZUGFeRD and XRechnung documents now contain line items of type `discount` (`LineItem::DISCOUNT_LINE_ITEM`), as added by app scripts via `services.cart.discount()` / `services.cart.surcharge()` or by extensions.

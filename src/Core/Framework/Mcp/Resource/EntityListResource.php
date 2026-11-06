@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Mcp\Resource;
 
 use Mcp\Capability\Attribute\McpResource;
+use Mcp\Schema\Result\ReadResourceResult;
+use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -26,10 +28,7 @@ class EntityListResource
     ) {
     }
 
-    /**
-     * @return array{uri: string, mimeType: string, text: string}
-     */
-    public function __invoke(): array
+    public function __invoke(?RequestContext $requestContext = null): ReadResourceResult
     {
         $entities = [];
         foreach ($this->registry->getDefinitions() as $definition) {
@@ -38,10 +37,10 @@ class EntityListResource
 
         sort($entities);
 
-        return [
+        return McpResourceCacheHint::read([
             'uri' => 'shopware://entities',
             'mimeType' => 'application/json',
             'text' => Json::encode($entities),
-        ];
+        ], $requestContext, McpResourceCacheHint::DEPLOYMENT_TTL_MS);
     }
 }

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Mcp\Resource;
 
 use Mcp\Capability\Attribute\McpResource;
+use Mcp\Schema\Result\ReadResourceResult;
+use Mcp\Server\RequestContext;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -28,10 +30,7 @@ class FlowActionsResource
     ) {
     }
 
-    /**
-     * @return array{uri: string, mimeType: string, text: string}
-     */
-    public function __invoke(): array
+    public function __invoke(?RequestContext $requestContext = null): ReadResourceResult
     {
         $context = $this->contextProvider->getContext();
         $result = $this->collector->collect($context);
@@ -47,10 +46,10 @@ class FlowActionsResource
 
         usort($actions, fn (array $a, array $b) => $a['name'] <=> $b['name']);
 
-        return [
+        return McpResourceCacheHint::read([
             'uri' => 'shopware://flow-actions',
             'mimeType' => 'application/json',
             'text' => Json::encode($actions),
-        ];
+        ], $requestContext, McpResourceCacheHint::DEPLOYMENT_TTL_MS);
     }
 }

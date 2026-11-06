@@ -15,7 +15,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,11 +34,24 @@ class AppExceptionTest extends TestCase
         static::assertSame(AppException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
     }
 
-    public function testNotCompatible(): void
+    public function testValidationFailedFromErrorReportsTheErrorsCodeMessageAndParameters(): void
+    {
+        $e = AppException::validationFailedFromError(new IncompatibleAppError('IncompatibleApp'));
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('App IncompatibleApp is not compatible with this Shopware version', $e->getMessage());
+        static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
+    }
+
+    public function testNotCompatibleReportsLikeAnIncompatibleAppError(): void
     {
         $e = AppException::notCompatible('IncompatibleApp');
 
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('App IncompatibleApp is not compatible with this Shopware version', $e->getMessage());
+        static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
     }
 
     public function testNotFound(): void
@@ -294,29 +307,5 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE', $e->getErrorCode());
         static::assertSame('APP_URL "https://shop.test" could not be reached. Try again later, or run bin/console app:url:verify for details.', $e->getMessage());
-    }
-
-    public function testRequirementsNotMet(): void
-    {
-        $violation1 = new UnmetRequirement(
-            appName: 'TestApp1',
-            requirementName: 'PHP Version',
-            actionableResolution: 'Upgrade to PHP 8.2 or higher'
-        );
-
-        $violation2 = new UnmetRequirement(
-            appName: 'TestApp2',
-            requirementName: 'MySQL Version',
-            actionableResolution: 'Upgrade to MySQL 8.0 or higher'
-        );
-
-        $e = AppException::requirementsNotMet($violation1, $violation2);
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame('FRAMEWORK__APP_REQUIREMENTS_NOT_MET', $e->getErrorCode());
-        static::assertSame('The app requirements are not met: App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher', $e->getMessage());
-
-        $expectedViolations = 'App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher';
-        static::assertSame(['violations' => $expectedViolations], $e->getParameters());
     }
 }

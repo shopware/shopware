@@ -33,33 +33,27 @@ Without a source a test is a characterization test, which makes the tag decidabl
 The tag also states what may change the test: removing the bug's code path, revisiting the decision, or any intended change.
 The term characterization test comes from Michael Feathers, *Working Effectively with Legacy Code*.
 
-An issue link counts as a source for a regression, because the bug report is the evidence.
-For a behavior it needs a comment anchor, because opening an issue is not a decision.
-Other sources need a `@seeException` with a reason, and ESLint lists every exception as a warning.
-This keeps the escape visible instead of pushing unusual sources into `@characterization`.
+For regressions `@see` needs to point to an issue or if none exists, a pr.
+For behaviors it needs to point to an ADR, issue comment, discussion comment or pr comment. It needs to point to a comment because an issue itself probably is not a decision.
+If your source deviates from that rule you can use `@seeException <reason for deviation>`
 
-Every test carries its own tag, but the `@see` and the description may sit on the enclosing `describe`.
-Several tests for one bug then don't repeat it, and a test added to that `describe` later still has to claim the tag itself.
-`@characterization` can't sit on a `describe`, so a whole block can't be waved through.
+Tests can inherit the `@see` from a `describe` above them so they don't need to reference their source over and over again.
 
-The existing tests stay untagged until someone touches them.
-They are listed per test in `test-annotation-baseline.json`, not in `eslint-suppressions.json`.
-ESLint's suppressions count per file and rule, so one new test would report every old test of its file,
-and replacing an old test with a new untagged one would keep the count and pass.
-The CI job that guards the other baselines counts this one per test identity, so a moved spec passes and a new test does not.
+An ESLint rule enforces that new rule. Existing tests are baselined.
 
-A pull request that closes an issue of type Bug and changes Administration source code must add a `@regression` test that links the bug.
+A pull request that closes an issue of type Bug and changes Administration source code must add at least one `@regression` test that links the bug.
 The `no-regression-test` label skips the check for bugs Jest can't cover, and the job summary names the skipped bug.
 
 The rules are `sw-test-rules/test-annotation` and `sw-test-rules/test-annotation-see-exception`.
 The workflow is described in `src/Administration/Resources/app/administration/technical-docs/11-code-quality/03-test-annotations.md`.
 
+Only Administration Jest tests in Platform are affected by the rule.
+
 ## Consequences
 
+- New test cases always need an annotation.
 - A reader sees why a test exists and whether it may change, without searching the history.
 - Most agent-written tests are tagged `@characterization`, which is accurate and lets later changes update them freely.
 - `@regression` and `@behavior` cost a link, so reviewers can check the claim in seconds.
-- ESLint can't tell whether a linked source really decides what the test asserts, or whether a test belongs to the bug of its `describe`.
-  Reviewers check both.
+- ESLint can't tell whether a linked source is legit. Reviewers or their agents need to validate themselves.
 - Renaming a test or a `describe` drops it from the baseline, so it needs a tag.
-- The rule covers the Administration's Jest tests only for now.

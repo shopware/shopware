@@ -12,6 +12,7 @@ const mockGet = jest.fn();
 const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
+const mockGetCustomFieldSets = jest.fn(() => Promise.resolve([]));
 
 /**
  * The real system config API service, so the deprecated `getConfig()` still runs its guard, with each schema
@@ -24,7 +25,6 @@ function createSystemConfigApiService() {
 
     return new SystemConfigApiService(httpClient, { getToken: () => 'token' });
 }
-const mockGetCustomFieldSets = jest.fn(() => Promise.resolve([]));
 
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',

@@ -88,8 +88,8 @@ function currentOverrideSfc(componentName: string): string | null {
 
 /**
  * Replaces the callback of an override SFC that sets up again, after an edit, and remounts the components it
- * overrides. Returns false when the caller has to add the callback, which includes the first registration of an
- * override SFC.
+ * overrides. Returns false only when the chain holds no earlier callback of this SFC, usually on its initial
+ * setup before any edit, and the caller then adds the callback. Every edit after that replaces it in place.
  *
  * @private
  */

@@ -52,9 +52,9 @@ class ConfigReader extends XmlReader
      */
     protected function parseFile(\DOMDocument $xml): array
     {
-        \assert($xml->firstChild instanceof \DOMElement);
+        \assert($xml->documentElement instanceof \DOMElement);
 
-        return $this->getTabDefinitions($xml->firstChild);
+        return $this->getTabDefinitions($xml->documentElement);
     }
 
     /**

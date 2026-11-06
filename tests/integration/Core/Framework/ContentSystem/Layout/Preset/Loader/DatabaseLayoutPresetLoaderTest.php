@@ -8,11 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -37,12 +35,7 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         $this->createPreset($ids->get('active-preset'), $ids->get('active-app'), 'AcmeActivePresets:Hero');
         $this->createPreset($ids->get('inactive-preset'), $ids->get('inactive-app'), 'AcmeInactivePresets:Hero');
 
-        $presets = $this->loader()->load();
-
-        static::assertSame(
-            ['AcmeActivePresets:Hero'],
-            array_map(static fn (ContentSystemLayoutPresetSpecification $preset): string => $preset->id, $presets),
-        );
+        static::assertSame(['AcmeActivePresets:Hero'], array_keys($this->loader()->load()));
     }
 
     public function testInsertPresetReturnsServerErrorForAnInvalidActiveAppRow(): void
@@ -101,9 +94,6 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
 
     private function loader(): DatabaseLayoutPresetLoader
     {
-        $compiler = static::getContainer()->get(LayoutPresetPayloadCompiler::class);
-        static::assertInstanceOf(LayoutPresetPayloadCompiler::class, $compiler);
-
         $validator = static::getContainer()->get('validator');
         static::assertInstanceOf(ValidatorInterface::class, $validator);
 
@@ -112,7 +102,6 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
 
         return new DatabaseLayoutPresetLoader(
             new LayoutPresetSpecificationSerializer(),
-            $compiler,
             $validator,
             $connection,
             'prod',

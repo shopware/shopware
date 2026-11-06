@@ -636,6 +636,27 @@ class ContentSystemExceptionTest extends TestCase
             'hero-preset',
         ];
 
+        yield 'layout preset circular reference' => [
+            ContentSystemException::layoutPresetCircularReference(['App:A', 'App:B', 'App:A']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE',
+            'Layout preset "App:A" has a circular reference: App:A -> App:B -> App:A',
+        ];
+
+        yield 'layout preset unknown reference' => [
+            ContentSystemException::layoutPresetUnknownReference('App:Missing', ['App:A', 'App:B']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE',
+            'Layout preset "App:A" references unknown preset "App:Missing" via App:A -> App:B -> App:Missing',
+        ];
+
+        yield 'layout preset too many references' => [
+            ContentSystemException::layoutPresetTooManyReferences('App:A', 1000),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES',
+            'Layout preset "App:A" reaches the limit of 1000 nested presets',
+        ];
+
         yield 'style option duplicate' => [
             ContentSystemException::styleOptionDuplicate('padding', 'core', 'MyPlugin'),
             Response::HTTP_CONFLICT,

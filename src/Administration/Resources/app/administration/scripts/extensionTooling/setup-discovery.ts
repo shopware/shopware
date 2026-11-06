@@ -17,7 +17,7 @@ import {
     readBundleConfig,
     relativePosix,
 } from './shared';
-import type { AdministrationTarget, ExtensionToolingProject } from './shared';
+import type { AdministrationTarget, BundleConfig, ExtensionToolingProject } from './shared';
 import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
 
 const ESLINT_CONFIG_NAMES = [
@@ -32,7 +32,14 @@ export function discoverProjects(
     administrationRoot: string,
     bundleDumpPath: string,
 ): ExtensionToolingProject[] {
-    const bundles = readBundleConfig(bundleDumpPath);
+    return discoverProjectsFromBundles(projectRoot, administrationRoot, readBundleConfig(bundleDumpPath));
+}
+
+export function discoverProjectsFromBundles(
+    projectRoot: string,
+    administrationRoot: string,
+    bundles: BundleConfig[],
+): ExtensionToolingProject[] {
     const administrationSourcePath = path.resolve(administrationRoot, 'src');
     const vendorRoot = path.join(projectRoot, 'vendor');
 

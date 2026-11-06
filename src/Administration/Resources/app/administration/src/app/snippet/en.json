@@ -879,6 +879,7 @@
         "lineItemDimensionWidthRule": "Item with width",
         "lineItemDimensionHeightRule": "Item with height",
         "lineItemDimensionLengthRule": "Item with length",
+        "lineItemDimensionLongestAndGirthRule": "Item with longest side and girth",
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",

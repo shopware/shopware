@@ -69,6 +69,7 @@ export const COMPONENTS = {
     GOODS_PRICE: 'sw-condition-goods-price',
     DATE_RANGE: 'sw-condition-date-range',
     TIME_RANGE: 'sw-condition-time-range',
+    WEEKDAY: 'sw-condition-weekday',
     IS_ALWAYS_VALID: 'sw-condition-is-always-valid',
 } as const;
 
@@ -465,7 +466,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'dayOfWeek',
-        component: COMPONENTS.GENERIC,
+        component: COMPONENTS.WEEKDAY,
         label: 'global.sw-condition.condition.dayOfWeekRule',
         scopes: [SCOPES.GLOBAL],
         group: GROUPS.GENERAL,

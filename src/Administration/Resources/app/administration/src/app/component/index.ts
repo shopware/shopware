@@ -552,6 +552,11 @@ export default () => {
         () => import('./rule/condition-type/sw-condition-time-range/index'),
     );
     Shopware.Component.extend(
+        'sw-condition-weekday',
+        'sw-condition-base',
+        () => import('./rule/condition-type/sw-condition-weekday/index'),
+    );
+    Shopware.Component.extend(
         'sw-condition-shipping-zip-code',
         'sw-condition-base',
         () => import('./rule/condition-type/sw-condition-shipping-zip-code/index'),

@@ -1,0 +1,13 @@
+.sw-condition {
+    .sw-condition-weekday.sw-condition__condition-value {
+        grid-template-columns: auto 1fr 1fr;
+
+        .wrapper {
+            row-gap: 0;
+        }
+
+        .mt-field-label {
+            display: none;
+        }
+    }
+}

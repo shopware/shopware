@@ -105,8 +105,8 @@ class ProcessorTest extends TestCase
 
         static::assertCount(1, $calculated->getDeliveries());
 
-        /** @var Delivery $delivery */
         $delivery = $calculated->getDeliveries()->first();
+        static::assertInstanceOf(Delivery::class, $delivery);
         static::assertTrue($delivery->getPositions()->getLineItems()->has($id));
     }
 

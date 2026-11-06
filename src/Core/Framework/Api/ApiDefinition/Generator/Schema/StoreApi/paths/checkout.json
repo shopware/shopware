@@ -386,6 +386,88 @@
                 ]
             }
         },
+        "/checkout/cart/delivery": {
+            "patch": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Select the shipping method of cart deliveries",
+                "description": "Stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart. A delivery is addressed by the `deliveryKey` of its `payload`, which the extension grouping the deliveries sets; deliveries without one cannot be addressed. The selection stays on the cart until the delivery disappears and does not change the shipping method of the context. A selected shipping method that is not available for the delivery blocks the cart with a `shipping-method-blocked` error.",
+                "operationId": "updateCartDeliveries",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "deliveries"
+                                ],
+                                "properties": {
+                                    "deliveries": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "key"
+                                            ],
+                                            "properties": {
+                                                "key": {
+                                                    "description": "The `deliveryKey` from the `payload` of the cart delivery.",
+                                                    "type": "string"
+                                                },
+                                                "shippingMethodId": {
+                                                    "description": "Identifier of the shipping method for this delivery. `null` drops the selection, and the delivery uses the shipping method of the context again.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "pattern": "^[0-9a-f]{32}$"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The recalculated cart. The selections are listed in the `delivery-shipping-methods` cart extension.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The shipping method does not exist or is not assigned to the sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given keys does not reference a delivery of the current cart."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/checkout/cart/reorder/{orderId}": {
             "post": {
                 "tags": [

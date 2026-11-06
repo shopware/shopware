@@ -11,6 +11,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class Delivery extends Struct
 {
     /**
+     * Payload value that identifies a delivery across cart calculations.
+     * Whoever groups the positions into deliveries sets it, so choices stored for a delivery find it again.
+     */
+    final public const DELIVERY_KEY = 'deliveryKey';
+
+    /**
      * @var array<string, scalar|array<array-key, mixed>|null>
      */
     protected array $payload = [];

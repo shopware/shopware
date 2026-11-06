@@ -60,6 +60,7 @@ export default {
             customerAddressCustomFieldSets: null,
             orderAddressId: cloneDeep(this.address?.id),
             selectedAddressFormatting: '',
+            pendingDefaultAddressIds: {},
         };
     },
 
@@ -168,6 +169,19 @@ export default {
             immediate: true,
         },
 
+        'orderCustomer.customerId': {
+            handler(customerId, previousCustomerId) {
+                if (!customerId) {
+                    Store.get('swOrderDetail').resetCustomer();
+                    return;
+                }
+
+                if (customerId !== previousCustomerId || this.customer?.id !== customerId) {
+                    this.getCustomer(true);
+                }
+            },
+        },
+
         currentAddress(newValue, oldValue) {
             if (newValue || !oldValue) {
                 return;
@@ -231,6 +245,7 @@ export default {
                 return this.orderRepository
                     .save(this.order, this.versionContext)
                     .then(() => {
+                        this.pendingDefaultAddressIds = {};
                         this.currentAddress = null;
 
                         this.onAddressChange(this.address.id, true);
@@ -260,6 +275,7 @@ export default {
                 .save(this.customer)
                 .then(() => Store.get('swOrderDetail').loadCustomer(customerId, true))
                 .then(() => {
+                    this.pendingDefaultAddressIds = {};
                     this.currentAddress = null;
 
                     this.onAddressChange(address.id);
@@ -337,14 +353,30 @@ export default {
                 if (this.defaultBillingAddressId) {
                     this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
+
+                this.pendingDefaultAddressIds = {};
                 return;
             }
 
             const preFix = this.createPrefix(data.name, '-address');
             const name = `default${preFix}AddressId`;
 
+            if (!Object.prototype.hasOwnProperty.call(this.pendingDefaultAddressIds, name)) {
+                this.pendingDefaultAddressIds[name] = this.customer[name];
+            }
+
             this[name] = this.customer[name];
             this.customer[name] = data.id;
+        },
+
+        onCancelAddress() {
+            Object.entries(this.pendingDefaultAddressIds).forEach(([name, addressId]) => {
+                this.customer[name] = addressId;
+                delete this[name];
+            });
+
+            this.pendingDefaultAddressIds = {};
+            this.currentAddress = null;
         },
 
         createPrefix(string, replace) {
@@ -362,12 +394,14 @@ export default {
             });
         },
 
-        getCustomer() {
+        getCustomer(forceReload = false) {
             if (!this.orderCustomer.customerId) {
+                Store.get('swOrderDetail').resetCustomer();
+
                 return Promise.reject();
             }
 
-            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId);
+            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId, forceReload);
         },
 
         getCustomFieldSet() {

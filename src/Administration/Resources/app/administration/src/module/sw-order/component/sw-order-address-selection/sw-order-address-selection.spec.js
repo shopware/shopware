@@ -378,6 +378,45 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         );
     });
 
+    it('should restore pending default address changes when canceling the address modal', async () => {
+        await flushPromises();
+
+        const originalDefaultBillingAddressId = 'original-billing-address';
+        wrapper.vm.customer.defaultBillingAddressId = originalDefaultBillingAddressId;
+        wrapper.vm.currentAddress = {};
+
+        wrapper.vm.onChangeDefaultAddress({
+            value: true,
+            name: 'billing-address',
+            id: 'draft-billing-address',
+        });
+
+        wrapper.vm.onCancelAddress();
+
+        expect(wrapper.vm.customer.defaultBillingAddressId).toBe(originalDefaultBillingAddressId);
+        expect(wrapper.vm.currentAddress).toBeNull();
+    });
+
+    it('should keep addresses with different hashes even when their contents match', async () => {
+        await flushPromises();
+
+        wrapper.vm.customer.addresses.push({
+            street: 'Denesik Bridge',
+            zipcode: '05132',
+            city: 'Bernierstad',
+            company: 'Muster SE',
+            department: 'People & Culture',
+            id: 'same-content-different-hash',
+            hash: 'different-hash',
+            getEntityName: () => 'customer_address',
+        });
+
+        const matchingOptions = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
+
+        expect(matchingOptions.map((option) => option.id)).toContain('38e8895864a649a1b2ec806dad02ab87');
+        expect(matchingOptions.map((option) => option.id)).toContain('same-content-different-hash');
+    });
+
     it('should keep id on options for addresses where id is not enumerable via spread', async () => {
         await flushPromises();
 

@@ -16,6 +16,7 @@
     "dev": "export VITE_MODE=development && ts-node -T build.ts",
     "extension-tooling:check": "ts-node --transpileOnly ./scripts/extensionTooling/check.ts",
     "extension-tooling:setup": "ts-node --transpileOnly ./scripts/extensionTooling/setup.ts",
+    "extension-tooling:upgrade": "ts-node --transpileOnly ./scripts/extensionTooling/upgrade.ts",
     "format": "prettier --check \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"extension-tooling/**/*.mjs\" \"scripts/extensionTooling/**/*.ts\" \"scripts/codemods/**/*.ts\" \"scripts/generate-shopware-modules/**/*.ts\" \"build/vite-plugins/**/*.{js,ts}\" \"build/vue-setup-transform/**/*.{js,ts}\" \"build/plugins.vite.ts\" \"build.ts\"",
     "format:fix": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"extension-tooling/**/*.mjs\" \"scripts/extensionTooling/**/*.ts\" \"scripts/codemods/**/*.ts\" \"scripts/generate-shopware-modules/**/*.ts\" \"build/vite-plugins/**/*.{js,ts}\" \"build/vue-setup-transform/**/*.{js,ts}\" \"build/plugins.vite.ts\" \"build.ts\" --cache",
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",

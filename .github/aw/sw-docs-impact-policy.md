@@ -87,6 +87,14 @@ Call exactly one of:
       section fits best.
     - Each bullet names one page and one change. No conditional or fallback suggestions
       such as "if no page exists, ..."; leave out a bullet you are not sure about.
+    - Under a bullet, add evidence lines, each indented by two spaces, at most three of each:
+
+      `  Docs quote: <the sentence on the page that is now wrong or incomplete>`
+      `  PR quote: <one line of the diff that makes the change>`
+
+      Copy both verbatim, as one line, from the page file and from `pr.diff` (or
+      `files[].patch`), without the leading `+` or `-`. Never shorten, reword or join lines. A quote that cannot be found
+      word for word is dropped. **Add** bullets get no `Docs quote`.
     - Developer page URL: `https://developer.shopware.com/docs/` plus the page's path in
       `shopware/docs` with `.md` replaced by `.html`.
     - End-user page URL: the `URL:` line of the page file.

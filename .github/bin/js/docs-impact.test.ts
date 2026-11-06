@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import {
     COMMENT_MARKER,
+    attachEvidence,
     buildComment,
     decorateHeadings,
     buildEndUserDocs,
@@ -12,7 +13,9 @@ import {
     dispatchDocsChecks,
     latestEndUserPages,
     isDryRun,
+    loadLinkedPages,
     neutraliseMentions,
+    pageText,
     parseAudiences,
     postComment,
     mergedPullRequests,
@@ -439,11 +442,13 @@ test('postComment in a dry run writes the comment to the step summary only', asy
     assert.ok(written[0].includes('New event'));
 });
 
-test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each URL once', async () => {
-    const checked: string[] = [];
-    const isDead = async (url: string) => {
-        checked.push(url);
-        return url.endsWith('/gone');
+const page = (text: string | null, dead = false) => ({ dead, text });
+
+test('loadLinkedPages loads each docs URL once and unlinkDeadDocsLinks turns dead ones into plain text', async () => {
+    const loaded: string[] = [];
+    const load = async (url: string) => {
+        loaded.push(url);
+        return page(null, url.endsWith('/gone'));
     };
 
     const summary = [
@@ -452,9 +457,10 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
         '- **Add** [Rate limiter](https://developer.shopware.com/docs/rate-limiter.html): c',
         '- See [the PR](https://github.com/shopware/shopware/pull/1)',
     ].join('\n');
+    const pages = await loadLinkedPages(summary, load);
 
     assert.equal(
-        await unlinkDeadDocsLinks(summary, isDead),
+        unlinkDeadDocsLinks(summary, pages),
         [
             '- **Adjust** Products: a',
             '- **Adjust** Products again: b',
@@ -462,22 +468,102 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
             '- See [the PR](https://github.com/shopware/shopware/pull/1)',
         ].join('\n'),
     );
-    assert.deepEqual(checked, ['https://docs.shopware.com/en/gone', 'https://developer.shopware.com/docs/rate-limiter.html']);
+    assert.deepEqual(loaded, ['https://docs.shopware.com/en/gone', 'https://developer.shopware.com/docs/rate-limiter.html']);
 });
 
-test('postComment posts dead docs links as plain text', async () => {
+test('pageText reduces HTML to comparable text', () => {
+    assert.equal(
+        pageText('<html><style>p{}</style><script>x()</script><p>Turn on <strong>Manage&nbsp;stock</strong> &amp; save the <code>user_recovery</code> option.</p></html>'),
+        'Turn on Manage stock & save the userrecovery option.',
+    );
+});
+
+const URL_PRODUCTS = 'https://docs.shopware.com/en/shopware-6-en/catalogues/products';
+const DIFF = [
+    'diff --git a/a.js b/a.js',
+    '--- a/a.js',
+    '+++ b/a.js',
+    '@@ -1,3 +1,2 @@',
+    "-                    'maxPurchase',",
+    "+    allowMultiple: { label: 'Allow multiple units per order' },",
+    '     unchanged();',
+].join('\n');
+
+test('attachEvidence keeps quotes found on the linked page and in the diff', () => {
+    const pages = new Map([[URL_PRODUCTS, page(pageText('<p>Before you can save a <strong>digital product</strong>, you must upload a file.</p>'))]]);
+    const summary = [
+        '**End-user docs**',
+        '',
+        `- **Adjust** [Products](${URL_PRODUCTS}): digital products can now be saved without a file.`,
+        '  Docs quote: Before you can save a **digital product**, you must upload a file.',
+        "  PR quote: allowMultiple: { label: 'Allow multiple units per order' },",
+    ].join('\n');
+
+    assert.equal(
+        attachEvidence(summary, pages, DIFF),
+        [
+            '**End-user docs**',
+            '',
+            `- **Adjust** [Products](${URL_PRODUCTS}): digital products can now be saved without a file.`,
+            '  <details><summary>Evidence</summary>',
+            '',
+            '  The docs say:',
+            '',
+            '  > Before you can save a **digital product**, you must upload a file.',
+            '',
+            '  The pull request changes:',
+            '',
+            '  ```diff',
+            "  +    allowMultiple: { label: 'Allow multiple units per order' },",
+            '  ```',
+            '',
+            '  </details>',
+        ].join('\n'),
+    );
+});
+
+test('attachEvidence drops quotes that do not match, are too short, or have no page to check', () => {
+    const pages = new Map([[URL_PRODUCTS, page('Before you can save a digital product, you must upload a file.')]]);
+    const summary = [
+        `- **Adjust** [Products](${URL_PRODUCTS}): a`,
+        '  Docs quote: You must always upload two files before saving.',
+        '  PR quote: this line is not in the diff at all',
+        '  PR quote: maxPurchase',
+        '- **Adjust** Settings > Shipping: b',
+        '  Docs quote: Before you can save a digital product, you must upload a file.',
+    ].join('\n');
+
+    assert.equal(attachEvidence(summary, pages, DIFF), [`- **Adjust** [Products](${URL_PRODUCTS}): a`, '- **Adjust** Settings > Shipping: b'].join('\n'));
+});
+
+test('attachEvidence shows a removed line as removed and keeps a PR quote without a diff out', () => {
+    const summary = ['- **Remove** [Products](x): a', "  PR quote: -                    'maxPurchase',"].join('\n');
+
+    assert.ok(attachEvidence(summary, new Map(), DIFF).includes("  -                    'maxPurchase',"));
+    assert.equal(attachEvidence(summary, new Map(), null), '- **Remove** [Products](x): a');
+});
+
+test('postComment posts dead docs links as plain text and verifies quotes against the pull request diff', async () => {
     const { github, calls } = fakeGitHub();
     const { core } = fakeCore();
 
     await postComment(
         { github, context: pushContext({ pr_number: '9' }), core },
-        { items: [{ type: 'docs_candidate', audiences: 'end-user', summary: '- **Adjust** [Products](https://docs.shopware.com/en/gone): a' }] },
-        async () => true,
+        {
+            items: [{
+                type: 'docs_candidate',
+                audiences: 'end-user',
+                summary: '- **Adjust** [Products](https://docs.shopware.com/en/gone): a\n  Docs quote: Something that was on the page.\n  PR quote: diff --git a/x b/x',
+            }],
+        },
+        async () => page(null, true),
     );
 
     const body = String(calls.find((c) => c.method === 'createComment')?.params.body);
     assert.ok(body.includes('- **Adjust** Products: a'));
     assert.doesNotMatch(body, /\[Products\]\(/);
+    assert.doesNotMatch(body, /Docs quote|Something that was/);
+    assert.ok(calls.some((c) => c.method === 'pulls.get' && c.params.mediaType));
 });
 
 test('redactSecrets removes the whole header string and each header value', () => {
